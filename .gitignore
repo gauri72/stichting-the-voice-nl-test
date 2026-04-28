@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+.DS_Store
+Thumbs.db
+.env
+.env.local
+.env.*.local
+coverage/
+client/node_modules/
+server/node_modules/
+server/uploads/*
+!server/uploads/.gitkeep

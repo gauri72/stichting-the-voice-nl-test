@@ -1,0 +1,181 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap");
+
+.signature-events-section {
+  background: #ffffff;
+  padding: 0 34px 36px;
+  font-family: "Montserrat", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.signature-events-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.signature-events-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+}
+
+.signature-events-heading-line {
+  flex: 1;
+  height: 1px;
+  background: #d7dee5;
+}
+
+.signature-events-title {
+  margin: 0;
+  text-align: center;
+  color: #16314a;
+  font-size: clamp(1.45rem, 2vw, 1.95rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.signature-events-grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.signature-event-card {
+  border: 1px solid #d7dee6;
+  border-radius: 10px;
+  background: #ffffff;
+  overflow: hidden;
+  text-align: center;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.signature-event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 26px rgba(15, 53, 78, 0.16);
+  border-color: #c9d3de;
+}
+
+.signature-event-image {
+  display: block;
+  width: 100%;
+  height: 124px;
+  object-fit: cover;
+}
+
+.signature-event-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  border: 2px solid #137aa6;
+  background: #f2f8fc;
+  color: #0e4f73;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: -24px auto 0;
+  position: relative;
+  z-index: 1;
+}
+
+.signature-event-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-image: var(--signature-icon-url);
+  mask-image: var(--signature-icon-url);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.signature-event-icon--green {
+  color: #4f9a62;
+}
+
+.signature-event-icon--blue {
+  color: #0f5f8f;
+}
+
+.signature-event-icon--purple {
+  color: #6f4fa3;
+}
+
+.signature-event-content {
+  padding: 10px 10px 12px;
+}
+
+.signature-event-content h3 {
+  margin: 0;
+  color: #122e47;
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.32;
+  min-height: 2.4em;
+}
+
+.signature-event-card--compact-title .signature-event-content h3 {
+  min-height: 0;
+}
+
+.signature-event-card--compact-title .signature-event-content p {
+  margin-top: 0;
+}
+
+.signature-event-content p {
+  margin: 6px 0 0;
+  color: #1f3a51;
+  font-size: 0.93rem;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+@media (max-width: 1280px) {
+  .signature-events-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .signature-events-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .signature-events-section {
+    padding: 0 16px 24px;
+  }
+
+  .signature-events-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .signature-events-heading {
+    gap: 10px;
+  }
+
+  .signature-events-title {
+    white-space: nowrap;
+  }
+
+  .signature-events-heading-line {
+    min-width: 18px;
+  }
+}
+
+@media (hover: none) {
+  .signature-event-card:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: #d7dee6;
+  }
+}

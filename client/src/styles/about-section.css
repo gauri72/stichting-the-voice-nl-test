@@ -1,0 +1,155 @@
+.home-about-section {
+  background: #ffffff;
+  padding: 18px 34px 18px;
+}
+
+.home-about-grid {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(360px, 430px) 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.home-about-card {
+  background: #eef2f4;
+  border-radius: 14px;
+  padding: 16px 24px 18px;
+}
+
+.home-about-label {
+  margin: 0;
+  color: #2a8f5f;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.home-about-title {
+  margin: 6px 0 8px;
+  color: #173d5d;
+  font-size: clamp(1.7rem, 2vw, 2.8rem);
+  line-height: 1.2;
+}
+
+.home-about-description {
+  margin: 0;
+  color: #183249;
+  font-size: 1.28rem;
+  line-height: 1.45;
+}
+
+.home-about-button {
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #005e87;
+  border: 2px solid #005e87;
+  color: #ffffff;
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.home-about-pillars {
+  background: #ffffff;
+  border-radius: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.home-about-pillar {
+  padding: 20px 22px 14px;
+  text-align: center;
+}
+
+.home-about-pillar:not(:last-child) {
+  border-right: 1px solid #d4d9de;
+}
+
+.home-about-icon {
+  width: 48px;
+  height: 48px;
+  color: #005e87;
+}
+
+.home-about-pillar h3 {
+  margin: 8px 0 10px;
+  color: #122e47;
+  font-size: 1.6rem;
+}
+
+.home-about-pillar p {
+  margin: 0;
+  color: #1d344a;
+  font-size: 1.28rem;
+  line-height: 1.42;
+}
+
+@media (max-width: 1180px) {
+  .home-about-section {
+    padding: 20px 20px 20px;
+  }
+
+  .home-about-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .home-about-card {
+    text-align: center;
+  }
+
+  .home-about-button {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .home-about-pillars {
+    grid-template-columns: 1fr;
+  }
+
+  .home-about-pillar:not(:last-child) {
+    border-right: none;
+    border-bottom: 1px solid #d4d9de;
+  }
+}
+
+@media (max-width: 720px) {
+  .home-about-section {
+    padding: 16px 14px 16px;
+  }
+
+  .home-about-card {
+    padding: 16px;
+  }
+
+  .home-about-title {
+    font-size: 1.85rem;
+  }
+
+  .home-about-description {
+    font-size: 1rem;
+  }
+
+  .home-about-pillars {
+    background: #ffffff;
+  }
+
+  .home-about-pillar h3 {
+    font-size: 1.55rem;
+  }
+
+  .home-about-pillar p {
+    font-size: 1rem;
+  }
+}

@@ -1,0 +1,102 @@
+.focus-areas-section {
+  background: #ffffff;
+  padding: 0 34px 36px;
+}
+
+.focus-areas-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.focus-areas-title {
+  margin: 0;
+  text-align: center;
+  color: #17324a;
+  font-size: clamp(1.45rem, 2vw, 1.95rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.focus-areas-title::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 3px;
+  border-radius: 999px;
+  background: #2ea276;
+  margin: 12px auto 0;
+}
+
+.focus-areas-grid {
+  margin-top: 24px;
+  background: #ffffff;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.focus-area-item {
+  padding: 16px 16px 14px;
+  text-align: center;
+}
+
+.focus-area-item:not(:last-child) {
+  border-right: 1px solid #dde3ea;
+}
+
+.focus-area-icon {
+  width: 34px;
+  height: 34px;
+  color: #0d4b6b;
+}
+
+.focus-area-item h3 {
+  margin: 8px 0 6px;
+  color: #14314b;
+  font-size: 0.98rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  min-height: 2.4em;
+}
+
+.focus-area-item p {
+  margin: 0;
+  color: #28445a;
+  font-size: 0.93rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 1200px) {
+  .focus-areas-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .focus-area-item:nth-child(3n) {
+    border-right: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .focus-areas-section {
+    padding: 0 16px 24px;
+  }
+
+  .focus-areas-grid {
+    margin-top: 20px;
+    grid-template-columns: 1fr;
+  }
+
+  .focus-area-item {
+    padding: 16px 14px;
+  }
+
+  .focus-area-item:not(:last-child) {
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .focus-area-item h3 {
+    min-height: 0;
+  }
+}

@@ -1,0 +1,28 @@
+:root {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #162227;
+  background: #f2f4f7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f2f4f7;
+}
+
+.app-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-content {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 28px;
+  min-height: 260px;
+  box-shadow: 0 8px 30px rgba(15, 53, 78, 0.06);
+}
