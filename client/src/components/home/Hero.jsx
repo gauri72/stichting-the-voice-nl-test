@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-import { FaHandshake, FaRegCalendarDays, FaUsers } from "react-icons/fa6";
 import "../../styles/hero.css";
 
 export default function Hero() {
@@ -21,31 +19,20 @@ export default function Hero() {
           </h1>
 
           <p className="hero-description">
-            Stichting The V.O.I.C.E. NL is a Netherlands-based non-profit cultural foundation dedicated
-            to international cultural exchange through music, dance, film, community engagement, and
-            artistic collaboration.
+            <span className="hero-description-line">
+              Stichting The V.O.I.C.E. NL is a Netherlands-based
+            </span>
+            <br />
+            <span className="hero-description-line">
+              non-profit cultural foundation dedicated to international
+            </span>
+            <br />
+            <span className="hero-description-line">cultural exchange through music, dance, film,</span>
+            <br />
+            <span className="hero-description-line">
+              community engagement, and artistic collaboration.
+            </span>
           </p>
-
-          <div className="hero-cta-group">
-            <Link className="hero-button hero-button-primary hero-button-explore" to="/events">
-              <span className="hero-button-icon" aria-hidden="true">
-                <FaRegCalendarDays />
-              </span>
-              Explore Our Events
-            </Link>
-            <Link className="hero-button hero-button-secondary hero-button-membership" to="/membership">
-              <span className="hero-button-icon" aria-hidden="true">
-                <FaUsers />
-              </span>
-              Join Membership
-            </Link>
-            <Link className="hero-button hero-button-outline hero-button-sponsor" to="/sponsorship">
-              <span className="hero-button-icon" aria-hidden="true">
-                <FaHandshake />
-              </span>
-              Become A Sponsor
-            </Link>
-          </div>
         </div>
       </div>
     </section>

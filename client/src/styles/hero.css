@@ -49,11 +49,25 @@
 @media (min-width: 1025px) {
   .hero-section {
     background-size: 100% 100%;
-    background-position: center;
+    background-position: right center;
   }
 
-  .hero-button {
-    border-width: 2px;
+  .hero-overlay {
+    max-width: min(56vw, 760px);
+    padding-right: 20px;
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
+
+  .hero-description {
+    width: 46ch;
+    max-width: 46ch;
+  }
+
+  .hero-description-line {
+    white-space: nowrap;
   }
 }
 
@@ -63,99 +77,6 @@
   font-size: 1.15rem;
   line-height: 1.7;
   max-width: 58ch;
-}
-
-.hero-cta-group {
-  margin-top: 34px;
-  display: grid;
-  grid-template-columns: repeat(2, max-content);
-  grid-template-areas:
-    "explore membership"
-    "sponsor .";
-  gap: 14px;
-}
-
-.hero-button-explore {
-  grid-area: explore;
-}
-
-.hero-button-membership {
-  grid-area: membership;
-}
-
-.hero-button-sponsor {
-  grid-area: sponsor;
-}
-
-.hero-button {
-  text-decoration: none;
-  border-radius: 10px;
-  padding: 14px 22px;
-  font-size: 0.96rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-.hero-button-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.hero-button-icon svg {
-  width: 18px;
-  height: 18px;
-  color: currentColor;
-}
-
-.hero-button-primary {
-  background: #005e87;
-  color: #ffffff;
-  border: 1px solid #005e87;
-}
-
-.hero-button-primary .hero-button-icon {
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.hero-button-secondary {
-  background: #ffffff;
-  color: #1f8f60;
-  border: 1px solid #75be98;
-}
-
-.hero-button-secondary .hero-button-icon {
-  background: rgba(31, 143, 96, 0.13);
-}
-
-.hero-button-outline {
-  background: transparent;
-  color: #0d5f88;
-  border: 1px solid #0d5f88;
-}
-
-.hero-button-outline .hero-button-icon {
-  background: rgba(13, 95, 136, 0.12);
-}
-
-.hero-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(9, 57, 83, 0.18);
-}
-
-.hero-button:focus-visible {
-  outline: 2px solid #0f8f94;
-  outline-offset: 2px;
 }
 
 @media (max-width: 1024px) {
@@ -207,27 +128,6 @@
     margin-right: auto;
   }
 
-  .hero-cta-group {
-    grid-template-columns: max-content max-content;
-    justify-content: center;
-  }
-
-  .hero-button-primary {
-    background: #0a7aae;
-    border-color: #0a7aae;
-  }
-
-  .hero-button-secondary {
-    background: rgba(255, 255, 255, 0.92);
-    color: #10693f;
-    border-color: rgba(255, 255, 255, 0.92);
-  }
-
-  .hero-button-outline {
-    background: rgba(2, 29, 46, 0.32);
-    color: #f1f9ff;
-    border-color: rgba(198, 230, 248, 0.72);
-  }
 }
 
 @media (max-width: 720px) {
@@ -264,34 +164,6 @@
     display: block;
   }
 
-  .hero-cta-group {
-    margin-top: 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .hero-button {
-    width: 100%;
-    padding: 13px 18px;
-    font-size: 0.88rem;
-  }
-
-  .hero-button-icon {
-    width: 26px;
-    height: 26px;
-  }
-
-  .hero-button-icon svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .hero-button-outline {
-    background: rgba(255, 255, 255, 0.16);
-    border-color: rgba(255, 255, 255, 0.5);
-  }
 }
 
 @media (max-width: 480px) {

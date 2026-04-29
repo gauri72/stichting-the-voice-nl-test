@@ -1,7 +1,7 @@
 :root {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #162227;
-  background: #f2f4f7;
+  background: #ffffff;
 }
 
 * {
@@ -10,7 +10,7 @@
 
 body {
   margin: 0;
-  background: #f2f4f7;
+  background: #ffffff;
 }
 
 .app-container {

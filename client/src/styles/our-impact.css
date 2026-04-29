@@ -1,0 +1,318 @@
+.our-impact-section {
+  margin: 18px 0;
+  border-radius: 0;
+  overflow: hidden;
+  border: 1px solid #1a5f7d;
+  box-shadow: none;
+  background: #ffffff;
+}
+
+.our-impact-top {
+  background: linear-gradient(90deg, #0a5f7f 0%, #1f9464 100%);
+  padding: 8px 14px 12px;
+}
+
+.our-impact-heading {
+  margin: 0;
+  text-align: center;
+  color: #ffffff;
+  font-size: 1.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.our-impact-heading::after {
+  content: "";
+  display: block;
+  width: 86px;
+  height: 3px;
+  margin: 10px auto 0;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.our-impact-stats {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.our-impact-stat {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.our-impact-stat:not(:last-child) {
+  border-right: 1px solid rgba(234, 247, 255, 0.32);
+}
+
+.our-impact-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.08));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 8px 16px rgba(3, 36, 58, 0.2);
+}
+
+.our-impact-stat > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.our-impact-icon svg {
+  width: 26px;
+  height: 26px;
+  color: #ffffff;
+}
+
+.our-impact-value {
+  margin: 0;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.our-impact-title {
+  margin: 4px 0 0;
+  color: #e6f8ef;
+  font-size: 0.96rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.our-impact-detail {
+  margin: 3px 0 0;
+  color: #d5ecf8;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.our-impact-actions {
+  position: relative;
+  background-image: url("../assets/Home/two.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center 68%;
+  padding: 14px 20px 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  isolation: isolate;
+}
+
+.our-impact-actions::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0, 94, 135, 0.94) 0%, rgba(0, 94, 135, 0.7) 42%, rgba(46, 162, 118, 0.9) 100%);
+  z-index: -1;
+}
+
+.our-impact-action-card {
+  color: #ffffff;
+  text-align: center;
+}
+
+.our-impact-action-label {
+  margin: 0;
+  color: #86d7af;
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  text-align: center;
+}
+
+.our-impact-action-card h3 {
+  margin: 2px 0 8px;
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1.15;
+}
+
+.our-impact-action-card p {
+  margin: 0;
+  color: #def2fd;
+  font-size: 1rem;
+  line-height: 1.45;
+  max-width: 42ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.our-impact-action-button {
+  margin-top: 12px;
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(239, 249, 255, 0.82);
+  border-radius: 7px;
+  padding: 8px 16px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(3, 49, 74, 0.24);
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.our-impact-action-button:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #ffffff;
+  box-shadow: 0 10px 20px rgba(8, 38, 59, 0.28);
+}
+
+.our-impact-action-button:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+@media (max-width: 1024px) and (min-width: 641px) {
+  .our-impact-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .our-impact-stat {
+    padding: 16px 18px;
+    min-height: 170px;
+    justify-content: center;
+    position: relative;
+  }
+
+  .our-impact-stat:not(:last-child) {
+    border-right: 1px solid rgba(234, 247, 255, 0.32);
+  }
+
+  .our-impact-stat:nth-child(2n) {
+    border-right: none;
+  }
+
+  .our-impact-stat:nth-child(-n + 4)::after {
+    content: "";
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: 0;
+    height: 1px;
+    background: rgba(234, 247, 255, 0.28);
+  }
+
+  .our-impact-stat:nth-child(5) {
+    grid-column: 1 / -1;
+    max-width: min(460px, 100%);
+    width: 100%;
+    justify-self: center;
+  }
+}
+
+@media (max-width: 1200px) {
+
+  .our-impact-actions {
+    grid-template-columns: 1fr;
+    padding: 20px 24px 18px;
+    gap: 20px;
+  }
+
+  .our-impact-action-card {
+    padding: 6px 0;
+  }
+
+  .our-impact-action-card h3 {
+    margin: 6px 0 10px;
+  }
+
+  .our-impact-action-card p {
+    margin-top: 4px;
+    max-width: 52ch;
+  }
+
+  .our-impact-action-button {
+    margin-top: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .our-impact-section {
+    margin: 16px 0;
+  }
+
+  .our-impact-top {
+    padding: 10px 10px 12px;
+  }
+
+  .our-impact-heading {
+    font-size: 1.35rem;
+  }
+
+  .our-impact-stats {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .our-impact-stat {
+    border-bottom: none;
+    position: relative;
+    padding: 14px 10px;
+  }
+
+  .our-impact-stat:not(:last-child) {
+    border-right: none;
+  }
+
+  .our-impact-stat:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 7%;
+    right: 7%;
+    bottom: 0;
+    height: 1px;
+    background: rgba(234, 247, 255, 0.32);
+  }
+
+  .our-impact-actions {
+    padding: 16px 14px 14px;
+    gap: 16px;
+  }
+
+  .our-impact-action-card {
+    padding: 4px 0;
+  }
+
+  .our-impact-action-label {
+    font-size: 0.92rem;
+  }
+
+  .our-impact-action-card h3 {
+    margin: 4px 0 10px;
+    font-size: 1.35rem;
+  }
+
+  .our-impact-action-card p {
+    margin-top: 4px;
+    font-size: 0.94rem;
+    line-height: 1.5;
+    max-width: 34ch;
+  }
+
+  .our-impact-action-button {
+    margin-top: 12px;
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 0.84rem;
+  }
+}

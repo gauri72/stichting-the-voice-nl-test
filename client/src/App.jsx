@@ -17,6 +17,7 @@ export default function App() {
         <Route path="/events" element={<EmptyPage />} />
         <Route path="/sponsorship" element={<EmptyPage />} />
         <Route path="/membership" element={<EmptyPage />} />
+        <Route path="/donate" element={<EmptyPage />} />
         <Route path="/contact" element={<EmptyPage />} />
       </Routes>
     </main>
