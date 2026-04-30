@@ -1,5 +1,5 @@
 .our-impact-section {
-  margin: 18px 0;
+  margin: 0 0 16px;
   border-radius: 0;
   overflow: hidden;
   border: 1px solid #1a5f7d;
@@ -248,7 +248,7 @@
 
 @media (max-width: 640px) {
   .our-impact-section {
-    margin: 16px 0;
+    margin: 0 0 16px;
   }
 
   .our-impact-top {
