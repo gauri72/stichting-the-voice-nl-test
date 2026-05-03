@@ -1,5 +1,5 @@
 .our-impact-section {
-  margin: 0 0 16px;
+  margin: 0;
   border-radius: 0;
   overflow: hidden;
   border: 1px solid #1a5f7d;
@@ -9,7 +9,7 @@
 
 .our-impact-top {
   background: linear-gradient(90deg, #0a5f7f 0%, #1f9464 100%);
-  padding: 8px 14px 12px;
+  padding: 20px 14px 12px;
 }
 
 .our-impact-heading {
@@ -104,7 +104,7 @@
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center 68%;
-  padding: 14px 20px 12px;
+  padding: 14px 20px 24px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
@@ -248,11 +248,11 @@
 
 @media (max-width: 640px) {
   .our-impact-section {
-    margin: 0 0 16px;
+    margin: 0;
   }
 
   .our-impact-top {
-    padding: 10px 10px 12px;
+    padding: 18px 10px 12px;
   }
 
   .our-impact-heading {
@@ -285,7 +285,7 @@
   }
 
   .our-impact-actions {
-    padding: 16px 14px 14px;
+    padding: 16px 14px 20px;
     gap: 16px;
   }
 

@@ -11,20 +11,24 @@ import logo9 from "../../assets/Home/logos/logo-9.png";
 import logo10 from "../../assets/Home/logos/logo-10.png";
 import logo11 from "../../assets/Home/logos/logo-11.png";
 import logo12 from "../../assets/Home/logos/logo-12.png";
+import logo13 from "../../assets/Home/logos/logo-13.png";
+import logo14 from "../../assets/Home/logos/logo-14.png";
 
 const sponsorLogos = [
+  logo3,
+  logo12,
+  logo6,
+  logo8,
+  logo13,
+  logo14,
   logo1,
   logo2,
-  logo3,
   logo4,
   logo5,
-  logo6,
   logo7,
-  logo8,
   logo9,
   logo10,
-  logo11,
-  logo12
+  logo11
 ];
 
 export default function SponsorsSection() {

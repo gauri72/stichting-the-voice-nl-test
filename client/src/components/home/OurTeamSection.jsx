@@ -16,17 +16,17 @@ import team13 from "../../assets/Home/team/team-13.png";
 const teamMembers = [
   { name: "Shivam Joshi", role: "President", image: team1 },
   { name: "Rajendra Rade", role: "Treasurer", image: team2 },
-  { name: "Saurabh Sharma", role: "Secretary", image: team3 },
+  { name: "Saurabh Sharma", role: "Secretary General", image: team3 },
   { name: "Rucha Naik", role: "Executive Board Member", image: team4 },
   { name: "Kirtee Kulkarni", role: "Social Media Manager", image: team5 },
-  { name: "Sreedevi Mahadevan", role: "Executive Board Member", image: team6 },
-  { name: "Aditya Wankhade", role: "Event Manager", image: team7 },
+  { name: "Sreedevi Mahadevan", role: "Event Manager", image: team6 },
+  { name: "Aditya Wankhade", role: "Event Management Team", image: team7 },
   { name: "Priyanka Bhide", role: "Executive Board Member", image: team8 },
   { name: "Yazhini Sivakumar", role: "Event Management Team", image: team9 },
   { name: "Dr. Manasi Mohri", role: "PR Manager", image: team10 },
   { name: "Shivani Trifaley", role: "PR Manager", image: team11 },
   { name: "Anshika Singh", role: "PR Manager", image: team12 },
-  { name: "Parth Upadhyay", role: "PR Manager", image: team13 }
+  { name: "Parth Upadhyay", role: "Event Management Team", image: team13 }
 ];
 
 export default function OurTeamSection() {

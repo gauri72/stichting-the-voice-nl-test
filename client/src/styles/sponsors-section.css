@@ -2,6 +2,7 @@
   margin: 0;
   background: #eef2f4;
   overflow: hidden;
+  padding: 18px 0;
 }
 
 .sponsors-section__inner {
@@ -87,14 +88,18 @@
 
 @keyframes sponsors-scroll {
   from {
-    transform: translateX(0);
+    transform: translateX(calc(-50% - 8px));
   }
   to {
-    transform: translateX(calc(-50% - 8px));
+    transform: translateX(0);
   }
 }
 
 @media (max-width: 768px) {
+  .sponsors-section {
+    padding: 14px 0;
+  }
+
   .sponsors-section__inner {
     padding: 16px 12px 18px;
   }

@@ -1,5 +1,7 @@
 import "../../styles/hero.css";
 
+const WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/";
+
 export default function Hero() {
   return (
     <section className="hero-section">
@@ -33,6 +35,13 @@ export default function Hero() {
               community engagement, and artistic collaboration.
             </span>
           </p>
+
+          <div className="hero-whatsapp-cta">
+            <p>For latest news and updates, join our WhatsApp group.</p>
+            <a href={WHATSAPP_GROUP_URL} target="_blank" rel="noreferrer">
+              Join WhatsApp Group
+            </a>
+          </div>
         </div>
       </div>
     </section>

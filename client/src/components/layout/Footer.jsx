@@ -4,8 +4,10 @@ import {
   FaFacebookF,
   FaInstagram,
   FaLinkedinIn,
+  FaPaperPlane,
   FaWhatsapp,
   FaYoutube,
+  FaTimes,
 } from "react-icons/fa";
 import { IoMailOpenOutline } from "react-icons/io5";
 import headerLogo from "../../assets/header-logo.png";
@@ -65,6 +67,7 @@ const socialLinks = [
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   function handleSubscribe(e) {
     e.preventDefault();
@@ -168,15 +171,46 @@ export default function Footer() {
         </div>
       </div>
 
-      <a
-        className="footer-whatsapp-fab"
-        href={buildWhatsAppHref()}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Chat on WhatsApp"
-      >
-        <FaWhatsapp aria-hidden />
-      </a>
+      {isChatOpen ? (
+        <aside className="footer-whatsapp-widget" aria-label="WhatsApp chat">
+          <div className="footer-whatsapp-header">
+            <span>
+              <FaWhatsapp aria-hidden /> WhatsApp
+            </span>
+            <button type="button" onClick={() => setIsChatOpen(false)} aria-label="Close WhatsApp chat widget">
+              <FaTimes aria-hidden />
+            </button>
+          </div>
+
+          <div className="footer-whatsapp-body">
+            <p>
+              Hello <span aria-hidden>👋</span>
+              <br />
+              Can we help you?
+            </p>
+          </div>
+
+          <a
+            className="footer-whatsapp-open-chat"
+            href={buildWhatsAppHref()}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open WhatsApp chat"
+          >
+            Open chat
+            <FaPaperPlane aria-hidden />
+          </a>
+        </aside>
+      ) : (
+        <button
+          type="button"
+          className="footer-whatsapp-fab"
+          aria-label="Open WhatsApp chat widget"
+          onClick={() => setIsChatOpen(true)}
+        >
+          <FaWhatsapp aria-hidden />
+        </button>
+      )}
     </footer>
   );
 }

@@ -1,6 +1,6 @@
 .home-about-section {
   background: #ffffff;
-  padding: 18px 34px 18px;
+  padding: 28px 34px;
 }
 
 .home-about-grid {
@@ -95,7 +95,7 @@
 
 @media (max-width: 1180px) {
   .home-about-section {
-    padding: 20px 20px 20px;
+    padding: 24px 20px;
   }
 
   .home-about-grid {
@@ -126,7 +126,7 @@
 
 @media (max-width: 720px) {
   .home-about-section {
-    padding: 16px 14px 16px;
+    padding: 20px 14px;
   }
 
   .home-about-card {

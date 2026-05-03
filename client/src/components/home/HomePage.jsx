@@ -1,4 +1,5 @@
 import AboutSection from "./AboutSection";
+import EventTicketsSection from "./EventTicketsSection";
 import FocusAreasSection from "./FocusAreasSection";
 import Hero from "./Hero";
 import OurImpactSection from "./OurImpactSection";
@@ -11,8 +12,9 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <SponsorsSection />
+      <EventTicketsSection />
       <OurImpactSection />
+      <SponsorsSection />
       <AboutSection />
       <FocusAreasSection />
       <SignatureEventsSection />
