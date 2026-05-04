@@ -1,5 +1,5 @@
 import { FaUsers } from "react-icons/fa6";
-import heroBackground from "../../assets/membership/hero-bg.png";
+import heroBackground from "../../assets/Membership/hero-bg.png";
 import "../../styles/membership-breadcrumb-section.css";
 
 export default function MembershipBreadcrumbSection() {
