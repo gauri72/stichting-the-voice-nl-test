@@ -3,6 +3,7 @@ import AppSplash from "./components/layout/AppSplash";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import HomePage from "./components/home/HomePage";
+import MembershipPage from "./components/membership/MembershipPage";
 
 function EmptyPage() {
   return null;
@@ -20,7 +21,7 @@ export default function App() {
           <Route path="/about" element={<EmptyPage />} />
           <Route path="/events" element={<EmptyPage />} />
           <Route path="/sponsorship" element={<EmptyPage />} />
-          <Route path="/membership" element={<EmptyPage />} />
+          <Route path="/membership" element={<MembershipPage />} />
           <Route path="/donate" element={<EmptyPage />} />
           <Route path="/contact" element={<EmptyPage />} />
           <Route path="/film-festival" element={<EmptyPage />} />

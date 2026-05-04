@@ -1,0 +1,228 @@
+.membership-tiers {
+  padding: 34px 20px 12px;
+  background: #ffffff;
+}
+
+.membership-tiers__container {
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.membership-tiers__kicker {
+  margin: 0;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #328f57;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.membership-tiers h2 {
+  margin: 3px 0 0;
+  text-align: center;
+  color: #0f2a46;
+  font-size: clamp(2rem, 3vw, 3.35rem);
+  line-height: 1.1;
+}
+
+.membership-tiers h2::after {
+  content: "";
+  display: block;
+  width: 88px;
+  height: 4px;
+  border-radius: 999px;
+  margin: 10px auto 0;
+  background: #2a9f69;
+}
+
+.membership-tiers__intro {
+  margin: 16px auto 0;
+  max-width: 95ch;
+  text-align: center;
+  color: #2d4257;
+  font-size: 1.8rem;
+  line-height: 1.5;
+}
+
+.membership-tiers__grid {
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.membership-tier-card {
+  border: 1px solid #d7dfe6;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  min-height: 560px;
+  position: relative;
+}
+
+.membership-tier-card__badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  background: #072950;
+  color: #ffffff;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.membership-tier-card__icon {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  box-shadow: 0 0 0 2px #1594b6;
+  background: linear-gradient(180deg, #0c6a80 0%, #09526f 100%);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.15rem;
+  flex-shrink: 0;
+}
+
+.membership-tier-card.is-popular .membership-tier-card__icon {
+  margin-top: 16px;
+}
+
+.membership-tier-card h3 {
+  margin: 16px 0 0;
+  text-align: center;
+  color: #122a46;
+  text-transform: uppercase;
+  font-size: 1.85rem;
+  line-height: 1.2;
+}
+
+.membership-tier-card__price {
+  margin: 10px 0 0;
+  text-align: center;
+  color: #173552;
+  font-size: 1.5rem;
+}
+
+.membership-tier-card__price span {
+  color: #208e67;
+  font-weight: 800;
+  font-size: 3.2rem;
+}
+
+.membership-tier-card__benefits {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.membership-tier-card__benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #1a3350;
+  font-size: 1.2rem;
+  line-height: 1.4;
+}
+
+.membership-tier-card__benefits li svg {
+  color: #2f9d62;
+  margin-top: 2px;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+}
+
+.membership-tier-card__cta {
+  margin-top: auto;
+  min-height: 52px;
+  border: 2px solid #2498bd;
+  border-radius: 8px;
+  color: #0d5d86;
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, filter 0.2s ease;
+}
+
+.membership-tier-card__cta.is-popular {
+  background: linear-gradient(90deg, #4ea55b, #0d8d90);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.membership-tier-card__cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+@media (max-width: 1200px) {
+  .membership-tiers__kicker {
+    font-size: 1.5rem;
+  }
+
+  .membership-tiers__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .membership-tiers {
+    padding: 20px 12px 8px;
+  }
+
+  .membership-tiers__kicker {
+    font-size: 1.15rem;
+  }
+
+  .membership-tiers__intro {
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .membership-tiers__grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .membership-tier-card {
+    min-height: auto;
+  }
+
+  .membership-tier-card__benefits {
+    gap: 12px;
+  }
+
+  .membership-tier-card h3 {
+    font-size: 1.24rem;
+  }
+
+  .membership-tier-card__price span {
+    font-size: 2rem;
+  }
+
+  .membership-tier-card__cta {
+    margin-top: 20px;
+    font-size: 0.86rem;
+    min-height: 44px;
+  }
+}
