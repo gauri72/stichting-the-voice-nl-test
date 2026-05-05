@@ -1,6 +1,6 @@
 .focus-areas-section {
   background: #ffffff;
-  padding: 0 34px 36px;
+  padding: 0 34px 10px;
 }
 
 .focus-areas-inner {
@@ -105,7 +105,7 @@
 
 @media (max-width: 640px) {
   .focus-areas-section {
-    padding: 0 16px 24px;
+    padding: 0 16px 4px;
   }
 
   .focus-areas-heading {
