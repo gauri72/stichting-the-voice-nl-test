@@ -45,9 +45,13 @@ export default function OurImpactSection() {
   return (
     <section className="our-impact-section" aria-labelledby="our-impact-title">
       <div className="our-impact-top">
-        <h2 id="our-impact-title" className="our-impact-heading">
-          Our Impact
-        </h2>
+        <div className="our-impact-heading-row">
+          <span className="our-impact-heading-line" aria-hidden="true" />
+          <h2 id="our-impact-title" className="our-impact-heading">
+            Our Impact
+          </h2>
+          <span className="our-impact-heading-line" aria-hidden="true" />
+        </div>
 
         <div className="our-impact-stats" role="list" aria-label="Impact highlights">
           {impactStats.map(({ icon: Icon, value, title, detail }) => (

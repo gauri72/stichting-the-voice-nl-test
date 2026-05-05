@@ -4,12 +4,9 @@ import eventThreeImage from "../../assets/Home/three.png";
 import eventFourImage from "../../assets/Home/four.png";
 import eventFiveImage from "../../assets/Home/five.png";
 import eventSixImage from "../../assets/Home/six.png";
-import danceIcon from "../../assets/icons/signature-events/dance.svg";
-import cricketIcon from "../../assets/icons/signature-events/cricket.svg";
-import filmIcon from "../../assets/icons/signature-events/film.svg";
-import micIcon from "../../assets/icons/signature-events/mic.svg";
-import musicIcon from "../../assets/icons/signature-events/music.svg";
-import womenIcon from "../../assets/icons/signature-events/women.svg";
+import { FaClapperboard, FaMicrophoneLines, FaMusic, FaPersonDress } from "react-icons/fa6";
+import { GiCricketBat } from "react-icons/gi";
+import { MdOutlineEmojiPeople } from "react-icons/md";
 import "../../styles/signature-events.css";
 
 const signatureEvents = [
@@ -17,42 +14,42 @@ const signatureEvents = [
     title: "International Short Film Festival",
     description: "Showcasing powerful stories through cinema.",
     image: eventOneImage,
-    icon: filmIcon,
+    icon: FaClapperboard,
     iconClassName: "signature-event-icon--green"
   },
   {
     title: "International Music Festival",
     description: "Uniting global voices through rhythm and harmony.",
     image: eventTwoImage,
-    icon: musicIcon,
+    icon: FaMusic,
     iconClassName: "signature-event-icon--blue"
   },
   {
     title: "International Dance Festival",
     description: "Celebrating movement, culture and expression.",
     image: eventThreeImage,
-    icon: danceIcon,
+    icon: MdOutlineEmojiPeople,
     iconClassName: "signature-event-icon--green"
   },
   {
     title: "Shaam-e-Ghazal",
     description: "An evening where poetry, music and emotion come together.",
     image: eventFourImage,
-    icon: micIcon,
+    icon: FaMicrophoneLines,
     iconClassName: "signature-event-icon--blue"
   },
   {
     title: "KNCB Cricket Festival",
     description: "Bringing communities together through sports and spirit.",
     image: eventFiveImage,
-    icon: cricketIcon,
+    icon: GiCricketBat,
     iconClassName: "signature-event-icon--green"
   },
   {
     title: "Her Beats Her Night",
     description: "Celebrating women in music, creativity and leadership.",
     image: eventSixImage,
-    icon: womenIcon,
+    icon: FaPersonDress,
     iconClassName: "signature-event-icon--blue"
   }
 ];
@@ -70,7 +67,7 @@ export default function SignatureEventsSection() {
         </div>
 
         <div className="signature-events-grid" role="list" aria-label="Our signature events">
-          {signatureEvents.map(({ title, description, image, icon, iconClassName }, index) => (
+          {signatureEvents.map(({ title, description, image, icon: Icon, iconClassName }, index) => (
             <article
               key={title}
               className={`signature-event-card ${index >= 3 ? "signature-event-card--compact-title" : ""}`}
@@ -78,11 +75,7 @@ export default function SignatureEventsSection() {
             >
               <img className="signature-event-image" src={image} alt={title} />
               <div className={`signature-event-icon-wrap ${iconClassName}`}>
-                <span
-                  className="signature-event-icon"
-                  style={{ "--signature-icon-url": `url(${icon})` }}
-                  aria-hidden="true"
-                />
+                <Icon className="signature-event-icon" aria-hidden="true" />
               </div>
               <div className="signature-event-content">
                 <h3>{title}</h3>

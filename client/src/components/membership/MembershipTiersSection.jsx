@@ -59,8 +59,13 @@ export default function MembershipTiersSection() {
   return (
     <section className="membership-tiers" aria-labelledby="membership-tiers-title">
       <div className="membership-tiers__container">
-        <p className="membership-tiers__kicker">Our Memberships</p>
-        <h2 id="membership-tiers-title">Membership Tiers</h2>
+        <div className="membership-tiers__heading">
+          <span className="membership-tiers__heading-line" aria-hidden="true" />
+          <h2 id="membership-tiers-title" className="membership-tiers__title">
+            Our Membership
+          </h2>
+          <span className="membership-tiers__heading-line" aria-hidden="true" />
+        </div>
         <p className="membership-tiers__intro">
           Choose a membership that suits you. Every membership directly supports our cultural
           programs, events and community initiatives.
@@ -88,10 +93,6 @@ export default function MembershipTiersSection() {
                   </li>
                 ))}
               </ul>
-
-              <a className={`membership-tier-card__cta ${popular ? "is-popular" : ""}`} href="mailto:info@Stichtingthevoice.nl">
-                Become a Member
-              </a>
             </article>
           ))}
         </div>

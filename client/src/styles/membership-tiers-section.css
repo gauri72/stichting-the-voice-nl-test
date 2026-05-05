@@ -1,5 +1,5 @@
 .membership-tiers {
-  padding: 34px 20px 12px;
+  padding: 20px 20px 12px;
   background: #ffffff;
 }
 
@@ -8,32 +8,38 @@
   margin: 0 auto;
 }
 
-.membership-tiers__kicker {
+.membership-tiers__heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+}
+
+.membership-tiers__heading-line {
+  flex: 1;
+  height: 1px;
+  background: #d7dee5;
+}
+
+.membership-tiers__title {
   margin: 0;
   text-align: center;
+  color: #16314a;
+  font-size: clamp(1.45rem, 2vw, 1.95rem);
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #328f57;
-  font-size: 1.8rem;
-  font-weight: 700;
+  white-space: nowrap;
 }
 
-.membership-tiers h2 {
-  margin: 3px 0 0;
-  text-align: center;
-  color: #0f2a46;
-  font-size: clamp(2rem, 3vw, 3.35rem);
-  line-height: 1.1;
-}
-
-.membership-tiers h2::after {
+.membership-tiers__title::after {
   content: "";
   display: block;
-  width: 88px;
-  height: 4px;
+  width: 72px;
+  height: 3px;
   border-radius: 999px;
-  margin: 10px auto 0;
-  background: #2a9f69;
+  background: #2ea276;
+  margin: 8px auto 0;
 }
 
 .membership-tiers__intro {
@@ -56,10 +62,10 @@
   border: 1px solid #d7dfe6;
   border-radius: 12px;
   background: #ffffff;
-  padding: 16px 18px 18px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  min-height: 560px;
+  min-height: 500px;
   position: relative;
 }
 
@@ -147,36 +153,13 @@
   font-size: 0.95rem;
 }
 
-.membership-tier-card__cta {
-  margin-top: auto;
-  min-height: 52px;
-  border: 2px solid #2498bd;
-  border-radius: 8px;
-  color: #0d5d86;
-  text-decoration: none;
-  text-transform: uppercase;
-  font-size: 1.2rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.15s ease, filter 0.2s ease;
-}
-
-.membership-tier-card__cta.is-popular {
-  background: linear-gradient(90deg, #4ea55b, #0d8d90);
-  border-color: transparent;
-  color: #ffffff;
-}
-
-.membership-tier-card__cta:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.04);
-}
-
 @media (max-width: 1200px) {
-  .membership-tiers__kicker {
-    font-size: 1.5rem;
+  .membership-tiers__heading {
+    gap: 10px;
+  }
+
+  .membership-tiers__heading-line {
+    min-width: 18px;
   }
 
   .membership-tiers__grid {
@@ -186,11 +169,24 @@
 
 @media (max-width: 700px) {
   .membership-tiers {
-    padding: 20px 12px 8px;
+    padding: 14px 12px 8px;
   }
 
-  .membership-tiers__kicker {
-    font-size: 1.15rem;
+  .membership-tiers__heading {
+    gap: 8px;
+  }
+
+  .membership-tiers__heading-line {
+    min-width: 14px;
+  }
+
+  .membership-tiers__title {
+    white-space: normal;
+  }
+
+  .membership-tiers__title::after {
+    width: 58px;
+    margin-top: 6px;
   }
 
   .membership-tiers__intro {
@@ -218,11 +214,5 @@
 
   .membership-tier-card__price span {
     font-size: 2rem;
-  }
-
-  .membership-tier-card__cta {
-    margin-top: 20px;
-    font-size: 0.86rem;
-    min-height: 44px;
   }
 }

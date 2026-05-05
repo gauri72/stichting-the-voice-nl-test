@@ -58,7 +58,7 @@
 }
 
 .brand-name-top {
-  color: #1f3150;
+  color: #3f444c;
   font-size: 16px;
   -webkit-text-stroke: 0.75px currentColor;
   text-shadow:
@@ -118,8 +118,9 @@
 }
 
 .nav-actions {
-  margin-left: auto;
   display: flex;
+  margin-left: auto;
+  min-width: 0;
   align-items: center;
   gap: 28px;
 }
@@ -127,7 +128,7 @@
 .menu-links {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 34px;
   justify-content: flex-end;
 }
 
@@ -171,6 +172,15 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
+.donate-button-middle {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.donate-button-menu {
+  display: none;
+}
+
 .donate-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(0, 120, 171, 0.3);
@@ -198,32 +208,42 @@
 
 @media (max-width: 1280px) {
   .site-navbar {
-    gap: 18px;
+    gap: 14px;
   }
 
   .brand-logo {
-    width: 104px;
-    height: 104px;
+    width: 92px;
+    height: 92px;
   }
 
   .brand-name-top {
-    font-size: 18px;
+    font-size: 13px;
   }
 
   .brand-name-bottom {
-    font-size: 44px;
+    font-size: 29px;
   }
 
   .nav-actions {
-    gap: 20px;
+    gap: 12px;
   }
 
   .menu-links {
-    gap: 18px;
+    gap: 22px;
+  }
+
+  .menu-links a {
+    font-size: 13px;
+  }
+
+  .donate-button {
+    padding: 11px 16px;
+    font-size: 12px;
+    gap: 8px;
   }
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1100px) {
   .site-navbar {
     flex-wrap: wrap;
     justify-content: space-between;
@@ -253,6 +273,14 @@
     padding: 86px 24px 28px;
     background: #ffffff;
     overflow-y: auto;
+  }
+
+  .donate-button-middle {
+    display: none;
+  }
+
+  .donate-button-menu {
+    display: inline-flex;
   }
 
   .nav-actions.open {

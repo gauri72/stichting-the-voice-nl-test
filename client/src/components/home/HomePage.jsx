@@ -15,10 +15,10 @@ export default function HomePage() {
       <EventTicketsSection />
       <OurImpactSection />
       <SponsorsSection />
-      <AboutSection />
-      <FocusAreasSection />
       <SignatureEventsSection />
       <OurSegmentsSection />
+      <FocusAreasSection />
+      <AboutSection />
       <OurTeamSection />
     </>
   );

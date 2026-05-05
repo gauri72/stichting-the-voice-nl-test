@@ -58,12 +58,13 @@ export default function EventTicketsSection() {
   }, []);
 
   return (
-    <section className="event-tickets-section" aria-labelledby="event-tickets-heading">
+    <section className="event-tickets-section" aria-label="Events and tickets">
       <div className="event-tickets-section__inner">
-        <p className="event-tickets-section__label">Join us</p>
-        <h2 id="event-tickets-heading" className="event-tickets-section__heading">
-          Upcoming Event & Tickets
-        </h2>
+        <div className="event-tickets-section__label-row">
+          <span className="event-tickets-section__label-line" aria-hidden="true" />
+          <p className="event-tickets-section__label">Join Us</p>
+          <span className="event-tickets-section__label-line" aria-hidden="true" />
+        </div>
 
         <div className="event-tickets-section__grid">
           <figure className="event-tickets-flyer">

@@ -7,33 +7,25 @@ export default function Hero() {
     <section className="hero-section">
       <div className="hero-overlay">
         <div className="hero-content">
-          <h1 className="hero-title">
-            <span className="hero-title-main">
-              Where Talent{" "}
-              <br className="hero-mobile-break" />
-              {" "}Shines,
-            </span>
-            <span className="hero-title-accent">
-              Culture{" "}
-              <br className="hero-accent-mobile-break" />
-              {" "}Comes Alive.
-            </span>
+          <p className="hero-label">About Us</p>
+
+          <h1 className="hero-heading">
+            Where Talent Shines,
+            <br />
+            <span>Culture Comes Alive.</span>
           </h1>
 
+          <p className="hero-tagline">Celebrating Diversity. Inspiring Unity.</p>
+
           <p className="hero-description">
-            <span className="hero-description-line">
-              Stichting The V.O.I.C.E. NL is a Netherlands-based
-            </span>
-            <br />
-            <span className="hero-description-line">
-              non-profit cultural foundation dedicated to international
-            </span>
-            <br />
-            <span className="hero-description-line">cultural exchange through music, dance, film,</span>
-            <br />
-            <span className="hero-description-line">
-              community engagement, and artistic collaboration.
-            </span>
+            Stichting The V.O.I.C.E. NL is a Netherlands-based non-profit cultural foundation
+            dedicated to international cultural exchange through music, dance, film, community
+            engagement, and artistic collaboration.
+          </p>
+
+          <p className="hero-about-para">
+            We organize cultural, artistic and social events that bring people together, spark
+            dialogue, and create lasting impact across generations.
           </p>
 
           <div className="hero-whatsapp-cta">

@@ -24,21 +24,12 @@ function buildWhatsAppHref() {
 }
 
 const quickLinks = [
-  [
-    { label: "Home", to: "/" },
-    { label: "About Us", to: "/about" },
-    { label: "Events", to: "/events" },
-  ],
-  [
-    { label: "Sponsorship", to: "/sponsorship" },
-    { label: "Membership", to: "/membership" },
-    { label: "Film Festival", to: "/film-festival" },
-  ],
-  [
-    { label: "Contact Us", to: "/contact" },
-    { label: "Privacy Policy", to: "/privacy-policy" },
-    { label: "Terms & Conditions", to: "/terms-and-conditions" },
-  ],
+  { label: "Home", to: "/" },
+  { label: "Membership", to: "/membership" },
+  { label: "Events", to: "/events" },
+  { label: "Sponsorship", to: "/sponsorship" },
+  { label: "Donate Now", to: "/donate" },
+  { label: "Chat With Us", href: buildWhatsAppHref() },
 ];
 
 const socialLinks = [
@@ -77,43 +68,6 @@ export default function Footer() {
 
   return (
     <footer className="site-footer">
-      <div className="footer-newsletter">
-        <div className="footer-newsletter-inner">
-          <div className="footer-newsletter-copy">
-            <IoMailOpenOutline className="footer-newsletter-icon" aria-hidden />
-            <div>
-              <h2>Stay connected</h2>
-              <p>Subscribe to our newsletter for updates on events, stories and impact.</p>
-            </div>
-          </div>
-          <form className="footer-newsletter-form" onSubmit={handleSubscribe}>
-            <label htmlFor="footer-newsletter-email" className="visually-hidden">
-              Email address
-            </label>
-            <input
-              id="footer-newsletter-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(ev) => {
-                setEmail(ev.target.value);
-                setSubscribed(false);
-              }}
-            />
-            <button type="submit" className="footer-subscribe-btn">
-              Subscribe
-            </button>
-            {subscribed ? (
-              <p className="footer-subscribe-note" role="status">
-                Thank you — we will be in touch.
-              </p>
-            ) : null}
-          </form>
-        </div>
-      </div>
-
       <div className="footer-main">
         <div className="footer-columns">
           <div className="footer-col footer-col-brand">
@@ -133,15 +87,51 @@ export default function Footer() {
                 </p>
               </div>
             </div>
+            <div className="footer-brand-details">
+              <p>
+                <span className="footer-brand-details-label">KVK</span>
+                <span className="footer-brand-details-value">92180213</span>
+              </p>
+              <p>
+                <span className="footer-brand-details-label">Address</span>
+                <span className="footer-brand-details-value">Wengehout 30</span>
+              </p>
+              <p>
+                <span className="footer-brand-details-label">Postal</span>
+                <span className="footer-brand-details-value">2719 KA Zoetermeer</span>
+              </p>
+              <p>
+                <span className="footer-brand-details-label">Country</span>
+                <span className="footer-brand-details-value">The Netherlands</span>
+              </p>
+              <p>
+                <span className="footer-brand-details-label">Email</span>
+                <span className="footer-brand-details-value">info@stichtingthevoice.nl</span>
+              </p>
+              <p>
+                <span className="footer-brand-details-label">Website</span>
+                <span className="footer-brand-details-value">stichtingthevoice.nl</span>
+              </p>
+              <p>
+                <span className="footer-brand-details-label">Office Phone</span>
+                <span className="footer-brand-details-value">+31619032104</span>
+              </p>
+            </div>
           </div>
 
           <div className="footer-col footer-col-links">
             <h3 className="footer-section-title">Quick links</h3>
             <div className="footer-quick-grid">
               <ul>
-                {quickLinks.flat().map((item) => (
-                  <li key={item.to}>
-                    <Link to={item.to}>{item.label}</Link>
+                {quickLinks.map((item) => (
+                  <li key={item.label}>
+                    {"href" in item ? (
+                      <a href={item.href} target="_blank" rel="noopener noreferrer">
+                        {item.label}
+                      </a>
+                    ) : (
+                      <Link to={item.to}>{item.label}</Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -158,16 +148,47 @@ export default function Footer() {
               ))}
             </div>
           </div>
+
+          <div className="footer-col footer-col-newsletter">
+            <h3 className="footer-section-title">Stay connected</h3>
+            <div className="footer-newsletter-copy footer-newsletter-copy--column">
+              <IoMailOpenOutline className="footer-newsletter-icon" aria-hidden />
+              <p>Subscribe to our newsletter for updates on events, stories and impact.</p>
+            </div>
+            <form className="footer-newsletter-form footer-newsletter-form--column" onSubmit={handleSubscribe}>
+              <label htmlFor="footer-newsletter-email" className="visually-hidden">
+                Email address
+              </label>
+              <input
+                id="footer-newsletter-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(ev) => {
+                  setEmail(ev.target.value);
+                  setSubscribed(false);
+                }}
+              />
+              <button type="submit" className="footer-subscribe-btn">
+                Subscribe
+              </button>
+              {subscribed ? (
+                <p className="footer-subscribe-note" role="status">
+                  Thank you — we will be in touch.
+                </p>
+              ) : null}
+            </form>
+          </div>
         </div>
 
         <div className="footer-main-bottom">
           <p className="footer-tagline-celebrate">
             Together, we celebrate creativity, diversity, and harmony through art and culture.
           </p>
-          <a className="footer-email" href="mailto:info@Stichtingthevoice.nl">
-            info@Stichtingthevoice.nl
-          </a>
           <p className="footer-copyright">© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.</p>
+          <p className="footer-designed-by">Designed with 💙 by Stichting The V.O.I.C.E. NL</p>
         </div>
       </div>
 

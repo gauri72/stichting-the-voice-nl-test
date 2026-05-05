@@ -21,6 +21,11 @@ export default function Header() {
           </div>
         </Link>
 
+        <button className="donate-button donate-button-middle" type="button" onClick={closeMenu}>
+          <span className="donate-icon">♥</span>
+          Donate Now
+        </button>
+
         <button
           className="menu-toggle"
           type="button"
@@ -51,8 +56,8 @@ export default function Header() {
             <NavLink to="/" end onClick={closeMenu}>
               Home
             </NavLink>
-            <NavLink to="/about" onClick={closeMenu}>
-              About Us
+            <NavLink to="/membership" onClick={closeMenu}>
+              Membership
             </NavLink>
             <NavLink to="/events" onClick={closeMenu}>
               Events
@@ -60,15 +65,12 @@ export default function Header() {
             <NavLink to="/sponsorship" onClick={closeMenu}>
               Sponsorship
             </NavLink>
-            <NavLink to="/membership" onClick={closeMenu}>
-              Membership
-            </NavLink>
             <NavLink to="/contact" onClick={closeMenu}>
               Contact
             </NavLink>
           </div>
 
-          <button className="donate-button" type="button" onClick={closeMenu}>
+          <button className="donate-button donate-button-menu" type="button" onClick={closeMenu}>
             <span className="donate-icon">♥</span>
             Donate Now
           </button>

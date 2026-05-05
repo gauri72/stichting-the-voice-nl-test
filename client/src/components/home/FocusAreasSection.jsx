@@ -45,9 +45,13 @@ export default function FocusAreasSection() {
   return (
     <section className="focus-areas-section" aria-labelledby="focus-areas-title">
       <div className="focus-areas-inner">
-        <h2 id="focus-areas-title" className="focus-areas-title">
-          Our Focus Areas
-        </h2>
+        <div className="focus-areas-heading">
+          <span className="focus-areas-heading-line" aria-hidden="true" />
+          <h2 id="focus-areas-title" className="focus-areas-title">
+            Our Focus Areas
+          </h2>
+          <span className="focus-areas-heading-line" aria-hidden="true" />
+        </div>
 
         <div className="focus-areas-grid" role="list" aria-label="Our focus areas">
           {focusAreas.map(({ title, description, icon: Icon }) => (

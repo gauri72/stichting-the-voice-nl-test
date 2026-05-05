@@ -11,39 +11,49 @@
 
 .hero-overlay {
   width: 100%;
+  min-height: calc(100vh - 140px);
   padding: 56px 36px;
+  display: flex;
+  align-items: center;
 }
 
 .hero-content {
-  max-width: 640px;
+  max-width: 760px;
 }
 
-.hero-title {
+.hero-label {
   margin: 0;
-  font-size: clamp(2.2rem, 3vw, 3.5rem);
-  line-height: 1.14;
+  color: #1f9464;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.hero-heading {
+  margin: 8px 0 0;
+  font-size: clamp(2.1rem, 3.2vw, 3.6rem);
+  line-height: 1.12;
   color: #0e2f48;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 10px rgba(9, 45, 71, 0.08);
 }
 
-.hero-title-main,
-.hero-title-accent {
-  display: block;
-}
-
-.hero-mobile-break {
-  display: none;
-}
-
-.hero-accent-mobile-break {
-  display: none;
-}
-
-.hero-title-accent {
+.hero-heading span {
   background: linear-gradient(90deg, #1a7db5, #4da377);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+.hero-tagline {
+  margin: 14px 0 0;
+  color: #16435f;
+  font-size: clamp(1.2rem, 1.75vw, 1.8rem);
+  line-height: 1.45;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 @media (min-width: 1025px) {
@@ -53,7 +63,7 @@
   }
 
   .hero-overlay {
-    max-width: min(56vw, 760px);
+    max-width: min(74vw, 1080px);
     padding-right: 20px;
   }
 
@@ -61,26 +71,54 @@
     max-width: 100%;
   }
 
-  .hero-description {
-    width: 46ch;
-    max-width: 46ch;
+  .hero-heading,
+  .hero-tagline {
+    width: min(72ch, 66vw);
+    max-width: min(72ch, 66vw);
   }
 
-  .hero-description-line {
-    white-space: nowrap;
+  .hero-heading {
+    font-size: clamp(2.3rem, 3.8vw, 3.9rem);
+    line-height: 1.1;
+  }
+
+  .hero-tagline {
+    font-size: clamp(1.2rem, 1.8vw, 1.85rem);
+    margin-top: 14px;
+  }
+
+  .hero-description {
+    width: 54ch;
+    max-width: 54ch;
+  }
+
+  .hero-about-para {
+    width: 56ch;
+    max-width: 56ch;
   }
 }
 
 .hero-description {
-  margin: 24px 0 0;
+  margin: 12px 0 0;
   color: #1b3044;
-  font-size: 1.15rem;
-  line-height: 1.7;
+  font-size: 1.08rem;
+  line-height: 1.62;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 400;
   max-width: 58ch;
 }
 
+.hero-about-para {
+  margin: 10px 0 0;
+  color: #1f3a53;
+  font-size: 1.08rem;
+  line-height: 1.62;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 60ch;
+}
+
 .hero-whatsapp-cta {
-  margin-top: 20px;
+  margin-top: 16px;
   text-align: left;
 }
 
@@ -139,6 +177,7 @@
   .hero-overlay {
     position: relative;
     z-index: 1;
+    min-height: calc(100vh - 112px);
     padding: 48px 24px;
   }
 
@@ -148,22 +187,23 @@
     text-align: center;
   }
 
-  .hero-title {
+  .hero-heading {
     color: #f3fbff;
   }
 
-  .hero-title-main {
-    white-space: nowrap;
-    word-spacing: normal;
-  }
-
-  .hero-title-accent {
+  .hero-heading span {
     background: linear-gradient(90deg, #78c7f4, #86d7af);
     -webkit-background-clip: text;
     background-clip: text;
   }
 
-  .hero-description {
+  .hero-label,
+  .hero-tagline {
+    color: #d7ecf9;
+  }
+
+  .hero-description,
+  .hero-about-para {
     color: #deeff9;
     max-width: 52ch;
     margin-left: auto;
@@ -200,23 +240,35 @@
   }
 
   .hero-overlay {
+    min-height: calc(100vh - 96px);
     padding: 32px 16px 28px;
   }
 
-  .hero-title {
-    font-size: clamp(1.8rem, 7.2vw, 2.4rem);
+  .hero-heading {
+    font-size: clamp(1.7rem, 6.8vw, 2.25rem);
     line-height: 1.2;
   }
 
+  .hero-tagline {
+    margin-top: 10px;
+    font-size: 1.08rem;
+  }
+
   .hero-description {
-    margin-top: 18px;
+    margin-top: 12px;
     font-size: 1rem;
     line-height: 1.6;
     color: #e5f3fb;
   }
 
+  .hero-about-para {
+    margin-top: 8px;
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
+
   .hero-whatsapp-cta {
-    margin-top: 16px;
+    margin-top: 14px;
   }
 
   .hero-whatsapp-cta p {
@@ -229,14 +281,6 @@
     font-size: 0.82rem;
   }
 
-  .hero-mobile-break {
-    display: block;
-  }
-
-  .hero-accent-mobile-break {
-    display: block;
-  }
-
 }
 
 @media (max-width: 480px) {
@@ -246,10 +290,20 @@
   }
 
   .hero-overlay {
+    min-height: calc(100vh - 88px);
     padding: 28px 14px 24px;
   }
 
-  .hero-description {
+  .hero-heading {
+    font-size: clamp(1.45rem, 6.8vw, 1.9rem);
+  }
+
+  .hero-tagline {
+    font-size: 0.96rem;
+  }
+
+  .hero-description,
+  .hero-about-para {
     font-size: 0.95rem;
     line-height: 1.5;
   }

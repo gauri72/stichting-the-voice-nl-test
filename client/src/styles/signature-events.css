@@ -2,7 +2,7 @@
 
 .signature-events-section {
   background: #ffffff;
-  padding: 0 34px 36px;
+  padding: 36px 34px;
   font-family: "Montserrat", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -33,6 +33,16 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   white-space: nowrap;
+}
+
+.signature-events-title::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 3px;
+  border-radius: 999px;
+  background: #2ea276;
+  margin: 8px auto 0;
 }
 
 .signature-events-grid {
@@ -82,16 +92,9 @@
 .signature-event-icon {
   width: 20px;
   height: 20px;
-  display: inline-block;
-  background-color: currentColor;
-  -webkit-mask-image: var(--signature-icon-url);
-  mask-image: var(--signature-icon-url);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-size: contain;
-  mask-size: contain;
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .signature-event-icon--green {
@@ -150,7 +153,7 @@
 
 @media (max-width: 640px) {
   .signature-events-section {
-    padding: 0 16px 24px;
+    padding: 24px 16px;
   }
 
   .signature-events-grid {
@@ -165,6 +168,11 @@
 
   .signature-events-title {
     white-space: nowrap;
+  }
+
+  .signature-events-title::after {
+    width: 58px;
+    margin-top: 6px;
   }
 
   .signature-events-heading-line {

@@ -12,23 +12,47 @@
   padding: 20px 14px 12px;
 }
 
+.our-impact-heading-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.our-impact-heading-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
 .our-impact-heading {
   margin: 0;
   text-align: center;
   color: #ffffff;
-  font-size: 1.7rem;
+  font-size: clamp(1.45rem, 2vw, 1.95rem);
   font-weight: 800;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .our-impact-heading::after {
   content: "";
   display: block;
-  width: 86px;
+  width: 72px;
   height: 3px;
-  margin: 10px auto 0;
+  margin: 8px auto 0;
   border-radius: 999px;
   background: #ffffff;
+}
+
+.our-impact-heading-subtitle {
+  margin: 14px auto 0;
+  max-width: 42rem;
+  text-align: center;
+  color: #ffffff;
+  font-size: clamp(1.05rem, 1.2vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .our-impact-stats {
@@ -257,6 +281,24 @@
 
   .our-impact-heading {
     font-size: 1.35rem;
+  }
+
+  .our-impact-heading-row {
+    gap: 8px;
+  }
+
+  .our-impact-heading-line {
+    min-width: 18px;
+  }
+
+  .our-impact-heading::after {
+    width: 58px;
+    margin-top: 6px;
+  }
+
+  .our-impact-heading-subtitle {
+    margin-top: 12px;
+    font-size: 0.98rem;
   }
 
   .our-impact-stats {

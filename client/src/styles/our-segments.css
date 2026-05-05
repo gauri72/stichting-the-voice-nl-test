@@ -15,54 +15,38 @@
   padding: 16px 20px 18px;
 }
 
-.our-segments-kicker {
+.our-segments-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   margin: 0;
-  text-align: center;
-  color: #238d66;
-  font-size: 0.95rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
 }
 
-.our-segments-kicker::before,
-.our-segments-kicker::after {
-  content: "";
-  display: inline-block;
-  width: 42px;
-  height: 2px;
-  border-radius: 999px;
-  background: #2ea276;
-  vertical-align: middle;
-  margin: 0 12px;
+.our-segments-heading-line {
+  flex: 1;
+  height: 1px;
+  background: #d7dee5;
 }
 
 .our-segments-title {
-  margin: 8px 0 0;
+  margin: 0;
   text-align: center;
-  color: #17324a;
-  font-size: clamp(1.95rem, 3vw, 3.1rem);
+  color: #16314a;
+  font-size: clamp(1.45rem, 2vw, 1.95rem);
   font-weight: 800;
-  line-height: 1.18;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .our-segments-title::after {
   content: "";
   display: block;
-  width: 92px;
+  width: 72px;
   height: 3px;
   border-radius: 999px;
   background: #2ea276;
-  margin: 10px auto 0;
-}
-
-.our-segments-subtitle {
-  margin: 12px auto 0;
-  max-width: 64ch;
-  text-align: center;
-  color: #2a475e;
-  font-size: 1.12rem;
-  line-height: 1.55;
+  margin: 8px auto 0;
 }
 
 .our-segments-grid {
@@ -206,13 +190,7 @@
   }
 
   .our-segments-title {
-    font-size: clamp(1.8rem, 4.5vw, 2.45rem);
-  }
-
-  .our-segments-subtitle {
-    font-size: 1rem;
-    line-height: 1.5;
-    max-width: 54ch;
+    white-space: normal;
   }
 
   .our-segments-grid {
@@ -253,25 +231,21 @@
     padding: 14px 10px;
   }
 
-  .our-segments-kicker {
-    font-size: 0.85rem;
-    letter-spacing: 0.1em;
+  .our-segments-heading {
+    gap: 10px;
   }
 
-  .our-segments-kicker::before,
-  .our-segments-kicker::after {
-    width: 20px;
-    margin: 0 8px;
+  .our-segments-heading-line {
+    min-width: 18px;
   }
 
   .our-segments-title {
-    font-size: 1.95rem;
+    white-space: nowrap;
   }
 
-  .our-segments-subtitle {
-    margin-top: 10px;
-    font-size: 0.96rem;
-    line-height: 1.5;
+  .our-segments-title::after {
+    width: 58px;
+    margin-top: 6px;
   }
 
   .our-segments-grid {

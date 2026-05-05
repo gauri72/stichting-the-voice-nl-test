@@ -4,61 +4,15 @@
 }
 
 .home-about-grid {
-  max-width: 1440px;
+  max-width: 1320px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(360px, 430px) 1fr;
-  gap: 24px;
-  align-items: stretch;
-}
-
-.home-about-card {
-  background: #eef2f4;
-  border-radius: 14px;
-  padding: 16px 24px 18px;
-}
-
-.home-about-label {
-  margin: 0;
-  color: #2a8f5f;
-  font-size: 1rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.home-about-title {
-  margin: 6px 0 8px;
-  color: #173d5d;
-  font-size: clamp(1.7rem, 2vw, 2.8rem);
-  line-height: 1.2;
-}
-
-.home-about-description {
-  margin: 0;
-  color: #183249;
-  font-size: 1.28rem;
-  line-height: 1.45;
-}
-
-.home-about-button {
-  margin-top: 18px;
-  display: inline-flex;
-  align-items: center;
+  display: flex;
   justify-content: center;
-  min-height: 44px;
-  padding: 10px 16px;
-  border-radius: 8px;
-  background: #005e87;
-  border: 2px solid #005e87;
-  color: #ffffff;
-  text-decoration: none;
-  text-transform: uppercase;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
 }
 
 .home-about-pillars {
+  width: 100%;
+  max-width: 1040px;
   background: #ffffff;
   border-radius: 12px;
   display: grid;
@@ -97,20 +51,6 @@
   .home-about-section {
     padding: 24px 20px;
   }
-
-  .home-about-grid {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-
-  .home-about-card {
-    text-align: center;
-  }
-
-  .home-about-button {
-    margin-left: auto;
-    margin-right: auto;
-  }
 }
 
 @media (max-width: 900px) {
@@ -127,18 +67,6 @@
 @media (max-width: 720px) {
   .home-about-section {
     padding: 20px 14px;
-  }
-
-  .home-about-card {
-    padding: 16px;
-  }
-
-  .home-about-title {
-    font-size: 1.85rem;
-  }
-
-  .home-about-description {
-    font-size: 1rem;
   }
 
   .home-about-pillars {

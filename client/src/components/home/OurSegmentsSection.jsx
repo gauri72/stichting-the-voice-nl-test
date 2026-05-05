@@ -35,14 +35,13 @@ export default function OurSegmentsSection() {
   return (
     <section className="our-segments-section" aria-labelledby="our-segments-title">
       <div className="our-segments-inner">
-        <p className="our-segments-kicker">Our Segments</p>
-        <h2 id="our-segments-title" className="our-segments-title">
-          Three Voices. One Mission.
-        </h2>
-        <p className="our-segments-subtitle">
-          Our segments amplify unique voices and drive meaningful change across culture, empowerment,
-          and leadership.
-        </p>
+        <div className="our-segments-heading">
+          <span className="our-segments-heading-line" aria-hidden="true" />
+          <h2 id="our-segments-title" className="our-segments-title">
+            Our Segments
+          </h2>
+          <span className="our-segments-heading-line" aria-hidden="true" />
+        </div>
 
         <div className="our-segments-grid" role="list" aria-label="Our organization segments">
           {segments.map(({ title, description, image, alt, Icon }) => (

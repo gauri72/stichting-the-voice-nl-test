@@ -1,5 +1,4 @@
 import { FaEye, FaHandsHelping, FaUsers } from "react-icons/fa";
-import { Link } from "react-router-dom";
 import "../../styles/about-section.css";
 
 const pillars = [
@@ -26,18 +25,6 @@ export default function AboutSection() {
   return (
     <section className="home-about-section">
       <div className="home-about-grid">
-        <article className="home-about-card">
-          <p className="home-about-label">About Us</p>
-          <h2 className="home-about-title">Celebrating Diversity. Inspiring Unity.</h2>
-          <p className="home-about-description">
-            We organize cultural, artistic and social events that bring people together, spark dialogue,
-            and create lasting impact across generations.
-          </p>
-          <Link className="home-about-button" to="/about">
-            Learn More About Us
-          </Link>
-        </article>
-
         <div className="home-about-pillars" aria-label="Our mission, vision and values">
           {pillars.map(({ title, description, icon: Icon }) => (
             <article key={title} className="home-about-pillar">

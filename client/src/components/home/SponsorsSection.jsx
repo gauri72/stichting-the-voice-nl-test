@@ -37,10 +37,13 @@ export default function SponsorsSection() {
   return (
     <section className="sponsors-section" aria-labelledby="sponsors-title">
       <div className="sponsors-section__inner">
-        <p className="sponsors-section__label">Our Network</p>
-        <h2 id="sponsors-title" className="sponsors-section__heading">
-          Proudly Supported by Our Sponsors
-        </h2>
+        <div className="sponsors-section__label-row">
+          <span className="sponsors-section__label-line" aria-hidden="true" />
+          <h2 id="sponsors-title" className="sponsors-section__label">
+            Our Network
+          </h2>
+          <span className="sponsors-section__label-line" aria-hidden="true" />
+        </div>
 
         <div className="sponsors-marquee" aria-label="Sponsor logos">
           <div className="sponsors-marquee__track">

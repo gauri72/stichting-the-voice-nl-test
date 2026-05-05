@@ -33,9 +33,13 @@ export default function OurTeamSection() {
   return (
     <section className="our-team-section" aria-labelledby="our-team-title">
       <div className="our-team-inner">
-        <h2 id="our-team-title" className="our-team-title">
-          Our Team
-        </h2>
+        <div className="our-team-heading">
+          <span className="our-team-heading-line" aria-hidden="true" />
+          <h2 id="our-team-title" className="our-team-title">
+            Our Team
+          </h2>
+          <span className="our-team-heading-line" aria-hidden="true" />
+        </div>
 
         <div className="our-team-grid" role="list" aria-label="Our team members">
           {teamMembers.map(({ name, role, image }) => (

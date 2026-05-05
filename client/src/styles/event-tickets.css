@@ -11,34 +11,53 @@
   padding: 0 22px;
 }
 
+.event-tickets-section__label-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+}
+
+.event-tickets-section__label-line {
+  flex: 1;
+  height: 1px;
+  background: #d7dee5;
+}
+
 .event-tickets-section__label {
   margin: 0;
   text-align: center;
-  color: #2a8f5f;
-  font-size: 1rem;
-  font-weight: 700;
+  color: #17324a;
+  font-size: clamp(1.45rem, 2vw, 1.95rem);
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
-.event-tickets-section__heading {
-  margin: 6px auto 0;
-  max-width: 42rem;
-  text-align: center;
-  color: #173d5d;
-  font-size: clamp(1.65rem, 2.1vw, 2.5rem);
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.event-tickets-section__heading::after {
+.event-tickets-section__label::after {
   content: "";
   display: block;
   width: 72px;
   height: 3px;
-  margin: 12px auto 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, #0a5f7f 0%, #1f9464 100%);
+  background: #2ea276;
+  margin: 8px auto 0;
+}
+
+.event-tickets-section__heading {
+  margin: 14px auto 0;
+  max-width: 42rem;
+  text-align: center;
+  color: #173d5d;
+  font-size: clamp(1.05rem, 1.2vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.event-tickets-section__heading::after {
+  position: absolute;
+  content: none;
 }
 
 .event-tickets-section__grid {
@@ -219,6 +238,23 @@
 
   .event-tickets-section__inner {
     padding: 0 14px;
+  }
+
+  .event-tickets-section__label-row {
+    gap: 8px;
+  }
+
+  .event-tickets-section__label-line {
+    min-width: 18px;
+  }
+
+  .event-tickets-section__label::after {
+    width: 58px;
+    margin-top: 6px;
+  }
+
+  .event-tickets-section__heading {
+    margin-top: 12px;
   }
 
   .event-tickets-section__grid {

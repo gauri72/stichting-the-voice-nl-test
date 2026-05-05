@@ -4,7 +4,7 @@
   background-repeat: no-repeat;
   background-size: cover;
   height: clamp(280px, 33.6vw, 520px);
-  padding: clamp(24px, 4vw, 56px) clamp(16px, 4vw, 62px);
+  padding: clamp(24px, 4vw, 48px) clamp(16px, 4vw, 62px) clamp(22px, 3vw, 34px);
   display: flex;
   align-items: flex-start;
   position: relative;
@@ -112,7 +112,7 @@
 @media (min-width: 1201px) {
   .membership-page {
     height: clamp(320px, 33.6vw, 520px);
-    padding: clamp(28px, 3.2vw, 46px) clamp(30px, 4.5vw, 72px) clamp(36px, 4.2vw, 58px);
+    padding: clamp(28px, 3.2vw, 46px) clamp(30px, 4.5vw, 72px) clamp(18px, 2.2vw, 30px);
     background-position: center 47%;
   }
 
@@ -149,7 +149,7 @@
 @media (max-width: 1200px) and (min-width: 901px) {
   .membership-page {
     height: clamp(300px, 34vw, 390px);
-    padding: clamp(22px, 2.8vw, 30px) clamp(20px, 3.5vw, 38px) clamp(34px, 3.8vw, 46px);
+    padding: clamp(22px, 2.8vw, 30px) clamp(20px, 3.5vw, 38px) clamp(18px, 2.2vw, 28px);
     background-position: 62% center;
   }
 
@@ -184,7 +184,7 @@
   .membership-page {
     height: auto;
     min-height: 340px;
-    padding: 20px 16px 56px;
+    padding: 20px 16px 40px;
     background-position: 68% center;
   }
 
@@ -227,7 +227,7 @@
   .membership-page {
     height: auto;
     min-height: 350px;
-    padding: 16px 12px 58px;
+    padding: 16px 12px 40px;
     background-position: 72% center;
     align-items: flex-start;
   }
@@ -277,7 +277,7 @@
 @media (max-width: 480px) {
   .membership-page {
     min-height: 330px;
-    padding: 14px 10px 56px;
+    padding: 14px 10px 36px;
     background-position: 75% center;
   }
 
