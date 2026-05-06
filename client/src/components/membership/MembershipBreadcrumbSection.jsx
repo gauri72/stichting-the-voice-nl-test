@@ -1,4 +1,3 @@
-import { FaUsers } from "react-icons/fa6";
 import heroBackground from "../../assets/Membership/hero-bg.png";
 import "../../styles/membership-breadcrumb-section.css";
 
@@ -20,7 +19,6 @@ export default function MembershipBreadcrumbSection() {
         </p>
         <div className="membership-page__actions">
           <a className="membership-page__cta membership-page__cta--primary" href="mailto:info@Stichtingthevoice.nl">
-            <FaUsers aria-hidden />
             Join Membership
           </a>
           <a className="membership-page__cta membership-page__cta--secondary" href="#membership-faqs">

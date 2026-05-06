@@ -7,12 +7,53 @@
   max-width: 1320px;
   margin: 0 auto;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
   justify-content: center;
+}
+
+.home-about-heading-row {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  gap: 14px;
+  width: 100%;
+}
+
+.home-about-heading-line {
+  flex: 1;
+  height: 1px;
+  background: #d7dee5;
+}
+
+.home-about-heading {
+  margin: 0;
+  flex-shrink: 0;
+  text-align: center;
+  color: #16314a;
+  font-size: clamp(1.45rem, 2vw, 1.95rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.home-about-heading::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 3px;
+  margin: 8px auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0a5f7f 0%, #1f9464 100%);
 }
 
 .home-about-pillars {
   width: 100%;
   max-width: 1040px;
+  margin: 0 auto;
   background: #ffffff;
   border-radius: 12px;
   display: grid;
@@ -51,6 +92,14 @@
   .home-about-section {
     padding: 12px 20px;
   }
+
+  .home-about-heading-row {
+    gap: 12px;
+  }
+
+  .home-about-heading {
+    font-size: 1.75rem;
+  }
 }
 
 @media (max-width: 900px) {
@@ -79,5 +128,23 @@
 
   .home-about-pillar p {
     font-size: 1rem;
+  }
+
+  .home-about-heading-row {
+    gap: 10px;
+  }
+
+  .home-about-heading-line {
+    min-width: 18px;
+  }
+
+  .home-about-heading {
+    font-size: 1.35rem;
+    letter-spacing: 0.03em;
+  }
+
+  .home-about-heading::after {
+    width: 58px;
+    margin-top: 6px;
   }
 }

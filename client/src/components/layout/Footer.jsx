@@ -9,6 +9,7 @@ import {
   FaYoutube,
   FaTimes,
 } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { IoMailOpenOutline } from "react-icons/io5";
 import headerLogo from "../../assets/header-logo.png";
 import "../../styles/footer.css";
@@ -23,12 +24,23 @@ function buildWhatsAppHref() {
   return `https://wa.me/${digits}`;
 }
 
-const quickLinks = [
+const quickLinksRow1 = [
   { label: "Home", to: "/" },
   { label: "Membership", to: "/membership" },
-  { label: "Events", to: "/events" },
   { label: "Sponsorship", to: "/sponsorship" },
   { label: "Donate Now", to: "/donate" },
+];
+
+const quickLinksRow2 = [
+  { label: "Vision of Sounds", to: "/segments/vision-of-sounds" },
+  { label: "VOWNL", to: "/segments/vownl" },
+  { label: "Voice of Visionaries", to: "/segments/voice-of-visionaries" },
+];
+
+const quickLinksRow3 = [
+  { label: "Events", to: "/events" },
+  { label: "Testimonials", to: "/testimonials" },
+  { label: "Blogs", to: "/blogs" },
   { label: "Chat With Us", href: buildWhatsAppHref() },
 ];
 
@@ -37,6 +49,11 @@ const socialLinks = [
     href: "https://www.facebook.com/p/The-VOICE-NL-61552129209396/",
     label: "Facebook",
     Icon: FaFacebookF,
+  },
+  {
+    href: "https://x.com/St_The_VOICE_NL",
+    label: "X",
+    Icon: FaXTwitter,
   },
   {
     href: "https://www.instagram.com/stichting_the_voice_nl/?hl=en",
@@ -71,59 +88,75 @@ export default function Footer() {
       <div className="footer-main">
         <div className="footer-columns">
           <div className="footer-col footer-col-brand">
-            <div className="footer-brand-block">
-              <img
-                className="footer-brand-logo"
-                src={headerLogo}
-                alt="Stichting The V.O.I.C.E. NL"
-                width={72}
-                height={72}
-              />
-              <div className="footer-brand-text">
-                <p className="footer-brand-top">Stichting</p>
-                <p className="footer-brand-name">The V.O.I.C.E. NL</p>
-                <p className="footer-brand-tagline">
-                  The vision of international cultural exchange in the Netherlands.
+            <div className="footer-brand-card">
+              <div className="footer-brand-block">
+                <img
+                  className="footer-brand-logo"
+                  src={headerLogo}
+                  alt="Stichting The V.O.I.C.E. NL"
+                  width={72}
+                  height={72}
+                />
+                <div className="footer-brand-text">
+                  <p className="footer-brand-top">Stichting</p>
+                  <p className="footer-brand-name">The V.O.I.C.E. NL</p>
+                  <p className="footer-brand-tagline">
+                    The vision of international cultural exchange in the Netherlands.
+                  </p>
+                </div>
+              </div>
+              <div className="footer-brand-details">
+                <p>
+                  <span className="footer-brand-details-label">KVK</span>
+                  <span className="footer-brand-details-value">92180213</span>
+                </p>
+                <p>
+                  <span className="footer-brand-details-label">Address</span>
+                  <span className="footer-brand-details-value">Wengehout 30</span>
+                </p>
+                <p>
+                  <span className="footer-brand-details-label">Postal</span>
+                  <span className="footer-brand-details-value">2719 KA Zoetermeer</span>
+                </p>
+                <p>
+                  <span className="footer-brand-details-label">Country</span>
+                  <span className="footer-brand-details-value">The Netherlands</span>
+                </p>
+                <p>
+                  <span className="footer-brand-details-label">Email</span>
+                  <span className="footer-brand-details-value">info@stichtingthevoice.nl</span>
+                </p>
+                <p>
+                  <span className="footer-brand-details-label">Website</span>
+                  <span className="footer-brand-details-value">stichtingthevoice.nl</span>
+                </p>
+                <p>
+                  <span className="footer-brand-details-label">Office Phone</span>
+                  <span className="footer-brand-details-value">+31619032104</span>
                 </p>
               </div>
             </div>
-            <div className="footer-brand-details">
-              <p>
-                <span className="footer-brand-details-label">KVK</span>
-                <span className="footer-brand-details-value">92180213</span>
-              </p>
-              <p>
-                <span className="footer-brand-details-label">Address</span>
-                <span className="footer-brand-details-value">Wengehout 30</span>
-              </p>
-              <p>
-                <span className="footer-brand-details-label">Postal</span>
-                <span className="footer-brand-details-value">2719 KA Zoetermeer</span>
-              </p>
-              <p>
-                <span className="footer-brand-details-label">Country</span>
-                <span className="footer-brand-details-value">The Netherlands</span>
-              </p>
-              <p>
-                <span className="footer-brand-details-label">Email</span>
-                <span className="footer-brand-details-value">info@stichtingthevoice.nl</span>
-              </p>
-              <p>
-                <span className="footer-brand-details-label">Website</span>
-                <span className="footer-brand-details-value">stichtingthevoice.nl</span>
-              </p>
-              <p>
-                <span className="footer-brand-details-label">Office Phone</span>
-                <span className="footer-brand-details-value">+31619032104</span>
-              </p>
-            </div>
           </div>
 
-          <div className="footer-col footer-col-links">
+          <div className="footer-col footer-col-links-social">
             <h3 className="footer-section-title">Quick links</h3>
-            <div className="footer-quick-grid">
-              <ul>
-                {quickLinks.map((item) => (
+            <div className="footer-quick-grid footer-quick-grid--rows">
+              <ul className="footer-quick-row footer-quick-row--four">
+                {quickLinksRow1.map((item) => (
+                  <li key={item.label}>
+                    <Link to={item.to}>{item.label}</Link>
+                  </li>
+                ))}
+              </ul>
+              <ul className="footer-quick-row footer-quick-row--three">
+                {quickLinksRow2.map((item) => (
+                  <li key={item.label}>
+                    <Link to={item.to}>{item.label}</Link>
+                  </li>
+                ))}
+              </ul>
+              <ul className="footer-quick-row footer-quick-row--four">
+                {quickLinksRow3.map((item) => (
                   <li key={item.label}>
                     {"href" in item ? (
                       <a href={item.href} target="_blank" rel="noopener noreferrer">
@@ -136,11 +169,10 @@ export default function Footer() {
                 ))}
               </ul>
             </div>
-          </div>
+            <div className="footer-links-divider" aria-hidden="true" />
 
-          <div className="footer-col footer-col-social">
-            <h3 className="footer-section-title">Follow us</h3>
-            <div className="footer-social-list">
+            <h3 className="footer-section-title footer-section-title--spaced">Follow us</h3>
+            <div className="footer-social-list footer-social-list--row">
               {socialLinks.map(({ href, label, Icon }) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
                   <Icon aria-hidden />

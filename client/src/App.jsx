@@ -22,6 +22,11 @@ export default function App() {
           <Route path="/events" element={<EmptyPage />} />
           <Route path="/sponsorship" element={<EmptyPage />} />
           <Route path="/membership" element={<MembershipPage />} />
+          <Route path="/segments/vision-of-sounds" element={<EmptyPage />} />
+          <Route path="/segments/vownl" element={<EmptyPage />} />
+          <Route path="/segments/voice-of-visionaries" element={<EmptyPage />} />
+          <Route path="/testimonials" element={<EmptyPage />} />
+          <Route path="/blogs" element={<EmptyPage />} />
           <Route path="/donate" element={<EmptyPage />} />
           <Route path="/contact" element={<EmptyPage />} />
           <Route path="/film-festival" element={<EmptyPage />} />

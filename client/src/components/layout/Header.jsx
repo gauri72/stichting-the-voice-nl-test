@@ -1,13 +1,18 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import headerLogo from "../../assets/header-logo.png";
-import "../../styles/header.css";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   function closeMenu() {
     setIsMenuOpen(false);
+    setOpenDropdown(null);
+  }
+
+  function toggleDropdown(key) {
+    setOpenDropdown((prev) => (prev === key ? null : key));
   }
 
   return (
@@ -21,10 +26,10 @@ export default function Header() {
           </div>
         </Link>
 
-        <button className="donate-button donate-button-middle" type="button" onClick={closeMenu}>
+        <Link className="donate-button donate-button-middle" to="/donate" onClick={closeMenu}>
           <span className="donate-icon">♥</span>
           Donate Now
-        </button>
+        </Link>
 
         <button
           className="menu-toggle"
@@ -65,15 +70,58 @@ export default function Header() {
             <NavLink to="/sponsorship" onClick={closeMenu}>
               Sponsorship
             </NavLink>
-            <NavLink to="/contact" onClick={closeMenu}>
-              Contact
-            </NavLink>
+
+            <div className={`menu-dropdown ${openDropdown === "segments" ? "open" : ""}`}>
+              <button
+                className="menu-dropdown-trigger"
+                type="button"
+                aria-haspopup="true"
+                aria-expanded={openDropdown === "segments"}
+                onClick={() => toggleDropdown("segments")}
+              >
+                Segments
+              </button>
+              <div className="menu-dropdown-menu">
+                <NavLink to="/segments/vision-of-sounds" onClick={closeMenu}>
+                  Vision of Sounds
+                </NavLink>
+                <NavLink to="/segments/vownl" onClick={closeMenu}>
+                  VOWNL
+                </NavLink>
+                <NavLink to="/segments/voice-of-visionaries" onClick={closeMenu}>
+                  Voice of Visionaries
+                </NavLink>
+              </div>
+            </div>
+
+            <div className={`menu-dropdown menu-dropdown--right ${openDropdown === "more" ? "open" : ""}`}>
+              <button
+                className="menu-dropdown-trigger"
+                type="button"
+                aria-haspopup="true"
+                aria-expanded={openDropdown === "more"}
+                onClick={() => toggleDropdown("more")}
+              >
+                More
+              </button>
+              <div className="menu-dropdown-menu">
+                <NavLink to="/testimonials" onClick={closeMenu}>
+                  Testimonials
+                </NavLink>
+                <NavLink to="/blogs" onClick={closeMenu}>
+                  Blogs
+                </NavLink>
+                <NavLink to="/contact" onClick={closeMenu}>
+                  Contact
+                </NavLink>
+              </div>
+            </div>
           </div>
 
-          <button className="donate-button donate-button-menu" type="button" onClick={closeMenu}>
+          <Link className="donate-button donate-button-menu" to="/donate" onClick={closeMenu}>
             <span className="donate-icon">♥</span>
             Donate Now
-          </button>
+          </Link>
         </div>
       </nav>
     </header>

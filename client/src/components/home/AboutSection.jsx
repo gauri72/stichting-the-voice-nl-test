@@ -25,6 +25,11 @@ export default function AboutSection() {
   return (
     <section className="home-about-section">
       <div className="home-about-grid">
+        <div className="home-about-heading-row">
+          <span className="home-about-heading-line" aria-hidden="true" />
+          <h2 className="home-about-heading">What we strive for?</h2>
+          <span className="home-about-heading-line" aria-hidden="true" />
+        </div>
         <div className="home-about-pillars" aria-label="Our mission, vision and values">
           {pillars.map(({ title, description, icon: Icon }) => (
             <article key={title} className="home-about-pillar">
