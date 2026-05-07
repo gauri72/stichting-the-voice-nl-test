@@ -70,6 +70,9 @@ export default function Header() {
             <NavLink to="/sponsorship" onClick={closeMenu}>
               Sponsorship
             </NavLink>
+            <NavLink to="/my-account" onClick={closeMenu}>
+              My Account
+            </NavLink>
 
             <div className={`menu-dropdown ${openDropdown === "segments" ? "open" : ""}`}>
               <button

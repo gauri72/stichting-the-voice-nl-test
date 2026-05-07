@@ -51,14 +51,14 @@ const socialLinks = [
     Icon: FaFacebookF,
   },
   {
-    href: "https://x.com/St_The_VOICE_NL",
-    label: "X",
-    Icon: FaXTwitter,
-  },
-  {
     href: "https://www.instagram.com/stichting_the_voice_nl/?hl=en",
     label: "Instagram",
     Icon: FaInstagram,
+  },
+  {
+    href: "https://www.linkedin.com/in/stichting-the-v-o-i-c-e-nl-b67427316/",
+    label: "LinkedIn",
+    Icon: FaLinkedinIn,
   },
   {
     href: "https://www.youtube.com/@StichtingTheVOICENL",
@@ -66,9 +66,9 @@ const socialLinks = [
     Icon: FaYoutube,
   },
   {
-    href: "https://www.linkedin.com/in/stichting-the-v-o-i-c-e-nl-b67427316/",
-    label: "LinkedIn",
-    Icon: FaLinkedinIn,
+    href: "https://x.com/St_The_VOICE_NL",
+    label: "X",
+    Icon: FaXTwitter,
   },
 ];
 
@@ -112,23 +112,13 @@ export default function Footer() {
                 </p>
                 <p>
                   <span className="footer-brand-details-label">Address</span>
-                  <span className="footer-brand-details-value">Wengehout 30</span>
-                </p>
-                <p>
-                  <span className="footer-brand-details-label">Postal</span>
-                  <span className="footer-brand-details-value">2719 KA Zoetermeer</span>
-                </p>
-                <p>
-                  <span className="footer-brand-details-label">Country</span>
-                  <span className="footer-brand-details-value">The Netherlands</span>
+                  <span className="footer-brand-details-value">
+                    Wengehout 30, 2719 KA Zoetermeer, The Netherlands
+                  </span>
                 </p>
                 <p>
                   <span className="footer-brand-details-label">Email</span>
                   <span className="footer-brand-details-value">info@stichtingthevoice.nl</span>
-                </p>
-                <p>
-                  <span className="footer-brand-details-label">Website</span>
-                  <span className="footer-brand-details-value">stichtingthevoice.nl</span>
                 </p>
                 <p>
                   <span className="footer-brand-details-label">Office Phone</span>

@@ -45,6 +45,15 @@
   margin: 8px auto 0;
 }
 
+.sponsors-section__subtitle {
+  margin: 10px 0 0;
+  text-align: center;
+  color: #3b5365;
+  font-size: clamp(1.02rem, 1.45vw, 1.2rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
 .sponsors-marquee {
   position: relative;
   overflow: hidden;
@@ -133,6 +142,11 @@
   .sponsors-section__label::after {
     width: 58px;
     margin-top: 6px;
+  }
+
+  .sponsors-section__subtitle {
+    margin-top: 8px;
+    font-size: 1rem;
   }
 
   .sponsors-marquee {

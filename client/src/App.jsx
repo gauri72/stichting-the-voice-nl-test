@@ -1,4 +1,5 @@
-import { Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 import AppSplash from "./components/layout/AppSplash";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
@@ -9,11 +10,31 @@ function EmptyPage() {
   return null;
 }
 
+function ScrollToHash() {
+  const { hash, pathname } = useLocation();
+
+  useEffect(() => {
+    if (!hash) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    const id = hash.replace("#", "");
+    const target = document.getElementById(id);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [hash, pathname]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <>
       <AppSplash />
     <div className="app-shell">
+      <ScrollToHash />
       <Header />
       <main className="app-main">
         <Routes>

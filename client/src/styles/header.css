@@ -14,6 +14,9 @@
 .site-header {
   background: #ffffff;
   border-bottom: 1px solid #e6edf1;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .site-navbar {
@@ -24,13 +27,15 @@
   padding: 12px 20px;
   max-width: 1500px;
   margin: 0 auto;
+  width: 100%;
+  min-width: 0;
 }
 
 .brand-block {
   display: flex;
   align-items: center;
   gap: 14px;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   text-decoration: none;
   min-width: 0;
 }
@@ -57,6 +62,10 @@
   text-transform: uppercase;
   font-family: "Lastica", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   letter-spacing: 0.18em;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-kerning: normal;
 }
 
 .brand-name-top {
@@ -73,6 +82,8 @@
 .brand-name-bottom {
   margin-top: 6px;
   font-size: 34px;
+  letter-spacing: 0.08em;
+  line-height: 1.04;
   background: linear-gradient(90deg, #1a7db5, #4da377);
   -webkit-background-clip: text;
   background-clip: text;
@@ -121,24 +132,28 @@
 
 .nav-actions {
   display: flex;
-  margin-left: 24px;
+  margin-left: 0;
+  flex: 0 0 auto;
   min-width: 0;
   align-items: center;
   gap: 28px;
+  justify-content: flex-start;
 }
 
 .menu-links {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 24px;
   justify-content: flex-end;
 }
 
 .menu-links a {
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.03em;
+  white-space: nowrap;
   color: #1f2f3d;
   text-decoration: none;
   padding: 9px 0;
@@ -176,9 +191,10 @@
 }
 
 .donate-button-middle {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  position: static;
+  transform: none;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .donate-button-menu {
@@ -197,11 +213,11 @@
 }
 
 .donate-button-middle:hover {
-  transform: translateX(-50%) translateY(-1px);
+  transform: translateY(-1px);
 }
 
 .donate-button-middle:active {
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 .menu-links a:focus-visible,
@@ -228,9 +244,10 @@
   border: none;
   background: transparent;
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.03em;
+  white-space: nowrap;
   color: #1f2f3d;
   padding: 9px 0;
   cursor: pointer;
@@ -273,7 +290,7 @@
   border-radius: 7px;
   border-bottom: none;
   text-transform: none;
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing: 0;
   text-align: center;
   justify-content: center;
@@ -317,14 +334,15 @@
   }
 
   .menu-links {
-    gap: 14px;
+    gap: 10px;
   }
 
-  /* Avoid overlap on medium desktop widths */
+  /* Keep donate CTA in the center gap between brand and links */
   .donate-button-middle {
     position: static;
     transform: none;
     margin-left: auto;
+    margin-right: auto;
   }
 
   .donate-button-middle:hover {
@@ -359,7 +377,7 @@
   }
 
   .menu-links {
-    gap: 16px;
+    gap: 8px;
   }
 
   .menu-links a {
@@ -428,6 +446,11 @@
     margin-top: 2px;
     letter-spacing: 0.08em;
     white-space: nowrap;
+    line-height: 1.04;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-kerning: normal;
     background: none;
     -webkit-background-clip: initial;
     background-clip: initial;
@@ -547,6 +570,11 @@
     margin-top: 1px;
     letter-spacing: 0.08em;
     white-space: nowrap;
+    line-height: 1.04;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-kerning: normal;
     background: none;
     -webkit-background-clip: initial;
     background-clip: initial;
@@ -571,7 +599,7 @@
 
   .menu-links a,
   .menu-dropdown-trigger {
-    font-size: 14px;
+    font-size: 13px;
     padding: 8px 2px;
     border-bottom-width: 2px;
     text-transform: uppercase;
@@ -600,12 +628,18 @@
   }
 
   .menu-dropdown.open .menu-dropdown-menu {
-    display: grid;
+    display: grid !important;
   }
 
+  /* In responsive mode, dropdowns are click-only (no hover reopen). */
   .menu-dropdown:hover .menu-dropdown-menu,
   .menu-dropdown:focus-within .menu-dropdown-menu {
-    display: none;
+    display: none !important;
+  }
+
+  .menu-dropdown.open:focus-within .menu-dropdown-menu,
+  .menu-dropdown.open:hover .menu-dropdown-menu {
+    display: grid !important;
   }
 
   .menu-dropdown-menu a {
@@ -642,10 +676,18 @@
 @media (max-width: 820px) {
   .site-navbar {
     padding: 12px;
+    gap: 8px;
   }
 
   .brand-block {
     gap: 10px;
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+
+  .site-navbar > .menu-toggle {
+    margin-left: auto;
   }
 
   .site-navbar .brand-logo {
@@ -661,6 +703,7 @@
     font-size: 19px !important;
     margin-top: 1px !important;
     letter-spacing: 0.08em !important;
+    line-height: 1.04 !important;
   }
 
   .mobile-brand-logo {
@@ -675,10 +718,29 @@
   .mobile-brand-name .brand-name-bottom {
     font-size: 14px;
     margin-top: -1px;
+    line-height: 1.04;
   }
 
   .menu-toggle {
     width: 42px;
     height: 42px;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-navbar .brand-logo {
+    width: 78px !important;
+    height: 78px !important;
+  }
+
+  .site-navbar .brand-name .brand-name-top {
+    font-size: 8px !important;
+    letter-spacing: 0.16em !important;
+  }
+
+  .site-navbar .brand-name .brand-name-bottom {
+    font-size: 16px !important;
+    letter-spacing: 0.06em !important;
+    line-height: 1.04 !important;
   }
 }

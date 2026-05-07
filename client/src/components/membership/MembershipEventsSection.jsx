@@ -9,7 +9,7 @@ export default function MembershipEventsSection() {
       <div className="membership-events__container">
         <div className="membership-events__heading">
           <span className="membership-events__heading-line" aria-hidden="true" />
-          <h2 className="membership-events__title">Membership Events</h2>
+          <h2 className="membership-events__title">V.O.I.C.E. NL Memberships</h2>
           <span className="membership-events__heading-line" aria-hidden="true" />
         </div>
         <iframe

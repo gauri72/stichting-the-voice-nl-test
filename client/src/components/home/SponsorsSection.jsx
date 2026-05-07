@@ -44,6 +44,7 @@ export default function SponsorsSection() {
           </h2>
           <span className="sponsors-section__label-line" aria-hidden="true" />
         </div>
+        <p className="sponsors-section__subtitle">Proudly Supported by our sponsors!</p>
 
         <div className="sponsors-marquee" aria-label="Sponsor logos">
           <div className="sponsors-marquee__track">
