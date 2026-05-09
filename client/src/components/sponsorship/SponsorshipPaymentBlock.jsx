@@ -166,14 +166,31 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
 
   // Warm the API the moment the payment block mounts, in case the visitor
   // jumped straight here (deep link) and bypassed the page-level warm-up.
+  // Retries with backoff so a missed first ping during cold start is recovered.
   useEffect(() => {
     if (!API_BASE) return;
     const controller = new AbortController();
-    fetch(apiUrl("/api/health"), {
-      method: "GET",
-      signal: controller.signal,
-      cache: "no-store"
-    }).catch(() => {});
+    (async () => {
+      const url = apiUrl("/api/health");
+      const attempts = [0, 3000, 8000, 15000];
+      for (const delay of attempts) {
+        if (controller.signal.aborted) return;
+        if (delay > 0) {
+          await new Promise((r) => setTimeout(r, delay));
+          if (controller.signal.aborted) return;
+        }
+        try {
+          const res = await fetch(url, {
+            method: "GET",
+            signal: controller.signal,
+            cache: "no-store"
+          });
+          if (res.ok) return;
+        } catch (_err) {
+          // Try again after the next backoff window.
+        }
+      }
+    })();
     return () => controller.abort();
   }, []);
 
