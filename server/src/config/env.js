@@ -20,6 +20,18 @@ const env = {
     pass: process.env.EMAIL_PASS || "",
     from: process.env.EMAIL_FROM || "",
     orgNotify: process.env.ORG_NOTIFY_EMAIL || ""
+  },
+  org: {
+    contactEmail:
+      process.env.CONTACT_EMAIL ||
+      process.env.ORG_NOTIFY_EMAIL ||
+      "info@thevoicenl.org",
+    tagline:
+      process.env.ORG_TAGLINE ||
+      "The voice of international cultural exchange in the Netherlands",
+    sponsorUploadUrl:
+      process.env.SPONSOR_UPLOAD_URL ||
+      "https://e.pcloud.com/#/puplink?code=a0d7Z7oHyALJyo1QSVj7EPvLx5y5ySo37"
   }
 };
 

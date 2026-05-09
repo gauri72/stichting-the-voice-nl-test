@@ -6,6 +6,48 @@ import { sendSponsorshipEmails } from "../services/mailer.js";
 // In-memory guard so we don't email twice if both webhook and client confirmation fire.
 const emailedIntents = new Set();
 
+// Deterministic receipt number derived from the Stripe payment intent so it is
+// stable across the webhook + client-side confirmation paths.
+function buildReceiptNumber(paymentIntentId, createdSeconds) {
+  const ms = Number(createdSeconds) * 1000;
+  const date = Number.isFinite(ms) && ms > 0 ? new Date(ms) : new Date();
+  const year = date.getUTCFullYear();
+  const tail = String(paymentIntentId || "")
+    .replace(/^pi_/, "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .slice(-8)
+    .toUpperCase()
+    .padStart(8, "0");
+  return `VOICE-${year}-${tail}`;
+}
+
+function describePaymentMethod(intent) {
+  const pm = intent?.payment_method;
+  if (pm && typeof pm === "object") {
+    if (pm.type === "card" && pm.card?.brand) {
+      const brand = pm.card.brand
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+      return `${brand} card via Stripe`;
+    }
+    if (pm.type) {
+      const label = pm.type.replace(/_/g, " ");
+      return `${label.charAt(0).toUpperCase() + label.slice(1)} via Stripe`;
+    }
+  }
+  const charge = intent?.latest_charge;
+  if (charge && typeof charge === "object") {
+    const details = charge.payment_method_details;
+    if (details?.card?.brand) {
+      const brand = details.card.brand
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+      return `${brand} card via Stripe`;
+    }
+  }
+  return "Card via Stripe";
+}
+
 function sanitizeSponsor(input = {}) {
   const firstName = String(input.firstName || "").trim().slice(0, 80);
   const lastName = String(input.lastName || "").trim().slice(0, 80);
@@ -24,19 +66,14 @@ function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || "");
 }
 
-async function emailSponsorOnce({ sponsor, tier, amountMinor, currency, paymentIntentId }) {
+async function emailSponsorOnce(payload) {
+  const { paymentIntentId } = payload;
   if (!paymentIntentId) return;
   if (emailedIntents.has(paymentIntentId)) return;
   emailedIntents.add(paymentIntentId);
 
   try {
-    await sendSponsorshipEmails({
-      sponsor,
-      tier,
-      amountMinor,
-      currency,
-      paymentIntentId
-    });
+    await sendSponsorshipEmails(payload);
   } catch (error) {
     emailedIntents.delete(paymentIntentId);
     console.error("[payments] Failed to send sponsorship email:", error.message);
@@ -118,7 +155,9 @@ export async function confirmPayment(req, res) {
     }
 
     const stripe = getStripe();
-    const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    const intent = await stripe.paymentIntents.retrieve(paymentIntentId, {
+      expand: ["payment_method", "latest_charge"]
+    });
 
     if (intent.status !== "succeeded") {
       return res.status(202).json({ status: intent.status });
@@ -141,7 +180,10 @@ export async function confirmPayment(req, res) {
       tier,
       amountMinor: intent.amount_received || intent.amount,
       currency: intent.currency,
-      paymentIntentId: intent.id
+      paymentIntentId: intent.id,
+      paymentCreated: intent.created,
+      paymentMethod: describePaymentMethod(intent),
+      receiptNumber: buildReceiptNumber(intent.id, intent.created)
     });
 
     return res.status(200).json({ status: "succeeded" });
@@ -175,8 +217,23 @@ export async function stripeWebhook(req, res) {
   }
 
   if (event.type === "payment_intent.succeeded") {
-    const intent = event.data.object;
-    const meta = intent.metadata || {};
+    const baseIntent = event.data.object;
+    const meta = baseIntent.metadata || {};
+
+    // The webhook payload omits expanded objects. Re-fetch with expansions so
+    // the receipt PDF / email can show a precise payment method label.
+    let intent = baseIntent;
+    try {
+      intent = await stripe.paymentIntents.retrieve(baseIntent.id, {
+        expand: ["payment_method", "latest_charge"]
+      });
+    } catch (err) {
+      console.warn(
+        "[payments] Webhook: could not expand payment intent, falling back to webhook payload:",
+        err.message
+      );
+    }
+
     const sponsor = {
       name: meta.sponsor_name,
       firstName: (meta.sponsor_name || "").split(" ")[0] || "",
@@ -193,7 +250,10 @@ export async function stripeWebhook(req, res) {
       tier,
       amountMinor: intent.amount_received || intent.amount,
       currency: intent.currency,
-      paymentIntentId: intent.id
+      paymentIntentId: intent.id,
+      paymentCreated: intent.created,
+      paymentMethod: describePaymentMethod(intent),
+      receiptNumber: buildReceiptNumber(intent.id, intent.created)
     });
   }
 
