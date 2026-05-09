@@ -8,6 +8,21 @@ const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 const apiUrl = (path) => `${API_BASE}${path}`;
 
+// Free-tier hosts (e.g. Render) can take 30-50s to wake from sleep. Keep the
+// timeout comfortably above that so a cold start does not get aborted.
+const REQUEST_TIMEOUT_MS = 75000;
+const WAKING_HINT_DELAY_MS = 4000;
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 let stripePromise = null;
 function getStripePromise() {
   if (stripePromise) return stripePromise;
@@ -136,6 +151,7 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
   const [clientSecret, setClientSecret] = useState("");
   const [intentMeta, setIntentMeta] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [wakingUp, setWakingUp] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [success, setSuccess] = useState(null);
 
@@ -147,6 +163,19 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
     setSuccess(null);
     setCustomAmount("");
   }, [tier?.id]);
+
+  // Warm the API the moment the payment block mounts, in case the visitor
+  // jumped straight here (deep link) and bypassed the page-level warm-up.
+  useEffect(() => {
+    if (!API_BASE) return;
+    const controller = new AbortController();
+    fetch(apiUrl("/api/health"), {
+      method: "GET",
+      signal: controller.signal,
+      cache: "no-store"
+    }).catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   const stripeReady = Boolean(getStripePromise());
   const stripeMissingKey = !PUBLISHABLE_KEY;
@@ -178,7 +207,12 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
       return;
     }
     setLoading(true);
+    setWakingUp(false);
     setSubmitError("");
+
+    // If the request is still in flight after a few seconds, surface a hint
+    // explaining the delay (most likely a free-tier server cold start).
+    const wakingTimer = setTimeout(() => setWakingUp(true), WAKING_HINT_DELAY_MS);
 
     try {
       const body = {
@@ -202,11 +236,14 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
         }
       }
 
-      const response = await fetch(apiUrl("/api/payments/create-payment-intent"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
+      const response = await fetchWithTimeout(
+        apiUrl("/api/payments/create-payment-intent"),
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        }
+      );
 
       const data = await response.json();
       if (!response.ok) {
@@ -221,9 +258,21 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
       });
       setStep("payment");
     } catch (error) {
-      setSubmitError(error.message || "Could not start the payment.");
+      if (error?.name === "AbortError") {
+        setSubmitError(
+          "The payment server took too long to respond. It may be waking up from sleep. Please wait a moment and try again."
+        );
+      } else if (error instanceof TypeError) {
+        setSubmitError(
+          "Could not reach the payment server. Please check your connection and try again."
+        );
+      } else {
+        setSubmitError(error.message || "Could not start the payment.");
+      }
     } finally {
+      clearTimeout(wakingTimer);
       setLoading(false);
+      setWakingUp(false);
     }
   }
 
@@ -365,8 +414,18 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
               className="sponsorship-payment__continue-btn"
               disabled={loading}
             >
-              {loading ? "Preparing secure checkout..." : "Continue to payment"}
+              {loading
+                ? wakingUp
+                  ? "Waking up secure checkout, please wait..."
+                  : "Preparing secure checkout..."
+                : "Continue to payment"}
             </button>
+            {loading && wakingUp ? (
+              <p className="sponsorship-payment__waking-hint" aria-live="polite">
+                Our payment service is starting up. The first request can take up
+                to a minute. Subsequent requests will be instant.
+              </p>
+            ) : null}
           </form>
         ) : null}
 
