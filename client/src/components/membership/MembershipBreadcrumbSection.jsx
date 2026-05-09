@@ -18,9 +18,6 @@ export default function MembershipBreadcrumbSection() {
           the power of culture, creativity, and collaboration to build a better tomorrow.
         </p>
         <div className="membership-page__actions">
-          <a className="membership-page__cta membership-page__cta--primary" href="/membership#membership-matrix">
-            Join Membership
-          </a>
           <a className="membership-page__cta membership-page__cta--secondary" href="#membership-faqs">
             Membership FAQs
           </a>

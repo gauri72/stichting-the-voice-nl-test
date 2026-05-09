@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import env from "./config/env.js";
 import apiRoutes from "./routes/index.js";
+import { stripeWebhook } from "./controllers/paymentController.js";
 
 const app = express();
 
@@ -14,6 +15,14 @@ app.use(
   })
 );
 app.use(morgan("dev"));
+
+// Stripe webhook MUST receive the raw request body (before express.json()).
+app.post(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhook
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

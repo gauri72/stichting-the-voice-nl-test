@@ -12,6 +12,7 @@ import {
 import { FaXTwitter } from "react-icons/fa6";
 import { IoMailOpenOutline } from "react-icons/io5";
 import headerLogo from "../../assets/header-logo.png";
+import footerBg from "../../assets/footer-bg.png";
 import "../../styles/footer.css";
 
 // Set VITE_WHATSAPP_E164 in client/.env (digits only, e.g. 31619032104).
@@ -39,9 +40,14 @@ const quickLinksRow2 = [
 
 const quickLinksRow3 = [
   { label: "Events", to: "/events" },
-  { label: "Testimonials", to: "/testimonials" },
+  { label: "My Account", to: "/my-account" },
   { label: "Blogs", to: "/blogs" },
   { label: "Chat With Us", href: buildWhatsAppHref() },
+];
+
+const legalLinks = [
+  { label: "Privacy Policy", to: "/privacy-policy" },
+  { label: "Terms & Conditions", to: "/terms-and-conditions" },
 ];
 
 const socialLinks = [
@@ -84,9 +90,59 @@ export default function Footer() {
   }
 
   return (
-    <footer className="site-footer">
+    <footer className="site-footer site-footer--with-bg" style={{ "--footer-bg-image": `url(${footerBg})` }}>
       <div className="footer-main">
-        <div className="footer-columns">
+        <div className="footer-impact-strip">
+          <div className="footer-impact-copy">
+            <h2 className="footer-impact-title">Together, We Can</h2>
+            <p className="footer-impact-subtitle">
+              <span className="footer-impact-subtitle-blue">Create a </span>
+              <span className="footer-impact-subtitle-green">Better Tomorrow.</span>
+            </p>
+            <p className="footer-impact-description">
+              Thank you for believing in our mission and supporting the power of culture.
+            </p>
+          </div>
+
+          <div className="footer-impact-donate">
+            <Link className="footer-impact-donate-btn" to="/donate">
+              DONATE NOW <span aria-hidden>♥</span>
+            </Link>
+            <p>Every act of kindness makes a lasting impact.</p>
+          </div>
+        </div>
+
+        <div className="footer-stay-connected">
+          <div className="footer-stay-connected-copy">
+            <IoMailOpenOutline className="footer-stay-connected-icon" aria-hidden />
+            <div>
+              <h3>STAY CONNECTED</h3>
+              <p>Subscribe to our newsletter for updates on events, stories and impact.</p>
+            </div>
+          </div>
+          <form className="footer-stay-connected-form" onSubmit={handleSubscribe}>
+            <label htmlFor="footer-newsletter-email" className="visually-hidden">
+              Email address
+            </label>
+            <input
+              id="footer-newsletter-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(ev) => {
+                setEmail(ev.target.value);
+                setSubscribed(false);
+              }}
+            />
+            <button type="submit" className="footer-stay-connected-btn">
+              SUBSCRIBE
+            </button>
+          </form>
+        </div>
+
+        <div className="footer-columns footer-columns--main">
           <div className="footer-col footer-col-brand">
             <div className="footer-brand-card">
               <div className="footer-brand-block">
@@ -113,7 +169,9 @@ export default function Footer() {
                 <p>
                   <span className="footer-brand-details-label">Address</span>
                   <span className="footer-brand-details-value">
-                    Wengehout 30, 2719 KA Zoetermeer, The Netherlands
+                    Wengehout 30, 2719 KA
+                    <br />
+                    <span className="footer-address-line-2">Zoetermeer, The Netherlands</span>
                   </span>
                 </p>
                 <p>
@@ -128,7 +186,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="footer-col footer-col-links-social">
+          <div className="footer-col footer-col-quick">
             <h3 className="footer-section-title">Quick links</h3>
             <div className="footer-quick-grid footer-quick-grid--rows">
               <ul className="footer-quick-row footer-quick-row--four">
@@ -159,49 +217,28 @@ export default function Footer() {
                 ))}
               </ul>
             </div>
-            <div className="footer-links-divider" aria-hidden="true" />
+          </div>
 
-            <h3 className="footer-section-title footer-section-title--spaced">Follow us</h3>
-            <div className="footer-social-list footer-social-list--row">
+          <div className="footer-col footer-col-legal">
+            <h3 className="footer-section-title">Legal</h3>
+            <ul className="footer-legal-links">
+              {legalLinks.map((item) => (
+                <li key={item.label}>
+                  <Link to={item.to}>{item.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="footer-col footer-col-follow">
+            <h3 className="footer-section-title">Follow us</h3>
+            <div className="footer-social-list footer-social-list--footer">
               {socialLinks.map(({ href, label, Icon }) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
                   <Icon aria-hidden />
                 </a>
               ))}
             </div>
-          </div>
-
-          <div className="footer-col footer-col-newsletter">
-            <h3 className="footer-section-title">Stay connected</h3>
-            <div className="footer-newsletter-copy footer-newsletter-copy--column">
-              <IoMailOpenOutline className="footer-newsletter-icon" aria-hidden />
-              <p>Subscribe to our newsletter for updates on events, stories and impact.</p>
-            </div>
-            <form className="footer-newsletter-form footer-newsletter-form--column" onSubmit={handleSubscribe}>
-              <label htmlFor="footer-newsletter-email" className="visually-hidden">
-                Email address
-              </label>
-              <input
-                id="footer-newsletter-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(ev) => {
-                  setEmail(ev.target.value);
-                  setSubscribed(false);
-                }}
-              />
-              <button type="submit" className="footer-subscribe-btn">
-                Subscribe
-              </button>
-              {subscribed ? (
-                <p className="footer-subscribe-note" role="status">
-                  Thank you — we will be in touch.
-                </p>
-              ) : null}
-            </form>
           </div>
         </div>
 
@@ -212,6 +249,11 @@ export default function Footer() {
           <p className="footer-copyright">© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.</p>
           <p className="footer-designed-by">Designed with 💙 by Stichting The V.O.I.C.E. NL</p>
         </div>
+        {subscribed ? (
+          <p className="footer-subscribe-note footer-subscribe-note--center" role="status">
+            Thank you — we will be in touch.
+          </p>
+        ) : null}
       </div>
 
       {isChatOpen ? (

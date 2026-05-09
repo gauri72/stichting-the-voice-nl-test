@@ -1,0 +1,81 @@
+# Render Blueprint - https://render.com/docs/blueprint-spec
+#
+# Free-tier deploy of Stichting The V.O.I.C.E. NL.
+# Two services: a Node API (web service) and a static React site.
+#
+# Notes:
+# - Env vars marked `sync: false` must be filled in from the Render dashboard
+#   per service after the Blueprint is created (Render won't read them from git).
+# - After filling them in, trigger "Manual Deploy" on each service so Vite can
+#   bake the publishable key + API URL into the static build.
+# - Free web services sleep after ~15 min of inactivity; the first request after
+#   sleep can take 30-50 s. Static sites never sleep.
+
+services:
+  # -----------------------------------------------------------------
+  # Backend API (Express)
+  # -----------------------------------------------------------------
+  - type: web
+    name: voice-nl-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: .
+    buildCommand: npm install
+    startCommand: node server/src/server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PAYMENT_CURRENCY
+        value: eur
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: "465"
+      - key: EMAIL_SECURE
+        value: "true"
+      # Secrets - paste in Render dashboard after first deploy
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: ORG_NOTIFY_EMAIL
+        sync: false
+      # Set this to the static site URL (e.g. https://voice-nl-web.onrender.com)
+      # so CORS allows requests from the frontend.
+      - key: CLIENT_URL
+        sync: false
+
+  # -----------------------------------------------------------------
+  # Frontend (Vite static build of the React app)
+  # -----------------------------------------------------------------
+  - type: web
+    name: voice-nl-web
+    runtime: static
+    rootDir: .
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./client/dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      # Public test publishable key from Stripe (pk_test_...). Vite reads
+      # VITE_* variables at build time, so a redeploy is required after editing.
+      - key: VITE_STRIPE_PUBLISHABLE_KEY
+        sync: false
+      # Set this to the API service URL (e.g. https://voice-nl-api.onrender.com)
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_WHATSAPP_E164
+        value: "31619032104"
+    # SPA rewrite so client-side routes like /sponsorship resolve to index.html
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

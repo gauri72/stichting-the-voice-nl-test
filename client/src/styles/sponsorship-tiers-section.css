@@ -1,0 +1,389 @@
+.sponsorship-tiers {
+  background: #ffffff;
+  padding: 26px 14px 34px;
+}
+
+.sponsorship-tiers__container {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.sponsorship-tiers__header {
+  text-align: center;
+}
+
+.sponsorship-tiers__heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.sponsorship-tiers__heading-line {
+  flex: 1;
+  height: 1px;
+  background: #d7dee5;
+}
+
+.sponsorship-tiers__eyebrow {
+  margin: 0;
+  color: #2c8b72;
+  text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.sponsorship-tiers__title {
+  margin: 6px 0 0;
+  color: #172f48;
+  font-size: clamp(1.45rem, 2vw, 1.95rem);
+  line-height: 1.12;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.sponsorship-tiers__title::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 3px;
+  margin: 8px auto 0;
+  border-radius: 999px;
+  background: #2ea276;
+}
+
+.sponsorship-tiers__lead {
+  margin: 14px auto 0;
+  max-width: 72ch;
+  color: #4f6070;
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
+.sponsorship-tiers__grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.sponsorship-tier-card {
+  border: 1px solid #d9e1e8;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.sponsorship-tier-card.is-featured {
+  border-color: #89c8bc;
+  box-shadow: 0 10px 24px rgba(12, 76, 80, 0.12);
+}
+
+.sponsorship-tier-card__tag {
+  margin: -14px -16px 12px;
+  background: linear-gradient(90deg, #1b7d8f 0%, #1f9f78 100%);
+  color: #ffffff;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 8px 10px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.sponsorship-tier-card__icon-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.sponsorship-tier-card__icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #f5fbff;
+  background: linear-gradient(180deg, #0b617e, #084d69);
+  border: 4px solid #ffffff;
+  box-shadow: 0 0 0 2px #2a8f9b;
+}
+
+.sponsorship-tier-card h3 {
+  margin: 14px 0 0;
+  text-align: center;
+  text-transform: uppercase;
+  color: #17314b;
+  font-size: 1.42rem;
+  font-weight: 800;
+}
+
+.sponsorship-tier-card__amount {
+  margin: 8px 0 0;
+  text-align: center;
+  color: #218f69;
+  font-size: 3rem;
+  line-height: 1.05;
+  font-weight: 800;
+}
+
+.sponsorship-tier-card__note {
+  margin: 10px 0 0;
+  text-align: center;
+  color: #4f6070;
+  font-size: 0.97rem;
+  line-height: 1.45;
+  min-height: 4.2em;
+}
+
+.sponsorship-tier-card__benefits {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.sponsorship-tier-card__benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #1d3550;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.sponsorship-tier-card__benefits svg {
+  color: #2b9871;
+  font-size: 1rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.sponsorship-tier-card__cta {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 8px);
+  margin-inline: 4px;
+  min-height: 46px;
+  border-radius: 8px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.9rem;
+  font-weight: 800;
+  border: 2px solid #4fabb2;
+  color: #1a7a86;
+  background: #f4fafc;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sponsorship-tier-card.is-active {
+  border-color: #1f9f78;
+  box-shadow: 0 0 0 3px rgba(31, 159, 120, 0.18);
+}
+
+.sponsorship-tier-card.is-featured .sponsorship-tier-card__cta {
+  border-color: #1f986f;
+  background: linear-gradient(90deg, #228f79 0%, #2eab66 100%);
+  color: #ffffff;
+}
+
+.sponsorship-tier-card__cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 10px 22px rgba(10, 47, 69, 0.18);
+}
+
+.sponsorship-tier-card__cta:active {
+  transform: translateY(0);
+}
+
+.sponsorship-why {
+  margin-top: 24px;
+  background: #f0f3f7;
+  border-radius: 14px;
+  padding: 24px 14px 18px;
+}
+
+.sponsorship-why__container {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.sponsorship-why h2 {
+  margin: 0;
+  text-align: center;
+  color: #172f48;
+  font-size: clamp(1.8rem, 2.9vw, 3rem);
+  font-weight: 800;
+}
+
+.sponsorship-why__grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+}
+
+.sponsorship-why__item {
+  padding: 0 12px;
+  text-align: center;
+  border-left: 1px solid #d3dbe4;
+}
+
+.sponsorship-why__item:first-child {
+  border-left: none;
+}
+
+.sponsorship-why__icon {
+  color: #0f7888;
+  font-size: 2.5rem;
+}
+
+.sponsorship-why__item h3 {
+  margin: 8px 0 0;
+  color: #17314b;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.sponsorship-why__item p {
+  margin: 8px 0 0;
+  color: #4f6070;
+  font-size: 0.95rem;
+  line-height: 1.42;
+}
+
+@media (max-width: 1200px) {
+  .sponsorship-tiers__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sponsorship-why__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 16px;
+  }
+
+  .sponsorship-why__item:nth-child(4) {
+    border-left: none;
+  }
+}
+
+@media (max-width: 1200px) and (min-width: 701px) {
+  .sponsorship-why__grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .sponsorship-why__item:nth-child(-n + 3) {
+    grid-column: span 2;
+  }
+
+  .sponsorship-why__item:nth-child(n + 4) {
+    grid-column: span 3;
+  }
+}
+
+@media (max-width: 700px) {
+  .sponsorship-tiers {
+    padding: 20px 10px 26px;
+  }
+
+  .sponsorship-tiers__heading {
+    gap: 8px;
+  }
+
+  .sponsorship-tiers__heading-line {
+    min-width: 14px;
+  }
+
+  .sponsorship-tiers__title {
+    white-space: normal;
+  }
+
+  .sponsorship-tiers__title::after {
+    width: 58px;
+    margin-top: 6px;
+  }
+
+  .sponsorship-tiers__eyebrow {
+    font-size: 0.84rem;
+  }
+
+  .sponsorship-tiers__lead {
+    font-size: 0.86rem;
+  }
+
+  .sponsorship-tiers__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sponsorship-tier-card h3 {
+    font-size: 1.22rem;
+  }
+
+  .sponsorship-tier-card__amount {
+    font-size: 2.35rem;
+  }
+
+  .sponsorship-tier-card__note {
+    min-height: auto;
+    font-size: 0.88rem;
+  }
+
+  .sponsorship-tier-card__benefits li {
+    font-size: 0.86rem;
+  }
+
+  .sponsorship-tier-card__cta {
+    min-height: 42px;
+    font-size: 0.78rem;
+  }
+
+  .sponsorship-why {
+    margin-top: 18px;
+    padding: 18px 10px 14px;
+  }
+
+  .sponsorship-why__grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .sponsorship-why__item {
+    border-left: none;
+    border-top: 1px solid #d3dbe4;
+    padding-top: 12px;
+  }
+
+  .sponsorship-why__item:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .sponsorship-why__icon {
+    font-size: 2rem;
+  }
+
+  .sponsorship-why__item h3 {
+    font-size: 1.08rem;
+  }
+
+  .sponsorship-why__item p {
+    font-size: 0.84rem;
+  }
+}

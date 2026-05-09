@@ -108,9 +108,6 @@ export default function Header() {
                 More
               </button>
               <div className="menu-dropdown-menu">
-                <NavLink to="/testimonials" onClick={closeMenu}>
-                  Testimonials
-                </NavLink>
                 <NavLink to="/blogs" onClick={closeMenu}>
                   Blogs
                 </NavLink>

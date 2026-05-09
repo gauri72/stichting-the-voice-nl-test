@@ -5,6 +5,7 @@ import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import HomePage from "./components/home/HomePage";
 import MembershipPage from "./components/membership/MembershipPage";
+import SponsorshipPage from "./components/sponsorship/SponsorshipPage";
 
 function EmptyPage() {
   return null;
@@ -41,7 +42,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<EmptyPage />} />
           <Route path="/events" element={<EmptyPage />} />
-          <Route path="/sponsorship" element={<EmptyPage />} />
+          <Route path="/sponsorship" element={<SponsorshipPage />} />
           <Route path="/membership" element={<MembershipPage />} />
           <Route path="/segments/vision-of-sounds" element={<EmptyPage />} />
           <Route path="/segments/vownl" element={<EmptyPage />} />
