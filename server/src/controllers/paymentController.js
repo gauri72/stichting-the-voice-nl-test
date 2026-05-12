@@ -114,7 +114,6 @@ export async function createPaymentIntent(req, res) {
       amount: amountMinor,
       currency: env.stripe.currency,
       automatic_payment_methods: { enabled: true },
-      receipt_email: sponsor.email,
       description: `Sponsorship - ${tier.name}`,
       metadata: {
         tier_id: tier.id,

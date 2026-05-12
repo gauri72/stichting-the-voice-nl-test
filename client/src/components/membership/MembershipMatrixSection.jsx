@@ -87,11 +87,17 @@ function Cell({ value }) {
   return <span className="membership-matrix__status membership-matrix__status--value">{value}</span>;
 }
 
-export default function MembershipMatrixSection() {
+export default function MembershipMatrixSection({ onOpenMemberships = () => {} }) {
   const plans = [
     { id: "family", title: "Premium Family Membership", price: "€250", Icon: FaUsers },
     { id: "single", title: "Premium Single Membership", price: "€150", Icon: FaUser },
-    { id: "privileged", title: "Privileged Membership", price: "€25", Icon: FaCrown },
+    {
+      id: "privileged",
+      title: "Privileged Membership",
+      price: "€25",
+      Icon: FaCrown,
+      featured: true,
+    },
     { id: "vownl", title: "VOWNL Membership", price: "€25", Icon: FaVenus },
   ];
   const featureRows = rows.filter((row) => row.feature !== "Price");
@@ -108,8 +114,13 @@ export default function MembershipMatrixSection() {
         </div>
 
         <div className="membership-matrix__cards" role="list" aria-label="Membership matrix cards">
-          {plans.map(({ id, title, price, Icon }) => (
-            <article key={id} className="membership-matrix__card" role="listitem">
+          {plans.map(({ id, title, price, Icon, featured }) => (
+            <article
+              key={id}
+              className={`membership-matrix__card${featured ? " membership-matrix__card--featured" : ""}`}
+              role="listitem"
+            >
+              {featured ? <p className="membership-matrix__card-tag">Most Popular</p> : null}
               <div className="membership-matrix__card-icon" aria-hidden="true">
                 <Icon />
               </div>
@@ -117,7 +128,7 @@ export default function MembershipMatrixSection() {
               <p className="membership-matrix__card-price">
                 <span>{price}</span> / year
               </p>
-              <ul className="membership-matrix__feature-list">
+              <ul className="membership-matrix__feature-list membership-matrix__feature-list--grow">
                 {featureRows.map((row) => (
                   <li key={`${id}-${row.feature}`}>
                     <p className="membership-matrix__feature-name">{row.feature}</p>
@@ -125,6 +136,13 @@ export default function MembershipMatrixSection() {
                   </li>
                 ))}
               </ul>
+              <button
+                type="button"
+                className={`membership-matrix__cta${featured ? " membership-matrix__cta--featured" : ""}`}
+                onClick={onOpenMemberships}
+              >
+                View V.O.I.C.E. NL Memberships
+              </button>
             </article>
           ))}
         </div>

@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import eventFlyer from "../../assets/Home/event.jpeg";
 import "../../styles/event-tickets.css";
 
 const TICKET_TAILOR_CHECKOUT_URL =
@@ -66,25 +65,8 @@ export default function EventTicketsSection() {
           <span className="event-tickets-section__label-line" aria-hidden="true" />
         </div>
 
-        <div className="event-tickets-section__grid">
-          <figure className="event-tickets-flyer">
-            <div className="event-tickets-flyer__inner">
-              <img
-                src={eventFlyer}
-                alt="Promotional flyer for the upcoming V.O.I.C.E. event"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-            <figcaption>Save the date — details on the flyer</figcaption>
-          </figure>
-
+        <div className="event-tickets-section__content">
           <div className="event-tickets-panel">
-            <h3 className="event-tickets-panel__title">Get your tickets</h3>
-            <p className="event-tickets-panel__subtitle">
-              Secure your seats in a few steps. If the box below does not load, use the link in the
-              message to open checkout in a new tab.
-            </p>
             <div
               className="event-tickets-widget-host"
               ref={widgetHostRef}
