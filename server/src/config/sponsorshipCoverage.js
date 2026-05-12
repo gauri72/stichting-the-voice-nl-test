@@ -25,7 +25,7 @@ export const SPONSORSHIP_COVERAGE = [
       "Sponsor mention in event program/page",
       "1 dedicated social media shout-out",
       "Public acknowledgement during event",
-      "4 complimentary event passes"
+      "2 complimentary event passes"
     ]
   },
   {

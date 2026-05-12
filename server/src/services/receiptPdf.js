@@ -1,296 +1,569 @@
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import PDFDocument from "pdfkit";
 import { SPONSORSHIP_COVERAGE } from "../config/sponsorshipCoverage.js";
 
-// Brand palette - kept in sync with the client templates supplied by Stichting
-// The V.O.I.C.E. NL.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const HEADER_LOGO_PATH = path.join(
+  __dirname,
+  "..",
+  "..",
+  "..",
+  "client",
+  "src",
+  "assets",
+  "header-logo.png"
+);
+
 const COLORS = {
+  pageBg: "#EDF5F7",
+  navy: "#002147",
+  deepNavy: "#003848",
+  teal: "#008080",
+  /** Footer / bar anchor: dark teal–navy from brand */
+  footerBar: "#084d69",
+  border: "#E5EEEE",
+  panel: "#FBFEFE",
+  label: "#111111",
+  black: "#000000",
+  muted: "#666666",
   text: "#17314b",
-  muted: "#5d6e7f",
-  rule: "#d9e1e8",
-  tableHeader: "#1f3b5a",
-  tableHeaderText: "#ffffff",
-  accent: "#1f9f78",
-  accentBg: "#eaf6f0",
-  brandTeal: "#1b7d8f"
+  white: "#ffffff"
 };
 
 const FONTS = {
   body: "Helvetica",
   bold: "Helvetica-Bold",
-  italic: "Helvetica-Oblique"
+  title: "Times-Bold"
 };
 
-function drawHeader(doc, options) {
-  const { contactEmail, orgTagline } = options;
-  const top = doc.page.margins.top;
+const FOOTER_BAR_HEIGHT = 36;
 
-  // Wordmark (text-only; no external image required)
+const CARD_INSET_X = 32;
+const CARD_INSET_Y = 16;
+const RADIUS = 4;
+
+/** @returns {{ w: number, h: number } | null} */
+function pngDimensions(filePath) {
+  try {
+    const buf = fs.readFileSync(filePath);
+    if (buf.length < 24 || buf.toString("ascii", 1, 4) !== "PNG") return null;
+    return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+  } catch {
+    return null;
+  }
+}
+
+function logoDimensions() {
+  if (!fs.existsSync(HEADER_LOGO_PATH)) return { path: null, width: 0, height: 0 };
+  const png = pngDimensions(HEADER_LOGO_PATH);
+  const height = 48;
+  const width = png && png.h ? (png.w / png.h) * height : height;
+  return { path: HEADER_LOGO_PATH, width, height };
+}
+
+function fillHorizontalGradient(doc, x, y, w, h, leftColor, rightColor) {
+  const gradient = doc.linearGradient(x, y, x + w, y);
+  gradient.stop(0, leftColor).stop(1, rightColor);
+  doc.fill(gradient);
+}
+
+function getCard(doc) {
+  return {
+    x: CARD_INSET_X,
+    y: CARD_INSET_Y,
+    w: doc.page.width - CARD_INSET_X * 2,
+    h: doc.page.height - CARD_INSET_Y * 2
+  };
+}
+
+function drawPageChrome(doc) {
+  const card = getCard(doc);
+  doc.save();
+  doc.rect(0, 0, doc.page.width, doc.page.height).fill(COLORS.pageBg);
+  doc.roundedRect(card.x, card.y, card.w, card.h, 8).fill(COLORS.white);
+  doc.restore();
+}
+
+function drawHeaderCorner(doc) {
+  const card = getCard(doc);
+  const cardRight = card.x + card.w;
+  const w = 258;
+  const h = 78;
+  const x = cardRight - w;
+  const y = card.y;
+  const r = 8;
+
+  doc.save();
   doc
-    .fillColor(COLORS.brandTeal)
-    .font(FONTS.bold)
-    .fontSize(11)
-    .text("STICHTING ", doc.page.margins.left, top, { continued: true })
-    .fillColor(COLORS.text)
-    .text("THE V.O.I.C.E. NL", { continued: false });
+    .moveTo(x, y)
+    .lineTo(cardRight - r, y)
+    .quadraticCurveTo(cardRight, y, cardRight, y + r)
+    .lineTo(cardRight, y + h)
+    .lineTo(x + 62, y + h)
+    .bezierCurveTo(x + 22, y + h, x, y + 52, x, y + 16)
+    .lineTo(x, y)
+    .closePath();
+  fillHorizontalGradient(doc, x, y, w, h, COLORS.deepNavy, COLORS.teal);
+  doc.restore();
+}
 
-  doc
-    .fillColor(COLORS.muted)
-    .font(FONTS.body)
-    .fontSize(8.5)
-    .text(orgTagline, doc.page.margins.left, top + 14, {
-      width: doc.page.width - doc.page.margins.left - doc.page.margins.right - 180
-    });
+function drawHeaderBanner(doc) {
+  const top = CARD_INSET_Y + 20;
+  const leftM = doc.page.margins.left;
+  const card = getCard(doc);
+  const cardRight = card.x + card.w;
 
-  if (contactEmail) {
-    doc.text(contactEmail, doc.page.margins.left, top + 26);
+  drawHeaderCorner(doc);
+
+  const { path: logoPath, width: logoW, height: logoH } = logoDimensions();
+  let textX = leftM;
+  if (logoPath) {
+    doc.image(logoPath, leftM, top, { height: logoH });
+    textX = leftM + logoW + 10;
   }
 
-  doc
-    .moveTo(doc.page.margins.left, top + 44)
-    .lineTo(doc.page.width - doc.page.margins.right, top + 44)
-    .lineWidth(0.6)
-    .strokeColor(COLORS.rule)
-    .stroke();
+  const line1Size = 12;
+  const line2Size = 13.5;
+  const textBlockH = line1Size * 1.15 + line2Size * 1.15;
+  const textY = top + Math.max(0, (logoPath ? logoH : 36) - textBlockH) / 2;
 
-  doc.moveDown(2);
-  doc.y = top + 56;
+  doc
+    .fillColor(COLORS.black)
+    .font(FONTS.bold)
+    .fontSize(line1Size)
+    .text("STICHTING", textX, textY, { width: 190 });
+
+  doc
+    .fillColor(COLORS.teal)
+    .font(FONTS.bold)
+    .fontSize(line2Size)
+    .text("THE V.O.I.C.E. NL", textX, textY + line1Size * 1.25, { width: 210 });
+
+  const blobTextW = 128;
+  const blobTextX = cardRight - blobTextW - 28;
+  const blobTextTop = CARD_INSET_Y + 22;
+
+  doc
+    .fillColor(COLORS.white)
+    .font(FONTS.bold)
+    .fontSize(7)
+    .text("PARTNER WITH US.", blobTextX, blobTextTop, {
+      width: blobTextW,
+      align: "right",
+      lineGap: 0,
+      characterSpacing: 0.35
+    });
+
+  doc
+    .fillColor(COLORS.white)
+    .font(FONTS.bold)
+    .fontSize(6.4)
+    .text("CREATE LASTING IMPACT.", blobTextX, blobTextTop + 12, {
+      width: blobTextW,
+      align: "right",
+      lineGap: 0,
+      characterSpacing: 0.35
+    });
+
+  doc.y = CARD_INSET_Y + 104;
 }
 
 function drawTitle(doc, title, subtitle) {
-  doc
-    .fillColor(COLORS.text)
-    .font(FONTS.bold)
-    .fontSize(20)
-    .text(title, { align: "left" });
-
-  if (subtitle) {
-    doc
-      .moveDown(0.2)
-      .font(FONTS.body)
-      .fontSize(10)
-      .fillColor(COLORS.muted)
-      .text(subtitle);
-  }
-  doc.moveDown(0.6);
-}
-
-function drawSectionHeading(doc, text) {
-  doc
-    .moveDown(0.6)
-    .fillColor(COLORS.text)
-    .font(FONTS.bold)
-    .fontSize(13)
-    .text(text);
-  doc.moveDown(0.3);
-}
-
-function drawInfoTable(doc, rows) {
   const left = doc.page.margins.left;
   const width = doc.page.width - left - doc.page.margins.right;
-  const labelWidth = 170;
-  const valueWidth = width - labelWidth;
-  const rowPadding = 7;
 
-  // Header bar
-  const headerHeight = 22;
   doc
-    .rect(left, doc.y, width, headerHeight)
-    .fill(COLORS.tableHeader);
-  doc
-    .fillColor(COLORS.tableHeaderText)
-    .font(FONTS.bold)
-    .fontSize(11)
-    .text("Sponsorship Receipt", left + 12, doc.y + 6, { width: width - 24 });
+    .fillColor(COLORS.black)
+    .font(FONTS.title)
+    .fontSize(26)
+    .text(title, left, doc.y, { width, align: "left" });
 
-  doc.y += headerHeight;
-
-  rows.forEach((row, idx) => {
-    const startY = doc.y;
+  if (subtitle) {
+    doc.moveDown(0.1);
     doc
-      .fillColor(COLORS.text)
-      .font(FONTS.bold)
-      .fontSize(10)
-      .text(row.label, left + 12, startY + rowPadding, {
-        width: labelWidth - 16
-      });
-
-    doc
+      .fillColor(COLORS.muted)
       .font(FONTS.body)
-      .fontSize(10)
-      .fillColor(COLORS.text)
-      .text(row.value || "-", left + labelWidth, startY + rowPadding, {
-        width: valueWidth - 12
-      });
+      .fontSize(9)
+      .text(subtitle, left, doc.y, { width, align: "left", lineGap: 1 });
+  }
 
-    const endY = Math.max(doc.y, startY + 22);
-    const rowHeight = endY - startY + rowPadding;
+  doc.moveDown(0.65);
+}
 
+function drawInfoText(doc, x, y, w, label, value) {
+  const safeValue = value && String(value).trim() ? String(value) : "-";
+
+  doc
+    .fillColor(COLORS.label)
+    .font(FONTS.bold)
+    .fontSize(8.6)
+    .text(label, x, y, { width: w });
+
+  doc
+    .fillColor(COLORS.teal)
+    .font(FONTS.bold)
+    .fontSize(9.2)
+    .text(safeValue, x, y + 11, { width: w });
+}
+
+/** @returns {number} box height */
+function drawLabeledBox(doc, x, y, w, h, label, value) {
+  const padX = 12;
+  const safeValue = value && String(value).trim() ? String(value) : "-";
+
+  doc
+    .roundedRect(x, y, w, h, RADIUS)
+    .lineWidth(0.9)
+    .strokeColor(COLORS.border)
+    .stroke();
+
+  drawInfoText(doc, x + padX, y + 10, w - padX * 2, label, safeValue);
+
+  return h;
+}
+
+function drawReceiptDetailsGrid(doc, payload) {
+  const left = doc.page.margins.left;
+  const width = doc.page.width - left - doc.page.margins.right;
+  const rowH = 43;
+  const colW = width / 2;
+  const totalH = rowH * 3;
+  const y0 = doc.y;
+
+  const rows = [
+    [
+      { label: "Receipt No:", value: payload.receiptNumber },
+      { label: "Sponsorship Amount:", value: payload.sponsorshipAmount }
+    ],
+    [
+      { label: "Receipt Date:", value: payload.paymentDate },
+      { label: "Sponsorship Tier:", value: payload.sponsorshipTier }
+    ],
+    [
+      { label: "Payment Reference:", value: payload.stripePaymentId },
+      { label: "Payment Method:", value: payload.paymentMethod }
+    ]
+  ];
+
+  doc
+    .roundedRect(left, y0, width, totalH, RADIUS)
+    .lineWidth(0.9)
+    .strokeColor(COLORS.border)
+    .stroke();
+
+  doc
+    .moveTo(left + colW, y0)
+    .lineTo(left + colW, y0 + totalH)
+    .lineWidth(0.55)
+    .strokeColor(COLORS.border)
+    .stroke();
+
+  for (let i = 1; i < rows.length; i += 1) {
+    const y = y0 + rowH * i;
     doc
-      .moveTo(left, startY + rowHeight)
-      .lineTo(left + width, startY + rowHeight)
-      .lineWidth(0.5)
-      .strokeColor(COLORS.rule)
+      .moveTo(left, y)
+      .lineTo(left + width, y)
+      .lineWidth(0.55)
+      .strokeColor(COLORS.border)
       .stroke();
+  }
 
-    if (idx === 0) {
-      doc
-        .moveTo(left, startY)
-        .lineTo(left + width, startY)
-        .stroke();
-    }
-
-    doc.y = startY + rowHeight;
+  rows.forEach((pair, rowIdx) => {
+    const y = y0 + rowIdx * rowH + 10;
+    drawInfoText(doc, left + 14, y, colW - 28, pair[0].label, pair[0].value);
+    drawInfoText(doc, left + colW + 14, y, colW - 28, pair[1].label, pair[1].value);
   });
+
+  doc.y = y0 + totalH + 11;
+}
+
+function drawSponsorRow(doc, payload) {
+  ensureSpace(doc, 44);
+  const left = doc.page.margins.left;
+  const width = doc.page.width - left - doc.page.margins.right;
+  const rowH = 41;
+  const colW = width / 3;
+  const y0 = doc.y;
+  const cells = [
+    { label: "Sponsor Name:", value: payload.sponsorName },
+    { label: "Company Name:", value: payload.companyName },
+    { label: "Sponsor Email:", value: payload.sponsorEmail }
+  ];
+
+  doc
+    .roundedRect(left, y0, width, rowH, RADIUS)
+    .lineWidth(0.9)
+    .strokeColor(COLORS.border)
+    .stroke();
+
+  for (let i = 1; i < 3; i += 1) {
+    const x = left + colW * i;
+    doc
+      .moveTo(x, y0)
+      .lineTo(x, y0 + rowH)
+      .lineWidth(0.55)
+      .strokeColor(COLORS.border)
+      .stroke();
+  }
+
+  cells.forEach((cell, idx) => {
+    drawInfoText(doc, left + colW * idx + 12, y0 + 10, colW - 24, cell.label, cell.value);
+  });
+
+  doc.y = y0 + rowH + 10;
+}
+
+function drawConfirmationBlock(doc) {
+  ensureSpace(doc, 42);
+  const left = doc.page.margins.left;
+  const width = doc.page.width - left - doc.page.margins.right;
+  const msg =
+    "This receipt confirms that Stichting The V.O.I.C.E. NL has received the sponsorship contribution described above with thanks and appreciation.";
+
+  doc
+    .font(FONTS.body)
+    .fontSize(8.6)
+    .fillColor(COLORS.black)
+    .text(msg, left, doc.y, {
+      width,
+      align: "left",
+      lineGap: 2
+    });
+  doc.moveDown(0.55);
+}
+
+function beginCoverageSection(doc) {
+  doc.moveDown(0.15);
+}
+
+function drawCoverageHeading(doc) {
+  const left = doc.page.margins.left;
+  const width = doc.page.width - left - doc.page.margins.right;
+
+  doc
+    .fillColor(COLORS.black)
+    .font(FONTS.title)
+    .fontSize(17)
+    .text("Sponsorship Coverage", left, doc.y, { width, align: "center" });
+  doc.moveDown(0.45);
 }
 
 function ensureSpace(doc, needed) {
-  const bottom = doc.page.height - doc.page.margins.bottom;
-  if (doc.y + needed > bottom) {
-    doc.addPage();
-  }
+  const maxY = doc.page.maxY();
+  if (doc.y + needed <= maxY) return;
+  // The receipt template is a one-page design; avoid creating a blank spill page.
+}
+
+function measureCoverageRowHeight(doc, tier, tierW, amountW, coverageW, sizes) {
+  const vPad = sizes.vPad;
+  const innerTier = tierW - 16;
+  const innerAmt = amountW - 12;
+  const innerCov = coverageW - 16;
+  const tierFs = sizes.tierFs;
+  const benFs = sizes.benFs;
+  const benLineGap = sizes.benLineGap;
+
+  doc.font(FONTS.bold).fontSize(tierFs);
+  const hTier = doc.heightOfString(tier.name, { width: innerTier });
+  const hAmt = doc.heightOfString(tier.amountLabel, { width: innerAmt });
+
+  doc.font(FONTS.body).fontSize(benFs);
+  const benefitsText = tier.benefits.join("; ");
+  const hBen = doc.heightOfString(benefitsText, { width: innerCov, lineGap: benLineGap });
+
+  return vPad + Math.max(hTier, hAmt, hBen) + vPad;
 }
 
 function drawCoverageTable(doc) {
   const left = doc.page.margins.left;
   const width = doc.page.width - left - doc.page.margins.right;
-  const tierW = 110;
-  const amountW = 70;
+  const tierW = 76;
+  const amountW = 64;
   const coverageW = width - tierW - amountW;
 
-  ensureSpace(doc, 80);
+  const sizes = {
+    vPad: 8,
+    tierFs: 8.4,
+    benFs: 7.3,
+    benLineGap: 0.4
+  };
+  const innerPad = sizes.vPad;
 
-  // Header
-  const headerH = 22;
-  doc
-    .rect(left, doc.y, width, headerH)
-    .fill(COLORS.tableHeader);
-  doc
-    .fillColor(COLORS.tableHeaderText)
-    .font(FONTS.bold)
-    .fontSize(10);
-  doc.text("Tier", left + 10, doc.y + 6, { width: tierW - 14 });
-  doc.text("Amount", left + tierW + 6, doc.y + 6, { width: amountW - 12 });
-  doc.text("Coverage", left + tierW + amountW + 8, doc.y + 6, {
-    width: coverageW - 16
-  });
-  doc.y += headerH;
-
+  let totalBody = 0;
   SPONSORSHIP_COVERAGE.forEach((tier) => {
-    ensureSpace(doc, 60);
-    const startY = doc.y;
-    const padding = 8;
+    totalBody += measureCoverageRowHeight(doc, tier, tierW, amountW, coverageW, sizes);
+  });
+
+  drawCoverageHeading(doc);
+
+  const tableTop = doc.y;
+  const tableH = totalBody;
+
+  doc
+    .roundedRect(left, tableTop, width, tableH, RADIUS)
+    .lineWidth(0.85)
+    .strokeColor(COLORS.border)
+    .stroke();
+
+  const xTier = left;
+  const xAmt = left + tierW;
+  const xBen = left + tierW + amountW;
+
+  let y = tableTop;
+
+  doc
+    .moveTo(xAmt, tableTop)
+    .lineTo(xAmt, tableTop + tableH)
+    .lineWidth(0.65)
+    .strokeColor(COLORS.border)
+    .stroke();
+  doc
+    .moveTo(xBen, tableTop)
+    .lineTo(xBen, tableTop + tableH)
+    .stroke();
+
+  SPONSORSHIP_COVERAGE.forEach((tier, idx) => {
+    const rowH = measureCoverageRowHeight(doc, tier, tierW, amountW, coverageW, sizes);
+    const rowTop = y;
+
+    if (idx > 0) {
+      doc
+        .moveTo(left, rowTop)
+        .lineTo(left + width, rowTop)
+        .lineWidth(0.65)
+        .strokeColor(COLORS.border)
+        .stroke();
+    }
+
+    const cellMid = rowTop + innerPad;
 
     doc
-      .fillColor(COLORS.text)
+      .fillColor(COLORS.label)
       .font(FONTS.bold)
-      .fontSize(10)
-      .text(tier.name, left + 10, startY + padding, { width: tierW - 14 });
+      .fontSize(sizes.tierFs)
+      .text(tier.name, xTier + 8, cellMid, { width: tierW - 16 });
 
     doc
       .font(FONTS.bold)
-      .fillColor(COLORS.accent)
-      .text(tier.amountLabel, left + tierW + 6, startY + padding, {
-        width: amountW - 12
-      });
+      .fontSize(sizes.tierFs)
+      .fillColor(COLORS.teal)
+      .text(tier.amountLabel, xAmt + 6, cellMid, { width: amountW - 12 });
 
-    doc.fillColor(COLORS.text).font(FONTS.body).fontSize(9.5);
-    let bulletY = startY + padding;
-    tier.benefits.forEach((benefit) => {
-      doc.text("\u2022 " + benefit, left + tierW + amountW + 8, bulletY, {
-        width: coverageW - 16
-      });
-      bulletY = doc.y;
+    doc.fillColor(COLORS.black).font(FONTS.body).fontSize(sizes.benFs);
+    doc.text(tier.benefits.join("; "), xBen + 8, cellMid, {
+      width: coverageW - 16,
+      lineGap: sizes.benLineGap
     });
 
-    const rowEnd = Math.max(doc.y, bulletY) + padding;
-
-    // Row separator
-    doc
-      .moveTo(left, rowEnd)
-      .lineTo(left + width, rowEnd)
-      .lineWidth(0.5)
-      .strokeColor(COLORS.rule)
-      .stroke();
-
-    // Vertical separators
-    doc
-      .moveTo(left + tierW, startY)
-      .lineTo(left + tierW, rowEnd)
-      .stroke();
-    doc
-      .moveTo(left + tierW + amountW, startY)
-      .lineTo(left + tierW + amountW, rowEnd)
-      .stroke();
-
-    doc.y = rowEnd;
+    y += rowH;
   });
+
+  doc.y = tableTop + tableH + 12;
 }
 
 function drawUploadRequest(doc, uploadUrl) {
-  ensureSpace(doc, 110);
-  drawSectionHeading(doc, "Sponsor Media Upload Request");
+  doc.moveDown(0.2);
+
+  const left = doc.page.margins.left;
+  const width = doc.page.width - left - doc.page.margins.right;
+  const pad = 11;
+  const title = "Sponsor Media Upload Request";
+  const body =
+    "Please upload high-definition logo files, media files, promotional materials, brand guidelines and approved sponsor text using the secure pCloud upload request below:";
+
+  doc.font(FONTS.bold).fontSize(8.8).fillColor(COLORS.black);
+  const titleH = doc.heightOfString(title, { width: width - pad * 2 });
+  doc.font(FONTS.body).fontSize(8).fillColor(COLORS.black);
+  const bodyH = doc.heightOfString(body, { width: width - pad * 2, lineGap: 1 });
+  doc.font(FONTS.body).fontSize(8);
+  const urlH = doc.heightOfString(uploadUrl, { width: width - pad * 2, lineGap: 1 });
+  const boxH = pad * 2 + titleH + 3 + bodyH + 2 + urlH + 2;
+
+  const y0 = doc.y;
+  doc
+    .roundedRect(left, y0, width, boxH, RADIUS)
+    .lineWidth(0.9)
+    .strokeColor(COLORS.border)
+    .stroke();
 
   doc
-    .font(FONTS.body)
-    .fontSize(10)
-    .fillColor(COLORS.text)
-    .text(
-      "Please upload high-definition logo files, media files, promotional materials, brand guidelines and approved sponsor text using the secure pCloud upload request below:",
-      { align: "left", lineGap: 2 }
-    );
-
-  doc.moveDown(0.4);
-
-  doc
-    .fillColor(COLORS.brandTeal)
+    .fillColor(COLORS.black)
     .font(FONTS.bold)
-    .fontSize(10)
-    .text(uploadUrl, {
+    .fontSize(8.8)
+    .text(title, left + pad, y0 + pad, { width: width - pad * 2 });
+
+  doc
+    .fillColor(COLORS.black)
+    .font(FONTS.body)
+    .fontSize(8)
+    .text(body, left + pad, y0 + pad + titleH + 3, {
+      width: width - pad * 2,
+      lineGap: 1
+    });
+
+  const urlY = y0 + pad + titleH + 3 + bodyH + 2;
+  doc
+    .fillColor(COLORS.teal)
+    .font(FONTS.bold)
+    .fontSize(8)
+    .text(uploadUrl, left + pad, urlY, {
       link: uploadUrl,
       underline: true,
-      lineGap: 2
+      lineGap: 1,
+      width: width - pad * 2
     });
+
+  doc.fillColor(COLORS.text);
+  doc.y = y0 + boxH + 12;
+}
+
+function drawAuthorisedBy(doc) {
+  doc.moveDown(0.25);
+  doc.fillColor(COLORS.black).font(FONTS.bold).fontSize(8.8).text("Authorized by");
+
+  doc.moveDown(0.55);
+  doc.fillColor(COLORS.teal).font(FONTS.bold).fontSize(9.2).text("Stichting The V.O.I.C.E. NL");
 
   doc.fillColor(COLORS.text);
 }
 
-function drawAuthorisedBy(doc) {
-  ensureSpace(doc, 60);
-  doc.moveDown(1.4);
-  doc
-    .font(FONTS.bold)
-    .fontSize(12)
-    .fillColor(COLORS.text)
-    .text("Authorized by");
-
-  doc.moveDown(0.2);
-  doc
-    .font(FONTS.body)
-    .fontSize(11)
-    .text("Stichting The V.O.I.C.E. NL");
-}
-
-function drawFooter(doc) {
+function drawFooterBar(doc, taglineText) {
   const range = doc.bufferedPageRange();
+  const line = taglineText.trim() || "THE VISION OF INTERNATIONAL CULTURAL EXCHANGE IN THE NETHERLANDS.";
+  const upper = line.toUpperCase().replace(/\s+/g, " ");
+
   for (let i = range.start; i < range.start + range.count; i += 1) {
     doc.switchToPage(i);
-    const bottom = doc.page.height - doc.page.margins.bottom + 14;
+    const card = getCard(doc);
+    const y = card.y + card.h - FOOTER_BAR_HEIGHT;
+    const r = 8;
     doc
+      .moveTo(card.x, y)
+      .lineTo(card.x + card.w, y)
+      .lineTo(card.x + card.w, y + FOOTER_BAR_HEIGHT - r)
+      .quadraticCurveTo(
+        card.x + card.w,
+        y + FOOTER_BAR_HEIGHT,
+        card.x + card.w - r,
+        y + FOOTER_BAR_HEIGHT
+      )
+      .lineTo(card.x + r, y + FOOTER_BAR_HEIGHT)
+      .quadraticCurveTo(card.x, y + FOOTER_BAR_HEIGHT, card.x, y + FOOTER_BAR_HEIGHT - r)
+      .lineTo(card.x, y)
+      .closePath();
+    fillHorizontalGradient(doc, card.x, y, card.w, FOOTER_BAR_HEIGHT, COLORS.deepNavy, COLORS.teal);
+    doc
+      .fillColor(COLORS.white)
       .font(FONTS.body)
-      .fontSize(8)
-      .fillColor(COLORS.muted)
-      .text(
-        "Stichting The V.O.I.C.E. NL  -  Sponsorship Receipt",
-        doc.page.margins.left,
-        bottom,
-        {
-          width:
-            doc.page.width -
-            doc.page.margins.left -
-            doc.page.margins.right,
-          align: "center"
-        }
-      );
+      .fontSize(6.5)
+      .text(upper, card.x + 28, y + 14, {
+        width: card.w - 56,
+        align: "center",
+        lineGap: 2,
+        characterSpacing: 0.4
+      });
   }
 }
 
@@ -307,7 +580,7 @@ function drawFooter(doc) {
  * @param {string} payload.sponsorshipTier
  * @param {string} payload.sponsorshipAmount  Pre-formatted currency string
  * @param {string} payload.paymentMethod  e.g. "Card via Stripe"
- * @param {string} payload.paymentStatus  Default "Paid"
+ * @param {string} payload.paymentStatus  (optional; not shown on this template)
  * @param {string} payload.uploadUrl
  * @param {string} payload.contactEmail
  * @param {string} payload.orgTagline
@@ -317,7 +590,7 @@ export function renderSponsorshipReceiptPdf(payload) {
     try {
       const doc = new PDFDocument({
         size: "A4",
-        margins: { top: 56, bottom: 56, left: 56, right: 56 },
+        margins: { top: 44, bottom: 12, left: 56, right: 56 },
         bufferPages: true,
         info: {
           Title: `Sponsorship Receipt ${payload.receiptNumber || ""}`.trim(),
@@ -333,48 +606,28 @@ export function renderSponsorshipReceiptPdf(payload) {
       doc.on("end", () => resolve(Buffer.concat(chunks)));
       doc.on("error", reject);
 
-      drawHeader(doc, {
-        contactEmail: payload.contactEmail,
-        orgTagline:
-          payload.orgTagline ||
-          "The voice of international cultural exchange in the Netherlands"
-      });
+      drawPageChrome(doc);
+      drawHeaderBanner(doc);
 
       drawTitle(
         doc,
         "Sponsorship Receipt",
-        "English PDF receipt for the Stripe sponsorship flow"
+        "Acknowledgement of sponsorship contribution"
       );
 
-      drawInfoTable(doc, [
-        { label: "Receipt Number", value: payload.receiptNumber },
-        { label: "Payment Reference", value: payload.stripePaymentId },
-        { label: "Receipt Date", value: payload.paymentDate },
-        { label: "Sponsor Name", value: payload.sponsorName },
-        { label: "Company Name", value: payload.companyName || "-" },
-        { label: "Sponsor Email", value: payload.sponsorEmail },
-        { label: "Sponsorship Tier", value: payload.sponsorshipTier },
-        { label: "Sponsorship Amount", value: payload.sponsorshipAmount },
-        { label: "Payment Method", value: payload.paymentMethod },
-        { label: "Payment Status", value: payload.paymentStatus || "Paid" }
-      ]);
+      drawReceiptDetailsGrid(doc, payload);
+      drawSponsorRow(doc, payload);
+      drawConfirmationBlock(doc);
 
-      doc.moveDown(0.8);
-      doc
-        .font(FONTS.italic)
-        .fontSize(10)
-        .fillColor(COLORS.muted)
-        .text(
-          "This receipt confirms that Stichting The V.O.I.C.E. NL has received the sponsorship contribution described above with thanks and appreciation.",
-          { lineGap: 2 }
-        );
-
-      drawSectionHeading(doc, "Sponsorship Coverage");
+      beginCoverageSection(doc);
       drawCoverageTable(doc);
-
       drawUploadRequest(doc, payload.uploadUrl);
       drawAuthorisedBy(doc);
-      drawFooter(doc);
+
+      const footerLine =
+        payload.orgTagline ||
+        "The vision of international cultural exchange in the Netherlands";
+      drawFooterBar(doc, footerLine);
 
       doc.end();
     } catch (error) {
