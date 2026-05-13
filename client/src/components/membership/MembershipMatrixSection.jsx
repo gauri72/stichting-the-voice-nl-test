@@ -141,7 +141,7 @@ export default function MembershipMatrixSection({ onOpenMemberships = () => {} }
                 className={`membership-matrix__cta${featured ? " membership-matrix__cta--featured" : ""}`}
                 onClick={onOpenMemberships}
               >
-                View V.O.I.C.E. NL Memberships
+                Start Your Membership
               </button>
             </article>
           ))}

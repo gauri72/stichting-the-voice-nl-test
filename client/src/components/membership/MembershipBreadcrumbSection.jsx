@@ -9,6 +9,13 @@ export default function MembershipBreadcrumbSection() {
       style={{ backgroundImage: `url(${heroBackground})` }}
     >
       <div className="membership-page__container">
+        <p className="membership-page__eyebrow" aria-hidden="false">
+          <span className="membership-page__eyebrow-ornament" aria-hidden="true" />
+          <span className="membership-page__eyebrow-text">
+            Join Stichting The V.O.I.C.E. NL Family
+          </span>
+          <span className="membership-page__eyebrow-ornament" aria-hidden="true" />
+        </p>
         <h1 id="membership-title">
           <span className="membership-page__title-line">Be Part of a Global</span>
           <span className="membership-page__title-gradient">Cultural Movement</span>

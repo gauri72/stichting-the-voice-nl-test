@@ -13,6 +13,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import { IoMailOpenOutline } from "react-icons/io5";
 import headerLogo from "../../assets/header-logo.png";
 import footerBg from "../../assets/footer-bg.png";
+import voiceVentureStudioLogo from "../../assets/VOICE Venture Studio.png";
 import "../../styles/footer.css";
 
 // Set VITE_WHATSAPP_E164 in client/.env (digits only, e.g. 31619032104).
@@ -247,7 +248,15 @@ export default function Footer() {
             Together, we celebrate creativity, diversity, and harmony through art and culture.
           </p>
           <p className="footer-copyright">© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.</p>
-          <p className="footer-designed-by">Designed with 💙 by Stichting The V.O.I.C.E. NL</p>
+          <div className="footer-venture-credit" aria-label="Designed and developed by V.O.I.C.E. Venture Studio">
+            <img
+              className="footer-venture-logo"
+              src={voiceVentureStudioLogo}
+              alt="V.O.I.C.E. Venture Studio"
+              loading="lazy"
+            />
+            <p className="footer-designed-by">Designed &amp; Developed by V.O.I.C.E. Venture Studio.</p>
+          </div>
         </div>
         {subscribed ? (
           <p className="footer-subscribe-note footer-subscribe-note--center" role="status">

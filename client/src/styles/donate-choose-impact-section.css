@@ -1,0 +1,221 @@
+/* -------------------------------------------------------------------------- */
+/* Donate page — Choose Your Impact (tier cards)                              */
+/* -------------------------------------------------------------------------- */
+
+.donate-tiers {
+  background: #ffffff;
+  padding: 8px 14px 40px;
+}
+
+.donate-tiers__container {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.donate-tiers__grid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+
+.donate-tier-card {
+  border: 1px solid #d9e1e8;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0 14px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 100%;
+}
+
+.donate-tier-card--featured {
+  border: 2px solid #4fabb2;
+  box-shadow: 0 12px 28px rgba(12, 76, 80, 0.14);
+}
+
+.donate-tier-card__tag {
+  margin: 0 -14px 10px;
+  background: linear-gradient(90deg, #1b7d8f 0%, #1f9f78 100%);
+  color: #ffffff;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 8px 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.donate-tier-card__tag-spacer {
+  display: block;
+  height: 34px;
+  margin-bottom: 4px;
+}
+
+.donate-tier-card__icon-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.donate-tier-card__icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  color: #f5fbff;
+  background: linear-gradient(180deg, #0b617e, #084d69);
+  border: 4px solid #ffffff;
+  box-shadow: 0 0 0 2px #2a8f9b;
+}
+
+.donate-tier-card__amount {
+  margin: 10px 0 0;
+  text-align: center;
+  color: #218f69;
+  font-size: clamp(1.85rem, 2.4vw, 2.65rem);
+  line-height: 1.05;
+  font-weight: 800;
+}
+
+.donate-tier-card__name {
+  margin: 6px 0 0;
+  text-align: center;
+  text-transform: uppercase;
+  color: #17314b;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.donate-tier-card__description {
+  margin: 10px 0 0;
+  text-align: center;
+  color: #4f6070;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  flex: 1;
+  min-height: 4.2em;
+}
+
+.donate-tier-card__cta {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  border-radius: 8px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.82rem;
+  font-weight: 800;
+  transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+.donate-tier-card__cta--outline {
+  border: 2px solid #4fabb2;
+  color: #1a7a86;
+  background: #f4fafc;
+}
+
+.donate-tier-card__cta--solid {
+  border: 2px solid transparent;
+  color: #ffffff;
+  background: linear-gradient(90deg, #1b7d8f 0%, #1f9f78 100%);
+}
+
+.donate-tier-card__cta:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 10px 22px rgba(10, 47, 69, 0.18);
+}
+
+.donate-tier-card__cta:active {
+  transform: translateY(0);
+}
+
+.donate-tier-card__cta:focus-visible {
+  outline: 2px solid #1a7db5;
+  outline-offset: 2px;
+}
+
+.donate-tiers__secure {
+  margin: 22px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 52ch;
+  color: #3d5a63;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.donate-tiers__secure-icon {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  color: #2ea276;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive                                                                 */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 1100px) and (min-width: 701px) {
+  /* 3-column tablet layout — center the bottom row of 2 cards by using a
+     6-column grid where each card spans 2 columns. */
+  .donate-tiers__grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .donate-tier-card {
+    grid-column: span 2;
+  }
+
+  .donate-tier-card:nth-child(4) {
+    grid-column: 2 / span 2;
+  }
+
+  .donate-tier-card:nth-child(5) {
+    grid-column: 4 / span 2;
+  }
+}
+
+@media (max-width: 700px) {
+  .donate-tiers__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .donate-tiers__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .donate-tiers__secure {
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    column-gap: 8px;
+    row-gap: 2px;
+    max-width: none;
+    text-align: center;
+  }
+
+  .donate-tiers__secure-icon {
+    font-size: 1.1rem;
+  }
+
+  .donate-tiers__secure-subtext {
+    flex-basis: 100%;
+    text-align: center;
+  }
+}

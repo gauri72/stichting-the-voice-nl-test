@@ -5,7 +5,7 @@
 
 .sponsorship-tiers__container {
   max-width: 1320px;
-  margin: 0 auto;
+  margin: clamp(24px, 3vw, 42px) auto 0;
 }
 
 .sponsorship-tiers__header {
@@ -214,7 +214,8 @@
 }
 
 .sponsorship-why {
-  margin-top: 24px;
+  margin: 0 auto;
+  max-width: 1320px;
   background: #f0f3f7;
   border-radius: 14px;
   padding: 24px 14px 18px;
@@ -355,7 +356,7 @@
   }
 
   .sponsorship-why {
-    margin-top: 18px;
+    margin: 0 auto;
     padding: 18px 10px 14px;
   }
 

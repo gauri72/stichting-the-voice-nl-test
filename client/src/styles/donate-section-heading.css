@@ -1,0 +1,97 @@
+/* -------------------------------------------------------------------------- */
+/* Donate page — shared section heading (eyebrow, rule + title + rule, lead) */
+/* Used by Choose Your Impact, Where Your Donation Goes, and Other Ways      */
+/* to Give. Mirrors the sponsorship / membership / our-impact heading style. */
+/* -------------------------------------------------------------------------- */
+
+.donate-section__header {
+  text-align: center;
+}
+
+.donate-section__eyebrow {
+  margin: 0;
+  color: #2c8b72;
+  text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.donate-section__heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.donate-section__heading-line {
+  flex: 1;
+  height: 1px;
+  background: #d7dee5;
+}
+
+.donate-section__title {
+  margin: 6px 0 0;
+  color: #172f48;
+  font-size: clamp(1.45rem, 2vw, 1.95rem);
+  line-height: 1.12;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.donate-section__title::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 3px;
+  margin: 8px auto 0;
+  border-radius: 999px;
+  background: #2ea276;
+}
+
+.donate-section__lead {
+  margin: 14px auto 0;
+  max-width: 72ch;
+  color: #4f6070;
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive — mobile heading scaling (matches site-wide mobile heading)    */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 700px) {
+  .donate-section__heading {
+    gap: 8px;
+  }
+
+  .donate-section__heading-line {
+    min-width: 14px;
+  }
+
+  .donate-section__title {
+    white-space: normal;
+    font-size: clamp(1.15rem, 4.6vw, 1.45rem);
+    letter-spacing: 0.03em;
+  }
+
+  .donate-section__title::after {
+    width: 58px;
+    height: 2px;
+    margin-top: 6px;
+  }
+
+  .donate-section__eyebrow {
+    font-size: 0.84rem;
+    letter-spacing: 0.04em;
+  }
+
+  .donate-section__lead {
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+}

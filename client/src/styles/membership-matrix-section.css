@@ -138,6 +138,7 @@
   flex: 1 1 auto;
   min-height: 0;
   align-content: start;
+  margin-bottom: clamp(18px, 2vw, 26px);
 }
 
 .membership-matrix__cta {

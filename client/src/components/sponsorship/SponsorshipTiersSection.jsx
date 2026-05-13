@@ -130,6 +130,25 @@ export default function SponsorshipTiersSection() {
 
   return (
     <section id="sponsorship-tiers" className="sponsorship-tiers" aria-labelledby="sponsorship-tiers-title">
+      <section className="sponsorship-why" aria-labelledby="sponsorship-why-title">
+        <div className="sponsorship-why__container">
+          <h2 id="sponsorship-why-title">
+            Why Sponsor Stichting The V.O.I.C.E. NL?
+          </h2>
+          <div className="sponsorship-why__grid" role="list" aria-label="Reasons to sponsor">
+            {reasons.map(({ title, text, Icon }) => (
+              <article key={title} className="sponsorship-why__item" role="listitem">
+                <span className="sponsorship-why__icon" aria-hidden>
+                  <Icon />
+                </span>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <div className="sponsorship-tiers__container">
         <header className="sponsorship-tiers__header">
           <p className="sponsorship-tiers__eyebrow">Sponsorship Opportunities</p>
@@ -198,24 +217,6 @@ export default function SponsorshipTiersSection() {
         ) : null}
       </div>
 
-      <section className="sponsorship-why" aria-labelledby="sponsorship-why-title">
-        <div className="sponsorship-why__container">
-          <h2 id="sponsorship-why-title">
-            Why Sponsor Stichting The V.O.I.C.E. NL?
-          </h2>
-          <div className="sponsorship-why__grid" role="list" aria-label="Reasons to sponsor">
-            {reasons.map(({ title, text, Icon }) => (
-              <article key={title} className="sponsorship-why__item" role="listitem">
-                <span className="sponsorship-why__icon" aria-hidden>
-                  <Icon />
-                </span>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
     </section>
   );
 }

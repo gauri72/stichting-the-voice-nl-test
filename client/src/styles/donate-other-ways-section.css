@@ -1,0 +1,165 @@
+/* -------------------------------------------------------------------------- */
+/* Donate page — Other Ways to Give                                           */
+/* -------------------------------------------------------------------------- */
+
+.donate-other {
+  background: #ffffff;
+  padding: 32px 14px 48px;
+}
+
+.donate-other__container {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.donate-other__grid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px clamp(20px, 3vw, 40px);
+}
+
+.donate-other__card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(12px, 1.6vw, 18px);
+  text-align: left;
+}
+
+/* Vertical hairline divider sitting in the middle of the column gap. */
+.donate-other__card::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * clamp(10px, 1.5vw, 20px));
+  top: 8%;
+  bottom: 8%;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(120, 135, 150, 0) 0%,
+    rgba(120, 135, 150, 0.32) 24%,
+    rgba(120, 135, 150, 0.32) 76%,
+    rgba(120, 135, 150, 0) 100%
+  );
+  pointer-events: none;
+}
+
+.donate-other__card:first-child::before {
+  display: none;
+}
+
+.donate-other__icon {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.55rem;
+  color: #1f6d62;
+  background: #ecf3f3;
+}
+
+.donate-other__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.donate-other__card h3 {
+  margin: 0;
+  color: #172f48;
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+}
+
+.donate-other__card p {
+  margin: 6px 0 0;
+  color: #4f6070;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.donate-other__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  color: #1f9f78;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+.donate-other__link svg {
+  font-size: 0.85em;
+  transition: transform 0.2s ease;
+}
+
+.donate-other__link:hover {
+  color: #167d5e;
+}
+
+.donate-other__link:hover svg {
+  transform: translateX(2px);
+}
+
+.donate-other__link:focus-visible {
+  outline: 2px solid #1a7db5;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive                                                                 */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .donate-other__grid {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+    margin-inline: auto;
+    gap: 24px;
+  }
+
+  /* Card stacks vertically: icon → title → subtitle → link, all centered. */
+  .donate-other__card {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .donate-other__body {
+    text-align: center;
+    width: 100%;
+  }
+
+  .donate-other__link {
+    margin-inline: auto;
+  }
+
+  /* Stacked layout: turn the vertical divider into a horizontal rule
+     sitting in the row gap above each card. */
+  .donate-other__card::before {
+    left: 8%;
+    right: 8%;
+    top: -12px;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      rgba(120, 135, 150, 0) 0%,
+      rgba(120, 135, 150, 0.32) 24%,
+      rgba(120, 135, 150, 0.32) 76%,
+      rgba(120, 135, 150, 0) 100%
+    );
+  }
+}

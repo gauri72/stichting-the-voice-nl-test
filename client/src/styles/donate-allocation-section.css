@@ -1,0 +1,129 @@
+/* -------------------------------------------------------------------------- */
+/* Donate page — Where Your Donation Goes                                     */
+/* -------------------------------------------------------------------------- */
+
+.donate-allocation {
+  background: #f4f7fa;
+  padding: 36px 14px 48px;
+}
+
+.donate-allocation__container {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.donate-allocation__grid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 20px 16px;
+}
+
+.donate-allocation__item {
+  position: relative;
+  text-align: center;
+}
+
+/* Vertical divider sitting in the middle of the column gap (16px). */
+.donate-allocation__item::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 18%;
+  bottom: 18%;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(120, 135, 150, 0) 0%,
+    rgba(120, 135, 150, 0.3) 22%,
+    rgba(120, 135, 150, 0.3) 78%,
+    rgba(120, 135, 150, 0) 100%
+  );
+  pointer-events: none;
+}
+
+/* Hide the divider on the first card of each row (6-col layout). */
+.donate-allocation__item:nth-child(6n + 1)::before {
+  display: none;
+}
+
+.donate-allocation__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  font-size: clamp(2.4rem, 3.4vw, 3rem);
+  line-height: 1;
+  color: #1f6d62;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.donate-allocation__item h3 {
+  margin: 12px 0 0;
+  color: #172f48;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.donate-allocation__item p {
+  margin: 8px 0 0;
+  color: #4f6070;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive                                                                 */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .donate-allocation__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Reset the 6-col divider rule and apply a 2-col divider rule. */
+  .donate-allocation__item:nth-child(6n + 1)::before {
+    display: block;
+  }
+
+  .donate-allocation__item:nth-child(2n + 1)::before {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .donate-allocation__grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Single-column stack: turn vertical dividers into horizontal rules. */
+  .donate-allocation__item:nth-child(6n + 1)::before,
+  .donate-allocation__item:nth-child(2n + 1)::before {
+    display: block;
+  }
+
+  .donate-allocation__item::before {
+    left: 12%;
+    right: 12%;
+    top: -10px;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      rgba(120, 135, 150, 0) 0%,
+      rgba(120, 135, 150, 0.3) 22%,
+      rgba(120, 135, 150, 0.3) 78%,
+      rgba(120, 135, 150, 0) 100%
+    );
+  }
+
+  .donate-allocation__item:first-child::before {
+    display: none;
+  }
+}

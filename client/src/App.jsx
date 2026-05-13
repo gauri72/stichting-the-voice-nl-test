@@ -6,6 +6,7 @@ import Footer from "./components/layout/Footer";
 import HomePage from "./components/home/HomePage";
 import MembershipPage from "./components/membership/MembershipPage";
 import SponsorshipPage from "./components/sponsorship/SponsorshipPage";
+import DonatePage from "./components/donate/DonatePage";
 
 function EmptyPage() {
   return null;
@@ -49,7 +50,7 @@ export default function App() {
           <Route path="/segments/voice-of-visionaries" element={<EmptyPage />} />
           <Route path="/testimonials" element={<EmptyPage />} />
           <Route path="/blogs" element={<EmptyPage />} />
-          <Route path="/donate" element={<EmptyPage />} />
+          <Route path="/donate" element={<DonatePage />} />
           <Route path="/contact" element={<EmptyPage />} />
           <Route path="/film-festival" element={<EmptyPage />} />
           <Route path="/privacy-policy" element={<EmptyPage />} />
