@@ -46,7 +46,7 @@ const quickLinksRow3 = [
   { label: "Chat With Us", href: buildWhatsAppHref() },
 ];
 
-const legalLinks = [
+const quickLinksRow4 = [
   { label: "Privacy Policy", to: "/privacy-policy" },
   { label: "Terms & Conditions", to: "/terms-and-conditions" },
 ];
@@ -164,32 +164,39 @@ export default function Footer() {
                   </p>
                 </div>
               </div>
-              <div className="footer-brand-details">
-                <p>
-                  <span className="footer-brand-details-label">KVK</span>
-                  <span className="footer-brand-details-value">92180213</span>
-                </p>
-                <p>
-                  <span className="footer-brand-details-label">Address</span>
-                  <span className="footer-brand-details-value">
-                    Wengehout 30, 2719 KA
-                    <br />
-                    <span className="footer-address-line-2">Zoetermeer, The Netherlands</span>
-                  </span>
-                </p>
-                <p>
-                  <span className="footer-brand-details-label">Email</span>
-                  <span className="footer-brand-details-value">info@stichtingthevoice.nl</span>
-                </p>
-                <p>
-                  <span className="footer-brand-details-label">Office Phone</span>
-                  <span className="footer-brand-details-value">+31619032104</span>
-                </p>
-              </div>
             </div>
           </div>
 
-          <div className="footer-col footer-col-quick">
+          <div className="footer-col footer-col-follow">
+            <h3 className="footer-section-title">Follow us</h3>
+            <div className="footer-social-list footer-social-list--footer">
+              {socialLinks.map(({ href, label, Icon }) => (
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
+                  <Icon aria-hidden />
+                </a>
+              ))}
+            </div>
+            <div
+              className="footer-venture-credit"
+              aria-label="This website is designed and developed by V.O.I.C.E. Venture Studio"
+            >
+              <img
+                className="footer-venture-logo"
+                src={voiceVentureStudioLogo}
+                alt="V.O.I.C.E. Venture Studio"
+                loading="lazy"
+              />
+              <p className="footer-designed-by">
+                This Website is
+                <br />
+                Designed &amp; Developed By
+                <br />
+                V.O.I.C.E. VENTURE STUDIO
+              </p>
+            </div>
+          </div>
+
+          <div className="footer-col footer-col-quick footer-col-links-legal">
             <h3 className="footer-section-title">Quick links</h3>
             <div className="footer-quick-grid footer-quick-grid--rows">
               <ul className="footer-quick-row footer-quick-row--four">
@@ -219,40 +226,40 @@ export default function Footer() {
                   </li>
                 ))}
               </ul>
+              <ul className="footer-quick-row footer-quick-row--two">
+                {quickLinksRow4.map((item) => (
+                  <li key={item.label}>
+                    <Link to={item.to}>{item.label}</Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
-          <div className="footer-col footer-col-legal">
-            <h3 className="footer-section-title">Legal</h3>
-            <ul className="footer-legal-links">
-              {legalLinks.map((item) => (
-                <li key={item.label}>
-                  <Link to={item.to}>{item.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="footer-col footer-col-follow">
-            <h3 className="footer-section-title">Follow us</h3>
-            <div className="footer-social-list footer-social-list--footer">
-              {socialLinks.map(({ href, label, Icon }) => (
-                <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
-                  <Icon aria-hidden />
-                </a>
-              ))}
-            </div>
-            <div className="footer-venture-credit" aria-label="Designed and developed by V.O.I.C.E. Venture Studio">
-              <img
-                className="footer-venture-logo"
-                src={voiceVentureStudioLogo}
-                alt="V.O.I.C.E. Venture Studio"
-                loading="lazy"
-              />
-              <p className="footer-designed-by">
-                Designed &amp; Developed by
-                <br />
-                V.O.I.C.E. Venture Studio.
+          <div className="footer-col footer-col-contact">
+            <h3 className="footer-section-title">Contact us</h3>
+            <div className="footer-brand-details footer-brand-details--standalone">
+              <p>
+                <span className="footer-brand-details-label">KVK</span>
+                <span className="footer-brand-details-value">92180213</span>
+              </p>
+              <p>
+                <span className="footer-brand-details-label">Address</span>
+                <span className="footer-brand-details-value">
+                  Wengehout 30,
+                  <br />
+                  2719 KA Zoetermeer,
+                  <br />
+                  The Netherlands
+                </span>
+              </p>
+              <p>
+                <span className="footer-brand-details-label">Email</span>
+                <span className="footer-brand-details-value">info@stichtingthevoice.nl</span>
+              </p>
+              <p>
+                <span className="footer-brand-details-label">Office Phone</span>
+                <span className="footer-brand-details-value">+31619032104</span>
               </p>
             </div>
           </div>

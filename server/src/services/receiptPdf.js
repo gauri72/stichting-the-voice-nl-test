@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import PDFDocument from "pdfkit";
 import { SPONSORSHIP_COVERAGE } from "../config/sponsorshipCoverage.js";
+import { resolveDonationPublicContactEmail } from "../config/donationPublicContact.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HEADER_LOGO_PATH = path.join(
@@ -940,7 +941,7 @@ function drawFooterBar(doc, taglineText) {
  */
 function drawDonationReceiptFooter(doc, payload) {
   const websiteUrl = (payload.websiteUrl || "https://stichtingthevoice.nl").trim();
-  const contactEmail = (payload.contactEmail || "").trim() || "info@thevoicenl.org";
+  const contactEmail = resolveDonationPublicContactEmail(payload.contactEmail);
   const range = doc.bufferedPageRange();
 
   for (let i = range.start; i < range.start + range.count; i += 1) {

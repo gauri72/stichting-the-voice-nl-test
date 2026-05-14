@@ -25,7 +25,7 @@ const env = {
     contactEmail:
       process.env.CONTACT_EMAIL ||
       process.env.ORG_NOTIFY_EMAIL ||
-      "info@thevoicenl.org",
+      "info@stichtingthevoice.nl",
     tagline:
       process.env.ORG_TAGLINE ||
       "The voice of international cultural exchange in the Netherlands",

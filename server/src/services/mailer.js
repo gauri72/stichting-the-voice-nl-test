@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import env from "../config/env.js";
+import { resolveDonationPublicContactEmail } from "../config/donationPublicContact.js";
 import { SPONSORSHIP_COVERAGE } from "../config/sponsorshipCoverage.js";
 import { renderDonationReceiptPdf, renderSponsorshipReceiptPdf } from "./receiptPdf.js";
 
@@ -496,6 +497,9 @@ function buildDonationPlaceholders(payload) {
   const transactionId = payload.paymentIntentId || "";
   const donorAddress = [sponsor.organization, sponsor.country].filter(Boolean).join(", ").trim();
   const notesOptional = sponsor.message && String(sponsor.message).trim() ? String(sponsor.message).trim() : "";
+  const donorPublicContact = resolveDonationPublicContactEmail(
+    process.env.CONTACT_EMAIL
+  );
   return {
     donor_name: sponsor.name || sponsor.firstName || "Donor",
     company_name: sponsor.organization || "",
@@ -510,7 +514,7 @@ function buildDonationPlaceholders(payload) {
     stripe_payment_id: transactionId,
     receipt_number: payload.receiptNumber || "",
     payment_method: payload.paymentMethod || "Card via Stripe",
-    contact_email: env.org.contactEmail,
+    contact_email: donorPublicContact,
     website_url: "https://stichtingthevoice.nl",
     email_footer_optional: env.org.emailFooterOptional || ""
   };
