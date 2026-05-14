@@ -571,6 +571,8 @@ Your official donation receipt is attached to this email for your records.
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style type="text/css">
     .donate-email-card { border-collapse: separate !important; }
+    /* Impact tier list: horizontal rules only (no outer box on desktop) */
+    .donate-impact-table { border: none !important; border-radius: 0 !important; }
     /* Desktop: footer column alignment */
     .donate-email-footer-col--left { text-align: left !important; }
     .donate-email-footer-col--mid { text-align: center !important; }
@@ -599,7 +601,6 @@ Your official donation receipt is attached to this email for your records.
       .donate-impact-table .donate-impact-row .donate-impact-tier { border: none !important; text-align: center !important; font-size: 15px !important; padding: 0 12px 10px !important; }
       .donate-impact-table .donate-impact-row .donate-impact-desc { border: none !important; text-align: center !important; padding: 0 16px 22px !important; border-bottom: 1px solid #e8ecec !important; }
       .donate-impact-table .donate-impact-row:last-child .donate-impact-desc { border-bottom: none !important; padding-bottom: 12px !important; }
-      .donate-impact-table { border: none !important; border-radius: 0 !important; }
       .donate-email-footer-row .donate-email-footer-col { display: block !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; text-align: center !important; border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.2) !important; padding: 20px 24px !important; }
       .donate-email-footer-row .donate-email-footer-col:last-child { border-bottom: none !important; padding-bottom: 26px !important; }
       .donate-email-footer-right p { text-align: center !important; }
@@ -725,7 +726,7 @@ Your official donation receipt is attached to this email for your records.
               <p class="donate-impact-title" style="margin:36px 0 18px;font-family:Georgia,'Times New Roman',serif;font-size:19px;font-weight:700;color:#004b50;text-align:center;">
                 Your Donation Makes Possible
               </p>
-              <table class="donate-impact-table" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-spacing:0;border-collapse:collapse;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
+              <table class="donate-impact-table" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-spacing:0;border-collapse:collapse;">
                 <tr class="donate-impact-row">
                   <td class="donate-impact-amt" style="width:15%;vertical-align:top;padding:14px 12px 14px 0;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;white-space:nowrap;">€25</td>
                   <td class="donate-impact-tier" style="width:22%;vertical-align:top;padding:14px 12px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#333333;">Supporter</td>
