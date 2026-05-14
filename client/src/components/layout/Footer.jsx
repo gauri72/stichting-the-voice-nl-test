@@ -156,7 +156,9 @@ export default function Footer() {
                 />
                 <div className="footer-brand-text">
                   <p className="footer-brand-top">Stichting</p>
-                  <p className="footer-brand-name">The V.O.I.C.E. NL</p>
+                  <p className="footer-brand-name">
+                    The V<span className="brand-tight-v-period">.</span>O.I.C.E. NL
+                  </p>
                   <p className="footer-brand-tagline">
                     The vision of international cultural exchange in the Netherlands.
                   </p>
@@ -240,6 +242,19 @@ export default function Footer() {
                 </a>
               ))}
             </div>
+            <div className="footer-venture-credit" aria-label="Designed and developed by V.O.I.C.E. Venture Studio">
+              <img
+                className="footer-venture-logo"
+                src={voiceVentureStudioLogo}
+                alt="V.O.I.C.E. Venture Studio"
+                loading="lazy"
+              />
+              <p className="footer-designed-by">
+                Designed &amp; Developed by
+                <br />
+                V.O.I.C.E. Venture Studio.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -248,15 +263,6 @@ export default function Footer() {
             Together, we celebrate creativity, diversity, and harmony through art and culture.
           </p>
           <p className="footer-copyright">© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.</p>
-          <div className="footer-venture-credit" aria-label="Designed and developed by V.O.I.C.E. Venture Studio">
-            <img
-              className="footer-venture-logo"
-              src={voiceVentureStudioLogo}
-              alt="V.O.I.C.E. Venture Studio"
-              loading="lazy"
-            />
-            <p className="footer-designed-by">Designed &amp; Developed by V.O.I.C.E. Venture Studio.</p>
-          </div>
         </div>
         {subscribed ? (
           <p className="footer-subscribe-note footer-subscribe-note--center" role="status">

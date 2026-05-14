@@ -99,6 +99,11 @@
     -0.9px 0.9px rgba(46, 144, 149, 0.68);
 }
 
+/* Tighten gap after “V” before first period (letter-spacing widens it by default) */
+.brand-name-bottom .brand-tight-v-period {
+  margin-left: -0.18em;
+}
+
 .menu-toggle {
   display: none;
   margin-left: auto;

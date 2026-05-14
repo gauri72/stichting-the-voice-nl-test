@@ -22,7 +22,9 @@ export default function Header() {
           <img className="brand-logo" src={headerLogo} alt="Stichting The V.O.I.C.E. NL logo" />
           <div className="brand-name">
             <p className="brand-name-top">STICHTING</p>
-            <p className="brand-name-bottom">THE V.O.I.C.E. NL</p>
+            <p className="brand-name-bottom">
+              THE V<span className="brand-tight-v-period">.</span>O.I.C.E. NL
+            </p>
           </div>
         </Link>
 
@@ -53,7 +55,9 @@ export default function Header() {
             <img className="mobile-brand-logo" src={headerLogo} alt="Stichting The V.O.I.C.E. NL logo" />
             <div className="mobile-brand-name">
               <p className="brand-name-top">STICHTING</p>
-              <p className="brand-name-bottom">THE V.O.I.C.E. NL</p>
+              <p className="brand-name-bottom">
+                THE V<span className="brand-tight-v-period">.</span>O.I.C.E. NL
+              </p>
             </div>
           </Link>
 

@@ -521,6 +521,9 @@ function buildDonationThankYouEmail(values, branding = {}) {
   const logoCell = logoCid
     ? `<img src="cid:${logoCid}" alt="Stichting The V.O.I.C.E. NL" width="48" height="48" style="display:block;width:48px;height:auto;border:0;border-radius:6px;background:#ffffff;object-fit:contain;" />`
     : `<span style="display:inline-block;width:48px;height:48px;border-radius:6px;background:#ffffff;text-align:center;line-height:48px;font-family:Georgia,serif;font-size:22px;font-weight:700;color:#26a69a;">V</span>`;
+  const footerLogoCell = logoCid
+    ? `<img src="cid:${logoCid}" alt="Stichting The V.O.I.C.E. NL" width="50" height="50" style="display:block;width:50px;height:auto;border:0;border-radius:6px;background:#ffffff;object-fit:contain;" />`
+    : `<span style="display:inline-block;width:50px;height:50px;border-radius:6px;background:#ffffff;text-align:center;line-height:50px;font-family:Georgia,serif;font-size:18px;font-weight:700;color:#008080;">V</span>`;
 
   const subject = "Thank You for Your Donation to Stichting The V.O.I.C.E. NL";
 
@@ -547,6 +550,21 @@ Your kindness fuels creativity, strengthens communities, and brings people toget
 Warm regards,
 Stichting The V.O.I.C.E. NL
 
+Stichting The V.O.I.C.E. NL
+The Vision of International Cultural Exchange in the Netherlands
+
+Contact Details
+Email: ${values.contact_email}
+Website: stichtingthevoice.nl
+KVK: 92180213
+Office: +31619032104
+Follow us:
+Facebook: https://www.facebook.com/p/The-VOICE-NL-61552129209396/
+Instagram: https://www.instagram.com/stichting_the_voice_nl/?hl=en
+YouTube: https://www.youtube.com/@StichtingTheVOICENL
+LinkedIn: https://www.linkedin.com/in/stichting-the-v-o-i-c-e-nl-b67427316/
+X: https://x.com/St_The_VOICE_NL
+
 Visit Our Website: https://stichtingthevoice.nl
 Email Us: ${values.contact_email}
 THE VISION OF INTERNATIONAL CULTURAL EXCHANGE IN THE NETHERLANDS.
@@ -563,6 +581,48 @@ Your official donation receipt is attached to this email for your records.
     safe.email_footer_optional && String(safe.email_footer_optional).trim()
       ? `<p class="donate-email-optional-footer" style="margin:18px auto 0;max-width:620px;padding:0 16px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.55;color:#777777;text-align:center;">${safe.email_footer_optional}</p>`
       : "";
+
+  const donateEmailSignatureHtml = `
+          <tr>
+            <td class="donate-email-signature" style="padding:0 40px 28px 40px;background:#ffffff;">
+              <p style="margin:0 0 2px 0;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:800;color:#10243a;line-height:1.35;">
+                Stichting The V.O.I.C.E. NL
+              </p>
+              <p style="margin:0 0 4px 0;font-family:Arial,Helvetica,sans-serif;font-size:8px;color:#536b74;line-height:1.35;">
+                The Vision of International Cultural Exchange in the Netherlands
+              </p>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="border-spacing:0;">
+                <tr>
+                  <td style="vertical-align:top;padding:0 8px 0 0;width:50px;">
+                    ${footerLogoCell}
+                  </td>
+                  <td style="vertical-align:top;padding:0;">
+                    <p style="margin:0 0 2px 0;font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:800;color:#10243a;line-height:1.2;">
+                      Contact Details
+                    </p>
+                    <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:8px;color:#10243a;line-height:1.32;">
+                      Email: <a href="mailto:${safe.contact_email}" style="color:#008080;text-decoration:none;">${safe.contact_email}</a><br/>
+                      Website: <a href="https://stichtingthevoice.nl" style="color:#008080;text-decoration:none;">stichtingthevoice.nl</a><br/>
+                      KVK: 92180213<br/>
+                      Office: +31619032104
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:8px;border-spacing:0;">
+                <tr>
+                  <td style="padding:0 8px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:800;color:#10243a;vertical-align:middle;">
+                    Follow us:
+                  </td>
+                  <td style="padding:0 4px 0 0;"><a href="https://www.facebook.com/p/The-VOICE-NL-61552129209396/" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#1877f2;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:800;">f</a></td>
+                  <td style="padding:0 4px 0 0;"><a href="https://www.instagram.com/stichting_the_voice_nl/?hl=en" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#e4405f;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:7px;font-weight:800;">ig</a></td>
+                  <td style="padding:0 4px 0 0;"><a href="https://www.youtube.com/@StichtingTheVOICENL" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#ff0000;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:7px;font-weight:800;">yt</a></td>
+                  <td style="padding:0 4px 0 0;"><a href="https://www.linkedin.com/in/stichting-the-v-o-i-c-e-nl-b67427316/" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#0a66c2;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:7px;font-weight:800;">in</a></td>
+                  <td style="padding:0;"><a href="https://x.com/St_The_VOICE_NL" style="display:inline-block;width:16px;height:16px;border-radius:3px;background:#000000;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:800;">x</a></td>
+                </tr>
+              </table>
+            </td>
+          </tr>`;
 
   const html = `<!doctype html>
 <html lang="en">
@@ -584,6 +644,7 @@ Your official donation receipt is attached to this email for your records.
       .donate-email-header { padding: 22px 22px 28px !important; }
       .donate-email-header-strip td { vertical-align: middle !important; }
       .donate-email-body { padding: 32px 22px 28px !important; }
+      .donate-email-signature { padding: 0 22px 24px 22px !important; }
       .donate-email-hero { font-size: 28px !important; margin-top: 22px !important; text-align: center !important; }
       .donate-email-hero-wrap td { text-align: center !important; }
       .donate-email-sub { text-align: center !important; margin-left: auto !important; margin-right: auto !important; max-width: 36ch !important; color: #ffffff !important; }
@@ -614,6 +675,7 @@ Your official donation receipt is attached to this email for your records.
       .donate-email-card { border-radius: 14px !important; }
       .donate-email-header { padding: 18px 16px 22px !important; }
       .donate-email-body { padding: 26px 16px 22px !important; }
+      .donate-email-signature { padding: 0 16px 22px 16px !important; }
       .donate-email-hero { font-size: 24px !important; line-height: 1.2 !important; margin-top: 18px !important; }
       .donate-email-sub { font-size: 13px !important; max-width: 100% !important; color: #ffffff !important; }
       .donate-email-tagline-col p { font-size: 7.5px !important; letter-spacing: 0.07em !important; line-height: 1.45 !important; }
@@ -628,16 +690,16 @@ Your official donation receipt is attached to this email for your records.
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:#f4f5f6;">
+<body style="margin:0;padding:0;background:#edf5f7;">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;font-size:1px;line-height:1px;color:transparent;">
     Thank you for your donation to Stichting The V.O.I.C.E. NL.
   </div>
-  <table class="donate-email-shell" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f6;padding:28px 16px;">
+  <table class="donate-email-shell" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#edf5f7;padding:28px 16px;">
     <tr>
       <td align="center">
         <table class="donate-email-card" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:620px;border-spacing:0;border-collapse:separate;border-radius:18px;overflow:hidden;box-shadow:0 10px 32px rgba(0,50,55,0.14);background:#ffffff;">
           <tr>
-            <td class="donate-email-header" style="background:linear-gradient(90deg,#004b50 0%,#045a5e 36%,#0a7a72 70%,#0d8679 100%);padding:28px 36px 36px;">
+            <td class="donate-email-header" style="background:linear-gradient(118deg,#024556 0%,#003848 54%,#008080 100%);padding:28px 36px 36px;">
               <table class="donate-email-header-strip donate-email-header-top" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-spacing:0;">
                 <tr>
                   <td class="donate-email-brand-col" width="52%" style="vertical-align:middle;">
@@ -758,11 +820,12 @@ Your official donation receipt is attached to this email for your records.
                 Your kindness fuels creativity, strengthens communities, and brings people together across cultures. We are deeply grateful to have you as part of our journey.
               </p>
               <p style="margin:22px 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:400;color:#333333;">Warm regards,</p>
-              <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#26a69a;">Stichting The V.O.I.C.E. NL</p>
+              <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#008080;">Stichting The V.O.I.C.E. NL</p>
             </td>
           </tr>
+          ${donateEmailSignatureHtml}
           <tr>
-            <td style="background:#004b50;padding:0;">
+            <td style="background:linear-gradient(90deg,#024556 0%,#003848 50%,#008080 100%);padding:0;">
               <table class="donate-email-footer-row" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-spacing:0;">
                 <tr>
                   <td class="donate-email-footer-col donate-email-footer-col--left" width="32%" style="vertical-align:top;padding:28px 20px 32px 36px;border-right:1px solid rgba(255,255,255,0.22);text-align:left;">
