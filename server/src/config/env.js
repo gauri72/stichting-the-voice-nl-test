@@ -31,7 +31,9 @@ const env = {
       "The voice of international cultural exchange in the Netherlands",
     sponsorUploadUrl:
       process.env.SPONSOR_UPLOAD_URL ||
-      "https://e.pcloud.com/#/puplink?code=a0d7Z7oHyALJyo1QSVj7EPvLx5y5ySo37"
+      "https://e.pcloud.com/#/puplink?code=a0d7Z7oHyALJyo1QSVj7EPvLx5y5ySo37",
+    /** Optional single line below donation thank-you email (plain text; leave empty to omit). */
+    emailFooterOptional: process.env.EMAIL_FOOTER_OPTIONAL || ""
   }
 };
 

@@ -1,7 +1,8 @@
 import env from "../config/env.js";
+import { getDonationTier } from "../config/donationTiers.js";
 import { getTier } from "../config/sponsorshipTiers.js";
 import { getStripe, isStripeConfigured } from "../services/stripe.js";
-import { sendSponsorshipEmails } from "../services/mailer.js";
+import { sendDonationEmails, sendSponsorshipEmails } from "../services/mailer.js";
 
 // In-memory guard so we don't email twice if both webhook and client confirmation fire.
 const emailedIntents = new Set();
@@ -80,6 +81,20 @@ async function emailSponsorOnce(payload) {
   }
 }
 
+async function emailDonationOnce(payload) {
+  const { paymentIntentId } = payload;
+  if (!paymentIntentId) return;
+  if (emailedIntents.has(paymentIntentId)) return;
+  emailedIntents.add(paymentIntentId);
+
+  try {
+    await sendDonationEmails(payload);
+  } catch (error) {
+    emailedIntents.delete(paymentIntentId);
+    console.error("[payments] Failed to send donation email:", error.message);
+  }
+}
+
 export async function createPaymentIntent(req, res) {
   if (!isStripeConfigured()) {
     return res.status(503).json({
@@ -89,18 +104,26 @@ export async function createPaymentIntent(req, res) {
   }
 
   try {
-    const { tierId, amount: customAmount, sponsor: rawSponsor } = req.body || {};
-    const tier = getTier(tierId);
+    const { kind = "sponsorship", tierId, amount: customAmount, sponsor: rawSponsor } =
+      req.body || {};
+    const isDonation = kind === "donation";
+    const tier = isDonation ? getDonationTier(tierId) : getTier(tierId);
     if (!tier) {
-      return res.status(400).json({ error: "Unknown sponsorship tier." });
+      return res.status(400).json({
+        error: isDonation ? "Unknown donation tier." : "Unknown sponsorship tier."
+      });
     }
 
     const sponsor = sanitizeSponsor(rawSponsor);
     if (!sponsor.email || !isValidEmail(sponsor.email)) {
-      return res.status(400).json({ error: "A valid sponsor email is required." });
+      return res.status(400).json({
+        error: isDonation ? "A valid donor email is required." : "A valid sponsor email is required."
+      });
     }
     if (!sponsor.name) {
-      return res.status(400).json({ error: "Sponsor name is required." });
+      return res.status(400).json({
+        error: isDonation ? "Donor name is required." : "Sponsor name is required."
+      });
     }
 
     let amountMinor = tier.amount;
@@ -110,21 +133,24 @@ export async function createPaymentIntent(req, res) {
     }
 
     const stripe = getStripe();
+    const baseMeta = {
+      tier_id: tier.id,
+      tier_name: tier.name,
+      sponsor_name: sponsor.name,
+      sponsor_email: sponsor.email,
+      sponsor_phone: sponsor.phone,
+      sponsor_organization: sponsor.organization,
+      sponsor_country: sponsor.country,
+      sponsor_message: sponsor.message ? sponsor.message.slice(0, 480) : ""
+    };
+    const metadata = isDonation ? { ...baseMeta, payment_kind: "donation" } : baseMeta;
+
     const intent = await stripe.paymentIntents.create({
       amount: amountMinor,
       currency: env.stripe.currency,
       automatic_payment_methods: { enabled: true },
-      description: `Sponsorship - ${tier.name}`,
-      metadata: {
-        tier_id: tier.id,
-        tier_name: tier.name,
-        sponsor_name: sponsor.name,
-        sponsor_email: sponsor.email,
-        sponsor_phone: sponsor.phone,
-        sponsor_organization: sponsor.organization,
-        sponsor_country: sponsor.country,
-        sponsor_message: sponsor.message ? sponsor.message.slice(0, 480) : ""
-      }
+      description: isDonation ? `Donation - ${tier.name}` : `Sponsorship - ${tier.name}`,
+      metadata
     });
 
     return res.status(201).json({
@@ -173,8 +199,7 @@ export async function confirmPayment(req, res) {
       message: meta.sponsor_message
     };
     const tier = { id: meta.tier_id, name: meta.tier_name };
-
-    await emailSponsorOnce({
+    const payload = {
       sponsor,
       tier,
       amountMinor: intent.amount_received || intent.amount,
@@ -183,7 +208,13 @@ export async function confirmPayment(req, res) {
       paymentCreated: intent.created,
       paymentMethod: describePaymentMethod(intent),
       receiptNumber: buildReceiptNumber(intent.id, intent.created)
-    });
+    };
+
+    if (meta.payment_kind === "donation") {
+      await emailDonationOnce(payload);
+    } else {
+      await emailSponsorOnce(payload);
+    }
 
     return res.status(200).json({ status: "succeeded" });
   } catch (error) {
@@ -243,8 +274,7 @@ export async function stripeWebhook(req, res) {
       message: meta.sponsor_message
     };
     const tier = { id: meta.tier_id, name: meta.tier_name };
-
-    await emailSponsorOnce({
+    const payload = {
       sponsor,
       tier,
       amountMinor: intent.amount_received || intent.amount,
@@ -253,7 +283,13 @@ export async function stripeWebhook(req, res) {
       paymentCreated: intent.created,
       paymentMethod: describePaymentMethod(intent),
       receiptNumber: buildReceiptNumber(intent.id, intent.created)
-    });
+    };
+
+    if (meta.payment_kind === "donation") {
+      await emailDonationOnce(payload);
+    } else {
+      await emailSponsorOnce(payload);
+    }
   }
 
   return res.json({ received: true });

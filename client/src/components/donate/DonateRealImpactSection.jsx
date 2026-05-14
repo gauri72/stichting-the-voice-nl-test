@@ -1,19 +1,20 @@
 import {
-  FaHandHoldingHeart,
-  FaHandshake,
-  FaRegCalendarAlt,
-  FaRegStar,
+  FaBolt,
+  FaMasksTheater,
+  FaStar,
   FaUsers,
-} from "react-icons/fa";
+  FaFaceSmileBeam,
+} from "react-icons/fa6";
 import footerBackground from "../../assets/footer-bg.png";
 import "../../styles/donate-real-impact-section.css";
 
+/** Same figures and headlines as `OurImpactSection` (home) */
 const stats = [
-  { value: "150+", label: "Events Organized", Icon: FaRegCalendarAlt },
-  { value: "25K+", label: "Lives Impacted", Icon: FaUsers },
-  { value: "500+", label: "Volunteers", Icon: FaHandHoldingHeart },
-  { value: "100+", label: "Partners", Icon: FaHandshake },
-  { value: "10+", label: "Years of Service", Icon: FaRegStar },
+  { value: "10+", label: "High-Production Events", Icon: FaBolt },
+  { value: "3+", label: "Premier Venues", Icon: FaMasksTheater },
+  { value: "125+", label: "Artists Amplified", Icon: FaStar },
+  { value: "12+", label: "Expert Members", Icon: FaUsers },
+  { value: "100+", label: "Joyful Hours of Happiness", Icon: FaFaceSmileBeam },
 ];
 
 export default function DonateRealImpactSection() {

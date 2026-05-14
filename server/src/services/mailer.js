@@ -4,7 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import env from "../config/env.js";
 import { SPONSORSHIP_COVERAGE } from "../config/sponsorshipCoverage.js";
-import { renderSponsorshipReceiptPdf } from "./receiptPdf.js";
+import { renderDonationReceiptPdf, renderSponsorshipReceiptPdf } from "./receiptPdf.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HEADER_LOGO_PATH = path.join(
@@ -487,6 +487,377 @@ ${coverageRowsHtml}
 </html>`;
 
   return { subject, text, html };
+}
+
+function buildDonationPlaceholders(payload) {
+  const sponsor = payload.sponsor || {};
+  const donationAmount = formatAmount(payload.amountMinor, payload.currency);
+  const paymentDate = payload.paymentDate || formatPaymentDate(payload.paymentCreated);
+  const transactionId = payload.paymentIntentId || "";
+  const donorAddress = [sponsor.organization, sponsor.country].filter(Boolean).join(", ").trim();
+  const notesOptional = sponsor.message && String(sponsor.message).trim() ? String(sponsor.message).trim() : "";
+  return {
+    donor_name: sponsor.name || sponsor.firstName || "Donor",
+    company_name: sponsor.organization || "",
+    donor_email: sponsor.email || "",
+    donor_address: donorAddress,
+    notes_optional: notesOptional,
+    donation_level: payload.tier?.name || "Donation",
+    donation_amount: donationAmount,
+    payment_date: paymentDate,
+    donation_date: paymentDate,
+    transaction_id: transactionId,
+    stripe_payment_id: transactionId,
+    receipt_number: payload.receiptNumber || "",
+    payment_method: payload.paymentMethod || "Card via Stripe",
+    contact_email: env.org.contactEmail,
+    website_url: "https://stichtingthevoice.nl",
+    email_footer_optional: env.org.emailFooterOptional || ""
+  };
+}
+
+function buildDonationThankYouEmail(values, branding = {}) {
+  const logoCid = branding.logoCid || null;
+  const logoCell = logoCid
+    ? `<img src="cid:${logoCid}" alt="Stichting The V.O.I.C.E. NL" width="48" height="48" style="display:block;width:48px;height:auto;border:0;border-radius:6px;background:#ffffff;object-fit:contain;" />`
+    : `<span style="display:inline-block;width:48px;height:48px;border-radius:6px;background:#ffffff;text-align:center;line-height:48px;font-family:Georgia,serif;font-size:22px;font-weight:700;color:#26a69a;">V</span>`;
+
+  const subject = "Thank You for Your Donation to Stichting The V.O.I.C.E. NL";
+
+  const text = `Dear ${values.donor_name},
+
+Thank you so much for your generous donation to Stichting The V.O.I.C.E. NL. Your support empowers art, culture, and community initiatives that inspire, educate, and unite people across the world. Together, we are creating a better tomorrow.
+
+Your Donation Details
+Donation Amount: ${values.donation_amount}
+Donation Level: ${values.donation_level}
+Donation Date: ${values.donation_date}
+Transaction ID: ${values.transaction_id}
+Payment Method: ${values.payment_method}
+
+Your Donation Makes Possible
+€25 | Supporter — Helps cover essential operational costs.
+€50 | Friend — Supports programs that empower communities through arts and culture.
+€100 | Champion — Enables impactful events that inspire, educate, and bring people together.
+€250 | Patron — Supports larger initiatives and helps expand our reach worldwide.
+€500+ | Visionary — Makes a transformative impact and helps shape a better future.
+
+Your kindness fuels creativity, strengthens communities, and brings people together across cultures. We are deeply grateful to have you as part of our journey.
+
+Warm regards,
+Stichting The V.O.I.C.E. NL
+
+Visit Our Website: https://stichtingthevoice.nl
+Email Us: ${values.contact_email}
+THE VISION OF INTERNATIONAL CULTURAL EXCHANGE IN THE NETHERLANDS.
+
+${values.email_footer_optional ? values.email_footer_optional + "\n" : ""}
+Your official donation receipt is attached to this email for your records.
+`;
+
+  const safe = Object.fromEntries(
+    Object.entries(values).map(([k, v]) => [k, escapeHtml(v)])
+  );
+
+  const footerOptionalHtml =
+    safe.email_footer_optional && String(safe.email_footer_optional).trim()
+      ? `<p class="donate-email-optional-footer" style="margin:18px auto 0;max-width:620px;padding:0 16px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.55;color:#777777;text-align:center;">${safe.email_footer_optional}</p>`
+      : "";
+
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style type="text/css">
+    .donate-email-card { border-collapse: separate !important; }
+    /* Desktop: footer column alignment */
+    .donate-email-footer-col--left { text-align: left !important; }
+    .donate-email-footer-col--mid { text-align: center !important; }
+    .donate-email-footer-col--right { text-align: right !important; }
+    /* Tablet */
+    @media only screen and (max-width: 768px) {
+      .donate-email-shell { padding: 20px 14px !important; }
+      .donate-email-card { width: 100% !important; max-width: 100% !important; border-radius: 16px !important; }
+      .donate-email-header { padding: 22px 22px 28px !important; }
+      .donate-email-header-strip td { vertical-align: middle !important; }
+      .donate-email-body { padding: 32px 22px 28px !important; }
+      .donate-email-hero { font-size: 28px !important; margin-top: 22px !important; text-align: center !important; }
+      .donate-email-hero-wrap td { text-align: center !important; }
+      .donate-email-sub { text-align: center !important; margin-left: auto !important; margin-right: auto !important; max-width: 36ch !important; color: #ffffff !important; }
+      .donate-email-hero-wrap td { padding-top: 18px !important; }
+      .donate-email-header-top .donate-email-brand-col,
+      .donate-email-header-top .donate-email-tagline-col { display: block !important; width: 100% !important; }
+      .donate-email-tagline-col { text-align: center !important; padding: 12px 0 0 !important; }
+      .donate-email-tagline-col p { text-align: center !important; margin-left: auto !important; margin-right: auto !important; max-width: 100% !important; }
+      .donate-details-cell { display: block !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; border-right: none !important; border-bottom: 1px solid #e0e0e0 !important; }
+      .donate-details-inner tr:last-child .donate-details-cell { border-bottom: none !important; }
+      .donate-impact-table .donate-impact-row .donate-impact-amt,
+      .donate-impact-table .donate-impact-row .donate-impact-tier,
+      .donate-impact-table .donate-impact-row .donate-impact-desc { display: block !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding-left: 0 !important; padding-right: 0 !important; }
+      .donate-impact-table .donate-impact-row .donate-impact-amt { border: none !important; text-align: center !important; padding: 14px 12px 4px !important; white-space: normal !important; }
+      .donate-impact-table .donate-impact-row .donate-impact-tier { border: none !important; text-align: center !important; font-size: 15px !important; padding: 0 12px 10px !important; }
+      .donate-impact-table .donate-impact-row .donate-impact-desc { border: none !important; text-align: center !important; padding: 0 16px 22px !important; border-bottom: 1px solid #e8ecec !important; }
+      .donate-impact-table .donate-impact-row:last-child .donate-impact-desc { border-bottom: none !important; padding-bottom: 12px !important; }
+      .donate-impact-table { border: none !important; border-radius: 0 !important; }
+      .donate-email-footer-row .donate-email-footer-col { display: block !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; text-align: center !important; border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.2) !important; padding: 20px 24px !important; }
+      .donate-email-footer-row .donate-email-footer-col:last-child { border-bottom: none !important; padding-bottom: 26px !important; }
+      .donate-email-footer-right p { text-align: center !important; }
+      .donate-email-footer-col--left,
+      .donate-email-footer-col--mid,
+      .donate-email-footer-col--right { text-align: center !important; }
+    }
+    /* Mobile */
+    @media only screen and (max-width: 600px) {
+      .donate-email-shell { padding: 12px 10px !important; }
+      .donate-email-card { border-radius: 14px !important; }
+      .donate-email-header { padding: 18px 16px 22px !important; }
+      .donate-email-body { padding: 26px 16px 22px !important; }
+      .donate-email-hero { font-size: 24px !important; line-height: 1.2 !important; margin-top: 18px !important; }
+      .donate-email-sub { font-size: 13px !important; max-width: 100% !important; color: #ffffff !important; }
+      .donate-email-tagline-col p { font-size: 7.5px !important; letter-spacing: 0.07em !important; line-height: 1.45 !important; }
+      .donate-email-brand-col { text-align: center !important; }
+      .donate-email-brand-inner { margin: 0 auto !important; }
+      .donate-email-brand-inner tr td:first-child { display: block !important; text-align: center !important; padding: 0 0 10px 0 !important; }
+      .donate-email-brand-inner tr td:last-child { display: block !important; text-align: center !important; padding: 0 !important; }
+      .donate-details-wrap { padding: 16px 14px 14px !important; }
+      .donate-details-title { font-size: 15px !important; }
+      .donate-impact-title { font-size: 17px !important; margin-top: 28px !important; }
+      .donate-email-footer-row .donate-email-footer-col { padding: 18px 20px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#f4f5f6;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;font-size:1px;line-height:1px;color:transparent;">
+    Thank you for your donation to Stichting The V.O.I.C.E. NL.
+  </div>
+  <table class="donate-email-shell" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f6;padding:28px 16px;">
+    <tr>
+      <td align="center">
+        <table class="donate-email-card" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:620px;border-spacing:0;border-collapse:separate;border-radius:18px;overflow:hidden;box-shadow:0 10px 32px rgba(0,50,55,0.14);background:#ffffff;">
+          <tr>
+            <td class="donate-email-header" style="background:linear-gradient(90deg,#004b50 0%,#045a5e 36%,#0a7a72 70%,#0d8679 100%);padding:28px 36px 36px;">
+              <table class="donate-email-header-strip donate-email-header-top" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-spacing:0;">
+                <tr>
+                  <td class="donate-email-brand-col" width="52%" style="vertical-align:middle;">
+                    <table class="donate-email-brand-inner" role="presentation" cellpadding="0" cellspacing="0" style="border-spacing:0;">
+                      <tr>
+                        <td style="vertical-align:middle;padding:0 14px 0 0;">${logoCell}</td>
+                        <td style="vertical-align:middle;padding:0;">
+                          <p style="margin:0 0 3px;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#ffffff;line-height:1.35;">
+                            STICHTING
+                          </p>
+                          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#c8f5a8;line-height:1.35;">
+                            THE V.O.I.C.E. NL
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td class="donate-email-tagline-col" width="48%" style="vertical-align:middle;text-align:right;padding:0;">
+                    <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#ffffff;line-height:1.5;text-align:right;">
+                      ARTS&nbsp;&nbsp;CULTURE&nbsp;&nbsp;COMMUNITY&nbsp;&nbsp;<span style="color:#d8f28c;">TOMORROW</span>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              <table class="donate-email-hero-wrap" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-spacing:0;">
+                <tr>
+                  <td style="padding:22px 0 0;">
+                    <h1 class="donate-email-hero" style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:34px;font-weight:700;line-height:1.15;color:#ffffff;text-align:left;">
+                      Thank You for Your Donation
+                    </h1>
+                    <p class="donate-email-sub" style="margin:12px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:400;line-height:1.65;color:#ffffff;text-align:left;">
+                      Your generosity helps us create cultural impact.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="donate-email-body" style="padding:40px 40px 32px;background:#ffffff;">
+              <p style="margin:0 0 18px;font-family:Georgia,'Times New Roman',serif;font-size:16px;font-weight:700;color:#004b50;">
+                Dear ${safe.donor_name},
+              </p>
+              <p style="margin:0 0 28px;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:400;line-height:1.75;color:#333333;">
+                Thank you so much for your generous donation to Stichting The V.O.I.C.E. NL. Your support empowers art, culture, and community initiatives that inspire, educate, and unite people across the world. Together, we are creating a better tomorrow.
+              </p>
+
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #e0e0e0;border-radius:14px;border-spacing:0;">
+                <tr>
+                  <td class="donate-details-wrap" style="padding:22px 24px 20px;">
+                    <p class="donate-details-title" style="margin:0 0 18px;font-family:Georgia,'Times New Roman',serif;font-size:17px;font-weight:700;color:#004b50;text-align:left;">
+                      Your Donation Details
+                    </p>
+                    <table class="donate-details-inner" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-spacing:0;border-collapse:collapse;border:1px solid #e0e0e0;">
+                      <tr>
+                        <td class="donate-details-cell" width="50%" style="vertical-align:top;padding:16px 18px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;">
+                          <p class="donate-detail-label" style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;color:#333333;">Donation Amount</p>
+                          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;">${safe.donation_amount}</p>
+                        </td>
+                        <td class="donate-details-cell donate-details-cell--right" width="50%" style="vertical-align:top;padding:16px 18px;border-bottom:1px solid #e0e0e0;">
+                          <p class="donate-detail-label" style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;color:#333333;">Donation Level</p>
+                          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;">${safe.donation_level}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="donate-details-cell" width="50%" style="vertical-align:top;padding:16px 18px;border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;">
+                          <p class="donate-detail-label" style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;color:#333333;">Donation Date</p>
+                          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;">${safe.donation_date}</p>
+                        </td>
+                        <td class="donate-details-cell donate-details-cell--right" width="50%" style="vertical-align:top;padding:16px 18px;border-bottom:1px solid #e0e0e0;">
+                          <p class="donate-detail-label" style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;color:#333333;">Transaction ID</p>
+                          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;color:#26a69a;word-break:break-all;">${safe.transaction_id}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="donate-details-cell" colspan="2" style="vertical-align:top;padding:16px 18px;">
+                          <p class="donate-detail-label" style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;color:#333333;">Payment Method</p>
+                          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;">${safe.payment_method}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <p class="donate-impact-title" style="margin:36px 0 18px;font-family:Georgia,'Times New Roman',serif;font-size:19px;font-weight:700;color:#004b50;text-align:center;">
+                Your Donation Makes Possible
+              </p>
+              <table class="donate-impact-table" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-spacing:0;border-collapse:collapse;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
+                <tr class="donate-impact-row">
+                  <td class="donate-impact-amt" style="width:15%;vertical-align:top;padding:14px 12px 14px 0;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;white-space:nowrap;">€25</td>
+                  <td class="donate-impact-tier" style="width:22%;vertical-align:top;padding:14px 12px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#333333;">Supporter</td>
+                  <td class="donate-impact-desc" style="vertical-align:top;padding:14px 0 14px 8px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:400;line-height:1.6;color:#333333;">Helps cover essential operational costs.</td>
+                </tr>
+                <tr class="donate-impact-row">
+                  <td class="donate-impact-amt" style="vertical-align:top;padding:14px 12px 14px 0;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;white-space:nowrap;">€50</td>
+                  <td class="donate-impact-tier" style="vertical-align:top;padding:14px 12px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#333333;">Friend</td>
+                  <td class="donate-impact-desc" style="vertical-align:top;padding:14px 0 14px 8px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:400;line-height:1.6;color:#333333;">Supports programs that empower communities through arts and culture.</td>
+                </tr>
+                <tr class="donate-impact-row">
+                  <td class="donate-impact-amt" style="vertical-align:top;padding:14px 12px 14px 0;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;white-space:nowrap;">€100</td>
+                  <td class="donate-impact-tier" style="vertical-align:top;padding:14px 12px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#333333;">Champion</td>
+                  <td class="donate-impact-desc" style="vertical-align:top;padding:14px 0 14px 8px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:400;line-height:1.6;color:#333333;">Enables impactful events that inspire, educate, and bring people together.</td>
+                </tr>
+                <tr class="donate-impact-row">
+                  <td class="donate-impact-amt" style="vertical-align:top;padding:14px 12px 14px 0;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;white-space:nowrap;">€250</td>
+                  <td class="donate-impact-tier" style="vertical-align:top;padding:14px 12px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#333333;">Patron</td>
+                  <td class="donate-impact-desc" style="vertical-align:top;padding:14px 0 14px 8px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:400;line-height:1.6;color:#333333;">Supports larger initiatives and helps expand our reach worldwide.</td>
+                </tr>
+                <tr class="donate-impact-row">
+                  <td class="donate-impact-amt" style="vertical-align:top;padding:14px 12px 14px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;white-space:nowrap;">€500+</td>
+                  <td class="donate-impact-tier" style="vertical-align:top;padding:14px 12px;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#333333;">Visionary</td>
+                  <td class="donate-impact-desc" style="vertical-align:top;padding:14px 0 14px 8px;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:400;line-height:1.6;color:#333333;">Makes a transformative impact and helps shape a better future.</td>
+                </tr>
+              </table>
+
+              <p style="margin:28px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.75;color:#333333;">
+                Your kindness fuels creativity, strengthens communities, and brings people together across cultures. We are deeply grateful to have you as part of our journey.
+              </p>
+              <p style="margin:22px 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:400;color:#333333;">Warm regards,</p>
+              <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#26a69a;">Stichting The V.O.I.C.E. NL</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#004b50;padding:0;">
+              <table class="donate-email-footer-row" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-spacing:0;">
+                <tr>
+                  <td class="donate-email-footer-col donate-email-footer-col--left" width="32%" style="vertical-align:top;padding:28px 20px 32px 36px;border-right:1px solid rgba(255,255,255,0.22);text-align:left;">
+                    <p style="margin:0 0 10px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;color:#ffffff;letter-spacing:0.02em;">Visit Our Website</p>
+                    <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.55;">
+                      <a href="https://stichtingthevoice.nl" style="color:#d8f28c;text-decoration:underline;">https://stichtingthevoice.nl</a>
+                    </p>
+                  </td>
+                  <td class="donate-email-footer-col donate-email-footer-col--mid" width="36%" style="vertical-align:top;padding:28px 20px 32px;border-right:1px solid rgba(255,255,255,0.22);text-align:center;">
+                    <p style="margin:0 0 10px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;color:#ffffff;letter-spacing:0.02em;">Email Us</p>
+                    <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.55;">
+                      <a href="mailto:${safe.contact_email}" style="color:#d8f28c;text-decoration:underline;">${safe.contact_email}</a>
+                    </p>
+                  </td>
+                  <td class="donate-email-footer-col donate-email-footer-col--right donate-email-footer-right" width="32%" style="vertical-align:top;padding:28px 36px 32px 20px;text-align:right;">
+                    <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:700;letter-spacing:0.11em;text-transform:uppercase;color:#ffffff;line-height:1.7;">
+                      THE VISION OF INTERNATIONAL<br/>
+                      CULTURAL EXCHANGE<br/>
+                      IN THE NETHERLANDS.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        ${footerOptionalHtml}
+        <p style="margin:18px auto 0;max-width:620px;padding:0 16px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.55;color:#888888;text-align:center;">
+          Your official donation receipt is attached to this email for your records.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  return { subject, text, html };
+}
+
+export async function sendDonationEmails(payload) {
+  const tx = getTransporter();
+  if (!tx || !env.email.from) {
+    console.warn("[mailer] Donation email not sent: SMTP/EMAIL_FROM not configured.");
+    return { skipped: true };
+  }
+
+  const values = buildDonationPlaceholders(payload);
+  const logoAtt = loadHeaderLogoAttachment();
+  const donorMail = buildDonationThankYouEmail(values, { logoCid: logoAtt?.cid || null });
+
+  let pdfBuffer = null;
+  try {
+    pdfBuffer = await renderDonationReceiptPdf({
+      receiptNumber: values.receipt_number,
+      stripePaymentId: values.stripe_payment_id,
+      paymentDate: values.payment_date,
+      donorName: values.donor_name,
+      donorEmail: values.donor_email,
+      donorAddress: values.donor_address,
+      notesOptional: values.notes_optional,
+      donationLevel: values.donation_level,
+      donationAmount: values.donation_amount,
+      paymentMethod: values.payment_method,
+      websiteUrl: values.website_url,
+      contactEmail: values.contact_email,
+      orgTagline: env.org.tagline
+    });
+  } catch (error) {
+    console.error("[mailer] Failed to render donation PDF receipt:", error.message);
+  }
+
+  const attachments = [
+    ...(logoAtt ? [logoAtt] : []),
+    ...(pdfBuffer
+      ? [
+          {
+            filename: `Donation-Receipt-${values.receipt_number || "VOICE"}.pdf`,
+            content: pdfBuffer,
+            contentType: "application/pdf"
+          }
+        ]
+      : [])
+  ];
+
+  if (payload.sponsor?.email) {
+    await tx.sendMail({
+      from: env.email.from,
+      to: payload.sponsor.email,
+      subject: donorMail.subject,
+      text: donorMail.text,
+      html: donorMail.html,
+      attachments
+    });
+  }
+
+  return { skipped: false };
 }
 
 export async function sendSponsorshipEmails(payload) {

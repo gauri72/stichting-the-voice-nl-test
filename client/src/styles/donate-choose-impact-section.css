@@ -36,6 +36,11 @@
   box-shadow: 0 12px 28px rgba(12, 76, 80, 0.14);
 }
 
+.donate-tier-card--active {
+  border-color: #1f9f78;
+  box-shadow: 0 0 0 3px rgba(31, 159, 120, 0.18);
+}
+
 .donate-tier-card__tag {
   margin: 0 -14px 10px;
   background: linear-gradient(90deg, #1b7d8f 0%, #1f9f78 100%);
@@ -117,6 +122,8 @@
   letter-spacing: 0.03em;
   font-size: 0.82rem;
   font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
   transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
 }
 

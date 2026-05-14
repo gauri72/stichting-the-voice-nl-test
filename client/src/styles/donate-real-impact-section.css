@@ -169,50 +169,46 @@
     text-align: center;
   }
 
-  /* Center icon + text within each stat card. */
+  /* Tablet / small laptop: 2-column card grid (no row dividers). */
+  .donate-impact__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    align-items: stretch;
+    justify-content: initial;
+  }
+
   .donate-impact__stat {
-    justify-content: center;
+    flex: unset;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     text-align: center;
+    gap: 10px;
+    min-width: 0;
+    margin: 0;
+    padding: 16px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 14px;
+    background: linear-gradient(
+      165deg,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.04) 100%
+    );
+    box-shadow: 0 8px 24px rgba(3, 28, 48, 0.22);
   }
 
   .donate-impact__stat-text {
     align-items: center;
   }
 
-  .donate-impact__stats {
-    flex-wrap: wrap;
-    justify-content: flex-start;
+  /* Fifth stat: full-width band under the 2×2 grid */
+  .donate-impact__stat:nth-child(5) {
+    grid-column: 1 / -1;
+    max-width: min(100%, 420px);
+    justify-self: center;
     width: 100%;
-    column-gap: 0;
-    row-gap: 0;
-  }
-
-  .donate-impact__stat {
-    flex: 1 1 calc(33.333% - 12px);
-    min-width: 140px;
-    border-left: none;
-    padding: 12px 10px;
-  }
-
-  .donate-impact__stat:not(:first-child) {
-    border-left: none;
-  }
-
-  /* 3-up row: vertical rules between columns */
-  .donate-impact__stat:nth-child(3n + 2),
-  .donate-impact__stat:nth-child(3n + 3) {
-    border-left: 1px solid rgba(234, 247, 255, 0.24);
-  }
-
-  .donate-impact__stat:nth-child(3n + 1) {
-    padding-inline-start: 0;
-  }
-
-  /* Second row */
-  .donate-impact__stat:nth-child(n + 4) {
-    border-top: 1px solid rgba(234, 247, 255, 0.22);
-    margin-top: 4px;
-    padding-top: 16px;
   }
 }
 
@@ -242,46 +238,30 @@
     font-size: clamp(1.4rem, 4.2vw, 1.7rem);
   }
 
+  .donate-impact__stats {
+    gap: 10px;
+  }
+
   .donate-impact__stat {
-    flex: 1 1 calc(50% - 8px);
-    border-left: none;
-    border-top: none;
-    margin-top: 0;
-    padding: 12px 8px;
-  }
-
-  .donate-impact__stat:nth-child(3n + 2),
-  .donate-impact__stat:nth-child(3n + 3) {
-    border-left: none;
-  }
-
-  .donate-impact__stat:nth-child(n + 4) {
-    border-top: none;
-    padding-top: 12px;
-  }
-
-  /* 2-up: divider between columns */
-  .donate-impact__stat:nth-child(2n) {
-    border-left: 1px solid rgba(234, 247, 255, 0.24);
-  }
-
-  /* Divider above row 2+ */
-  .donate-impact__stat:nth-child(n + 3) {
-    border-top: 1px solid rgba(234, 247, 255, 0.22);
-    margin-top: 6px;
-    padding-top: 16px;
-  }
-
-  .donate-impact__stat:first-child {
-    border-top: none;
-    margin-top: 0;
-    padding-top: 12px;
+    padding: 14px 10px;
   }
 }
 
-@media (max-width: 520px) {
+/* Narrow phones: single column — one stat per row */
+@media (max-width: 640px) {
   .donate-impact {
-    padding: 18px 14px;
+    padding: 18px clamp(14px, 4vw, 20px);
+  }
+
+  .donate-impact__inner {
+    padding-right: 0;
+    align-items: center;
+    width: 100%;
+    max-width: none;
+  }
+
+  .donate-impact__intro {
+    padding-right: 0;
   }
 
   .donate-impact__title-line,
@@ -291,32 +271,41 @@
   }
 
   .donate-impact__stats {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    max-width: min(100%, 400px);
+    margin-inline: auto;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
   }
 
   .donate-impact__stat {
-    flex: 1 1 100%;
+    flex: 1 1 auto;
     width: 100%;
-    padding: 10px 6px;
-    gap: 12px;
+    min-width: 0;
+    min-height: 0;
+    justify-content: center;
+    padding: 14px 16px;
   }
 
-  /* Reset 2-col rules from the previous breakpoint. */
-  .donate-impact__stat:nth-child(2n) {
-    border-left: none;
+  .donate-impact__stat:nth-child(5) {
+    grid-column: unset;
+    max-width: none;
+    width: 100%;
+    justify-self: initial;
   }
 
-  .donate-impact__stat:nth-child(n + 3) {
-    border-top: none;
-    margin-top: 0;
-    padding-top: 10px;
+  .donate-impact__stat:last-child {
+    margin-right: 0;
   }
+}
 
-  /* Single horizontal divider between each stacked row. */
-  .donate-impact__stat:not(:first-child) {
-    border-top: 1px solid rgba(234, 247, 255, 0.22);
-    margin-top: 0;
-    padding-top: 12px;
+@media (prefers-reduced-motion: reduce) {
+  .donate-impact__stats {
+    scroll-snap-type: none;
   }
 }
