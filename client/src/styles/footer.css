@@ -260,7 +260,7 @@
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   gap: 12px 14px;
   width: 100%;
@@ -879,7 +879,7 @@
 /* Small tablet / large phone: single column, readable tap targets */
 @media (max-width: 768px) {
   .footer-col.footer-col-contact .footer-brand-details {
-    width: 100%;
+    width: fit-content;
     max-width: 420px;
     margin: 10px auto 0;
     padding: 8px 10px 6px;
@@ -1136,7 +1136,7 @@
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
     gap: 10px 12px;
     width: 100%;
@@ -2336,5 +2336,50 @@
 @media (max-width: 640px) {
   .site-footer--with-bg .footer-main {
     padding-right: calc(var(--footer-pad-x) + clamp(8px, 3vw, 14px));
+  }
+}
+
+/* Tablet & mobile: center venture credit and contact us (keep row/grid layout) */
+@media (max-width: 992px) {
+  .footer-col-follow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer-col-follow .footer-venture-credit {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    margin-inline: auto;
+    width: fit-content;
+    max-width: min(440px, 100%);
+  }
+
+  .footer-col-follow .footer-venture-credit .footer-designed-by {
+    text-align: left;
+  }
+
+  .footer-columns--main .footer-col-contact,
+  .footer-col.footer-col-contact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer-columns--main .footer-col-contact .footer-brand-details,
+  .footer-columns--main .footer-col-contact .footer-brand-details.footer-brand-details--standalone,
+  .footer-col.footer-col-contact .footer-brand-details,
+  .footer-col.footer-col-contact .footer-brand-details.footer-brand-details--standalone {
+    margin-inline: auto;
+    width: fit-content;
+    max-width: min(100%, 420px);
+    text-align: left;
+  }
+
+  .footer-col-contact .footer-section-title {
+    text-align: center;
+    width: 100%;
   }
 }

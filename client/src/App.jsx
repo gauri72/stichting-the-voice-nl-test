@@ -7,6 +7,7 @@ import HomePage from "./components/home/HomePage";
 import MembershipPage from "./components/membership/MembershipPage";
 import SponsorshipPage from "./components/sponsorship/SponsorshipPage";
 import DonatePage from "./components/donate/DonatePage";
+import LoginPage from "./components/login/LoginPage";
 
 function EmptyPage() {
   return null;
@@ -55,6 +56,7 @@ export default function App() {
           <Route path="/film-festival" element={<EmptyPage />} />
           <Route path="/privacy-policy" element={<EmptyPage />} />
           <Route path="/terms-and-conditions" element={<EmptyPage />} />
+          <Route path="/my-account" element={<LoginPage />} />
         </Routes>
       </main>
       <Footer />
