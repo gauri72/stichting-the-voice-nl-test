@@ -21,6 +21,13 @@ const env = {
     from: process.env.EMAIL_FROM || "",
     orgNotify: process.env.ORG_NOTIFY_EMAIL || ""
   },
+  auth: {
+    jwtSecret:
+      process.env.JWT_SECRET ||
+      (process.env.NODE_ENV === "production"
+        ? ""
+        : "dev-only-jwt-secret-change-in-production")
+  },
   org: {
     contactEmail:
       process.env.CONTACT_EMAIL ||

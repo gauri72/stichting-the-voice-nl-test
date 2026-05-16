@@ -1,0 +1,29 @@
+import mongoose from "mongoose";
+
+const userSchema = new mongoose.Schema(
+  {
+    firstName: { type: String, required: true, trim: true, maxlength: 80 },
+    lastName: { type: String, required: true, trim: true, maxlength: 80 },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    passwordHash: { type: String, required: true },
+    isVerified: { type: Boolean, default: false },
+    verificationOtpHash: { type: String, default: null },
+    verificationOtpExpires: { type: Date, default: null }
+  },
+  { timestamps: true }
+);
+
+userSchema.methods.toSafeJSON = function toSafeJSON() {
+  return {
+    id: this._id.toString(),
+    firstName: this.firstName,
+    lastName: this.lastName,
+    email: this.email,
+    isVerified: this.isVerified,
+    createdAt: this.createdAt
+  };
+};
+
+const User = mongoose.models.User || mongoose.model("User", userSchema);
+
+export default User;

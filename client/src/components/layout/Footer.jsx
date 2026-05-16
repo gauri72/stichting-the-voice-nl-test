@@ -41,8 +41,7 @@ const quickLinksRow2 = [
 
 const quickLinksRow3 = [
   { label: "Events", to: "/events" },
-  { label: "My Account", to: "/my-account" },
-  { label: "Blogs", to: "/blogs" },
+  { label: "LOG IN or SIGN UP", to: "/my-account" },
   { label: "Chat With Us", href: buildWhatsAppHref() },
 ];
 
@@ -213,7 +212,7 @@ export default function Footer() {
                   </li>
                 ))}
               </ul>
-              <ul className="footer-quick-row footer-quick-row--four">
+              <ul className="footer-quick-row footer-quick-row--three">
                 {quickLinksRow3.map((item) => (
                   <li key={item.label}>
                     {"href" in item ? (

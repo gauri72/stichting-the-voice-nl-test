@@ -8,6 +8,8 @@ import MembershipPage from "./components/membership/MembershipPage";
 import SponsorshipPage from "./components/sponsorship/SponsorshipPage";
 import DonatePage from "./components/donate/DonatePage";
 import LoginPage from "./components/login/LoginPage";
+import DashboardPage from "./components/dashboard/DashboardPage";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function EmptyPage() {
   return null;
@@ -57,6 +59,14 @@ export default function App() {
           <Route path="/privacy-policy" element={<EmptyPage />} />
           <Route path="/terms-and-conditions" element={<EmptyPage />} />
           <Route path="/my-account" element={<LoginPage />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
       <Footer />

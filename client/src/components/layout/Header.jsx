@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { IoMailOutline, IoPersonOutline } from "react-icons/io5";
 import headerLogo from "../../assets/header-logo.png";
 
 export default function Header() {
@@ -15,6 +16,51 @@ export default function Header() {
     setOpenDropdown((prev) => (prev === key ? null : key));
   }
 
+  const navLinks = (
+    <>
+      <NavLink to="/" end onClick={closeMenu}>
+        Home
+      </NavLink>
+      <NavLink to="/membership" onClick={closeMenu}>
+        Membership
+      </NavLink>
+      <NavLink to="/events" onClick={closeMenu}>
+        Events
+      </NavLink>
+      <NavLink to="/sponsorship" onClick={closeMenu}>
+        Sponsorship
+      </NavLink>
+
+      <div className={`menu-dropdown ${openDropdown === "segments" ? "open" : ""}`}>
+        <button
+          className="menu-dropdown-trigger"
+          type="button"
+          aria-haspopup="true"
+          aria-expanded={openDropdown === "segments"}
+          onClick={() => toggleDropdown("segments")}
+        >
+          Segments
+        </button>
+        <div className="menu-dropdown-menu">
+          <NavLink to="/segments/vision-of-sounds" onClick={closeMenu}>
+            Vision of Sounds
+          </NavLink>
+          <NavLink to="/segments/vownl" onClick={closeMenu}>
+            VOWNL
+          </NavLink>
+          <NavLink to="/segments/voice-of-visionaries" onClick={closeMenu}>
+            Voice of Visionaries
+          </NavLink>
+        </div>
+      </div>
+
+      <NavLink className="contact-link" to="/contact" onClick={closeMenu} aria-label="Contact">
+        <IoMailOutline className="contact-link-icon" aria-hidden />
+        <span className="contact-link-label">Contact</span>
+      </NavLink>
+    </>
+  );
+
   return (
     <header className="site-header">
       <nav className="site-navbar">
@@ -28,10 +74,9 @@ export default function Header() {
           </div>
         </Link>
 
-        <Link className="donate-button donate-button-middle" to="/donate" onClick={closeMenu}>
-          <span className="donate-icon">♥</span>
-          Donate Now
-        </Link>
+        <div className="nav-center">
+          <div className="menu-links">{navLinks}</div>
+        </div>
 
         <button
           className="menu-toggle"
@@ -61,70 +106,28 @@ export default function Header() {
             </div>
           </Link>
 
-          <div className="menu-links">
-            <NavLink to="/" end onClick={closeMenu}>
-              Home
-            </NavLink>
-            <NavLink to="/membership" onClick={closeMenu}>
-              Membership
-            </NavLink>
-            <NavLink to="/events" onClick={closeMenu}>
-              Events
-            </NavLink>
-            <NavLink to="/sponsorship" onClick={closeMenu}>
-              Sponsorship
-            </NavLink>
-            <NavLink to="/my-account" onClick={closeMenu}>
-              My Account
-            </NavLink>
-
-            <div className={`menu-dropdown ${openDropdown === "segments" ? "open" : ""}`}>
-              <button
-                className="menu-dropdown-trigger"
-                type="button"
-                aria-haspopup="true"
-                aria-expanded={openDropdown === "segments"}
-                onClick={() => toggleDropdown("segments")}
-              >
-                Segments
-              </button>
-              <div className="menu-dropdown-menu">
-                <NavLink to="/segments/vision-of-sounds" onClick={closeMenu}>
-                  Vision of Sounds
-                </NavLink>
-                <NavLink to="/segments/vownl" onClick={closeMenu}>
-                  VOWNL
-                </NavLink>
-                <NavLink to="/segments/voice-of-visionaries" onClick={closeMenu}>
-                  Voice of Visionaries
-                </NavLink>
-              </div>
-            </div>
-
-            <div className={`menu-dropdown menu-dropdown--right ${openDropdown === "more" ? "open" : ""}`}>
-              <button
-                className="menu-dropdown-trigger"
-                type="button"
-                aria-haspopup="true"
-                aria-expanded={openDropdown === "more"}
-                onClick={() => toggleDropdown("more")}
-              >
-                More
-              </button>
-              <div className="menu-dropdown-menu">
-                <NavLink to="/blogs" onClick={closeMenu}>
-                  Blogs
-                </NavLink>
-                <NavLink to="/contact" onClick={closeMenu}>
-                  Contact
-                </NavLink>
-              </div>
-            </div>
-          </div>
+          <div className="menu-links menu-links--mobile">{navLinks}</div>
 
           <Link className="donate-button donate-button-menu" to="/donate" onClick={closeMenu}>
             <span className="donate-icon">♥</span>
             Donate Now
+          </Link>
+
+          <Link className="auth-button auth-button-menu" to="/my-account" onClick={closeMenu}>
+            <IoPersonOutline className="auth-button-icon" aria-hidden />
+            <span>LOG IN or SIGN UP</span>
+          </Link>
+        </div>
+
+        <div className="nav-right">
+          <Link className="donate-button donate-button-desktop" to="/donate" onClick={closeMenu}>
+            <span className="donate-icon">♥</span>
+            Donate Now
+          </Link>
+
+          <Link className="auth-button auth-button-desktop" to="/my-account" onClick={closeMenu}>
+            <IoPersonOutline className="auth-button-icon" aria-hidden />
+            <span>LOG IN or SIGN UP</span>
           </Link>
         </div>
       </nav>

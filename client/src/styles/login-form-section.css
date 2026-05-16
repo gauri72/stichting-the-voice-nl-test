@@ -8,7 +8,7 @@
 }
 
 .login-form-section__card {
-  width: min(100%, 520px);
+  width: min(100%, 560px);
   background: #ffffff;
   border: 1px solid #d9e1e8;
   border-radius: 16px;
@@ -46,10 +46,127 @@
   gap: 18px;
 }
 
+.login-form-section__name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
 .login-form-section__field {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.login-form-section__error {
+  margin: -4px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fef2f2;
+  border: 1px solid #f5c6c6;
+  color: #b42318;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.login-form-section__success {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 10px;
+  background: #eef8f3;
+  border: 1px solid #b8e0c8;
+}
+
+.login-form-section__success h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #0d2847;
+}
+
+.login-form-section__success p {
+  margin: 0;
+  color: #3d5166;
+  line-height: 1.55;
+  font-size: 0.95rem;
+}
+
+.login-form-section__dev-link {
+  font-size: 0.82rem !important;
+  color: #5a6d80 !important;
+  word-break: break-all;
+}
+
+.login-form-section__dev-link strong {
+  color: #0d2847;
+  letter-spacing: 0.2em;
+  font-size: 1rem;
+}
+
+.login-form-section__otp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.login-form-section__otp-input {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 16px;
+  border: 1px solid #d9e1e8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #17314b;
+  font: inherit;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-align: center;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-form-section__otp-input::placeholder {
+  color: #b8c5d1;
+  letter-spacing: 0.35em;
+  font-weight: 600;
+}
+
+.login-form-section__otp-input:focus {
+  outline: none;
+  border-color: #1f9f78;
+  box-shadow: 0 0 0 3px rgba(31, 159, 120, 0.18);
+}
+
+.login-form-section__resend-otp {
+  align-self: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #1b7d8f;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.login-form-section__resend-otp:hover:not(:disabled) {
+  color: #1f9f78;
+}
+
+.login-form-section__resend-otp:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-form-section__submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .login-form-section__field label {
@@ -219,7 +336,7 @@
   background: #d7dee5;
 }
 
-.login-form-section__create-account {
+.login-form-section__switch-mode {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -237,16 +354,18 @@
   text-transform: uppercase;
   text-decoration: none;
   box-sizing: border-box;
+  cursor: pointer;
+  font-family: inherit;
   transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.login-form-section__create-account:hover {
+.login-form-section__switch-mode:hover {
   background: rgba(26, 143, 163, 0.06);
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(26, 143, 163, 0.14);
 }
 
-.login-form-section__create-account:focus-visible {
+.login-form-section__switch-mode:focus-visible {
   outline: 2px solid #9fe6de;
   outline-offset: 3px;
 }
@@ -273,6 +392,11 @@
 @media (max-width: 480px) {
   .login-form-section__card {
     padding: 22px 18px 20px;
+  }
+
+  .login-form-section__name-row {
+    grid-template-columns: 1fr;
+    gap: 18px;
   }
 
   .login-form-section__row {
