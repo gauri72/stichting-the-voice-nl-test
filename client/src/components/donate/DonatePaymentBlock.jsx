@@ -68,7 +68,6 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
     setCustomAmount("");
   }, [tier?.id]);
 
-  const stripeReady = Boolean(getStripePromise());
   const stripeMissingKey = !PUBLISHABLE_KEY;
 
   useEffect(() => {
@@ -151,7 +150,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
 
   async function handleDetailsSubmit(event) {
     event.preventDefault();
-    if (!stripeReady) {
+    if (!PUBLISHABLE_KEY) {
       setSubmitError(
         "Stripe publishable key is missing. Add VITE_STRIPE_PUBLISHABLE_KEY to client/.env and restart the dev server."
       );
@@ -396,7 +395,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
           </form>
         ) : null}
 
-        {step === "payment" && clientSecret && stripeReady ? (
+        {step === "payment" && clientSecret && PUBLISHABLE_KEY ? (
           <Elements
             stripe={getStripePromise()}
             options={{
@@ -411,7 +410,6 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
               tier={tier}
               sessionKey={DONATE_CHECKOUT_SESSION_KEY}
               returnPath={DONATE_RETURN_PATH}
-              expressButtonType="donate"
               onSuccess={handleSuccess}
               onError={(msg) => setSubmitError(msg)}
             />

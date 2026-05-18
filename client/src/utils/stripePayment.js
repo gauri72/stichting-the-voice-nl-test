@@ -28,37 +28,15 @@ export const STRIPE_ELEMENTS_APPEARANCE = {
   }
 };
 
-/** Express Checkout: Apple Pay, Google Pay, Link buttons (requires domain verification). */
-export function EXPRESS_CHECKOUT_OPTIONS(buttonType = "donate") {
-  return {
-    paymentMethods: {
-      applePay: "always",
-      googlePay: "always",
-      link: "auto",
-      paypal: "never",
-      amazonPay: "never"
-    },
-    buttonType: {
-      applePay: buttonType,
-      googlePay: "plain"
-    },
-    layout: {
-      maxColumns: 3,
-      maxRows: 1
-    }
-  };
-}
-
-/** Payment Element: cards, iDEAL, Revolut Pay, and wallet tabs when available. */
+/** Payment Element: cards, iDEAL, Revolut Pay, Apple Pay, Google Pay (when enabled in Stripe). */
 export const PAYMENT_ELEMENT_OPTIONS = {
   layout: {
-    type: "accordion",
-    defaultCollapsed: false,
-    radios: true
+    type: "tabs",
+    defaultCollapsed: false
   },
   wallets: {
-    applePay: "always",
-    googlePay: "always"
+    applePay: "auto",
+    googlePay: "auto"
   },
   business: {
     name: "Stichting The V.O.I.C.E. NL"

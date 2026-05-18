@@ -1,21 +1,31 @@
-import { useState } from "react";
-import {
-  ExpressCheckoutElement,
-  PaymentElement,
-  useElements,
-  useStripe
-} from "@stripe/react-stripe-js";
+import { Component, useState } from "react";
+import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { FaLock } from "react-icons/fa";
 import {
-  EXPRESS_CHECKOUT_OPTIONS,
   PAYMENT_ELEMENT_OPTIONS,
   buildPaymentReturnUrl,
   confirmCheckoutPayment,
   persistCheckoutSession
 } from "../../utils/stripePayment";
 
+class PaymentElementErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
+
 /**
- * Shared Stripe checkout: Express Checkout (Apple Pay / Google Pay / Link) + Payment Element.
+ * Stripe Payment Element checkout (cards, iDEAL, Apple Pay, Google Pay when enabled in Stripe).
  */
 export default function StripeCheckoutForm({
   amountLabel,
@@ -23,7 +33,6 @@ export default function StripeCheckoutForm({
   tier,
   sessionKey,
   returnPath,
-  expressButtonType = "donate",
   onSuccess,
   onError
 }) {
@@ -31,9 +40,16 @@ export default function StripeCheckoutForm({
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [expressAvailable, setExpressAvailable] = useState(false);
 
   const returnUrl = buildPaymentReturnUrl(returnPath);
+
+  if (!stripe || !elements) {
+    return (
+      <p className="stripe-checkout__loading" role="status" aria-live="polite">
+        Loading secure checkout…
+      </p>
+    );
+  }
 
   async function finalizePayment(paymentIntent) {
     if (paymentIntent?.status === "succeeded") {
@@ -47,8 +63,6 @@ export default function StripeCheckoutForm({
   }
 
   async function runConfirmation(event) {
-    if (!stripe || !elements) return;
-
     const { error: submitError } = await elements.submit();
     if (submitError) {
       const msg = submitError.message || "Please check your payment details.";
@@ -78,12 +92,6 @@ export default function StripeCheckoutForm({
     await finalizePayment(paymentIntent);
   }
 
-  async function handleExpressConfirm(event) {
-    setSubmitting(true);
-    setErrorMessage("");
-    await runConfirmation(event);
-  }
-
   async function handleSubmit(event) {
     event.preventDefault();
     setSubmitting(true);
@@ -93,24 +101,9 @@ export default function StripeCheckoutForm({
 
   return (
     <form className="sponsorship-payment__form" onSubmit={handleSubmit}>
-      <div className="stripe-checkout__express">
-        <ExpressCheckoutElement
-          options={EXPRESS_CHECKOUT_OPTIONS(expressButtonType)}
-          onReady={({ availablePaymentMethods }) => {
-            const methods = availablePaymentMethods || {};
-            setExpressAvailable(
-              Boolean(methods.applePay || methods.googlePay || methods.link)
-            );
-          }}
-          onConfirm={handleExpressConfirm}
-        />
-      </div>
-      {expressAvailable ? (
-        <p className="stripe-checkout__divider" aria-hidden="true">
-          <span>or pay with</span>
-        </p>
-      ) : null}
-      <PaymentElement options={PAYMENT_ELEMENT_OPTIONS} />
+      <PaymentElementErrorBoundary>
+        <PaymentElement options={PAYMENT_ELEMENT_OPTIONS} />
+      </PaymentElementErrorBoundary>
       {errorMessage ? (
         <p className="sponsorship-payment__error" role="alert">
           {errorMessage}
@@ -119,7 +112,7 @@ export default function StripeCheckoutForm({
       <button
         type="submit"
         className="sponsorship-payment__pay-btn"
-        disabled={!stripe || submitting}
+        disabled={submitting}
       >
         <FaLock aria-hidden /> {submitting ? "Processing..." : `Pay ${amountLabel} Securely`}
       </button>

@@ -72,7 +72,6 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
     setCustomAmount("");
   }, [tier?.id]);
 
-  const stripeReady = Boolean(getStripePromise());
   const stripeMissingKey = !PUBLISHABLE_KEY;
 
   useEffect(() => {
@@ -158,7 +157,7 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
 
   async function handleDetailsSubmit(event) {
     event.preventDefault();
-    if (!stripeReady) {
+    if (!PUBLISHABLE_KEY) {
       setSubmitError(
         "Stripe publishable key is missing. Add VITE_STRIPE_PUBLISHABLE_KEY to client/.env and restart the dev server."
       );
@@ -406,7 +405,7 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
           </form>
         ) : null}
 
-        {step === "payment" && clientSecret && stripeReady ? (
+        {step === "payment" && clientSecret && PUBLISHABLE_KEY ? (
           <Elements
             stripe={getStripePromise()}
             options={{
@@ -421,7 +420,6 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
               tier={tier}
               sessionKey={SPONSOR_CHECKOUT_SESSION_KEY}
               returnPath={SPONSOR_RETURN_PATH}
-              expressButtonType="buy"
               onSuccess={handleSuccess}
               onError={(msg) => setSubmitError(msg)}
             />
