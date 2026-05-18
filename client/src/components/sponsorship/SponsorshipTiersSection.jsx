@@ -12,24 +12,10 @@ import {
 } from "react-icons/fa";
 import { HiMiniCheck } from "react-icons/hi2";
 import "../../styles/sponsorship-tiers-section.css";
-import SponsorshipPaymentBlock from "./SponsorshipPaymentBlock";
+import SponsorshipPaymentBlock, { SPONSOR_CHECKOUT_SESSION_KEY } from "./SponsorshipPaymentBlock";
+import { isPaymentReturnUrl, readCheckoutSession } from "../../utils/stripePayment";
 
 const tiers = [
-  {
-    id: "custom",
-    name: "Custom sponsorship",
-    amount: "Custom",
-    note: "Choose any amount that fits your budget and partnership goals.",
-    Icon: FaHandHoldingHeart,
-    allowCustom: true,
-    customOnly: true,
-    benefits: [
-      "Any contribution amount you choose",
-      "Recognition tailored to your support",
-      "Social media thank-you mention",
-      "Personal confirmation from our team",
-    ],
-  },
   {
     id: "associate",
     name: "Associate Sponsor",
@@ -93,6 +79,21 @@ const tiers = [
       "6 complimentary event passes",
     ],
   },
+  {
+    id: "custom",
+    name: "Custom sponsorship",
+    amount: "Custom",
+    note: "Choose any amount that fits your budget and partnership goals.",
+    Icon: FaHandHoldingHeart,
+    allowCustom: true,
+    customOnly: true,
+    benefits: [
+      "Any contribution amount you choose",
+      "Recognition tailored to your support",
+      "Social media thank-you mention",
+      "Personal confirmation from our team",
+    ],
+  },
 ];
 
 const reasons = [
@@ -126,6 +127,12 @@ const reasons = [
 export default function SponsorshipTiersSection() {
   const [selectedTier, setSelectedTier] = useState(null);
   const paymentRef = useRef(null);
+
+  useEffect(() => {
+    if (!isPaymentReturnUrl()) return;
+    const saved = readCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
+    if (saved?.tier) setSelectedTier(saved.tier);
+  }, []);
 
   useEffect(() => {
     if (selectedTier && paymentRef.current) {
@@ -230,10 +237,10 @@ export default function SponsorshipTiersSection() {
           })}
         </div>
 
-        {selectedTier ? (
+        {selectedTier || isPaymentReturnUrl() ? (
           <SponsorshipPaymentBlock
             ref={paymentRef}
-            tier={selectedTier}
+            tier={selectedTier || readCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY)?.tier}
             onClose={() => setSelectedTier(null)}
           />
         ) : null}

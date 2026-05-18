@@ -2,7 +2,20 @@ import { forwardRef, useEffect, useMemo, useState } from "react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { FaCheckCircle, FaLock, FaTimes } from "react-icons/fa";
+import {
+  STRIPE_ELEMENTS_APPEARANCE,
+  PAYMENT_ELEMENT_OPTIONS,
+  buildPaymentReturnUrl,
+  clearCheckoutSession,
+  completePaymentReturn,
+  confirmCheckoutPayment,
+  persistCheckoutSession,
+  readCheckoutSession
+} from "../../utils/stripePayment";
 import "../../styles/sponsorship-payment-block.css";
+
+export const SPONSOR_CHECKOUT_SESSION_KEY = "voice_nl_sponsor_checkout";
+const SPONSOR_RETURN_PATH = "/sponsorship";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
@@ -31,35 +44,7 @@ function getStripePromise() {
   return stripePromise;
 }
 
-const ELEMENTS_APPEARANCE = {
-  theme: "stripe",
-  variables: {
-    colorPrimary: "#1f9f78",
-    colorBackground: "#ffffff",
-    colorText: "#17314b",
-    colorDanger: "#c83b3b",
-    fontFamily:
-      '"Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif',
-    spacingUnit: "4px",
-    borderRadius: "8px"
-  },
-  rules: {
-    ".Input": {
-      border: "1px solid #d9e1e8",
-      boxShadow: "none"
-    },
-    ".Input:focus": {
-      borderColor: "#1f9f78",
-      boxShadow: "0 0 0 3px rgba(31,159,120,0.18)"
-    },
-    ".Label": {
-      fontWeight: "600",
-      color: "#1d3550"
-    }
-  }
-};
-
-function PaymentForm({ amountLabel, sponsor, onSuccess, onError }) {
+function PaymentForm({ amountLabel, sponsor, tier, onSuccess, onError }) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -71,19 +56,11 @@ function PaymentForm({ amountLabel, sponsor, onSuccess, onError }) {
     setSubmitting(true);
     setErrorMessage("");
 
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        receipt_email: sponsor.email,
-        payment_method_data: {
-          billing_details: {
-            name: sponsor.name,
-            email: sponsor.email,
-            phone: sponsor.phone || undefined
-          }
-        }
-      },
-      redirect: "if_required"
+    persistCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY, { tier, sponsor });
+
+    const { error, paymentIntent } = await confirmCheckoutPayment(stripe, elements, {
+      returnUrl: buildPaymentReturnUrl(SPONSOR_RETURN_PATH),
+      payer: sponsor
     });
 
     if (error) {
@@ -114,7 +91,7 @@ function PaymentForm({ amountLabel, sponsor, onSuccess, onError }) {
 
   return (
     <form className="sponsorship-payment__form" onSubmit={handleSubmit}>
-      <PaymentElement options={{ layout: "tabs" }} />
+      <PaymentElement options={PAYMENT_ELEMENT_OPTIONS} />
       {errorMessage ? (
         <p className="sponsorship-payment__error" role="alert">
           {errorMessage}
@@ -164,6 +141,42 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
     setCustomAmount("");
   }, [tier?.id]);
 
+  const stripeReady = Boolean(getStripePromise());
+  const stripeMissingKey = !PUBLISHABLE_KEY;
+
+  useEffect(() => {
+    if (!PUBLISHABLE_KEY) return;
+    const stripePromise = getStripePromise();
+    if (!stripePromise) return;
+
+    stripePromise.then(async (stripe) => {
+      if (!stripe) return;
+      await completePaymentReturn(stripe, {
+        onSuccess: async (paymentIntent) => {
+          const saved = readCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
+          if (saved?.sponsor) setSponsor(saved.sponsor);
+          if (saved?.intentMeta) setIntentMeta(saved.intentMeta);
+          try {
+            await fetch(apiUrl("/api/payments/confirm"), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+            });
+          } catch (_err) {
+            // Webhook may still deliver.
+          }
+          clearCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
+          setSuccess({ id: paymentIntent.id });
+          setStep("done");
+        },
+        onError: (msg) => {
+          setSubmitError(msg);
+          setStep("payment");
+        }
+      });
+    });
+  }, []);
+
   // Warm the API the moment the payment block mounts, in case the visitor
   // jumped straight here (deep link) and bypassed the page-level warm-up.
   // Retries with backoff so a missed first ping during cold start is recovered.
@@ -193,9 +206,6 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
     })();
     return () => controller.abort();
   }, []);
-
-  const stripeReady = Boolean(getStripePromise());
-  const stripeMissingKey = !PUBLISHABLE_KEY;
 
   const amountLabel = useMemo(() => {
     if (intentMeta?.amount) {
@@ -272,12 +282,14 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
         throw new Error(data?.error || "Could not start the payment. Please try again.");
       }
 
-      setClientSecret(data.clientSecret);
-      setIntentMeta({
+      const meta = {
         paymentIntentId: data.paymentIntentId,
         amount: data.amount,
         currency: data.currency
-      });
+      };
+      setClientSecret(data.clientSecret);
+      setIntentMeta(meta);
+      persistCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY, { tier, sponsor, intentMeta: meta });
       setStep("payment");
     } catch (error) {
       if (error?.name === "AbortError") {
@@ -457,11 +469,12 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
         {step === "payment" && clientSecret && stripeReady ? (
           <Elements
             stripe={getStripePromise()}
-            options={{ clientSecret, appearance: ELEMENTS_APPEARANCE }}
+            options={{ clientSecret, appearance: STRIPE_ELEMENTS_APPEARANCE }}
           >
             <PaymentForm
               amountLabel={amountLabel}
               sponsor={sponsor}
+              tier={tier}
               onSuccess={handleSuccess}
               onError={(msg) => setSubmitError(msg)}
             />

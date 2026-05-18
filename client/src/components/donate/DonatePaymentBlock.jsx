@@ -2,7 +2,20 @@ import { forwardRef, useEffect, useMemo, useState } from "react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { FaCheckCircle, FaLock, FaTimes } from "react-icons/fa";
+import {
+  STRIPE_ELEMENTS_APPEARANCE,
+  PAYMENT_ELEMENT_OPTIONS,
+  buildPaymentReturnUrl,
+  clearCheckoutSession,
+  completePaymentReturn,
+  confirmCheckoutPayment,
+  persistCheckoutSession,
+  readCheckoutSession
+} from "../../utils/stripePayment";
 import "../../styles/sponsorship-payment-block.css";
+
+export const DONATE_CHECKOUT_SESSION_KEY = "voice_nl_donate_checkout";
+const DONATE_RETURN_PATH = "/donate";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
@@ -29,35 +42,7 @@ function getStripePromise() {
   return stripePromise;
 }
 
-const ELEMENTS_APPEARANCE = {
-  theme: "stripe",
-  variables: {
-    colorPrimary: "#1f9f78",
-    colorBackground: "#ffffff",
-    colorText: "#17314b",
-    colorDanger: "#c83b3b",
-    fontFamily:
-      '"Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif',
-    spacingUnit: "4px",
-    borderRadius: "8px"
-  },
-  rules: {
-    ".Input": {
-      border: "1px solid #d9e1e8",
-      boxShadow: "none"
-    },
-    ".Input:focus": {
-      borderColor: "#1f9f78",
-      boxShadow: "0 0 0 3px rgba(31,159,120,0.18)"
-    },
-    ".Label": {
-      fontWeight: "600",
-      color: "#1d3550"
-    }
-  }
-};
-
-function PaymentForm({ amountLabel, donor, onSuccess, onError }) {
+function PaymentForm({ amountLabel, donor, tier, onSuccess, onError }) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -69,19 +54,11 @@ function PaymentForm({ amountLabel, donor, onSuccess, onError }) {
     setSubmitting(true);
     setErrorMessage("");
 
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        receipt_email: donor.email,
-        payment_method_data: {
-          billing_details: {
-            name: donor.name,
-            email: donor.email,
-            phone: donor.phone || undefined
-          }
-        }
-      },
-      redirect: "if_required"
+    persistCheckoutSession(DONATE_CHECKOUT_SESSION_KEY, { tier, donor });
+
+    const { error, paymentIntent } = await confirmCheckoutPayment(stripe, elements, {
+      returnUrl: buildPaymentReturnUrl(DONATE_RETURN_PATH),
+      payer: donor
     });
 
     if (error) {
@@ -112,7 +89,7 @@ function PaymentForm({ amountLabel, donor, onSuccess, onError }) {
 
   return (
     <form className="sponsorship-payment__form" onSubmit={handleSubmit}>
-      <PaymentElement options={{ layout: "tabs" }} />
+      <PaymentElement options={PAYMENT_ELEMENT_OPTIONS} />
       {errorMessage ? (
         <p className="sponsorship-payment__error" role="alert">
           {errorMessage}
@@ -159,6 +136,42 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
     setCustomAmount("");
   }, [tier?.id]);
 
+  const stripeReady = Boolean(getStripePromise());
+  const stripeMissingKey = !PUBLISHABLE_KEY;
+
+  useEffect(() => {
+    if (!PUBLISHABLE_KEY) return;
+    const stripePromise = getStripePromise();
+    if (!stripePromise) return;
+
+    stripePromise.then(async (stripe) => {
+      if (!stripe) return;
+      await completePaymentReturn(stripe, {
+        onSuccess: async (paymentIntent) => {
+          const saved = readCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
+          if (saved?.donor) setDonor(saved.donor);
+          if (saved?.intentMeta) setIntentMeta(saved.intentMeta);
+          try {
+            await fetch(apiUrl("/api/payments/confirm"), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+            });
+          } catch (_err) {
+            // Webhook may still deliver.
+          }
+          clearCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
+          setSuccess({ id: paymentIntent.id });
+          setStep("done");
+        },
+        onError: (msg) => {
+          setSubmitError(msg);
+          setStep("payment");
+        }
+      });
+    });
+  }, []);
+
   useEffect(() => {
     if (!API_BASE) return;
     const controller = new AbortController();
@@ -185,9 +198,6 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
     })();
     return () => controller.abort();
   }, []);
-
-  const stripeReady = Boolean(getStripePromise());
-  const stripeMissingKey = !PUBLISHABLE_KEY;
 
   const amountLabel = useMemo(() => {
     if (intentMeta?.amount) {
@@ -263,12 +273,14 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
         throw new Error(data?.error || "Could not start the payment. Please try again.");
       }
 
-      setClientSecret(data.clientSecret);
-      setIntentMeta({
+      const meta = {
         paymentIntentId: data.paymentIntentId,
         amount: data.amount,
         currency: data.currency
-      });
+      };
+      setClientSecret(data.clientSecret);
+      setIntentMeta(meta);
+      persistCheckoutSession(DONATE_CHECKOUT_SESSION_KEY, { tier, donor, intentMeta: meta });
       setStep("payment");
     } catch (error) {
       if (error?.name === "AbortError") {
@@ -446,11 +458,12 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
         {step === "payment" && clientSecret && stripeReady ? (
           <Elements
             stripe={getStripePromise()}
-            options={{ clientSecret, appearance: ELEMENTS_APPEARANCE }}
+            options={{ clientSecret, appearance: STRIPE_ELEMENTS_APPEARANCE }}
           >
             <PaymentForm
               amountLabel={amountLabel}
               donor={donor}
+              tier={tier}
               onSuccess={handleSuccess}
               onError={(msg) => setSubmitError(msg)}
             />

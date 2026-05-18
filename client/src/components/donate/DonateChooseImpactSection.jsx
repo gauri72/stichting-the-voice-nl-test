@@ -10,19 +10,10 @@ import {
 import { HiMiniCheck } from "react-icons/hi2";
 import "../../styles/donate-section-heading.css";
 import "../../styles/donate-choose-impact-section.css";
-import DonatePaymentBlock from "./DonatePaymentBlock";
+import DonatePaymentBlock, { DONATE_CHECKOUT_SESSION_KEY } from "./DonatePaymentBlock";
+import { isPaymentReturnUrl, readCheckoutSession } from "../../utils/stripePayment";
 
 const tiers = [
-  {
-    id: "custom",
-    amount: "Custom",
-    name: "Custom donation",
-    description: "Give any amount you wish — every contribution helps our mission.",
-    Icon: FaHandHoldingHeart,
-    featured: false,
-    allowCustom: true,
-    customOnly: true,
-  },
   {
     id: "25",
     amount: "€25",
@@ -68,11 +59,27 @@ const tiers = [
     featured: false,
     allowCustom: false,
   },
+  {
+    id: "custom",
+    amount: "Custom",
+    name: "Custom donation",
+    description: "Give any amount you wish — every contribution helps our mission.",
+    Icon: FaHandHoldingHeart,
+    featured: false,
+    allowCustom: true,
+    customOnly: true,
+  },
 ];
 
 export default function DonateChooseImpactSection() {
   const [selectedTier, setSelectedTier] = useState(null);
   const paymentRef = useRef(null);
+
+  useEffect(() => {
+    if (!isPaymentReturnUrl()) return;
+    const saved = readCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
+    if (saved?.tier) setSelectedTier(saved.tier);
+  }, []);
 
   useEffect(() => {
     if (selectedTier && paymentRef.current) {
@@ -156,8 +163,12 @@ export default function DonateChooseImpactSection() {
           })}
         </div>
 
-        {selectedTier ? (
-          <DonatePaymentBlock ref={paymentRef} tier={selectedTier} onClose={() => setSelectedTier(null)} />
+        {selectedTier || isPaymentReturnUrl() ? (
+          <DonatePaymentBlock
+            ref={paymentRef}
+            tier={selectedTier || readCheckoutSession(DONATE_CHECKOUT_SESSION_KEY)?.tier}
+            onClose={() => setSelectedTier(null)}
+          />
         ) : null}
 
         <p className="donate-tiers__secure">

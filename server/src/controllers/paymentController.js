@@ -155,7 +155,11 @@ export async function createPaymentIntent(req, res) {
     const intent = await stripe.paymentIntents.create({
       amount: amountMinor,
       currency: env.stripe.currency,
-      automatic_payment_methods: { enabled: true },
+      receipt_email: sponsor.email,
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: "always"
+      },
       description: isDonation ? `Donation - ${tier.name}` : `Sponsorship - ${tier.name}`,
       metadata
     });
