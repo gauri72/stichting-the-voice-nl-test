@@ -1,14 +1,13 @@
 import { forwardRef, useEffect, useMemo, useState } from "react";
-import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import StripeCheckoutForm from "../payments/StripeCheckoutForm";
 import { loadStripe } from "@stripe/stripe-js";
-import { FaCheckCircle, FaLock, FaTimes } from "react-icons/fa";
+import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import {
   STRIPE_ELEMENTS_APPEARANCE,
-  PAYMENT_ELEMENT_OPTIONS,
   buildPaymentReturnUrl,
   clearCheckoutSession,
   completePaymentReturn,
-  confirmCheckoutPayment,
   persistCheckoutSession,
   readCheckoutSession
 } from "../../utils/stripePayment";
@@ -40,73 +39,6 @@ function getStripePromise() {
   if (!PUBLISHABLE_KEY) return null;
   stripePromise = loadStripe(PUBLISHABLE_KEY);
   return stripePromise;
-}
-
-function PaymentForm({ amountLabel, donor, tier, onSuccess, onError }) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    if (!stripe || !elements) return;
-    setSubmitting(true);
-    setErrorMessage("");
-
-    persistCheckoutSession(DONATE_CHECKOUT_SESSION_KEY, { tier, donor });
-
-    const { error, paymentIntent } = await confirmCheckoutPayment(stripe, elements, {
-      returnUrl: buildPaymentReturnUrl(DONATE_RETURN_PATH),
-      payer: donor
-    });
-
-    if (error) {
-      const msg = error.message || "Payment could not be completed. Please try again.";
-      setErrorMessage(msg);
-      setSubmitting(false);
-      onError?.(msg);
-      return;
-    }
-
-    if (paymentIntent && paymentIntent.status === "succeeded") {
-      try {
-        await fetch(apiUrl("/api/payments/confirm"), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paymentIntentId: paymentIntent.id })
-        });
-      } catch (_err) {
-        // Webhook may still deliver; ignore client confirm fallback failure.
-      }
-      onSuccess?.(paymentIntent);
-      return;
-    }
-
-    setErrorMessage("Payment is processing. We will email you once it is confirmed.");
-    setSubmitting(false);
-  }
-
-  return (
-    <form className="sponsorship-payment__form" onSubmit={handleSubmit}>
-      <PaymentElement options={PAYMENT_ELEMENT_OPTIONS} />
-      {errorMessage ? (
-        <p className="sponsorship-payment__error" role="alert">
-          {errorMessage}
-        </p>
-      ) : null}
-      <button
-        type="submit"
-        className="sponsorship-payment__pay-btn"
-        disabled={!stripe || submitting}
-      >
-        <FaLock aria-hidden /> {submitting ? "Processing..." : `Pay ${amountLabel} Securely`}
-      </button>
-      <p className="sponsorship-payment__assurance">
-        Payments are processed securely by Stripe. Your card details never touch our servers.
-      </p>
-    </form>
-  );
 }
 
 const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClose }, ref) {
@@ -301,7 +233,16 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
     }
   }
 
-  function handleSuccess(paymentIntent) {
+  async function handleSuccess(paymentIntent) {
+    try {
+      await fetch(apiUrl("/api/payments/confirm"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+      });
+    } catch (_err) {
+      // Webhook may still deliver.
+    }
     setSuccess({ id: paymentIntent.id });
     setStep("done");
   }
@@ -458,12 +399,19 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
         {step === "payment" && clientSecret && stripeReady ? (
           <Elements
             stripe={getStripePromise()}
-            options={{ clientSecret, appearance: STRIPE_ELEMENTS_APPEARANCE }}
+            options={{
+              clientSecret,
+              appearance: STRIPE_ELEMENTS_APPEARANCE,
+              locale: "auto"
+            }}
           >
-            <PaymentForm
+            <StripeCheckoutForm
               amountLabel={amountLabel}
-              donor={donor}
+              payer={donor}
               tier={tier}
+              sessionKey={DONATE_CHECKOUT_SESSION_KEY}
+              returnPath={DONATE_RETURN_PATH}
+              expressButtonType="donate"
               onSuccess={handleSuccess}
               onError={(msg) => setSubmitError(msg)}
             />

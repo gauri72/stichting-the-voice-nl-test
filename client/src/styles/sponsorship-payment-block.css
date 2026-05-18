@@ -281,3 +281,29 @@
     font-size: 0.84rem;
   }
 }
+
+/* Express Checkout (Apple Pay, Google Pay, Link) above Payment Element */
+.stripe-checkout__express {
+  margin-bottom: 4px;
+  min-height: 44px;
+}
+
+.stripe-checkout__divider {
+  margin: 16px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #5a6f7d;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stripe-checkout__divider::before,
+.stripe-checkout__divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #d9e1e8;
+}

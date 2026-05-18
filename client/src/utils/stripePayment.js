@@ -28,15 +28,37 @@ export const STRIPE_ELEMENTS_APPEARANCE = {
   }
 };
 
-/** Enables Apple Pay, Google Pay, Link, iDEAL tabs when activated in Stripe Dashboard. */
+/** Express Checkout: Apple Pay, Google Pay, Link buttons (requires domain verification). */
+export function EXPRESS_CHECKOUT_OPTIONS(buttonType = "donate") {
+  return {
+    paymentMethods: {
+      applePay: "always",
+      googlePay: "always",
+      link: "auto",
+      paypal: "never",
+      amazonPay: "never"
+    },
+    buttonType: {
+      applePay: buttonType,
+      googlePay: "plain"
+    },
+    layout: {
+      maxColumns: 3,
+      maxRows: 1
+    }
+  };
+}
+
+/** Payment Element: cards, iDEAL, Revolut Pay, and wallet tabs when available. */
 export const PAYMENT_ELEMENT_OPTIONS = {
   layout: {
-    type: "tabs",
-    defaultCollapsed: false
+    type: "accordion",
+    defaultCollapsed: false,
+    radios: true
   },
   wallets: {
-    applePay: "auto",
-    googlePay: "auto"
+    applePay: "always",
+    googlePay: "always"
   },
   business: {
     name: "Stichting The V.O.I.C.E. NL"
