@@ -246,9 +246,14 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
         }
       };
 
-      if (tier.allowCustom && customAmount) {
+      if (tier.allowCustom) {
         const cents = Math.round(Number(customAmount) * 100);
-        if (Number.isFinite(cents) && cents > 0) {
+        if (tier.customOnly) {
+          if (!Number.isFinite(cents) || cents < 50) {
+            throw new Error("Enter a valid sponsorship amount in EUR.");
+          }
+          body.amount = cents;
+        } else if (Number.isFinite(cents) && cents > 0) {
           body.amount = cents;
         }
       }
@@ -398,14 +403,17 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
               </label>
               {tier.allowCustom ? (
                 <label className="sponsorship-payment__field sponsorship-payment__field--full">
-                  <span>Custom amount (EUR, minimum {tier.amountLabel})</span>
+                  <span>
+                    {tier.customOnly ? "Sponsorship amount (EUR) *" : "Custom amount (EUR)"}
+                  </span>
                   <input
                     type="number"
-                    min="1500"
-                    step="50"
+                    min="0.5"
+                    step="0.01"
+                    required={Boolean(tier.customOnly)}
                     value={customAmount}
                     onChange={(event) => setCustomAmount(event.target.value)}
-                    placeholder="1500"
+                    placeholder="e.g. 500"
                   />
                 </label>
               ) : null}

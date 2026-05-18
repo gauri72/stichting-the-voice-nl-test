@@ -65,8 +65,8 @@ services:
     staticPublishPath: ./client/dist
     pullRequestPreviewsEnabled: false
     envVars:
-      # Public test publishable key from Stripe (pk_test_...). Vite reads
-      # VITE_* variables at build time, so a redeploy is required after editing.
+      # Live publishable key from Stripe (pk_live_...). Must match the live
+      # account used for STRIPE_SECRET_KEY on voice-nl-api. Redeploy after edit.
       - key: VITE_STRIPE_PUBLISHABLE_KEY
         sync: false
       # Set this to the API service URL (e.g. https://voice-nl-api.onrender.com)

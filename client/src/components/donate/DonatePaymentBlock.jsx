@@ -237,9 +237,14 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
         }
       };
 
-      if (tier.allowCustom && customAmount) {
+      if (tier.allowCustom) {
         const cents = Math.round(Number(customAmount) * 100);
-        if (Number.isFinite(cents) && cents > 0) {
+        if (tier.customOnly) {
+          if (!Number.isFinite(cents) || cents < 50) {
+            throw new Error("Enter a valid donation amount in EUR.");
+          }
+          body.amount = cents;
+        } else if (Number.isFinite(cents) && cents > 0) {
           body.amount = cents;
         }
       }
@@ -389,14 +394,15 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
               </label>
               {tier.allowCustom ? (
                 <label className="sponsorship-payment__field sponsorship-payment__field--full">
-                  <span>Custom amount (EUR, minimum {tier.amountLabel})</span>
+                  <span>{tier.customOnly ? "Donation amount (EUR) *" : `Custom amount (EUR)`}</span>
                   <input
                     type="number"
-                    min="500"
-                    step="25"
+                    min="0.5"
+                    step="0.01"
+                    required={Boolean(tier.customOnly)}
                     value={customAmount}
                     onChange={(event) => setCustomAmount(event.target.value)}
-                    placeholder="500"
+                    placeholder="e.g. 25"
                   />
                 </label>
               ) : null}

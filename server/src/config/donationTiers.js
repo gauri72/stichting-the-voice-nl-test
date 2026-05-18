@@ -28,7 +28,13 @@ const DONATION_TIERS = {
     id: "500",
     name: "Visionary",
     amount: 50000,
-    minAmount: 50000,
+    minAmount: 50000
+  },
+  custom: {
+    id: "custom",
+    name: "Custom amount",
+    amount: 50,
+    minAmount: 50,
     allowCustom: true
   }
 };

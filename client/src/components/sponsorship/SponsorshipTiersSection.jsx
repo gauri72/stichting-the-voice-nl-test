@@ -5,6 +5,7 @@ import {
   FaCrown,
   FaGem,
   FaGlobe,
+  FaHandHoldingHeart,
   FaHandshake,
   FaRegStar,
   FaUsers,
@@ -14,6 +15,21 @@ import "../../styles/sponsorship-tiers-section.css";
 import SponsorshipPaymentBlock from "./SponsorshipPaymentBlock";
 
 const tiers = [
+  {
+    id: "custom",
+    name: "Custom sponsorship",
+    amount: "Custom",
+    note: "Choose any amount that fits your budget and partnership goals.",
+    Icon: FaHandHoldingHeart,
+    allowCustom: true,
+    customOnly: true,
+    benefits: [
+      "Any contribution amount you choose",
+      "Recognition tailored to your support",
+      "Social media thank-you mention",
+      "Personal confirmation from our team",
+    ],
+  },
   {
     id: "associate",
     name: "Associate Sponsor",
@@ -63,10 +79,9 @@ const tiers = [
   {
     id: "platinum",
     name: "Platinum Sponsor",
-    amount: "€1,500+",
+    amount: "€1,500",
     note: "Maximum visibility. Become a leading partner in our cultural mission.",
     Icon: FaGem,
-    allowCustom: true,
     benefits: [
       "All Gold benefits",
       "Recognition as Main Partner / Presenting Sponsor where applicable",
@@ -125,6 +140,7 @@ export default function SponsorshipTiersSection() {
       amountLabel: tier.amount,
       note: tier.note,
       allowCustom: Boolean(tier.allowCustom),
+      customOnly: Boolean(tier.customOnly),
     });
   }
 
@@ -171,7 +187,7 @@ export default function SponsorshipTiersSection() {
             const isActive = selectedTier?.id === id;
             return (
               <article
-                key={name}
+                key={id}
                 className={`sponsorship-tier-card ${featured ? "is-featured" : ""} ${
                   isActive ? "is-active" : ""
                 }`}
@@ -184,7 +200,13 @@ export default function SponsorshipTiersSection() {
                   </span>
                 </div>
                 <h3>{name}</h3>
-                <p className="sponsorship-tier-card__amount">{amount}</p>
+                <p
+                  className={`sponsorship-tier-card__amount ${
+                    amount === "Custom" ? "sponsorship-tier-card__amount--text" : ""
+                  }`}
+                >
+                  {amount}
+                </p>
                 <p className="sponsorship-tier-card__note">{note}</p>
                 <ul className="sponsorship-tier-card__benefits">
                   {benefits.map((benefit) => (

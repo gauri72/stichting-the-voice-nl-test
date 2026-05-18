@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   FaGem,
+  FaHandHoldingHeart,
   FaHeart,
   FaStar,
   FaTheaterMasks,
@@ -12,6 +13,16 @@ import "../../styles/donate-choose-impact-section.css";
 import DonatePaymentBlock from "./DonatePaymentBlock";
 
 const tiers = [
+  {
+    id: "custom",
+    amount: "Custom",
+    name: "Custom donation",
+    description: "Give any amount you wish — every contribution helps our mission.",
+    Icon: FaHandHoldingHeart,
+    featured: false,
+    allowCustom: true,
+    customOnly: true,
+  },
   {
     id: "25",
     amount: "€25",
@@ -50,12 +61,12 @@ const tiers = [
   },
   {
     id: "500",
-    amount: "€500+",
+    amount: "€500",
     name: "Visionary",
     description: "Make a transformative impact and help shape a better future.",
     Icon: FaGem,
     featured: false,
-    allowCustom: true,
+    allowCustom: false,
   },
 ];
 
@@ -76,6 +87,7 @@ export default function DonateChooseImpactSection() {
       amountLabel: tier.amount,
       note: tier.description,
       allowCustom: Boolean(tier.allowCustom),
+      customOnly: Boolean(tier.customOnly),
     });
   }
 
@@ -98,7 +110,8 @@ export default function DonateChooseImpactSection() {
         </header>
 
         <div className="donate-tiers__grid" role="list" aria-label="Donation amounts">
-          {tiers.map(({ id, amount, name, description, Icon, featured, allowCustom }) => {
+          {tiers.map((tier) => {
+            const { id, amount, name, description, Icon, featured } = tier;
             const isActive = selectedTier?.id === id;
             return (
               <article
@@ -118,13 +131,21 @@ export default function DonateChooseImpactSection() {
                     <Icon />
                   </span>
                 </div>
-                <p className="donate-tier-card__amount">{amount}</p>
+                <p
+                  className={`donate-tier-card__amount ${
+                    amount === "Custom" ? "donate-tier-card__amount--text" : ""
+                  }`}
+                >
+                  {amount}
+                </p>
                 <h3 className="donate-tier-card__name">{name}</h3>
                 <p className="donate-tier-card__description">{description}</p>
                 <button
                   type="button"
-                  className={`donate-tier-card__cta ${featured ? "donate-tier-card__cta--solid" : "donate-tier-card__cta--outline"}`}
-                  onClick={() => handleSelect({ id, amount, name, description, allowCustom })}
+                  className={`donate-tier-card__cta ${
+                    featured ? "donate-tier-card__cta--solid" : "donate-tier-card__cta--outline"
+                  }`}
+                  onClick={() => handleSelect(tier)}
                   aria-controls="donate-payment"
                   aria-expanded={isActive}
                 >

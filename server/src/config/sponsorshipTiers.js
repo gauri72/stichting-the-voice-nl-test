@@ -23,7 +23,13 @@ const SPONSORSHIP_TIERS = {
     id: "platinum",
     name: "Platinum Sponsor",
     amount: 150000,
-    minAmount: 150000,
+    minAmount: 150000
+  },
+  custom: {
+    id: "custom",
+    name: "Custom sponsorship",
+    amount: 50,
+    minAmount: 50,
     allowCustom: true
   }
 };

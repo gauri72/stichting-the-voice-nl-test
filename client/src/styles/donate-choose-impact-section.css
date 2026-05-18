@@ -15,8 +15,8 @@
 .donate-tiers__grid {
   margin-top: 28px;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr));
+  gap: clamp(12px, 2vw, 16px);
   align-items: stretch;
 }
 
@@ -39,6 +39,11 @@
 .donate-tier-card--active {
   border-color: #1f9f78;
   box-shadow: 0 0 0 3px rgba(31, 159, 120, 0.18);
+}
+
+.donate-tier-card__amount--text {
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  letter-spacing: 0.02em;
 }
 
 .donate-tier-card__tag {
@@ -176,29 +181,19 @@
 /* Responsive                                                                 */
 /* -------------------------------------------------------------------------- */
 
-@media (max-width: 1100px) and (min-width: 701px) {
-  /* 3-column tablet layout — center the bottom row of 2 cards by using a
-     6-column grid where each card spans 2 columns. */
-  .donate-tiers__grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
-  .donate-tier-card {
-    grid-column: span 2;
-  }
-
-  .donate-tier-card:nth-child(4) {
-    grid-column: 2 / span 2;
-  }
-
-  .donate-tier-card:nth-child(5) {
-    grid-column: 4 / span 2;
-  }
-}
-
 @media (max-width: 700px) {
-  .donate-tiers__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .donate-tier-card__amount {
+    font-size: clamp(1.65rem, 6vw, 2.2rem);
+  }
+
+  .donate-tier-card__description {
+    min-height: auto;
+    font-size: 0.88rem;
+  }
+
+  .donate-tier-card__cta {
+    min-height: 42px;
+    font-size: 0.78rem;
   }
 }
 

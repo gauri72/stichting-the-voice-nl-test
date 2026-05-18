@@ -126,10 +126,17 @@ export async function createPaymentIntent(req, res) {
       });
     }
 
+    const stripeMinCents = 50;
     let amountMinor = tier.amount;
-    if (tier.allowCustom && Number.isFinite(Number(customAmount))) {
+    if (tier.allowCustom) {
+      if (!Number.isFinite(Number(customAmount))) {
+        return res.status(400).json({ error: "A custom amount is required for this option." });
+      }
       const requested = Math.round(Number(customAmount));
-      amountMinor = Math.max(requested, tier.minAmount);
+      if (requested < stripeMinCents) {
+        return res.status(400).json({ error: "Enter a valid amount in EUR." });
+      }
+      amountMinor = requested;
     }
 
     const stripe = getStripe();

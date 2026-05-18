@@ -36,15 +36,28 @@ Monorepo starter for a MERN website:
 
 The sponsorship page at `/sponsorship` lets sponsors pick a tier (Associate / Silver / Gold / Platinum) and pay securely below the tier cards. Payment processing uses Stripe Elements; confirmation and thank-you emails are sent via Nodemailer SMTP.
 
-### What you (the user) need to do
+### Stripe: live account (production)
 
-#### 1. Create a Stripe account (test mode)
+Payments use **live** API keys from your production Stripe account. Test keys (`pk_test_` / `sk_test_`) must not be used in production.
 
-1. Sign up at <https://dashboard.stripe.com/register>.
-2. After login, make sure the dashboard shows **Test mode** (top-right toggle).
-3. Go to **Developers -> API keys** (<https://dashboard.stripe.com/test/apikeys>) and copy:
-   - **Publishable key** -> starts with `pk_test_...`
-   - **Secret key** -> starts with `sk_test_...` (click "Reveal")
+#### 1. Stripe live account setup
+
+1. Log in to the **live** Stripe account you want to charge (not the old test account).
+2. Complete account activation if prompted: <https://dashboard.stripe.com/account/onboarding>.
+3. Turn **Live mode** on (top-right toggle).
+4. Go to **Developers → API keys** (<https://dashboard.stripe.com/apikeys>) and copy:
+   - **Publishable key** → `pk_live_...`
+   - **Secret key** → `sk_live_...` (click **Reveal**)
+5. Add a **live** webhook: **Developers → Webhooks → Add endpoint**
+   - URL: `https://<your-api-host>/api/payments/webhook`
+   - Event: `payment_intent.succeeded`
+   - Copy the **Signing secret** (`whsec_...`) into `STRIPE_WEBHOOK_SECRET`
+
+Both keys must come from the **same** Stripe account. The publishable and secret keys must both be live (or both test for local experiments only).
+
+#### 1b. (Optional) Local development with test keys
+
+For local-only testing without real charges, use a separate test account or test keys from **Test mode** in the dashboard (<https://dashboard.stripe.com/test/apikeys>). Do not mix `pk_live_` on the client with `sk_test_` on the server.
 
 #### 2. Create email credentials (for confirmation emails)
 
@@ -80,8 +93,8 @@ PORT=5000
 CLIENT_URL=http://localhost:5173
 NODE_ENV=development
 
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...     # optional for local dev (see step 5)
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...     # required in production; optional locally with Stripe CLI
 PAYMENT_CURRENCY=eur
 
 EMAIL_HOST=smtp.gmail.com
@@ -96,25 +109,19 @@ ORG_NOTIFY_EMAIL=info@thevoice.nl   # optional internal alerts
 `client/.env`:
 
 ```env
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+VITE_STRIPE_PUBLISHABLE_KEY=pk_live_...
 VITE_WHATSAPP_E164=31619032104
 ```
 
 Restart `npm run dev` after changing any env file.
 
-#### 4. Test the flow
+#### 4. Verify payments
 
-1. Open <http://localhost:5173/sponsorship>.
-2. Click **Become A Sponsor** on any tier - the payment block appears below the cards and the page scrolls to it.
-3. Fill in the sponsor details, click **Continue to payment**.
-4. In the Stripe Elements payment box, use test card:
-   - Card number: `4242 4242 4242 4242`
-   - Expiry: any future date (e.g. `12/34`)
-   - CVC: any 3 digits (e.g. `123`)
-   - Postal code: any (e.g. `1000`)
-5. Click **Pay ... Securely**. After success the block flips to a thank-you state and an email is sent to the address you typed.
+1. Open <http://localhost:5173/sponsorship> or `/donate`.
+2. Complete a checkout with a **real** card (live keys charge real money).
+3. Confirm the payment in the Stripe dashboard (**Payments**, live mode) and that confirmation emails arrive.
 
-Other useful Stripe test cards: <https://stripe.com/docs/testing#cards>
+For test-mode keys only, use Stripe test cards: <https://stripe.com/docs/testing#cards> (e.g. `4242 4242 4242 4242`).
 
 #### 5. (Optional but recommended) Forward webhooks locally
 
@@ -130,7 +137,7 @@ The server already exposes `POST /api/payments/webhook`. To receive webhooks fro
 
 Without the webhook the site still works because the React app calls `POST /api/payments/confirm` after a successful payment (and that endpoint sends the email). The webhook is the production-grade path: it fires even if the user closes the browser before redirect.
 
-### Deploy to Render (free tier, test mode)
+### Deploy to Render (free tier)
 
 The repo includes a `render.yaml` Blueprint that provisions:
 
@@ -143,23 +150,13 @@ Steps:
 2. Sign up / log in at <https://render.com> (free tier).
 3. Click **New -> Blueprint** and connect the GitHub repo. Render reads `render.yaml` and proposes both services - click **Apply**.
 4. The first build of the API will succeed but the static build will fail (Vite needs the publishable key). Open each service in the Render dashboard and fill in the env vars marked `sync: false`:
-   - **voice-nl-api**: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (optional), `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM`, `ORG_NOTIFY_EMAIL` (optional), `CLIENT_URL` (paste the static-site URL Render assigned).
-   - **voice-nl-web**: `VITE_STRIPE_PUBLISHABLE_KEY`, `VITE_API_BASE_URL` (paste the API service URL Render assigned).
+   - **voice-nl-api**: `STRIPE_SECRET_KEY` (`sk_live_...`), `STRIPE_WEBHOOK_SECRET` (live `whsec_...`), `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM`, `ORG_NOTIFY_EMAIL` (optional), `CLIENT_URL` (paste the static-site URL Render assigned).
+   - **voice-nl-web**: `VITE_STRIPE_PUBLISHABLE_KEY` (`pk_live_...` from the **same** account), `VITE_API_BASE_URL` (paste the API service URL Render assigned).
 5. Trigger **Manual Deploy -> Clear build cache & deploy** on each service so Vite re-bakes the new env values into the static bundle.
-6. (Optional) Add a Stripe webhook in the test-mode dashboard pointing to `https://<api-service>.onrender.com/api/payments/webhook`, copy its `whsec_...`, paste into `STRIPE_WEBHOOK_SECRET`, redeploy the API.
-7. Open the static-site URL, run a test charge (`4242 4242 4242 4242`), confirm the email arrives.
+6. Add a **live-mode** Stripe webhook pointing to `https://<api-service>.onrender.com/api/payments/webhook`, copy its `whsec_...` into `STRIPE_WEBHOOK_SECRET`, redeploy the API.
+7. Open the static-site URL and run a small real charge to confirm emails and receipts.
 
 Free tier caveat: the API spins down after ~15 min of inactivity; first request after sleep takes ~30 s. Use UptimeRobot ping `/api/health` every 14 min to keep it warm, or upgrade to the Starter plan ($7/mo) when ready.
-
-### Going live (real money)
-
-Once you are happy with test mode:
-
-1. Activate your Stripe account (banking details, business info) at <https://dashboard.stripe.com/account/onboarding>.
-2. Switch the dashboard toggle to **Live mode** and copy your live keys (`pk_live_...`, `sk_live_...`).
-3. Replace the test keys in your **production** environment variables (do **not** put live keys in git).
-4. Add a webhook endpoint in **Developers -> Webhooks -> Add endpoint** pointing to `https://your-domain.com/api/payments/webhook`, listening for `payment_intent.succeeded`. Copy its signing secret into `STRIPE_WEBHOOK_SECRET`.
-5. Redeploy. Real cards will now be charged.
 
 ### Architecture notes
 
