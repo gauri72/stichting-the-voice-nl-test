@@ -33,16 +33,38 @@ export async function apiFetch(path, options = {}) {
 }
 
 export const AUTH_TOKEN_KEY = "voice_auth_token";
+export const REMEMBER_ME_KEY = "voice_remember_me";
+export const REMEMBER_EMAIL_KEY = "voice_remember_email";
 
 export function getStoredToken() {
-  return localStorage.getItem(AUTH_TOKEN_KEY);
+  return sessionStorage.getItem(AUTH_TOKEN_KEY) || localStorage.getItem(AUTH_TOKEN_KEY);
 }
 
-export function setStoredToken(token) {
-  if (token) {
+export function setStoredToken(token, rememberMe = true) {
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+  sessionStorage.removeItem(AUTH_TOKEN_KEY);
+
+  if (!token) return;
+
+  if (rememberMe) {
     localStorage.setItem(AUTH_TOKEN_KEY, token);
   } else {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
+    sessionStorage.setItem(AUTH_TOKEN_KEY, token);
+  }
+}
+
+export function getRememberedEmail() {
+  if (localStorage.getItem(REMEMBER_ME_KEY) !== "true") return "";
+  return localStorage.getItem(REMEMBER_EMAIL_KEY) || "";
+}
+
+export function setRememberedEmail(email, rememberMe) {
+  if (rememberMe && email) {
+    localStorage.setItem(REMEMBER_ME_KEY, "true");
+    localStorage.setItem(REMEMBER_EMAIL_KEY, email);
+  } else {
+    localStorage.removeItem(REMEMBER_ME_KEY);
+    localStorage.removeItem(REMEMBER_EMAIL_KEY);
   }
 }
 

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEnvelope, FaEye, FaEyeSlash, FaLock, FaUser } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext.jsx";
-import { apiFetch } from "../../utils/api.js";
+import { apiFetch, getRememberedEmail, setRememberedEmail } from "../../utils/api.js";
 import "../../styles/login-form-section.css";
 
 function PasswordField({
@@ -48,6 +48,7 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
   const navigate = useNavigate();
   const { loginWithToken } = useAuth();
   const isSignUp = mode === "signup";
+  const isForgotPassword = mode === "forgot-password";
   const skipNextSignUpSubmitRef = useRef(false);
 
   const [email, setEmail] = useState("");
@@ -73,6 +74,11 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [isResendingOtp, setIsResendingOtp] = useState(false);
 
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotError, setForgotError] = useState("");
+  const [forgotSuccess, setForgotSuccess] = useState(null);
+  const [isSubmittingForgot, setIsSubmittingForgot] = useState(false);
+
   useEffect(() => {
     if (isSignUp) {
       setSignUpError("");
@@ -80,12 +86,31 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
     }
   }, [isSignUp]);
 
+  useEffect(() => {
+    if (!isForgotPassword) return;
+    setForgotError("");
+    setForgotSuccess(null);
+  }, [isForgotPassword]);
+
+  useEffect(() => {
+    const savedEmail = getRememberedEmail();
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
   function clearSignUpFeedback() {
     setSignUpError("");
     setHasSignUpAttempt(false);
     setSignUpSuccess(null);
     setOtp("");
     setOtpError("");
+  }
+
+  function clearForgotFeedback() {
+    setForgotError("");
+    setForgotSuccess(null);
   }
 
   async function handleVerifyOtpSubmit(event) {
@@ -106,7 +131,7 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
         method: "POST",
         body: JSON.stringify({ email: signUpSuccess.email, otp: trimmedOtp })
       });
-      await loginWithToken(data.token, data.user);
+      await loginWithToken(data.token, data.user, true);
       navigate("/dashboard", { replace: true });
     } catch (error) {
       setOtpError(error.message || "Verification failed. Please try again.");
@@ -155,7 +180,8 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
         method: "POST",
         body: JSON.stringify({ email, password, rememberMe })
       });
-      await loginWithToken(data.token, data.user);
+      setRememberedEmail(email.trim(), rememberMe);
+      await loginWithToken(data.token, data.user, rememberMe);
       navigate("/dashboard", { replace: true });
     } catch (error) {
       setLoginError(error.message || "Log in failed. Please try again.");
@@ -225,11 +251,33 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
     }
   }
 
+  async function handleForgotSubmit(event) {
+    event.preventDefault();
+    setForgotError("");
+    setIsSubmittingForgot(true);
+
+    try {
+      const data = await apiFetch("/api/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ email: forgotEmail.trim() })
+      });
+      setForgotSuccess({
+        message: data.message,
+        devResetUrl: data.devResetUrl
+      });
+    } catch (error) {
+      setForgotError(error.message || "Could not send reset email. Please try again.");
+    } finally {
+      setIsSubmittingForgot(false);
+    }
+  }
+
   function switchToSignUp(event) {
     event.preventDefault();
     event.stopPropagation();
     skipNextSignUpSubmitRef.current = true;
     clearSignUpFeedback();
+    clearForgotFeedback();
     onModeChange?.("signup");
   }
 
@@ -237,7 +285,16 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
     event.preventDefault();
     event.stopPropagation();
     clearSignUpFeedback();
+    clearForgotFeedback();
     onModeChange?.("login");
+  }
+
+  function switchToForgotPassword(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    clearForgotFeedback();
+    setForgotEmail(email.trim() || forgotEmail);
+    onModeChange?.("forgot-password");
   }
 
   function handleCreatePasswordChange(event) {
@@ -255,12 +312,14 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
       <div className="login-form-section__card">
         <header className="login-form-section__header">
           <h2 id="login-form-title" className="login-form-section__title">
-            {isSignUp ? "Sign Up" : "Log In"}
+            {isForgotPassword ? "Forgot Password" : isSignUp ? "Sign Up" : "Log In"}
           </h2>
           <p className="login-form-section__intro">
-            {isSignUp
-              ? "Fill in your details below to create your account."
-              : "Please enter your credentials to access your account."}
+            {isForgotPassword
+              ? "Enter your email address and we will send you a link to reset your password."
+              : isSignUp
+                ? "Fill in your details below to create your account."
+                : "Please enter your credentials to access your account."}
           </p>
         </header>
 
@@ -317,6 +376,61 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
               Back to Log In
             </button>
           </div>
+        ) : isForgotPassword && forgotSuccess ? (
+          <div className="login-form-section__success" role="status">
+            <h3>Check your email</h3>
+            <p>{forgotSuccess.message}</p>
+            {forgotSuccess.devResetUrl ? (
+              <p className="login-form-section__dev-link">
+                Dev mode (SMTP not configured):{" "}
+                <a href={forgotSuccess.devResetUrl}>{forgotSuccess.devResetUrl}</a>
+              </p>
+            ) : null}
+            <button type="button" className="login-form-section__switch-mode" onClick={switchToLogin}>
+              <FaLock aria-hidden />
+              Back to Log In
+            </button>
+          </div>
+        ) : isForgotPassword ? (
+          <form
+            key="forgot-form"
+            className="login-form-section__form"
+            onSubmit={handleForgotSubmit}
+            noValidate
+          >
+            <div className="login-form-section__field">
+              <label htmlFor="forgot-email">Email Address</label>
+              <div className="login-form-section__input-wrap">
+                <FaEnvelope className="login-form-section__input-icon" aria-hidden />
+                <input
+                  id="forgot-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="john.doe@email.com"
+                  value={forgotEmail}
+                  onChange={(event) => setForgotEmail(event.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            {forgotError ? (
+              <p className="login-form-section__error" role="alert">
+                {forgotError}
+              </p>
+            ) : null}
+
+            <button type="submit" className="login-form-section__submit" disabled={isSubmittingForgot}>
+              <FaEnvelope aria-hidden />
+              {isSubmittingForgot ? "Sending…" : "Send Reset Link"}
+            </button>
+
+            <button type="button" className="login-form-section__switch-mode" onClick={switchToLogin}>
+              <FaLock aria-hidden />
+              Back to Log In
+            </button>
+          </form>
         ) : isSignUp ? (
           <form
             key="signup-form"
@@ -477,9 +591,13 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
                 />
                 <span>Remember Me</span>
               </label>
-              <Link className="login-form-section__forgot" to="/forgot-password">
+              <button
+                type="button"
+                className="login-form-section__forgot"
+                onClick={switchToForgotPassword}
+              >
                 Forgot Password?
-              </Link>
+              </button>
             </div>
 
             <button type="submit" className="login-form-section__submit" disabled={isLoggingIn}>
@@ -506,6 +624,12 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
           {isSignUp ? (
             <>
               By creating an account, you agree to our{" "}
+              <Link to="/terms-and-conditions">Terms &amp; Conditions</Link> and{" "}
+              <Link to="/privacy-policy">Privacy Policy</Link>.
+            </>
+          ) : isForgotPassword ? (
+            <>
+              By requesting a reset, you agree to our{" "}
               <Link to="/terms-and-conditions">Terms &amp; Conditions</Link> and{" "}
               <Link to="/privacy-policy">Privacy Policy</Link>.
             </>

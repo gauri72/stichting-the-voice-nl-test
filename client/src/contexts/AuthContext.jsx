@@ -7,8 +7,8 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const applySession = useCallback((token, nextUser) => {
-    setStoredToken(token);
+  const applySession = useCallback((token, nextUser, rememberMe = true) => {
+    setStoredToken(token, rememberMe);
     setUser(nextUser);
   }, []);
 
@@ -52,8 +52,8 @@ export function AuthProvider({ children }) {
   }, [refreshUser]);
 
   const loginWithToken = useCallback(
-    async (token, nextUser) => {
-      applySession(token, nextUser);
+    async (token, nextUser, rememberMe = true) => {
+      applySession(token, nextUser, rememberMe);
     },
     [applySession]
   );

@@ -3,6 +3,7 @@ import "../../styles/login-breadcrumb-section.css";
 
 export default function LoginBreadcrumbSection({ mode = "login" }) {
   const isSignUp = mode === "signup";
+  const isForgotPassword = mode === "forgot-password";
 
   return (
     <section
@@ -17,6 +18,11 @@ export default function LoginBreadcrumbSection({ mode = "login" }) {
               <span className="login-page-hero__title-line">Join Us Today!</span>
               <span className="login-page-hero__title-gradient">Create your account</span>
             </>
+          ) : isForgotPassword ? (
+            <>
+              <span className="login-page-hero__title-line">Forgot Password?</span>
+              <span className="login-page-hero__title-gradient">We will help you reset it</span>
+            </>
           ) : (
             <>
               <span className="login-page-hero__title-line">Welcome Back!</span>
@@ -27,7 +33,9 @@ export default function LoginBreadcrumbSection({ mode = "login" }) {
         <p className="login-page-hero__intro">
           {isSignUp
             ? "Create an account to manage memberships, donations, event registrations, and your profile."
-            : "Access your memberships, donations, event registrations and update your account details."}
+            : isForgotPassword
+              ? "Enter your email and we will send you a link to choose a new password."
+              : "Access your memberships, donations, event registrations and update your account details."}
         </p>
       </div>
     </section>

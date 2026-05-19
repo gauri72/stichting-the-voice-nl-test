@@ -4,9 +4,10 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import env from "../config/env.js";
 import User from "../models/User.js";
-import { sendVerificationOtpEmail } from "./authMailer.js";
+import { sendVerificationOtpEmail, sendPasswordResetEmail } from "./authMailer.js";
 
 const OTP_TTL_MS = 10 * 60 * 1000;
+const RESET_TTL_MS = 60 * 60 * 1000;
 const BCRYPT_ROUNDS = 12;
 
 function isDbReady() {
@@ -23,6 +24,10 @@ function generateOtp() {
 
 function hashOtp(otp) {
   return crypto.createHash("sha256").update(String(otp).trim()).digest("hex");
+}
+
+function hashResetToken(token) {
+  return crypto.createHash("sha256").update(String(token).trim()).digest("hex");
 }
 
 function otpMatches(user, otp) {
@@ -243,4 +248,82 @@ export async function getUserById(userId) {
   const user = await User.findById(userId);
   if (!user || !user.isVerified) return null;
   return user.toSafeJSON();
+}
+
+const PASSWORD_RESET_GENERIC_MESSAGE =
+  "If an account exists with this email, you will receive a password reset link shortly.";
+
+export async function requestPasswordReset(email) {
+  if (!isDbReady()) {
+    const err = new Error("Database is not available. Please try again later.");
+    err.status = 503;
+    throw err;
+  }
+
+  const normalizedEmail = normalizeEmail(email);
+  const user = await User.findOne({ email: normalizedEmail });
+
+  if (!user) {
+    return { message: PASSWORD_RESET_GENERIC_MESSAGE };
+  }
+
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  user.passwordResetTokenHash = hashResetToken(resetToken);
+  user.passwordResetExpires = new Date(Date.now() + RESET_TTL_MS);
+  await user.save();
+
+  const resetUrl = `${env.clientUrl.replace(/\/$/, "")}/reset-password?token=${resetToken}`;
+  const mailResult = await sendPasswordResetEmail({
+    to: user.email,
+    firstName: user.firstName,
+    resetUrl
+  });
+
+  return {
+    message: PASSWORD_RESET_GENERIC_MESSAGE,
+    devResetUrl:
+      env.nodeEnv === "development" && !mailResult.sent ? mailResult.devResetUrl || resetUrl : undefined
+  };
+}
+
+export async function resetPassword({ token, password }) {
+  if (!isDbReady()) {
+    const err = new Error("Database is not available. Please try again later.");
+    err.status = 503;
+    throw err;
+  }
+
+  const trimmedToken = String(token || "").trim();
+  if (!trimmedToken) {
+    const err = new Error("Invalid or expired reset link. Please request a new one.");
+    err.status = 400;
+    throw err;
+  }
+
+  if (!password || password.length < 8) {
+    const err = new Error("Password must be at least 8 characters long.");
+    err.status = 400;
+    throw err;
+  }
+
+  const tokenHash = hashResetToken(trimmedToken);
+  const user = await User.findOne({
+    passwordResetTokenHash: tokenHash,
+    passwordResetExpires: { $gt: new Date() }
+  });
+
+  if (!user) {
+    const err = new Error("Invalid or expired reset link. Please request a new one.");
+    err.status = 400;
+    throw err;
+  }
+
+  user.passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+  user.passwordResetTokenHash = null;
+  user.passwordResetExpires = null;
+  await user.save();
+
+  return {
+    message: "Your password has been updated. You can now log in with your new password."
+  };
 }

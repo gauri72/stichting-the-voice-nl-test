@@ -3,7 +3,9 @@ import {
   verifyEmailOtp,
   resendVerificationOtp,
   loginUser,
-  getUserById
+  getUserById,
+  requestPasswordReset,
+  resetPassword
 } from "../services/authService.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
 
@@ -82,6 +84,36 @@ export async function login(req, res) {
 
 export async function me(req, res) {
   return res.status(200).json({ user: req.user });
+}
+
+export async function forgotPassword(req, res) {
+  try {
+    const { email } = req.body || {};
+
+    if (!email?.trim()) {
+      return res.status(400).json({ error: "Email is required." });
+    }
+
+    const result = await requestPasswordReset(email);
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function resetPasswordHandler(req, res) {
+  try {
+    const { token, password } = req.body || {};
+
+    if (!token?.trim() || !password) {
+      return res.status(400).json({ error: "Reset token and new password are required." });
+    }
+
+    const result = await resetPassword({ token, password });
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
 }
 
 export { requireAuth };
