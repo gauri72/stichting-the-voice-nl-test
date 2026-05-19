@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema(
     lastName: { type: String, required: true, trim: true, maxlength: 80 },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
+    googleId: { type: String, default: null, sparse: true, unique: true },
+    authProvider: { type: String, enum: ["local", "google"], default: "local" },
     isVerified: { type: Boolean, default: false },
     verificationOtpHash: { type: String, default: null },
     verificationOtpExpires: { type: Date, default: null },

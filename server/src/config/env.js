@@ -26,7 +26,8 @@ const env = {
       process.env.JWT_SECRET ||
       (process.env.NODE_ENV === "production"
         ? ""
-        : "dev-only-jwt-secret-change-in-production")
+        : "dev-only-jwt-secret-change-in-production"),
+    googleClientId: process.env.GOOGLE_CLIENT_ID || ""
   },
   org: {
     contactEmail:

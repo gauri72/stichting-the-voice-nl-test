@@ -3,6 +3,7 @@ import {
   verifyEmailOtp,
   resendVerificationOtp,
   loginUser,
+  loginWithGoogle,
   getUserById,
   requestPasswordReset,
   resetPassword
@@ -76,6 +77,21 @@ export async function login(req, res) {
     }
 
     const result = await loginUser({ email, password, rememberMe });
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function googleAuth(req, res) {
+  try {
+    const { credential, rememberMe } = req.body || {};
+
+    if (!credential?.trim()) {
+      return res.status(400).json({ error: "Google sign-in credential is required." });
+    }
+
+    const result = await loginWithGoogle({ credential, rememberMe });
     return res.status(200).json(result);
   } catch (error) {
     return handleError(res, error);

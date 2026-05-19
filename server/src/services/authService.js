@@ -2,6 +2,7 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { OAuth2Client } from "google-auth-library";
 import env from "../config/env.js";
 import User from "../models/User.js";
 import { sendVerificationOtpEmail, sendPasswordResetEmail } from "./authMailer.js";
@@ -81,7 +82,11 @@ export async function registerUser({ firstName, lastName, email, password }) {
   const existing = await User.findOne({ email: normalizedEmail });
 
   if (existing?.isVerified) {
-    const err = new Error("An account with this email already exists. Please log in.");
+    const message =
+      existing.googleId && existing.authProvider === "google"
+        ? "An account with this email already exists. Please continue with Google."
+        : "An account with this email already exists. Please log in.";
+    const err = new Error(message);
     err.status = 409;
     throw err;
   }
@@ -220,6 +225,12 @@ export async function loginUser({ email, password, rememberMe }) {
     throw err;
   }
 
+  if (user.authProvider === "google" && user.googleId) {
+    const err = new Error("This account uses Google sign-in. Please continue with Google.");
+    err.status = 400;
+    throw err;
+  }
+
   const passwordOk = await bcrypt.compare(password, user.passwordHash);
   if (!passwordOk) {
     const err = new Error("Invalid email or password.");
@@ -248,6 +259,121 @@ export async function getUserById(userId) {
   const user = await User.findById(userId);
   if (!user || !user.isVerified) return null;
   return user.toSafeJSON();
+}
+
+let googleOAuthClient = null;
+
+function getGoogleClient() {
+  if (!env.auth.googleClientId) return null;
+  if (!googleOAuthClient) {
+    googleOAuthClient = new OAuth2Client(env.auth.googleClientId);
+  }
+  return googleOAuthClient;
+}
+
+function splitGoogleName(payload) {
+  const given = String(payload.given_name || "").trim();
+  const family = String(payload.family_name || "").trim();
+  if (given || family) {
+    return { firstName: given || "User", lastName: family || "" };
+  }
+  const parts = String(payload.name || "User").trim().split(/\s+/);
+  return {
+    firstName: parts[0] || "User",
+    lastName: parts.slice(1).join(" ")
+  };
+}
+
+export async function loginWithGoogle({ credential, rememberMe }) {
+  if (!isDbReady()) {
+    const err = new Error("Database is not available. Please try again later.");
+    err.status = 503;
+    throw err;
+  }
+
+  const client = getGoogleClient();
+  if (!client) {
+    const err = new Error("Google sign-in is not configured.");
+    err.status = 503;
+    throw err;
+  }
+
+  const idToken = String(credential || "").trim();
+  if (!idToken) {
+    const err = new Error("Google sign-in failed. Please try again.");
+    err.status = 400;
+    throw err;
+  }
+
+  let payload;
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: env.auth.googleClientId
+    });
+    payload = ticket.getPayload();
+  } catch {
+    const err = new Error("Google sign-in could not be verified. Please try again.");
+    err.status = 401;
+    throw err;
+  }
+
+  const googleId = payload?.sub;
+  const email = normalizeEmail(payload?.email);
+
+  if (!googleId || !email) {
+    const err = new Error("Google did not provide a valid email address.");
+    err.status = 400;
+    throw err;
+  }
+
+  if (payload.email_verified === false) {
+    const err = new Error("Please verify your Google email address and try again.");
+    err.status = 403;
+    throw err;
+  }
+
+  const { firstName, lastName } = splitGoogleName(payload);
+
+  let user = await User.findOne({ $or: [{ googleId }, { email }] });
+
+  if (user) {
+    if (user.googleId && user.googleId !== googleId) {
+      const err = new Error("This email is linked to a different Google account.");
+      err.status = 409;
+      throw err;
+    }
+
+    if (!user.googleId) {
+      user.googleId = googleId;
+      user.authProvider = "google";
+    }
+
+    if (!user.firstName?.trim()) user.firstName = firstName;
+    if (!user.lastName?.trim()) user.lastName = lastName;
+    user.isVerified = true;
+    user.verificationOtpHash = null;
+    user.verificationOtpExpires = null;
+    await user.save();
+  } else {
+    const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), BCRYPT_ROUNDS);
+    user = await User.create({
+      firstName,
+      lastName,
+      email,
+      passwordHash,
+      googleId,
+      authProvider: "google",
+      isVerified: true
+    });
+  }
+
+  const authToken = signToken(user, Boolean(rememberMe));
+
+  return {
+    token: authToken,
+    user: user.toSafeJSON()
+  };
 }
 
 const PASSWORD_RESET_GENERIC_MESSAGE =

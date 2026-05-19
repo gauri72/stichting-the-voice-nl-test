@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaEnvelope, FaEye, FaEyeSlash, FaLock, FaUser } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { apiFetch, getRememberedEmail, setRememberedEmail } from "../../utils/api.js";
+import GoogleSignInButton, { isGoogleSignInEnabled } from "./GoogleSignInButton.jsx";
 import "../../styles/login-form-section.css";
 
 function PasswordField({
@@ -78,6 +79,7 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
   const [forgotError, setForgotError] = useState("");
   const [forgotSuccess, setForgotSuccess] = useState(null);
   const [isSubmittingForgot, setIsSubmittingForgot] = useState(false);
+  const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
 
   useEffect(() => {
     if (isSignUp) {
@@ -168,6 +170,74 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
     const digitsOnly = event.target.value.replace(/\D/g, "").slice(0, 6);
     setOtp(digitsOnly);
     if (otpError) setOtpError("");
+  }
+
+  async function handleGoogleSignIn(credential) {
+    setLoginError("");
+    setSignUpError("");
+    setIsGoogleSigningIn(true);
+
+    const useRememberMe = isSignUp ? true : rememberMe;
+
+    try {
+      const data = await apiFetch("/api/auth/google", {
+        method: "POST",
+        body: JSON.stringify({ credential, rememberMe: useRememberMe })
+      });
+      if (data.user?.email) {
+        setRememberedEmail(data.user.email, useRememberMe);
+      }
+      await loginWithToken(data.token, data.user, useRememberMe);
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
+      const message = error.message || "Google sign-in failed. Please try again.";
+      if (isSignUp) {
+        setSignUpError(message);
+        setHasSignUpAttempt(true);
+      } else {
+        setLoginError(message);
+      }
+    } finally {
+      setIsGoogleSigningIn(false);
+    }
+  }
+
+  function renderOrDivider() {
+    return (
+      <div className="login-form-section__divider" role="separator" aria-label="or">
+        <span>OR</span>
+      </div>
+    );
+  }
+
+  function renderSocialAuth() {
+    if (!isGoogleSignInEnabled()) {
+      return null;
+    }
+
+    return (
+      <div className="login-form-section__social-block">
+        <div
+          className="login-form-section__divider login-form-section__divider--subtle"
+          role="separator"
+          aria-label="or continue with"
+        >
+          <span>or continue with</span>
+        </div>
+        <GoogleSignInButton
+          disabled={isGoogleSigningIn}
+          onSuccess={handleGoogleSignIn}
+          onError={(message) => {
+            if (isSignUp) {
+              setSignUpError(message);
+              setHasSignUpAttempt(true);
+            } else {
+              setLoginError(message);
+            }
+          }}
+        />
+      </div>
+    );
   }
 
   async function handleLoginSubmit(event) {
@@ -526,9 +596,8 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
               {isSigningUp ? "Sending verification…" : "Create New Account"}
             </button>
 
-            <div className="login-form-section__divider" role="separator" aria-label="or">
-              <span>OR</span>
-            </div>
+            {renderSocialAuth()}
+            {renderOrDivider()}
 
             <button
               type="button"
@@ -605,9 +674,8 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
               {isLoggingIn ? "Logging in…" : "Log In"}
             </button>
 
-            <div className="login-form-section__divider" role="separator" aria-label="or">
-              <span>OR</span>
-            </div>
+            {renderSocialAuth()}
+            {renderOrDivider()}
 
             <button
               type="button"

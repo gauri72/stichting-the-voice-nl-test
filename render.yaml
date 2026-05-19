@@ -41,6 +41,8 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
@@ -71,6 +73,8 @@ services:
     envVars:
       # Live publishable key from Stripe (pk_live_...). Must match the live
       # account used for STRIPE_SECRET_KEY on voice-nl-api. Redeploy after edit.
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false
       - key: VITE_STRIPE_PUBLISHABLE_KEY
         sync: false
       # Set this to the API service URL (e.g. https://voice-nl-api.onrender.com)
