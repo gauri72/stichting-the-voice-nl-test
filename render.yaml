@@ -37,6 +37,10 @@ services:
       - key: EMAIL_SECURE
         value: "true"
       # Secrets - paste in Render dashboard after first deploy
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
