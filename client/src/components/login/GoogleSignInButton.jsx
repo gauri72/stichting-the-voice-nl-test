@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 
 const GOOGLE_CLIENT_ID = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
@@ -31,49 +31,59 @@ function GoogleIcon() {
 }
 
 export default function GoogleSignInButton({ onSuccess, onError, disabled }) {
-  const nativeRef = useRef(null);
+  const wrapRef = useRef(null);
+  const onSuccessRef = useRef(onSuccess);
+  const onErrorRef = useRef(onError);
+
+  onSuccessRef.current = onSuccess;
+  onErrorRef.current = onError;
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+
+    function syncOverlayWidth() {
+      const overlay = wrap.querySelector(".login-form-section__google-overlay");
+      const width = Math.max(wrap.offsetWidth, 280);
+      if (overlay) {
+        overlay.style.width = `${width}px`;
+        overlay.style.height = "50px";
+      }
+    }
+
+    syncOverlayWidth();
+    window.addEventListener("resize", syncOverlayWidth);
+    return () => window.removeEventListener("resize", syncOverlayWidth);
+  }, []);
 
   if (!isGoogleSignInEnabled()) {
     return null;
   }
 
-  function triggerNativeGoogleSignIn() {
-    if (disabled) return;
-    const nativeButton = nativeRef.current?.querySelector('[role="button"]');
-    nativeButton?.click();
-  }
-
   return (
-    <div className="login-form-section__google-wrap">
-      <button
-        type="button"
-        className="login-form-section__google-btn"
-        disabled={disabled}
-        onClick={triggerNativeGoogleSignIn}
-      >
+    <div
+      ref={wrapRef}
+      className={`login-form-section__google-wrap${disabled ? " login-form-section__google-wrap--disabled" : ""}`}
+    >
+      <button type="button" className="login-form-section__google-btn" tabIndex={-1} aria-hidden="true">
         <GoogleIcon />
         <span>Continue with Google</span>
       </button>
-      <div
-        ref={nativeRef}
-        className="login-form-section__google-native"
-        aria-hidden="true"
-        tabIndex={-1}
-      >
+      <div className="login-form-section__google-overlay" aria-label="Continue with Google">
         <GoogleLogin
           onSuccess={(response) => {
             if (response.credential) {
-              onSuccess(response.credential);
+              onSuccessRef.current(response.credential);
             } else {
-              onError?.("Google sign-in failed. Please try again.");
+              onErrorRef.current?.("Google sign-in failed. Please try again.");
             }
           }}
-          onError={() => onError?.("Google sign-in was cancelled or failed.")}
+          onError={() => onErrorRef.current?.("Google sign-in was cancelled or failed.")}
           theme="outline"
           size="large"
           text="continue_with"
           shape="rectangular"
-          width="200"
+          width="400"
           useOneTap={false}
         />
       </div>

@@ -325,6 +325,12 @@
 .login-form-section__google-wrap {
   position: relative;
   width: 100%;
+  min-height: 50px;
+}
+
+.login-form-section__google-wrap--disabled {
+  opacity: 0.65;
+  pointer-events: none;
 }
 
 .login-form-section__google-btn {
@@ -343,34 +349,10 @@
   font-weight: 600;
   letter-spacing: 0.01em;
   text-transform: none;
-  cursor: pointer;
   font-family: inherit;
   box-sizing: border-box;
   box-shadow: 0 2px 8px rgba(10, 47, 69, 0.06);
-  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease,
-    background-color 0.2s ease;
-}
-
-.login-form-section__google-btn:hover:not(:disabled) {
-  border-color: #b8c9d4;
-  background: #f8fbfc;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(10, 47, 69, 0.1);
-}
-
-.login-form-section__google-btn:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(10, 47, 69, 0.08);
-}
-
-.login-form-section__google-btn:focus-visible {
-  outline: 2px solid #9fe6de;
-  outline-offset: 3px;
-}
-
-.login-form-section__google-btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .login-form-section__google-icon {
@@ -379,16 +361,29 @@
   flex-shrink: 0;
 }
 
-.login-form-section__google-native {
+.login-form-section__google-overlay {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  border: 0;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
+  border-radius: 8px;
+  opacity: 0.011;
+  cursor: pointer;
+}
+
+.login-form-section__google-overlay > div {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.login-form-section__google-overlay iframe {
+  margin: 0 auto !important;
 }
 
 .login-form-section__social-block {
