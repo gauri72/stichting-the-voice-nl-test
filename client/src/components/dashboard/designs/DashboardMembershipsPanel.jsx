@@ -217,8 +217,8 @@ export default function DashboardMembershipsPanel() {
             <tbody>
               {data.table.map((row) => (
                 <tr key={`${row.orderId || row.plan}-${row.renewalDateIso || row.renewalDate}`}>
-                  <td>{row.plan}</td>
-                  <td>
+                  <td data-label="Plan">{row.plan}</td>
+                  <td data-label="Status">
                     <span
                       className={`dashboard-memberships__status-pill ${
                         row.status !== "Active" ? "dashboard-memberships__status-pill--muted" : ""
@@ -227,8 +227,8 @@ export default function DashboardMembershipsPanel() {
                       {row.status}
                     </span>
                   </td>
-                  <td>{row.renewalDate}</td>
-                  <td>{row.fee}</td>
+                  <td data-label="Renewal Date">{row.renewalDate}</td>
+                  <td data-label="Fee">{row.fee}</td>
                 </tr>
               ))}
             </tbody>

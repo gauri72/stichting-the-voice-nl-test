@@ -164,6 +164,8 @@
   display: grid;
   gap: 18px;
   scroll-margin-top: 96px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .dashboard-design-one__loading {

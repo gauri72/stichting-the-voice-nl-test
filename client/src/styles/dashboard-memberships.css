@@ -12,6 +12,8 @@
   display: grid;
   gap: 22px;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .dashboard-memberships__title {
@@ -53,6 +55,7 @@
 .dashboard-memberships__active-card {
   display: grid;
   grid-template-columns: auto 1fr auto;
+  grid-template-areas: "icon body actions";
   gap: 22px 24px;
   align-items: start;
   padding: 24px 22px;
@@ -63,6 +66,7 @@
 }
 
 .dashboard-memberships__active-icon {
+  grid-area: icon;
   width: 58px;
   height: 58px;
   border-radius: 50%;
@@ -74,6 +78,11 @@
   font-size: 1.35rem;
   flex-shrink: 0;
   box-shadow: 0 6px 18px rgba(15, 143, 144, 0.28);
+}
+
+.dashboard-memberships__active-body {
+  grid-area: body;
+  min-width: 0;
 }
 
 .dashboard-memberships__status-kicker {
@@ -110,14 +119,17 @@
   line-height: 1.6;
   color: var(--mem-muted);
   max-width: 54ch;
+  overflow-wrap: anywhere;
 }
 
 .dashboard-memberships__active-actions {
+  grid-area: actions;
   display: flex;
   flex-direction: column;
   gap: 10px;
   align-items: stretch;
   min-width: min(210px, 100%);
+  width: 100%;
 }
 
 .dashboard-memberships__btn {
@@ -176,7 +188,7 @@
 .dashboard-memberships__section-title {
   margin: 0 0 12px;
   font-family: Georgia, "Times New Roman", Times, serif;
-  font-size: 1.35rem;
+  font-size: clamp(1.15rem, 2.5vw, 1.35rem);
   font-weight: 700;
   color: var(--mem-navy);
 }
@@ -280,6 +292,11 @@
   font-weight: 600;
 }
 
+.dashboard-memberships__benefits li > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .dashboard-memberships__benefits svg {
   margin-top: 3px;
   flex-shrink: 0;
@@ -304,9 +321,10 @@
 
 .dashboard-memberships__upgrade-title {
   margin: 0;
-  font-size: 1.02rem;
+  font-size: clamp(0.95rem, 2.2vw, 1.02rem);
   font-weight: 800;
   color: var(--mem-teal);
+  overflow-wrap: anywhere;
 }
 
 .dashboard-memberships__upgrade-desc {
@@ -341,38 +359,160 @@
   font-size: 0.92rem;
 }
 
-@media (max-width: 992px) {
-  .dashboard-memberships__active-card {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-memberships__active-actions {
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;
-  }
-
+/* Tablet: stack benefits grid; active card keeps icon + body side by side */
+@media (max-width: 1100px) {
   .dashboard-memberships__grid {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
+  .dashboard-memberships {
+    gap: 18px;
+  }
+
+  .dashboard-memberships__active-card {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "icon body"
+      "actions actions";
+    gap: 16px 18px;
+    padding: 20px 18px;
+  }
+
+  .dashboard-memberships__active-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .dashboard-memberships__active-actions .dashboard-memberships__btn {
+    flex: 1 1 180px;
+  }
+}
+
+/* Mobile: card-style membership table */
+@media (max-width: 720px) {
   .dashboard-memberships__table-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow: visible;
+    border: none;
+    background: transparent;
+    box-shadow: none;
   }
 
   .dashboard-memberships__table {
-    min-width: 520px;
+    font-size: 0.86rem;
+  }
+
+  .dashboard-memberships__table thead {
+    display: none;
+  }
+
+  .dashboard-memberships__table tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  .dashboard-memberships__table tr {
+    display: grid;
+    gap: 10px;
+    padding: 14px 16px;
+    border: 1px solid var(--mem-border);
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 4px 18px rgba(0, 25, 51, 0.05);
+  }
+
+  .dashboard-memberships__table td {
+    display: grid;
+    grid-template-columns: minmax(100px, 36%) 1fr;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 0;
+    border: none;
+  }
+
+  .dashboard-memberships__table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--mem-muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .dashboard-memberships__plan-name {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .dashboard-memberships {
+    gap: 16px;
+  }
+
+  .dashboard-memberships__title {
+    font-size: clamp(1.45rem, 6vw, 1.75rem);
+  }
+
+  .dashboard-memberships__active-card {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "icon"
+      "body"
+      "actions";
+    text-align: center;
+    padding: 18px 16px;
+  }
+
+  .dashboard-memberships__active-icon {
+    justify-self: center;
+    width: 52px;
+    height: 52px;
+    font-size: 1.2rem;
+  }
+
+  .dashboard-memberships__active-desc {
+    max-width: none;
   }
 
   .dashboard-memberships__active-actions {
     flex-direction: column;
   }
 
-  .dashboard-memberships__card--upgrade .dashboard-memberships__btn {
+  .dashboard-memberships__active-actions .dashboard-memberships__btn {
+    flex: 1 1 auto;
     width: 100%;
-    min-width: 0;
+  }
+
+  .dashboard-memberships__card {
+    padding: 16px 14px;
+  }
+
+  .dashboard-memberships__card-title {
+    font-size: 1.1rem;
+  }
+
+  .dashboard-memberships__empty {
+    padding: 24px 16px;
+  }
+
+  .dashboard-memberships__empty .dashboard-memberships__btn {
+    width: 100%;
+  }
+
+  .dashboard-memberships__btn {
+    font-size: 0.65rem;
+    padding: 11px 14px;
+  }
+
+  .dashboard-memberships__table td {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    text-align: left;
+  }
+
+  .dashboard-memberships__table td::before {
+    font-size: 0.68rem;
   }
 }
