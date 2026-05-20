@@ -68,7 +68,10 @@ export default function DashboardMembershipsPanel() {
       <div className="dashboard-memberships">
         <h2 className="dashboard-memberships__title">Memberships</h2>
         <div className="dashboard-memberships__empty">
-          <p>You do not have an active membership on file yet. Explore our plans to join the community.</p>
+          <p>
+            No membership found for your account email yet. If you purchased on Ticket Tailor, use
+            the same email as your login. Otherwise explore our plans to join.
+          </p>
           <Link to={data?.joinCta?.href || "/membership"} className="dashboard-memberships__btn dashboard-memberships__btn--primary">
             {data?.joinCta?.label || "View membership plans"}
           </Link>

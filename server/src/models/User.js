@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     phone: { type: String, default: "", trim: true, maxlength: 40 },
     passwordHash: { type: String, required: true },
-    googleId: { type: String, default: null, sparse: true, unique: true },
+    /** Omit for email/password users — do not store null (breaks sparse unique index). */
+    googleId: { type: String },
     authProvider: { type: String, enum: ["local", "google"], default: "local" },
     isVerified: { type: Boolean, default: false },
     verificationOtpHash: { type: String, default: null },
@@ -17,6 +18,8 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.index({ googleId: 1 }, { unique: true, sparse: true });
 
 userSchema.methods.toSafeJSON = function toSafeJSON() {
   return {

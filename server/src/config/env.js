@@ -34,7 +34,17 @@ const env = {
     apiBase: (process.env.TICKET_TAILOR_API_BASE || "https://api.tickettailor.com").replace(
       /\/$/,
       ""
-    )
+    ),
+    /** Comma-separated Ticket Tailor product IDs counted as donations (default: Donate product). */
+    donationProductIds: (process.env.TICKET_TAILOR_DONATION_PRODUCT_IDS || "pr_23684")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
+    /** Comma-separated product IDs counted as sponsorships (optional). */
+    sponsorshipProductIds: (process.env.TICKET_TAILOR_SPONSORSHIP_PRODUCT_IDS || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
   },
   org: {
     contactEmail:

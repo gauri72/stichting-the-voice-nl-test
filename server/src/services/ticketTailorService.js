@@ -7,6 +7,16 @@ const MAX_PAGES = 30;
 /** @type {Map<string, { at: number, orders: TicketTailorOrderSummary[] }>} */
 const cacheByEmail = new Map();
 
+/** @type {{ configured: boolean, buyerEmailVisible: boolean, warning: string|null } | null} */
+let piiStatusCache = null;
+
+function isRedactedPii(value) {
+  const s = String(value || "").trim();
+  if (!s) return true;
+  if (s === "****" || /^[\*•]+$/.test(s)) return true;
+  return false;
+}
+
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
@@ -27,31 +37,89 @@ function pickEmail(order) {
   ];
   for (const c of candidates) {
     const v = String(c || "").trim().toLowerCase();
-    if (v) return v;
+    if (v && !isRedactedPii(v) && v.includes("@")) return v;
   }
   return "";
 }
 
-function getPrimaryLineDescription(order) {
+function getLineItems(order) {
   const items = order?.line_items || order?.items || [];
-  if (!Array.isArray(items) || items.length === 0) return "";
+  return Array.isArray(items) ? items : [];
+}
+
+function getPrimaryLineDescription(order) {
+  const items = getLineItems(order);
+  if (items.length === 0) return "";
   return String(items[0]?.description || "").trim();
 }
 
-/** @returns {"membership" | "event"} */
-function classifyOrder(order) {
+function getAllLineText(order) {
+  return getLineItems(order)
+    .map((it) => String(it?.description || it?.name || "").trim())
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+function lineItemProductId(item) {
+  return String(item?.item_id || item?.product_id || "").trim();
+}
+
+function isDonationOrder(order) {
+  const donationIds = env.ticketTailor.donationProductIds;
+  for (const it of getLineItems(order)) {
+    const id = lineItemProductId(it);
+    if (donationIds.includes(id)) return true;
+    const d = String(it?.description || "").toLowerCase();
+    if (/^donate\b|\bdonation\b/.test(d)) return true;
+  }
+  const blob = getAllLineText(order);
+  const hasEventName = Boolean(String(order?.event_summary?.name || "").trim());
+  if (!hasEventName && (/\bdonate\b|\bdonation\b/.test(blob) || blob === "donate")) {
+    return true;
+  }
+  return false;
+}
+
+function isSponsorshipOrder(order) {
+  const sponsorshipIds = env.ticketTailor.sponsorshipProductIds;
+  for (const it of getLineItems(order)) {
+    const id = lineItemProductId(it);
+    if (sponsorshipIds.length > 0 && sponsorshipIds.includes(id)) return true;
+    const d = String(it?.description || "").toLowerCase();
+    if (
+      /\bsponsorship\b/.test(d) ||
+      (/\bsponsor\b/.test(d) &&
+        !/member|ticket|festival|privileged|ghazal|adult|economy/i.test(d))
+    ) {
+      return true;
+    }
+  }
+  const blob = getAllLineText(order);
+  const hasEventName = Boolean(String(order?.event_summary?.name || "").trim());
+  if (!hasEventName && /\bsponsorship\b/.test(blob)) return true;
+  return false;
+}
+
+function isMembershipOrder(order) {
   const desc = getPrimaryLineDescription(order).toLowerCase();
   const hasEventName = Boolean(String(order?.event_summary?.name || "").trim());
 
-  const standaloneMembership =
+  return (
     !hasEventName &&
     /\bmembership\b/i.test(desc) &&
     (/privileged membership|premium family|premium single|family membership|single membership|vownl membership|stichting v\.o\.i\.c\.e/i.test(
       desc
     ) ||
-      /\bmembership\s*$/i.test(desc));
+      /\bmembership\s*$/i.test(desc))
+  );
+}
 
-  if (standaloneMembership) return "membership";
+/** @returns {"membership" | "donation" | "sponsorship" | "event"} */
+function classifyOrder(order) {
+  if (isDonationOrder(order)) return "donation";
+  if (isSponsorshipOrder(order)) return "sponsorship";
+  if (isMembershipOrder(order)) return "membership";
   return "event";
 }
 
@@ -83,6 +151,12 @@ function pickEventTitle(order) {
 function pickDisplayTitle(order, category) {
   if (category === "membership") {
     return getPrimaryLineDescription(order) || "Membership";
+  }
+  if (category === "donation") {
+    return getPrimaryLineDescription(order) || "Donation";
+  }
+  if (category === "sponsorship") {
+    return getPrimaryLineDescription(order) || "Sponsorship";
   }
   return pickEventTitle(order);
 }
@@ -143,7 +217,7 @@ function isCountableOrder(order) {
 /**
  * @typedef {Object} TicketTailorOrderSummary
  * @property {string} id
- * @property {"membership" | "event"} category
+ * @property {"membership" | "donation" | "sponsorship" | "event"} category
  * @property {string} eventTitle
  * @property {string} status
  * @property {number} amountMinor
@@ -155,6 +229,45 @@ export function isTicketTailorConfigured() {
   return Boolean(env.ticketTailor.apiKey);
 }
 
+export async function getTicketTailorStatus() {
+  if (!isTicketTailorConfigured()) {
+    return {
+      configured: false,
+      buyerEmailVisible: false,
+      warning: null
+    };
+  }
+
+  if (piiStatusCache) return piiStatusCache;
+
+  try {
+    const { data } = await fetchOrdersPage();
+    const sampleEmail = data[0]?.buyer_details?.email;
+    const buyerEmailVisible =
+      Boolean(sampleEmail) && !isRedactedPii(sampleEmail) && String(sampleEmail).includes("@");
+
+    piiStatusCache = {
+      configured: true,
+      buyerEmailVisible,
+      warning: buyerEmailVisible
+        ? null
+        : "Ticket Tailor is hiding buyer emails (****) on this API key. Create a new API key in Ticket Tailor box office settings and turn OFF “hide personal data”, then update TICKET_TAILOR_API_KEY on the server."
+    };
+
+    if (!buyerEmailVisible) {
+      console.warn(`[ticket-tailor] ${piiStatusCache.warning}`);
+    }
+  } catch (err) {
+    piiStatusCache = {
+      configured: true,
+      buyerEmailVisible: false,
+      warning: `Ticket Tailor API error: ${err.message}`
+    };
+  }
+
+  return piiStatusCache;
+}
+
 export function logTicketTailorConfiguration() {
   if (!isTicketTailorConfigured()) {
     console.warn(
@@ -162,7 +275,11 @@ export function logTicketTailorConfiguration() {
     );
     return;
   }
-  console.log("[ticket-tailor] API key configured; dashboard will include Ticket Tailor orders.");
+  getTicketTailorStatus().then((status) => {
+    if (status.buyerEmailVisible) {
+      console.log("[ticket-tailor] API key configured; buyer emails visible for dashboard matching.");
+    }
+  });
 }
 
 async function fetchOrdersPage({ startingAfter } = {}) {
@@ -197,20 +314,24 @@ async function fetchOrdersPage({ startingAfter } = {}) {
   return { data, nextStartingAfter };
 }
 
-async function fetchAllOrders() {
-  const all = [];
+async function fetchOrdersMatchingEmail(norm) {
+  const matched = [];
   let startingAfter;
   let page = 0;
 
   while (page < MAX_PAGES) {
     const { data, nextStartingAfter } = await fetchOrdersPage({ startingAfter });
-    all.push(...data);
+    for (const order of data) {
+      if (pickEmail(order) !== norm) continue;
+      const summary = mapOrder(order);
+      if (summary) matched.push(summary);
+    }
     page += 1;
     if (!nextStartingAfter || data.length === 0) break;
     startingAfter = nextStartingAfter;
   }
 
-  return all;
+  return matched;
 }
 
 /**
@@ -234,12 +355,25 @@ function mapOrder(order) {
 /** @param {TicketTailorOrderSummary[]} orders */
 export function splitOrdersByCategory(orders) {
   const membership = [];
+  const donations = [];
+  const sponsorships = [];
   const events = [];
   for (const o of orders) {
-    if (o.category === "membership") membership.push(o);
-    else events.push(o);
+    switch (o.category) {
+      case "membership":
+        membership.push(o);
+        break;
+      case "donation":
+        donations.push(o);
+        break;
+      case "sponsorship":
+        sponsorships.push(o);
+        break;
+      default:
+        events.push(o);
+    }
   }
-  return { membership, events, all: orders };
+  return { membership, donations, sponsorships, events, all: orders };
 }
 
 /**
@@ -250,6 +384,9 @@ export function splitOrdersByCategory(orders) {
 export async function getOrdersForEmail(email) {
   if (!isTicketTailorConfigured()) return [];
 
+  const status = await getTicketTailorStatus();
+  if (!status.buyerEmailVisible) return [];
+
   const norm = normalizeEmail(email);
   if (!norm) return [];
 
@@ -258,14 +395,7 @@ export async function getOrdersForEmail(email) {
     return cached.orders;
   }
 
-  const allOrders = await fetchAllOrders();
-  const matched = [];
-
-  for (const order of allOrders) {
-    if (pickEmail(order) !== norm) continue;
-    const summary = mapOrder(order);
-    if (summary) matched.push(summary);
-  }
+  const matched = await fetchOrdersMatchingEmail(norm);
 
   matched.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   cacheByEmail.set(norm, { at: Date.now(), orders: matched });

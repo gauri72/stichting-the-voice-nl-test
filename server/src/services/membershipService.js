@@ -1,6 +1,11 @@
 import Membership from "../models/Membership.js";
 import User from "../models/User.js";
 import { getPlan, getUpgradePlan, MEMBERSHIP_PLANS } from "../config/membershipPlans.js";
+import {
+  getOrdersForEmail,
+  isTicketTailorConfigured,
+  splitOrdersByCategory
+} from "./ticketTailorService.js";
 
 function formatDisplayDate(isoOrDate) {
   if (!isoOrDate) return "";
@@ -45,6 +50,77 @@ function deriveStatus(membership, now = new Date()) {
   return "Active";
 }
 
+function inferPlanIdFromTitle(title) {
+  const t = String(title || "").toLowerCase();
+  if (t.includes("privileged")) return "privileged";
+  if (t.includes("premium family") || (t.includes("family") && t.includes("membership")))
+    return "family";
+  if (t.includes("single")) return "single";
+  if (t.includes("vownl")) return "vownl";
+  return "family";
+}
+
+function buildMembershipPayloadFromTicketTailor(user, ttOrders) {
+  const latest = ttOrders[0];
+  const planId = inferPlanIdFromTitle(latest.eventTitle);
+  const plan = getPlan(planId) || getPlan("family");
+  const startedAt = latest.createdAt ? new Date(latest.createdAt) : new Date();
+  const endsAt = addYears(startedAt, plan.durationYears || 2);
+  const feeLabel = formatEur(latest.amountMinor || plan.feeMinor || 0);
+  const planName = latest.eventTitle || plan.name;
+  const membershipNumber = buildMembershipNumber(user._id, startedAt);
+  const upgrade = getUpgradePlan(plan.upgradeTo || "patron");
+
+  return {
+    hasMembership: true,
+    source: "ticket_tailor",
+    active: {
+      statusLabel: "Active Member",
+      planName,
+      planNameAccent: plan.matrixTitle || planName,
+      validFrom: formatDisplayDate(startedAt),
+      validTo: formatDisplayDate(endsAt),
+      validFromIso: startedAt.toISOString(),
+      validToIso: endsAt.toISOString(),
+      description: plan.description || "Membership purchased via Ticket Tailor.",
+      membershipNumber,
+      isActive: true
+    },
+    table: [
+      {
+        plan: planName,
+        status: "Purchased",
+        renewalDate: formatDisplayDate(endsAt),
+        renewalDateIso: endsAt.toISOString(),
+        fee: feeLabel,
+        feeMinor: latest.amountMinor || plan.feeMinor || 0
+      }
+    ],
+    benefits: (plan.benefits || []).map((text, index) => ({
+      id: `benefit-${index}`,
+      text
+    })),
+    upgrade: {
+      id: upgrade.id,
+      title: upgrade.title,
+      description: upgrade.description,
+      ctaLabel: upgrade.ctaLabel,
+      href: upgrade.href
+    },
+    renewCta: {
+      label: "Renew Membership",
+      href: "/membership#membership-matrix"
+    },
+    downloadCard: {
+      available: true,
+      membershipNumber,
+      memberName: [user.firstName, user.lastName].filter(Boolean).join(" "),
+      planName,
+      validTo: formatDisplayDate(endsAt)
+    }
+  };
+}
+
 export async function getMembershipPageForUser(safeUser) {
   const user = await User.findById(safeUser.id).lean();
   if (!user) {
@@ -56,6 +132,18 @@ export async function getMembershipPageForUser(safeUser) {
   let membership = await Membership.findOne({ userId: user._id }).sort({ startedAt: -1 }).lean();
 
   if (!membership) {
+    if (isTicketTailorConfigured()) {
+      try {
+        const orders = await getOrdersForEmail(user.email);
+        const { membership: ttMembership } = splitOrdersByCategory(orders);
+        if (ttMembership.length > 0) {
+          return buildMembershipPayloadFromTicketTailor(user, ttMembership);
+        }
+      } catch (err) {
+        console.warn("[memberships] Ticket Tailor lookup failed:", err.message);
+      }
+    }
+
     return {
       hasMembership: false,
       active: null,

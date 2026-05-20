@@ -6,6 +6,7 @@ import Membership from "../models/Membership.js";
 import EventRegistration from "../models/EventRegistration.js";
 import {
   getOrdersForEmail,
+  getTicketTailorStatus,
   isTicketTailorConfigured,
   splitOrdersByCategory
 } from "./ticketTailorService.js";
@@ -54,6 +55,8 @@ export async function getDashboardPayloadForUser(safeUser) {
 
   const oid = userDoc._id;
 
+  const ticketTailorStatusPromise = getTicketTailorStatus();
+
   const ticketTailorPromise = isTicketTailorConfigured()
     ? getOrdersForEmail(email).catch((err) => {
         console.warn("[dashboard] Ticket Tailor fetch failed:", err.message);
@@ -61,17 +64,22 @@ export async function getDashboardPayloadForUser(safeUser) {
       })
     : Promise.resolve([]);
 
-  const [transactions, activityLogs, membership, localEventCount, ticketTailorOrders] =
+  const [transactions, activityLogs, membership, localEventCount, ticketTailorOrders, ticketTailor] =
     await Promise.all([
       PaymentTransaction.find(buildUserMatch(userId, email)).sort({ paidAt: -1 }).limit(100).lean(),
       ActivityLog.find({ userId: oid }).sort({ createdAt: -1 }).limit(50).lean(),
       Membership.findOne({ userId: oid }).sort({ startedAt: -1 }).lean(),
       EventRegistration.countDocuments({ userId: oid }),
-      ticketTailorPromise
+      ticketTailorPromise,
+      ticketTailorStatusPromise
     ]);
 
-  const { membership: ttMembershipOrders, events: ttEventOrders } =
-    splitOrdersByCategory(ticketTailorOrders);
+  const {
+    membership: ttMembershipOrders,
+    donations: ttDonationOrders,
+    sponsorships: ttSponsorshipOrders,
+    events: ttEventOrders
+  } = splitOrdersByCategory(ticketTailorOrders);
 
   const ticketEventCount = ttEventOrders.length;
   const eventCount =
@@ -81,19 +89,35 @@ export async function getDashboardPayloadForUser(safeUser) {
   let donationCount = 0;
   let sponsorshipCount = 0;
   let sponsorshipTotalMinor = 0;
+  let mongoDonationCount = 0;
+  let mongoSponsorshipCount = 0;
 
   for (const t of transactions) {
     if (t.kind === "donation") {
       donationTotalMinor += t.amountMinor || 0;
       donationCount += 1;
+      mongoDonationCount += 1;
     } else if (t.kind === "sponsorship") {
       sponsorshipCount += 1;
       sponsorshipTotalMinor += t.amountMinor || 0;
+      mongoSponsorshipCount += 1;
     }
+  }
+
+  for (const o of ttDonationOrders) {
+    donationTotalMinor += o.amountMinor || 0;
+    donationCount += 1;
+  }
+
+  for (const o of ttSponsorshipOrders) {
+    sponsorshipCount += 1;
+    sponsorshipTotalMinor += o.amountMinor || 0;
   }
 
   const donationLabel = formatEur(donationTotalMinor);
   const sponsorshipLabel = formatEur(sponsorshipTotalMinor);
+  const ttDonationCount = ttDonationOrders.length;
+  const ttSponsorshipCount = ttSponsorshipOrders.length;
 
   const membershipActiveInDb =
     membership?.active &&
@@ -110,10 +134,13 @@ export async function getDashboardPayloadForUser(safeUser) {
     membershipPlanName = latestTtMembership.eventTitle;
   }
 
+  const membershipCount = membershipActiveInDb ? 1 : ttMembershipOrders.length;
+
   const membershipOverview = membershipPurchased
     ? {
         active: membershipActiveInDb || Boolean(latestTtMembership),
         purchased: true,
+        count: membershipCount || ttMembershipOrders.length || 1,
         since:
           membership?.startedAt?.toISOString?.() ||
           latestTtMembership?.createdAt ||
@@ -131,6 +158,7 @@ export async function getDashboardPayloadForUser(safeUser) {
     : {
         active: false,
         purchased: false,
+        count: 0,
         since: null,
         value: "No",
         heading: "Membership",
@@ -144,7 +172,16 @@ export async function getDashboardPayloadForUser(safeUser) {
     value: donationLabel,
     heading: "Total Donations",
     description: donationCount
-      ? `${donationCount} donation${donationCount === 1 ? "" : "s"} recorded in your account`
+      ? [
+          `${donationCount} donation${donationCount === 1 ? "" : "s"} — ${donationLabel} total`,
+          ttDonationCount
+            ? `${ttDonationCount} via Ticket Tailor`
+            : mongoDonationCount
+              ? `${mongoDonationCount} via Stripe`
+              : null
+        ]
+          .filter(Boolean)
+          .join(" · ")
       : "No donations yet. Every contribution supports our mission."
   };
 
@@ -153,13 +190,16 @@ export async function getDashboardPayloadForUser(safeUser) {
     value: String(eventCount),
     heading: "Events Registered",
     description: eventCount
-      ? ticketEventCount
-        ? `${ticketEventCount} event ticket${ticketEventCount === 1 ? "" : "s"} via Ticket Tailor${
-            localEventCount ? `, ${localEventCount} on file` : ""
-          }`
-        : localEventCount
-          ? `${localEventCount} registration${localEventCount === 1 ? "" : "s"} on file`
-          : "Event registrations on file"
+      ? [
+          ticketEventCount
+            ? `${ticketEventCount} event ticket${ticketEventCount === 1 ? "" : "s"} purchased`
+            : null,
+          localEventCount
+            ? `${localEventCount} registration${localEventCount === 1 ? "" : "s"} on file`
+            : null
+        ]
+          .filter(Boolean)
+          .join(" · ") || "Event registrations on file"
       : "You have not registered for an event yet."
   };
 
@@ -167,10 +207,19 @@ export async function getDashboardPayloadForUser(safeUser) {
     count: sponsorshipCount,
     totalMinor: sponsorshipTotalMinor,
     totalLabel: sponsorshipLabel,
-    value: String(sponsorshipCount),
+    value: sponsorshipCount > 0 ? sponsorshipLabel : formatEur(0),
     heading: "Sponsorships",
     description: sponsorshipCount
-      ? `${sponsorshipCount} sponsorship${sponsorshipCount === 1 ? "" : "s"} — ${sponsorshipLabel} total`
+      ? [
+          `${sponsorshipCount} sponsorship${sponsorshipCount === 1 ? "" : "s"} — ${sponsorshipLabel} total`,
+          ttSponsorshipCount
+            ? `${ttSponsorshipCount} via Ticket Tailor`
+            : mongoSponsorshipCount
+              ? `${mongoSponsorshipCount} via Stripe`
+              : null
+        ]
+          .filter(Boolean)
+          .join(" · ")
       : "No sponsorship payments yet."
   };
 
@@ -208,6 +257,26 @@ export async function getDashboardPayloadForUser(safeUser) {
       title,
       text: log.summary || log.detail || "Update recorded.",
       at: log.createdAt?.toISOString?.()
+    });
+  }
+
+  for (const o of ttDonationOrders) {
+    activityItems.push({
+      id: `tt-${o.id}`,
+      kind: "donation",
+      title: "Donation completed",
+      text: `${formatEur(o.amountMinor)} — ${o.eventTitle} (Ticket Tailor)`,
+      at: o.createdAt
+    });
+  }
+
+  for (const o of ttSponsorshipOrders) {
+    activityItems.push({
+      id: `tt-${o.id}`,
+      kind: "sponsorship",
+      title: "Sponsorship confirmed",
+      text: `${formatEur(o.amountMinor)} — ${o.eventTitle} (Ticket Tailor)`,
+      at: o.createdAt
     });
   }
 
@@ -253,6 +322,11 @@ export async function getDashboardPayloadForUser(safeUser) {
       events: eventsOverview,
       sponsorships: sponsorshipsOverview
     },
-    activity: activityItems.slice(0, 80)
+    activity: activityItems.slice(0, 80),
+    ticketTailor: {
+      ...ticketTailor,
+      ordersMatched: ticketTailorOrders.length,
+      lookupEmail: email
+    }
   };
 }
