@@ -8,6 +8,7 @@ import {
   me,
   forgotPassword,
   resetPasswordHandler,
+  updateProfile,
   requireAuth
 } from "../controllers/authController.js";
 
@@ -21,5 +22,6 @@ router.post("/google", googleAuth);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPasswordHandler);
 router.get("/me", requireAuth, me);
+router.patch("/me", requireAuth, updateProfile);
 
 export default router;

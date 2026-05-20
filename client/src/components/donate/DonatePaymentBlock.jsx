@@ -11,6 +11,7 @@ import {
   persistCheckoutSession,
   readCheckoutSession
 } from "../../utils/stripePayment";
+import { authHeaders } from "../../utils/api.js";
 import "../../styles/sponsorship-payment-block.css";
 
 export const DONATE_CHECKOUT_SESSION_KEY = "voice_nl_donate_checkout";
@@ -194,7 +195,10 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
         apiUrl("/api/payments/create-payment-intent"),
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeaders()
+          },
           body: JSON.stringify(body)
         }
       );

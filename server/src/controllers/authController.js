@@ -6,7 +6,8 @@ import {
   loginWithGoogle,
   getUserById,
   requestPasswordReset,
-  resetPassword
+  resetPassword,
+  updateUserProfile
 } from "../services/authService.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
 
@@ -100,6 +101,16 @@ export async function googleAuth(req, res) {
 
 export async function me(req, res) {
   return res.status(200).json({ user: req.user });
+}
+
+export async function updateProfile(req, res) {
+  try {
+    const { firstName, lastName, phone } = req.body || {};
+    const result = await updateUserProfile(req.user.id, { firstName, lastName, phone });
+    return res.status(200).json({ user: result.user });
+  } catch (error) {
+    return handleError(res, error);
+  }
 }
 
 export async function forgotPassword(req, res) {

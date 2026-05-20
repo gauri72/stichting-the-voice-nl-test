@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema(
     firstName: { type: String, required: true, trim: true, maxlength: 80 },
     lastName: { type: String, required: true, trim: true, maxlength: 80 },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    phone: { type: String, default: "", trim: true, maxlength: 40 },
     passwordHash: { type: String, required: true },
     googleId: { type: String, default: null, sparse: true, unique: true },
     authProvider: { type: String, enum: ["local", "google"], default: "local" },
@@ -23,6 +24,7 @@ userSchema.methods.toSafeJSON = function toSafeJSON() {
     firstName: this.firstName,
     lastName: this.lastName,
     email: this.email,
+    phone: this.phone || "",
     isVerified: this.isVerified,
     createdAt: this.createdAt
   };

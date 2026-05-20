@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { OAuth2Client } from "google-auth-library";
 import env from "../config/env.js";
 import User from "../models/User.js";
+import ActivityLog from "../models/ActivityLog.js";
 import { sendVerificationOtpEmail, sendPasswordResetEmail } from "./authMailer.js";
 
 const OTP_TTL_MS = 10 * 60 * 1000;
@@ -259,6 +260,53 @@ export async function getUserById(userId) {
   const user = await User.findById(userId);
   if (!user || !user.isVerified) return null;
   return user.toSafeJSON();
+}
+
+export async function updateUserProfile(userId, { firstName, lastName, phone }) {
+  if (!isDbReady()) {
+    const err = new Error("Database is not available. Please try again later.");
+    err.status = 503;
+    throw err;
+  }
+
+  const user = await User.findById(userId);
+  if (!user || !user.isVerified) {
+    const err = new Error("User not found.");
+    err.status = 404;
+    throw err;
+  }
+
+  if (firstName !== undefined) {
+    const v = String(firstName || "").trim();
+    if (!v) {
+      const err = new Error("First name is required.");
+      err.status = 400;
+      throw err;
+    }
+    user.firstName = v.slice(0, 80);
+  }
+  if (lastName !== undefined) {
+    const v = String(lastName || "").trim();
+    if (!v) {
+      const err = new Error("Last name is required.");
+      err.status = 400;
+      throw err;
+    }
+    user.lastName = v.slice(0, 80);
+  }
+  if (phone !== undefined) {
+    user.phone = String(phone || "").trim().slice(0, 40);
+  }
+
+  await user.save();
+
+  await ActivityLog.create({
+    userId: user._id,
+    kind: "profile_updated",
+    summary: "Account details updated"
+  });
+
+  return { user: user.toSafeJSON() };
 }
 
 let googleOAuthClient = null;

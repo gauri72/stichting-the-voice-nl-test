@@ -1,5 +1,24 @@
 import { verifyAuthToken, getUserById } from "../services/authService.js";
 
+export async function optionalAuth(req, res, next) {
+  req.user = null;
+  const header = req.headers.authorization || "";
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  if (!match) {
+    return next();
+  }
+  try {
+    const payload = verifyAuthToken(match[1]);
+    const user = await getUserById(payload.sub);
+    if (user) {
+      req.user = user;
+    }
+  } catch {
+    // Invalid token — proceed as guest checkout
+  }
+  return next();
+}
+
 export async function requireAuth(req, res, next) {
   try {
     const header = req.headers.authorization || "";

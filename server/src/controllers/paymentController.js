@@ -3,24 +3,11 @@ import { getDonationTier } from "../config/donationTiers.js";
 import { getTier } from "../config/sponsorshipTiers.js";
 import { getStripe, isStripeConfigured } from "../services/stripe.js";
 import { sendDonationEmails, sendSponsorshipEmails } from "../services/mailer.js";
+import { recordSucceededPaymentIntent } from "../services/paymentRecordService.js";
+import { buildReceiptNumber } from "../utils/receiptNumber.js";
 
 // In-memory guard so we don't email twice if both webhook and client confirmation fire.
 const emailedIntents = new Set();
-
-// Deterministic receipt number derived from the Stripe payment intent so it is
-// stable across the webhook + client-side confirmation paths.
-function buildReceiptNumber(paymentIntentId, createdSeconds) {
-  const ms = Number(createdSeconds) * 1000;
-  const date = Number.isFinite(ms) && ms > 0 ? new Date(ms) : new Date();
-  const year = date.getUTCFullYear();
-  const tail = String(paymentIntentId || "")
-    .replace(/^pi_/, "")
-    .replace(/[^a-zA-Z0-9]/g, "")
-    .slice(-8)
-    .toUpperCase()
-    .padStart(8, "0");
-  return `VOICE-${year}-${tail}`;
-}
 
 function describePaymentMethod(intent) {
   const pm = intent?.payment_method;
@@ -150,7 +137,11 @@ export async function createPaymentIntent(req, res) {
       sponsor_country: sponsor.country,
       sponsor_message: sponsor.message ? sponsor.message.slice(0, 480) : ""
     };
-    const metadata = isDonation ? { ...baseMeta, payment_kind: "donation" } : baseMeta;
+    const metadata = {
+      ...baseMeta,
+      ...(isDonation ? { payment_kind: "donation" } : {}),
+      ...(req.user?.id ? { user_id: String(req.user.id) } : {})
+    };
 
     const intent = await stripe.paymentIntents.create({
       amount: amountMinor,
@@ -220,6 +211,12 @@ export async function confirmPayment(req, res) {
       paymentMethod: describePaymentMethod(intent),
       receiptNumber: buildReceiptNumber(intent.id, intent.created)
     };
+
+    try {
+      await recordSucceededPaymentIntent(intent);
+    } catch (err) {
+      console.error("[payments] recordSucceededPaymentIntent (confirm):", err.message);
+    }
 
     if (meta.payment_kind === "donation") {
       await emailDonationOnce(payload);
@@ -295,6 +292,12 @@ export async function stripeWebhook(req, res) {
       paymentMethod: describePaymentMethod(intent),
       receiptNumber: buildReceiptNumber(intent.id, intent.created)
     };
+
+    try {
+      await recordSucceededPaymentIntent(intent);
+    } catch (err) {
+      console.error("[payments] recordSucceededPaymentIntent (webhook):", err.message);
+    }
 
     if (meta.payment_kind === "donation") {
       await emailDonationOnce(payload);
