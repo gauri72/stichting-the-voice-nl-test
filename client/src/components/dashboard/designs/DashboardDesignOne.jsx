@@ -5,6 +5,7 @@ import {
   FaChevronRight,
   FaHeart,
   FaPlus,
+  FaCircle,
   FaRegCircle,
   FaSignOutAlt,
   FaStar,
@@ -13,13 +14,15 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "../../../contexts/AuthContext.jsx";
 import { apiFetch, authHeaders } from "../../../utils/api.js";
+import LoginCtaSection from "../../login/LoginCtaSection.jsx";
+import DashboardMembershipsPanel from "./DashboardMembershipsPanel.jsx";
 import heroBackground from "../../../assets/Dashboard/hero-bg.png";
 import "../../../styles/donate-hero-section.css";
 import "../../../styles/dashboard-design-one.css";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", scrollTo: "dashboard-overview" },
-  { id: "memberships", label: "Memberships", href: "/membership" },
+  { id: "memberships", label: "Memberships", panel: "memberships" },
   { id: "donations", label: "Donations", href: "/donate" },
   { id: "events", label: "Event Registrations", href: "/events" },
   { id: "sponsorships", label: "Sponsorships", href: "/sponsorship" },
@@ -130,8 +133,9 @@ export default function DashboardDesignOne() {
       const block = overview[def.overviewKey] || {};
       return {
         ...def,
-        title: block.title || "—",
-        sub: block.subtitle || "",
+        value: block.value ?? "—",
+        heading: block.heading || "—",
+        description: block.description || "",
       };
     });
   }, [overview]);
@@ -144,8 +148,13 @@ export default function DashboardDesignOne() {
   const handleNavClick = useCallback(
     (item) => {
       setActiveNavId(item.id);
+      setIsEditingAccount(false);
       if (item.href) {
         navigate(item.href);
+        return;
+      }
+      if (item.panel) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
       if (item.scrollTo) {
@@ -245,7 +254,11 @@ export default function DashboardDesignOne() {
                 className={`dashboard-side-nav__item ${activeNavId === item.id ? "is-active" : ""}`}
                 onClick={() => handleNavClick(item)}
               >
-                <FaRegCircle aria-hidden className="dashboard-side-nav__bullet" />
+                {activeNavId === item.id ? (
+                  <FaCircle aria-hidden className="dashboard-side-nav__bullet" />
+                ) : (
+                  <FaRegCircle aria-hidden className="dashboard-side-nav__bullet" />
+                )}
                 <span>{item.label}</span>
               </button>
             ))}
@@ -269,7 +282,11 @@ export default function DashboardDesignOne() {
             </div>
           ) : null}
 
-          {!loading && !loadError ? (
+          {!loading && !loadError && activeNavId === "memberships" ? (
+            <DashboardMembershipsPanel />
+          ) : null}
+
+          {!loading && !loadError && activeNavId === "dashboard" ? (
             <>
               <h2 className="dashboard-design-one__title">Account Overview</h2>
               <div className="dashboard-stats-grid">
@@ -278,11 +295,30 @@ export default function DashboardDesignOne() {
                     <span className="dashboard-stat-card__icon" aria-hidden>
                       {card.icon}
                     </span>
-                    <p className="dashboard-stat-card__title">{card.title}</p>
-                    <p className="dashboard-stat-card__sub">{card.sub}</p>
-                    <Link to={card.to} className="dashboard-stat-card__action">
-                      {card.action}
-                    </Link>
+                    <p className="dashboard-stat-card__value">{card.value}</p>
+                    <p className="dashboard-stat-card__heading">{card.heading}</p>
+                    <p className="dashboard-stat-card__description">{card.description}</p>
+                    {card.key === "membership" ? (
+                      <button
+                        type="button"
+                        className="dashboard-stat-card__action"
+                        onClick={() =>
+                          handleNavClick(
+                            NAV_ITEMS.find((n) => n.id === "memberships") || {
+                              id: "memberships",
+                              label: "Memberships",
+                              panel: "memberships",
+                            },
+                          )
+                        }
+                      >
+                        {card.action}
+                      </button>
+                    ) : (
+                      <Link to={card.to} className="dashboard-stat-card__action">
+                        {card.action}
+                      </Link>
+                    )}
                   </article>
                 ))}
               </div>
@@ -321,7 +357,10 @@ export default function DashboardDesignOne() {
                   ) : null}
                 </article>
 
-                <article className="dashboard-panel" id="dashboard-account-details">
+                <article
+                  className="dashboard-panel dashboard-panel--account"
+                  id="dashboard-account-details"
+                >
                   <h3 className="dashboard-panel__heading">Account Details</h3>
                   {!isEditingAccount ? (
                     <>
@@ -422,34 +461,16 @@ export default function DashboardDesignOne() {
                   )}
                 </article>
               </div>
-
-              <article className="dashboard-design-one__cta" id="dashboard-cta">
-                <div className="dashboard-design-one__cta-mark" aria-hidden>
-                  V
-                </div>
-                <div>
-                  <h3 className="dashboard-design-one__cta-title">Make an Even Bigger Impact</h3>
-                  <p>
-                    Upgrade your membership or add a sponsorship to help us create stronger cultural
-                    exchange programs.
-                  </p>
-                  <div className="dashboard-design-one__cta-actions">
-                    <Link to="/membership" className="dashboard-design-one__cta-btn">
-                      Explore Membership
-                    </Link>
-                    <Link
-                      to="/sponsorship"
-                      className="dashboard-design-one__cta-btn dashboard-design-one__cta-btn--ghost"
-                    >
-                      View Sponsorship
-                    </Link>
-                  </div>
-                </div>
-              </article>
             </>
           ) : null}
         </div>
       </div>
+
+      {!loading && !loadError && (activeNavId === "dashboard" || activeNavId === "memberships") ? (
+        <div id="dashboard-cta" className="dashboard-design-one__impact-strip">
+          <LoginCtaSection />
+        </div>
+      ) : null}
     </section>
   );
 }

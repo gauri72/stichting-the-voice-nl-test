@@ -2,12 +2,14 @@ import app from "./app.js";
 import env from "./config/env.js";
 import { connectDb } from "./db/connectDb.js";
 import { logStripeConfiguration } from "./services/stripe.js";
+import { logTicketTailorConfiguration } from "./services/ticketTailorService.js";
 
 // Connect when MONGODB_URI is set in the environment (including local dev).
 const shouldConnectDb = Boolean(process.env.MONGODB_URI?.trim());
 
 function startServer() {
   logStripeConfiguration();
+  logTicketTailorConfiguration();
   app.listen(env.port, () => {
     console.log(`API listening on http://localhost:${env.port}`);
   });

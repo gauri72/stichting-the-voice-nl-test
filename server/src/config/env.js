@@ -29,6 +29,13 @@ const env = {
         : "dev-only-jwt-secret-change-in-production"),
     googleClientId: process.env.GOOGLE_CLIENT_ID || ""
   },
+  ticketTailor: {
+    apiKey: process.env.TICKET_TAILOR_API_KEY || "",
+    apiBase: (process.env.TICKET_TAILOR_API_BASE || "https://api.tickettailor.com").replace(
+      /\/$/,
+      ""
+    )
+  },
   org: {
     contactEmail:
       process.env.CONTACT_EMAIL ||

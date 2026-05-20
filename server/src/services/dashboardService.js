@@ -4,6 +4,7 @@ import PaymentTransaction from "../models/PaymentTransaction.js";
 import ActivityLog from "../models/ActivityLog.js";
 import Membership from "../models/Membership.js";
 import EventRegistration from "../models/EventRegistration.js";
+import { getOrdersForEmail, isTicketTailorConfigured } from "./ticketTailorService.js";
 
 function formatEur(minor) {
   try {
@@ -48,12 +49,24 @@ export async function getDashboardPayloadForUser(safeUser) {
 
   const oid = userDoc._id;
 
-  const [transactions, activityLogs, membership, eventCount] = await Promise.all([
-    PaymentTransaction.find(buildUserMatch(userId, email)).sort({ paidAt: -1 }).limit(100).lean(),
-    ActivityLog.find({ userId: oid }).sort({ createdAt: -1 }).limit(50).lean(),
-    Membership.findOne({ userId: oid, active: true }).lean(),
-    EventRegistration.countDocuments({ userId: oid })
-  ]);
+  const ticketTailorPromise = isTicketTailorConfigured()
+    ? getOrdersForEmail(email).catch((err) => {
+        console.warn("[dashboard] Ticket Tailor fetch failed:", err.message);
+        return [];
+      })
+    : Promise.resolve([]);
+
+  const [transactions, activityLogs, membership, localEventCount, ticketTailorOrders] =
+    await Promise.all([
+      PaymentTransaction.find(buildUserMatch(userId, email)).sort({ paidAt: -1 }).limit(100).lean(),
+      ActivityLog.find({ userId: oid }).sort({ createdAt: -1 }).limit(50).lean(),
+      Membership.findOne({ userId: oid }).sort({ startedAt: -1 }).lean(),
+      EventRegistration.countDocuments({ userId: oid }),
+      ticketTailorPromise
+    ]);
+
+  const ticketOrderCount = ticketTailorOrders.length;
+  const eventCount = isTicketTailorConfigured() ? ticketOrderCount : localEventCount;
 
   let donationTotalMinor = 0;
   let donationCount = 0;
@@ -70,48 +83,55 @@ export async function getDashboardPayloadForUser(safeUser) {
 
   const donationLabel = formatEur(donationTotalMinor);
 
-  const membershipOverview = membership
+  const membershipActive =
+    membership?.active &&
+    (!membership.endsAt || new Date(membership.endsAt) >= new Date());
+
+  const membershipOverview = membershipActive
     ? {
         active: true,
         since: membership.startedAt?.toISOString?.() || null,
-        title: "Active Member",
-        subtitle: `Since ${formatDisplayDate(membership.startedAt)}`
+        value: "Active",
+        heading: "Member",
+        description: membership.endsAt
+          ? `Valid until ${formatDisplayDate(membership.endsAt)}`
+          : `Since ${formatDisplayDate(membership.startedAt)}`
       }
     : {
         active: false,
         since: null,
-        title: "Membership",
-        subtitle: "No active membership on file. Join to unlock member benefits."
+        value: "—",
+        heading: "Member",
+        description: "No active membership on file. Join to unlock member benefits."
       };
 
   const donationsOverview = {
     totalMinor: donationTotalMinor,
     totalLabel: donationLabel,
     count: donationCount,
-    title: `${donationLabel} Total Donations`,
-    subtitle: donationCount
-      ? `Thank you — ${donationCount} donation payment${donationCount === 1 ? "" : "s"} completed.`
+    value: donationLabel,
+    heading: "Total Donations",
+    description: donationCount
+      ? "Thank you for your support!"
       : "No donations yet. Every contribution supports our mission."
   };
 
   const eventsOverview = {
     count: eventCount,
-    title: eventCount
-      ? `${eventCount} Event Registration${eventCount === 1 ? "" : "s"}`
-      : "Event registrations",
-    subtitle: eventCount
-      ? "Your registered events."
+    value: String(eventCount),
+    heading: "Events Registered",
+    description: eventCount
+      ? ticketOrderCount
+        ? "Ticket purchases via Ticket Tailor"
+        : "Upcoming events"
       : "You have not registered for an event yet."
   };
 
   const sponsorshipsOverview = {
     count: sponsorshipCount,
-    title: sponsorshipCount
-      ? `${sponsorshipCount} Sponsorship${sponsorshipCount === 1 ? "" : "s"}`
-      : "Sponsorships",
-    subtitle: sponsorshipCount
-      ? `${sponsorshipCount} sponsorship payment${sponsorshipCount === 1 ? "" : "s"} completed.`
-      : "No sponsorship payments yet. Partner with us to create impact."
+    value: String(sponsorshipCount),
+    heading: "Sponsorships",
+    description: sponsorshipCount ? "Active sponsorships" : "No sponsorship payments yet."
   };
 
   const activityItems = [];
@@ -148,6 +168,16 @@ export async function getDashboardPayloadForUser(safeUser) {
       title,
       text: log.summary || log.detail || "Update recorded.",
       at: log.createdAt?.toISOString?.()
+    });
+  }
+
+  for (const o of ticketTailorOrders) {
+    activityItems.push({
+      id: `tt-${o.id}`,
+      kind: "event_ticket",
+      title: "Event ticket purchased",
+      text: o.eventTitle,
+      at: o.createdAt
     });
   }
 

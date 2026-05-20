@@ -1,20 +1,31 @@
 import mongoose from "mongoose";
 
-/** When membership checkout is wired, records active membership per user. */
 const membershipSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true,
       index: true
     },
     active: { type: Boolean, default: true },
-    startedAt: { type: Date, required: true }
+    planId: {
+      type: String,
+      enum: ["family", "single", "privileged", "vownl"],
+      default: "family"
+    },
+    planName: { type: String, default: "", trim: true, maxlength: 120 },
+    feeMinor: { type: Number, default: 0 },
+    currency: { type: String, default: "eur", lowercase: true },
+    startedAt: { type: Date, required: true },
+    endsAt: { type: Date, required: true },
+    renewalAt: { type: Date, default: null },
+    membershipNumber: { type: String, default: "", trim: true, maxlength: 32 }
   },
   { timestamps: true }
 );
+
+membershipSchema.index({ userId: 1, active: 1 });
 
 const Membership = mongoose.models.Membership || mongoose.model("Membership", membershipSchema);
 
