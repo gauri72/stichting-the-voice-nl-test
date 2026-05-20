@@ -32,6 +32,29 @@ function pickEmail(order) {
   return "";
 }
 
+function getPrimaryLineDescription(order) {
+  const items = order?.line_items || order?.items || [];
+  if (!Array.isArray(items) || items.length === 0) return "";
+  return String(items[0]?.description || "").trim();
+}
+
+/** @returns {"membership" | "event"} */
+function classifyOrder(order) {
+  const desc = getPrimaryLineDescription(order).toLowerCase();
+  const hasEventName = Boolean(String(order?.event_summary?.name || "").trim());
+
+  const standaloneMembership =
+    !hasEventName &&
+    /\bmembership\b/i.test(desc) &&
+    (/privileged membership|premium family|premium single|family membership|single membership|vownl membership|stichting v\.o\.i\.c\.e/i.test(
+      desc
+    ) ||
+      /\bmembership\s*$/i.test(desc));
+
+  if (standaloneMembership) return "membership";
+  return "event";
+}
+
 function pickEventTitle(order) {
   const fromSummary =
     order?.event_summary?.name ||
@@ -40,12 +63,14 @@ function pickEventTitle(order) {
     order?.event?.title;
   if (fromSummary) return String(fromSummary).trim();
 
+  const lineDesc = getPrimaryLineDescription(order);
+  if (lineDesc) return lineDesc;
+
   const items = order?.line_items || order?.items || [];
   if (Array.isArray(items) && items.length > 0) {
     const first = items[0];
     const name =
       first?.event_name ||
-      first?.description ||
       first?.name ||
       first?.title ||
       first?.product_name;
@@ -53,6 +78,13 @@ function pickEventTitle(order) {
   }
 
   return "Event ticket";
+}
+
+function pickDisplayTitle(order, category) {
+  if (category === "membership") {
+    return getPrimaryLineDescription(order) || "Membership";
+  }
+  return pickEventTitle(order);
 }
 
 function pickAmountMinor(order) {
@@ -111,6 +143,7 @@ function isCountableOrder(order) {
 /**
  * @typedef {Object} TicketTailorOrderSummary
  * @property {string} id
+ * @property {"membership" | "event"} category
  * @property {string} eventTitle
  * @property {string} status
  * @property {number} amountMinor
@@ -186,14 +219,27 @@ async function fetchAllOrders() {
  */
 function mapOrder(order) {
   if (!order?.id || !isCountableOrder(order)) return null;
+  const category = classifyOrder(order);
   return {
     id: String(order.id),
-    eventTitle: pickEventTitle(order),
+    category,
+    eventTitle: pickDisplayTitle(order, category),
     status: String(order.status || "complete"),
     amountMinor: pickAmountMinor(order),
     currency: pickCurrency(order),
     createdAt: pickCreatedIso(order)
   };
+}
+
+/** @param {TicketTailorOrderSummary[]} orders */
+export function splitOrdersByCategory(orders) {
+  const membership = [];
+  const events = [];
+  for (const o of orders) {
+    if (o.category === "membership") membership.push(o);
+    else events.push(o);
+  }
+  return { membership, events, all: orders };
 }
 
 /**

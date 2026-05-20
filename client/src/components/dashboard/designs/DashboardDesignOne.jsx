@@ -327,7 +327,10 @@ export default function DashboardDesignOne() {
                 <article className="dashboard-panel" id="dashboard-recent-activity">
                   <h3 className="dashboard-panel__heading">Recent Activity</h3>
                   {activityItems.length === 0 ? (
-                    <p className="dashboard-design-one__muted">No activity yet. Donations and sponsorships will appear here.</p>
+                    <p className="dashboard-design-one__muted">
+                      No activity yet. Membership purchases, donations, sponsorships, and event tickets will
+                      appear here when they are linked to your account email.
+                    </p>
                   ) : (
                     <ul className="dashboard-activity-list">
                       {activityItems.map((item) => (

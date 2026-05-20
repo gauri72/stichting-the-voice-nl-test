@@ -4,7 +4,12 @@ import PaymentTransaction from "../models/PaymentTransaction.js";
 import ActivityLog from "../models/ActivityLog.js";
 import Membership from "../models/Membership.js";
 import EventRegistration from "../models/EventRegistration.js";
-import { getOrdersForEmail, isTicketTailorConfigured } from "./ticketTailorService.js";
+import {
+  getOrdersForEmail,
+  isTicketTailorConfigured,
+  splitOrdersByCategory
+} from "./ticketTailorService.js";
+import { getPlan } from "../config/membershipPlans.js";
 
 function formatEur(minor) {
   try {
@@ -65,12 +70,17 @@ export async function getDashboardPayloadForUser(safeUser) {
       ticketTailorPromise
     ]);
 
-  const ticketOrderCount = ticketTailorOrders.length;
-  const eventCount = isTicketTailorConfigured() ? ticketOrderCount : localEventCount;
+  const { membership: ttMembershipOrders, events: ttEventOrders } =
+    splitOrdersByCategory(ticketTailorOrders);
+
+  const ticketEventCount = ttEventOrders.length;
+  const eventCount =
+    localEventCount + (isTicketTailorConfigured() ? ticketEventCount : 0);
 
   let donationTotalMinor = 0;
   let donationCount = 0;
   let sponsorshipCount = 0;
+  let sponsorshipTotalMinor = 0;
 
   for (const t of transactions) {
     if (t.kind === "donation") {
@@ -78,31 +88,53 @@ export async function getDashboardPayloadForUser(safeUser) {
       donationCount += 1;
     } else if (t.kind === "sponsorship") {
       sponsorshipCount += 1;
+      sponsorshipTotalMinor += t.amountMinor || 0;
     }
   }
 
   const donationLabel = formatEur(donationTotalMinor);
+  const sponsorshipLabel = formatEur(sponsorshipTotalMinor);
 
-  const membershipActive =
+  const membershipActiveInDb =
     membership?.active &&
     (!membership.endsAt || new Date(membership.endsAt) >= new Date());
 
-  const membershipOverview = membershipActive
+  const latestTtMembership = ttMembershipOrders[0];
+  const membershipPurchased = membershipActiveInDb || ttMembershipOrders.length > 0;
+
+  let membershipPlanName = "";
+  if (membershipActiveInDb && membership) {
+    const plan = getPlan(membership.planId);
+    membershipPlanName = membership.planName || plan?.name || "Membership";
+  } else if (latestTtMembership) {
+    membershipPlanName = latestTtMembership.eventTitle;
+  }
+
+  const membershipOverview = membershipPurchased
     ? {
-        active: true,
-        since: membership.startedAt?.toISOString?.() || null,
-        value: "Active",
-        heading: "Member",
-        description: membership.endsAt
-          ? `Valid until ${formatDisplayDate(membership.endsAt)}`
-          : `Since ${formatDisplayDate(membership.startedAt)}`
+        active: membershipActiveInDb || Boolean(latestTtMembership),
+        purchased: true,
+        since:
+          membership?.startedAt?.toISOString?.() ||
+          latestTtMembership?.createdAt ||
+          null,
+        value: "Yes",
+        heading: "Membership",
+        description: membershipActiveInDb
+          ? membership.endsAt
+            ? `${membershipPlanName} — valid until ${formatDisplayDate(membership.endsAt)}`
+            : `${membershipPlanName} — since ${formatDisplayDate(membership.startedAt)}`
+          : latestTtMembership
+            ? `${membershipPlanName} — purchased via Ticket Tailor`
+            : membershipPlanName || "Membership on file"
       }
     : {
         active: false,
+        purchased: false,
         since: null,
-        value: "—",
-        heading: "Member",
-        description: "No active membership on file. Join to unlock member benefits."
+        value: "No",
+        heading: "Membership",
+        description: "No membership purchased yet."
       };
 
   const donationsOverview = {
@@ -112,7 +144,7 @@ export async function getDashboardPayloadForUser(safeUser) {
     value: donationLabel,
     heading: "Total Donations",
     description: donationCount
-      ? "Thank you for your support!"
+      ? `${donationCount} donation${donationCount === 1 ? "" : "s"} recorded in your account`
       : "No donations yet. Every contribution supports our mission."
   };
 
@@ -121,17 +153,25 @@ export async function getDashboardPayloadForUser(safeUser) {
     value: String(eventCount),
     heading: "Events Registered",
     description: eventCount
-      ? ticketOrderCount
-        ? "Ticket purchases via Ticket Tailor"
-        : "Upcoming events"
+      ? ticketEventCount
+        ? `${ticketEventCount} event ticket${ticketEventCount === 1 ? "" : "s"} via Ticket Tailor${
+            localEventCount ? `, ${localEventCount} on file` : ""
+          }`
+        : localEventCount
+          ? `${localEventCount} registration${localEventCount === 1 ? "" : "s"} on file`
+          : "Event registrations on file"
       : "You have not registered for an event yet."
   };
 
   const sponsorshipsOverview = {
     count: sponsorshipCount,
+    totalMinor: sponsorshipTotalMinor,
+    totalLabel: sponsorshipLabel,
     value: String(sponsorshipCount),
     heading: "Sponsorships",
-    description: sponsorshipCount ? "Active sponsorships" : "No sponsorship payments yet."
+    description: sponsorshipCount
+      ? `${sponsorshipCount} sponsorship${sponsorshipCount === 1 ? "" : "s"} — ${sponsorshipLabel} total`
+      : "No sponsorship payments yet."
   };
 
   const activityItems = [];
@@ -171,12 +211,22 @@ export async function getDashboardPayloadForUser(safeUser) {
     });
   }
 
-  for (const o of ticketTailorOrders) {
+  for (const o of ttMembershipOrders) {
+    activityItems.push({
+      id: `tt-${o.id}`,
+      kind: "membership",
+      title: "Membership purchased",
+      text: `${o.eventTitle}${o.amountMinor ? ` — ${formatEur(o.amountMinor)}` : ""}`,
+      at: o.createdAt
+    });
+  }
+
+  for (const o of ttEventOrders) {
     activityItems.push({
       id: `tt-${o.id}`,
       kind: "event_ticket",
       title: "Event ticket purchased",
-      text: o.eventTitle,
+      text: `${o.eventTitle}${o.amountMinor ? ` — ${formatEur(o.amountMinor)}` : ""}`,
       at: o.createdAt
     });
   }
