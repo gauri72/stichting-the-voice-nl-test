@@ -80,7 +80,7 @@ export const MEMBERSHIP_PLANS = {
 export const UPGRADE_PLANS = {
   patron: {
     id: "patron",
-    title: "Patron Member",
+    title: "Become a Patron Member",
     description:
       "Support our mission at the highest level with naming recognition, VIP access, and invitations to exclusive patron gatherings.",
     ctaLabel: "Explore Upgrade",

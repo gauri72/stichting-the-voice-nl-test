@@ -124,8 +124,6 @@ export default function DashboardDesignOne() {
   const profile = dashboard?.profile;
   const overview = dashboard?.overview;
   const activitySource = dashboard?.activity || [];
-  const ticketTailorNotice = dashboard?.ticketTailor?.warning;
-
   const activityItems = activityExpanded ? activitySource : activitySource.slice(0, 4);
 
   const overviewCards = useMemo(() => {
@@ -272,10 +270,7 @@ export default function DashboardDesignOne() {
 
         <div className="dashboard-design-one__content" id="dashboard-overview">
           {loading ? (
-            <p className="dashboard-design-one__loading">
-              Loading your account — syncing membership, donations, sponsorships, and events from
-              your records…
-            </p>
+            <p className="dashboard-design-one__loading">Loading your account…</p>
           ) : null}
           {loadError ? (
             <div className="dashboard-design-one__alert" role="alert">
@@ -292,16 +287,6 @@ export default function DashboardDesignOne() {
 
           {!loading && !loadError && activeNavId === "dashboard" ? (
             <>
-              {ticketTailorNotice ? (
-                <div className="dashboard-design-one__alert" role="status">
-                  <p>{ticketTailorNotice}</p>
-                  <p className="dashboard-design-one__muted">
-                    Signed in as <strong>{profile?.email || displayEmail}</strong>. Ticket Tailor
-                    purchases only appear when buyer email matches this address and the API key can
-                    read buyer emails.
-                  </p>
-                </div>
-              ) : null}
               <h2 className="dashboard-design-one__title">Account Overview</h2>
               <div className="dashboard-stats-grid">
                 {overviewCards.map((card) => (

@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import { getPlan, getUpgradePlan, MEMBERSHIP_PLANS } from "../config/membershipPlans.js";
 import {
   getOrdersForEmail,
+  getTicketTailorStatus,
   isTicketTailorConfigured,
   splitOrdersByCategory
 } from "./ticketTailorService.js";
@@ -26,6 +27,39 @@ function formatEur(minor) {
   } catch {
     return `€${(Number(minor) / 100).toFixed(2)}`;
   }
+}
+
+function formatFeeWithPeriod(feeMinor, durationYears) {
+  const amount = formatEur(feeMinor);
+  const years = Number(durationYears) || 1;
+  return `${amount} / ${years} ${years === 1 ? "year" : "years"}`;
+}
+
+async function fetchTicketTailorMembershipOrders(email) {
+  if (!isTicketTailorConfigured()) return [];
+  try {
+    const orders = await getOrdersForEmail(email);
+    return splitOrdersByCategory(orders).membership;
+  } catch (err) {
+    console.warn("[memberships] Ticket Tailor lookup failed:", err.message);
+    return [];
+  }
+}
+
+function tableRowFromTicketTailorOrder(order, plan) {
+  const startedAt = order.createdAt ? new Date(order.createdAt) : new Date();
+  const endsAt = addYears(startedAt, plan?.durationYears || 1);
+  const feeMinor = order.amountMinor || plan?.feeMinor || 0;
+  return {
+    plan: order.eventTitle || plan?.name || "Membership",
+    status: "Active",
+    renewalDate: formatDisplayDate(endsAt),
+    renewalDateIso: endsAt.toISOString(),
+    fee: formatFeeWithPeriod(feeMinor, plan?.durationYears || 1),
+    feeMinor,
+    source: "ticket_tailor",
+    orderId: order.id
+  };
 }
 
 function addYears(date, years) {
@@ -60,13 +94,14 @@ function inferPlanIdFromTitle(title) {
   return "family";
 }
 
-function buildMembershipPayloadFromTicketTailor(user, ttOrders) {
+function buildMembershipPayloadFromTicketTailor(user, ttOrders, ticketTailor) {
   const latest = ttOrders[0];
   const planId = inferPlanIdFromTitle(latest.eventTitle);
   const plan = getPlan(planId) || getPlan("family");
   const startedAt = latest.createdAt ? new Date(latest.createdAt) : new Date();
   const endsAt = addYears(startedAt, plan.durationYears || 2);
-  const feeLabel = formatEur(latest.amountMinor || plan.feeMinor || 0);
+  const feeMinor = latest.amountMinor || plan.feeMinor || 0;
+  const feeLabel = formatFeeWithPeriod(feeMinor, plan.durationYears || 1);
   const planName = latest.eventTitle || plan.name;
   const membershipNumber = buildMembershipNumber(user._id, startedAt);
   const upgrade = getUpgradePlan(plan.upgradeTo || "patron");
@@ -74,6 +109,7 @@ function buildMembershipPayloadFromTicketTailor(user, ttOrders) {
   return {
     hasMembership: true,
     source: "ticket_tailor",
+    ticketTailor,
     active: {
       statusLabel: "Active Member",
       planName,
@@ -82,20 +118,16 @@ function buildMembershipPayloadFromTicketTailor(user, ttOrders) {
       validTo: formatDisplayDate(endsAt),
       validFromIso: startedAt.toISOString(),
       validToIso: endsAt.toISOString(),
-      description: plan.description || "Membership purchased via Ticket Tailor.",
+      description: plan.description || "",
+      planId,
       membershipNumber,
       isActive: true
     },
-    table: [
-      {
-        plan: planName,
-        status: "Purchased",
-        renewalDate: formatDisplayDate(endsAt),
-        renewalDateIso: endsAt.toISOString(),
-        fee: feeLabel,
-        feeMinor: latest.amountMinor || plan.feeMinor || 0
-      }
-    ],
+    table: ttOrders.map((order) => {
+      const pid = inferPlanIdFromTitle(order.eventTitle);
+      const p = getPlan(pid) || plan;
+      return tableRowFromTicketTailorOrder(order, p);
+    }),
     benefits: (plan.benefits || []).map((text, index) => ({
       id: `benefit-${index}`,
       text
@@ -129,23 +161,20 @@ export async function getMembershipPageForUser(safeUser) {
     throw err;
   }
 
+  const ticketTailor = await getTicketTailorStatus();
+  const ttMembershipOrders = await fetchTicketTailorMembershipOrders(user.email);
+
   let membership = await Membership.findOne({ userId: user._id }).sort({ startedAt: -1 }).lean();
 
   if (!membership) {
-    if (isTicketTailorConfigured()) {
-      try {
-        const orders = await getOrdersForEmail(user.email);
-        const { membership: ttMembership } = splitOrdersByCategory(orders);
-        if (ttMembership.length > 0) {
-          return buildMembershipPayloadFromTicketTailor(user, ttMembership);
-        }
-      } catch (err) {
-        console.warn("[memberships] Ticket Tailor lookup failed:", err.message);
-      }
+    if (ttMembershipOrders.length > 0) {
+      return buildMembershipPayloadFromTicketTailor(user, ttMembershipOrders, ticketTailor);
     }
 
     return {
       hasMembership: false,
+      source: null,
+      ticketTailor,
       active: null,
       table: [],
       benefits: [],
@@ -172,15 +201,42 @@ export async function getMembershipPageForUser(safeUser) {
   const status = deriveStatus({ ...membership, endsAt, active: membership.active });
   const planName = membership.planName || plan?.name || "Membership Plan";
   const feeMinor = membership.feeMinor ?? plan?.feeMinor ?? 0;
-  const feeLabel = formatEur(feeMinor);
+  const feeLabel = formatFeeWithPeriod(feeMinor, plan?.durationYears || 2);
   const membershipNumber =
     membership.membershipNumber || buildMembershipNumber(user._id, startedAt);
 
   const upgradeKey = plan?.upgradeTo || "patron";
   const upgrade = getUpgradePlan(upgradeKey);
 
+  const primaryRow = {
+    plan: planName,
+    status,
+    renewalDate: formatDisplayDate(renewalAt),
+    renewalDateIso: renewalAt.toISOString(),
+    fee: feeLabel,
+    feeMinor,
+    source: "mongodb"
+  };
+
+  const table = [primaryRow];
+  for (const order of ttMembershipOrders) {
+    const row = tableRowFromTicketTailorOrder(
+      order,
+      getPlan(inferPlanIdFromTitle(order.eventTitle)) || plan
+    );
+    const duplicate = table.some(
+      (r) => r.plan === row.plan && r.renewalDate === row.renewalDate && r.fee === row.fee
+    );
+    if (!duplicate) table.push(row);
+  }
+
+  let source = "mongodb";
+  if (ttMembershipOrders.length > 0) source = "mongodb_and_ticket_tailor";
+
   return {
     hasMembership: true,
+    source,
+    ticketTailor,
     active: {
       statusLabel: status === "Active" ? "Active Member" : status,
       planName,
@@ -190,19 +246,11 @@ export async function getMembershipPageForUser(safeUser) {
       validFromIso: startedAt.toISOString(),
       validToIso: endsAt.toISOString(),
       description: plan?.description || "",
+      planId: membership.planId || plan?.id || "family",
       membershipNumber,
       isActive: status === "Active"
     },
-    table: [
-      {
-        plan: planName,
-        status,
-        renewalDate: formatDisplayDate(renewalAt),
-        renewalDateIso: renewalAt.toISOString(),
-        fee: feeLabel,
-        feeMinor
-      }
-    ],
+    table,
     benefits: (plan?.benefits || []).map((text, index) => ({
       id: `benefit-${index}`,
       text

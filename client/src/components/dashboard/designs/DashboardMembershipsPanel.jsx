@@ -1,28 +1,82 @@
 import { Link } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
-import { FaCheck, FaStar } from "react-icons/fa";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FaCheck, FaStar, FaTimes } from "react-icons/fa";
 import { apiFetch, authHeaders } from "../../../utils/api.js";
+import {
+  getPlanBenefitsForMatrix,
+  getUpgradeOptionDisplay,
+  inferPlanIdFromTitle,
+} from "../../../config/membershipMatrix.js";
 import "../../../styles/dashboard-memberships.css";
 
-function downloadMembershipCard(data) {
+const MEMBERSHIP_MATRIX_HREF = "/membership#membership-matrix";
+
+function downloadMembershipCard(card) {
+  if (!card?.available) return;
   const lines = [
     "STICHTING THE V.O.I.C.E. NL",
     "Membership Card",
     "-------------------",
-    `Member: ${data.memberName}`,
-    `Plan: ${data.planName}`,
-    `Membership No.: ${data.membershipNumber}`,
-    `Valid until: ${data.validTo}`,
+    `Member: ${card.memberName}`,
+    `Plan: ${card.planName}`,
+    `Membership No.: ${card.membershipNumber}`,
+    `Valid until: ${card.validTo}`,
     "",
-    "Present this number at member events."
+    "Present this number at member events.",
   ];
   const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `voice-membership-${data.membershipNumber}.txt`;
+  a.download = `voice-membership-${card.membershipNumber}.txt`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+function resolvePlanId(active) {
+  if (active?.planId) return active.planId;
+  return inferPlanIdFromTitle(active?.planNameAccent || active?.planName);
+}
+
+function MatrixBenefitIcon({ value }) {
+  if (value === "included") return <FaCheck aria-hidden className="dashboard-memberships__benefit-icon--ok" />;
+  if (value === "not-included") return <FaTimes aria-hidden className="dashboard-memberships__benefit-icon--no" />;
+  return <FaCheck aria-hidden />;
+}
+
+function PlanBenefitsCard({ benefits }) {
+  return (
+    <article className="dashboard-memberships__card">
+      <h3 className="dashboard-memberships__card-title">Plan Benefits</h3>
+      {benefits.length > 0 ? (
+        <ul className="dashboard-memberships__benefits">
+          {benefits.map((b) => (
+            <li key={b.id}>
+              <MatrixBenefitIcon value={b.value} />
+              <span>{b.feature}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="dashboard-memberships__card-empty">Benefits for your plan are listed on the membership page.</p>
+      )}
+    </article>
+  );
+}
+
+function UpgradeOptionsCard({ upgrade }) {
+  if (!upgrade) return null;
+
+  return (
+    <article className="dashboard-memberships__card dashboard-memberships__card--upgrade">
+      <h3 className="dashboard-memberships__card-title">Upgrade Options</h3>
+      <p className="dashboard-memberships__upgrade-title">{upgrade.title}</p>
+      <p className="dashboard-memberships__upgrade-desc">{upgrade.description}</p>
+      <Link to={upgrade.href || MEMBERSHIP_MATRIX_HREF} className="dashboard-memberships__btn dashboard-memberships__btn--primary">
+        {upgrade.ctaLabel}
+      </Link>
+    </article>
+  );
 }
 
 export default function DashboardMembershipsPanel() {
@@ -48,64 +102,62 @@ export default function DashboardMembershipsPanel() {
     load();
   }, [load]);
 
-  if (loading) {
-    return <p className="dashboard-design-one__loading">Loading memberships…</p>;
-  }
+  const hasMembership = Boolean(data?.hasMembership);
+  const planId = useMemo(() => (hasMembership ? resolvePlanId(data?.active) : null), [data, hasMembership]);
 
-  if (error) {
+  const benefits = useMemo(() => (planId ? getPlanBenefitsForMatrix(planId) : []), [planId]);
+
+  const upgrade = useMemo(
+    () => getUpgradeOptionDisplay(planId, hasMembership),
+    [planId, hasMembership]
+  );
+
+  if (loading) {
     return (
-      <div className="dashboard-design-one__alert" role="alert">
-        <p>{error}</p>
-        <button type="button" className="dashboard-panel__outline" onClick={load}>
-          Try again
-        </button>
+      <div className="dashboard-memberships">
+        <p className="dashboard-memberships__loading">Loading your membership…</p>
       </div>
     );
   }
 
-  if (!data?.hasMembership) {
+  if (error) {
     return (
       <div className="dashboard-memberships">
         <h2 className="dashboard-memberships__title">Memberships</h2>
+        <div className="dashboard-memberships__notice dashboard-memberships__notice--error" role="alert">
+          <p>{error}</p>
+          <button type="button" className="dashboard-memberships__btn dashboard-memberships__btn--outline" onClick={load}>
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasMembership) {
+    return (
+      <div className="dashboard-memberships">
+        <h2 className="dashboard-memberships__title">Memberships</h2>
+
         <div className="dashboard-memberships__empty">
-          <p>
-            No membership found for your account email yet. If you purchased on Ticket Tailor, use
-            the same email as your login. Otherwise explore our plans to join.
-          </p>
-          <Link to={data?.joinCta?.href || "/membership"} className="dashboard-memberships__btn dashboard-memberships__btn--primary">
+          <p>We could not find a membership linked to your login email.</p>
+          <Link
+            to={data?.joinCta?.href || "/membership"}
+            className="dashboard-memberships__btn dashboard-memberships__btn--primary"
+          >
             {data?.joinCta?.label || "View membership plans"}
           </Link>
-          {import.meta.env.DEV ? (
-            <button
-              type="button"
-              className="dashboard-memberships__btn dashboard-memberships__btn--outline"
-              style={{ marginTop: 12 }}
-              onClick={async () => {
-                try {
-                  await apiFetch("/api/dashboard/memberships/seed", {
-                    method: "POST",
-                    headers: authHeaders(),
-                  });
-                  await load();
-                } catch (e) {
-                  setError(e.message || "Could not create demo membership.");
-                }
-              }}
-            >
-              Create demo membership (dev)
-            </button>
-          ) : null}
         </div>
-        {data?.upgrade ? (
-          <div className="dashboard-memberships__card">
-            <h4>Upgrade Options</h4>
-            <p className="dashboard-memberships__upgrade-title">{data.upgrade.title}</p>
-            <p className="dashboard-memberships__upgrade-desc">{data.upgrade.description}</p>
-            <Link to={data.upgrade.href} className="dashboard-memberships__btn dashboard-memberships__btn--primary">
-              {data.upgrade.ctaLabel}
-            </Link>
-          </div>
-        ) : null}
+
+        <div className="dashboard-memberships__grid">
+          <article className="dashboard-memberships__card">
+            <h3 className="dashboard-memberships__card-title">Plan Benefits</h3>
+            <p className="dashboard-memberships__card-empty">
+              Join a membership to unlock event access, reserved seating, and partner benefits.
+            </p>
+          </article>
+          <UpgradeOptionsCard upgrade={upgrade} />
+        </div>
       </div>
     );
   }
@@ -121,8 +173,8 @@ export default function DashboardMembershipsPanel() {
           <FaStar />
         </span>
         <div className="dashboard-memberships__active-body">
-          <h3>{active.statusLabel}</h3>
-          <p className="dashboard-memberships__plan-name">{active.planName}</p>
+          <p className="dashboard-memberships__status-kicker">{active.statusLabel}</p>
+          <p className="dashboard-memberships__plan-name">{active.planNameAccent || active.planName}</p>
           <p className="dashboard-memberships__validity">
             Valid from <strong>{active.validFrom}</strong> to <strong>{active.validTo}</strong>
           </p>
@@ -132,7 +184,7 @@ export default function DashboardMembershipsPanel() {
         </div>
         <div className="dashboard-memberships__active-actions">
           <Link
-            to={data.renewCta?.href || "/membership"}
+            to={data.renewCta?.href || MEMBERSHIP_MATRIX_HREF}
             className="dashboard-memberships__btn dashboard-memberships__btn--primary"
           >
             {data.renewCta?.label || "Renew Membership"}
@@ -148,59 +200,45 @@ export default function DashboardMembershipsPanel() {
         </div>
       </article>
 
-      <h3 className="dashboard-memberships__section-title">Membership Details</h3>
-      <div className="dashboard-memberships__table-wrap">
-        <table className="dashboard-memberships__table">
-          <thead>
-            <tr>
-              <th scope="col">Plan</th>
-              <th scope="col">Status</th>
-              <th scope="col">Renewal Date</th>
-              <th scope="col">Fee</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.table.map((r, i) => (
-              <tr key={`${r.plan}-${i}`}>
-                <td>{r.plan}</td>
-                <td>
-                  <span
-                    className={`dashboard-memberships__status-pill ${
-                      r.status !== "Active" ? "dashboard-memberships__status-pill--inactive" : ""
-                    }`}
-                  >
-                    {r.status}
-                  </span>
-                </td>
-                <td>{r.renewalDate}</td>
-                <td>{r.fee}</td>
+      <section className="dashboard-memberships__section" aria-labelledby="membership-details-heading">
+        <h3 id="membership-details-heading" className="dashboard-memberships__section-title">
+          Membership Details
+        </h3>
+        <div className="dashboard-memberships__table-wrap">
+          <table className="dashboard-memberships__table">
+            <thead>
+              <tr>
+                <th scope="col">Plan</th>
+                <th scope="col">Status</th>
+                <th scope="col">Renewal Date</th>
+                <th scope="col">Fee</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {data.table.map((row) => (
+                <tr key={`${row.orderId || row.plan}-${row.renewalDateIso || row.renewalDate}`}>
+                  <td>{row.plan}</td>
+                  <td>
+                    <span
+                      className={`dashboard-memberships__status-pill ${
+                        row.status !== "Active" ? "dashboard-memberships__status-pill--muted" : ""
+                      }`}
+                    >
+                      {row.status}
+                    </span>
+                  </td>
+                  <td>{row.renewalDate}</td>
+                  <td>{row.fee}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <div className="dashboard-memberships__grid">
-        <article className="dashboard-memberships__card">
-          <h4>Plan Benefits</h4>
-          <ul className="dashboard-memberships__benefits">
-            {data.benefits.map((b) => (
-              <li key={b.id}>
-                <FaCheck aria-hidden />
-                <span>{b.text}</span>
-              </li>
-            ))}
-          </ul>
-        </article>
-
-        <article className="dashboard-memberships__card">
-          <h4>Upgrade Options</h4>
-          <p className="dashboard-memberships__upgrade-title">{data.upgrade.title}</p>
-          <p className="dashboard-memberships__upgrade-desc">{data.upgrade.description}</p>
-          <Link to={data.upgrade.href} className="dashboard-memberships__btn dashboard-memberships__btn--primary">
-            {data.upgrade.ctaLabel}
-          </Link>
-        </article>
+        <PlanBenefitsCard benefits={benefits} />
+        <UpgradeOptionsCard upgrade={upgrade} />
       </div>
     </div>
   );

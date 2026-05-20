@@ -89,18 +89,13 @@ export async function getDashboardPayloadForUser(safeUser) {
   let donationCount = 0;
   let sponsorshipCount = 0;
   let sponsorshipTotalMinor = 0;
-  let mongoDonationCount = 0;
-  let mongoSponsorshipCount = 0;
-
   for (const t of transactions) {
     if (t.kind === "donation") {
       donationTotalMinor += t.amountMinor || 0;
       donationCount += 1;
-      mongoDonationCount += 1;
     } else if (t.kind === "sponsorship") {
       sponsorshipCount += 1;
       sponsorshipTotalMinor += t.amountMinor || 0;
-      mongoSponsorshipCount += 1;
     }
   }
 
@@ -116,8 +111,6 @@ export async function getDashboardPayloadForUser(safeUser) {
 
   const donationLabel = formatEur(donationTotalMinor);
   const sponsorshipLabel = formatEur(sponsorshipTotalMinor);
-  const ttDonationCount = ttDonationOrders.length;
-  const ttSponsorshipCount = ttSponsorshipOrders.length;
 
   const membershipActiveInDb =
     membership?.active &&
@@ -152,7 +145,7 @@ export async function getDashboardPayloadForUser(safeUser) {
             ? `${membershipPlanName} — valid until ${formatDisplayDate(membership.endsAt)}`
             : `${membershipPlanName} — since ${formatDisplayDate(membership.startedAt)}`
           : latestTtMembership
-            ? `${membershipPlanName} — purchased via Ticket Tailor`
+            ? `${membershipPlanName} — active membership`
             : membershipPlanName || "Membership on file"
       }
     : {
@@ -172,16 +165,7 @@ export async function getDashboardPayloadForUser(safeUser) {
     value: donationLabel,
     heading: "Total Donations",
     description: donationCount
-      ? [
-          `${donationCount} donation${donationCount === 1 ? "" : "s"} — ${donationLabel} total`,
-          ttDonationCount
-            ? `${ttDonationCount} via Ticket Tailor`
-            : mongoDonationCount
-              ? `${mongoDonationCount} via Stripe`
-              : null
-        ]
-          .filter(Boolean)
-          .join(" · ")
+      ? `${donationCount} donation${donationCount === 1 ? "" : "s"} — ${donationLabel} total`
       : "No donations yet. Every contribution supports our mission."
   };
 
@@ -190,16 +174,7 @@ export async function getDashboardPayloadForUser(safeUser) {
     value: String(eventCount),
     heading: "Events Registered",
     description: eventCount
-      ? [
-          ticketEventCount
-            ? `${ticketEventCount} event ticket${ticketEventCount === 1 ? "" : "s"} purchased`
-            : null,
-          localEventCount
-            ? `${localEventCount} registration${localEventCount === 1 ? "" : "s"} on file`
-            : null
-        ]
-          .filter(Boolean)
-          .join(" · ") || "Event registrations on file"
+      ? `${eventCount} event registration${eventCount === 1 ? "" : "s"}`
       : "You have not registered for an event yet."
   };
 
@@ -210,16 +185,7 @@ export async function getDashboardPayloadForUser(safeUser) {
     value: sponsorshipCount > 0 ? sponsorshipLabel : formatEur(0),
     heading: "Sponsorships",
     description: sponsorshipCount
-      ? [
-          `${sponsorshipCount} sponsorship${sponsorshipCount === 1 ? "" : "s"} — ${sponsorshipLabel} total`,
-          ttSponsorshipCount
-            ? `${ttSponsorshipCount} via Ticket Tailor`
-            : mongoSponsorshipCount
-              ? `${mongoSponsorshipCount} via Stripe`
-              : null
-        ]
-          .filter(Boolean)
-          .join(" · ")
+      ? `${sponsorshipCount} sponsorship${sponsorshipCount === 1 ? "" : "s"} — ${sponsorshipLabel} total`
       : "No sponsorship payments yet."
   };
 
@@ -265,7 +231,7 @@ export async function getDashboardPayloadForUser(safeUser) {
       id: `tt-${o.id}`,
       kind: "donation",
       title: "Donation completed",
-      text: `${formatEur(o.amountMinor)} — ${o.eventTitle} (Ticket Tailor)`,
+      text: `${formatEur(o.amountMinor)} — ${o.eventTitle}`,
       at: o.createdAt
     });
   }
@@ -275,7 +241,7 @@ export async function getDashboardPayloadForUser(safeUser) {
       id: `tt-${o.id}`,
       kind: "sponsorship",
       title: "Sponsorship confirmed",
-      text: `${formatEur(o.amountMinor)} — ${o.eventTitle} (Ticket Tailor)`,
+      text: `${formatEur(o.amountMinor)} — ${o.eventTitle}`,
       at: o.createdAt
     });
   }

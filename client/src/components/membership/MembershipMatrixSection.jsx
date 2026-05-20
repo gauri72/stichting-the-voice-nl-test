@@ -1,71 +1,13 @@
 import "../../styles/membership-matrix-section.css";
 import { FaCheck, FaTimes, FaUsers, FaUser, FaCrown, FaVenus } from "react-icons/fa";
+import { MATRIX_FEATURE_ROWS, MATRIX_PLANS } from "../../config/membershipMatrix.js";
 
-const rows = [
-  {
-    feature: "All 4 Flagship Events In A Year",
-    family: "100% Free",
-    single: "100% Free",
-    privileged: "10% Discount",
-    vownl: "10% Discount",
-  },
-  {
-    feature: "Partner Ticket For All 4 Flagship Events",
-    family: "100% Free",
-    single: "10% Discount",
-    privileged: "10% Discount",
-    vownl: "10% Discount",
-  },
-  {
-    feature: "Reserved Seats",
-    family: "Reserved Premium Seats",
-    single: "Reserved Premium Seats",
-    privileged: "Reserved Privileged Seats",
-    vownl: "Reserved Privileged Seats",
-  },
-  {
-    feature: "Child Ticket (max 2)",
-    family: "50% Discount",
-    single: "50% Discount",
-    privileged: "15% Discount",
-    vownl: "15% Discount",
-  },
-  {
-    feature: "Welcome Kit",
-    family: "included",
-    single: "included",
-    privileged: "not-included",
-    vownl: "not-included",
-  },
-  {
-    feature: "Sponsors Offers (Partner Benefits)",
-    family: "included",
-    single: "included",
-    privileged: "included",
-    vownl: "included",
-  },
-  {
-    feature: "Lounge Access During Events",
-    family: "included",
-    single: "included",
-    privileged: "included",
-    vownl: "included",
-  },
-  {
-    feature: "Celebrity Priority Meetup (Invite Only)",
-    family: "included",
-    single: "included",
-    privileged: "included",
-    vownl: "included",
-  },
-  {
-    feature: "Price",
-    family: "250€",
-    single: "150€",
-    privileged: "25€",
-    vownl: "75€",
-  },
-];
+const PLAN_ICONS = {
+  family: FaUsers,
+  single: FaUser,
+  privileged: FaCrown,
+  vownl: FaVenus,
+};
 
 function Cell({ value }) {
   if (value === "included") {
@@ -88,19 +30,10 @@ function Cell({ value }) {
 }
 
 export default function MembershipMatrixSection({ onOpenMemberships = () => {} }) {
-  const plans = [
-    { id: "family", title: "Premium Family Membership", price: "€250", Icon: FaUsers },
-    { id: "single", title: "Premium Single Membership", price: "€150", Icon: FaUser },
-    {
-      id: "privileged",
-      title: "Privileged Membership",
-      price: "€25",
-      Icon: FaCrown,
-      featured: true,
-    },
-    { id: "vownl", title: "VOWNL Membership", price: "€25", Icon: FaVenus },
-  ];
-  const featureRows = rows.filter((row) => row.feature !== "Price");
+  const plans = MATRIX_PLANS.map((plan) => ({
+    ...plan,
+    Icon: PLAN_ICONS[plan.id] || FaUser,
+  }));
 
   return (
     <section id="membership-matrix" className="membership-matrix" aria-labelledby="membership-matrix-title">
@@ -129,7 +62,7 @@ export default function MembershipMatrixSection({ onOpenMemberships = () => {} }
                 <span>{price}</span> / year
               </p>
               <ul className="membership-matrix__feature-list membership-matrix__feature-list--grow">
-                {featureRows.map((row) => (
+                {MATRIX_FEATURE_ROWS.map((row) => (
                   <li key={`${id}-${row.feature}`}>
                     <p className="membership-matrix__feature-name">{row.feature}</p>
                     <Cell value={row[id]} />
