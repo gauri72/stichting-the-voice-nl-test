@@ -1,0 +1,227 @@
+/* Events page — Voices from Our Community (site fonts, donate-section heading) */
+
+.events-testimonials {
+  background: #ffffff;
+  padding: clamp(40px, 5vw, 64px) clamp(16px, 4vw, 48px);
+  overflow-x: clip;
+}
+
+.events-testimonials__inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.events-testimonials__header {
+  margin-bottom: clamp(24px, 3vw, 36px);
+}
+
+.events-testimonials__title {
+  white-space: normal;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: clamp(1.15rem, 1.8vw, 1.55rem);
+  line-height: 1.2;
+}
+
+.events-testimonials__title-accent {
+  background: linear-gradient(90deg, #1a7db5, #4da377);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Three cards visible (desktop); dots rotate a window of 4 testimonials */
+.events-testimonials__carousel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 24px);
+  align-items: stretch;
+}
+
+.events-testimonials__card {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(12px, 1.5vw, 16px);
+  background: #ffffff;
+  border: 1px solid #d7dee6;
+  border-radius: 12px;
+  padding: clamp(16px, 2vw, 22px) clamp(14px, 1.8vw, 20px);
+  box-shadow: 0 8px 30px rgba(15, 53, 78, 0.06);
+  min-width: 0;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.events-testimonials__avatar {
+  width: clamp(52px, 5vw, 64px);
+  height: clamp(52px, 5vw, 64px);
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid #e3eaf0;
+}
+
+.events-testimonials__content {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.events-testimonials__quote-mark {
+  position: absolute;
+  top: -4px;
+  right: 0;
+  font-size: clamp(2.4rem, 3.5vw, 3.2rem);
+  line-height: 1;
+  font-weight: 800;
+  color: #2c8b72;
+  opacity: 0.2;
+  letter-spacing: -0.12em;
+  pointer-events: none;
+  user-select: none;
+}
+
+.events-testimonials__content blockquote {
+  margin: 0;
+}
+
+.events-testimonials__content blockquote p {
+  margin: 0;
+  color: #4f6070;
+  font-size: clamp(0.82rem, 0.95vw, 0.92rem);
+  line-height: 1.5;
+  font-style: normal;
+  font-weight: 500;
+  padding-right: clamp(28px, 3vw, 40px);
+}
+
+.events-testimonials__content footer {
+  margin-top: clamp(12px, 1.5vw, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.events-testimonials__content cite {
+  font-style: normal;
+  color: #122e47;
+  font-size: clamp(0.84rem, 0.95vw, 0.92rem);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.events-testimonials__content footer span {
+  color: #4f6070;
+  font-size: clamp(0.74rem, 0.85vw, 0.8rem);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.events-testimonials__dots {
+  margin-top: clamp(22px, 3vw, 30px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.events-testimonials__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: #d7dee5;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.events-testimonials__dot--active {
+  background: #2ea276;
+  transform: scale(1.1);
+}
+
+.events-testimonials__dot:focus-visible {
+  outline: 2px solid #9fe6de;
+  outline-offset: 3px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive                                                                 */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .events-testimonials__carousel {
+    display: block;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .events-testimonials__card {
+    display: none;
+  }
+
+  .events-testimonials__card:first-child {
+    display: flex;
+  }
+}
+
+@media (max-width: 700px) {
+  .events-testimonials__header .donate-section__heading {
+    gap: 8px;
+  }
+
+  .events-testimonials__header .donate-section__heading-line {
+    min-width: 14px;
+  }
+
+  .events-testimonials__header .donate-section__eyebrow {
+    font-size: 0.84rem;
+    letter-spacing: 0.04em;
+  }
+
+  .events-testimonials__title {
+    font-size: clamp(1.05rem, 4.2vw, 1.35rem);
+    letter-spacing: 0.02em;
+  }
+
+  .events-testimonials__title::after {
+    width: 58px;
+    height: 2px;
+    margin-top: 6px;
+  }
+}
+
+@media (max-width: 640px) {
+  .events-testimonials {
+    padding: 32px 14px 40px;
+  }
+
+  .events-testimonials__carousel {
+    max-width: 100%;
+  }
+
+  .events-testimonials__content blockquote p {
+    padding-right: 32px;
+  }
+}
+
+@media (hover: hover) {
+  .events-testimonials__card:hover {
+    box-shadow: 0 10px 26px rgba(15, 53, 78, 0.14);
+    border-color: #c9d3de;
+    transform: translateY(-2px);
+  }
+}
+
+@media (hover: none) {
+  .events-testimonials__card:hover {
+    transform: none;
+    box-shadow: 0 8px 30px rgba(15, 53, 78, 0.06);
+    border-color: #d7dee6;
+  }
+}

@@ -1,0 +1,425 @@
+/* Events page — signature events (uses donate-section__* heading + site default font) */
+
+.events-signature {
+  background: #ffffff;
+  padding: clamp(32px, 4vw, 48px) clamp(16px, 3vw, 34px) clamp(40px, 5vw, 56px);
+  overflow-x: clip;
+}
+
+.events-signature__inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.events-signature__header {
+  margin-bottom: 0;
+}
+
+.events-signature__title {
+  white-space: normal;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: clamp(1.15rem, 1.8vw, 1.55rem);
+  line-height: 1.2;
+}
+
+.events-signature__title::after {
+  margin-top: 8px;
+}
+
+/* Parent grid + subgrid: rows align across cards in the same row */
+.events-signature__grid {
+  margin-top: clamp(22px, 3vw, 32px);
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(5, auto);
+  column-gap: clamp(8px, 1.2vw, 12px);
+  row-gap: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.events-signature-card {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 5;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  overflow: visible;
+  text-align: left;
+  transition: transform 160ms ease;
+}
+
+.events-signature-card:hover {
+  transform: translateY(-4px);
+}
+
+.events-signature-card__content {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 4;
+  min-width: 0;
+  border: 3px solid #9aa8b5;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(15, 53, 78, 0.06);
+  transition: box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.events-signature-card:hover .events-signature-card__content {
+  box-shadow: 0 10px 26px rgba(15, 53, 78, 0.14);
+  border-color: #9aa8b5;
+}
+
+.events-signature-card__media {
+  position: relative;
+  min-height: 0;
+}
+
+.events-signature-card__image {
+  display: block;
+  width: 100%;
+  height: clamp(110px, 12vw, 124px);
+  object-fit: cover;
+  object-position: center center;
+  border-radius: 10px 10px 0 0;
+}
+
+.events-signature-card__image--focus-right {
+  object-position: right center;
+}
+
+.events-signature-card__icon-wrap {
+  position: absolute;
+  left: clamp(8px, 1.2vw, 10px);
+  bottom: -20px;
+  width: clamp(38px, 4vw, 44px);
+  height: clamp(38px, 4vw, 44px);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #0f8f90 0%, #2ea276 100%);
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(15, 143, 144, 0.35);
+}
+
+.events-signature-card__icon {
+  width: clamp(15px, 1.6vw, 18px);
+  height: clamp(15px, 1.6vw, 18px);
+}
+
+.events-signature-card__row {
+  display: flex;
+  align-items: flex-start;
+  padding-left: clamp(10px, 1.2vw, 12px);
+  padding-right: clamp(10px, 1.2vw, 12px);
+  min-height: 0;
+  min-width: 0;
+}
+
+.events-signature-card__row--title {
+  padding-top: 28px;
+  align-items: flex-start;
+}
+
+.events-signature-card__row--description {
+  padding-top: 8px;
+  align-items: flex-start;
+}
+
+.events-signature-card__row--years {
+  padding-top: 8px;
+  align-items: center;
+}
+
+.events-signature-card__row--cta {
+  padding-top: 8px;
+  padding-bottom: 14px;
+  align-items: flex-end;
+}
+
+.events-signature-card__row h3 {
+  margin: 0;
+  color: #122e47;
+  font-size: clamp(0.82rem, 1vw, 0.98rem);
+  font-weight: 800;
+  line-height: 1.32;
+  word-break: break-word;
+}
+
+.events-signature-card__description {
+  margin: 0;
+  color: #4f6070;
+  font-size: clamp(0.68rem, 0.82vw, 0.8rem);
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.events-signature-card__years {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: #6a7f90;
+  font-size: clamp(0.68rem, 0.75vw, 0.72rem);
+  font-weight: 600;
+}
+
+.events-signature-card__years svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: #8aa0b0;
+}
+
+.events-signature-card__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #5eaa69 0%, #0f8f90 100%);
+  color: #ffffff;
+  text-decoration: none;
+  font-size: clamp(0.64rem, 0.75vw, 0.68rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  max-width: 100%;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.events-signature-card__cta svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.events-signature-card__cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+  filter: brightness(1.05);
+}
+
+.events-signature-card__cta:focus-visible {
+  outline: 2px solid #9fe6de;
+  outline-offset: 3px;
+}
+
+/* Fallback when subgrid is unavailable */
+@supports not (grid-template-rows: subgrid) {
+  .events-signature__grid {
+    grid-template-rows: none;
+    row-gap: 12px;
+  }
+
+  .events-signature-card {
+    grid-row: auto;
+    grid-template-rows: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .events-signature-card__content {
+    grid-row: auto;
+    grid-template-rows: none;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive                                                                 */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 1400px) {
+  .events-signature__grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    column-gap: 8px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .events-signature__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 12px;
+    row-gap: 14px;
+  }
+
+  .events-signature-card__image {
+    height: clamp(120px, 14vw, 140px);
+  }
+}
+
+@media (max-width: 1024px) {
+  .events-signature {
+    padding: clamp(28px, 4vw, 40px) clamp(14px, 3vw, 24px) clamp(36px, 5vw, 48px);
+  }
+
+  .events-signature__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 12px;
+    row-gap: 16px;
+  }
+
+  .events-signature-card__image {
+    height: clamp(130px, 16vw, 150px);
+  }
+
+  .events-signature__title {
+    font-size: clamp(1.05rem, 2.4vw, 1.4rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .events-signature__header .donate-section__heading {
+    gap: 8px;
+  }
+
+  .events-signature__header .donate-section__heading-line {
+    min-width: 14px;
+  }
+
+  .events-signature__header .donate-section__eyebrow {
+    font-size: 0.84rem;
+    letter-spacing: 0.04em;
+  }
+
+  .events-signature__title {
+    font-size: clamp(1rem, 4vw, 1.25rem);
+    letter-spacing: 0.02em;
+  }
+
+  .events-signature__title::after {
+    width: 58px;
+    height: 2px;
+    margin-top: 6px;
+  }
+
+  .events-signature__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 12px;
+    row-gap: 18px;
+  }
+
+  .events-signature-card__image {
+    height: clamp(140px, 22vw, 160px);
+  }
+
+  .events-signature-card__row--title {
+    padding-top: 26px;
+  }
+
+  .events-signature-card__cta {
+    font-size: 0.72rem;
+    min-height: 36px;
+    padding: 8px 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .events-signature {
+    padding: 24px 14px 32px;
+  }
+
+  .events-signature__grid {
+    row-gap: 20px;
+  }
+
+  .events-signature-card__content {
+    border-width: 2px;
+  }
+
+  .events-signature-card__image {
+    height: clamp(150px, 28vw, 175px);
+  }
+
+  .events-signature-card__row h3 {
+    font-size: clamp(0.9rem, 3.8vw, 1rem);
+  }
+
+  .events-signature-card__description {
+    font-size: clamp(0.74rem, 3.2vw, 0.84rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .events-signature {
+    padding: 20px 12px 28px;
+  }
+
+  .events-signature__grid {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: min(400px, 100%);
+    margin-left: auto;
+    margin-right: auto;
+    row-gap: 22px;
+  }
+
+  .events-signature-card__image {
+    height: clamp(160px, 42vw, 190px);
+  }
+
+  .events-signature-card__row {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .events-signature-card__row--cta {
+    padding-bottom: 16px;
+  }
+
+  .events-signature-card__cta {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    font-size: 0.74rem;
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 380px) {
+  .events-signature__header .donate-section__eyebrow {
+    font-size: 0.76rem;
+  }
+
+  .events-signature__title {
+    font-size: clamp(0.92rem, 5.5vw, 1.1rem);
+  }
+
+  .events-signature-card__icon-wrap {
+    width: 36px;
+    height: 36px;
+    bottom: -18px;
+  }
+
+  .events-signature-card__icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .events-signature-card__cta {
+    font-size: 0.7rem;
+    padding: 8px 12px;
+  }
+}
+
+@media (hover: none) {
+  .events-signature-card:hover {
+    transform: none;
+  }
+
+  .events-signature-card:hover .events-signature-card__content {
+    box-shadow: 0 4px 14px rgba(15, 53, 78, 0.06);
+    border-color: #9aa8b5;
+  }
+}

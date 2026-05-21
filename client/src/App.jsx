@@ -7,6 +7,7 @@ import HomePage from "./components/home/HomePage";
 import MembershipPage from "./components/membership/MembershipPage";
 import SponsorshipPage from "./components/sponsorship/SponsorshipPage";
 import DonatePage from "./components/donate/DonatePage";
+import EventsPage from "./components/events/EventsPage";
 import LoginPage from "./components/login/LoginPage";
 import ResetPasswordPage from "./components/login/ResetPasswordPage";
 import DashboardPage from "./components/dashboard/DashboardPage";
@@ -46,7 +47,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<EmptyPage />} />
-          <Route path="/events" element={<EmptyPage />} />
+          <Route path="/events" element={<EventsPage />} />
           <Route path="/sponsorship" element={<SponsorshipPage />} />
           <Route path="/membership" element={<MembershipPage />} />
           <Route path="/segments/vision-of-sounds" element={<EmptyPage />} />
