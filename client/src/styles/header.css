@@ -362,12 +362,17 @@
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.menu-links .nav-contact-link:hover {
+.menu-links .nav-contact-link:hover,
+.menu-links .nav-contact-link.active {
   color: #118a93;
   border-bottom-color: #8ecfd2;
   transform: none;
   background: transparent;
   box-shadow: none;
+}
+
+.menu-links .nav-contact-link.active {
+  border-bottom-color: #118a93;
 }
 
 .contact-link {

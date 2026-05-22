@@ -60,13 +60,9 @@ export default function Header() {
         </div>
       </div>
 
-      <a
-        className="nav-contact-link"
-        href="mailto:info@stichtingthevoice.nl?subject=Website%20enquiry"
-        onClick={closeMenu}
-      >
+      <NavLink className="nav-contact-link" to="/contact" onClick={closeMenu}>
         Contact us
-      </a>
+      </NavLink>
     </>
   );
 

@@ -10,7 +10,11 @@ import {
   isTicketTailorConfigured,
   splitOrdersByCategory
 } from "./ticketTailorService.js";
-import { getPlan } from "../config/membershipPlans.js";
+import {
+  buildMembershipOverviewFromResolved,
+  getEarliestMembershipSince,
+  resolveMembershipState
+} from "./membershipService.js";
 
 function formatEur(minor) {
   try {
@@ -112,51 +116,13 @@ export async function getDashboardPayloadForUser(safeUser) {
   const donationLabel = formatEur(donationTotalMinor);
   const sponsorshipLabel = formatEur(sponsorshipTotalMinor);
 
-  const membershipActiveInDb =
-    membership?.active &&
-    (!membership.endsAt || new Date(membership.endsAt) >= new Date());
+  const membershipResolved = resolveMembershipState({
+    user: userDoc,
+    mongoMembership: membership,
+    ttMembershipOrders
+  });
 
-  const latestTtMembership = ttMembershipOrders[0];
-  const membershipPurchased = membershipActiveInDb || ttMembershipOrders.length > 0;
-
-  let membershipPlanName = "";
-  if (membershipActiveInDb && membership) {
-    const plan = getPlan(membership.planId);
-    membershipPlanName = membership.planName || plan?.name || "Membership";
-  } else if (latestTtMembership) {
-    membershipPlanName = latestTtMembership.eventTitle;
-  }
-
-  const membershipCount = membershipActiveInDb ? 1 : ttMembershipOrders.length;
-
-  const membershipOverview = membershipPurchased
-    ? {
-        active: membershipActiveInDb || Boolean(latestTtMembership),
-        purchased: true,
-        count: membershipCount || ttMembershipOrders.length || 1,
-        since:
-          membership?.startedAt?.toISOString?.() ||
-          latestTtMembership?.createdAt ||
-          null,
-        value: "Yes",
-        heading: "Membership",
-        description: membershipActiveInDb
-          ? membership.endsAt
-            ? `${membershipPlanName} — valid until ${formatDisplayDate(membership.endsAt)}`
-            : `${membershipPlanName} — since ${formatDisplayDate(membership.startedAt)}`
-          : latestTtMembership
-            ? `${membershipPlanName} — active membership`
-            : membershipPlanName || "Membership on file"
-      }
-    : {
-        active: false,
-        purchased: false,
-        count: 0,
-        since: null,
-        value: "No",
-        heading: "Membership",
-        description: "No membership purchased yet."
-      };
+  const membershipOverview = buildMembershipOverviewFromResolved(membershipResolved);
 
   const donationsOverview = {
     totalMinor: donationTotalMinor,
@@ -268,7 +234,8 @@ export async function getDashboardPayloadForUser(safeUser) {
 
   activityItems.sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
 
-  const memberSince = formatDisplayDate(userDoc.createdAt);
+  const membershipSince = getEarliestMembershipSince(membershipResolved);
+  const memberSince = membershipSince ? formatDisplayDate(membershipSince) : "";
   const accountStatus = userDoc.isVerified ? "Verified" : "Pending verification";
 
   return {
@@ -279,7 +246,7 @@ export async function getDashboardPayloadForUser(safeUser) {
       email: userDoc.email,
       phone: userDoc.phone || "",
       memberSince,
-      memberSinceIso: userDoc.createdAt?.toISOString?.() || null,
+      memberSinceIso: membershipSince?.toISOString?.() || null,
       accountStatus
     },
     overview: {

@@ -175,6 +175,9 @@ export default function DashboardMembershipsPanel() {
         </span>
         <div className="dashboard-memberships__active-body">
           <p className="dashboard-memberships__status-kicker">{active.statusLabel}</p>
+          {active.verifiedVia === "ticket_tailor" ? (
+            <p className="dashboard-memberships__verified-note">Verified via Ticket Tailor</p>
+          ) : null}
           <p className="dashboard-memberships__plan-name">{active.planNameAccent || active.planName}</p>
           <p className="dashboard-memberships__validity">
             Valid from <strong>{active.validFrom}</strong> to <strong>{active.validTo}</strong>
@@ -211,7 +214,7 @@ export default function DashboardMembershipsPanel() {
               <tr>
                 <th scope="col">Plan</th>
                 <th scope="col">Status</th>
-                <th scope="col">Renewal Date</th>
+                <th scope="col">Valid until</th>
                 <th scope="col">Fee</th>
               </tr>
             </thead>
@@ -228,7 +231,7 @@ export default function DashboardMembershipsPanel() {
                       {row.status}
                     </span>
                   </td>
-                  <td data-label="Renewal Date">{row.renewalDate}</td>
+                  <td data-label="Valid until">{row.validTo || row.renewalDate}</td>
                   <td data-label="Fee">{row.fee}</td>
                 </tr>
               ))}
