@@ -2,60 +2,60 @@
 
 export const MATRIX_FEATURE_ROWS = [
   {
-    feature: "All 4 Flagship Events In A Year",
+    feature: "Discount on all events within the validity period",
     family: "100% Free",
     single: "100% Free",
-    privileged: "10% Discount",
-    vownl: "10% Discount",
-  },
-  {
-    feature: "Partner Ticket For All 4 Flagship Events",
-    family: "100% Free",
-    single: "10% Discount",
-    privileged: "10% Discount",
-    vownl: "10% Discount",
+    privilegedFamily: "10% Discount",
+    privilegedSingle: "10% Discount",
   },
   {
     feature: "Reserved Seats",
     family: "Reserved Premium Seats",
     single: "Reserved Premium Seats",
-    privileged: "Reserved Privileged Seats",
-    vownl: "Reserved Privileged Seats",
+    privilegedFamily: "Reserved Privileged Seats",
+    privilegedSingle: "Reserved Privileged Seats",
   },
   {
     feature: "Child Ticket (max 2)",
     family: "50% Discount",
-    single: "50% Discount",
-    privileged: "15% Discount",
-    vownl: "15% Discount",
+    single: "not-included",
+    privilegedFamily: "15% Discount",
+    privilegedSingle: "not-included",
   },
   {
     feature: "Welcome Kit",
     family: "included",
     single: "included",
-    privileged: "not-included",
-    vownl: "not-included",
+    privilegedFamily: "not-included",
+    privilegedSingle: "not-included",
   },
   {
     feature: "Sponsors Offers (Partner Benefits)",
     family: "included",
     single: "included",
-    privileged: "included",
-    vownl: "included",
+    privilegedFamily: "included",
+    privilegedSingle: "included",
   },
   {
     feature: "Lounge Access During Events",
     family: "included",
     single: "included",
-    privileged: "included",
-    vownl: "included",
+    privilegedFamily: "included",
+    privilegedSingle: "included",
+  },
+  {
+    feature: "VOWNL Women-Specific Events Discount",
+    family: "Free",
+    single: "Free",
+    privilegedFamily: "10% Discount",
+    privilegedSingle: "10% Discount",
   },
   {
     feature: "Celebrity Priority Meetup (Invite Only)",
     family: "included",
     single: "included",
-    privileged: "included",
-    vownl: "included",
+    privilegedFamily: "not-included",
+    privilegedSingle: "not-included",
   },
 ];
 
@@ -66,7 +66,7 @@ export const MATRIX_PLANS = [
     price: "€250",
     featured: false,
     description:
-      "Enjoy full access to all flagship events, reserved premium seating for your household, partner tickets, and exclusive member lounge access throughout the year.",
+      "Premium household membership with free entry to events within your validity period, reserved premium seating, lounge access, and VOWNL women-specific events at no extra cost.",
   },
   {
     id: "single",
@@ -74,31 +74,43 @@ export const MATRIX_PLANS = [
     price: "€150",
     featured: false,
     description:
-      "Full member access to flagship events with reserved premium seating, partner discounts, and exclusive cultural programmes.",
+      "Premium individual membership with free entry to events within your validity period, reserved premium seating, lounge access, and VOWNL women-specific events at no extra cost.",
   },
   {
-    id: "privileged",
-    title: "Privileged Membership",
-    price: "€25",
+    id: "privilegedFamily",
+    title: "Privileged Family Membership",
+    price: "€45",
     featured: true,
     description:
-      "Access member pricing on events, reserved privileged seating, and community updates from Stichting The V.O.I.C.E. NL.",
+      "Affordable family membership with event discounts, reserved privileged seating, and member benefits from Stichting The V.O.I.C.E. NL.",
   },
   {
-    id: "vownl",
-    title: "VOWNL Membership",
-    price: "€25",
+    id: "privilegedSingle",
+    title: "Privileged Single Membership",
+    price: "€30",
     featured: false,
     description:
-      "Tailored membership for VOWNL participants with event discounts and community access.",
+      "Affordable individual membership with event discounts, reserved privileged seating, and community updates from Stichting The V.O.I.C.E. NL.",
   },
 ];
 
+/** Map legacy plan ids from Ticket Tailor / older records to current matrix ids. */
+export const LEGACY_PLAN_IDS = {
+  privileged: "privilegedFamily",
+  vownl: "privilegedSingle",
+};
+
+export function normalizeMatrixPlanId(planId) {
+  if (!planId) return "family";
+  const id = String(planId);
+  return LEGACY_PLAN_IDS[id] || id;
+}
+
 /** Next tier on the public membership page matrix. */
 export const MATRIX_UPGRADE_TO = {
-  privileged: "single",
+  privilegedSingle: "privilegedFamily",
+  privilegedFamily: "single",
   single: "family",
-  vownl: "single",
   family: null,
 };
 
@@ -110,20 +122,24 @@ export function formatMatrixCell(value) {
 
 export function inferPlanIdFromTitle(title) {
   const t = String(title || "").toLowerCase();
-  if (t.includes("privileged")) return "privileged";
+  if (t.includes("privileged") && t.includes("family")) return "privilegedFamily";
+  if (t.includes("privileged") && t.includes("single")) return "privilegedSingle";
+  if (t.includes("privileged")) return "privilegedFamily";
   if (t.includes("premium family") || (t.includes("family") && t.includes("membership"))) return "family";
-  if (t.includes("vownl")) return "vownl";
+  if (t.includes("premium single") || (t.includes("single") && t.includes("membership"))) return "single";
+  if (t.includes("vownl")) return "privilegedSingle";
   if (t.includes("single")) return "single";
   return "family";
 }
 
 export function getMatrixPlan(planId) {
   if (!planId) return null;
-  return MATRIX_PLANS.find((p) => p.id === planId) || null;
+  const id = normalizeMatrixPlanId(planId);
+  return MATRIX_PLANS.find((p) => p.id === id) || null;
 }
 
 export function getPlanBenefitsForMatrix(planId) {
-  const id = planId || "family";
+  const id = normalizeMatrixPlanId(planId);
   return MATRIX_FEATURE_ROWS.map((row) => ({
     id: row.feature,
     feature: row.feature,
@@ -133,7 +149,7 @@ export function getPlanBenefitsForMatrix(planId) {
 }
 
 export function getUpgradeMatrixPlan(currentPlanId) {
-  const nextId = MATRIX_UPGRADE_TO[currentPlanId];
+  const nextId = MATRIX_UPGRADE_TO[normalizeMatrixPlanId(currentPlanId)];
   if (!nextId) return null;
   return getMatrixPlan(nextId);
 }

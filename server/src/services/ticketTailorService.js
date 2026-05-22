@@ -108,7 +108,7 @@ function isMembershipOrder(order) {
   return (
     !hasEventName &&
     /\bmembership\b/i.test(desc) &&
-    (/privileged membership|premium family|premium single|family membership|single membership|vownl membership|stichting v\.o\.i\.c\.e/i.test(
+    (/privileged (family|single )?membership|premium family|premium single|family membership|single membership|stichting v\.o\.i\.c\.e/i.test(
       desc
     ) ||
       /\bmembership\s*$/i.test(desc))

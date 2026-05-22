@@ -22,9 +22,9 @@ const faqs = [
   {
     id: "events",
     Icon: FaTicketAlt,
-    question: "If I buy a Premium Membership in the second half of 2025, will I get free tickets for the next four events?",
+    question: "If I buy a Premium Membership partway through the year, how do event discounts apply?",
     answer:
-      "Yes. The membership is valid for one year, and you will receive free tickets for the next four events happening after your purchase date.",
+      "Your membership is valid for the stated period. Discounts on all events within that validity period apply from your purchase date according to your plan (see the membership matrix for Premium vs Privileged benefits).",
   },
   {
     id: "attend",

@@ -86,11 +86,13 @@ function deriveStatus(membership, now = new Date()) {
 
 function inferPlanIdFromTitle(title) {
   const t = String(title || "").toLowerCase();
-  if (t.includes("privileged")) return "privileged";
-  if (t.includes("premium family") || (t.includes("family") && t.includes("membership")))
-    return "family";
+  if (t.includes("privileged") && t.includes("family")) return "privilegedFamily";
+  if (t.includes("privileged") && t.includes("single")) return "privilegedSingle";
+  if (t.includes("privileged")) return "privilegedFamily";
+  if (t.includes("premium family") || (t.includes("family") && t.includes("membership"))) return "family";
+  if (t.includes("premium single") || (t.includes("single") && t.includes("membership"))) return "single";
+  if (t.includes("vownl")) return "privilegedSingle";
   if (t.includes("single")) return "single";
-  if (t.includes("vownl")) return "vownl";
   return "family";
 }
 

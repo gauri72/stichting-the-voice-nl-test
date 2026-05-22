@@ -6,6 +6,7 @@ import {
   getPlanBenefitsForMatrix,
   getUpgradeOptionDisplay,
   inferPlanIdFromTitle,
+  normalizeMatrixPlanId,
 } from "../../../config/membershipMatrix.js";
 import "../../../styles/dashboard-memberships.css";
 
@@ -34,7 +35,7 @@ function downloadMembershipCard(card) {
 }
 
 function resolvePlanId(active) {
-  if (active?.planId) return active.planId;
+  if (active?.planId) return normalizeMatrixPlanId(active.planId);
   return inferPlanIdFromTitle(active?.planNameAccent || active?.planName);
 }
 

@@ -1,12 +1,12 @@
 import "../../styles/membership-matrix-section.css";
-import { FaCheck, FaTimes, FaUsers, FaUser, FaCrown, FaVenus } from "react-icons/fa";
+import { FaCheck, FaTimes, FaUsers, FaUser } from "react-icons/fa";
 import { MATRIX_FEATURE_ROWS, MATRIX_PLANS } from "../../config/membershipMatrix.js";
 
 const PLAN_ICONS = {
   family: FaUsers,
   single: FaUser,
-  privileged: FaCrown,
-  vownl: FaVenus,
+  privilegedFamily: FaUsers,
+  privilegedSingle: FaUser,
 };
 
 function Cell({ value }) {
