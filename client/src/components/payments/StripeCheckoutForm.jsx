@@ -4,7 +4,7 @@ import { FaLock } from "react-icons/fa";
 import {
   PAYMENT_ELEMENT_OPTIONS,
   buildPaymentReturnUrl,
-  confirmCheckoutPayment,
+  confirmCheckoutPaymentWithFallback,
   persistCheckoutSession
 } from "../../utils/stripePayment";
 
@@ -33,6 +33,7 @@ export default function StripeCheckoutForm({
   tier,
   sessionKey,
   returnPath,
+  clientSecret,
   onSuccess,
   onError
 }) {
@@ -52,44 +53,68 @@ export default function StripeCheckoutForm({
   }
 
   async function finalizePayment(paymentIntent) {
-    if (paymentIntent?.status === "succeeded") {
-      onSuccess?.(paymentIntent);
-      return;
+    try {
+      if (!paymentIntent) {
+        const msg = "Payment could not be completed. Please try again.";
+        setErrorMessage(msg);
+        onError?.(msg);
+        return;
+      }
+
+      if (paymentIntent.status === "succeeded" || paymentIntent.status === "processing") {
+        await onSuccess?.(paymentIntent);
+        return;
+      }
+
+      const msg = "Payment could not be completed. Please try again.";
+      setErrorMessage(msg);
+      onError?.(msg);
+    } finally {
+      setSubmitting(false);
     }
-    const msg = "Payment is processing. We will email you once it is confirmed.";
-    setErrorMessage(msg);
-    setSubmitting(false);
-    onError?.(msg);
   }
 
   async function runConfirmation(event) {
-    const { error: submitError } = await elements.submit();
-    if (submitError) {
-      const msg = submitError.message || "Please check your payment details.";
+    try {
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        const msg = submitError.message || "Please check your payment details.";
+        setErrorMessage(msg);
+        setSubmitting(false);
+        onError?.(msg);
+        event?.paymentFailed?.({ reason: "fail", message: msg });
+        return;
+      }
+
+      persistCheckoutSession(sessionKey, { tier, donor: payer, sponsor: payer });
+
+      const { error, paymentIntent } = await confirmCheckoutPaymentWithFallback(
+        stripe,
+        elements,
+        {
+          returnUrl,
+          payer,
+          clientSecret
+        }
+      );
+
+      if (error) {
+        const msg = error.message || "Payment could not be completed. Please try again.";
+        setErrorMessage(msg);
+        setSubmitting(false);
+        onError?.(msg);
+        event?.paymentFailed?.({ reason: "fail", message: msg });
+        return;
+      }
+
+      await finalizePayment(paymentIntent);
+    } catch (err) {
+      const msg = err?.message || "Payment could not be completed. Please try again.";
       setErrorMessage(msg);
       setSubmitting(false);
       onError?.(msg);
       event?.paymentFailed?.({ reason: "fail", message: msg });
-      return;
     }
-
-    persistCheckoutSession(sessionKey, { tier, donor: payer, sponsor: payer });
-
-    const { error, paymentIntent } = await confirmCheckoutPayment(stripe, elements, {
-      returnUrl,
-      payer
-    });
-
-    if (error) {
-      const msg = error.message || "Payment could not be completed. Please try again.";
-      setErrorMessage(msg);
-      setSubmitting(false);
-      onError?.(msg);
-      event?.paymentFailed?.({ reason: "fail", message: msg });
-      return;
-    }
-
-    await finalizePayment(paymentIntent);
   }
 
   async function handleSubmit(event) {

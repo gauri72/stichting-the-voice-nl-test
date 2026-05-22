@@ -1,5 +1,4 @@
 import { FaArrowRightLong } from "react-icons/fa6";
-import { HiOutlineArrowDownTray } from "react-icons/hi2";
 import heroBackground from "../../assets/Sponsorship/breadcrumb-bg.png";
 import "../../styles/sponsorship-breadcrumb-section.css";
 
@@ -25,10 +24,6 @@ export default function SponsorshipBreadcrumbSection() {
           <a className="sponsorship-page-hero__cta sponsorship-page-hero__cta--primary" href="#sponsorship-tiers">
             Become A Sponsor
             <FaArrowRightLong aria-hidden />
-          </a>
-          <a className="sponsorship-page-hero__cta sponsorship-page-hero__cta--secondary" href="#sponsorship-tiers">
-            Sponsorship Brochure
-            <HiOutlineArrowDownTray aria-hidden />
           </a>
         </div>
       </div>

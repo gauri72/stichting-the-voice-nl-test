@@ -5,9 +5,9 @@ import { loadStripe } from "@stripe/stripe-js";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import {
   STRIPE_ELEMENTS_APPEARANCE,
-  buildPaymentReturnUrl,
   clearCheckoutSession,
   completePaymentReturn,
+  isPaymentReturnUrl,
   persistCheckoutSession,
   readCheckoutSession
 } from "../../utils/stripePayment";
@@ -61,6 +61,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
   const [success, setSuccess] = useState(null);
 
   useEffect(() => {
+    if (isPaymentReturnUrl()) return;
     setStep("details");
     setClientSecret("");
     setIntentMeta(null);
@@ -83,18 +84,19 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
           const saved = readCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
           if (saved?.donor) setDonor(saved.donor);
           if (saved?.intentMeta) setIntentMeta(saved.intentMeta);
+          setSubmitError("");
+          setSuccess({ id: paymentIntent.id });
+          setStep("done");
+          clearCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
           try {
-            await fetch(apiUrl("/api/payments/confirm"), {
+            await fetchWithTimeout(apiUrl("/api/payments/confirm"), {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: { "Content-Type": "application/json", ...authHeaders() },
               body: JSON.stringify({ paymentIntentId: paymentIntent.id })
             });
           } catch (_err) {
-            // Webhook may still deliver.
+            // Webhook may still deliver confirmation email.
           }
-          clearCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
-          setSuccess({ id: paymentIntent.id });
-          setStep("done");
         },
         onError: (msg) => {
           setSubmitError(msg);
@@ -215,7 +217,12 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
       };
       setClientSecret(data.clientSecret);
       setIntentMeta(meta);
-      persistCheckoutSession(DONATE_CHECKOUT_SESSION_KEY, { tier, donor, intentMeta: meta });
+      persistCheckoutSession(DONATE_CHECKOUT_SESSION_KEY, {
+        tier,
+        donor,
+        intentMeta: meta,
+        clientSecret: data.clientSecret
+      });
       setStep("payment");
     } catch (error) {
       if (error?.name === "AbortError") {
@@ -237,17 +244,20 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
   }
 
   async function handleSuccess(paymentIntent) {
+    setSubmitError("");
+    setSuccess({ id: paymentIntent.id });
+    setStep("done");
+    clearCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
+
     try {
-      await fetch(apiUrl("/api/payments/confirm"), {
+      await fetchWithTimeout(apiUrl("/api/payments/confirm"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ paymentIntentId: paymentIntent.id })
       });
     } catch (_err) {
-      // Webhook may still deliver.
+      // Webhook may still deliver; thank-you screen is already shown.
     }
-    setSuccess({ id: paymentIntent.id });
-    setStep("done");
   }
 
   return (
@@ -414,6 +424,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
               tier={tier}
               sessionKey={DONATE_CHECKOUT_SESSION_KEY}
               returnPath={DONATE_RETURN_PATH}
+              clientSecret={clientSecret}
               onSuccess={handleSuccess}
               onError={(msg) => setSubmitError(msg)}
             />
