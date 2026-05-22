@@ -96,12 +96,6 @@
   min-width: 176px;
 }
 
-.sponsorship-page-hero__cta--secondary {
-  background: rgba(10, 30, 58, 0.56);
-  border-color: rgba(230, 239, 248, 0.8);
-  min-width: 158px;
-}
-
 .sponsorship-page-hero__cta:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);

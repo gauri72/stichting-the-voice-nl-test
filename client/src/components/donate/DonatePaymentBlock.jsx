@@ -5,9 +5,9 @@ import { loadStripe } from "@stripe/stripe-js";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import {
   STRIPE_ELEMENTS_APPEARANCE,
+  buildPaymentReturnUrl,
   clearCheckoutSession,
   completePaymentReturn,
-  isPaymentReturnUrl,
   persistCheckoutSession,
   readCheckoutSession
 } from "../../utils/stripePayment";
@@ -61,7 +61,6 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
   const [success, setSuccess] = useState(null);
 
   useEffect(() => {
-    if (isPaymentReturnUrl()) return;
     setStep("details");
     setClientSecret("");
     setIntentMeta(null);
@@ -95,7 +94,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
               body: JSON.stringify({ paymentIntentId: paymentIntent.id })
             });
           } catch (_err) {
-            // Webhook may still deliver confirmation email.
+            // Webhook may still deliver.
           }
         },
         onError: (msg) => {
@@ -217,12 +216,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
       };
       setClientSecret(data.clientSecret);
       setIntentMeta(meta);
-      persistCheckoutSession(DONATE_CHECKOUT_SESSION_KEY, {
-        tier,
-        donor,
-        intentMeta: meta,
-        clientSecret: data.clientSecret
-      });
+      persistCheckoutSession(DONATE_CHECKOUT_SESSION_KEY, { tier, donor, intentMeta: meta });
       setStep("payment");
     } catch (error) {
       if (error?.name === "AbortError") {
@@ -424,7 +418,6 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
               tier={tier}
               sessionKey={DONATE_CHECKOUT_SESSION_KEY}
               returnPath={DONATE_RETURN_PATH}
-              clientSecret={clientSecret}
               onSuccess={handleSuccess}
               onError={(msg) => setSubmitError(msg)}
             />

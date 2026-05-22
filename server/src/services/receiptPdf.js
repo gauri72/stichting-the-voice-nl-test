@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import PDFDocument from "pdfkit";
-import { getSponsorshipCoverageForTier } from "../config/sponsorshipCoverage.js";
+import { getCoverageForTier } from "../config/sponsorshipCoverage.js";
 import { resolveDonationPublicContactEmail } from "../config/donationPublicContact.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -713,7 +713,7 @@ function drawCoverageHeading(doc) {
     .fillColor(COLORS.black)
     .font(FONTS.title)
     .fontSize(17)
-    .text("Sponsorship Coverage", left, doc.y, { width, align: "center" });
+    .text("Your Sponsorship Coverage", left, doc.y, { width, align: "center" });
   doc.moveDown(0.45);
 }
 
@@ -743,9 +743,9 @@ function measureCoverageRowHeight(doc, tier, tierW, amountW, coverageW, sizes) {
   return vPad + Math.max(hTier, hAmt, hBen) + vPad;
 }
 
-function drawCoverageTable(doc, tiers = []) {
-  const coverageTiers = Array.isArray(tiers) ? tiers.filter(Boolean) : [];
-  if (!coverageTiers.length) return;
+function drawCoverageTable(doc, coverageTiers) {
+  const tiers = Array.isArray(coverageTiers) ? coverageTiers.filter(Boolean) : [];
+  if (!tiers.length) return;
 
   const left = doc.page.margins.left;
   const width = doc.page.width - left - doc.page.margins.right;
@@ -762,7 +762,7 @@ function drawCoverageTable(doc, tiers = []) {
   const innerPad = sizes.vPad;
 
   let totalBody = 0;
-  coverageTiers.forEach((tier) => {
+  tiers.forEach((tier) => {
     totalBody += measureCoverageRowHeight(doc, tier, tierW, amountW, coverageW, sizes);
   });
 
@@ -794,7 +794,7 @@ function drawCoverageTable(doc, tiers = []) {
     .lineTo(xBen, tableTop + tableH)
     .stroke();
 
-  coverageTiers.forEach((tier, idx) => {
+  tiers.forEach((tier, idx) => {
     const rowH = measureCoverageRowHeight(doc, tier, tierW, amountW, coverageW, sizes);
     const rowTop = y;
 
@@ -1024,6 +1024,7 @@ function drawDonationReceiptFooter(doc, payload) {
  * @param {string} payload.sponsorName
  * @param {string} payload.sponsorEmail
  * @param {string} payload.companyName
+ * @param {string} [payload.tierId]  associate | silver | gold | platinum (omit for custom)
  * @param {string} payload.sponsorshipTier
  * @param {string} payload.sponsorshipAmount  Pre-formatted currency string
  * @param {string} payload.paymentMethod  e.g. "Card via Stripe"
@@ -1066,12 +1067,7 @@ export function renderSponsorshipReceiptPdf(payload) {
       drawSponsorRow(doc, payload);
       drawConfirmationBlock(doc);
 
-      const coverageTier = getSponsorshipCoverageForTier({
-        tierId: payload.sponsorshipTierId,
-        tierName: payload.sponsorshipTier,
-        amountLabel: payload.sponsorshipAmount
-      });
-
+      const coverageTier = getCoverageForTier(payload.tierId);
       if (coverageTier) {
         beginCoverageSection(doc);
         drawCoverageTable(doc, [coverageTier]);

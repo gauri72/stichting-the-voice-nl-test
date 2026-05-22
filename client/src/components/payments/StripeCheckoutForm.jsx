@@ -1,10 +1,10 @@
-import { Component, useState } from "react";
+import { Component, useMemo, useState } from "react";
 import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { FaLock } from "react-icons/fa";
 import {
-  PAYMENT_ELEMENT_OPTIONS,
+  buildPaymentElementOptions,
   buildPaymentReturnUrl,
-  confirmCheckoutPaymentWithFallback,
+  confirmCheckoutPayment,
   persistCheckoutSession
 } from "../../utils/stripePayment";
 
@@ -33,7 +33,6 @@ export default function StripeCheckoutForm({
   tier,
   sessionKey,
   returnPath,
-  clientSecret,
   onSuccess,
   onError
 }) {
@@ -43,6 +42,10 @@ export default function StripeCheckoutForm({
   const [errorMessage, setErrorMessage] = useState("");
 
   const returnUrl = buildPaymentReturnUrl(returnPath);
+  const paymentElementOptions = useMemo(
+    () => buildPaymentElementOptions(payer),
+    [payer?.name, payer?.email, payer?.phone, payer?.firstName, payer?.lastName]
+  );
 
   if (!stripe || !elements) {
     return (
@@ -88,15 +91,10 @@ export default function StripeCheckoutForm({
 
       persistCheckoutSession(sessionKey, { tier, donor: payer, sponsor: payer });
 
-      const { error, paymentIntent } = await confirmCheckoutPaymentWithFallback(
-        stripe,
-        elements,
-        {
-          returnUrl,
-          payer,
-          clientSecret
-        }
-      );
+      const { error, paymentIntent } = await confirmCheckoutPayment(stripe, elements, {
+        returnUrl,
+        payer
+      });
 
       if (error) {
         const msg = error.message || "Payment could not be completed. Please try again.";
@@ -127,7 +125,10 @@ export default function StripeCheckoutForm({
   return (
     <form className="sponsorship-payment__form" onSubmit={handleSubmit}>
       <PaymentElementErrorBoundary>
-        <PaymentElement options={PAYMENT_ELEMENT_OPTIONS} />
+        <PaymentElement
+          key={`${payer?.name || ""}-${payer?.email || ""}`}
+          options={paymentElementOptions}
+        />
       </PaymentElementErrorBoundary>
       {errorMessage ? (
         <p className="sponsorship-payment__error" role="alert">

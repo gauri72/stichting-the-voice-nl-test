@@ -7,7 +7,6 @@ import {
   STRIPE_ELEMENTS_APPEARANCE,
   clearCheckoutSession,
   completePaymentReturn,
-  isPaymentReturnUrl,
   persistCheckoutSession,
   readCheckoutSession
 } from "../../utils/stripePayment";
@@ -66,7 +65,6 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
   const [success, setSuccess] = useState(null);
 
   useEffect(() => {
-    if (isPaymentReturnUrl()) return;
     setStep("details");
     setClientSecret("");
     setIntentMeta(null);
@@ -89,19 +87,18 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
           const saved = readCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
           if (saved?.sponsor) setSponsor(saved.sponsor);
           if (saved?.intentMeta) setIntentMeta(saved.intentMeta);
-          setSubmitError("");
-          setSuccess({ id: paymentIntent.id });
-          setStep("done");
-          clearCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
           try {
-            await fetchWithTimeout(apiUrl("/api/payments/confirm"), {
+            await fetch(apiUrl("/api/payments/confirm"), {
               method: "POST",
-              headers: { "Content-Type": "application/json", ...authHeaders() },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ paymentIntentId: paymentIntent.id })
             });
           } catch (_err) {
             // Webhook may still deliver.
           }
+          clearCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
+          setSuccess({ id: paymentIntent.id });
+          setStep("done");
         },
         onError: (msg) => {
           setSubmitError(msg);
@@ -226,12 +223,7 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
       };
       setClientSecret(data.clientSecret);
       setIntentMeta(meta);
-      persistCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY, {
-        tier,
-        sponsor,
-        intentMeta: meta,
-        clientSecret: data.clientSecret
-      });
+      persistCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY, { tier, sponsor, intentMeta: meta });
       setStep("payment");
     } catch (error) {
       if (error?.name === "AbortError") {
@@ -253,20 +245,17 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
   }
 
   async function handleSuccess(paymentIntent) {
-    setSubmitError("");
-    setSuccess({ id: paymentIntent.id });
-    setStep("done");
-    clearCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
-
     try {
-      await fetchWithTimeout(apiUrl("/api/payments/confirm"), {
+      await fetch(apiUrl("/api/payments/confirm"), {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders() },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ paymentIntentId: paymentIntent.id })
       });
     } catch (_err) {
-      // Webhook or a later retry may still deliver confirmation email.
+      // Webhook may still deliver.
     }
+    setSuccess({ id: paymentIntent.id });
+    setStep("done");
   }
 
   return (
@@ -435,7 +424,6 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
               tier={tier}
               sessionKey={SPONSOR_CHECKOUT_SESSION_KEY}
               returnPath={SPONSOR_RETURN_PATH}
-              clientSecret={clientSecret}
               onSuccess={handleSuccess}
               onError={(msg) => setSubmitError(msg)}
             />

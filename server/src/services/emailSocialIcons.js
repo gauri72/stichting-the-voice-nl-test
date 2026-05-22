@@ -14,8 +14,11 @@ export const EMAIL_SOCIAL_URLS = {
 };
 
 const BRAND_ICON_FILES = [
+  { key: "facebook", file: "facebook.png", cid: "voiceFacebookIcon", alt: "Facebook" },
   { key: "instagram", file: "instagram.png", cid: "voiceInstagramIcon", alt: "Instagram" },
-  { key: "youtube", file: "youtube.png", cid: "voiceYoutubeIcon", alt: "YouTube" }
+  { key: "youtube", file: "youtube.png", cid: "voiceYoutubeIcon", alt: "YouTube" },
+  { key: "linkedin", file: "linkedin.png", cid: "voiceLinkedinIcon", alt: "LinkedIn" },
+  { key: "x", file: "x.png", cid: "voiceXIcon", alt: "X" }
 ];
 
 /** @returns {import("nodemailer").Attachment[]} */
@@ -38,7 +41,7 @@ export function loadEmailSocialIconAttachments() {
   return attachments;
 }
 
-/** @returns {{ instagram?: string, youtube?: string }} */
+/** @returns {Record<string, string>} */
 export function getEmailSocialIconCids() {
   const cids = {};
   for (const icon of BRAND_ICON_FILES) {
@@ -47,10 +50,6 @@ export function getEmailSocialIconCids() {
     }
   }
   return cids;
-}
-
-function textSocialCell(label, href, bg, radius = "50%") {
-  return `<td style="padding:0 4px 0 0;"><a href="${href}" style="display:inline-block;width:16px;height:16px;border-radius:${radius};background:${bg};color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:7px;font-weight:800;">${label}</a></td>`;
 }
 
 function imageSocialCell(href, cid, alt) {
@@ -63,26 +62,21 @@ function imageSocialCell(href, cid, alt) {
 
 /**
  * Shared "Follow us" row for sponsorship and donation email footers.
- * @param {{ instagram?: string, youtube?: string }} iconCids
+ * @param {Record<string, string>} iconCids
  */
 export function buildEmailFollowUsRowHtml(iconCids = {}) {
-  const ig = iconCids.instagram
-    ? imageSocialCell(EMAIL_SOCIAL_URLS.instagram, iconCids.instagram, "Instagram")
-    : textSocialCell("ig", EMAIL_SOCIAL_URLS.instagram, "#e4405f");
-  const yt = iconCids.youtube
-    ? imageSocialCell(EMAIL_SOCIAL_URLS.youtube, iconCids.youtube, "YouTube")
-    : textSocialCell("yt", EMAIL_SOCIAL_URLS.youtube, "#ff0000");
+  const cells = BRAND_ICON_FILES.map((icon) => {
+    const cid = iconCids[icon.key];
+    if (!cid) return "";
+    return imageSocialCell(EMAIL_SOCIAL_URLS[icon.key], cid, icon.alt);
+  }).join("");
 
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:8px;border-spacing:0;">
                   <tr>
                     <td style="padding:0 8px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:800;color:#10243a;vertical-align:middle;">
                       Follow us:
                     </td>
-                    ${textSocialCell("f", EMAIL_SOCIAL_URLS.facebook, "#1877f2", "50%")}
-                    ${ig}
-                    ${yt}
-                    ${textSocialCell("in", EMAIL_SOCIAL_URLS.linkedin, "#0a66c2")}
-                    ${textSocialCell("x", EMAIL_SOCIAL_URLS.x, "#000000", "3px")}
+                    ${cells}
                   </tr>
                 </table>`;
 }

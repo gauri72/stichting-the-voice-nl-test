@@ -70,41 +70,11 @@ export const SPONSORSHIP_COVERAGE = [
   }
 ];
 
-/**
- * Coverage row(s) for the tier the sponsor paid for (email + PDF).
- * @param {{ tierId?: string, tierName?: string, amountLabel?: string }} input
- * @returns {typeof SPONSORSHIP_COVERAGE[number] | null}
- */
-export function getSponsorshipCoverageForTier({ tierId, tierName, amountLabel } = {}) {
-  const id = String(tierId || "").toLowerCase().trim();
-  let tier = id ? SPONSORSHIP_COVERAGE.find((t) => t.id === id) : null;
-
-  if (!tier && tierName) {
-    const normalized = String(tierName).trim().toLowerCase();
-    tier =
-      SPONSORSHIP_COVERAGE.find((t) => t.name.toLowerCase() === normalized) ||
-      (normalized.includes("custom")
-        ? SPONSORSHIP_COVERAGE.find((t) => t.id === "custom")
-        : null) ||
-      SPONSORSHIP_COVERAGE.find((t) => normalized.includes(t.id));
-  }
-
-  if (!tier && tierName) {
-    return {
-      id: "selected",
-      name: String(tierName).trim(),
-      amountLabel: amountLabel || "—",
-      benefits: ["Sponsorship benefits as agreed with Stichting The V.O.I.C.E. NL."]
-    };
-  }
-
-  if (!tier) return null;
-
-  if (tier.id === "custom" && amountLabel) {
-    return { ...tier, amountLabel };
-  }
-
-  return tier;
+/** Coverage row for the opted sponsorship tier. */
+export function getCoverageForTier(tierId) {
+  if (!tierId) return null;
+  const id = String(tierId).toLowerCase();
+  return SPONSORSHIP_COVERAGE.find((tier) => tier.id === id) ?? null;
 }
 
 export default SPONSORSHIP_COVERAGE;

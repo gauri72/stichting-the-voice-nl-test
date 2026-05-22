@@ -3,13 +3,13 @@ import path from "path";
 import { fileURLToPath } from "url";
 import env from "../config/env.js";
 import { resolveDonationPublicContactEmail } from "../config/donationPublicContact.js";
-import { getSponsorshipCoverageForTier } from "../config/sponsorshipCoverage.js";
-import { renderDonationReceiptPdf, renderSponsorshipReceiptPdf } from "./receiptPdf.js";
+import { getCoverageForTier } from "../config/sponsorshipCoverage.js";
 import {
   buildEmailFollowUsRowHtml,
   getEmailSocialIconCids,
   loadEmailSocialIconAttachments
 } from "./emailSocialIcons.js";
+import { renderDonationReceiptPdf, renderSponsorshipReceiptPdf } from "./receiptPdf.js";
 import {
   getMailReplyTo,
   getSmtpTransporter,
@@ -88,18 +88,12 @@ function formatPaymentDate(unixSeconds) {
 function buildPlaceholders(payload) {
   const sponsor = payload.sponsor || {};
   const sponsorshipAmount = formatAmount(payload.amountMinor, payload.currency);
-  const sponsorship_coverage = getSponsorshipCoverageForTier({
-    tierId: payload.tier?.id,
-    tierName: payload.tier?.name,
-    amountLabel: sponsorshipAmount
-  });
   return {
     sponsor_name: sponsor.name || sponsor.firstName || "Sponsor",
     company_name: sponsor.organization || "",
     sponsor_email: sponsor.email || "",
+    tier_id: payload.tier?.id || "",
     sponsorship_tier: payload.tier?.name || "Sponsorship",
-    sponsorship_tier_id: payload.tier?.id || "",
-    sponsorship_coverage,
     sponsorship_amount: sponsorshipAmount,
     payment_date: payload.paymentDate || formatPaymentDate(payload.paymentCreated),
     stripe_payment_id: payload.paymentIntentId || "",
@@ -112,7 +106,7 @@ function buildPlaceholders(payload) {
 
 function buildSponsorEmail(values, branding = {}) {
   const logoCid = branding.logoCid || null;
-  const followUsRowHtml = buildEmailFollowUsRowHtml(branding.socialIconCids);
+  const followUsRowHtml = buildEmailFollowUsRowHtml(branding.socialIconCids || {});
   const logoCell = logoCid
     ? `<img class="email-logo" src="cid:${logoCid}" alt="Stichting The V.O.I.C.E. NL" width="56" height="56" style="display:block;width:56px;height:auto;border:0;border-radius:8px;background:#ffffff;object-fit:contain;" />`
     : `<span class="email-logo" style="display:inline-block;width:56px;height:56px;border-radius:8px;background:#ffffff;text-align:center;line-height:56px;font-family:Georgia,serif;font-size:20px;font-weight:700;color:#008080;">V</span>`;
@@ -171,12 +165,12 @@ X: https://x.com/St_The_VOICE_NL
                                 <p class="sponsorship-detail-value" style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:800;line-height:1.25;color:#008080;">${valueHtml}</p>
                               </td>`;
 
-  const selectedCoverage = values.sponsorship_coverage;
-  const coverageRowsHtml = selectedCoverage
+  const coverageTier = getCoverageForTier(values.tier_id);
+  const coverageRowsHtml = coverageTier
     ? (() => {
-        const name = escapeHtml(selectedCoverage.name);
-        const amount = escapeHtml(selectedCoverage.amountLabel);
-        const benefitsText = escapeHtml((selectedCoverage.benefits || []).join("; "));
+        const name = escapeHtml(coverageTier.name);
+        const amount = escapeHtml(coverageTier.amountLabel);
+        const benefitsText = escapeHtml((coverageTier.benefits || []).join("; "));
         return `
                   <tr>
                     <td style="padding:10px 8px;border-bottom:1px solid #e5eeee;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.2;font-weight:800;color:#10243a;width:16%;">${name}</td>
@@ -184,6 +178,19 @@ X: https://x.com/St_The_VOICE_NL
                     <td style="padding:10px 8px;border-bottom:1px solid #e5eeee;vertical-align:top;font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.45;color:#10243a;">${benefitsText}</td>
                   </tr>`;
       })()
+    : "";
+  const coverageSectionHtml = coverageTier
+    ? `
+            <tr>
+              <td style="padding:10px 32px 20px 32px;background:#ffffff;">
+                <p style="margin:0 0 14px 0;text-align:center;font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:700;color:#10243a;">
+                  What Your Sponsorship Covers
+                </p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5eeee;border-radius:8px;overflow:hidden;background:#ffffff;">
+${coverageRowsHtml}
+                </table>
+              </td>
+            </tr>`
     : "";
 
   const html = `<!doctype html>
@@ -372,20 +379,7 @@ X: https://x.com/St_The_VOICE_NL
                 </table>
               </td>
             </tr>
-            ${
-              coverageRowsHtml
-                ? `<tr>
-              <td style="padding:10px 32px 20px 32px;background:#ffffff;">
-                <p style="margin:0 0 14px 0;text-align:center;font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:700;color:#10243a;">
-                  What Your ${escapeHtml(values.sponsorship_tier)} Covers
-                </p>
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5eeee;border-radius:8px;overflow:hidden;background:#ffffff;">
-${coverageRowsHtml}
-                </table>
-              </td>
-            </tr>`
-                : ""
-            }
+${coverageSectionHtml}
             <tr>
               <td style="padding:0 32px 24px 32px;background:#ffffff;">
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2fafc;border-radius:8px;border:1px solid #d7eeee;">
@@ -507,7 +501,7 @@ function buildDonationPlaceholders(payload) {
 
 function buildDonationThankYouEmail(values, branding = {}) {
   const logoCid = branding.logoCid || null;
-  const followUsRowHtml = buildEmailFollowUsRowHtml(branding.socialIconCids);
+  const followUsRowHtml = buildEmailFollowUsRowHtml(branding.socialIconCids || {});
   const logoCell = logoCid
     ? `<img src="cid:${logoCid}" alt="Stichting The V.O.I.C.E. NL" width="48" height="48" style="display:block;width:48px;height:auto;border:0;border-radius:6px;background:#ffffff;object-fit:contain;" />`
     : `<span style="display:inline-block;width:48px;height:48px;border-radius:6px;background:#ffffff;text-align:center;line-height:48px;font-family:Georgia,serif;font-size:22px;font-weight:700;color:#26a69a;">V</span>`;
@@ -924,6 +918,7 @@ export async function sendDonationEmails(payload) {
 
   const values = buildDonationPlaceholders(payload);
   const logoAtt = loadHeaderLogoAttachment();
+  const socialIconAtts = loadEmailSocialIconAttachments();
   const socialIconCids = getEmailSocialIconCids();
   const donorMail = buildDonationThankYouEmail(values, {
     logoCid: logoAtt?.cid || null,
@@ -953,7 +948,7 @@ export async function sendDonationEmails(payload) {
 
   const attachments = [
     ...(logoAtt ? [logoAtt] : []),
-    ...loadEmailSocialIconAttachments(),
+    ...socialIconAtts,
     ...(pdfBuffer
       ? [
           {
@@ -1005,6 +1000,7 @@ export async function sendSponsorshipEmails(payload) {
   const values = buildPlaceholders(payload);
 
   const logoAtt = loadHeaderLogoAttachment();
+  const socialIconAtts = loadEmailSocialIconAttachments();
   const socialIconCids = getEmailSocialIconCids();
   const sponsorMail = buildSponsorEmail(values, {
     logoCid: logoAtt?.cid || null,
@@ -1020,8 +1016,8 @@ export async function sendSponsorshipEmails(payload) {
       sponsorName: values.sponsor_name,
       sponsorEmail: values.sponsor_email,
       companyName: values.company_name,
+      tierId: values.tier_id,
       sponsorshipTier: values.sponsorship_tier,
-      sponsorshipTierId: values.sponsorship_tier_id,
       sponsorshipAmount: values.sponsorship_amount,
       paymentMethod: values.payment_method,
       paymentStatus: "Paid",
@@ -1035,7 +1031,7 @@ export async function sendSponsorshipEmails(payload) {
 
   const sponsorAttachments = [
     ...(logoAtt ? [logoAtt] : []),
-    ...loadEmailSocialIconAttachments(),
+    ...socialIconAtts,
     ...(pdfBuffer
       ? [
           {
