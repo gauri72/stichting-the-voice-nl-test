@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import env from "../config/env.js";
 import { resolveDonationPublicContactEmail } from "../config/donationPublicContact.js";
+import { getDonationImpactForTier } from "../config/donationImpact.js";
 import { getCoverageForTier } from "../config/sponsorshipCoverage.js";
 import {
   buildEmailFollowUsRowHtml,
@@ -485,6 +486,7 @@ function buildDonationPlaceholders(payload) {
     donor_email: sponsor.email || "",
     donor_address: donorAddress,
     notes_optional: notesOptional,
+    tier_id: payload.tier?.id || "",
     donation_level: payload.tier?.name || "Donation",
     donation_amount: donationAmount,
     payment_date: paymentDate,
@@ -511,6 +513,15 @@ function buildDonationThankYouEmail(values, branding = {}) {
 
   const subject = "Thank You for Your Donation to Stichting The V.O.I.C.E. NL";
 
+  const impactTier = getDonationImpactForTier(values.tier_id, {
+    amountLabel: values.donation_amount
+  });
+  const impactTextBlock = impactTier
+    ? `Your Donation Makes Possible
+${impactTier.amount} | ${impactTier.tier} — ${impactTier.description}
+`
+    : "";
+
   const text = `Dear ${values.donor_name},
 
 Thank you so much for your generous donation to Stichting The V.O.I.C.E. NL. Your support empowers art, culture, and community initiatives that inspire, educate, and unite people across the world. Together, we are creating a better tomorrow.
@@ -522,14 +533,7 @@ Donation Date: ${values.donation_date}
 Transaction ID: ${values.transaction_id}
 Payment Method: ${values.payment_method}
 
-Your Donation Makes Possible
-€25 | Supporter — Helps cover essential operational costs.
-€50 | Friend — Supports programs that empower communities through arts and culture.
-€100 | Champion — Enables impactful events that inspire, educate, and bring people together.
-€250 | Patron — Supports larger initiatives and helps expand our reach worldwide.
-€500+ | Visionary — Makes a transformative impact and helps shape a better future.
-
-Your kindness fuels creativity, strengthens communities, and brings people together across cultures. We are deeply grateful to have you as part of our journey.
+${impactTextBlock}Your kindness fuels creativity, strengthens communities, and brings people together across cultures. We are deeply grateful to have you as part of our journey.
 
 Warm regards,
 Stichting The V.O.I.C.E. NL
@@ -560,6 +564,24 @@ Your official donation receipt is attached to this email for your records.
   const safe = Object.fromEntries(
     Object.entries(values).map(([k, v]) => [k, escapeHtml(v)])
   );
+
+  const impactRowsHtml = impactTier
+    ? `<tr class="donate-impact-row">
+                  <td class="donate-impact-amt" style="vertical-align:top;padding:14px 12px 14px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;white-space:nowrap;">${escapeHtml(impactTier.amount)}</td>
+                  <td class="donate-impact-tier" style="vertical-align:top;padding:14px 12px;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#333333;">${escapeHtml(impactTier.tier)}</td>
+                  <td class="donate-impact-desc" style="vertical-align:top;padding:14px 0 14px 8px;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:400;line-height:1.6;color:#333333;">${escapeHtml(impactTier.description)}</td>
+                </tr>`
+    : "";
+  const impactSectionHtml = impactTier
+    ? `
+              <p class="donate-impact-title" style="margin:36px 0 18px;font-family:Georgia,'Times New Roman',serif;font-size:19px;font-weight:700;color:#004b50;text-align:center;">
+                Your Donation Makes Possible
+              </p>
+              <table class="donate-impact-table" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-spacing:0;border-collapse:collapse;">
+${impactRowsHtml}
+              </table>
+`
+    : "";
 
   const footerOptionalHtml =
     safe.email_footer_optional && String(safe.email_footer_optional).trim()
@@ -758,37 +780,7 @@ Your official donation receipt is attached to this email for your records.
                 </tr>
               </table>
 
-              <p class="donate-impact-title" style="margin:36px 0 18px;font-family:Georgia,'Times New Roman',serif;font-size:19px;font-weight:700;color:#004b50;text-align:center;">
-                Your Donation Makes Possible
-              </p>
-              <table class="donate-impact-table" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-spacing:0;border-collapse:collapse;">
-                <tr class="donate-impact-row">
-                  <td class="donate-impact-amt" style="width:15%;vertical-align:top;padding:14px 12px 14px 0;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;white-space:nowrap;">€25</td>
-                  <td class="donate-impact-tier" style="width:22%;vertical-align:top;padding:14px 12px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#333333;">Supporter</td>
-                  <td class="donate-impact-desc" style="vertical-align:top;padding:14px 0 14px 8px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:400;line-height:1.6;color:#333333;">Helps cover essential operational costs.</td>
-                </tr>
-                <tr class="donate-impact-row">
-                  <td class="donate-impact-amt" style="vertical-align:top;padding:14px 12px 14px 0;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;white-space:nowrap;">€50</td>
-                  <td class="donate-impact-tier" style="vertical-align:top;padding:14px 12px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#333333;">Friend</td>
-                  <td class="donate-impact-desc" style="vertical-align:top;padding:14px 0 14px 8px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:400;line-height:1.6;color:#333333;">Supports programs that empower communities through arts and culture.</td>
-                </tr>
-                <tr class="donate-impact-row">
-                  <td class="donate-impact-amt" style="vertical-align:top;padding:14px 12px 14px 0;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;white-space:nowrap;">€100</td>
-                  <td class="donate-impact-tier" style="vertical-align:top;padding:14px 12px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#333333;">Champion</td>
-                  <td class="donate-impact-desc" style="vertical-align:top;padding:14px 0 14px 8px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:400;line-height:1.6;color:#333333;">Enables impactful events that inspire, educate, and bring people together.</td>
-                </tr>
-                <tr class="donate-impact-row">
-                  <td class="donate-impact-amt" style="vertical-align:top;padding:14px 12px 14px 0;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;white-space:nowrap;">€250</td>
-                  <td class="donate-impact-tier" style="vertical-align:top;padding:14px 12px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#333333;">Patron</td>
-                  <td class="donate-impact-desc" style="vertical-align:top;padding:14px 0 14px 8px;border-bottom:1px solid #e0e0e0;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:400;line-height:1.6;color:#333333;">Supports larger initiatives and helps expand our reach worldwide.</td>
-                </tr>
-                <tr class="donate-impact-row">
-                  <td class="donate-impact-amt" style="vertical-align:top;padding:14px 12px 14px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#26a69a;white-space:nowrap;">€500+</td>
-                  <td class="donate-impact-tier" style="vertical-align:top;padding:14px 12px;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#333333;">Visionary</td>
-                  <td class="donate-impact-desc" style="vertical-align:top;padding:14px 0 14px 8px;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:400;line-height:1.6;color:#333333;">Makes a transformative impact and helps shape a better future.</td>
-                </tr>
-              </table>
-
+${impactSectionHtml}
               <p style="margin:28px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.75;color:#333333;">
                 Your kindness fuels creativity, strengthens communities, and brings people together across cultures. We are deeply grateful to have you as part of our journey.
               </p>
@@ -935,6 +927,7 @@ export async function sendDonationEmails(payload) {
       donorEmail: values.donor_email,
       donorAddress: values.donor_address,
       notesOptional: values.notes_optional,
+      tierId: values.tier_id,
       donationLevel: values.donation_level,
       donationAmount: values.donation_amount,
       paymentMethod: values.payment_method,

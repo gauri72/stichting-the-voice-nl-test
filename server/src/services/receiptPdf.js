@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import PDFDocument from "pdfkit";
+import { getDonationImpactForTier } from "../config/donationImpact.js";
 import { getCoverageForTier } from "../config/sponsorshipCoverage.js";
 import { resolveDonationPublicContactEmail } from "../config/donationPublicContact.js";
 
@@ -47,35 +48,6 @@ const FONTS = {
 
 const FOOTER_BAR_HEIGHT = 36;
 const FOOTER_DONATION_HEIGHT = 50;
-
-/** Tier blurbs aligned with donation thank-you email / receipt design */
-const DONATION_RECEIPT_SUPPORT_ROWS = [
-  {
-    amount: "€25",
-    tier: "Supporter",
-    description: "Helps cover essential operational costs."
-  },
-  {
-    amount: "€50",
-    tier: "Friend",
-    description: "Supports programs that empower communities through arts and culture."
-  },
-  {
-    amount: "€100",
-    tier: "Champion",
-    description: "Enables impactful events that inspire, educate, and bring people together."
-  },
-  {
-    amount: "€250",
-    tier: "Patron",
-    description: "Supports larger initiatives and helps expand our reach worldwide."
-  },
-  {
-    amount: "€500+",
-    tier: "Visionary",
-    description: "Makes a transformative impact and helps shape a better future."
-  }
-];
 
 const CARD_INSET_X = 32;
 const CARD_INSET_Y = 16;
@@ -562,7 +534,10 @@ function drawDonationConfirmationBlock(doc) {
   doc.moveDown(0.55);
 }
 
-function drawDonationSupportsTable(doc) {
+function drawDonationSupportsTable(doc, impactRows) {
+  const rows = Array.isArray(impactRows) ? impactRows.filter(Boolean) : [];
+  if (!rows.length) return;
+
   ensureSpace(doc, 120);
   const left = doc.page.margins.left;
   const width = doc.page.width - left - doc.page.margins.right;
@@ -584,7 +559,7 @@ function drawDonationSupportsTable(doc) {
   doc.moveDown(0.4);
 
   let bodyH = 0;
-  DONATION_RECEIPT_SUPPORT_ROWS.forEach((row) => {
+  rows.forEach((row) => {
     doc.font(FONTS.body).fontSize(fsDesc);
     const hDesc = doc.heightOfString(row.description, { width: descW, lineGap: 0.35 });
     bodyH += padY * 2 + Math.max(fsAmt * 1.35, hDesc);
@@ -601,7 +576,7 @@ function drawDonationSupportsTable(doc) {
     .stroke();
 
   let y = tableTop;
-  DONATION_RECEIPT_SUPPORT_ROWS.forEach((row, idx) => {
+  rows.forEach((row, idx) => {
     if (idx > 0) {
       strokeDashedHLine(doc, left + 8, left + width - 8, y);
     }
@@ -1097,6 +1072,7 @@ export function renderSponsorshipReceiptPdf(payload) {
  * @param {string} payload.donorName
  * @param {string} payload.donorEmail
  * @param {string} payload.companyName
+ * @param {string} [payload.tierId]  25 | 50 | 100 | 250 | 500 | custom
  * @param {string} payload.donationLevel
  * @param {string} payload.donationAmount  Pre-formatted currency string
  * @param {string} payload.paymentMethod
@@ -1135,7 +1111,12 @@ export function renderDonationReceiptPdf(payload) {
       drawDonationReceiptDetailsGrid(doc, payload);
       drawDonationDonorRow(doc, payload);
       drawDonationConfirmationBlock(doc);
-      drawDonationSupportsTable(doc);
+      const impactTier = getDonationImpactForTier(payload.tierId, {
+        amountLabel: payload.donationAmount
+      });
+      if (impactTier) {
+        drawDonationSupportsTable(doc, [impactTier]);
+      }
       drawDonationNotesBox(doc, payload);
       drawDonationAuthorisedBy(doc);
 
