@@ -6,15 +6,16 @@
   background-position: center;
   background-repeat: no-repeat;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .hero-overlay {
   width: 100%;
   min-height: calc(100vh - 140px);
-  padding: 56px 36px;
+  padding: 44px 36px 48px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .hero-content {
@@ -50,10 +51,10 @@
 .hero-tagline {
   margin: 14px 0 0;
   color: #16435f;
-  font-size: clamp(1.2rem, 1.75vw, 1.8rem);
+  font-size: clamp(1.1rem, 1.6vw, 1.65rem);
   line-height: 1.45;
   font-weight: 800;
-  white-space: nowrap;
+  max-width: 42rem;
 }
 
 @media (min-width: 1025px) {
@@ -67,7 +68,7 @@
     max-width: min(74vw, 1080px);
     align-items: flex-start;
     justify-content: flex-start;
-    padding: 20px 28px 40px 24px;
+    padding: 36px 28px 48px 24px;
   }
 
   .hero-content {
@@ -88,6 +89,7 @@
   .hero-tagline {
     font-size: clamp(1.2rem, 1.8vw, 1.85rem);
     margin-top: 14px;
+    line-height: 1.4;
   }
 
   .hero-description {
@@ -230,7 +232,9 @@
     position: relative;
     z-index: 1;
     min-height: calc(100vh - 112px);
-    padding: 48px 24px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 36px 24px 32px;
   }
 
   .hero-content {
@@ -278,13 +282,25 @@
     margin-left: auto;
     margin-right: auto;
   }
+}
 
+/* Tablet only: vertically center hero text */
+@media (min-width: 721px) and (max-width: 1024px) {
+  .hero-section {
+    align-items: center;
+  }
+
+  .hero-overlay {
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 720px) {
   .hero-section {
     min-height: calc(100vh - 96px);
     background-position: 74% center;
+    align-items: center;
   }
 
   .hero-section::before {
@@ -293,7 +309,9 @@
 
   .hero-overlay {
     min-height: calc(100vh - 96px);
-    padding: 32px 16px 28px;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 16px 24px;
   }
 
   .hero-heading {
@@ -321,10 +339,16 @@
 
   .hero-whatsapp-cta {
     margin-top: 14px;
+    text-align: center;
+    width: 100%;
+    max-width: 52ch;
   }
 
   .hero-whatsapp-cta p {
     font-size: 0.95rem;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .hero-whatsapp-cta a {
@@ -343,7 +367,7 @@
 
   .hero-overlay {
     min-height: calc(100vh - 88px);
-    padding: 28px 14px 24px;
+    padding: 24px 14px 20px;
   }
 
   .hero-heading {

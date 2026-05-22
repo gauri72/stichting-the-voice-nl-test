@@ -108,7 +108,7 @@ export default function MembershipFaqSection() {
           <p className="membership-faq__cta-title">Still have questions?</p>
           <p>We are here to help you choose the right membership.</p>
           <div className="membership-faq__cta-actions">
-            <a href="/contact">Contact us</a>
+            <a href="mailto:info@stichtingthevoice.nl?subject=Membership%20enquiry">Contact us</a>
             <a href="https://wa.me/31619032104" target="_blank" rel="noreferrer">
               <FaWhatsapp aria-hidden="true" />
               Chat on WhatsApp

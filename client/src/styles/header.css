@@ -248,7 +248,9 @@
   justify-content: center;
 }
 
-.menu-links a {
+.menu-links a,
+.menu-dropdown-trigger {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   text-transform: uppercase;
   font-size: 13px;
   font-weight: 700;
@@ -341,6 +343,31 @@
 
 .auth-button-menu {
   display: none;
+}
+
+.menu-links .nav-contact-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  color: #1f2f3d;
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border: none;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  box-shadow: none;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.menu-links .nav-contact-link:hover {
+  color: #118a93;
+  border-bottom-color: #8ecfd2;
+  transform: none;
+  background: transparent;
+  box-shadow: none;
 }
 
 .contact-link {
@@ -444,14 +471,14 @@
 .menu-dropdown-trigger {
   border: none;
   background: transparent;
-  text-transform: uppercase;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
   color: #1f2f3d;
-  padding: 7px 0;
   cursor: pointer;
+}
+
+.menu-dropdown:hover .menu-dropdown-trigger {
+  color: #118a93;
+  border-bottom-color: #8ecfd2;
+  transform: translateY(-1px);
 }
 
 .menu-dropdown-trigger::after {
@@ -816,6 +843,7 @@
 
   .menu-links a,
   .menu-dropdown-trigger {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     font-size: 13px;
     padding: 8px 2px;
     border-bottom-width: 2px;

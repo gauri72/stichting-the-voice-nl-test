@@ -7,25 +7,23 @@ export default function Hero() {
     <section className="hero-section">
       <div className="hero-overlay">
         <div className="hero-content">
-          <p className="hero-label">About Us</p>
-
           <h1 className="hero-heading">
             Where Talent Shines,
             <br />
             <span>Culture Comes Alive.</span>
           </h1>
 
-          <p className="hero-tagline">Celebrating Diversity. Inspiring Unity.</p>
-
-          <p className="hero-description">
-            Stichting The V.O.I.C.E. NL is a Netherlands-based non-profit cultural foundation
-            dedicated to international cultural exchange through music, dance, film, community
-            engagement, and artistic collaboration.
+          <p className="hero-tagline">
+            Come for the experience. Stay for{" "}
+            <br />
+            the community. Grow with the family.
           </p>
 
-          <p className="hero-about-para">
-            We organize cultural, artistic and social events that bring people together, spark
-            dialogue, and create lasting impact across generations.
+          <p className="hero-description">
+            Be part of something bigger than an event. Stichting The V.O.I.C.E. NL is building a
+            vibrant international cultural community where people come together through music,
+            dance, cinema, sports, and shared experiences. Join us in shaping a future filled with
+            culture, inspiration, and togetherness.
           </p>
 
           <div className="hero-whatsapp-cta">

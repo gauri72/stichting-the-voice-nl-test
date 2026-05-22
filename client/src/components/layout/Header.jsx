@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { IoMailOutline, IoPersonOutline } from "react-icons/io5";
+import { IoPersonOutline } from "react-icons/io5";
 import headerLogo from "../../assets/header-logo.png";
 
 export default function Header() {
@@ -31,15 +31,15 @@ export default function Header() {
         Sponsorship
       </NavLink>
 
-      <div className={`menu-dropdown ${openDropdown === "segments" ? "open" : ""}`}>
+      <div className={`menu-dropdown ${openDropdown === "more" ? "open" : ""}`}>
         <button
           className="menu-dropdown-trigger"
           type="button"
           aria-haspopup="true"
-          aria-expanded={openDropdown === "segments"}
-          onClick={() => toggleDropdown("segments")}
+          aria-expanded={openDropdown === "more"}
+          onClick={() => toggleDropdown("more")}
         >
-          Segments
+          More
         </button>
         <div className="menu-dropdown-menu">
           <NavLink to="/segments/vision-of-sounds" onClick={closeMenu}>
@@ -51,13 +51,22 @@ export default function Header() {
           <NavLink to="/segments/voice-of-visionaries" onClick={closeMenu}>
             Voice of Visionaries
           </NavLink>
+          <NavLink to="/voice-venture-studio" onClick={closeMenu}>
+            VOICE Venture Studio
+          </NavLink>
+          <NavLink to="/terms-and-conditions" onClick={closeMenu}>
+            Policy &amp; Conditions
+          </NavLink>
         </div>
       </div>
 
-      <NavLink className="contact-link" to="/contact" onClick={closeMenu} aria-label="Contact">
-        <IoMailOutline className="contact-link-icon" aria-hidden />
-        <span className="contact-link-label">Contact</span>
-      </NavLink>
+      <a
+        className="nav-contact-link"
+        href="mailto:info@stichtingthevoice.nl?subject=Website%20enquiry"
+        onClick={closeMenu}
+      >
+        Contact us
+      </a>
     </>
   );
 

@@ -23,7 +23,7 @@ const teamMembers = [
   { name: "Aditya Wankhade", role: "Event Management Team", image: team7 },
   { name: "Priyanka Bhide", role: "Executive Board Member", image: team8 },
   { name: "Yazhini Sivakumar", role: "Event Management Team", image: team9 },
-  { name: "Dr. Manasi Mohri", role: "PR Manager", image: team10 },
+  { name: "Dr. Manasi Moharil", role: "Event Management Team", image: team10 },
   { name: "Shivani Trifaley", role: "PR Manager", image: team11 },
   { name: "Anshika Singh", role: "PR Manager", image: team12 },
   { name: "Parth Upadhyay", role: "Event Management Team", image: team13 }

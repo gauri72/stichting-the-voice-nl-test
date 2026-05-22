@@ -3,12 +3,14 @@
   padding: 22px 0 26px;
   background: linear-gradient(180deg, #f0f5f7 0%, #e8eef2 45%, #eef2f4 100%);
   overflow: hidden;
-  /* Fill the viewport so the Ticket Tailor block uses the screen */
-  min-height: 100vh;
-  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+}
+
+.event-tickets-section--open {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .event-tickets-section__inner {
@@ -58,14 +60,52 @@
   margin: 8px auto 0;
 }
 
+.event-tickets-section__intro {
+  margin-top: 22px;
+  text-align: center;
+}
+
 .event-tickets-section__heading {
-  margin: 14px auto 0;
+  margin: 0 auto;
   max-width: 42rem;
   text-align: center;
   color: #173d5d;
   font-size: clamp(1.05rem, 1.2vw, 1.35rem);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.45;
+}
+
+.event-tickets-section__open-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #0a5f7f 0%, #2ea276 100%);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(10, 95, 127, 0.22);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.event-tickets-section__open-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 10px 24px rgba(10, 95, 127, 0.28);
+}
+
+.event-tickets-section__open-btn:focus-visible {
+  outline: 2px solid #118a93;
+  outline-offset: 3px;
 }
 
 .event-tickets-section__heading::after {
@@ -144,6 +184,9 @@
 @media (max-width: 540px) {
   .event-tickets-section {
     padding: 16px 0 20px;
+  }
+
+  .event-tickets-section--open {
     min-height: 100dvh;
     min-height: 100svh;
   }

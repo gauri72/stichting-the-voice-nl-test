@@ -57,6 +57,7 @@ export default function App() {
           <Route path="/blogs" element={<EmptyPage />} />
           <Route path="/donate" element={<DonatePage />} />
           <Route path="/contact" element={<EmptyPage />} />
+          <Route path="/voice-venture-studio" element={<EmptyPage />} />
           <Route path="/film-festival" element={<EmptyPage />} />
           <Route path="/privacy-policy" element={<EmptyPage />} />
           <Route path="/terms-and-conditions" element={<EmptyPage />} />

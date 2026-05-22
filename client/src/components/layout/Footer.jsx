@@ -209,19 +209,8 @@ export default function Footer() {
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="footer-col footer-col-follow">
-            <h3 className="footer-section-title">Follow us</h3>
-            <div className="footer-social-list footer-social-list--footer">
-              {socialLinks.map(({ href, label, Icon }) => (
-                <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
-                  <Icon aria-hidden />
-                </a>
-              ))}
-            </div>
             <div
-              className="footer-venture-credit"
+              className="footer-venture-credit footer-venture-credit--brand"
               aria-label="This website is designed and developed by V.O.I.C.E. Venture Studio"
             >
               <img
@@ -237,6 +226,17 @@ export default function Footer() {
                 <br />
                 V.O.I.C.E. VENTURE STUDIO
               </p>
+            </div>
+          </div>
+
+          <div className="footer-col footer-col-follow">
+            <h3 className="footer-section-title">Follow us</h3>
+            <div className="footer-social-list footer-social-list--footer">
+              {socialLinks.map(({ href, label, Icon }) => (
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
+                  <Icon aria-hidden />
+                </a>
+              ))}
             </div>
           </div>
 

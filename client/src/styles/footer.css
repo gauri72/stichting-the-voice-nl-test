@@ -277,6 +277,23 @@
   -webkit-backdrop-filter: none;
 }
 
+.footer-venture-credit--brand {
+  justify-content: flex-start;
+  align-items: flex-end;
+  margin-top: 18px;
+  margin-inline: 0;
+  max-width: 100%;
+  padding-left: 14px;
+  padding-bottom: 4px;
+}
+
+.footer-col-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
 .footer-venture-logo {
   display: block;
   width: clamp(46px, 8vw, 66px);
@@ -2133,6 +2150,20 @@
     align-items: center;
   }
 
+  .footer-columns--main .footer-col-brand .footer-venture-credit--brand {
+    align-self: center;
+    width: fit-content;
+    max-width: min(560px, 100%);
+    margin-inline: auto;
+    padding-left: 0;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .footer-columns--main .footer-col-brand .footer-venture-credit--brand .footer-designed-by {
+    text-align: center;
+  }
+
   .footer-columns--main .footer-col-contact .footer-brand-details {
     margin-inline: auto;
     width: fit-content;
@@ -2360,26 +2391,11 @@
   }
 }
 
-/* Tablet & mobile: center venture credit and contact us (keep row/grid layout) */
 @media (max-width: 992px) {
   .footer-col-follow {
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
-
-  .footer-col-follow .footer-venture-credit {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
-    margin-inline: auto;
-    width: fit-content;
-    max-width: min(440px, 100%);
-  }
-
-  .footer-col-follow .footer-venture-credit .footer-designed-by {
-    text-align: left;
   }
 
   .footer-columns--main .footer-col-contact,
@@ -2402,5 +2418,41 @@
   .footer-col-contact .footer-section-title {
     text-align: center;
     width: 100%;
+  }
+}
+
+/* Tablet only (721–1024px): center VOICE Venture logo and credit */
+@media (min-width: 721px) and (max-width: 1024px) {
+  .footer-columns--main .footer-col-brand .footer-venture-credit--brand,
+  .footer-venture-credit--brand {
+    align-self: center;
+    justify-content: center;
+    align-items: center;
+    margin-inline: auto;
+    padding-left: 0;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .footer-venture-credit--brand .footer-designed-by {
+    text-align: center;
+  }
+}
+
+/* Mobile only (≤720px): center VOICE Venture logo and credit */
+@media (max-width: 720px) {
+  .footer-columns--main .footer-col-brand .footer-venture-credit--brand,
+  .footer-venture-credit--brand {
+    align-self: center;
+    justify-content: center;
+    align-items: center;
+    margin-inline: auto;
+    padding-left: 0;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .footer-venture-credit--brand .footer-designed-by {
+    text-align: center;
   }
 }
