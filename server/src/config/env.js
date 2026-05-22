@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { stripEnv } from "./stripEnv.js";
 
 dotenv.config();
 
@@ -13,13 +14,13 @@ const env = {
     currency: (process.env.PAYMENT_CURRENCY || "eur").toLowerCase()
   },
   email: {
-    host: process.env.EMAIL_HOST || "",
-    port: Number(process.env.EMAIL_PORT) || 587,
-    secure: String(process.env.EMAIL_SECURE || "false").toLowerCase() === "true",
-    user: process.env.EMAIL_USER || "",
-    pass: process.env.EMAIL_PASS || "",
-    from: process.env.EMAIL_FROM || "",
-    orgNotify: process.env.ORG_NOTIFY_EMAIL || ""
+    host: stripEnv(process.env.EMAIL_HOST),
+    port: Number(stripEnv(process.env.EMAIL_PORT)) || 587,
+    secure: String(stripEnv(process.env.EMAIL_SECURE) || "false").toLowerCase() === "true",
+    user: stripEnv(process.env.EMAIL_USER),
+    pass: stripEnv(process.env.EMAIL_PASS),
+    from: stripEnv(process.env.EMAIL_FROM),
+    orgNotify: stripEnv(process.env.ORG_NOTIFY_EMAIL)
   },
   auth: {
     jwtSecret:
@@ -48,8 +49,8 @@ const env = {
   },
   org: {
     contactEmail:
-      process.env.CONTACT_EMAIL ||
-      process.env.ORG_NOTIFY_EMAIL ||
+      stripEnv(process.env.CONTACT_EMAIL) ||
+      stripEnv(process.env.ORG_NOTIFY_EMAIL) ||
       "info@stichtingthevoice.nl",
     tagline:
       process.env.ORG_TAGLINE ||
@@ -58,7 +59,7 @@ const env = {
       process.env.SPONSOR_UPLOAD_URL ||
       "https://e.pcloud.com/#/puplink?code=a0d7Z7oHyALJyo1QSVj7EPvLx5y5ySo37",
     /** Optional single line below donation thank-you email (plain text; leave empty to omit). */
-    emailFooterOptional: process.env.EMAIL_FOOTER_OPTIONAL || ""
+    emailFooterOptional: stripEnv(process.env.EMAIL_FOOTER_OPTIONAL)
   }
 };
 

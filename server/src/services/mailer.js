@@ -1,4 +1,3 @@
-import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -6,6 +5,13 @@ import env from "../config/env.js";
 import { resolveDonationPublicContactEmail } from "../config/donationPublicContact.js";
 import { SPONSORSHIP_COVERAGE } from "../config/sponsorshipCoverage.js";
 import { renderDonationReceiptPdf, renderSponsorshipReceiptPdf } from "./receiptPdf.js";
+import {
+  getMailReplyTo,
+  getSmtpTransporter,
+  isMailerConfigured
+} from "./smtpTransport.js";
+
+export { isMailerConfigured };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HEADER_LOGO_PATH = path.join(
@@ -32,34 +38,6 @@ function loadHeaderLogoAttachment() {
     console.warn("[mailer] Could not load header-logo.png; sponsor email will omit logo.");
     return null;
   }
-}
-
-let transporter = null;
-
-function buildTransporter() {
-  if (!env.email.host || !env.email.user || !env.email.pass) {
-    return null;
-  }
-
-  return nodemailer.createTransport({
-    host: env.email.host,
-    port: env.email.port,
-    secure: env.email.secure,
-    auth: {
-      user: env.email.user,
-      pass: env.email.pass
-    }
-  });
-}
-
-function getTransporter() {
-  if (transporter) return transporter;
-  transporter = buildTransporter();
-  return transporter;
-}
-
-export function isMailerConfigured() {
-  return Boolean(env.email.host && env.email.user && env.email.pass && env.email.from);
 }
 
 function escapeHtml(value) {
@@ -158,7 +136,7 @@ Stichting The V.O.I.C.E. NL
 The Vision of International Cultural Exchange in the Netherlands
 
 Contact Details
-Email: info@stichtingthevoice.nl
+Email: ${values.contact_email}
 Website: stichtingthevoice.nl
 KVK: 92180213
 Office: +31619032104
@@ -451,7 +429,7 @@ ${coverageRowsHtml}
                         Contact Details
                       </p>
                       <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:8px;color:#10243a;line-height:1.32;">
-                        Email: <a href="mailto:info@stichtingthevoice.nl" style="color:#008080;text-decoration:none;">info@stichtingthevoice.nl</a><br/>
+                        Email: <a href="mailto:${safe.contact_email}" style="color:#008080;text-decoration:none;">${safe.contact_email}</a><br/>
                         Website: <a href="https://stichtingthevoice.nl" style="color:#008080;text-decoration:none;">stichtingthevoice.nl</a><br/>
                         KVK: 92180213<br/>
                         Office: +31619032104
@@ -497,9 +475,7 @@ function buildDonationPlaceholders(payload) {
   const transactionId = payload.paymentIntentId || "";
   const donorAddress = [sponsor.organization, sponsor.country].filter(Boolean).join(", ").trim();
   const notesOptional = sponsor.message && String(sponsor.message).trim() ? String(sponsor.message).trim() : "";
-  const donorPublicContact = resolveDonationPublicContactEmail(
-    process.env.CONTACT_EMAIL
-  );
+  const donorPublicContact = resolveDonationPublicContactEmail(env.org.contactEmail);
   return {
     donor_name: sponsor.name || sponsor.firstName || "Donor",
     company_name: sponsor.organization || "",
@@ -869,8 +845,79 @@ Your official donation receipt is attached to this email for your records.
   return { subject, text, html };
 }
 
+function baseMailOptions() {
+  return {
+    from: env.email.from,
+    replyTo: getMailReplyTo()
+  };
+}
+
+function buildOrgDonationNotifyText(values) {
+  return [
+    "New donation received via the website.",
+    "",
+    `Donor: ${values.donor_name}`,
+    `Email: ${values.donor_email}`,
+    `Amount: ${values.donation_amount}`,
+    `Level: ${values.donation_level}`,
+    `Receipt: ${values.receipt_number || "—"}`,
+    `Stripe: ${values.stripe_payment_id || "—"}`
+  ].join("\n");
+}
+
+function buildOrgSponsorshipNotifyText(values) {
+  return [
+    "New sponsorship received via the website.",
+    "",
+    `Sponsor: ${values.sponsor_name}`,
+    `Email: ${values.sponsor_email}`,
+    `Company: ${values.company_name || "—"}`,
+    `Tier: ${values.sponsorship_tier}`,
+    `Amount: ${values.sponsorship_amount}`,
+    `Receipt: ${values.receipt_number || "—"}`,
+    `Stripe: ${values.stripe_payment_id || "—"}`
+  ].join("\n");
+}
+
+export async function sendNewsletterSubscribeEmails({ email }) {
+  const tx = getSmtpTransporter();
+  if (!tx || !env.email.from) {
+    console.warn("[mailer] Newsletter email not sent: SMTP/EMAIL_FROM not configured.");
+    return { skipped: true };
+  }
+
+  const subscriber = String(email || "").trim();
+  const notifyTo = env.email.orgNotify || env.org.contactEmail;
+  const base = baseMailOptions();
+
+  await tx.sendMail({
+    ...base,
+    to: subscriber,
+    subject: "You are subscribed — Stichting The V.O.I.C.E. NL",
+    text: `Thank you for subscribing to updates from Stichting The V.O.I.C.E. NL.\n\nYou will hear from us about events, stories, and impact.\n\nQuestions? Reply to this email or write to ${env.org.contactEmail}.`,
+    html: `
+      <div style="font-family:Segoe UI,Tahoma,sans-serif;line-height:1.6;color:#17314b;max-width:560px;margin:0 auto;">
+        <h1 style="color:#0d2847;font-size:22px;">Thank you for subscribing</h1>
+        <p>You will receive updates on events, stories, and impact from Stichting The V.O.I.C.E. NL.</p>
+        <p style="font-size:13px;color:#7a8ea3;">Questions? Contact us at <a href="mailto:${escapeHtml(env.org.contactEmail)}">${escapeHtml(env.org.contactEmail)}</a>.</p>
+      </div>
+    `
+  });
+
+  if (notifyTo && notifyTo.toLowerCase() !== subscriber.toLowerCase()) {
+    await tx.sendMail({
+      ...base,
+      to: notifyTo,
+      subject: `Newsletter signup: ${subscriber}`,
+      text: `New newsletter subscription from the website footer.\n\nEmail: ${subscriber}`
+    });
+  }
+
+  return { skipped: false };
+}
+
 export async function sendDonationEmails(payload) {
-  const tx = getTransporter();
+  const tx = getSmtpTransporter();
   if (!tx || !env.email.from) {
     console.warn("[mailer] Donation email not sent: SMTP/EMAIL_FROM not configured.");
     return { skipped: true };
@@ -914,22 +961,38 @@ export async function sendDonationEmails(payload) {
       : [])
   ];
 
+  const tasks = [];
+
   if (payload.sponsor?.email) {
-    await tx.sendMail({
-      from: env.email.from,
-      to: payload.sponsor.email,
-      subject: donorMail.subject,
-      text: donorMail.text,
-      html: donorMail.html,
-      attachments
-    });
+    tasks.push(
+      tx.sendMail({
+        ...baseMailOptions(),
+        to: payload.sponsor.email,
+        subject: donorMail.subject,
+        text: donorMail.text,
+        html: donorMail.html,
+        attachments
+      })
+    );
   }
 
+  if (env.email.orgNotify) {
+    tasks.push(
+      tx.sendMail({
+        ...baseMailOptions(),
+        to: env.email.orgNotify,
+        subject: `New donation: ${values.donation_amount} — ${values.donor_name}`,
+        text: buildOrgDonationNotifyText(values)
+      })
+    );
+  }
+
+  await Promise.allSettled(tasks);
   return { skipped: false };
 }
 
 export async function sendSponsorshipEmails(payload) {
-  const tx = getTransporter();
+  const tx = getSmtpTransporter();
   if (!tx || !env.email.from) {
     console.warn("[mailer] Email not sent: SMTP/EMAIL_FROM not configured.");
     return { skipped: true };
@@ -979,12 +1042,23 @@ export async function sendSponsorshipEmails(payload) {
   if (payload.sponsor?.email) {
     tasks.push(
       tx.sendMail({
-        from: env.email.from,
+        ...baseMailOptions(),
         to: payload.sponsor.email,
         subject: sponsorMail.subject,
         text: sponsorMail.text,
         html: sponsorMail.html,
         attachments: sponsorAttachments
+      })
+    );
+  }
+
+  if (env.email.orgNotify) {
+    tasks.push(
+      tx.sendMail({
+        ...baseMailOptions(),
+        to: env.email.orgNotify,
+        subject: `New sponsorship: ${values.sponsorship_tier} — ${values.sponsor_name}`,
+        text: buildOrgSponsorshipNotifyText(values)
       })
     );
   }

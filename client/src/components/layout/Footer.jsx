@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { apiFetch } from "../../utils/api.js";
 import {
   FaFacebookF,
   FaInstagram,
@@ -78,15 +79,45 @@ const socialLinks = [
   },
 ];
 
+const DEFAULT_CONTACT_EMAIL = "info@stichtingthevoice.nl";
+
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [subscribeError, setSubscribeError] = useState("");
+  const [subscribeLoading, setSubscribeLoading] = useState(false);
+  const [contactEmail, setContactEmail] = useState(DEFAULT_CONTACT_EMAIL);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  function handleSubscribe(e) {
+  useEffect(() => {
+    apiFetch("/api/public/site")
+      .then((data) => {
+        if (data?.contactEmail) setContactEmail(data.contactEmail);
+      })
+      .catch(() => {});
+  }, []);
+
+  async function handleSubscribe(e) {
     e.preventDefault();
-    if (!email.trim()) return;
-    setSubscribed(true);
+    const trimmed = email.trim();
+    if (!trimmed) return;
+
+    setSubscribeLoading(true);
+    setSubscribeError("");
+    setSubscribed(false);
+
+    try {
+      await apiFetch("/api/newsletter/subscribe", {
+        method: "POST",
+        body: JSON.stringify({ email: trimmed })
+      });
+      setSubscribed(true);
+      setEmail("");
+    } catch (err) {
+      setSubscribeError(err.message || "Could not subscribe. Please try again.");
+    } finally {
+      setSubscribeLoading(false);
+    }
   }
 
   return (
@@ -136,10 +167,24 @@ export default function Footer() {
                 setSubscribed(false);
               }}
             />
-            <button type="submit" className="footer-stay-connected-btn">
-              SUBSCRIBE
+            <button
+              type="submit"
+              className="footer-stay-connected-btn"
+              disabled={subscribeLoading}
+            >
+              {subscribeLoading ? "SUBSCRIBING…" : "SUBSCRIBE"}
             </button>
           </form>
+          {subscribed ? (
+            <p className="footer-stay-connected-status" role="status">
+              Thank you — check your inbox for a confirmation email.
+            </p>
+          ) : null}
+          {subscribeError ? (
+            <p className="footer-stay-connected-error" role="alert">
+              {subscribeError}
+            </p>
+          ) : null}
         </div>
 
         <div className="footer-columns footer-columns--main">
@@ -254,7 +299,12 @@ export default function Footer() {
               </p>
               <p>
                 <span className="footer-brand-details-label">Email</span>
-                <span className="footer-brand-details-value">info@stichtingthevoice.nl</span>
+                <a
+                  className="footer-brand-details-value footer-email"
+                  href={`mailto:${contactEmail}`}
+                >
+                  {contactEmail}
+                </a>
               </p>
               <p>
                 <span className="footer-brand-details-label">Office Phone</span>

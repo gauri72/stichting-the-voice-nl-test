@@ -61,15 +61,32 @@ For local-only testing without real charges, use a separate test account or test
 
 #### 2. Create email credentials (for confirmation emails)
 
-Pick one. Gmail is the fastest for testing; SendGrid/Mailgun are recommended once you go live.
+Pick one. **SiteGround** is recommended if your domain mailbox is already there; Gmail is fine for quick local tests.
 
-**Option A - Gmail (easiest)**
+**Option A - SiteGround (recommended for production)**
+
+1. In SiteGround **Site Tools → Email → Accounts**, create or use a mailbox (e.g. `info@stichtingthevoice.nl`).
+2. Open **Mail Configuration → Manual settings** and copy the outgoing SMTP host, port (usually **465**), username (full email), and password.
+3. In `server/.env` set (use the same address for `EMAIL_USER` and `EMAIL_FROM`):
+   ```env
+   EMAIL_HOST=mail.stichtingthevoice.nl
+   EMAIL_PORT=465
+   EMAIL_SECURE=true
+   EMAIL_USER=info@stichtingthevoice.nl
+   EMAIL_PASS=<mailbox_password>
+   EMAIL_FROM=Stichting The V.O.I.C.E. NL <info@stichtingthevoice.nl>
+   CONTACT_EMAIL=info@stichtingthevoice.nl
+   ORG_NOTIFY_EMAIL=info@stichtingthevoice.nl
+   ```
+4. On startup the API logs `[mail] SMTP configured` and verifies the connection.
+
+**Option B - Gmail (easiest for local testing)**
 
 1. Enable 2-factor auth on the Gmail account you want to send from.
 2. Go to <https://myaccount.google.com/apppasswords> and generate a new App Password (any name).
 3. Use the 16-character password as `EMAIL_PASS` in `server/.env`.
 
-**Option B - SendGrid (recommended for production)**
+**Option C - SendGrid**
 
 1. Sign up at <https://sendgrid.com/>.
 2. Go to **Settings -> API Keys** and create a key with "Mail Send" permission.
@@ -81,7 +98,7 @@ Pick one. Gmail is the fastest for testing; SendGrid/Mailgun are recommended onc
    EMAIL_SECURE=false
    EMAIL_USER=apikey
    EMAIL_PASS=<your_sendgrid_api_key>
-   EMAIL_FROM="Stichting The V.O.I.C.E. NL <verified_sender@yourdomain.org>"
+   EMAIL_FROM=Stichting The V.O.I.C.E. NL <verified_sender@yourdomain.org>
    ```
 
 #### 3. Fill in your `.env` files
@@ -103,7 +120,7 @@ EMAIL_SECURE=true
 EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_gmail_app_password
 EMAIL_FROM="Stichting The V.O.I.C.E. NL <your_email@gmail.com>"
-ORG_NOTIFY_EMAIL=info@thevoice.nl   # optional internal alerts
+ORG_NOTIFY_EMAIL=info@stichtingthevoice.nl   # internal alerts for donations, sponsorships, newsletter
 ```
 
 `client/.env`:

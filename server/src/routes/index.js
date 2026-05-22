@@ -3,10 +3,14 @@ import { getHealth } from "../controllers/healthController.js";
 import paymentRoutes from "./paymentRoutes.js";
 import authRoutes from "./authRoutes.js";
 import dashboardRoutes from "./dashboardRoutes.js";
+import newsletterRoutes from "./newsletterRoutes.js";
+import publicRoutes from "./publicRoutes.js";
 
 const router = Router();
 
 router.get("/health", getHealth);
+router.use("/public", publicRoutes);
+router.use("/newsletter", newsletterRoutes);
 router.use("/auth", authRoutes);
 router.use("/payments", paymentRoutes);
 router.use("/dashboard", dashboardRoutes);

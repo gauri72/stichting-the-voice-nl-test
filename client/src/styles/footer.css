@@ -1894,6 +1894,27 @@
   transform: translateY(0);
 }
 
+.footer-stay-connected-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.footer-stay-connected-status,
+.footer-stay-connected-error {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.footer-stay-connected-status {
+  color: #d8f28c;
+}
+
+.footer-stay-connected-error {
+  color: #ffb4b4;
+}
+
 .footer-columns--main {
   margin-top: 14px;
   /* 1: brand  2: follow us  3: quick links + legal  4: contact */

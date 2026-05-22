@@ -1,20 +1,9 @@
-import nodemailer from "nodemailer";
 import env from "../config/env.js";
-import { isMailerConfigured } from "./mailer.js";
-
-let transporter = null;
-
-function getTransporter() {
-  if (transporter) return transporter;
-  if (!env.email.host || !env.email.user || !env.email.pass) return null;
-  transporter = nodemailer.createTransport({
-    host: env.email.host,
-    port: env.email.port,
-    secure: env.email.secure,
-    auth: { user: env.email.user, pass: env.email.pass }
-  });
-  return transporter;
-}
+import {
+  getMailReplyTo,
+  getSmtpTransporter,
+  isMailerConfigured
+} from "./smtpTransport.js";
 
 function escapeHtml(value) {
   return String(value || "")
@@ -24,13 +13,20 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
+function baseMailOptions() {
+  return {
+    from: env.email.from,
+    replyTo: getMailReplyTo()
+  };
+}
+
 export async function sendVerificationOtpEmail({ to, firstName, otp }) {
   if (!isMailerConfigured()) {
     console.warn("[authMailer] SMTP not configured — verification OTP:", otp);
     return { sent: false, devOtp: otp };
   }
 
-  const transport = getTransporter();
+  const transport = getSmtpTransporter();
   const name = escapeHtml(firstName || "there");
   const code = escapeHtml(otp);
 
@@ -45,7 +41,7 @@ export async function sendVerificationOtpEmail({ to, firstName, otp }) {
   `;
 
   await transport.sendMail({
-    from: env.email.from,
+    ...baseMailOptions(),
     to,
     subject: "Your Stichting The V.O.I.C.E. NL verification code",
     html,
@@ -61,7 +57,7 @@ export async function sendPasswordResetEmail({ to, firstName, resetUrl }) {
     return { sent: false, devResetUrl: resetUrl };
   }
 
-  const transport = getTransporter();
+  const transport = getSmtpTransporter();
   const name = escapeHtml(firstName || "there");
   const link = escapeHtml(resetUrl);
 
@@ -79,7 +75,7 @@ export async function sendPasswordResetEmail({ to, firstName, resetUrl }) {
   `;
 
   await transport.sendMail({
-    from: env.email.from,
+    ...baseMailOptions(),
     to,
     subject: "Reset your Stichting The V.O.I.C.E. NL password",
     html,
