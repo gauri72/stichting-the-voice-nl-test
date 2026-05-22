@@ -146,7 +146,7 @@ export async function createPaymentIntent(req, res) {
     const intent = await stripe.paymentIntents.create({
       amount: amountMinor,
       currency: env.stripe.currency,
-      receipt_email: sponsor.email,
+      // Do not set receipt_email — your app sends thank-you mail + PDF via SiteGround SMTP.
       automatic_payment_methods: {
         enabled: true,
         allow_redirects: "always"

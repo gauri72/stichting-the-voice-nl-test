@@ -28,7 +28,11 @@ export const STRIPE_ELEMENTS_APPEARANCE = {
   }
 };
 
-/** Payment Element: cards, iDEAL, Revolut Pay, Apple Pay, Google Pay (when enabled in Stripe). */
+/**
+ * Payment Element: cards, iDEAL, Revolut Pay, Apple Pay, Google Pay (when enabled in Stripe).
+ * Billing fields are collected on the donate/sponsor form above — do not ask again in the
+ * payment window (iDEAL especially duplicates a full-name field otherwise).
+ */
 export const PAYMENT_ELEMENT_OPTIONS = {
   layout: {
     type: "tabs",
@@ -40,6 +44,14 @@ export const PAYMENT_ELEMENT_OPTIONS = {
   },
   business: {
     name: "Stichting The V.O.I.C.E. NL"
+  },
+  fields: {
+    billingDetails: {
+      name: "never",
+      email: "never",
+      phone: "never",
+      address: "never"
+    }
   }
 };
 
@@ -132,10 +144,8 @@ export async function confirmCheckoutPayment(stripe, elements, { returnUrl, paye
     elements,
     confirmParams: {
       return_url: returnUrl,
-      receipt_email: payer.email,
       payment_method_data: {
         billing_details: {
-          name: payer.name,
           email: payer.email,
           phone: payer.phone || undefined
         }

@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import PDFDocument from "pdfkit";
-import { SPONSORSHIP_COVERAGE } from "../config/sponsorshipCoverage.js";
+import { getSponsorshipCoverageForTier } from "../config/sponsorshipCoverage.js";
 import { resolveDonationPublicContactEmail } from "../config/donationPublicContact.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -743,7 +743,10 @@ function measureCoverageRowHeight(doc, tier, tierW, amountW, coverageW, sizes) {
   return vPad + Math.max(hTier, hAmt, hBen) + vPad;
 }
 
-function drawCoverageTable(doc) {
+function drawCoverageTable(doc, tiers = []) {
+  const coverageTiers = Array.isArray(tiers) ? tiers.filter(Boolean) : [];
+  if (!coverageTiers.length) return;
+
   const left = doc.page.margins.left;
   const width = doc.page.width - left - doc.page.margins.right;
   const tierW = 76;
@@ -759,7 +762,7 @@ function drawCoverageTable(doc) {
   const innerPad = sizes.vPad;
 
   let totalBody = 0;
-  SPONSORSHIP_COVERAGE.forEach((tier) => {
+  coverageTiers.forEach((tier) => {
     totalBody += measureCoverageRowHeight(doc, tier, tierW, amountW, coverageW, sizes);
   });
 
@@ -791,7 +794,7 @@ function drawCoverageTable(doc) {
     .lineTo(xBen, tableTop + tableH)
     .stroke();
 
-  SPONSORSHIP_COVERAGE.forEach((tier, idx) => {
+  coverageTiers.forEach((tier, idx) => {
     const rowH = measureCoverageRowHeight(doc, tier, tierW, amountW, coverageW, sizes);
     const rowTop = y;
 
@@ -1063,8 +1066,16 @@ export function renderSponsorshipReceiptPdf(payload) {
       drawSponsorRow(doc, payload);
       drawConfirmationBlock(doc);
 
-      beginCoverageSection(doc);
-      drawCoverageTable(doc);
+      const coverageTier = getSponsorshipCoverageForTier({
+        tierId: payload.sponsorshipTierId,
+        tierName: payload.sponsorshipTier,
+        amountLabel: payload.sponsorshipAmount
+      });
+
+      if (coverageTier) {
+        beginCoverageSection(doc);
+        drawCoverageTable(doc, [coverageTier]);
+      }
       drawUploadRequest(doc, payload.uploadUrl);
       drawAuthorisedBy(doc);
 

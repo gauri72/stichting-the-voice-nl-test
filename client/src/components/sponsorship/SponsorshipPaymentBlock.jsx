@@ -272,7 +272,7 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
             <h3 id="sponsorship-payment-title" className="sponsorship-payment__title">
               {step === "done"
                 ? "Thank you for your sponsorship!"
-                : `Become a ${tier.name}`}
+                : tier.name}
             </h3>
             {step !== "done" ? (
               <p className="sponsorship-payment__subtitle">

@@ -81,7 +81,7 @@ const tiers = [
   },
   {
     id: "custom",
-    name: "Custom sponsorship",
+    name: "Custom sponsor",
     amount: "Custom",
     note: "Choose any amount that fits your budget and partnership goals.",
     Icon: FaHandHoldingHeart,

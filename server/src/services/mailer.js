@@ -3,8 +3,13 @@ import path from "path";
 import { fileURLToPath } from "url";
 import env from "../config/env.js";
 import { resolveDonationPublicContactEmail } from "../config/donationPublicContact.js";
-import { SPONSORSHIP_COVERAGE } from "../config/sponsorshipCoverage.js";
+import { getSponsorshipCoverageForTier } from "../config/sponsorshipCoverage.js";
 import { renderDonationReceiptPdf, renderSponsorshipReceiptPdf } from "./receiptPdf.js";
+import {
+  buildEmailFollowUsRowHtml,
+  getEmailSocialIconCids,
+  loadEmailSocialIconAttachments
+} from "./emailSocialIcons.js";
 import {
   getMailReplyTo,
   getSmtpTransporter,
@@ -83,11 +88,18 @@ function formatPaymentDate(unixSeconds) {
 function buildPlaceholders(payload) {
   const sponsor = payload.sponsor || {};
   const sponsorshipAmount = formatAmount(payload.amountMinor, payload.currency);
+  const sponsorship_coverage = getSponsorshipCoverageForTier({
+    tierId: payload.tier?.id,
+    tierName: payload.tier?.name,
+    amountLabel: sponsorshipAmount
+  });
   return {
     sponsor_name: sponsor.name || sponsor.firstName || "Sponsor",
     company_name: sponsor.organization || "",
     sponsor_email: sponsor.email || "",
     sponsorship_tier: payload.tier?.name || "Sponsorship",
+    sponsorship_tier_id: payload.tier?.id || "",
+    sponsorship_coverage,
     sponsorship_amount: sponsorshipAmount,
     payment_date: payload.paymentDate || formatPaymentDate(payload.paymentCreated),
     stripe_payment_id: payload.paymentIntentId || "",
@@ -100,6 +112,7 @@ function buildPlaceholders(payload) {
 
 function buildSponsorEmail(values, branding = {}) {
   const logoCid = branding.logoCid || null;
+  const followUsRowHtml = buildEmailFollowUsRowHtml(branding.socialIconCids);
   const logoCell = logoCid
     ? `<img class="email-logo" src="cid:${logoCid}" alt="Stichting The V.O.I.C.E. NL" width="56" height="56" style="display:block;width:56px;height:auto;border:0;border-radius:8px;background:#ffffff;object-fit:contain;" />`
     : `<span class="email-logo" style="display:inline-block;width:56px;height:56px;border-radius:8px;background:#ffffff;text-align:center;line-height:56px;font-family:Georgia,serif;font-size:20px;font-weight:700;color:#008080;">V</span>`;
@@ -158,17 +171,20 @@ X: https://x.com/St_The_VOICE_NL
                                 <p class="sponsorship-detail-value" style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:800;line-height:1.25;color:#008080;">${valueHtml}</p>
                               </td>`;
 
-  const coverageRowsHtml = SPONSORSHIP_COVERAGE.map((tier) => {
-    const name = escapeHtml(tier.name);
-    const amount = escapeHtml(tier.amountLabel);
-    const benefitsText = escapeHtml((tier.benefits || []).join("; "));
-    return `
+  const selectedCoverage = values.sponsorship_coverage;
+  const coverageRowsHtml = selectedCoverage
+    ? (() => {
+        const name = escapeHtml(selectedCoverage.name);
+        const amount = escapeHtml(selectedCoverage.amountLabel);
+        const benefitsText = escapeHtml((selectedCoverage.benefits || []).join("; "));
+        return `
                   <tr>
                     <td style="padding:10px 8px;border-bottom:1px solid #e5eeee;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.2;font-weight:800;color:#10243a;width:16%;">${name}</td>
                     <td style="padding:10px 8px;border-bottom:1px solid #e5eeee;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.2;font-weight:800;color:#008080;width:12%;white-space:nowrap;">${amount}</td>
                     <td style="padding:10px 8px;border-bottom:1px solid #e5eeee;vertical-align:top;font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.45;color:#10243a;">${benefitsText}</td>
                   </tr>`;
-  }).join("");
+      })()
+    : "";
 
   const html = `<!doctype html>
 <html lang="en">
@@ -356,16 +372,20 @@ X: https://x.com/St_The_VOICE_NL
                 </table>
               </td>
             </tr>
-            <tr>
+            ${
+              coverageRowsHtml
+                ? `<tr>
               <td style="padding:10px 32px 20px 32px;background:#ffffff;">
                 <p style="margin:0 0 14px 0;text-align:center;font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:700;color:#10243a;">
-                  What Your Sponsorship Covers
+                  What Your ${escapeHtml(values.sponsorship_tier)} Covers
                 </p>
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5eeee;border-radius:8px;overflow:hidden;background:#ffffff;">
 ${coverageRowsHtml}
                 </table>
               </td>
-            </tr>
+            </tr>`
+                : ""
+            }
             <tr>
               <td style="padding:0 32px 24px 32px;background:#ffffff;">
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2fafc;border-radius:8px;border:1px solid #d7eeee;">
@@ -437,18 +457,7 @@ ${coverageRowsHtml}
                     </td>
                   </tr>
                 </table>
-                <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:8px;border-spacing:0;">
-                  <tr>
-                    <td style="padding:0 8px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:800;color:#10243a;vertical-align:middle;">
-                      Follow us:
-                    </td>
-                    <td style="padding:0 4px 0 0;"><a href="https://www.facebook.com/p/The-VOICE-NL-61552129209396/" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#1877f2;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:800;">f</a></td>
-                    <td style="padding:0 4px 0 0;"><a href="https://www.instagram.com/stichting_the_voice_nl/?hl=en" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#e4405f;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:7px;font-weight:800;">ig</a></td>
-                    <td style="padding:0 4px 0 0;"><a href="https://www.youtube.com/@StichtingTheVOICENL" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#ff0000;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:7px;font-weight:800;">yt</a></td>
-                    <td style="padding:0 4px 0 0;"><a href="https://www.linkedin.com/in/stichting-the-v-o-i-c-e-nl-b67427316/" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#0a66c2;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:7px;font-weight:800;">in</a></td>
-                    <td style="padding:0;"><a href="https://x.com/St_The_VOICE_NL" style="display:inline-block;width:16px;height:16px;border-radius:3px;background:#000000;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:800;">x</a></td>
-                  </tr>
-                </table>
+                ${followUsRowHtml}
               </td>
             </tr>
             <tr>
@@ -498,6 +507,7 @@ function buildDonationPlaceholders(payload) {
 
 function buildDonationThankYouEmail(values, branding = {}) {
   const logoCid = branding.logoCid || null;
+  const followUsRowHtml = buildEmailFollowUsRowHtml(branding.socialIconCids);
   const logoCell = logoCid
     ? `<img src="cid:${logoCid}" alt="Stichting The V.O.I.C.E. NL" width="48" height="48" style="display:block;width:48px;height:auto;border:0;border-radius:6px;background:#ffffff;object-fit:contain;" />`
     : `<span style="display:inline-block;width:48px;height:48px;border-radius:6px;background:#ffffff;text-align:center;line-height:48px;font-family:Georgia,serif;font-size:22px;font-weight:700;color:#26a69a;">V</span>`;
@@ -589,18 +599,7 @@ Your official donation receipt is attached to this email for your records.
                   </td>
                 </tr>
               </table>
-              <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:8px;border-spacing:0;">
-                <tr>
-                  <td style="padding:0 8px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:800;color:#10243a;vertical-align:middle;">
-                    Follow us:
-                  </td>
-                  <td style="padding:0 4px 0 0;"><a href="https://www.facebook.com/p/The-VOICE-NL-61552129209396/" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#1877f2;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:800;">f</a></td>
-                  <td style="padding:0 4px 0 0;"><a href="https://www.instagram.com/stichting_the_voice_nl/?hl=en" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#e4405f;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:7px;font-weight:800;">ig</a></td>
-                  <td style="padding:0 4px 0 0;"><a href="https://www.youtube.com/@StichtingTheVOICENL" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#ff0000;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:7px;font-weight:800;">yt</a></td>
-                  <td style="padding:0 4px 0 0;"><a href="https://www.linkedin.com/in/stichting-the-v-o-i-c-e-nl-b67427316/" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:#0a66c2;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:7px;font-weight:800;">in</a></td>
-                  <td style="padding:0;"><a href="https://x.com/St_The_VOICE_NL" style="display:inline-block;width:16px;height:16px;border-radius:3px;background:#000000;color:#ffffff;text-decoration:none;text-align:center;line-height:16px;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:800;">x</a></td>
-                </tr>
-              </table>
+              ${followUsRowHtml}
             </td>
           </tr>`;
 
@@ -925,7 +924,11 @@ export async function sendDonationEmails(payload) {
 
   const values = buildDonationPlaceholders(payload);
   const logoAtt = loadHeaderLogoAttachment();
-  const donorMail = buildDonationThankYouEmail(values, { logoCid: logoAtt?.cid || null });
+  const socialIconCids = getEmailSocialIconCids();
+  const donorMail = buildDonationThankYouEmail(values, {
+    logoCid: logoAtt?.cid || null,
+    socialIconCids
+  });
 
   let pdfBuffer = null;
   try {
@@ -950,6 +953,7 @@ export async function sendDonationEmails(payload) {
 
   const attachments = [
     ...(logoAtt ? [logoAtt] : []),
+    ...loadEmailSocialIconAttachments(),
     ...(pdfBuffer
       ? [
           {
@@ -1001,7 +1005,11 @@ export async function sendSponsorshipEmails(payload) {
   const values = buildPlaceholders(payload);
 
   const logoAtt = loadHeaderLogoAttachment();
-  const sponsorMail = buildSponsorEmail(values, { logoCid: logoAtt?.cid || null });
+  const socialIconCids = getEmailSocialIconCids();
+  const sponsorMail = buildSponsorEmail(values, {
+    logoCid: logoAtt?.cid || null,
+    socialIconCids
+  });
 
   let pdfBuffer = null;
   try {
@@ -1013,6 +1021,7 @@ export async function sendSponsorshipEmails(payload) {
       sponsorEmail: values.sponsor_email,
       companyName: values.company_name,
       sponsorshipTier: values.sponsorship_tier,
+      sponsorshipTierId: values.sponsorship_tier_id,
       sponsorshipAmount: values.sponsorship_amount,
       paymentMethod: values.payment_method,
       paymentStatus: "Paid",
@@ -1026,6 +1035,7 @@ export async function sendSponsorshipEmails(payload) {
 
   const sponsorAttachments = [
     ...(logoAtt ? [logoAtt] : []),
+    ...loadEmailSocialIconAttachments(),
     ...(pdfBuffer
       ? [
           {

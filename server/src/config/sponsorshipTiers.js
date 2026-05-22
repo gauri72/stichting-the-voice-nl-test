@@ -27,7 +27,7 @@ const SPONSORSHIP_TIERS = {
   },
   custom: {
     id: "custom",
-    name: "Custom sponsorship",
+    name: "Custom sponsor",
     amount: 50,
     minAmount: 50,
     allowCustom: true
