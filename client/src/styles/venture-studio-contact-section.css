@@ -1,0 +1,133 @@
+.vvs-contact {
+  background: var(--vvs-gray-bg);
+  padding: 72px 24px 80px;
+}
+
+.vvs-contact__inner {
+  max-width: var(--vvs-max);
+  margin: 0 auto;
+}
+
+.vvs-contact__grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.vvs-contact__info h3,
+.vvs-contact__form h3 {
+  margin: 0 0 20px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--vvs-navy);
+}
+
+.vvs-contact__info ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vvs-contact__info li {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 20px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.vvs-contact__info-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 109, 119, 0.12);
+  color: var(--vvs-teal);
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+}
+
+.vvs-contact__info strong {
+  display: block;
+  color: var(--vvs-navy);
+  font-size: 0.82rem;
+  margin-bottom: 2px;
+}
+
+.vvs-contact__info a,
+.vvs-contact__info span {
+  color: var(--vvs-muted);
+  text-decoration: none;
+}
+
+.vvs-contact__info a:hover {
+  color: var(--vvs-teal);
+}
+
+.vvs-contact__form {
+  background: var(--vvs-white);
+  border: 1px solid var(--vvs-border);
+  border-radius: 14px;
+  padding: 24px 22px;
+  box-shadow: 0 6px 20px rgba(0, 18, 25, 0.04);
+}
+
+.vvs-contact__form label {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--vvs-navy);
+}
+
+.vvs-contact__form input,
+.vvs-contact__form select,
+.vvs-contact__form textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--vvs-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: var(--vvs-text);
+  background: var(--vvs-white);
+}
+
+.vvs-contact__form textarea {
+  resize: vertical;
+  min-height: 88px;
+}
+
+.vvs-contact__form input:focus,
+.vvs-contact__form select:focus,
+.vvs-contact__form textarea:focus {
+  outline: 2px solid rgba(0, 109, 119, 0.35);
+  border-color: var(--vvs-teal);
+}
+
+.vvs-contact__notice {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  color: var(--vvs-teal);
+  font-weight: 600;
+}
+
+@media (max-width: 1100px) {
+  .vvs-contact__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .vvs-contact__info {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 900px) {
+  .vvs-contact__grid {
+    grid-template-columns: 1fr;
+  }
+}

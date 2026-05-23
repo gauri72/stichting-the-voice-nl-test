@@ -1,0 +1,111 @@
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
+
+.vvs-page {
+  --vvs-teal: #0f8f90;
+  --vvs-teal-light: #4db8c4;
+  --vvs-teal-accent: #0f8f90;
+  --vvs-green: #5eaa69;
+  --vvs-navy: #0e2f48;
+  --vvs-navy-deep: #001933;
+  --vvs-navy-mid: #0a2a35;
+  --vvs-text: #162227;
+  --vvs-muted: #3d5a66;
+  --vvs-gray-bg: #f4f7f8;
+  --vvs-border: #d3dee6;
+  --vvs-white: #ffffff;
+  --vvs-max: 1240px;
+  --vvs-gradient-text: linear-gradient(90deg, #1a7db5, #4da377);
+  --vvs-gradient-btn: linear-gradient(90deg, #5eaa69 0%, #0f8f90 100%);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--vvs-text);
+  overflow-x: hidden;
+}
+
+.vvs-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.vvs-section-title {
+  margin: 0;
+  font-size: clamp(1.65rem, 2.8vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--vvs-navy);
+}
+
+.vvs-section-title span {
+  color: var(--vvs-teal);
+}
+
+.vvs-section-title--center {
+  text-align: center;
+}
+
+.vvs-section-sub {
+  margin: 12px 0 0;
+  max-width: 52ch;
+  color: var(--vvs-muted);
+  line-height: 1.65;
+  font-size: 0.98rem;
+}
+
+.vvs-section-sub--center {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  max-width: 62ch;
+}
+
+.vvs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 20px;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.vvs-btn--primary {
+  background: var(--vvs-gradient-btn);
+  color: var(--vvs-white);
+}
+
+.vvs-btn--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+  filter: brightness(1.05);
+}
+
+.vvs-btn--outline {
+  background: var(--vvs-white);
+  color: var(--vvs-teal);
+  border-color: var(--vvs-teal);
+}
+
+.vvs-btn--outline:hover {
+  background: rgba(15, 143, 144, 0.06);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.vvs-btn--block {
+  width: 100%;
+}

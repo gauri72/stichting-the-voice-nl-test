@@ -1,0 +1,63 @@
+.vvs-offer {
+  background: var(--vvs-white);
+  padding: 0 24px 72px;
+}
+
+.vvs-offer__inner {
+  max-width: var(--vvs-max);
+  margin: 0 auto;
+}
+
+.vvs-offer__header {
+  margin-bottom: 36px;
+}
+
+.vvs-offer__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.vvs-offer__card {
+  border: 1px solid var(--vvs-border);
+  border-radius: 14px;
+  padding: 26px 20px;
+  background: var(--vvs-white);
+  box-shadow: 0 4px 16px rgba(0, 18, 25, 0.04);
+}
+
+.vvs-offer__icon {
+  width: 44px;
+  height: 44px;
+  color: var(--vvs-teal);
+  font-size: 1.5rem;
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+}
+
+.vvs-offer__card h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--vvs-navy);
+}
+
+.vvs-offer__card p {
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--vvs-muted);
+}
+
+@media (max-width: 900px) {
+  .vvs-offer__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .vvs-offer__grid {
+    grid-template-columns: 1fr;
+  }
+}

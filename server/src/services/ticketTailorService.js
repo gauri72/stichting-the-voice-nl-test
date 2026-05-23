@@ -4,8 +4,27 @@ const CACHE_TTL_MS = 15 * 60 * 1000;
 const PAGE_LIMIT = 100;
 const MAX_PAGES = 30;
 
-/** @type {Map<string, { at: number, orders: TicketTailorOrderSummary[] }>} */
+/** @type {Map<string, { at: number, orders: TicketTailorOrderSummary[], issuedMemberships: IssuedMembershipSummary[] }>} */
 const cacheByEmail = new Map();
+
+function readEmailCache(norm) {
+  return (
+    cacheByEmail.get(norm) || {
+      at: 0,
+      orders: [],
+      issuedMemberships: []
+    }
+  );
+}
+
+function writeEmailCache(norm, patch) {
+  const prev = readEmailCache(norm);
+  cacheByEmail.set(norm, {
+    at: Date.now(),
+    orders: patch.orders ?? prev.orders,
+    issuedMemberships: patch.issuedMemberships ?? prev.issuedMemberships
+  });
+}
 
 /** @type {{ configured: boolean, buyerEmailVisible: boolean, warning: string|null } | null} */
 let piiStatusCache = null;
@@ -225,6 +244,94 @@ function isCountableOrder(order) {
  * @property {string|null} createdAt
  */
 
+/**
+ * @typedef {Object} IssuedMembershipSummary
+ * @property {string} id
+ * @property {string} code
+ * @property {string} email
+ * @property {string} membershipTypeName
+ * @property {Date|null} validFrom
+ * @property {Date|null} validTo
+ * @property {Date|null} issueDate
+ * @property {string|null} validFromFormatted
+ * @property {string|null} validToFormatted
+ * @property {string|null} issueDateFormatted
+ * @property {boolean} isValid
+ * @property {Date|null} voidedAt
+ * @property {string|null} linkedOrderId
+ */
+
+function pickFormattedLabel(field) {
+  if (!field || typeof field !== "object") return null;
+  const label = String(field.formatted || "").trim();
+  return label || null;
+}
+
+function parseTicketTailorDateField(field) {
+  if (field == null) return null;
+  if (typeof field === "string") {
+    const d = new Date(field);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  if (typeof field === "number") {
+    const ms = field < 1e12 ? field * 1000 : field;
+    const d = new Date(ms);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  if (typeof field === "object") {
+    const raw = field.iso ?? field.date ?? (field.unix != null ? field.unix : null);
+    if (raw == null) return null;
+    if (typeof raw === "number") {
+      const ms = raw < 1e12 ? raw * 1000 : raw;
+      const d = new Date(ms);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+    const d = new Date(raw);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
+/**
+ * @param {object} record
+ * @returns {IssuedMembershipSummary|null}
+ */
+function mapIssuedMembership(record) {
+  if (!record?.id) return null;
+  const email = normalizeEmail(record.email);
+  if (!email) return null;
+
+  const voidedAt = parseTicketTailorDateField(record.voided_at);
+  const isValidFlag =
+    record.is_valid === true ||
+    String(record.is_valid || "").toLowerCase() === "true";
+
+  const redemptions = Array.isArray(record.redemption_collection)
+    ? record.redemption_collection
+    : [];
+  const linkedOrderId =
+    redemptions
+      .map((r) => r?.linked_order_id)
+      .filter(Boolean)
+      .pop() || null;
+
+  return {
+    id: String(record.id),
+    code: String(record.code || "").trim(),
+    email,
+    membershipTypeName: String(record.membership_type_name || "").trim(),
+    validFrom: parseTicketTailorDateField(record.valid_from),
+    validTo: parseTicketTailorDateField(record.valid_to),
+    issueDate: parseTicketTailorDateField(record.issue_date),
+    validFromFormatted: pickFormattedLabel(record.valid_from),
+    validToFormatted: pickFormattedLabel(record.valid_to),
+    issueDateFormatted: pickFormattedLabel(record.issue_date),
+    isValid: isValidFlag && !voidedAt,
+    voidedAt,
+    linkedOrderId: linkedOrderId ? String(linkedOrderId) : null
+  };
+}
+
 export function isTicketTailorConfigured() {
   return Boolean(env.ticketTailor.apiKey);
 }
@@ -334,6 +441,61 @@ async function fetchOrdersMatchingEmail(norm) {
   return matched;
 }
 
+async function fetchIssuedMembershipsPage({ email, startingAfter } = {}) {
+  const base = env.ticketTailor.apiBase.replace(/\/$/, "");
+  const url = new URL(`${base}/v1/issued_memberships`);
+  url.searchParams.set("limit", String(PAGE_LIMIT));
+  if (email) url.searchParams.set("email", email);
+  if (startingAfter) url.searchParams.set("starting_after", startingAfter);
+
+  const res = await fetch(url, { headers: authHeader() });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    const err = new Error(
+      `Ticket Tailor API error (${res.status})${body ? `: ${body.slice(0, 200)}` : ""}`
+    );
+    err.status = res.status;
+    throw err;
+  }
+
+  const json = await res.json();
+  const data = Array.isArray(json?.data) ? json.data : [];
+  const nextLink = json?.links?.next;
+  let nextStartingAfter = null;
+  if (nextLink) {
+    try {
+      const parsed = new URL(nextLink, `${base}/`);
+      nextStartingAfter = parsed.searchParams.get("starting_after");
+    } catch {
+      const m = /starting_after=([^&]+)/.exec(String(nextLink));
+      nextStartingAfter = m?.[1] || null;
+    }
+  }
+  return { data, nextStartingAfter };
+}
+
+async function fetchIssuedMembershipsMatchingEmail(norm) {
+  const matched = [];
+  let startingAfter;
+  let page = 0;
+
+  while (page < MAX_PAGES) {
+    const { data, nextStartingAfter } = await fetchIssuedMembershipsPage({
+      email: norm,
+      startingAfter
+    });
+    for (const record of data) {
+      const summary = mapIssuedMembership(record);
+      if (summary && summary.email === norm) matched.push(summary);
+    }
+    page += 1;
+    if (!nextStartingAfter || data.length === 0) break;
+    startingAfter = nextStartingAfter;
+  }
+
+  return matched;
+}
+
 /**
  * @param {object} order
  * @returns {TicketTailorOrderSummary|null}
@@ -377,27 +539,64 @@ export function splitOrdersByCategory(orders) {
 }
 
 /**
+ * Load Ticket Tailor orders and issued memberships for an email in one pass (avoids cache races).
+ * @param {string} email
+ * @returns {Promise<{ orders: TicketTailorOrderSummary[], issuedMemberships: IssuedMembershipSummary[] }>}
+ */
+export async function loadTicketTailorAccountData(email) {
+  if (!isTicketTailorConfigured()) {
+    return { orders: [], issuedMemberships: [] };
+  }
+
+  const status = await getTicketTailorStatus();
+  if (!status.buyerEmailVisible) {
+    return { orders: [], issuedMemberships: [] };
+  }
+
+  const norm = normalizeEmail(email);
+  if (!norm) return { orders: [], issuedMemberships: [] };
+
+  const cached = readEmailCache(norm);
+  if (cached.at && Date.now() - cached.at < CACHE_TTL_MS) {
+    return {
+      orders: cached.orders,
+      issuedMemberships: cached.issuedMemberships
+    };
+  }
+
+  const [orders, issuedMemberships] = await Promise.all([
+    fetchOrdersMatchingEmail(norm),
+    fetchIssuedMembershipsMatchingEmail(norm)
+  ]);
+
+  orders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  issuedMemberships.sort((a, b) => {
+    const ta = a.validTo?.getTime() ?? a.validFrom?.getTime() ?? 0;
+    const tb = b.validTo?.getTime() ?? b.validFrom?.getTime() ?? 0;
+    return tb - ta;
+  });
+
+  writeEmailCache(norm, { orders, issuedMemberships });
+
+  return { orders, issuedMemberships };
+}
+
+/**
  * Orders for the given account email (Ticket Tailor buyer email must match).
  * @param {string} email
  * @returns {Promise<TicketTailorOrderSummary[]>}
  */
 export async function getOrdersForEmail(email) {
-  if (!isTicketTailorConfigured()) return [];
+  const { orders } = await loadTicketTailorAccountData(email);
+  return orders;
+}
 
-  const status = await getTicketTailorStatus();
-  if (!status.buyerEmailVisible) return [];
-
-  const norm = normalizeEmail(email);
-  if (!norm) return [];
-
-  const cached = cacheByEmail.get(norm);
-  if (cached && Date.now() - cached.at < CACHE_TTL_MS) {
-    return cached.orders;
-  }
-
-  const matched = await fetchOrdersMatchingEmail(norm);
-
-  matched.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-  cacheByEmail.set(norm, { at: Date.now(), orders: matched });
-  return matched;
+/**
+ * Issued memberships for the given account email (valid_from / valid_to / code from Ticket Tailor).
+ * @param {string} email
+ * @returns {Promise<IssuedMembershipSummary[]>}
+ */
+export async function getIssuedMembershipsForEmail(email) {
+  const { issuedMemberships } = await loadTicketTailorAccountData(email);
+  return issuedMemberships;
 }

@@ -155,36 +155,38 @@
 
 @media (min-width: 1101px) {
   .site-navbar {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    display: flex;
     align-items: center;
-    column-gap: 20px;
+    gap: 20px;
     padding: 28px 20px;
     min-height: 136px;
   }
 
   .brand-block {
-    grid-column: 1;
-    grid-row: 1;
+    flex: 0 0 auto;
+    z-index: 2;
   }
 
   .nav-center {
-    grid-column: 2;
-    grid-row: 1;
-    justify-self: center;
-    width: 100%;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    width: auto;
     max-width: 100%;
+    z-index: 1;
   }
 
   .nav-right {
-    grid-column: 3;
-    grid-row: 1;
+    flex: 0 0 auto;
     margin-left: 0;
+    z-index: 2;
   }
 
   .menu-links {
     gap: 22px;
-    padding-left: 28px;
+    padding-left: 0;
   }
 
   .menu-links a,
@@ -544,7 +546,7 @@
 
 @media (max-width: 1450px) and (min-width: 1101px) {
   .site-navbar {
-    column-gap: 16px;
+    gap: 16px;
     padding: 22px 16px;
     min-height: 124px;
   }
@@ -564,7 +566,7 @@
 
   .menu-links {
     gap: 18px;
-    padding-left: 22px;
+    padding-left: 0;
   }
 
   .menu-links .contact-link {
@@ -592,7 +594,7 @@
 
   .menu-links {
     gap: 14px;
-    padding-left: 16px;
+    padding-left: 0;
   }
 
   .menu-links a,

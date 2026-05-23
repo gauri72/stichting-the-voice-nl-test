@@ -51,17 +51,14 @@ export default function Header() {
           <NavLink to="/segments/voice-of-visionaries" onClick={closeMenu}>
             Voice of Visionaries
           </NavLink>
-          <NavLink to="/voice-venture-studio" onClick={closeMenu}>
-            VOICE Venture Studio
-          </NavLink>
           <NavLink to="/terms-and-conditions" onClick={closeMenu}>
             Policy &amp; Conditions
           </NavLink>
         </div>
       </div>
 
-      <NavLink className="nav-contact-link" to="/contact" onClick={closeMenu}>
-        Contact us
+      <NavLink to="/voice-venture-studio" onClick={closeMenu}>
+        VOICE Venture Studio
       </NavLink>
     </>
   );

@@ -14,22 +14,24 @@ const MEMBERSHIP_MATRIX_HREF = "/membership#membership-matrix";
 
 function downloadMembershipCard(card) {
   if (!card?.available) return;
+  const code = card.membershipCode || card.membershipNumber;
   const lines = [
     "STICHTING THE V.O.I.C.E. NL",
     "Membership Card",
     "-------------------",
     `Member: ${card.memberName}`,
     `Plan: ${card.planName}`,
-    `Membership No.: ${card.membershipNumber}`,
+    `Membership code: ${code}`,
+    card.validFrom ? `Valid from: ${card.validFrom}` : null,
     `Valid until: ${card.validTo}`,
     "",
-    "Present this number at member events.",
-  ];
+    "Present this code at member events.",
+  ].filter(Boolean);
   const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `voice-membership-${card.membershipNumber}.txt`;
+  a.download = `voice-membership-${code}.txt`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -141,7 +143,10 @@ export default function DashboardMembershipsPanel() {
         <h2 className="dashboard-memberships__title">Memberships</h2>
 
         <div className="dashboard-memberships__empty">
-          <p>We could not find a membership linked to your login email.</p>
+          <p>
+            {data?.membershipHint ||
+              "We could not find a membership linked to your login email."}
+          </p>
           <Link
             to={data?.joinCta?.href || "/membership"}
             className="dashboard-memberships__btn dashboard-memberships__btn--primary"
@@ -175,10 +180,12 @@ export default function DashboardMembershipsPanel() {
         </span>
         <div className="dashboard-memberships__active-body">
           <p className="dashboard-memberships__status-kicker">{active.statusLabel}</p>
-          {active.verifiedVia === "ticket_tailor" ? (
-            <p className="dashboard-memberships__verified-note">Verified via Ticket Tailor</p>
-          ) : null}
           <p className="dashboard-memberships__plan-name">{active.planNameAccent || active.planName}</p>
+          {active.membershipCode ? (
+            <p className="dashboard-memberships__membership-code">
+              Membership code: <strong>{active.membershipCode}</strong>
+            </p>
+          ) : null}
           <p className="dashboard-memberships__validity">
             Valid from <strong>{active.validFrom}</strong> to <strong>{active.validTo}</strong>
           </p>
@@ -213,15 +220,20 @@ export default function DashboardMembershipsPanel() {
             <thead>
               <tr>
                 <th scope="col">Plan</th>
+                <th scope="col">Code</th>
                 <th scope="col">Status</th>
+                <th scope="col">Valid from</th>
                 <th scope="col">Valid until</th>
                 <th scope="col">Fee</th>
               </tr>
             </thead>
             <tbody>
               {data.table.map((row) => (
-                <tr key={`${row.orderId || row.plan}-${row.renewalDateIso || row.renewalDate}`}>
+                <tr
+                  key={`${row.membershipCode || row.orderId || row.plan}-${row.validFromIso || row.validToIso}`}
+                >
                   <td data-label="Plan">{row.plan}</td>
+                  <td data-label="Code">{row.membershipCode || "—"}</td>
                   <td data-label="Status">
                     <span
                       className={`dashboard-memberships__status-pill ${
@@ -231,6 +243,7 @@ export default function DashboardMembershipsPanel() {
                       {row.status}
                     </span>
                   </td>
+                  <td data-label="Valid from">{row.validFrom || "—"}</td>
                   <td data-label="Valid until">{row.validTo || row.renewalDate}</td>
                   <td data-label="Fee">{row.fee}</td>
                 </tr>

@@ -2,9 +2,9 @@ import Membership from "../models/Membership.js";
 import User from "../models/User.js";
 import { getPlan, getUpgradePlan, MEMBERSHIP_PLANS } from "../config/membershipPlans.js";
 import {
-  getOrdersForEmail,
   getTicketTailorStatus,
   isTicketTailorConfigured,
+  loadTicketTailorAccountData,
   splitOrdersByCategory
 } from "./ticketTailorService.js";
 
@@ -57,11 +57,102 @@ export function inferPlanIdFromTitle(title) {
   if (t.includes("privileged") && t.includes("family")) return "privilegedFamily";
   if (t.includes("privileged") && t.includes("single")) return "privilegedSingle";
   if (t.includes("privileged")) return "privilegedFamily";
+  if (t.includes("premium loyalty")) return "single";
   if (t.includes("premium family") || (t.includes("family") && t.includes("membership"))) return "family";
   if (t.includes("premium single") || (t.includes("single") && t.includes("membership"))) return "single";
   if (t.includes("vownl")) return "privilegedSingle";
   if (t.includes("single")) return "single";
   return "family";
+}
+
+function findMatchingMembershipOrder(orders, { startedAt, linkedOrderId } = {}) {
+  if (linkedOrderId && orders?.length) {
+    const byId = orders.find((order) => order.id === linkedOrderId);
+    if (byId) return byId;
+  }
+
+  if (!startedAt || !orders?.length) return null;
+  const target = new Date(startedAt).getTime();
+  if (Number.isNaN(target)) return null;
+
+  let best = null;
+  let bestDelta = Infinity;
+  for (const order of orders) {
+    if (!order.createdAt) continue;
+    const delta = Math.abs(new Date(order.createdAt).getTime() - target);
+    if (delta < bestDelta) {
+      bestDelta = delta;
+      best = order;
+    }
+  }
+  if (best && bestDelta <= 14 * 24 * 60 * 60 * 1000) return best;
+  return null;
+}
+
+function deriveIssuedMembershipStatus(issued, endsAt, now = new Date()) {
+  if (issued.voidedAt) return "Inactive";
+  if (!issued.isValid) return "Inactive";
+  const end = endsAt ? new Date(endsAt) : null;
+  if (end && end < now) return "Expired";
+  return "Active";
+}
+
+/** Pick the membership record to show (matches Ticket Tailor “issued memberships” list). */
+export function pickPrimaryMembershipWindow(windows, now = new Date()) {
+  if (!windows?.length) return null;
+
+  return [...windows].sort((a, b) => {
+    const score = (w) => {
+      const active = w.isActive ? 2 : w.status === "Expired" ? 1 : 0;
+      const end = w.endsAt?.getTime() ?? 0;
+      const start = w.startedAt?.getTime() ?? 0;
+      return [active, end, start];
+    };
+    const sa = score(a);
+    const sb = score(b);
+    for (let i = 0; i < sa.length; i += 1) {
+      if (sa[i] !== sb[i]) return sb[i] - sa[i];
+    }
+    return String(b.issuedMembershipId || "").localeCompare(String(a.issuedMembershipId || ""));
+  })[0];
+}
+
+function evaluateIssuedMembership(issued, membershipOrders = [], now = new Date()) {
+  const planId = inferPlanIdFromTitle(issued.membershipTypeName);
+  const plan = getPlan(planId) || getPlan("family");
+  const startedAt = issued.validFrom || issued.issueDate;
+  const endsAt = issued.validTo;
+  if (!startedAt || !endsAt) return null;
+
+  const renewalAt = new Date(endsAt.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const matchedOrder = findMatchingMembershipOrder(membershipOrders, {
+    startedAt,
+    linkedOrderId: issued.linkedOrderId
+  });
+  const status = deriveIssuedMembershipStatus(issued, endsAt, now);
+  const membershipCode = String(issued.code || "").trim();
+  if (!membershipCode) return null;
+
+  return {
+    planId,
+    plan,
+    planName: issued.membershipTypeName || plan.name,
+    planNameAccent: plan.matrixTitle || issued.membershipTypeName || plan.name,
+    startedAt,
+    endsAt,
+    renewalAt,
+    validFromDisplay: issued.validFromFormatted || formatDisplayDate(startedAt),
+    validToDisplay: issued.validToFormatted || formatDisplayDate(endsAt),
+    status,
+    isActive: status === "Active",
+    feeMinor: matchedOrder?.amountMinor ?? 0,
+    orderId: matchedOrder?.id || issued.linkedOrderId || null,
+    orderStatus: matchedOrder?.status || null,
+    source: "ticket_tailor_issued_membership",
+    membershipCode,
+    membershipNumber: membershipCode,
+    issuedMembershipId: issued.id
+  };
 }
 
 function deriveStatusFromWindow({ endsAt, activeFlag = true, orderStatus }, now = new Date()) {
@@ -134,48 +225,61 @@ function windowToTableRow(window) {
   return {
     plan: window.planName,
     status: window.status,
+    membershipCode: window.membershipCode || window.membershipNumber || "",
+    validFrom: window.validFromDisplay || formatDisplayDate(window.startedAt),
+    validFromIso: window.startedAt.toISOString(),
     renewalDate: formatDisplayDate(window.renewalAt),
     renewalDateIso: window.renewalAt.toISOString(),
-    validTo: formatDisplayDate(window.endsAt),
+    validTo: window.validToDisplay || formatDisplayDate(window.endsAt),
     validToIso: window.endsAt.toISOString(),
-    fee: formatFeeWithPeriod(window.feeMinor, window.plan?.durationYears || 1),
+    fee:
+      window.feeMinor > 0
+        ? formatFeeWithPeriod(window.feeMinor, window.plan?.durationYears || 1)
+        : "—",
     feeMinor: window.feeMinor,
     source: window.source,
-    orderId: window.orderId
+    orderId: window.orderId,
+    issuedMembershipId: window.issuedMembershipId || null
   };
 }
 
 /**
- * Resolve membership from Ticket Tailor orders (source of truth when present) and optional MongoDB row.
+ * Resolve membership from Ticket Tailor issued memberships / orders and optional MongoDB row.
  * @returns {{ hasMembership: boolean, primary: object|null, ttWindows: object[], mongoWindow: object|null, verifiedVia: string|null }}
  */
-export function resolveMembershipState({ user, mongoMembership, ttMembershipOrders, now = new Date() }) {
-  const ttWindows = (ttMembershipOrders || [])
+export function resolveMembershipState({
+  user,
+  mongoMembership,
+  ttMembershipOrders,
+  ttIssuedMemberships,
+  ticketTailorExclusive = false,
+  now = new Date()
+}) {
+  const orderWindows = (ttMembershipOrders || [])
     .map((order) => evaluateTicketTailorOrder(order, now))
     .sort((a, b) => b.startedAt - a.startedAt);
 
-  const mongoWindow = mongoMembership
-    ? evaluateMongoMembership(mongoMembership, user, now)
-    : null;
+  const issuedWindows = (ttIssuedMemberships || [])
+    .map((issued) => evaluateIssuedMembership(issued, ttMembershipOrders, now))
+    .filter(Boolean)
+    .sort((a, b) => b.endsAt - a.endsAt);
 
-  const activeTt = ttWindows.find((w) => w.isActive);
-  const activeMongo = mongoWindow?.isActive ? mongoWindow : null;
+  const hasIssuedMemberships = issuedWindows.length > 0;
+  const ttWindows = hasIssuedMemberships ? issuedWindows : orderWindows;
+
+  const mongoWindow =
+    !hasIssuedMemberships && !ticketTailorExclusive && mongoMembership
+      ? evaluateMongoMembership(mongoMembership, user, now)
+      : null;
 
   let primary = null;
   let verifiedVia = null;
 
-  if (activeTt) {
-    primary = activeTt;
-    verifiedVia = "ticket_tailor";
-  } else if (activeMongo && ttWindows.length === 0) {
-    primary = activeMongo;
-    verifiedVia = "mongodb";
-  } else if (activeMongo && ttWindows.length > 0) {
-    // Ticket Tailor checked but no active window — show latest TT record (likely expired), not stale Mongo active
-    primary = ttWindows[0] || mongoWindow;
-    verifiedVia = "ticket_tailor";
+  if (hasIssuedMemberships) {
+    primary = pickPrimaryMembershipWindow(issuedWindows, now);
+    verifiedVia = "ticket_tailor_issued_membership";
   } else if (ttWindows.length > 0) {
-    primary = ttWindows[0];
+    primary = pickPrimaryMembershipWindow(ttWindows, now) || ttWindows[0];
     verifiedVia = "ticket_tailor";
   } else if (mongoWindow) {
     primary = mongoWindow;
@@ -188,9 +292,11 @@ export function resolveMembershipState({ user, mongoMembership, ttMembershipOrde
     hasMembership,
     primary,
     ttWindows,
+    issuedWindows,
     mongoWindow,
     verifiedVia,
-    isActive: Boolean(primary?.isActive)
+    isActive: Boolean(primary?.isActive),
+    hasIssuedMemberships
   };
 }
 
@@ -233,16 +339,14 @@ export function buildMembershipOverviewFromResolved(resolved) {
   const planLabel = p.planNameAccent || p.planName;
   let description;
 
+  const untilLabel = p.validToDisplay || formatDisplayDate(p.endsAt);
+
   if (p.isActive) {
-    description = `${planLabel} — valid until ${formatDisplayDate(p.endsAt)}`;
+    description = `${planLabel} — valid until ${untilLabel}`;
   } else if (p.status === "Expired") {
-    description = `${planLabel} — expired ${formatDisplayDate(p.endsAt)}`;
+    description = `${planLabel} — expired ${untilLabel}`;
   } else {
     description = `${planLabel} — ${p.status.toLowerCase()}`;
-  }
-
-  if (resolved.verifiedVia === "ticket_tailor") {
-    description += " (verified via Ticket Tailor)";
   }
 
   return {
@@ -259,14 +363,19 @@ export function buildMembershipOverviewFromResolved(resolved) {
   };
 }
 
-async function fetchTicketTailorMembershipOrders(email) {
-  if (!isTicketTailorConfigured()) return [];
+async function fetchTicketTailorMembershipData(email) {
+  if (!isTicketTailorConfigured()) {
+    return { membershipOrders: [], issuedMemberships: [] };
+  }
   try {
-    const orders = await getOrdersForEmail(email);
-    return splitOrdersByCategory(orders).membership;
+    const { orders, issuedMemberships } = await loadTicketTailorAccountData(email);
+    return {
+      membershipOrders: splitOrdersByCategory(orders).membership,
+      issuedMemberships
+    };
   } catch (err) {
     console.warn("[memberships] Ticket Tailor lookup failed:", err.message);
-    return [];
+    return { membershipOrders: [], issuedMemberships: [] };
   }
 }
 
@@ -293,8 +402,11 @@ function buildPayloadFromResolved(user, resolved, ticketTailor) {
 
   const primary = resolved.primary;
   const plan = primary.plan || getPlan(primary.planId) || getPlan("family");
-  const membershipNumber =
-    primary.membershipNumber || buildMembershipNumber(user._id, primary.startedAt);
+  const membershipCode =
+    primary.membershipCode ||
+    (resolved.hasIssuedMemberships ? "" : primary.membershipNumber) ||
+    buildMembershipNumber(user._id, primary.startedAt);
+  const membershipNumber = membershipCode;
   const upgrade = getUpgradePlan(plan.upgradeTo || "patron");
 
   const table = [];
@@ -302,14 +414,14 @@ function buildPayloadFromResolved(user, resolved, ticketTailor) {
 
   for (const window of resolved.ttWindows) {
     const row = windowToTableRow(window);
-    const key = `${row.orderId || row.plan}-${row.validToIso}`;
+    const key = row.issuedMembershipId || `${row.membershipCode}-${row.validToIso}`;
     if (!seen.has(key)) {
       seen.add(key);
       table.push(row);
     }
   }
 
-  if (resolved.mongoWindow) {
+  if (!resolved.hasIssuedMemberships && resolved.mongoWindow) {
     const row = windowToTableRow(resolved.mongoWindow);
     const key = `mongo-${row.plan}-${row.validToIso}`;
     if (!seen.has(key)) {
@@ -345,15 +457,16 @@ function buildPayloadFromResolved(user, resolved, ticketTailor) {
       statusLabel,
       planName: primary.planName,
       planNameAccent: primary.planNameAccent,
-      validFrom: formatDisplayDate(primary.startedAt),
-      validTo: formatDisplayDate(primary.endsAt),
+      validFrom: primary.validFromDisplay || formatDisplayDate(primary.startedAt),
+      validTo: primary.validToDisplay || formatDisplayDate(primary.endsAt),
       validFromIso: primary.startedAt.toISOString(),
       validToIso: primary.endsAt.toISOString(),
       description: plan.description || "",
       planId: primary.planId,
       membershipNumber,
-      isActive: primary.isActive,
-      verifiedVia: resolved.verifiedVia
+      membershipCode,
+      issuedMembershipId: primary.issuedMembershipId || null,
+      isActive: primary.isActive
     },
     table,
     benefits: (plan.benefits || []).map((text, index) => ({
@@ -374,9 +487,11 @@ function buildPayloadFromResolved(user, resolved, ticketTailor) {
     downloadCard: {
       available: primary.isActive,
       membershipNumber,
+      membershipCode,
       memberName: [user.firstName, user.lastName].filter(Boolean).join(" "),
       planName: primary.planNameAccent || primary.planName,
-      validTo: formatDisplayDate(primary.endsAt)
+      validFrom: primary.validFromDisplay || formatDisplayDate(primary.startedAt),
+      validTo: primary.validToDisplay || formatDisplayDate(primary.endsAt)
     }
   };
 }
@@ -390,16 +505,34 @@ export async function getMembershipPageForUser(safeUser) {
   }
 
   const ticketTailor = await getTicketTailorStatus();
-  const ttMembershipOrders = await fetchTicketTailorMembershipOrders(user.email);
+  const { membershipOrders: ttMembershipOrders, issuedMemberships: ttIssuedMemberships } =
+    await fetchTicketTailorMembershipData(user.email);
   const membership = await Membership.findOne({ userId: user._id }).sort({ startedAt: -1 }).lean();
+
+  const ticketTailorExclusive = Boolean(
+    ticketTailor.configured && ticketTailor.buyerEmailVisible
+  );
 
   const resolved = resolveMembershipState({
     user,
     mongoMembership: membership,
-    ttMembershipOrders
+    ttMembershipOrders,
+    ttIssuedMemberships,
+    ticketTailorExclusive
   });
 
-  return buildPayloadFromResolved(user, resolved, ticketTailor);
+  const payload = buildPayloadFromResolved(user, resolved, ticketTailor);
+
+  if (ticketTailorExclusive && !resolved.hasIssuedMemberships && !payload.hasMembership) {
+    payload.joinCta = {
+      label: "View membership plans",
+      href: "/membership"
+    };
+    payload.membershipHint =
+      "No issued membership was found for your login email in Ticket Tailor. Purchases must use the same email as your account.";
+  }
+
+  return payload;
 }
 
 /** Ensures a membership row exists for dev/demo when user has none (optional seed). */

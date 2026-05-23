@@ -5,9 +5,9 @@ import ActivityLog from "../models/ActivityLog.js";
 import Membership from "../models/Membership.js";
 import EventRegistration from "../models/EventRegistration.js";
 import {
-  getOrdersForEmail,
   getTicketTailorStatus,
   isTicketTailorConfigured,
+  loadTicketTailorAccountData,
   splitOrdersByCategory
 } from "./ticketTailorService.js";
 import {
@@ -62,13 +62,13 @@ export async function getDashboardPayloadForUser(safeUser) {
   const ticketTailorStatusPromise = getTicketTailorStatus();
 
   const ticketTailorPromise = isTicketTailorConfigured()
-    ? getOrdersForEmail(email).catch((err) => {
+    ? loadTicketTailorAccountData(email).catch((err) => {
         console.warn("[dashboard] Ticket Tailor fetch failed:", err.message);
-        return [];
+        return { orders: [], issuedMemberships: [] };
       })
-    : Promise.resolve([]);
+    : Promise.resolve({ orders: [], issuedMemberships: [] });
 
-  const [transactions, activityLogs, membership, localEventCount, ticketTailorOrders, ticketTailor] =
+  const [transactions, activityLogs, membership, localEventCount, ticketTailorAccount, ticketTailor] =
     await Promise.all([
       PaymentTransaction.find(buildUserMatch(userId, email)).sort({ paidAt: -1 }).limit(100).lean(),
       ActivityLog.find({ userId: oid }).sort({ createdAt: -1 }).limit(50).lean(),
@@ -77,6 +77,9 @@ export async function getDashboardPayloadForUser(safeUser) {
       ticketTailorPromise,
       ticketTailorStatusPromise
     ]);
+
+  const ticketTailorOrders = ticketTailorAccount.orders || [];
+  const ttIssuedMemberships = ticketTailorAccount.issuedMemberships || [];
 
   const {
     membership: ttMembershipOrders,
@@ -119,7 +122,9 @@ export async function getDashboardPayloadForUser(safeUser) {
   const membershipResolved = resolveMembershipState({
     user: userDoc,
     mongoMembership: membership,
-    ttMembershipOrders
+    ttMembershipOrders,
+    ttIssuedMemberships,
+    ticketTailorExclusive: Boolean(ticketTailor.configured && ticketTailor.buyerEmailVisible)
   });
 
   const membershipOverview = buildMembershipOverviewFromResolved(membershipResolved);

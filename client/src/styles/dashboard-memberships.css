@@ -93,14 +93,17 @@
   line-height: 1.25;
 }
 
-.dashboard-memberships__verified-note {
-  margin: 4px 0 0;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--mem-teal);
-  line-height: 1.3;
+.dashboard-memberships__membership-code {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  color: var(--mem-muted);
+  line-height: 1.45;
+}
+
+.dashboard-memberships__membership-code strong {
+  font-weight: 800;
+  color: var(--mem-navy);
+  letter-spacing: 0.06em;
 }
 
 .dashboard-memberships__plan-name {

@@ -11,6 +11,7 @@ import EventsPage from "./components/events/EventsPage";
 import LoginPage from "./components/login/LoginPage";
 import ResetPasswordPage from "./components/login/ResetPasswordPage";
 import DashboardPage from "./components/dashboard/DashboardPage";
+import VentureStudioPage from "./components/venture-studio/VentureStudioPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function EmptyPage() {
@@ -57,7 +58,7 @@ export default function App() {
           <Route path="/blogs" element={<EmptyPage />} />
           <Route path="/donate" element={<DonatePage />} />
           <Route path="/contact" element={<EmptyPage />} />
-          <Route path="/voice-venture-studio" element={<EmptyPage />} />
+          <Route path="/voice-venture-studio" element={<VentureStudioPage />} />
           <Route path="/film-festival" element={<EmptyPage />} />
           <Route path="/privacy-policy" element={<EmptyPage />} />
           <Route path="/terms-and-conditions" element={<EmptyPage />} />
