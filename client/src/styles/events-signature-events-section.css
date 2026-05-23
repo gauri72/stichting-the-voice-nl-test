@@ -164,12 +164,17 @@
 
 .events-signature-card__years {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
   margin: 0;
   color: #6a7f90;
   font-size: clamp(0.68rem, 0.75vw, 0.72rem);
   font-weight: 600;
+  line-height: 1.4;
+}
+
+.events-signature-card__years span {
+  min-width: 0;
 }
 
 .events-signature-card__years svg {
@@ -186,10 +191,13 @@
   gap: 6px;
   min-height: 34px;
   padding: 7px 14px;
+  border: none;
   border-radius: 6px;
   background: linear-gradient(90deg, #5eaa69 0%, #0f8f90 100%);
   color: #ffffff;
   text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
   font-size: clamp(0.64rem, 0.75vw, 0.68rem);
   font-weight: 700;
   letter-spacing: 0.02em;

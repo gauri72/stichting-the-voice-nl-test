@@ -20,10 +20,23 @@ export async function apiFetch(path, options = {}) {
   const contentType = response.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
     data = await response.json();
+  } else if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    if (text) data = { error: text.slice(0, 200) };
   }
 
   if (!response.ok) {
-    const error = new Error(data?.error || "Request failed.");
+    const networkHint =
+      !data && (response.status === 502 || response.status === 504)
+        ? "Cannot reach the API. Check that the server is running and restart the dev app."
+        : null;
+    const fallback =
+      response.status === 503
+        ? "The server could not send email right now. Please try again later."
+        : response.status >= 500
+          ? "Server error. Please try again later."
+          : "Request failed.";
+    const error = new Error(networkHint || data?.error || data?.message || fallback);
     error.status = response.status;
     error.data = data;
     throw error;

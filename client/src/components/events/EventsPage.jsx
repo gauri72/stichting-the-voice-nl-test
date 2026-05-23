@@ -1,17 +1,13 @@
+import UpcomingEventsSection from "../home/UpcomingEventsSection";
 import EventsBreadcrumbSection from "./EventsBreadcrumbSection";
 import EventsSignatureEventsSection from "./EventsSignatureEventsSection";
-import EventsImpactTimelineSection from "./EventsImpactTimelineSection";
-import EventsTestimonialsSection from "./EventsTestimonialsSection";
-import EventsCallToActionSection from "./EventsCallToActionSection";
 
 export default function EventsPage() {
   return (
     <div id="events-navbar-top">
       <EventsBreadcrumbSection />
+      <UpcomingEventsSection />
       <EventsSignatureEventsSection />
-      <EventsImpactTimelineSection />
-      <EventsTestimonialsSection />
-      <EventsCallToActionSection />
     </div>
   );
 }

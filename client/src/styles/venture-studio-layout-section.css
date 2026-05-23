@@ -1,0 +1,10 @@
+.vvs-layout {
+  width: 100%;
+  background: #ffffff;
+}
+
+.vvs-layout__image {
+  display: block;
+  width: 100%;
+  height: auto;
+}

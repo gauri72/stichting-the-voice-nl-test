@@ -1,133 +1,312 @@
+/* Venture Studio contact — three-card layout per design */
+
 .vvs-contact {
-  background: var(--vvs-gray-bg);
-  padding: 72px 24px 80px;
+  --vvs-contact-teal: #006d77;
+  --vvs-contact-navy: #0e2f48;
+  --vvs-contact-muted: #5a6f7a;
+  --vvs-contact-bg: #ffffff;
+  --vvs-contact-card-grey: #f0f5f8;
+  --vvs-contact-border: #d8e2e8;
+  --vvs-contact-shadow: 0 8px 28px rgba(14, 47, 72, 0.08);
+
+  background: var(--vvs-contact-bg);
+  padding: clamp(48px, 6vw, 72px) clamp(16px, 4vw, 40px) clamp(56px, 7vw, 88px);
 }
 
 .vvs-contact__inner {
-  max-width: var(--vvs-max);
+  max-width: min(1320px, 100%);
   margin: 0 auto;
 }
 
 .vvs-contact__grid {
   display: grid;
-  grid-template-columns: 0.85fr 1fr 1fr;
-  gap: 24px;
-  align-items: start;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 2.2vw, 28px);
+  align-items: stretch;
 }
 
-.vvs-contact__info h3,
-.vvs-contact__form h3 {
-  margin: 0 0 20px;
-  font-size: 1.05rem;
+/* —— Shared card —— */
+.vvs-contact__card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: var(--vvs-contact-shadow);
+  padding: clamp(22px, 2.5vw, 32px) clamp(20px, 2.2vw, 28px);
+  min-width: 0;
+}
+
+.vvs-contact__card--info,
+.vvs-contact__card--quote {
+  background: var(--vvs-contact-card-grey);
+}
+
+.vvs-contact__card-title {
+  margin: 0 0 clamp(20px, 2.5vw, 28px);
+  font-size: clamp(1.05rem, 1.25vw, 1.2rem);
   font-weight: 700;
-  color: var(--vvs-navy);
+  color: var(--vvs-contact-navy);
+  line-height: 1.25;
 }
 
-.vvs-contact__info ul {
+.vvs-contact__card-lead {
+  margin: -12px 0 clamp(18px, 2vw, 22px);
+  font-size: clamp(0.82rem, 0.95vw, 0.9rem);
+  line-height: 1.55;
+  color: var(--vvs-contact-muted);
+  font-weight: 400;
+}
+
+/* —— Contact information card —— */
+.vvs-contact__info-list {
   margin: 0;
   padding: 0;
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 2.4vw, 28px);
 }
 
-.vvs-contact__info li {
+.vvs-contact__info-item {
   display: flex;
+  align-items: flex-start;
   gap: 14px;
-  margin-bottom: 20px;
-  font-size: 0.88rem;
-  line-height: 1.5;
 }
 
 .vvs-contact__info-icon {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(0, 109, 119, 0.12);
-  color: var(--vvs-teal);
+  background: var(--vvs-contact-teal);
+  color: #ffffff;
   display: grid;
   place-items: center;
-  font-size: 1rem;
+  font-size: 1.05rem;
 }
 
-.vvs-contact__info strong {
+.vvs-contact__info-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: clamp(0.84rem, 0.95vw, 0.9rem);
+  line-height: 1.5;
+}
+
+.vvs-contact__info-body strong {
   display: block;
-  color: var(--vvs-navy);
-  font-size: 0.82rem;
-  margin-bottom: 2px;
+  color: var(--vvs-contact-navy);
+  font-size: clamp(0.86rem, 0.98vw, 0.92rem);
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 
-.vvs-contact__info a,
-.vvs-contact__info span {
-  color: var(--vvs-muted);
+.vvs-contact__info-body a,
+.vvs-contact__info-body span {
+  color: var(--vvs-contact-muted);
   text-decoration: none;
+  font-weight: 400;
 }
 
-.vvs-contact__info a:hover {
-  color: var(--vvs-teal);
+.vvs-contact__info-body a:hover {
+  color: var(--vvs-contact-teal);
 }
 
-.vvs-contact__form {
-  background: var(--vvs-white);
-  border: 1px solid var(--vvs-border);
-  border-radius: 14px;
-  padding: 24px 22px;
-  box-shadow: 0 6px 20px rgba(0, 18, 25, 0.04);
+/* —— Form cards —— */
+.vvs-contact__card--form {
+  display: flex;
+  flex-direction: column;
 }
 
-.vvs-contact__form label {
+.vvs-contact__row {
+  display: grid;
+  gap: 14px;
+}
+
+.vvs-contact__row--split {
+  grid-template-columns: 1fr 1fr;
+}
+
+.vvs-contact__field {
   display: block;
   margin-bottom: 14px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--vvs-navy);
 }
 
-.vvs-contact__form input,
-.vvs-contact__form select,
-.vvs-contact__form textarea {
+.vvs-contact__field input,
+.vvs-contact__field select,
+.vvs-contact__field textarea {
   display: block;
   width: 100%;
-  margin-top: 6px;
-  padding: 10px 12px;
-  border: 1px solid var(--vvs-border);
+  padding: 12px 14px;
+  border: 1px solid var(--vvs-contact-border);
   border-radius: 8px;
   font-family: inherit;
-  font-size: 0.88rem;
-  color: var(--vvs-text);
-  background: var(--vvs-white);
+  font-size: clamp(0.84rem, 0.95vw, 0.9rem);
+  color: var(--vvs-contact-navy);
+  background: #ffffff;
+  box-sizing: border-box;
 }
 
-.vvs-contact__form textarea {
+.vvs-contact__field input::placeholder,
+.vvs-contact__field textarea::placeholder {
+  color: #8a9baa;
+  font-weight: 400;
+}
+
+.vvs-contact__field select {
+  color: #8a9baa;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235a6f7a' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.vvs-contact__field select:valid,
+.vvs-contact__field select option:not([value=""]) {
+  color: var(--vvs-contact-navy);
+}
+
+.vvs-contact__field textarea {
   resize: vertical;
-  min-height: 88px;
+  min-height: 120px;
 }
 
-.vvs-contact__form input:focus,
-.vvs-contact__form select:focus,
-.vvs-contact__form textarea:focus {
-  outline: 2px solid rgba(0, 109, 119, 0.35);
-  border-color: var(--vvs-teal);
+.vvs-contact__field input:focus,
+.vvs-contact__field select:focus,
+.vvs-contact__field textarea:focus {
+  outline: none;
+  border-color: var(--vvs-contact-teal);
+  box-shadow: 0 0 0 3px rgba(0, 109, 119, 0.15);
+}
+
+.vvs-contact__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 8px;
+  background: var(--vvs-contact-teal);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: clamp(0.86rem, 0.98vw, 0.92rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.vvs-contact__btn:hover {
+  background: #005a62;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 109, 119, 0.28);
+}
+
+.vvs-contact__btn:focus-visible {
+  outline: 2px solid #9fe6de;
+  outline-offset: 3px;
+}
+
+.vvs-contact__btn svg {
+  font-size: 0.95em;
+  flex-shrink: 0;
 }
 
 .vvs-contact__notice {
-  margin: 12px 0 0;
-  font-size: 0.82rem;
-  color: var(--vvs-teal);
+  margin: 14px 0 0;
+  font-size: 0.84rem;
+  color: var(--vvs-contact-teal);
   font-weight: 600;
 }
 
-@media (max-width: 1100px) {
+.vvs-contact__notice--error {
+  color: #b42318;
+}
+
+.vvs-contact__btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* —— Tablet: stack to single column —— */
+@media (max-width: 1024px) {
   .vvs-contact__grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
+    max-width: min(560px, 100%);
+    margin: 0 auto;
   }
 
-  .vvs-contact__info {
-    grid-column: 1 / -1;
+  .vvs-contact__card {
+    padding: 24px 22px;
   }
 }
 
-@media (max-width: 900px) {
+/* —— Small tablet: keep split row on message form if wide enough —— */
+@media (max-width: 1024px) and (min-width: 480px) {
   .vvs-contact__grid {
+    max-width: min(640px, 100%);
+  }
+}
+
+/* —— Mobile: stack name/email fields —— */
+@media (max-width: 560px) {
+  .vvs-contact {
+    padding: 40px 16px 56px;
+  }
+
+  .vvs-contact__grid {
+    max-width: 100%;
+    gap: 20px;
+  }
+
+  .vvs-contact__card {
+    padding: 22px 18px;
+    border-radius: 14px;
+  }
+
+  .vvs-contact__card-title {
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+  }
+
+  .vvs-contact__card-lead {
+    margin-top: -10px;
+    margin-bottom: 18px;
+    font-size: 0.86rem;
+  }
+
+  .vvs-contact__row--split {
     grid-template-columns: 1fr;
+  }
+
+  .vvs-contact__info-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 0.95rem;
+  }
+
+  .vvs-contact__info-list {
+    gap: 22px;
+  }
+
+  .vvs-contact__field {
+    margin-bottom: 12px;
+  }
+
+  .vvs-contact__field input,
+  .vvs-contact__field select,
+  .vvs-contact__field textarea {
+    padding: 11px 12px;
+    font-size: 0.88rem;
+  }
+
+  .vvs-contact__btn {
+    width: 100%;
+    align-self: stretch;
   }
 }

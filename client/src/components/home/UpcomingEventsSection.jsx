@@ -88,7 +88,8 @@ export default function UpcomingEventsSection() {
         {!widgetOpen ? (
           <div className="event-tickets-section__intro">
             <p className="event-tickets-section__heading">
-              Discover what is happening next at Stichting The V.O.I.C.E. NL and reserve your place.
+              V.O.I.C.E. NL Presents Couples Night - A Ballroom Theme Experience, on June 20th,
+              2026, Den Haag. Click below for more information.
             </p>
             <button type="button" className="event-tickets-section__open-btn" onClick={openWidget}>
               View upcoming events &amp; tickets
