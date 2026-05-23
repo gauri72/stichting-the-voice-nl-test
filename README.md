@@ -128,6 +128,10 @@ ORG_NOTIFY_EMAIL=info@stichtingthevoice.nl   # internal alerts for donations, sp
 ```env
 VITE_STRIPE_PUBLISHABLE_KEY=pk_live_...
 VITE_WHATSAPP_E164=31619032104
+
+# Maintenance mode (optional)
+VITE_MAINTENANCE_MODE=true
+VITE_SITE_LAUNCH_DATETIME=2026-05-24T10:12:00.000Z
 ```
 
 Restart `npm run dev` after changing any env file.
@@ -174,6 +178,38 @@ Steps:
 7. Open the static-site URL and run a small real charge to confirm emails and receipts.
 
 Free tier caveat: the API spins down after ~15 min of inactivity; first request after sleep takes ~30 s. Use UptimeRobot ping `/api/health` every 14 min to keep it warm, or upgrade to the Starter plan ($7/mo) when ready.
+
+---
+
+## Maintenance Mode
+
+A fullscreen maintenance page with a live countdown can replace the entire site without any code changes.
+
+### Enable / disable
+
+Set `VITE_MAINTENANCE_MODE=true` in your hosting environment (Render, Vercel, or local `client/.env`). Remove the variable (or set it to any value other than `"true"`) to restore the normal site. Vite bakes the value into the static bundle at build time, so **redeploy after toggling**.
+
+### Countdown target
+
+`VITE_SITE_LAUNCH_DATETIME` controls when the countdown expires. Accepts any ISO 8601 UTC string. Defaults to `2026-05-24T10:12:00.000Z` (24 May 2026, 12:12 PM CEST) if unset or invalid. The human-readable label in the page body is derived from the same value.
+
+```env
+VITE_SITE_LAUNCH_DATETIME=2026-05-24T10:12:00.000Z
+```
+
+When the countdown reaches zero the page switches to a "We're live — please refresh" message.
+
+### Local testing
+
+1. Add to `client/.env`:
+   ```env
+   VITE_MAINTENANCE_MODE=true
+   VITE_SITE_LAUNCH_DATETIME=2026-05-24T10:12:00.000Z
+   ```
+2. Restart the dev server (`npm run dev` inside `client/`).
+3. Open <http://localhost:5173> — the maintenance page appears.
+
+To preview the expired state immediately, set `VITE_SITE_LAUNCH_DATETIME` to a past timestamp (e.g. `2020-01-01T00:00:00.000Z`).
 
 ### Architecture notes
 
