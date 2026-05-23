@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../styles/venture-studio-contact-section.css";
 import {
+  FaBuilding,
   FaChevronRight,
-  FaClock,
   FaEnvelope,
   FaLocationDot,
   FaPaperPlane,
@@ -10,16 +10,13 @@ import {
 } from "react-icons/fa6";
 import { apiFetch } from "../../utils/api.js";
 
+const DEFAULT_CONTACT_EMAIL = "info@stichtingthevoice.nl";
+
 const CONTACT = {
-  emails: [
-    { label: "info@voice-nl.com", href: "mailto:info@voice-nl.com" },
-    { label: "support@voice-nl.com", href: "mailto:support@voice-nl.com" }
-  ],
-  phone: "+31 6 12345678",
-  phoneHref: "tel:+31612345678",
-  location: "The Netherlands",
-  hoursLine1: "Monday – Friday",
-  hoursLine2: "9:00 AM – 6:00 PM (CET)"
+  phone: "+31 6 19032104",
+  phoneHref: "tel:+31619032104",
+  addressLines: ["Wengehout 30,", "2719 KA Zoetermeer,", "The Netherlands"],
+  kvk: "92180213"
 };
 
 const SERVICE_OPTIONS = [
@@ -49,10 +46,19 @@ function formDataFromForm(form) {
 }
 
 export default function VentureStudioContactSection() {
+  const [contactEmail, setContactEmail] = useState(DEFAULT_CONTACT_EMAIL);
   const [messageStatus, setMessageStatus] = useState({ text: "", variant: "success" });
   const [quoteStatus, setQuoteStatus] = useState({ text: "", variant: "success" });
   const [messageSubmitting, setMessageSubmitting] = useState(false);
   const [quoteSubmitting, setQuoteSubmitting] = useState(false);
+
+  useEffect(() => {
+    apiFetch("/api/public/site")
+      .then((data) => {
+        if (data?.contactEmail) setContactEmail(data.contactEmail);
+      })
+      .catch(() => {});
+  }, []);
 
   async function handleMessageSubmit(e) {
     e.preventDefault();
@@ -116,12 +122,8 @@ export default function VentureStudioContactSection() {
                   <FaEnvelope />
                 </span>
                 <div className="vvs-contact__info-body">
-                  <strong>Email Us</strong>
-                  {CONTACT.emails.map(({ label, href }) => (
-                    <a key={label} href={href}>
-                      {label}
-                    </a>
-                  ))}
+                  <strong>Email</strong>
+                  <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
                 </div>
               </li>
               <li className="vvs-contact__info-item">
@@ -129,7 +131,7 @@ export default function VentureStudioContactSection() {
                   <FaPhone />
                 </span>
                 <div className="vvs-contact__info-body">
-                  <strong>Call Us</strong>
+                  <strong>Office Phone</strong>
                   <a href={CONTACT.phoneHref}>{CONTACT.phone}</a>
                 </div>
               </li>
@@ -138,18 +140,19 @@ export default function VentureStudioContactSection() {
                   <FaLocationDot />
                 </span>
                 <div className="vvs-contact__info-body">
-                  <strong>Our Location</strong>
-                  <span>{CONTACT.location}</span>
+                  <strong>Address</strong>
+                  {CONTACT.addressLines.map((line) => (
+                    <span key={line}>{line}</span>
+                  ))}
                 </div>
               </li>
               <li className="vvs-contact__info-item">
                 <span className="vvs-contact__info-icon" aria-hidden>
-                  <FaClock />
+                  <FaBuilding />
                 </span>
                 <div className="vvs-contact__info-body">
-                  <strong>Office Hours</strong>
-                  <span>{CONTACT.hoursLine1}</span>
-                  <span>{CONTACT.hoursLine2}</span>
+                  <strong>KVK</strong>
+                  <span>{CONTACT.kvk}</span>
                 </div>
               </li>
             </ul>
