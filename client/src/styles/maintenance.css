@@ -148,6 +148,32 @@
   font-weight: 700;
 }
 
+/* ===== Upcoming event ===== */
+
+.maint-page__event {
+  margin: 0 0 24px;
+  text-align: center;
+}
+
+.maint-page__event-intro {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  color: #c8dff0;
+}
+
+.maint-page__event-link {
+  display: inline-block;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #78c7f4;
+  text-decoration: none;
+}
+
+.maint-page__event-link:hover {
+  text-decoration: underline;
+  color: #a5d9f9;
+}
+
 /* ===== Contact line ===== */
 
 .maint-page__contact {
@@ -160,6 +186,11 @@
   color: #78c7f4;
   text-decoration: none;
   font-weight: 600;
+}
+
+.maint-page__contact a:hover {
+  text-decoration: underline;
+  color: #a5d9f9;
 }
 
 .maint-page__contact a:hover {

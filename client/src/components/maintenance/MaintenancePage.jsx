@@ -85,15 +85,23 @@ export default function MaintenancePage() {
           </div>
         )}
 
+        <div className="maint-page__event">
+          <p className="maint-page__event-intro">
+            In the meantime, check out tickets for our upcoming event:
+          </p>
+          <a
+            className="maint-page__event-link"
+            href="https://www.tickettailor.com/events/stichtingthevoicenl/2185529"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Couples Night on 20 June 2026
+          </a>
+        </div>
+
         <p className="maint-page__contact">
           Questions?{" "}
           <a href="mailto:info@stichtingthevoice.nl">info@stichtingthevoice.nl</a>
-        </p>
-        <p className="maint-page__event">
-          In the meantime, check out tickets for our upcoming event Couples Night on{" "}
-          <a href="https://www.tickettailor.com/events/stichtingthevoicenl/2185529" target="_blank" rel="noopener noreferrer">
-            20 June 2026
-          </a>
         </p>
       </div>
     </div>
