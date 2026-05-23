@@ -13,6 +13,10 @@ import ResetPasswordPage from "./components/login/ResetPasswordPage";
 import DashboardPage from "./components/dashboard/DashboardPage";
 import VentureStudioPage from "./components/venture-studio/VentureStudioPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import MaintenancePage from "./components/maintenance/MaintenancePage";
+
+// Enable by setting VITE_MAINTENANCE_MODE=true in your .env / hosting environment.
+const MAINTENANCE_MODE = import.meta.env.VITE_MAINTENANCE_MODE === "true";
 
 function EmptyPage() {
   return null;
@@ -38,6 +42,8 @@ function ScrollToHash() {
 }
 
 export default function App() {
+  if (MAINTENANCE_MODE) return <MaintenancePage />;
+
   return (
     <>
       <AppSplash />
