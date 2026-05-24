@@ -1,6 +1,6 @@
 import "../../styles/hero.css";
 
-const WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/";
+const WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/Ea3TAolCBlUEgPUzSYdeYs";
 
 export default function Hero() {
   return (
