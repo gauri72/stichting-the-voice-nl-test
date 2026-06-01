@@ -1,5 +1,5 @@
 .membership-matrix {
-  background: #ffffff;
+  background: var(--color-bg);
   padding: 0 20px 34px;
   margin-top: 2px;
 }
@@ -23,12 +23,12 @@
 .membership-matrix__heading-line {
   flex: 1;
   height: 1px;
-  background: #d7dee5;
+  background: var(--color-border);
 }
 
 .membership-matrix__title {
   margin: 0;
-  color: #16314a;
+  color: var(--color-heading);
   font-size: clamp(1.45rem, 2vw, 1.95rem);
   font-weight: 800;
   text-transform: uppercase;
@@ -57,7 +57,7 @@
 .membership-matrix__card {
   border: 1px solid #d7dfe6;
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--color-bg);
   padding: 16px 18px;
   display: flex;
   flex-direction: column;

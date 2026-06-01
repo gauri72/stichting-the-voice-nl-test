@@ -3,9 +3,13 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
+import { ThemeProvider } from "./contexts/ThemeContext.jsx";
 import App from "./App";
+import "./styles/themes.css";
 import "./styles/global.css";
 import "./styles/header.css";
+import "./styles/theme-toggle.css";
+import "./styles/dark-theme-overrides.css";
 import "./styles/app-splash.css";
 
 const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
@@ -22,9 +26,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <AppProviders>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </ThemeProvider>
       </AppProviders>
     </BrowserRouter>
   </React.StrictMode>

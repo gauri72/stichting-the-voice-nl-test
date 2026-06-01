@@ -12,8 +12,8 @@
 }
 
 .site-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e6edf1;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   width: 100%;
   max-width: 100%;
   overflow-x: clip;
@@ -71,8 +71,8 @@
 }
 
 .brand-name-top {
-  color: #3f444c;
-  font-size: 12px;
+  color: var(--color-brand-muted);
+  font-size: 10px;
   -webkit-text-stroke: 0.75px currentColor;
   text-shadow:
     0 0 0 currentColor,
@@ -82,9 +82,9 @@
 }
 
 .brand-name-bottom {
-  margin-top: 4px;
-  font-size: 26px;
-  letter-spacing: 0.08em;
+  margin-top: 3px;
+  font-size: 20px;
+  letter-spacing: 0.06em;
   line-height: 1.04;
   background: linear-gradient(90deg, #1a7db5, #4da377);
   -webkit-background-clip: text;
@@ -112,8 +112,8 @@
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  border: 1px solid #d3dee6;
-  background: #ffffff;
+  border: 1px solid var(--color-toggle-border);
+  background: var(--color-toggle-bg);
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -124,7 +124,7 @@
 .menu-toggle span {
   width: 20px;
   height: 2px;
-  background: #1f2f3d;
+  background: var(--color-toggle-icon);
   border-radius: 2px;
 }
 
@@ -148,7 +148,7 @@
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex: 0 0 auto;
   justify-self: end;
 }
@@ -258,7 +258,7 @@
   font-weight: 700;
   letter-spacing: 0.03em;
   white-space: nowrap;
-  color: #1f2f3d;
+  color: var(--color-nav);
   text-decoration: none;
   padding: 7px 0;
   border-bottom: 2px solid transparent;
@@ -266,14 +266,14 @@
 }
 
 .menu-links a:hover {
-  color: #118a93;
-  border-bottom-color: #8ecfd2;
+  color: var(--color-accent-teal);
+  border-bottom-color: var(--color-accent-teal-soft);
   transform: translateY(-1px);
 }
 
 .menu-links a.active {
-  color: #118a93;
-  border-bottom-color: #118a93;
+  color: var(--color-accent-teal);
+  border-bottom-color: var(--color-accent-teal);
 }
 
 .donate-button {
@@ -302,6 +302,11 @@
   display: none;
 }
 
+.nav-mobile-bar,
+.buy-tickets-bar {
+  display: none;
+}
+
 .auth-button {
   border: 2px solid #0078ab;
   border-radius: 999px;
@@ -310,8 +315,8 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
-  background: #ffffff;
-  color: #0078ab;
+  background: var(--color-surface);
+  color: var(--color-link);
   text-transform: uppercase;
   font-size: 11px;
   font-weight: 700;
@@ -331,7 +336,7 @@
 .auth-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 14px rgba(0, 120, 171, 0.18);
-  background: #f4f9fc;
+  background: var(--color-bg-muted);
 }
 
 .auth-button:active {
@@ -351,7 +356,7 @@
   display: inline-flex;
   align-items: center;
   padding: 0;
-  color: #1f2f3d;
+  color: var(--color-nav);
   text-decoration: none;
   text-transform: uppercase;
   font-size: 13px;
@@ -386,11 +391,11 @@
   height: 40px;
   padding: 0;
   flex-shrink: 0;
-  color: #1f2f3d;
+  color: var(--color-nav);
   text-decoration: none;
-  border: 1px solid #d3dee6;
+  border: 1px solid var(--color-toggle-border);
   border-radius: 9px;
-  background: linear-gradient(180deg, #ffffff 0%, #f4f9fc 100%);
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-menu-gradient-end) 100%);
   box-shadow: 0 2px 6px rgba(15, 53, 78, 0.06);
   transition:
     color 0.2s ease,
@@ -459,9 +464,16 @@
 .auth-button:focus-visible,
 .brand-block:focus-visible,
 .menu-toggle:focus-visible,
-.menu-close:focus-visible {
+.menu-close:focus-visible,
+.theme-toggle:focus-visible {
   outline: 2px solid #118a93;
   outline-offset: 3px;
+}
+
+.buy-tickets-icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
 }
 
 .donate-icon {
@@ -478,13 +490,13 @@
 .menu-dropdown-trigger {
   border: none;
   background: transparent;
-  color: #1f2f3d;
+  color: var(--color-nav);
   cursor: pointer;
 }
 
 .menu-dropdown:hover .menu-dropdown-trigger {
-  color: #118a93;
-  border-bottom-color: #8ecfd2;
+  color: var(--color-accent-teal);
+  border-bottom-color: var(--color-accent-teal-soft);
   transform: translateY(-1px);
 }
 
@@ -500,10 +512,10 @@
   left: 50%;
   transform: translateX(-50%);
   min-width: 210px;
-  background: #ffffff;
-  border: 1px solid #dce5ec;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
-  box-shadow: 0 14px 26px rgba(15, 53, 78, 0.12);
+  box-shadow: 0 14px 26px var(--color-shadow-strong);
   padding: 8px;
   display: none;
   z-index: 20;
@@ -533,13 +545,24 @@
 
 .menu-dropdown-menu a:hover {
   border-bottom-color: transparent;
-  background: #f4f9fc;
+  background: var(--color-bg-muted);
   transform: none;
 }
 
 @media (min-width: 1101px) {
   .menu-dropdown-menu a {
     text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+}
+
+@media (max-width: 1600px) and (min-width: 1101px) {
+  .menu-links {
+    gap: 12px;
+  }
+
+  .menu-links a {
+    font-size: 11px;
     letter-spacing: 0.02em;
   }
 }
@@ -557,11 +580,11 @@
   }
 
   .brand-name-top {
-    font-size: 11px;
+    font-size: 9px;
   }
 
   .brand-name-bottom {
-    font-size: 24px;
+    font-size: 19px;
   }
 
   .menu-links {
@@ -585,11 +608,11 @@
   }
 
   .brand-name-top {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .brand-name-bottom {
-    font-size: 22px;
+    font-size: 18px;
   }
 
   .menu-links {
@@ -627,8 +650,7 @@
 @media (max-width: 1100px) {
   .site-navbar {
     flex-wrap: nowrap;
-    /* flex-start + growing brand keeps hamburger on the same row; explicit
-       margin on .menu-toggle adds reliable space (base rule uses margin-left: auto) */
+    /* Brand grows on the left; buy tickets + hamburger sit in .nav-mobile-bar on the right */
     justify-content: flex-start;
     align-items: center;
     gap: 0;
@@ -641,11 +663,66 @@
     min-width: 0;
   }
 
-  /* Child selector beats .menu-toggle { margin-left: auto } and keeps spacing on one row */
-  .site-navbar > .menu-toggle {
-    display: inline-flex;
+  .nav-mobile-bar {
+    --header-control-size: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: clamp(8px, 2vw, 14px);
     flex-shrink: 0;
-    margin-left: clamp(18px, 5vw, 28px);
+    margin-left: auto;
+    min-width: 0;
+    height: var(--header-control-size);
+  }
+
+  .nav-mobile-bar .buy-tickets-bar,
+  .nav-mobile-bar .menu-toggle {
+    margin: 0;
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    height: var(--header-control-size);
+    min-height: var(--header-control-size);
+    max-height: var(--header-control-size);
+    box-sizing: border-box;
+  }
+
+  .nav-mobile-bar .buy-tickets-bar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 clamp(10px, 2.5vw, 16px);
+    font-size: clamp(10px, 2.4vw, 12px);
+    line-height: 1;
+    max-width: min(42vw, 168px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nav-mobile-bar .buy-tickets-icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .nav-mobile-bar .menu-toggle {
+    display: inline-flex;
+    width: var(--header-control-size);
+    min-width: var(--header-control-size);
+    padding: 0;
+  }
+
+  .donate-button-menu {
+    display: none !important;
+  }
+
+  .nav-actions-theme-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 4px;
   }
 
   .brand-name {
@@ -668,12 +745,12 @@
       0.4px 0 currentColor,
       -0.4px 0 currentColor,
       0 0.35px currentColor;
-    color: #3f444c;
+    color: var(--color-brand-muted);
     font-weight: 900;
   }
 
   .brand-name .brand-name-bottom {
-    font-size: 17px;
+    font-size: 15px;
     margin-top: 2px;
     letter-spacing: 0.08em;
     white-space: nowrap;
@@ -705,10 +782,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    gap: 24px;
-    padding: 86px 24px 28px;
-    background: #ffffff;
+    gap: 20px;
+    padding: 86px 20px max(28px, env(safe-area-inset-bottom, 0px));
+    background: var(--color-surface);
+    overflow-x: hidden;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .nav-center,
@@ -717,11 +796,11 @@
   }
 
   .donate-button-desktop,
-  .auth-button-desktop {
+  .auth-button-desktop,
+  .theme-toggle--desktop {
     display: none;
   }
 
-  .donate-button-menu,
   .auth-button-menu {
     display: inline-flex;
   }
@@ -738,8 +817,8 @@
     width: 42px;
     height: 42px;
     border-radius: 10px;
-    border: 1px solid #d3dee6;
-    background: #ffffff;
+    border: 1px solid var(--color-toggle-border);
+    background: var(--color-toggle-bg);
     align-items: center;
     justify-content: center;
     cursor: pointer;
@@ -749,7 +828,7 @@
     position: absolute;
     width: 18px;
     height: 2px;
-    background: #1f2f3d;
+    background: var(--color-toggle-icon);
     border-radius: 2px;
   }
 
@@ -799,7 +878,7 @@
       0.4px 0 currentColor,
       -0.4px 0 currentColor,
       0 0.35px currentColor;
-    color: #3f444c;
+    color: var(--color-brand-muted);
     font-weight: 900;
   }
 
@@ -842,6 +921,8 @@
 
   .menu-links--mobile {
     display: flex;
+    max-width: 100%;
+    padding: 0 8px;
   }
 
   .nav-center {
@@ -894,7 +975,7 @@
     width: 100%;
     max-width: 260px;
     box-shadow: none;
-    border: 1px solid #dce5ec;
+    border: 1px solid var(--color-border);
     margin-top: 2px;
   }
 
@@ -918,20 +999,20 @@
     text-align: center;
   }
 
-  .donate-button,
-  .auth-button {
+  .nav-actions .donate-button,
+  .nav-actions .auth-button {
     align-self: center;
     font-size: 14px;
     padding: 14px 24px;
     margin-top: 14px;
   }
 
-  .auth-button .auth-button-icon {
+  .nav-actions .auth-button .auth-button-icon {
     width: 17px;
     height: 17px;
   }
 
-  .donate-button .donate-icon {
+  .nav-actions .donate-button .donate-icon {
     font-size: 18px;
   }
 
@@ -952,7 +1033,7 @@
   }
 
   .site-navbar .brand-name .brand-name-bottom {
-    font-size: 18px !important;
+    font-size: 16px !important;
     margin-top: 1px !important;
     letter-spacing: 0.08em !important;
   }
@@ -972,8 +1053,21 @@
     overflow: hidden;
   }
 
-  .site-navbar > .menu-toggle {
-    margin-left: auto;
+  .nav-mobile-bar {
+    --header-control-size: 42px;
+    gap: 8px;
+  }
+
+  .nav-mobile-bar .buy-tickets-bar {
+    gap: 5px;
+    padding: 0 12px;
+    font-size: 10px;
+    max-width: min(38vw, 140px);
+  }
+
+  .nav-mobile-bar .buy-tickets-icon {
+    width: 14px;
+    height: 14px;
   }
 
   .site-navbar .brand-logo {
@@ -986,7 +1080,7 @@
   }
 
   .site-navbar .brand-name .brand-name-bottom {
-    font-size: 19px !important;
+    font-size: 17px !important;
     margin-top: 1px !important;
     letter-spacing: 0.08em !important;
     line-height: 1.04 !important;
@@ -1007,16 +1101,29 @@
     line-height: 1.04;
   }
 
-  .menu-toggle {
-    width: 42px;
-    height: 42px;
-  }
 }
 
 @media (max-width: 480px) {
   .site-navbar {
     min-height: 92px;
     padding: 16px 10px;
+  }
+
+  .nav-mobile-bar {
+    --header-control-size: 40px;
+  }
+
+  .nav-mobile-bar .buy-tickets-bar {
+    gap: 4px;
+    padding: 0 10px;
+    font-size: 9px;
+    letter-spacing: 0.02em;
+    max-width: min(36vw, 120px);
+  }
+
+  .nav-mobile-bar .buy-tickets-icon {
+    width: 13px;
+    height: 13px;
   }
 
   .site-navbar .brand-logo {
@@ -1030,7 +1137,7 @@
   }
 
   .site-navbar .brand-name .brand-name-bottom {
-    font-size: 16px !important;
+    font-size: 14px !important;
     letter-spacing: 0.06em !important;
     line-height: 1.04 !important;
   }

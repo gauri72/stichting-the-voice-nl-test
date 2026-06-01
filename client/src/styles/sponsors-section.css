@@ -21,7 +21,7 @@
 .sponsors-section__label-line {
   flex: 1;
   height: 1px;
-  background: #d7dee5;
+  background: var(--color-border);
 }
 
 .sponsors-section__label {
@@ -60,7 +60,7 @@
   border-radius: 16px;
   padding: 16px 0;
   margin-top: 22px;
-  background: #ffffff;
+  background: var(--color-bg);
   box-shadow: 0 12px 28px rgba(13, 52, 79, 0.08);
 }
 

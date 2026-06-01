@@ -1,0 +1,30 @@
+/* Header brand "STICHTING" line — ensure contrast on dark surfaces */
+[data-theme="dark"] .brand-name-top,
+[data-theme="dark"] .brand-name .brand-name-top,
+[data-theme="dark"] .mobile-brand-name .brand-name-top {
+  color: var(--color-brand-muted);
+}
+
+/* Section-level dark mode tweaks */
+
+[data-theme="dark"] .home-about-heading-line {
+  background: var(--color-border);
+}
+
+[data-theme="dark"] .home-about-pillar:not(:last-child) {
+  border-right-color: var(--color-border-strong);
+}
+
+[data-theme="dark"] .home-about-pillar:not(:last-child) {
+  border-bottom-color: var(--color-border-strong);
+}
+
+[data-theme="dark"] img:not([class*="logo"]):not(.brand-logo):not(.mobile-brand-logo) {
+  opacity: 0.95;
+}
+
+[data-theme="dark"] .page-content,
+[data-theme="dark"] .sponsorship-payment-block,
+[data-theme="dark"] .login-form-card {
+  border: 1px solid var(--color-border);
+}

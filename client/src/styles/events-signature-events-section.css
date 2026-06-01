@@ -1,7 +1,7 @@
 /* Events page — signature events (uses donate-section__* heading + site default font) */
 
 .events-signature {
-  background: #ffffff;
+  background: var(--color-bg);
   padding: clamp(32px, 4vw, 48px) clamp(16px, 3vw, 34px) clamp(40px, 5vw, 56px);
   overflow-x: clip;
 }
@@ -65,7 +65,7 @@
   border: 3px solid #9aa8b5;
   border-top: none;
   border-radius: 0 0 10px 10px;
-  background: #ffffff;
+  background: var(--color-bg);
   box-shadow: 0 4px 14px rgba(15, 53, 78, 0.06);
   transition: box-shadow 160ms ease, border-color 160ms ease;
 }
@@ -147,7 +147,7 @@
 
 .events-signature-card__row h3 {
   margin: 0;
-  color: #122e47;
+  color: var(--color-heading);
   font-size: clamp(0.82rem, 1vw, 0.98rem);
   font-weight: 800;
   line-height: 1.32;

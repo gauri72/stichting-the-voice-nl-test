@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { apiFetch } from "../../utils/api.js";
 import {
   FaFacebookF,
   FaInstagram,
@@ -11,13 +10,13 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { IoMailOpenOutline } from "react-icons/io5";
+import { apiFetch } from "../../utils/api.js";
+import { WHATSAPP_GROUP_URL } from "../../constants/siteLinks.js";
 import headerLogo from "../../assets/header-logo.png";
 import footerBg from "../../assets/footer-bg.png";
 import voiceVentureStudioLogo from "../../assets/VOICE Venture Studio.png";
 import "../../styles/footer.css";
 
-// Set VITE_WHATSAPP_E164 in client/.env (digits only, e.g. 31619032104).
 function buildWhatsAppHref() {
   const raw = import.meta.env.VITE_WHATSAPP_E164;
   const digits =
@@ -27,29 +26,24 @@ function buildWhatsAppHref() {
   return `https://wa.me/${digits}`;
 }
 
-const quickLinksRow1 = [
+const footerNavLinks = [
   { label: "Home", to: "/" },
+  { label: "Experiences", to: "/events" },
+  { label: "Our Pillars", to: "/our-pillars" },
   { label: "Membership", to: "/membership" },
   { label: "Sponsorship", to: "/sponsorship" },
-  { label: "Donate Now", to: "/donate" },
+  { label: "Donation", to: "/donate" },
+  { label: "About Us", to: "/about-us" },
+  { label: "Contact Us", to: "/contact-us" },
+  { label: "Innovation", to: "/voice-venture-studio" },
 ];
 
-const quickLinksRow2 = [
-  { label: "Vision of Sounds", to: "/segments/vision-of-sounds" },
-  { label: "VOWNL", to: "/segments/vownl" },
-  { label: "Voice of Visionaries", to: "/segments/voice-of-visionaries" },
-];
-
-const quickLinksRow3 = [
-  { label: "Events", to: "/events" },
-  { label: "LOG IN or SIGN UP", to: "/my-account" },
-  { label: "Chat With Us", href: buildWhatsAppHref() },
-];
-
-const quickLinksRow4 = [
+const footerLegalLinks = [
   { label: "Privacy Policy", to: "/privacy-policy" },
   { label: "Terms & Conditions", to: "/terms-and-conditions" },
 ];
+
+const footerSiteLinks = [...footerNavLinks, ...footerLegalLinks];
 
 const socialLinks = [
   {
@@ -82,10 +76,6 @@ const socialLinks = [
 const DEFAULT_CONTACT_EMAIL = "info@stichtingthevoice.nl";
 
 export default function Footer() {
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
-  const [subscribeError, setSubscribeError] = useState("");
-  const [subscribeLoading, setSubscribeLoading] = useState(false);
   const [contactEmail, setContactEmail] = useState(DEFAULT_CONTACT_EMAIL);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -97,29 +87,6 @@ export default function Footer() {
       .catch(() => {});
   }, []);
 
-  async function handleSubscribe(e) {
-    e.preventDefault();
-    const trimmed = email.trim();
-    if (!trimmed) return;
-
-    setSubscribeLoading(true);
-    setSubscribeError("");
-    setSubscribed(false);
-
-    try {
-      await apiFetch("/api/newsletter/subscribe", {
-        method: "POST",
-        body: JSON.stringify({ email: trimmed })
-      });
-      setSubscribed(true);
-      setEmail("");
-    } catch (err) {
-      setSubscribeError(err.message || "Could not subscribe. Please try again.");
-    } finally {
-      setSubscribeLoading(false);
-    }
-  }
-
   return (
     <footer className="site-footer site-footer--with-bg" style={{ "--footer-bg-image": `url(${footerBg})` }}>
       <div className="footer-main">
@@ -130,61 +97,19 @@ export default function Footer() {
               <span className="footer-impact-subtitle-blue">Create a </span>
               <span className="footer-impact-subtitle-green">Better Tomorrow.</span>
             </p>
-            <p className="footer-impact-description">
-              Thank you for believing in our mission and supporting the power of culture.
-            </p>
           </div>
 
           <div className="footer-impact-donate">
-            <Link className="footer-impact-donate-btn" to="/donate">
-              DONATE NOW <span aria-hidden>♥</span>
-            </Link>
-            <p>Every act of kindness makes a lasting impact.</p>
-          </div>
-        </div>
-
-        <div className="footer-stay-connected">
-          <div className="footer-stay-connected-copy">
-            <IoMailOpenOutline className="footer-stay-connected-icon" aria-hidden />
-            <div>
-              <h3>STAY CONNECTED</h3>
-              <p>Subscribe to our newsletter for updates on events, stories and impact.</p>
-            </div>
-          </div>
-          <form className="footer-stay-connected-form" onSubmit={handleSubscribe}>
-            <label htmlFor="footer-newsletter-email" className="visually-hidden">
-              Email address
-            </label>
-            <input
-              id="footer-newsletter-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(ev) => {
-                setEmail(ev.target.value);
-                setSubscribed(false);
-              }}
-            />
-            <button
-              type="submit"
-              className="footer-stay-connected-btn"
-              disabled={subscribeLoading}
+            <a
+              className="footer-impact-donate-btn footer-impact-whatsapp-btn"
+              href={WHATSAPP_GROUP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              {subscribeLoading ? "SUBSCRIBING…" : "SUBSCRIBE"}
-            </button>
-          </form>
-          {subscribed ? (
-            <p className="footer-stay-connected-status" role="status">
-              Thank you — check your inbox for a confirmation email.
-            </p>
-          ) : null}
-          {subscribeError ? (
-            <p className="footer-stay-connected-error" role="alert">
-              {subscribeError}
-            </p>
-          ) : null}
+              <FaWhatsapp aria-hidden />
+              JOIN WHATSAPP GROUP
+            </a>
+          </div>
         </div>
 
         <div className="footer-columns footer-columns--main">
@@ -241,38 +166,10 @@ export default function Footer() {
           </div>
 
           <div className="footer-col footer-col-quick footer-col-links-legal">
-            <h3 className="footer-section-title">Quick links</h3>
-            <div className="footer-quick-grid footer-quick-grid--rows">
-              <ul className="footer-quick-row footer-quick-row--four">
-                {quickLinksRow1.map((item) => (
-                  <li key={item.label}>
-                    <Link to={item.to}>{item.label}</Link>
-                  </li>
-                ))}
-              </ul>
-              <ul className="footer-quick-row footer-quick-row--three">
-                {quickLinksRow2.map((item) => (
-                  <li key={item.label}>
-                    <Link to={item.to}>{item.label}</Link>
-                  </li>
-                ))}
-              </ul>
-              <ul className="footer-quick-row footer-quick-row--three">
-                {quickLinksRow3.map((item) => (
-                  <li key={item.label}>
-                    {"href" in item ? (
-                      <a href={item.href} target="_blank" rel="noopener noreferrer">
-                        {item.label}
-                      </a>
-                    ) : (
-                      <Link to={item.to}>{item.label}</Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-              <ul className="footer-quick-row footer-quick-row--two">
-                {quickLinksRow4.map((item) => (
-                  <li key={item.label}>
+            <div className="footer-quick-grid footer-nav-grid">
+              <ul className="footer-quick-row footer-nav-links">
+                {footerSiteLinks.map((item) => (
+                  <li key={item.to}>
                     <Link to={item.to}>{item.label}</Link>
                   </li>
                 ))}
@@ -280,7 +177,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="footer-col footer-col-contact">
+          <div id="contact" className="footer-col footer-col-contact">
             <h3 className="footer-section-title">Contact us</h3>
             <div className="footer-brand-details footer-brand-details--standalone">
               <p>
@@ -320,11 +217,6 @@ export default function Footer() {
           </p>
           <p className="footer-copyright">© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.</p>
         </div>
-        {subscribed ? (
-          <p className="footer-subscribe-note footer-subscribe-note--center" role="status">
-            Thank you — we will be in touch.
-          </p>
-        ) : null}
       </div>
 
       {isChatOpen ? (

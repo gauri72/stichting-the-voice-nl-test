@@ -1731,15 +1731,20 @@
 .footer-impact-strip {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
-  align-items: start;
+  align-items: center;
   column-gap: clamp(18px, 3.2vw, 52px);
   row-gap: 10px;
   padding-inline: clamp(10px, 2.2vw, 28px);
-  margin-bottom: 14px;
+  padding-bottom: clamp(16px, 2.5vw, 24px);
+  margin-bottom: clamp(18px, 2.8vw, 28px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .footer-impact-copy {
   max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .footer-impact-title {
@@ -1771,12 +1776,13 @@
 
 .footer-impact-donate {
   justify-self: end;
+  align-self: center;
   width: 100%;
   max-width: 360px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   text-align: center;
 }
 
@@ -1948,8 +1954,21 @@
   margin-bottom: 0;
 }
 
-.footer-col-quick .footer-section-title {
-  text-align: center;
+.footer-nav-links {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 20px;
+  max-width: min(100%, 720px);
+}
+
+.footer-nav-grid {
+  width: 100%;
+}
+
+.footer-impact-whatsapp-btn svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .footer-col-quick .footer-quick-row {
@@ -2037,7 +2056,8 @@
     grid-template-columns: 1fr;
     gap: 12px;
     padding-inline: clamp(6px, 2vw, 14px);
-    margin-bottom: 12px;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
   }
 
   .footer-impact-copy {
@@ -2046,6 +2066,7 @@
 
   .footer-impact-donate {
     justify-self: start;
+    align-self: center;
     width: auto;
     max-width: 100%;
     min-width: 0;
@@ -2101,7 +2122,8 @@
 
   .footer-impact-strip {
     row-gap: 8px;
-    margin-bottom: 10px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
   }
 
   .footer-impact-title {

@@ -16,6 +16,30 @@
     />
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
+      (function () {
+        var prefKey = "voice-theme-preference";
+        var legacyKey = "voice-theme";
+        var pref = localStorage.getItem(prefKey);
+        if (pref !== "light" && pref !== "dark" && pref !== "auto") {
+          var legacy = localStorage.getItem(legacyKey);
+          pref = legacy === "light" || legacy === "dark" ? legacy : "auto";
+        }
+        var theme;
+        if (pref === "light" || pref === "dark") {
+          theme = pref;
+        } else {
+          var hour = parseInt(
+            new Intl.DateTimeFormat("en-GB", {
+              timeZone: "Europe/Amsterdam",
+              hour: "numeric",
+              hour12: false
+            }).format(new Date()),
+            10
+          );
+          theme = hour >= 6 && hour < 20 ? "light" : "dark";
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
       document.documentElement.classList.add("splash-open");
     </script>
     <!-- Google tag (gtag.js) -->

@@ -4,7 +4,7 @@
   overflow: hidden;
   border: 1px solid #1a5f7d;
   box-shadow: none;
-  background: #ffffff;
+  background: var(--color-bg);
 }
 
 .our-impact-top {
@@ -42,7 +42,7 @@
   height: 3px;
   margin: 8px auto 0;
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--color-bg);
 }
 
 .our-impact-heading-subtitle {

@@ -1,5 +1,5 @@
 .our-segments-section {
-  background: #ffffff;
+  background: var(--color-bg);
   padding: 22px 34px 34px;
 }
 
@@ -25,13 +25,13 @@
 .our-segments-heading-line {
   flex: 1;
   height: 1px;
-  background: #d7dee5;
+  background: var(--color-border);
 }
 
 .our-segments-title {
   margin: 0;
   text-align: center;
-  color: #16314a;
+  color: var(--color-heading);
   font-size: clamp(1.45rem, 2vw, 1.95rem);
   font-weight: 800;
   text-transform: uppercase;
@@ -59,7 +59,7 @@
 .our-segments-card {
   border: 1px solid #d6dee6;
   border-radius: 16px;
-  background: #ffffff;
+  background: var(--color-bg);
   overflow: hidden;
   box-shadow: 0 8px 20px rgba(15, 53, 78, 0.08);
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
@@ -93,14 +93,14 @@
   height: 100%;
   object-fit: contain;
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--color-bg);
 }
 
 .our-segments-icon-badge {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--color-bg);
   border: 2px solid #d5e4ee;
   color: #0b8a69;
   display: inline-flex;

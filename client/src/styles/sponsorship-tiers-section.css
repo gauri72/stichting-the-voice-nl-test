@@ -1,5 +1,5 @@
 .sponsorship-tiers {
-  background: #ffffff;
+  background: var(--color-bg);
   padding: 26px 14px 34px;
 }
 
@@ -21,7 +21,7 @@
 .sponsorship-tiers__heading-line {
   flex: 1;
   height: 1px;
-  background: #d7dee5;
+  background: var(--color-border);
 }
 
 .sponsorship-tiers__eyebrow {
@@ -76,9 +76,9 @@
 }
 
 .sponsorship-tier-card {
-  border: 1px solid #d9e1e8;
+  border: 1px solid var(--color-input-border);
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--color-bg);
   padding: 14px 16px 16px;
   display: flex;
   flex-direction: column;
@@ -127,7 +127,7 @@
   margin: 14px 0 0;
   text-align: center;
   text-transform: uppercase;
-  color: #17314b;
+  color: var(--color-text);
   font-size: 1.42rem;
   font-weight: 800;
 }
@@ -163,7 +163,7 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  color: #1d3550;
+  color: var(--color-text-secondary);
   font-size: 0.95rem;
   line-height: 1.35;
 }
@@ -263,7 +263,7 @@
 
 .sponsorship-why__item h3 {
   margin: 8px 0 0;
-  color: #17314b;
+  color: var(--color-text);
   font-size: 1.25rem;
   font-weight: 800;
 }

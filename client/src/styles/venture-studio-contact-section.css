@@ -27,7 +27,7 @@
 
 /* —— Shared card —— */
 .vvs-contact__card {
-  background: #ffffff;
+  background: var(--color-bg);
   border-radius: 16px;
   box-shadow: var(--vvs-contact-shadow);
   padding: clamp(22px, 2.5vw, 32px) clamp(20px, 2.2vw, 28px);
@@ -142,7 +142,7 @@
   font-family: inherit;
   font-size: clamp(0.84rem, 0.95vw, 0.9rem);
   color: var(--vvs-contact-navy);
-  background: #ffffff;
+  background: var(--color-bg);
   box-sizing: border-box;
 }
 

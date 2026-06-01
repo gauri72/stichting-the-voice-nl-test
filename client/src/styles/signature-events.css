@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap");
 
 .signature-events-section {
-  background: #ffffff;
+  background: var(--color-bg);
   padding: 36px 34px;
   font-family: "Montserrat", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -21,13 +21,13 @@
 .signature-events-heading-line {
   flex: 1;
   height: 1px;
-  background: #d7dee5;
+  background: var(--color-border);
 }
 
 .signature-events-title {
   margin: 0;
   text-align: center;
-  color: #16314a;
+  color: var(--color-heading);
   font-size: clamp(1.45rem, 2vw, 1.95rem);
   font-weight: 800;
   text-transform: uppercase;
@@ -55,7 +55,7 @@
 .signature-event-card {
   border: 1px solid #d7dee6;
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--color-bg);
   overflow: hidden;
   text-align: center;
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
@@ -115,7 +115,7 @@
 
 .signature-event-content h3 {
   margin: 0;
-  color: #122e47;
+  color: var(--color-heading);
   font-size: 0.98rem;
   font-weight: 800;
   line-height: 1.32;

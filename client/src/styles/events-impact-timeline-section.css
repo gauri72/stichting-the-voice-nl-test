@@ -4,7 +4,7 @@
   background: #f2f6f9;
   padding: clamp(36px, 5vw, 56px) clamp(16px, 4vw, 40px);
   overflow-x: clip;
-  color: #162227;
+  color: var(--color-text);
 }
 
 .events-impact__inner {
@@ -33,7 +33,7 @@
 
 .events-impact__title-line {
   display: block;
-  color: #16314a;
+  color: var(--color-heading);
   font-size: clamp(1.45rem, 2.8vw, 2.2rem);
   font-weight: 800;
   letter-spacing: 0.01em;
@@ -92,7 +92,7 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--color-bg);
   color: #0f8f90;
   display: inline-flex;
   align-items: center;
@@ -166,7 +166,7 @@
 
 .events-impact__timeline-year {
   margin: 0;
-  color: #16314a;
+  color: var(--color-heading);
   font-size: clamp(0.8rem, 0.95vw, 0.92rem);
   font-weight: 800;
   line-height: 1.2;
@@ -244,7 +244,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
-  background: #ffffff;
+  background: var(--color-bg);
   border-radius: 12px;
   padding: clamp(16px, 2.2vw, 22px) clamp(14px, 2vw, 24px);
   border: 1px solid #d7dee6;
@@ -289,7 +289,7 @@
 
 .events-impact__stat-value {
   margin: 0;
-  color: #122e47;
+  color: var(--color-heading);
   font-size: clamp(1.1rem, 1.6vw, 1.45rem);
   font-weight: 800;
   line-height: 1.1;

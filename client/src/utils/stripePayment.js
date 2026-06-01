@@ -1,32 +1,70 @@
 /** Shared Stripe Payment Element + redirect return handling (iDEAL, Revolut Pay, etc.). */
 
-export const STRIPE_ELEMENTS_APPEARANCE = {
-  theme: "stripe",
+const STRIPE_APPEARANCE_BASE = {
   variables: {
     colorPrimary: "#1f9f78",
-    colorBackground: "#ffffff",
-    colorText: "#17314b",
     colorDanger: "#c83b3b",
     fontFamily:
       '"Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif',
     spacingUnit: "4px",
     borderRadius: "8px"
-  },
-  rules: {
-    ".Input": {
-      border: "1px solid #d9e1e8",
-      boxShadow: "none"
-    },
-    ".Input:focus": {
-      borderColor: "#1f9f78",
-      boxShadow: "0 0 0 3px rgba(31,159,120,0.18)"
-    },
-    ".Label": {
-      fontWeight: "600",
-      color: "#1d3550"
-    }
   }
 };
+
+export function getStripeElementsAppearance(isDark = false) {
+  if (isDark) {
+    return {
+      theme: "night",
+      ...STRIPE_APPEARANCE_BASE,
+      variables: {
+        ...STRIPE_APPEARANCE_BASE.variables,
+        colorBackground: "#1a2a3a",
+        colorText: "#e4edf5"
+      },
+      rules: {
+        ".Input": {
+          border: "1px solid #3a5068",
+          boxShadow: "none"
+        },
+        ".Input:focus": {
+          borderColor: "#3ecf9a",
+          boxShadow: "0 0 0 3px rgba(62, 207, 154, 0.2)"
+        },
+        ".Label": {
+          fontWeight: "600",
+          color: "#c5d4e0"
+        }
+      }
+    };
+  }
+
+  return {
+    theme: "stripe",
+    ...STRIPE_APPEARANCE_BASE,
+    variables: {
+      ...STRIPE_APPEARANCE_BASE.variables,
+      colorBackground: "#ffffff",
+      colorText: "#17314b"
+    },
+    rules: {
+      ".Input": {
+        border: "1px solid #d9e1e8",
+        boxShadow: "none"
+      },
+      ".Input:focus": {
+        borderColor: "#1f9f78",
+        boxShadow: "0 0 0 3px rgba(31,159,120,0.18)"
+      },
+      ".Label": {
+        fontWeight: "600",
+        color: "#1d3550"
+      }
+    }
+  };
+}
+
+/** @deprecated Use getStripeElementsAppearance(isDark) */
+export const STRIPE_ELEMENTS_APPEARANCE = getStripeElementsAppearance(false);
 
 /** Payment Element: cards, iDEAL, Revolut Pay, Apple Pay, Google Pay (when enabled in Stripe). */
 export const PAYMENT_ELEMENT_OPTIONS = {

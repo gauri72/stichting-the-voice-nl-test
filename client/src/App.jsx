@@ -14,6 +14,7 @@ import DashboardPage from "./components/dashboard/DashboardPage";
 import VentureStudioPage from "./components/venture-studio/VentureStudioPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MaintenancePage from "./components/maintenance/MaintenancePage";
+import PlaceholderPage from "./components/pages/PlaceholderPage";
 
 // Enable by setting VITE_MAINTENANCE_MODE=true in your .env / hosting environment.
 const MAINTENANCE_MODE = import.meta.env.VITE_MAINTENANCE_MODE === "true";
@@ -53,7 +54,9 @@ export default function App() {
       <main className="app-main">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<EmptyPage />} />
+          <Route path="/our-pillars" element={<PlaceholderPage title="Our Pillars" />} />
+          <Route path="/about-us" element={<PlaceholderPage title="About Us" />} />
+          <Route path="/about" element={<PlaceholderPage title="About Us" />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/sponsorship" element={<SponsorshipPage />} />
           <Route path="/membership" element={<MembershipPage />} />
@@ -63,7 +66,8 @@ export default function App() {
           <Route path="/testimonials" element={<EmptyPage />} />
           <Route path="/blogs" element={<EmptyPage />} />
           <Route path="/donate" element={<DonatePage />} />
-          <Route path="/contact" element={<EmptyPage />} />
+          <Route path="/contact-us" element={<PlaceholderPage title="Contact Us" />} />
+          <Route path="/contact" element={<PlaceholderPage title="Contact Us" />} />
           <Route path="/voice-venture-studio" element={<VentureStudioPage />} />
           <Route path="/film-festival" element={<EmptyPage />} />
           <Route path="/privacy-policy" element={<EmptyPage />} />

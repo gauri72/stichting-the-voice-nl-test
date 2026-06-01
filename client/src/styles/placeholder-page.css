@@ -1,0 +1,23 @@
+.placeholder-page {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: min(50vh, 480px);
+  padding: 48px 24px;
+  background: var(--color-bg);
+}
+
+.placeholder-page__inner {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.placeholder-page__title {
+  margin: 0;
+  color: var(--color-heading);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}

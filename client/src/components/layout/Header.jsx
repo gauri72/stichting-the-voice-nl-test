@@ -1,66 +1,54 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { IoPersonOutline } from "react-icons/io5";
+import { IoPersonOutline, IoTicketOutline } from "react-icons/io5";
 import headerLogo from "../../assets/header-logo.png";
+import ThemeToggle from "./ThemeToggle.jsx";
+
+const NAV_LINKS = [
+  { label: "Home", to: "/", end: true },
+  { label: "Experiences", to: "/events" },
+  { label: "Our Pillars", to: "/our-pillars" },
+  { label: "Membership", to: "/membership" },
+  { label: "Sponsorship", to: "/sponsorship" },
+  { label: "Donation", to: "/donate" },
+  { label: "About Us", to: "/about-us" },
+  { label: "Contact Us", to: "/contact-us" },
+  { label: "Innovation", to: "/voice-venture-studio" }
+];
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState(null);
 
   function closeMenu() {
     setIsMenuOpen(false);
-    setOpenDropdown(null);
-  }
-
-  function toggleDropdown(key) {
-    setOpenDropdown((prev) => (prev === key ? null : key));
   }
 
   const navLinks = (
     <>
-      <NavLink to="/" end onClick={closeMenu}>
-        Home
-      </NavLink>
-      <NavLink to="/membership" onClick={closeMenu}>
-        Membership
-      </NavLink>
-      <NavLink to="/events" onClick={closeMenu}>
-        Events
-      </NavLink>
-      <NavLink to="/sponsorship" onClick={closeMenu}>
-        Sponsorship
-      </NavLink>
-
-      <div className={`menu-dropdown ${openDropdown === "more" ? "open" : ""}`}>
-        <button
-          className="menu-dropdown-trigger"
-          type="button"
-          aria-haspopup="true"
-          aria-expanded={openDropdown === "more"}
-          onClick={() => toggleDropdown("more")}
-        >
-          More
-        </button>
-        <div className="menu-dropdown-menu">
-          <NavLink to="/segments/vision-of-sounds" onClick={closeMenu}>
-            Vision of Sounds
-          </NavLink>
-          <NavLink to="/segments/vownl" onClick={closeMenu}>
-            VOWNL
-          </NavLink>
-          <NavLink to="/segments/voice-of-visionaries" onClick={closeMenu}>
-            Voice of Visionaries
-          </NavLink>
-          <NavLink to="/terms-and-conditions" onClick={closeMenu}>
-            Policy &amp; Conditions
-          </NavLink>
-        </div>
-      </div>
-
-      <NavLink to="/voice-venture-studio" onClick={closeMenu}>
-        VOICE Venture Studio
-      </NavLink>
+      {NAV_LINKS.map(({ label, to, end }) => (
+        <NavLink key={to} to={to} end={end} onClick={closeMenu}>
+          {label}
+        </NavLink>
+      ))}
     </>
+  );
+
+  const buyTicketsCta = (extraClass = "") => (
+    <Link
+      className={`donate-button buy-tickets-button ${extraClass}`.trim()}
+      to="/#upcoming-events"
+      onClick={closeMenu}
+    >
+      <IoTicketOutline className="buy-tickets-icon" aria-hidden />
+      <span>Buy Tickets</span>
+    </Link>
+  );
+
+  const authCta = (extraClass = "") => (
+    <Link className={`auth-button ${extraClass}`.trim()} to="/my-account" onClick={closeMenu}>
+      <IoPersonOutline className="auth-button-icon" aria-hidden />
+      <span>LOG IN or SIGN UP</span>
+    </Link>
   );
 
   return (
@@ -80,17 +68,20 @@ export default function Header() {
           <div className="menu-links">{navLinks}</div>
         </div>
 
-        <button
-          className="menu-toggle"
-          type="button"
-          aria-expanded={isMenuOpen}
-          aria-label="Toggle navigation menu"
-          onClick={() => setIsMenuOpen((prev) => !prev)}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
+        <div className="nav-mobile-bar">
+          {buyTicketsCta("buy-tickets-bar")}
+          <button
+            className="menu-toggle"
+            type="button"
+            aria-expanded={isMenuOpen}
+            aria-label="Toggle navigation menu"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
 
         <div className={`nav-actions ${isMenuOpen ? "open" : ""}`}>
           <button className="menu-close" type="button" aria-label="Close navigation menu" onClick={closeMenu}>
@@ -110,27 +101,17 @@ export default function Header() {
 
           <div className="menu-links menu-links--mobile">{navLinks}</div>
 
-          <Link className="donate-button donate-button-menu" to="/donate" onClick={closeMenu}>
-            <span className="donate-icon">♥</span>
-            Donate Now
-          </Link>
+          {authCta("auth-button-menu")}
 
-          <Link className="auth-button auth-button-menu" to="/my-account" onClick={closeMenu}>
-            <IoPersonOutline className="auth-button-icon" aria-hidden />
-            <span>LOG IN or SIGN UP</span>
-          </Link>
+          <div className="nav-actions-theme-wrap">
+            <ThemeToggle className="theme-toggle--mobile" />
+          </div>
         </div>
 
         <div className="nav-right">
-          <Link className="donate-button donate-button-desktop" to="/donate" onClick={closeMenu}>
-            <span className="donate-icon">♥</span>
-            Donate Now
-          </Link>
-
-          <Link className="auth-button auth-button-desktop" to="/my-account" onClick={closeMenu}>
-            <IoPersonOutline className="auth-button-icon" aria-hidden />
-            <span>LOG IN or SIGN UP</span>
-          </Link>
+          {buyTicketsCta("donate-button-desktop")}
+          {authCta("auth-button-desktop")}
+          <ThemeToggle className="theme-toggle--desktop" />
         </div>
       </nav>
     </header>

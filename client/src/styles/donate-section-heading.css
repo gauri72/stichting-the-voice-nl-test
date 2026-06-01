@@ -27,7 +27,7 @@
 .donate-section__heading-line {
   flex: 1;
   height: 1px;
-  background: #d7dee5;
+  background: var(--color-border);
 }
 
 .donate-section__title {

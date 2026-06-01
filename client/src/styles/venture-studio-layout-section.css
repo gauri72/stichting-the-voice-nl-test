@@ -1,6 +1,6 @@
 .vvs-layout {
   width: 100%;
-  background: #ffffff;
+  background: var(--color-bg);
 }
 
 .vvs-layout__image {

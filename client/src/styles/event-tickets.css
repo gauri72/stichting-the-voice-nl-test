@@ -36,7 +36,7 @@
 .event-tickets-section__label-line {
   flex: 1;
   height: 1px;
-  background: #d7dee5;
+  background: var(--color-border);
 }
 
 .event-tickets-section__label {
@@ -124,7 +124,7 @@
 
 .event-tickets-panel {
   border-radius: 18px;
-  background: #ffffff;
+  background: var(--color-bg);
   box-shadow: 0 14px 36px rgba(13, 52, 79, 0.1), 0 0 0 1px rgba(26, 95, 125, 0.12);
   padding: clamp(18px, 2.2vw, 26px);
   display: flex;

@@ -8,7 +8,7 @@ html.splash-open body {
 }
 
 html:not(.splash-open) {
-  background-color: #ffffff;
+  background-color: var(--color-bg);
 }
 
 .app-splash {

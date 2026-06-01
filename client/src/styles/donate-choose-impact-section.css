@@ -3,7 +3,7 @@
 /* -------------------------------------------------------------------------- */
 
 .donate-tiers {
-  background: #ffffff;
+  background: var(--color-bg);
   padding: 8px 14px 40px;
 }
 
@@ -21,9 +21,9 @@
 }
 
 .donate-tier-card {
-  border: 1px solid #d9e1e8;
+  border: 1px solid var(--color-input-border);
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--color-bg);
   padding: 0 14px 16px;
   display: flex;
   flex-direction: column;
@@ -98,7 +98,7 @@
   margin: 6px 0 0;
   text-align: center;
   text-transform: uppercase;
-  color: #17314b;
+  color: var(--color-text);
   font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: 0.03em;

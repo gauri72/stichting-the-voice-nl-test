@@ -4,13 +4,14 @@ import StripeCheckoutForm from "../payments/StripeCheckoutForm";
 import { loadStripe } from "@stripe/stripe-js";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import {
-  STRIPE_ELEMENTS_APPEARANCE,
+  getStripeElementsAppearance,
   buildPaymentReturnUrl,
   clearCheckoutSession,
   completePaymentReturn,
   persistCheckoutSession,
   readCheckoutSession
 } from "../../utils/stripePayment";
+import { useTheme } from "../../contexts/ThemeContext.jsx";
 import { authHeaders } from "../../utils/api.js";
 import "../../styles/sponsorship-payment-block.css";
 
@@ -43,6 +44,8 @@ function getStripePromise() {
 }
 
 const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClose }, ref) {
+  const { isDark } = useTheme();
+  const stripeAppearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
   const [step, setStep] = useState("details");
   const [donor, setDonor] = useState({
     name: "",
@@ -405,10 +408,11 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
 
         {step === "payment" && clientSecret && PUBLISHABLE_KEY ? (
           <Elements
+            key={isDark ? "stripe-dark" : "stripe-light"}
             stripe={getStripePromise()}
             options={{
               clientSecret,
-              appearance: STRIPE_ELEMENTS_APPEARANCE,
+              appearance: stripeAppearance,
               locale: "auto"
             }}
           >

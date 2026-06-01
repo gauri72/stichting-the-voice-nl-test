@@ -8,7 +8,7 @@
   --vvs-hero-divider: #c5d3dc;
 
   position: relative;
-  background: #ffffff;
+  background: var(--color-bg);
   padding: clamp(40px, 5vw, 64px) clamp(24px, 4.5vw, 72px) clamp(48px, 6vw, 88px);
   overflow: hidden;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -113,7 +113,7 @@
 }
 
 .vvs-hero__cta--outline {
-  background: #ffffff;
+  background: var(--color-bg);
   color: var(--vvs-hero-teal-deep);
   border-color: var(--vvs-hero-teal-deep);
 }
@@ -181,7 +181,7 @@
 }
 
 .vvs-hero__pillar-icon--outline {
-  background: #ffffff;
+  background: var(--color-bg);
   color: var(--vvs-hero-teal-deep);
   border: 2px solid var(--vvs-hero-teal-deep);
 }

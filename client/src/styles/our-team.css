@@ -1,6 +1,6 @@
 .our-team-section {
   padding: 14px 34px 46px;
-  background: #ffffff;
+  background: var(--color-bg);
 }
 
 .our-team-inner {
@@ -18,13 +18,13 @@
 .our-team-heading-line {
   flex: 1;
   height: 1px;
-  background: #d7dee5;
+  background: var(--color-border);
 }
 
 .our-team-title {
   margin: 0;
   text-align: center;
-  color: #16314a;
+  color: var(--color-heading);
   font-size: clamp(1.45rem, 2vw, 1.95rem);
   font-weight: 800;
   text-transform: uppercase;
@@ -94,7 +94,7 @@
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--color-bg);
 }
 
 .our-team-card h3 {
