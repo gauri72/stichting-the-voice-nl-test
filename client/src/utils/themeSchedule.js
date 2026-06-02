@@ -1,27 +1,19 @@
-/** Theme schedule for the Netherlands (Europe/Amsterdam). */
+/** Theme schedule based on the user's local region time. */
 
 export const THEME_PREFERENCE_KEY = "voice-theme-preference";
 /** @deprecated Legacy manual theme key; migrated to THEME_PREFERENCE_KEY */
 export const THEME_STORAGE_KEY = "voice-theme";
 
-export const NL_TIMEZONE = "Europe/Amsterdam";
-/** Local civil day in NL: light theme from 06:00 until 20:00 */
-export const NL_DAY_START_HOUR = 6;
-export const NL_DAY_END_HOUR = 20;
+export const DAY_START_HOUR = 6;
+export const DAY_END_HOUR = 20;
 
-export function getAmsterdamHour() {
-  return Number(
-    new Intl.DateTimeFormat("en-GB", {
-      timeZone: NL_TIMEZONE,
-      hour: "numeric",
-      hour12: false
-    }).format(new Date())
-  );
+export function getLocalHour() {
+  return new Date().getHours();
 }
 
-export function getNetherlandsTheme() {
-  const hour = getAmsterdamHour();
-  return hour >= NL_DAY_START_HOUR && hour < NL_DAY_END_HOUR ? "light" : "dark";
+export function getLocalTimeTheme() {
+  const hour = getLocalHour();
+  return hour >= DAY_START_HOUR && hour < DAY_END_HOUR ? "light" : "dark";
 }
 
 export function readThemePreference() {
@@ -44,7 +36,7 @@ export function resolveTheme(preference = readThemePreference()) {
   if (preference === "light" || preference === "dark") {
     return preference;
   }
-  return getNetherlandsTheme();
+  return getLocalTimeTheme();
 }
 
 export function persistThemePreference(preference) {

@@ -3,14 +3,14 @@
   z-index: 2;
   width: 100%;
   max-width: 1320px;
-  margin: -28px auto 32px;
+  margin: 24px auto;
   padding: 0 clamp(14px, 3vw, 28px);
   box-sizing: border-box;
 }
 
 .impact-stats-bar {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: stretch;
   gap: 0;
   padding: clamp(22px, 3vw, 30px) clamp(12px, 2vw, 20px);
@@ -99,25 +99,16 @@
     border-right: 1px solid var(--color-border);
   }
 
-  .impact-stats-bar__item:nth-child(-n + 4) {
+  .impact-stats-bar__item:nth-child(-n + 2) {
     border-bottom: 1px solid var(--color-border);
-  }
-
-  .impact-stats-bar__item:nth-child(5) {
-    grid-column: 1 / -1;
-    border-right: none;
-    border-bottom: none;
-    justify-content: center;
-    max-width: 360px;
-    margin-inline: auto;
   }
 }
 
 /* Mobile uses the same 2×2 + centered fifth layout as tablet (≤1100px); spacing only */
 @media (max-width: 640px) {
   .impact-stats-bar-section {
-    margin-top: -16px;
-    margin-bottom: 24px;
+    margin-top: 16px;
+    margin-bottom: 16px;
     padding-inline: 12px;
   }
 

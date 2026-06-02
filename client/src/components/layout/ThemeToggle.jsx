@@ -15,10 +15,10 @@ export default function ThemeToggle({ className = "" }) {
       title={
         isDark
           ? isAuto
-            ? "Switch to light (currently night in the Netherlands)"
+            ? "Switch to light (currently night in your region)"
             : "Light mode"
           : isAuto
-            ? "Switch to dark (currently day in the Netherlands)"
+            ? "Switch to dark (currently day in your region)"
             : "Dark mode"
       }
     >

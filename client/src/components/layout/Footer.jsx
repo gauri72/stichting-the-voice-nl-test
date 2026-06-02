@@ -28,14 +28,14 @@ function buildWhatsAppHref() {
 
 const footerNavLinks = [
   { label: "Home", to: "/" },
-  { label: "Experiences", to: "/events" },
-  { label: "Our Pillars", to: "/our-pillars" },
-  { label: "Membership", to: "/membership" },
-  { label: "Sponsorship", to: "/sponsorship" },
-  { label: "Donation", to: "/donate" },
-  { label: "About Us", to: "/about-us" },
-  { label: "Contact Us", to: "/contact-us" },
+  { label: "Experience", to: "/events" },
+  { label: "Stories", to: "/segments/vision-of-sounds" },
+  { label: "Impact", to: "/segments/vownl" },
   { label: "Innovation", to: "/voice-venture-studio" },
+  { label: "Become A Member", to: "/membership" },
+  { label: "Sponsor Us", to: "/sponsorship" },
+  { label: "Donate", to: "/donate" },
+  { label: "About Us", to: "/about-us" },
 ];
 
 const footerLegalLinks = [
@@ -99,6 +99,25 @@ export default function Footer() {
             </p>
           </div>
 
+          <div
+            className="footer-venture-credit footer-venture-credit--impact"
+            aria-label="This website is designed and developed by V.O.I.C.E. Venture Studio"
+          >
+            <img
+              className="footer-venture-logo"
+              src={voiceVentureStudioLogo}
+              alt="V.O.I.C.E. Venture Studio"
+              loading="lazy"
+            />
+            <p className="footer-designed-by">
+              This Website is
+              <br />
+              Designed &amp; Developed By
+              <br />
+              V.O.I.C.E. VENTURE STUDIO
+            </p>
+          </div>
+
           <div className="footer-impact-donate">
             <a
               className="footer-impact-donate-btn footer-impact-whatsapp-btn"
@@ -134,24 +153,6 @@ export default function Footer() {
                 </div>
               </div>
             </div>
-            <div
-              className="footer-venture-credit footer-venture-credit--brand"
-              aria-label="This website is designed and developed by V.O.I.C.E. Venture Studio"
-            >
-              <img
-                className="footer-venture-logo"
-                src={voiceVentureStudioLogo}
-                alt="V.O.I.C.E. Venture Studio"
-                loading="lazy"
-              />
-              <p className="footer-designed-by">
-                This Website is
-                <br />
-                Designed &amp; Developed By
-                <br />
-                V.O.I.C.E. VENTURE STUDIO
-              </p>
-            </div>
           </div>
 
           <div className="footer-col footer-col-follow">
@@ -166,6 +167,7 @@ export default function Footer() {
           </div>
 
           <div className="footer-col footer-col-quick footer-col-links-legal">
+            <h3 className="footer-section-title">Quick links</h3>
             <div className="footer-quick-grid footer-nav-grid">
               <ul className="footer-quick-row footer-nav-links">
                 {footerSiteLinks.map((item) => (

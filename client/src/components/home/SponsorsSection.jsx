@@ -28,29 +28,29 @@ const sponsorLogos = [
   logo7,
   logo9,
   logo10,
-  logo11
+  logo11,
 ];
 
 export default function SponsorsSection() {
   const loopedLogos = [...sponsorLogos, ...sponsorLogos];
 
   return (
-    <section className="sponsors-section" aria-labelledby="sponsors-title">
-      <div className="sponsors-section__inner">
-        <div className="sponsors-section__label-row">
-          <span className="sponsors-section__label-line" aria-hidden="true" />
-          <h2 id="sponsors-title" className="sponsors-section__label">
+    <section className="network-section" aria-labelledby="network-section-title">
+      <div className="network-section__inner">
+        <div className="network-section__heading">
+          <span className="network-section__heading-line" aria-hidden="true" />
+          <h2 id="network-section-title" className="network-section__title">
             Our Network
           </h2>
-          <span className="sponsors-section__label-line" aria-hidden="true" />
+          <span className="network-section__heading-line" aria-hidden="true" />
         </div>
-        <p className="sponsors-section__subtitle">Proudly Supported by our sponsors!</p>
+        <p className="network-section__subtitle">Proudly supported by our sponsors</p>
 
-        <div className="sponsors-marquee" aria-label="Sponsor logos">
-          <div className="sponsors-marquee__track">
+        <div className="network-marquee" aria-label="Partner and sponsor logos">
+          <div className="network-marquee__track">
             {loopedLogos.map((logoSrc, index) => (
-              <article className="sponsors-marquee__card" key={`${logoSrc}-${index}`}>
-                <img src={logoSrc} alt="Sponsor logo" loading="lazy" />
+              <article className="network-marquee__card" key={`${logoSrc}-${index}`}>
+                <img src={logoSrc} alt="Partner logo" loading="lazy" />
               </article>
             ))}
           </div>

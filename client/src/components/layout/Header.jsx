@@ -4,32 +4,75 @@ import { IoPersonOutline, IoTicketOutline } from "react-icons/io5";
 import headerLogo from "../../assets/header-logo.png";
 import ThemeToggle from "./ThemeToggle.jsx";
 
-const NAV_LINKS = [
+const NAV_ITEMS = [
   { label: "Home", to: "/", end: true },
-  { label: "Experiences", to: "/events" },
-  { label: "Our Pillars", to: "/our-pillars" },
-  { label: "Membership", to: "/membership" },
-  { label: "Sponsorship", to: "/sponsorship" },
-  { label: "Donation", to: "/donate" },
+  {
+    label: "Our Pillars",
+    children: [
+      { label: "Experience", to: "/events" },
+      { label: "Stories", to: "/segments/vision-of-sounds" },
+      { label: "Impact", to: "/segments/vownl" },
+      { label: "Innovation", to: "/voice-venture-studio" },
+    ],
+  },
+  {
+    label: "Partner With Us",
+    children: [
+      { label: "Become A Member", to: "/membership" },
+      { label: "Sponsor Us", to: "/sponsorship" },
+      { label: "Donate", to: "/donate" },
+    ],
+  },
   { label: "About Us", to: "/about-us" },
-  { label: "Contact Us", to: "/contact-us" },
-  { label: "Innovation", to: "/voice-venture-studio" }
 ];
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openDropdownLabel, setOpenDropdownLabel] = useState(null);
 
   function closeMenu() {
     setIsMenuOpen(false);
+    setOpenDropdownLabel(null);
+  }
+
+  function handleDropdownToggle(label) {
+    setOpenDropdownLabel((prev) => (prev === label ? null : label));
   }
 
   const navLinks = (
     <>
-      {NAV_LINKS.map(({ label, to, end }) => (
-        <NavLink key={to} to={to} end={end} onClick={closeMenu}>
-          {label}
-        </NavLink>
-      ))}
+      {NAV_ITEMS.map((item) => {
+        if (!item.children) {
+          return (
+            <NavLink key={item.to} to={item.to} end={item.end} onClick={closeMenu}>
+              {item.label}
+            </NavLink>
+          );
+        }
+
+        return (
+          <div
+            key={item.label}
+            className={`menu-dropdown ${openDropdownLabel === item.label ? "open" : ""}`.trim()}
+          >
+            <button
+              type="button"
+              className="menu-dropdown-trigger"
+              onClick={() => handleDropdownToggle(item.label)}
+              aria-expanded={openDropdownLabel === item.label}
+            >
+              {item.label}
+            </button>
+            <div className="menu-dropdown-menu">
+              {item.children.map((child) => (
+                <NavLink key={child.to} to={child.to} onClick={closeMenu}>
+                  {child.label}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </>
   );
 

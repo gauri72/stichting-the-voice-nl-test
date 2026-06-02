@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
-  getNetherlandsTheme,
+  getLocalTimeTheme,
   persistThemePreference,
   readThemePreference,
   resolveTheme,
@@ -27,14 +27,14 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     if (preference !== "auto") return undefined;
 
-    function syncWithNetherlands() {
-      const next = getNetherlandsTheme();
+    function syncWithLocalTime() {
+      const next = getLocalTimeTheme();
       setThemeState(next);
       applyThemeToDocument(next);
     }
 
-    syncWithNetherlands();
-    const intervalId = window.setInterval(syncWithNetherlands, 60_000);
+    syncWithLocalTime();
+    const intervalId = window.setInterval(syncWithLocalTime, 60_000);
     return () => window.clearInterval(intervalId);
   }, [preference]);
 

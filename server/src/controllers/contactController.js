@@ -3,6 +3,10 @@ import {
   sendVentureStudioMessageEmail,
   sendVentureStudioQuoteEmail
 } from "../services/ventureStudioContactMailer.js";
+import {
+  isMailerConfigured as isVolunteerMailerConfigured,
+  sendVolunteerApplicationEmail
+} from "../services/volunteerContactMailer.js";
 
 function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
@@ -48,6 +52,42 @@ export async function submitVentureStudioMessage(req, res) {
   } catch (error) {
     console.error("[contact] Venture Studio message failed:", error.message);
     return res.status(500).json({ error: "Could not send your message. Please try again later." });
+  }
+}
+
+export async function submitVolunteerApplication(req, res) {
+  const name = trimField(req.body?.name, 120);
+  const email = trimField(req.body?.email, 160);
+  const phone = trimField(req.body?.phone, 40);
+  const message = trimField(req.body?.message, 5000);
+
+  if (!name) {
+    return res.status(400).json({ error: "Full name is required." });
+  }
+  if (!email || !isValidEmail(email)) {
+    return res.status(400).json({ error: "A valid email address is required." });
+  }
+  if (!message) {
+    return res.status(400).json({ error: "Please tell us how you would like to help." });
+  }
+
+  if (!isVolunteerMailerConfigured()) {
+    return res.status(503).json({
+      error: "Email is not configured on the server. Please try again later or contact us directly."
+    });
+  }
+
+  try {
+    const result = await sendVolunteerApplicationEmail({ name, email, phone, message });
+    if (!result.sent) {
+      return res.status(503).json({ error: "Could not send your application. Please try again later." });
+    }
+    return res.status(200).json({
+      message: "Thank you! We have received your volunteer application and will be in touch soon."
+    });
+  } catch (error) {
+    console.error("[contact] Volunteer application failed:", error.message);
+    return res.status(500).json({ error: "Could not send your application. Please try again later." });
   }
 }
 

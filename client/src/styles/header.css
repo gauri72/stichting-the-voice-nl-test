@@ -43,8 +43,8 @@
 }
 
 .brand-logo {
-  width: 80px;
-  height: 80px;
+  width: 92px;
+  height: 92px;
   border-radius: 8px;
   object-fit: cover;
   object-position: center;
@@ -72,7 +72,8 @@
 
 .brand-name-top {
   color: var(--color-brand-muted);
-  font-size: 10px;
+  font-size: 11px;
+  letter-spacing: 0.24em;
   -webkit-text-stroke: 0.75px currentColor;
   text-shadow:
     0 0 0 currentColor,
@@ -83,8 +84,8 @@
 
 .brand-name-bottom {
   margin-top: 3px;
-  font-size: 20px;
-  letter-spacing: 0.06em;
+  font-size: 24px;
+  letter-spacing: 0.11em;
   line-height: 1.04;
   background: linear-gradient(90deg, #1a7db5, #4da377);
   -webkit-background-clip: text;
@@ -158,7 +159,7 @@
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 28px 20px;
+    padding: 20px 20px;
     min-height: 136px;
   }
 
@@ -191,12 +192,12 @@
 
   .menu-links a,
   .menu-dropdown-trigger {
-    font-size: 13px;
+    font-size: 15px;
     padding: 7px 0;
   }
 
   .menu-dropdown-trigger::after {
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .menu-links .contact-link {
@@ -211,24 +212,24 @@
   }
 
   .donate-button-desktop {
-    padding: 12px 20px;
-    font-size: 12px;
-    gap: 8px;
+    padding: 13px 22px;
+    font-size: 14px;
+    gap: 9px;
   }
 
   .donate-button-desktop .donate-icon {
-    font-size: 17px;
+    font-size: 18px;
   }
 
   .auth-button-desktop {
-    padding: 11px 18px;
-    font-size: 11px;
-    gap: 7px;
+    padding: 12px 20px;
+    font-size: 13px;
+    gap: 8px;
   }
 
   .auth-button-desktop .auth-button-icon {
-    width: 16px;
-    height: 16px;
+    width: 17px;
+    height: 17px;
   }
 }
 
@@ -278,7 +279,7 @@
 
 .donate-button {
   border: none;
-  border-radius: 999px;
+  border-radius: 12px;
   padding: 12px 20px;
   display: inline-flex;
   align-items: center;
@@ -309,7 +310,7 @@
 
 .auth-button {
   border: 2px solid #0078ab;
-  border-radius: 999px;
+  border-radius: 12px;
   padding: 11px 18px;
   display: inline-flex;
   align-items: center;
@@ -561,8 +562,9 @@
     gap: 12px;
   }
 
-  .menu-links a {
-    font-size: 11px;
+  .menu-links a,
+  .menu-dropdown-trigger {
+    font-size: 14px;
     letter-spacing: 0.02em;
   }
 }
@@ -570,21 +572,21 @@
 @media (max-width: 1450px) and (min-width: 1101px) {
   .site-navbar {
     gap: 16px;
-    padding: 22px 16px;
+    padding: 20px 16px;
     min-height: 124px;
   }
 
   .brand-logo {
-    width: 74px;
-    height: 74px;
+    width: 84px;
+    height: 84px;
   }
 
   .brand-name-top {
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .brand-name-bottom {
-    font-size: 19px;
+    font-size: 22px;
   }
 
   .menu-links {
@@ -602,9 +604,14 @@
 }
 
 @media (max-width: 1280px) and (min-width: 1101px) {
+  .site-navbar {
+    padding: 18px 14px;
+    min-height: 124px;
+  }
+
   .brand-logo {
-    width: 68px;
-    height: 68px;
+    width: 76px;
+    height: 76px;
   }
 
   .brand-name-top {
@@ -612,7 +619,7 @@
   }
 
   .brand-name-bottom {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .menu-links {
@@ -622,7 +629,7 @@
 
   .menu-links a,
   .menu-dropdown-trigger {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .menu-links .contact-link {
@@ -637,13 +644,13 @@
   }
 
   .donate-button-desktop {
-    padding: 11px 18px;
-    font-size: 11px;
+    padding: 12px 19px;
+    font-size: 12px;
   }
 
   .auth-button-desktop {
-    padding: 10px 16px;
-    font-size: 10px;
+    padding: 11px 17px;
+    font-size: 11px;
   }
 }
 
@@ -1023,19 +1030,19 @@
 
 @media (max-width: 1100px) and (min-width: 821px) {
   .site-navbar .brand-logo {
-    width: 72px !important;
-    height: 72px !important;
+    width: 64px !important;
+    height: 64px !important;
   }
 
   .site-navbar .brand-name .brand-name-top {
-    font-size: 9px !important;
-    letter-spacing: 0.2em !important;
+    font-size: 8px !important;
+    letter-spacing: 0.22em !important;
   }
 
   .site-navbar .brand-name .brand-name-bottom {
-    font-size: 16px !important;
+    font-size: 14px !important;
     margin-top: 1px !important;
-    letter-spacing: 0.08em !important;
+    letter-spacing: 0.1em !important;
   }
 }
 
@@ -1071,18 +1078,19 @@
   }
 
   .site-navbar .brand-logo {
-    width: 64px !important;
-    height: 64px !important;
+    width: 52px !important;
+    height: 52px !important;
   }
 
   .site-navbar .brand-name .brand-name-top {
-    font-size: 9px !important;
+    font-size: 7px !important;
+    letter-spacing: 0.4em !important;
   }
 
   .site-navbar .brand-name .brand-name-bottom {
-    font-size: 17px !important;
+    font-size: 12px !important;
     margin-top: 1px !important;
-    letter-spacing: 0.08em !important;
+    letter-spacing: 0.18em !important;
     line-height: 1.04 !important;
   }
 
@@ -1093,11 +1101,13 @@
 
   .mobile-brand-name .brand-name-top {
     font-size: 8px;
+    letter-spacing: 0.44em;
   }
 
   .mobile-brand-name .brand-name-bottom {
     font-size: 14px;
     margin-top: -1px;
+    letter-spacing: 0.2em;
     line-height: 1.04;
   }
 
@@ -1127,18 +1137,18 @@
   }
 
   .site-navbar .brand-logo {
-    width: 56px !important;
-    height: 56px !important;
+    width: 44px !important;
+    height: 44px !important;
   }
 
   .site-navbar .brand-name .brand-name-top {
-    font-size: 8px !important;
-    letter-spacing: 0.16em !important;
+    font-size: 6px !important;
+    letter-spacing: 0.36em !important;
   }
 
   .site-navbar .brand-name .brand-name-bottom {
-    font-size: 14px !important;
-    letter-spacing: 0.06em !important;
+    font-size: 10px !important;
+    letter-spacing: 0.16em !important;
     line-height: 1.04 !important;
   }
 }

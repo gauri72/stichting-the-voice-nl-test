@@ -3,7 +3,9 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import AppSplash from "./components/layout/AppSplash";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
+import CookieConsentBanner from "./components/layout/CookieConsentBanner";
 import HomePage from "./components/home/HomePage";
+import AboutUsPage from "./components/about/AboutUsPage";
 import MembershipPage from "./components/membership/MembershipPage";
 import SponsorshipPage from "./components/sponsorship/SponsorshipPage";
 import DonatePage from "./components/donate/DonatePage";
@@ -55,8 +57,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/our-pillars" element={<PlaceholderPage title="Our Pillars" />} />
-          <Route path="/about-us" element={<PlaceholderPage title="About Us" />} />
-          <Route path="/about" element={<PlaceholderPage title="About Us" />} />
+          <Route path="/about-us" element={<AboutUsPage />} />
+          <Route path="/about" element={<AboutUsPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/sponsorship" element={<SponsorshipPage />} />
           <Route path="/membership" element={<MembershipPage />} />
@@ -85,6 +87,7 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      <CookieConsentBanner />
     </div>
     </>
   );
