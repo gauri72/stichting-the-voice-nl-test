@@ -1,6 +1,9 @@
 import UpcomingEventsSection from "../home/UpcomingEventsSection";
 import EventsBreadcrumbSection from "./EventsBreadcrumbSection";
+import EventsCallToActionSection from "./EventsCallToActionSection";
+import EventsImpactTimelineSection from "./EventsImpactTimelineSection";
 import EventsSignatureEventsSection from "./EventsSignatureEventsSection";
+import EventsTestimonialsSection from "./EventsTestimonialsSection";
 
 export default function EventsPage() {
   return (
@@ -8,6 +11,9 @@ export default function EventsPage() {
       <EventsBreadcrumbSection />
       <UpcomingEventsSection />
       <EventsSignatureEventsSection />
+      <EventsImpactTimelineSection />
+      <EventsTestimonialsSection />
+      <EventsCallToActionSection />
     </div>
   );
 }
