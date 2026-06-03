@@ -14,7 +14,7 @@ const ArrowIcon = IconArrowRight;
 const pillars = [
   {
     mobileTitle: "Experience",
-    desktopTitle: "V.O.I.C.E. EXPERIENCES",
+    desktopTitle: "V.O.I.C.E. Experience",
     desktopLead: "Creating unforgettable cultural experiences.",
     desktopTags: "Events • Festivals • Music • Dance • Sports",
     to: "/events",
@@ -23,7 +23,7 @@ const pillars = [
   },
   {
     mobileTitle: "Stories",
-    desktopTitle: "V.O.I.C.E. STORIES",
+    desktopTitle: "V.O.I.C.E. Stories",
     desktopLead: "Sharing voices through Vision Of Sounds.",
     desktopTags: "Podcast • Voice Of Visionaries • Media • Photography • Interviews",
     to: "/segments/vision-of-sounds",
@@ -32,7 +32,7 @@ const pillars = [
   },
   {
     mobileTitle: "Impact",
-    desktopTitle: "V.O.I.C.E. IMPACT",
+    desktopTitle: "V.O.I.C.E. Impact",
     desktopLead: "VOWNL • Social Work • Empowering communities through action.",
     desktopTags: "Youth • Inclusion • Education • Volunteering",
     to: "/segments/vownl",
@@ -41,7 +41,7 @@ const pillars = [
   },
   {
     mobileTitle: "Innovation",
-    desktopTitle: "V.O.I.C.E. INNOVATION",
+    desktopTitle: "V.O.I.C.E. Innovation",
     desktopLead: "Building the future through technology.",
     desktopTags: "V.O.I.C.E. Digital • Apps • Websites • V.O.I.C.E. Venture Studio",
     to: "/voice-venture-studio",
@@ -57,7 +57,7 @@ export default function OurPillarsSection() {
         <div className="our-pillars-section__heading">
           <span className="our-pillars-section__heading-line" aria-hidden="true" />
           <h2 id="our-pillars-title" className="our-pillars-section__title">
-            Our Pillars. Our Promise.
+            Four Pillars. One Mission.
           </h2>
           <span className="our-pillars-section__heading-line" aria-hidden="true" />
         </div>

@@ -4,8 +4,9 @@
 [data-theme="light"] {
   color-scheme: light;
 
-  --color-bg: #ffffff;
-  --color-bg-muted: #f4f9fc;
+  /* Page canvas — median sky/white from assets/Home/hero-bg-light.png */
+  --color-bg: #f6f3f1;
+  --color-bg-muted: #f2efec;
   --color-surface: #ffffff;
   --color-surface-elevated: #ffffff;
   --color-text: #162227;
@@ -27,8 +28,8 @@
   --color-input-border: #d9e1e8;
   --color-card-bg: #ffffff;
   --color-hero-overlay: transparent;
-  --color-menu-gradient-end: #f4f9fc;
-  --color-toggle-bg: #ffffff;
+  --color-menu-gradient-end: #f2efec;
+  --color-toggle-bg: #f6f3f1;
   --color-toggle-border: #d3dee6;
   --color-toggle-icon: #1f2f3d;
 }

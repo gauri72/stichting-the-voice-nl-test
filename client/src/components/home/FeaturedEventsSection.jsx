@@ -42,7 +42,7 @@ export default function FeaturedEventsSection() {
       >
         <div className="featured-events-top">
           <div className="featured-events-date">
-            <span className="featured-events-date__month">JUN</span>
+            <span className="featured-events-date__month">Jun</span>
             <span className="featured-events-date__day">20</span>
           </div>
 
@@ -60,7 +60,7 @@ export default function FeaturedEventsSection() {
         <div className="featured-events-meta" aria-label="Event details">
           <p className="featured-events-meta-item">
             <IconMapPin aria-hidden stroke={1.75} />
-            <span>Kinepolis</span>
+            <span>Den Haag</span>
           </p>
           <p className="featured-events-meta-item featured-events-meta-item--time">
             <IconClock aria-hidden stroke={1.75} />

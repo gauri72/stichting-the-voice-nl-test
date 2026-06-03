@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   IconArrowRight,
-  IconCoin,
+  IconCurrencyEuro,
   IconHandLoveYou,
   IconHeartHandshake,
   IconUsersGroup,
@@ -31,7 +31,7 @@ const linkCards = [
     description: "Your support helps us create meaningful change.",
     to: "/donate",
     accent: "gold",
-    Icon: IconCoin,
+    Icon: IconCurrencyEuro,
   },
 ];
 

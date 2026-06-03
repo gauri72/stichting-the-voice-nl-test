@@ -2,8 +2,68 @@
   font-family: var(--font-poppins);
 }
 
+/* Light mode: replace white surfaces with hero sky shade across home sections */
+[data-theme="light"] .home-page {
+  --color-surface: var(--color-bg);
+  --color-surface-elevated: var(--color-bg);
+  --color-card-bg: var(--color-bg);
+  --color-input-bg: var(--color-bg-muted);
+}
+
+[data-theme="light"] .home-page .featured-events-cta {
+  background: color-mix(in srgb, var(--color-bg) 66%, transparent);
+}
+
 .home-page .featured-events-title {
-  font-family: var(--font-poppins);
+  font-family: "Times New Roman", Times, serif;
+}
+
+/* Title case on home page copy (brand name in header/footer stays uppercase) */
+.home-page :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    p,
+    span,
+    a,
+    button,
+    label,
+    li
+  ):not(.brand-name):not(.brand-name *) {
+  text-transform: capitalize;
+}
+
+/* Undo section-level uppercase rules inside home */
+.home-page .donate-section__eyebrow,
+.home-page .donate-section__title,
+.home-page .our-pillars-section__title,
+.home-page .network-section__title,
+.home-page .featured-events-eyebrow,
+.home-page .featured-events-date__month,
+.home-page .event-tickets-section__label,
+.home-page .our-pillars-item__title--desktop,
+.home-page .our-pillars-item__title--mobile,
+.home-page .featured-events-title,
+.home-page .get-involved-card__title,
+.home-page .get-involved-volunteer-panel__title,
+.home-page .impact-stats-bar__label {
+  text-transform: capitalize;
+}
+
+/* Keep acronyms, stats, and pill copy as authored */
+.home-page .our-pillars-item__lead,
+.home-page .our-pillars-item__tags,
+.home-page .our-pillars-item__link,
+.home-page .impact-stats-bar__value,
+.home-page .featured-events-date__day,
+.home-page .featured-events-meta-item span {
+  text-transform: none;
+}
+
+/* Featured event sits directly under hero */
+.home-page .featured-events-section {
+  margin-top: clamp(10px, 1.6vw, 18px);
 }
 
 /* Dark theme: seamless black between home sections (reference poster) */
@@ -15,4 +75,50 @@
 [data-theme="dark"] .home-page .our-pillars-section,
 [data-theme="dark"] .home-page .network-section {
   background-color: #000000;
+}
+
+/* Dark theme: neon glow on home section panels */
+[data-theme="dark"] .home-page {
+  --home-neon-line: rgba(94, 207, 214, 0.55);
+  --home-neon-glow: rgba(94, 207, 214, 0.38);
+  --home-neon-glow-soft: rgba(94, 207, 214, 0.16);
+}
+
+[data-theme="dark"] .home-page .featured-events-card,
+[data-theme="dark"] .home-page .impact-stats-bar,
+[data-theme="dark"] .home-page .get-involved-card,
+[data-theme="dark"] .home-page .our-pillars-grid,
+[data-theme="dark"] .home-page .network-marquee,
+[data-theme="dark"] .home-page .volunteer-form {
+  border-color: var(--home-neon-line) !important;
+  box-shadow:
+    0 0 10px var(--home-neon-glow),
+    0 0 22px var(--home-neon-glow-soft),
+    0 0 36px rgba(94, 207, 214, 0.1),
+    inset 0 0 28px rgba(94, 207, 214, 0.05) !important;
+}
+
+[data-theme="dark"] .home-page .get-involved-card:hover,
+[data-theme="dark"] .home-page .featured-events-card:hover,
+[data-theme="dark"] .home-page .impact-stats-bar:hover {
+  box-shadow:
+    0 0 14px var(--home-neon-glow),
+    0 0 28px var(--home-neon-glow-soft),
+    0 0 44px rgba(94, 207, 214, 0.14),
+    inset 0 0 32px rgba(94, 207, 214, 0.07) !important;
+}
+
+@media (max-width: 899px) {
+  [data-theme="dark"] .home-page .our-pillars-item {
+    border: 1px solid var(--home-neon-line);
+    border-radius: 10px;
+    box-shadow:
+      0 0 10px var(--home-neon-glow),
+      0 0 20px var(--home-neon-glow-soft),
+      inset 0 0 18px rgba(94, 207, 214, 0.04);
+  }
+
+  [data-theme="dark"] .home-page .our-pillars-item--divided {
+    border-right-color: var(--home-neon-line);
+  }
 }

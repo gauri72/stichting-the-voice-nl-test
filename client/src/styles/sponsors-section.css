@@ -55,10 +55,10 @@
   overflow: hidden;
   margin-top: clamp(14px, 2vw, 18px);
   padding: clamp(12px, 2vw, 16px) 0;
-  border: 1px solid #e3e9ef;
+  border: none;
   border-radius: 12px;
   background: var(--color-surface);
-  box-shadow: 0 2px 8px rgba(15, 53, 78, 0.04);
+  box-shadow: none;
 }
 
 .network-marquee::before,
@@ -96,18 +96,17 @@
   width: clamp(112px, 11vw, 148px);
   height: clamp(112px, 11vw, 148px);
   border-radius: 12px;
-  border: 1px solid #e3e9ef;
+  border: none;
   background: var(--color-surface);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 10px;
-  box-shadow: 0 2px 8px rgba(15, 53, 78, 0.04);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: none;
+  transition: box-shadow 0.2s ease;
 }
 
 .network-marquee__card:hover {
-  border-color: #c5d4de;
   box-shadow: 0 6px 16px rgba(15, 53, 78, 0.08);
 }
 
@@ -140,7 +139,6 @@
 
 [data-theme="dark"] .network-marquee {
   background: #000000;
-  border-color: var(--color-border-strong);
 }
 
 [data-theme="dark"] .network-marquee::before {
@@ -153,11 +151,10 @@
 
 [data-theme="dark"] .network-marquee__card {
   background: var(--color-surface-elevated);
-  border-color: var(--color-border-strong);
 }
 
 [data-theme="dark"] .network-marquee__card:hover {
-  border-color: var(--color-accent-teal-soft);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
 }
 
 @media (min-width: 900px) {
@@ -184,6 +181,7 @@
   .network-section__title {
     font-size: clamp(0.78rem, 3.4vw, 0.95rem);
     letter-spacing: 0.04em;
+    white-space: normal;
   }
 
   .network-section__subtitle {

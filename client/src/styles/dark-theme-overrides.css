@@ -11,11 +11,29 @@
   border-bottom-color: #1a1a1a;
 }
 
-/* Header brand "STICHTING" line — ensure contrast on dark surfaces */
+/* Header brand — white on dark theme only */
 [data-theme="dark"] .brand-name-top,
 [data-theme="dark"] .brand-name .brand-name-top,
 [data-theme="dark"] .mobile-brand-name .brand-name-top {
-  color: var(--color-brand-muted);
+  color: #ffffff;
+  -webkit-text-stroke: 0.45px rgba(255, 255, 255, 0.35);
+  text-shadow:
+    0.4px 0 rgba(255, 255, 255, 0.5),
+    -0.4px 0 rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .brand-name-bottom,
+[data-theme="dark"] .brand-name .brand-name-bottom,
+[data-theme="dark"] .mobile-brand-name .brand-name-bottom {
+  color: #ffffff;
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  -webkit-text-stroke: 0.55px rgba(255, 255, 255, 0.4);
+  text-shadow:
+    0.5px 0 rgba(255, 255, 255, 0.55),
+    -0.5px 0 rgba(255, 255, 255, 0.55),
+    0 0.4px rgba(255, 255, 255, 0.45);
 }
 
 /* Section-level dark mode tweaks */

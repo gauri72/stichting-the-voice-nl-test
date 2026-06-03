@@ -96,7 +96,7 @@ export default function Header() {
   const authCta = (extraClass = "") => (
     <Link className={`auth-button ${extraClass}`.trim()} to="/my-account" onClick={closeMenu}>
       <IconUser className="auth-button-icon" aria-hidden stroke={1.75} />
-      <span>LOG IN or SIGN UP</span>
+      <span>Log in or sign up</span>
     </Link>
   );
 

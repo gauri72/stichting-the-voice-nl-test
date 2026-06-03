@@ -110,11 +110,11 @@ export default function Footer() {
               loading="lazy"
             />
             <p className="footer-designed-by">
-              This Website is
+              This website is
               <br />
-              Designed &amp; Developed By
+              designed &amp; developed by
               <br />
-              V.O.I.C.E. VENTURE STUDIO
+              V.O.I.C.E. Venture Studio
             </p>
           </div>
 
@@ -126,7 +126,7 @@ export default function Footer() {
               rel="noopener noreferrer"
             >
               <IconBrandWhatsapp aria-hidden stroke={1.75} />
-              JOIN WHATSAPP GROUP
+              Join WhatsApp group
             </a>
           </div>
         </div>

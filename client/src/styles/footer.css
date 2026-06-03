@@ -86,7 +86,7 @@
   font-size: 15px;
   font-weight: 800;
   letter-spacing: 0.12em;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .footer-newsletter-copy p {
@@ -138,7 +138,7 @@
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
+  text-transform: capitalize;
   color: #ffffff;
   cursor: pointer;
   background: linear-gradient(180deg, var(--footer-subscribe-start), var(--footer-subscribe-end));
@@ -316,6 +316,7 @@
   min-width: 0;
   white-space: normal;
   letter-spacing: 0.02em;
+  text-transform: capitalize;
 }
 
 .footer-main-bottom .footer-email:hover {
@@ -575,7 +576,7 @@
   font-size: 14px;
   font-weight: 800;
   letter-spacing: 0.12em;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .footer-col-links-social .footer-section-title {
@@ -1819,15 +1820,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-width: 200px;
-  padding: 12px 18px;
-  border-radius: 6px;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px 20px;
+  border-radius: 12px;
   text-decoration: none;
   color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+  white-space: nowrap;
   background: linear-gradient(90deg, #2d92c9 0%, #6fb854 100%);
   transition: filter 0.2s ease, transform 0.15s ease;
 }
@@ -1995,8 +1998,8 @@
 }
 
 .footer-impact-whatsapp-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   flex-shrink: 0;
 }
 
@@ -2303,8 +2306,8 @@
   }
 
   .footer-impact-whatsapp-btn {
-    width: 100%;
-    max-width: 320px;
+    width: auto;
+    max-width: 100%;
     min-width: 0;
     box-sizing: border-box;
   }
@@ -2437,7 +2440,7 @@
   }
 
   .footer-impact-whatsapp-btn {
-    min-width: min(100%, 280px);
+    min-width: 0;
   }
 }
 

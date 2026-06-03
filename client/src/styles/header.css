@@ -13,11 +13,22 @@
 
 .site-header {
   font-family: var(--font-poppins);
-  background: var(--color-surface);
+  background: var(--color-bg);
   border-bottom: 1px solid var(--color-border);
   width: 100%;
   max-width: 100%;
   overflow-x: clip;
+}
+
+/* Light mode: header CTAs and menus use hero sky shade instead of pure white */
+[data-theme="light"] .site-header {
+  --color-surface: var(--color-bg);
+  --color-surface-elevated: var(--color-bg);
+}
+
+[data-theme="light"] .site-header .contact-link:hover,
+[data-theme="light"] .site-header .contact-link.active {
+  background: var(--color-bg-muted);
 }
 
 .site-navbar {
@@ -72,7 +83,7 @@
 }
 
 .brand-name-top {
-  color: var(--color-brand-muted);
+  color: #2a3239;
   font-size: 11px;
   letter-spacing: 0.24em;
   -webkit-text-stroke: 0.75px currentColor;
@@ -88,19 +99,19 @@
   font-size: 24px;
   letter-spacing: 0.11em;
   line-height: 1.04;
-  background: linear-gradient(90deg, #1a7db5, #4da377);
+  background: linear-gradient(90deg, #0d5f87, #2f7349);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(26, 125, 181, 0.8);
+  -webkit-text-stroke: 1px rgba(13, 95, 135, 0.92);
   text-shadow:
-    0 0 0 rgba(26, 125, 181, 0.85),
-    1.5px 0 rgba(26, 125, 181, 0.94),
-    -1.5px 0 rgba(77, 163, 119, 0.94),
-    0 1.2px rgba(46, 144, 149, 0.9),
-    0 -0.8px rgba(46, 144, 149, 0.78),
-    0.9px 0.9px rgba(46, 144, 149, 0.75),
-    -0.9px 0.9px rgba(46, 144, 149, 0.68);
+    0 0 0 rgba(13, 95, 135, 0.88),
+    1.5px 0 rgba(13, 95, 135, 0.94),
+    -1.5px 0 rgba(47, 115, 73, 0.94),
+    0 1.2px rgba(30, 98, 104, 0.9),
+    0 -0.8px rgba(30, 98, 104, 0.78),
+    0.9px 0.9px rgba(30, 98, 104, 0.75),
+    -0.9px 0.9px rgba(30, 98, 104, 0.68);
 }
 
 /* Tighten gap after “V” before first period (letter-spacing widens it by default) */
@@ -255,7 +266,7 @@
 .menu-links a,
 .menu-dropdown-trigger {
   font-family: var(--font-poppins);
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -287,7 +298,7 @@
   gap: 8px;
   background: linear-gradient(90deg, #0078ab, #2ca45f);
   color: #ffffff;
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -319,7 +330,7 @@
   gap: 7px;
   background: var(--color-surface);
   color: var(--color-link);
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -360,7 +371,7 @@
   padding: 0;
   color: var(--color-nav);
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -415,7 +426,7 @@
 
 .contact-link-label {
   display: none;
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -553,7 +564,7 @@
 
 @media (min-width: 1101px) {
   .menu-dropdown-menu a {
-    text-transform: uppercase;
+    text-transform: capitalize;
     letter-spacing: 0.02em;
   }
 }
@@ -745,7 +756,7 @@
   }
 
   .brand-name .brand-name-top {
-    font-size: 9px;
+    font-size: 11px;
     letter-spacing: 0.2em;
     white-space: nowrap;
     -webkit-text-stroke: 0.45px currentColor;
@@ -753,12 +764,12 @@
       0.4px 0 currentColor,
       -0.4px 0 currentColor,
       0 0.35px currentColor;
-    color: var(--color-brand-muted);
+    color: #2a3239;
     font-weight: 900;
   }
 
   .brand-name .brand-name-bottom {
-    font-size: 15px;
+    font-size: 17px;
     margin-top: 2px;
     letter-spacing: 0.08em;
     white-space: nowrap;
@@ -770,12 +781,12 @@
     background: none;
     -webkit-background-clip: initial;
     background-clip: initial;
-    color: #1a7db5;
-    -webkit-text-stroke: 0.55px rgba(26, 125, 181, 0.85);
+    color: #0d5f87;
+    -webkit-text-stroke: 0.55px rgba(13, 95, 135, 0.9);
     text-shadow:
-      0.5px 0 rgba(26, 125, 181, 0.75),
-      -0.5px 0 rgba(26, 125, 181, 0.75),
-      0 0.4px rgba(26, 125, 181, 0.65);
+      0.5px 0 rgba(13, 95, 135, 0.82),
+      -0.5px 0 rgba(13, 95, 135, 0.82),
+      0 0.4px rgba(13, 95, 135, 0.72);
     font-weight: 900;
   }
 
@@ -792,12 +803,13 @@
     justify-content: flex-start;
     gap: 20px;
     padding: 86px 20px max(28px, env(safe-area-inset-bottom, 0px));
-    background: #000000;
+    background: var(--color-bg);
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
 
+  [data-theme="dark"] .nav-actions,
   [data-theme="dark"] .nav-actions.open {
     background: #000000;
   }
@@ -882,7 +894,7 @@
   }
 
   .mobile-brand-name .brand-name-top {
-    font-size: 9px;
+    font-size: 10px;
     letter-spacing: 0.2em;
     white-space: nowrap;
     -webkit-text-stroke: 0.45px currentColor;
@@ -890,12 +902,12 @@
       0.4px 0 currentColor,
       -0.4px 0 currentColor,
       0 0.35px currentColor;
-    color: var(--color-brand-muted);
+    color: #2a3239;
     font-weight: 900;
   }
 
   .mobile-brand-name .brand-name-bottom {
-    font-size: 17px;
+    font-size: 18px;
     margin-top: 1px;
     letter-spacing: 0.08em;
     white-space: nowrap;
@@ -907,12 +919,12 @@
     background: none;
     -webkit-background-clip: initial;
     background-clip: initial;
-    color: #1a7db5;
-    -webkit-text-stroke: 0.55px rgba(26, 125, 181, 0.85);
+    color: #0d5f87;
+    -webkit-text-stroke: 0.55px rgba(13, 95, 135, 0.9);
     text-shadow:
-      0.5px 0 rgba(26, 125, 181, 0.75),
-      -0.5px 0 rgba(26, 125, 181, 0.75),
-      0 0.4px rgba(26, 125, 181, 0.65);
+      0.5px 0 rgba(13, 95, 135, 0.82),
+      -0.5px 0 rgba(13, 95, 135, 0.82),
+      0 0.4px rgba(13, 95, 135, 0.72);
     font-weight: 900;
   }
 
@@ -947,7 +959,7 @@
     font-size: 13px;
     padding: 8px 2px;
     border-bottom-width: 2px;
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .contact-link {
@@ -1040,12 +1052,12 @@
   }
 
   .site-navbar .brand-name .brand-name-top {
-    font-size: 8px !important;
+    font-size: 10px !important;
     letter-spacing: 0.22em !important;
   }
 
   .site-navbar .brand-name .brand-name-bottom {
-    font-size: 14px !important;
+    font-size: 16px !important;
     margin-top: 1px !important;
     letter-spacing: 0.1em !important;
   }
@@ -1088,12 +1100,12 @@
   }
 
   .site-navbar .brand-name .brand-name-top {
-    font-size: 7px !important;
+    font-size: 9px !important;
     letter-spacing: 0.4em !important;
   }
 
   .site-navbar .brand-name .brand-name-bottom {
-    font-size: 12px !important;
+    font-size: 14px !important;
     margin-top: 1px !important;
     letter-spacing: 0.18em !important;
     line-height: 1.04 !important;
@@ -1105,12 +1117,12 @@
   }
 
   .mobile-brand-name .brand-name-top {
-    font-size: 8px;
+    font-size: 9px;
     letter-spacing: 0.44em;
   }
 
   .mobile-brand-name .brand-name-bottom {
-    font-size: 14px;
+    font-size: 15px;
     margin-top: -1px;
     letter-spacing: 0.2em;
     line-height: 1.04;
@@ -1147,12 +1159,12 @@
   }
 
   .site-navbar .brand-name .brand-name-top {
-    font-size: 6px !important;
+    font-size: 8px !important;
     letter-spacing: 0.36em !important;
   }
 
   .site-navbar .brand-name .brand-name-bottom {
-    font-size: 10px !important;
+    font-size: 12px !important;
     letter-spacing: 0.16em !important;
     line-height: 1.04 !important;
   }

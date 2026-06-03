@@ -2,13 +2,14 @@
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 1320px;
   margin: 24px auto;
   padding: 0 clamp(14px, 3vw, 28px);
   box-sizing: border-box;
 }
 
 .impact-stats-bar {
+  max-width: 1320px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: stretch;
@@ -57,7 +58,7 @@
 
 .impact-stats-bar__value {
   margin: 0;
-  font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+  font-size: clamp(1.05rem, 1.75vw, 1.45rem);
   font-weight: 800;
   line-height: 1.1;
   color: var(--color-heading);
@@ -109,7 +110,7 @@
   .impact-stats-bar-section {
     margin-top: 16px;
     margin-bottom: 16px;
-    padding-inline: 12px;
+    padding-inline: 10px;
   }
 
   .impact-stats-bar {

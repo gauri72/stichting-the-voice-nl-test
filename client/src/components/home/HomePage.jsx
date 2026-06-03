@@ -10,10 +10,10 @@ export default function HomePage() {
   return (
     <div className="home-page">
       <Hero />
-      <ImpactStatsBar />
       <FeaturedEventsSection />
       <GetInvolvedSection />
       <OurPillarsSection />
+      <ImpactStatsBar />
       <SponsorsSection />
     </div>
   );
