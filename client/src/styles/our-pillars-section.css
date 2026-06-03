@@ -89,14 +89,28 @@
   line-height: 1.15;
 }
 
+.our-pillars-item__title--desktop {
+  display: none;
+}
+
 .our-pillars-item__description {
   display: none;
   margin: 0;
+  text-align: left;
+}
+
+.our-pillars-item__lead,
+.our-pillars-item__tags {
+  margin: 0;
   color: #4f6478;
-  font-size: 0.88rem;
   font-weight: 500;
   line-height: 1.45;
-  text-align: left;
+}
+
+.our-pillars-item__tags {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: #5a6d80;
 }
 
 .our-pillars-item__link {
@@ -159,8 +173,12 @@
   color: var(--color-heading);
 }
 
-[data-theme="dark"] .our-pillars-item__description {
+[data-theme="dark"] .our-pillars-item__lead {
   color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .our-pillars-item__tags {
+  color: var(--color-text-muted);
 }
 
 .our-pillars-item__link:focus-visible {
@@ -230,7 +248,7 @@
   }
 
   [data-theme="dark"] .our-pillars-grid {
-    background: var(--color-surface-elevated);
+    background: #000000;
     border-color: var(--color-border-strong);
   }
 
@@ -262,11 +280,18 @@
     align-self: start;
   }
 
-  .our-pillars-item__title {
+  .our-pillars-item__title--mobile {
+    display: none;
+  }
+
+  .our-pillars-item__title--desktop {
+    display: block;
     grid-column: 2;
     grid-row: 1;
-    font-size: clamp(0.82rem, 1.1vw, 0.95rem);
-    letter-spacing: 0.04em;
+    font-size: clamp(0.72rem, 0.95vw, 0.88rem);
+    letter-spacing: 0.03em;
+    line-height: 1.25;
+    text-transform: none;
   }
 
   .our-pillars-item__description {
@@ -274,14 +299,22 @@
     grid-column: 2;
     grid-row: 2;
     margin-top: 8px;
-    font-size: clamp(0.78rem, 0.95vw, 0.88rem);
+  }
+
+  .our-pillars-item__lead {
+    font-size: clamp(0.76rem, 0.9vw, 0.86rem);
+  }
+
+  .our-pillars-item__tags {
+    font-size: clamp(0.72rem, 0.85vw, 0.8rem);
+    margin-top: 6px;
   }
 
   .our-pillars-item__link {
     grid-column: 2;
     grid-row: 3;
     justify-content: flex-start;
-    margin-top: 10px;
+    margin-top: 12px;
     font-size: clamp(0.78rem, 0.95vw, 0.88rem);
     font-weight: 700;
     white-space: normal;

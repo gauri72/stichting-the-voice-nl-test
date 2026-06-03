@@ -1,0 +1,18 @@
+.home-page {
+  font-family: var(--font-poppins);
+}
+
+.home-page .featured-events-title {
+  font-family: var(--font-poppins);
+}
+
+/* Dark theme: seamless black between home sections (reference poster) */
+[data-theme="dark"] .home-page,
+[data-theme="dark"] .home-page .hero-section,
+[data-theme="dark"] .home-page .impact-stats-bar-section,
+[data-theme="dark"] .home-page .featured-events-section,
+[data-theme="dark"] .home-page .get-involved-section,
+[data-theme="dark"] .home-page .our-pillars-section,
+[data-theme="dark"] .home-page .network-section {
+  background-color: #000000;
+}

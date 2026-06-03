@@ -12,6 +12,7 @@
 }
 
 .site-header {
+  font-family: var(--font-poppins);
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   width: 100%;
@@ -62,7 +63,7 @@
   margin: 0;
   font-weight: 1000;
   text-transform: uppercase;
-  font-family: "Lastica", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Lastica", var(--font-poppins);
   letter-spacing: 0.18em;
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
@@ -253,7 +254,7 @@
 
 .menu-links a,
 .menu-dropdown-trigger {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-poppins);
   text-transform: uppercase;
   font-size: 13px;
   font-weight: 700;
@@ -791,10 +792,14 @@
     justify-content: flex-start;
     gap: 20px;
     padding: 86px 20px max(28px, env(safe-area-inset-bottom, 0px));
-    background: var(--color-surface);
+    background: #000000;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  [data-theme="dark"] .nav-actions.open {
+    background: #000000;
   }
 
   .nav-center,
@@ -938,7 +943,7 @@
 
   .menu-links a,
   .menu-dropdown-trigger {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-family: var(--font-poppins);
     font-size: 13px;
     padding: 8px 2px;
     border-bottom-width: 2px;

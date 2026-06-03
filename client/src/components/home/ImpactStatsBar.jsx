@@ -12,7 +12,7 @@ export default function ImpactStatsBar() {
             role="listitem"
           >
             <span className="impact-stats-bar__icon-wrap" aria-hidden="true">
-              <Icon className="impact-stats-bar__icon" />
+              <Icon className="impact-stats-bar__icon" stroke={1.75} />
             </span>
             <div className="impact-stats-bar__copy">
               <p className="impact-stats-bar__value">{value}</p>

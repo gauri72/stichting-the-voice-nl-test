@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedinIn,
-  FaPaperPlane,
-  FaWhatsapp,
-  FaYoutube,
-  FaTimes,
-} from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
+  IconBrandFacebook,
+  IconBrandInstagram,
+  IconBrandLinkedin,
+  IconBrandWhatsapp,
+  IconBrandX,
+  IconBrandYoutube,
+  IconSend,
+  IconX,
+} from "@tabler/icons-react";
 import { apiFetch } from "../../utils/api.js";
 import { WHATSAPP_GROUP_URL } from "../../constants/siteLinks.js";
 import headerLogo from "../../assets/header-logo.png";
@@ -49,27 +49,27 @@ const socialLinks = [
   {
     href: "https://www.facebook.com/p/The-VOICE-NL-61552129209396/",
     label: "Facebook",
-    Icon: FaFacebookF,
+    Icon: IconBrandFacebook,
   },
   {
     href: "https://www.instagram.com/stichting_the_voice_nl/?hl=en",
     label: "Instagram",
-    Icon: FaInstagram,
+    Icon: IconBrandInstagram,
   },
   {
     href: "https://www.linkedin.com/in/stichting-the-v-o-i-c-e-nl-b67427316/",
     label: "LinkedIn",
-    Icon: FaLinkedinIn,
+    Icon: IconBrandLinkedin,
   },
   {
     href: "https://www.youtube.com/@StichtingTheVOICENL",
     label: "YouTube",
-    Icon: FaYoutube,
+    Icon: IconBrandYoutube,
   },
   {
     href: "https://x.com/St_The_VOICE_NL",
     label: "X",
-    Icon: FaXTwitter,
+    Icon: IconBrandX,
   },
 ];
 
@@ -125,7 +125,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FaWhatsapp aria-hidden />
+              <IconBrandWhatsapp aria-hidden stroke={1.75} />
               JOIN WHATSAPP GROUP
             </a>
           </div>
@@ -160,7 +160,7 @@ export default function Footer() {
             <div className="footer-social-list footer-social-list--footer">
               {socialLinks.map(({ href, label, Icon }) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
-                  <Icon aria-hidden />
+                  <Icon aria-hidden stroke={1.75} />
                 </a>
               ))}
             </div>
@@ -225,10 +225,10 @@ export default function Footer() {
         <aside className="footer-whatsapp-widget" aria-label="WhatsApp chat">
           <div className="footer-whatsapp-header">
             <span>
-              <FaWhatsapp aria-hidden /> WhatsApp
+              <IconBrandWhatsapp aria-hidden stroke={1.75} /> WhatsApp
             </span>
             <button type="button" onClick={() => setIsChatOpen(false)} aria-label="Close WhatsApp chat widget">
-              <FaTimes aria-hidden />
+              <IconX aria-hidden stroke={1.75} />
             </button>
           </div>
 
@@ -248,7 +248,7 @@ export default function Footer() {
             aria-label="Open WhatsApp chat"
           >
             Open chat
-            <FaPaperPlane aria-hidden />
+            <IconSend aria-hidden stroke={1.75} />
           </a>
         </aside>
       ) : (
@@ -258,7 +258,7 @@ export default function Footer() {
           aria-label="Open WhatsApp chat widget"
           onClick={() => setIsChatOpen(true)}
         >
-          <FaWhatsapp aria-hidden />
+          <IconBrandWhatsapp aria-hidden stroke={1.75} />
         </button>
       )}
     </footer>

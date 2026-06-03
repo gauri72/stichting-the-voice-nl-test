@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { IoArrowForward, IoLocationOutline, IoTimeOutline } from "react-icons/io5";
+import { IconArrowRight, IconClock, IconMapPin } from "@tabler/icons-react";
 import featuredLight from "../../assets/Home/featured events-light.png";
 import featuredDark from "../../assets/Home/featured events-dark.png";
 import "../../styles/featured-events-section.css";
@@ -59,11 +59,11 @@ export default function FeaturedEventsSection() {
 
         <div className="featured-events-meta" aria-label="Event details">
           <p className="featured-events-meta-item">
-            <IoLocationOutline aria-hidden />
+            <IconMapPin aria-hidden stroke={1.75} />
             <span>Kinepolis</span>
           </p>
           <p className="featured-events-meta-item featured-events-meta-item--time">
-            <IoTimeOutline aria-hidden />
+            <IconClock aria-hidden stroke={1.75} />
             <span>{timeRemaining}</span>
           </p>
         </div>
@@ -75,7 +75,7 @@ export default function FeaturedEventsSection() {
           rel="noopener noreferrer"
           aria-label="View featured event tickets on Ticket Tailor"
         >
-          <IoArrowForward aria-hidden />
+          <IconArrowRight aria-hidden stroke={1.75} />
         </a>
       </article>
     </section>

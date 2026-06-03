@@ -134,6 +134,11 @@ button.get-involved-card {
   line-height: 1;
 }
 
+.get-involved-card__arrow svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
 .get-involved-card--teal .get-involved-card__icon,
 .get-involved-card--teal .get-involved-card__arrow {
   color: #1f9ea8;

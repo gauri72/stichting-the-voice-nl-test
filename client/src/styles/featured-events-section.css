@@ -167,7 +167,8 @@
 }
 
 [data-theme="dark"] .featured-events-cta {
-  background: rgba(16, 39, 54, 0.6);
+  background: rgba(0, 0, 0, 0.55);
+  border-color: #3a6d72;
 }
 
 @media (max-width: 900px) {

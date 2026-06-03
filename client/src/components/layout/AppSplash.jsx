@@ -11,6 +11,10 @@ export default function AppSplash() {
   const startedFade = useRef(false);
 
   useEffect(() => {
+    const splashFailsafe = window.setTimeout(() => {
+      document.documentElement.classList.remove("splash-open");
+    }, 8000);
+
     const start = performance.now();
 
     const finish = () => {
@@ -31,6 +35,7 @@ export default function AppSplash() {
     }
 
     return () => {
+      window.clearTimeout(splashFailsafe);
       window.removeEventListener("load", finish);
     };
   }, []);

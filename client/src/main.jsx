@@ -6,7 +6,9 @@ import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { ThemeProvider } from "./contexts/ThemeContext.jsx";
 import { initializeCookieConsent } from "./utils/cookieConsent.js";
 import App from "./App";
+import AppErrorBoundary from "./components/layout/AppErrorBoundary.jsx";
 import "./styles/themes.css";
+import "./styles/poppins.css";
 import "./styles/global.css";
 import "./styles/header.css";
 import "./styles/theme-toggle.css";
@@ -31,7 +33,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <AppProviders>
         <ThemeProvider>
           <AuthProvider>
-            <App />
+            <AppErrorBoundary>
+              <App />
+            </AppErrorBoundary>
           </AuthProvider>
         </ThemeProvider>
       </AppProviders>

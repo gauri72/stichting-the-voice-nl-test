@@ -1,3 +1,16 @@
+/* Seamless black shell (reference stage / poster) */
+[data-theme="dark"] html,
+[data-theme="dark"] body,
+[data-theme="dark"] .app-shell,
+[data-theme="dark"] .app-main {
+  background-color: #000000;
+}
+
+[data-theme="dark"] .site-header {
+  background-color: #000000;
+  border-bottom-color: #1a1a1a;
+}
+
 /* Header brand "STICHTING" line — ensure contrast on dark surfaces */
 [data-theme="dark"] .brand-name-top,
 [data-theme="dark"] .brand-name .brand-name-top,

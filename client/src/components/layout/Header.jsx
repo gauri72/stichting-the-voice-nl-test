@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { IoPersonOutline, IoTicketOutline } from "react-icons/io5";
+import { IconTicket, IconUser } from "@tabler/icons-react";
 import headerLogo from "../../assets/header-logo.png";
 import ThemeToggle from "./ThemeToggle.jsx";
+
+const BUY_TICKETS_URL =
+  "https://www.tickettailor.com/events/stichtingthevoicenl/2185529";
 
 const NAV_ITEMS = [
   { label: "Home", to: "/", end: true },
@@ -77,19 +80,22 @@ export default function Header() {
   );
 
   const buyTicketsCta = (extraClass = "") => (
-    <Link
+    <a
       className={`donate-button buy-tickets-button ${extraClass}`.trim()}
-      to="/#upcoming-events"
+      href={BUY_TICKETS_URL}
+      target="_blank"
+      rel="noopener noreferrer"
       onClick={closeMenu}
+      aria-label="Buy tickets on Ticket Tailor"
     >
-      <IoTicketOutline className="buy-tickets-icon" aria-hidden />
+      <IconTicket className="buy-tickets-icon" aria-hidden stroke={1.75} />
       <span>Buy Tickets</span>
-    </Link>
+    </a>
   );
 
   const authCta = (extraClass = "") => (
     <Link className={`auth-button ${extraClass}`.trim()} to="/my-account" onClick={closeMenu}>
-      <IoPersonOutline className="auth-button-icon" aria-hidden />
+      <IconUser className="auth-button-icon" aria-hidden stroke={1.75} />
       <span>LOG IN or SIGN UP</span>
     </Link>
   );

@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { IoArrowForward } from "react-icons/io5";
-import { TbUsersGroup, TbHeartHandshake } from "react-icons/tb";
-import { BiDonateHeart } from "react-icons/bi";
-import { MdVolunteerActivism } from "react-icons/md";
+import {
+  IconArrowRight,
+  IconCoin,
+  IconHandLoveYou,
+  IconHeartHandshake,
+  IconUsersGroup,
+} from "@tabler/icons-react";
 import VolunteerForm from "../volunteer/VolunteerForm";
 import "../../styles/get-involved-section.css";
 import "../../styles/volunteer-page.css";
@@ -14,21 +17,21 @@ const linkCards = [
     description: "Join our community and be part of the movement.",
     to: "/membership",
     accent: "teal",
-    Icon: TbUsersGroup,
+    Icon: IconUsersGroup,
   },
   {
     title: "Sponsor Us",
     description: "Partner with us and create lasting impact together.",
     to: "/sponsorship",
     accent: "magenta",
-    Icon: TbHeartHandshake,
+    Icon: IconHeartHandshake,
   },
   {
     title: "Donate Now",
     description: "Your support helps us create meaningful change.",
     to: "/donate",
     accent: "gold",
-    Icon: BiDonateHeart,
+    Icon: IconCoin,
   },
 ];
 
@@ -36,7 +39,7 @@ const volunteerCard = {
   title: "Volunteer",
   description: "Give your time and make a real difference.",
   accent: "blue",
-  Icon: MdVolunteerActivism,
+  Icon: IconHandLoveYou,
 };
 
 export default function GetInvolvedSection() {
@@ -61,13 +64,13 @@ export default function GetInvolvedSection() {
               to={to}
             >
               <div className="get-involved-card__icon">
-                <Icon className="get-involved-card__icon-svg" aria-hidden />
+                <Icon className="get-involved-card__icon-svg" aria-hidden stroke={1.75} />
               </div>
               <div className="get-involved-card__body">
                 <h3 className="get-involved-card__title">{title}</h3>
                 <p className="get-involved-card__description">{description}</p>
                 <span className="get-involved-card__arrow" aria-hidden="true">
-                  <IoArrowForward />
+                  <IconArrowRight stroke={1.75} />
                 </span>
               </div>
             </Link>
@@ -83,13 +86,13 @@ export default function GetInvolvedSection() {
             aria-controls="volunteer-form-panel"
           >
             <div className="get-involved-card__icon">
-              <volunteerCard.Icon className="get-involved-card__icon-svg" aria-hidden />
+              <IconHandLoveYou className="get-involved-card__icon-svg" aria-hidden stroke={1.75} />
             </div>
             <div className="get-involved-card__body">
               <h3 className="get-involved-card__title">{volunteerCard.title}</h3>
               <p className="get-involved-card__description">{volunteerCard.description}</p>
               <span className="get-involved-card__arrow" aria-hidden="true">
-                <IoArrowForward />
+                <IconArrowRight stroke={1.75} />
               </span>
             </div>
           </button>

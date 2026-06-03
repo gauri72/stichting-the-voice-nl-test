@@ -1,28 +1,28 @@
 import {
-  FaCalendarDays,
-  FaGlobe,
-  FaStar,
-  FaUsers
-} from "react-icons/fa6";
+  IconCalendar,
+  IconStar,
+  IconUsers,
+  IconWorld,
+} from "@tabler/icons-react";
 
 export const impactStats = [
   {
-    icon: FaCalendarDays,
+    icon: IconCalendar,
     value: "10+",
     title: "High Production Events"
   },
   {
-    icon: FaUsers,
+    icon: IconUsers,
     value: "3K +",
     title: "Lives Impacted"
   },
   {
-    icon: FaStar,
+    icon: IconStar,
     value: "125 +",
     title: "Artists Amplified"
   },
   {
-    icon: FaGlobe,
+    icon: IconWorld,
     value: "1",
     title: "Global Community"
   }

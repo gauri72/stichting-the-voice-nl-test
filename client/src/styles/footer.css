@@ -35,7 +35,7 @@
   margin-top: auto;
   background: var(--footer-navy);
   color: #ffffff;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-poppins);
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   width: 100%;
@@ -308,7 +308,7 @@
 .footer-venture-credit .footer-designed-by {
   margin: 0;
   text-align: left;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-poppins);
   font-size: clamp(10px, 2.4vw, 12px);
   font-weight: 600;
   line-height: 1.3;
@@ -356,7 +356,7 @@
 }
 
 .footer-brand-text {
-  font-family: "Lastica", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Lastica", var(--font-poppins);
   color: #ffffff;
 }
 
@@ -384,7 +384,7 @@
 
 .footer-brand-text .footer-brand-tagline {
   margin: 10px 0 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-poppins);
   font-size: clamp(12px, 3vw, 13px);
   line-height: 1.5;
   font-weight: 400;

@@ -139,16 +139,16 @@
 }
 
 [data-theme="dark"] .network-marquee {
-  background: var(--color-surface-elevated);
+  background: #000000;
   border-color: var(--color-border-strong);
 }
 
 [data-theme="dark"] .network-marquee::before {
-  background: linear-gradient(90deg, var(--color-surface-elevated) 0%, transparent 100%);
+  background: linear-gradient(90deg, #000000 0%, transparent 100%);
 }
 
 [data-theme="dark"] .network-marquee::after {
-  background: linear-gradient(270deg, var(--color-surface-elevated) 0%, transparent 100%);
+  background: linear-gradient(270deg, #000000 0%, transparent 100%);
 }
 
 [data-theme="dark"] .network-marquee__card {

@@ -34,6 +34,9 @@
         document.documentElement.setAttribute("data-theme", theme);
       })();
       document.documentElement.classList.add("splash-open");
+      window.setTimeout(function () {
+        document.documentElement.classList.remove("splash-open");
+      }, 8000);
     </script>
   </head>
   <body>

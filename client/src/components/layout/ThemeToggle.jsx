@@ -1,4 +1,4 @@
-import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
+import { IconMoon, IconSun } from "@tabler/icons-react";
 import { useTheme } from "../../contexts/ThemeContext.jsx";
 
 export default function ThemeToggle({ className = "" }) {
@@ -23,9 +23,9 @@ export default function ThemeToggle({ className = "" }) {
       }
     >
       {isDark ? (
-        <IoSunnyOutline className="theme-toggle__icon" aria-hidden />
+        <IconSun className="theme-toggle__icon" aria-hidden stroke={1.75} />
       ) : (
-        <IoMoonOutline className="theme-toggle__icon" aria-hidden />
+        <IconMoon className="theme-toggle__icon" aria-hidden stroke={1.75} />
       )}
       <span className="visually-hidden">{isDark ? "Light mode" : "Dark mode"}</span>
     </button>

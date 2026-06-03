@@ -1,37 +1,52 @@
 import { Link } from "react-router-dom";
-import { IoArrowForward } from "react-icons/io5";
-import { MdOutlineVolunteerActivism } from "react-icons/md";
-import { TbBulb, TbMicrophone, TbPresentation } from "react-icons/tb";
+import {
+  IconArrowRight,
+  IconBulb,
+  IconHeartHandshake,
+  IconMicrophone,
+  IconPresentation,
+} from "@tabler/icons-react";
+import { TABLER_ICON_STROKE } from "../../constants/homeIcons.js";
 import "../../styles/our-pillars-section.css";
+
+const ArrowIcon = IconArrowRight;
 
 const pillars = [
   {
-    title: "Experience",
-    description: "Creating unforgettable cultural experiences that bring people together.",
+    mobileTitle: "Experience",
+    desktopTitle: "V.O.I.C.E. EXPERIENCES",
+    desktopLead: "Creating unforgettable cultural experiences.",
+    desktopTags: "Events • Festivals • Music • Dance • Sports",
     to: "/events",
     accent: "teal",
-    Icon: TbPresentation,
+    Icon: IconPresentation,
   },
   {
-    title: "Stories",
-    description: "Amplifying voices and sharing real stories from all cultures and communities.",
+    mobileTitle: "Stories",
+    desktopTitle: "V.O.I.C.E. STORIES",
+    desktopLead: "Sharing voices through Vision Of Sounds.",
+    desktopTags: "Podcast • Voice Of Visionaries • Media • Photography • Interviews",
     to: "/segments/vision-of-sounds",
     accent: "magenta",
-    Icon: TbMicrophone,
+    Icon: IconMicrophone,
   },
   {
-    title: "Impact",
-    description: "Building inclusivity and belonging through meaningful experiences and values.",
+    mobileTitle: "Impact",
+    desktopTitle: "V.O.I.C.E. IMPACT",
+    desktopLead: "VOWNL • Social Work • Empowering communities through action.",
+    desktopTags: "Youth • Inclusion • Education • Volunteering",
     to: "/segments/vownl",
     accent: "gold",
-    Icon: MdOutlineVolunteerActivism,
+    Icon: IconHeartHandshake,
   },
   {
-    title: "Innovation",
-    description: "Driving growth and success stories with innovation and global collaboration.",
+    mobileTitle: "Innovation",
+    desktopTitle: "V.O.I.C.E. INNOVATION",
+    desktopLead: "Building the future through technology.",
+    desktopTags: "V.O.I.C.E. Digital • Apps • Websites • V.O.I.C.E. Venture Studio",
     to: "/voice-venture-studio",
     accent: "blue",
-    Icon: TbBulb,
+    Icon: IconBulb,
   },
 ];
 
@@ -48,25 +63,41 @@ export default function OurPillarsSection() {
         </div>
 
         <div className="our-pillars-grid" role="list">
-          {pillars.map(({ title, description, to, accent, Icon }, index) => (
-            <article
-              key={title}
-              className={`our-pillars-item our-pillars-item--${accent}${
-                index < pillars.length - 1 ? " our-pillars-item--divided" : ""
-              }`}
-              role="listitem"
-            >
-              <div className="our-pillars-item__icon" aria-hidden="true">
-                <Icon className="our-pillars-item__icon-svg" />
-              </div>
-              <h3 className="our-pillars-item__title">{title}</h3>
-              <p className="our-pillars-item__description">{description}</p>
-              <Link className="our-pillars-item__link" to={to}>
-                Learn more
-                <IoArrowForward aria-hidden />
-              </Link>
-            </article>
-          ))}
+          {pillars.map(
+            (
+              { mobileTitle, desktopTitle, desktopLead, desktopTags, to, accent, Icon },
+              index
+            ) => (
+              <article
+                key={mobileTitle}
+                className={`our-pillars-item our-pillars-item--${accent}${
+                  index < pillars.length - 1 ? " our-pillars-item--divided" : ""
+                }`}
+                role="listitem"
+              >
+                <div className="our-pillars-item__icon" aria-hidden="true">
+                  <Icon className="our-pillars-item__icon-svg" stroke={TABLER_ICON_STROKE} />
+                </div>
+
+                <h3 className="our-pillars-item__title our-pillars-item__title--mobile">
+                  {mobileTitle}
+                </h3>
+                <h3 className="our-pillars-item__title our-pillars-item__title--desktop">
+                  {desktopTitle}
+                </h3>
+
+                <div className="our-pillars-item__description">
+                  <p className="our-pillars-item__lead">{desktopLead}</p>
+                  <p className="our-pillars-item__tags">{desktopTags}</p>
+                </div>
+
+                <Link className="our-pillars-item__link" to={to}>
+                  Learn more
+                  <ArrowIcon aria-hidden stroke={TABLER_ICON_STROKE} />
+                </Link>
+              </article>
+            )
+          )}
         </div>
       </div>
     </section>
