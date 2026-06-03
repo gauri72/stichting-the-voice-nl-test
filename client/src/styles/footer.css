@@ -36,8 +36,8 @@
   background: var(--footer-navy);
   color: #ffffff;
   font-family: var(--font-poppins);
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
   width: 100%;
   overflow-x: hidden;
   overflow-x: clip;
@@ -45,8 +45,8 @@
 
 @media (max-width: 480px) {
   .site-footer {
-    border-top-left-radius: 14px;
-    border-top-right-radius: 14px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
   }
 }
 

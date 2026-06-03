@@ -1,18 +1,17 @@
-import UpcomingEventsSection from "../home/UpcomingEventsSection";
+import FeaturedEventsSection from "../home/FeaturedEventsSection";
 import EventsBreadcrumbSection from "./EventsBreadcrumbSection";
 import EventsCallToActionSection from "./EventsCallToActionSection";
 import EventsImpactTimelineSection from "./EventsImpactTimelineSection";
-import EventsSignatureEventsSection from "./EventsSignatureEventsSection";
 import EventsTestimonialsSection from "./EventsTestimonialsSection";
+import "../../styles/events-page.css";
 
 export default function EventsPage() {
   return (
-    <div id="events-navbar-top">
+    <div id="events-navbar-top" className="events-page">
       <EventsBreadcrumbSection />
-      <UpcomingEventsSection />
-      <EventsSignatureEventsSection />
-      <EventsImpactTimelineSection />
       <EventsTestimonialsSection />
+      <FeaturedEventsSection />
+      <EventsImpactTimelineSection />
       <EventsCallToActionSection />
     </div>
   );
