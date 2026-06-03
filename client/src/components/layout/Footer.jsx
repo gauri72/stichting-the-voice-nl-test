@@ -12,7 +12,6 @@ import {
 } from "@tabler/icons-react";
 import { apiFetch } from "../../utils/api.js";
 import { WHATSAPP_GROUP_URL } from "../../constants/siteLinks.js";
-import headerLogo from "../../assets/header-logo.png";
 import footerBg from "../../assets/footer-bg.png";
 import voiceVentureStudioLogo from "../../assets/VOICE Venture Studio.png";
 import "../../styles/footer.css";
@@ -132,29 +131,6 @@ export default function Footer() {
         </div>
 
         <div className="footer-columns footer-columns--main">
-          <div className="footer-col footer-col-brand">
-            <div className="footer-brand-card">
-              <div className="footer-brand-block">
-                <img
-                  className="footer-brand-logo"
-                  src={headerLogo}
-                  alt="Stichting The V.O.I.C.E. NL"
-                  width={72}
-                  height={72}
-                />
-                <div className="footer-brand-text">
-                  <p className="footer-brand-top">Stichting</p>
-                  <p className="footer-brand-name">
-                    The V<span className="brand-tight-v-period">.</span>O.I.C.E. NL
-                  </p>
-                  <p className="footer-brand-tagline">
-                    The vision of international cultural exchange in the Netherlands.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div className="footer-col footer-col-follow">
             <h3 className="footer-section-title">Follow us</h3>
             <div className="footer-social-list footer-social-list--footer">

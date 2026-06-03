@@ -1972,13 +1972,13 @@
 
 .footer-columns--main {
   margin-top: 14px;
-  /* 1: brand  2: follow us  3: quick links + legal  4: contact */
-  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.78fr) minmax(0, 1.28fr) minmax(0, 0.92fr);
+  /* follow us | quick links + legal | contact */
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.28fr) minmax(0, 0.92fr);
   gap: 0 14px;
 }
 
 .footer-columns--main .footer-col:first-child {
-  padding-left: 14px;
+  padding-left: 0;
 }
 
 .footer-col-quick .footer-quick-grid--rows {
@@ -2153,15 +2153,10 @@
     text-align: center;
   }
 
-  .footer-columns--main .footer-col-brand {
+  .footer-columns--main .footer-col-follow {
     border-top: none;
     margin-top: 0;
     padding-top: 0;
-    padding-bottom: 18px;
-  }
-
-  .footer-columns--main .footer-col-follow {
-    padding-top: 18px;
     padding-bottom: 18px;
   }
 
@@ -2345,7 +2340,6 @@
     row-gap: 10px;
   }
 
-  .footer-columns--main .footer-col-brand,
   .footer-columns--main .footer-col-follow,
   .footer-columns--main .footer-col-quick,
   .footer-columns--main .footer-col-contact {
@@ -2371,40 +2365,19 @@
     text-align: center;
   }
 
-  .footer-columns--main .footer-col-brand {
+  .footer-columns--main .footer-col-follow {
     border-top: none;
     margin-top: 0;
     padding-top: 0;
     padding-bottom: 18px;
     display: flex;
-    justify-content: center;
-  }
-
-  .footer-columns--main .footer-col-follow {
-    display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 18px;
-    padding-bottom: 18px;
   }
 
   .footer-columns--main .footer-col-quick,
   .footer-columns--main .footer-col-contact {
     grid-column: 1;
-  }
-
-  .footer-columns--main .footer-col-brand .footer-brand-card {
-    width: min(100%, 520px);
-    margin-inline: auto;
-  }
-
-  .footer-columns--main .footer-col-brand .footer-brand-block {
-    justify-content: center;
-  }
-
-  .footer-columns--main .footer-col-brand .footer-brand-text {
-    text-align: center;
-    align-items: center;
   }
 
   .footer-columns--main .footer-col-contact .footer-brand-details {

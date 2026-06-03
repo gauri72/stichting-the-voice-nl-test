@@ -236,7 +236,7 @@
     border-radius: 10px;
     border-color: #dfe8ee;
     background-size: cover;
-    background-position: 73% center;
+    background-position: 58% center;
   }
 
   .featured-events-date {
@@ -270,7 +270,7 @@
   }
 
   .featured-events-eyebrow {
-    font-size: 0.54rem;
+    font-size: 0.72rem;
     margin-bottom: 0;
     letter-spacing: 0.03em;
     font-weight: 700;
@@ -293,8 +293,10 @@
     margin-top: 2px;
     padding-left: 0;
     margin-left: 0;
-    gap: 11px;
+    gap: 10px;
     align-items: center;
+    max-width: calc(100% - 52px);
+    flex-wrap: nowrap;
   }
 
   .featured-events-meta-item {
@@ -302,6 +304,19 @@
     font-size: 0.74rem;
     font-weight: 600;
     line-height: 1;
+    min-width: 0;
+  }
+
+  .featured-events-meta-item--time {
+    flex: 0 1 auto;
+    max-width: 9.5em;
+  }
+
+  .featured-events-meta-item--time span {
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
   }
 
   .featured-events-meta-item svg {
@@ -336,7 +351,7 @@
 @media (max-width: 390px) {
   .featured-events-card {
     min-height: 108px;
-    background-position: 75% center;
+    background-position: 56% center;
   }
 
   .featured-events-content {

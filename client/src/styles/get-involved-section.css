@@ -222,12 +222,8 @@ button.get-involved-card {
     min-width: 0;
     color: #1a2733;
     font-size: 1.05rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.2;
-  }
-
-  .get-involved-card--magenta .get-involved-card__title {
-    color: #d94f9b;
   }
 
   .get-involved-card__arrow {
@@ -241,9 +237,5 @@ button.get-involved-card {
 
   [data-theme="dark"] .get-involved-card__title {
     color: var(--color-heading);
-  }
-
-  [data-theme="dark"] .get-involved-card--magenta .get-involved-card__title {
-    color: #e86eb0;
   }
 }

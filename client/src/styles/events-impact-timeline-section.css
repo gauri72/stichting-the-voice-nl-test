@@ -2,7 +2,7 @@
 
 .events-impact {
   background: var(--color-bg);
-  margin: 0 auto clamp(14px, 1.75vw, 18px);
+  margin: 0 auto;
   padding: clamp(8px, 1.25vw, 14px) clamp(14px, 3vw, 28px);
   overflow-x: clip;
   color: var(--color-text);
@@ -42,7 +42,11 @@
 
 .events-impact__title-line,
 .events-impact__title-emphasis {
-  display: inline;
+  display: block;
+}
+
+.events-impact__title-line {
+  white-space: nowrap;
 }
 
 .events-impact__title-emphasis {
@@ -406,7 +410,7 @@
 
 @media (max-width: 768px) {
   .events-impact__layout {
-    gap: clamp(20px, 4vw, 28px);
+    gap: clamp(12px, 3vw, 18px);
   }
 
   .events-impact__intro {
@@ -420,11 +424,6 @@
 
   .events-impact__title {
     text-align: center;
-  }
-
-  .events-impact__title-line,
-  .events-impact__title-emphasis {
-    display: block;
   }
 
   .events-impact__lead {
@@ -532,10 +531,22 @@
   }
 }
 
+@media (max-width: 899px) {
+  .events-impact {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
 @media (max-width: 640px) {
   .events-impact {
-    margin-bottom: 10px;
-    padding: 6px 10px;
+    padding: var(--events-section-block-y, clamp(6px, 1.5vw, 10px))
+      var(--events-section-inline, 12px)
+      0;
+  }
+
+  .events-impact__layout {
+    gap: 10px;
   }
 }
 

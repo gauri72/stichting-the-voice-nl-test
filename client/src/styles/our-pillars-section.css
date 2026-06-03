@@ -198,7 +198,8 @@
 @media (max-width: 640px) {
   .our-pillars-item__title,
   .our-pillars-item__title--desktop {
-    font-size: 1.05rem;
+    font-size: 0.92rem;
+    font-weight: 600;
   }
 }
 
@@ -223,7 +224,8 @@
   }
 
   .our-pillars-item__title {
-    font-size: 1.05rem;
+    font-size: 0.92rem;
+    font-weight: 600;
   }
 
   .our-pillars-item__link {

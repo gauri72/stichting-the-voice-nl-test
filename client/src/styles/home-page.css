@@ -7,7 +7,6 @@
   --color-surface: var(--color-bg);
   --color-surface-elevated: var(--color-bg);
   --color-card-bg: var(--color-bg);
-  --color-input-bg: var(--color-bg-muted);
 }
 
 [data-theme="light"] .home-page .featured-events-cta {
@@ -18,7 +17,7 @@
   font-family: "Times New Roman", Times, serif;
 }
 
-/* Title case on home page copy (brand name in header/footer stays uppercase) */
+/* Title case on home page copy (brand name in header stays uppercase) */
 .home-page :is(
     h1,
     h2,
@@ -66,6 +65,21 @@
   margin-top: clamp(10px, 1.6vw, 18px);
 }
 
+/* Larger “Featured Event” label on home */
+.home-page .featured-events-eyebrow {
+  font-size: clamp(0.88rem, 1.35vw, 1.05rem);
+}
+
+/* Four Pillars. One Mission — +2 size levels */
+.home-page .our-pillars-section__title {
+  font-size: clamp(0.98rem, 4.2vw, 1.2rem);
+}
+
+/* Our Network — +2 size levels */
+.home-page .network-section__title {
+  font-size: clamp(0.98rem, 4.2vw, 1.2rem);
+}
+
 /* Dark theme: seamless black between home sections (reference poster) */
 [data-theme="dark"] .home-page,
 [data-theme="dark"] .home-page .hero-section,
@@ -108,7 +122,33 @@
     inset 0 0 32px rgba(94, 207, 214, 0.07) !important;
 }
 
+@media (min-width: 900px) {
+  .home-page .our-pillars-section__title {
+    font-size: clamp(1.35rem, 2.4vw, 2rem);
+  }
+
+  .home-page .network-section__title {
+    font-size: clamp(1.35rem, 2.4vw, 2rem);
+  }
+}
+
 @media (max-width: 899px) {
+  /* Pillars + get involved: regular weight on small screens */
+  .home-page .our-pillars-item__title,
+  .home-page .our-pillars-item__title--desktop,
+  .home-page .our-pillars-item__title--mobile {
+    font-weight: 600;
+  }
+
+  .home-page .get-involved-card__title {
+    font-weight: 600;
+  }
+
+  /* Experience, Stories, Impact, Innovation — one size level smaller */
+  .home-page .our-pillars-item__title--mobile {
+    font-size: 0.92rem;
+  }
+
   [data-theme="dark"] .home-page .our-pillars-item {
     border: 1px solid var(--home-neon-line);
     border-radius: 10px;
@@ -120,5 +160,24 @@
 
   [data-theme="dark"] .home-page .our-pillars-item--divided {
     border-right-color: var(--home-neon-line);
+  }
+}
+
+@media (max-width: 640px) {
+  .home-page .featured-events-eyebrow {
+    font-size: 0.72rem;
+  }
+
+  .home-page .our-pillars-section__title {
+    font-size: clamp(1rem, 4.5vw, 1.18rem);
+  }
+
+  .home-page .network-section__title {
+    font-size: clamp(1rem, 4.5vw, 1.18rem);
+  }
+
+  .home-page .our-pillars-item__title,
+  .home-page .our-pillars-item__title--desktop {
+    font-size: 0.92rem;
   }
 }

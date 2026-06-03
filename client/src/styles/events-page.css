@@ -18,22 +18,31 @@
   font-family: "Times New Roman", Times, serif;
 }
 
-/* Section rhythm — moderate vertical spacing (half of previous bump) */
+/*
+ * Section rhythm — matches site theme (Poppins, --color-bg, moderate clamps)
+ * --events-section-stack: default gap between most sections
+ * --events-section-gap-lg: Featured Events ↔ Memorable Moments
+ * --events-section-gap-footer: Memorable Moments ↔ footer (tighter on small screens)
+ */
 .events-page {
   --events-section-inline: clamp(14px, 3vw, 28px);
   --events-section-block-y: clamp(8px, 1.25vw, 14px);
   --events-section-stack: clamp(14px, 1.75vw, 18px);
+  --events-section-gap-lg: clamp(22px, 3.5vw, 32px);
+  --events-section-gap-footer: clamp(10px, 1.5vw, 14px);
 }
 
 .events-page .featured-events-section {
   margin-top: clamp(7px, 1vw, 11px);
-  margin-bottom: var(--events-section-stack);
+  margin-bottom: var(--events-section-gap-lg);
   padding: var(--events-section-block-y) var(--events-section-inline);
 }
 
 .events-page .events-impact,
 .events-page .events-testimonials {
-  margin: 0 auto var(--events-section-stack);
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: var(--events-section-stack);
   padding: var(--events-section-block-y) var(--events-section-inline);
 }
 
@@ -42,16 +51,37 @@
   margin: 0;
 }
 
-/* Standard stack gap above journey/impact image band */
 .events-page .events-impact + .events-cta {
   margin-top: 0;
 }
 
+/* Desktop: normal stack before journey band */
+@media (min-width: 900px) {
+  .events-page .events-impact {
+    margin-bottom: var(--events-section-stack);
+  }
+}
+
+/* Responsive spacing */
+@media (max-width: 899px) {
+  .events-page {
+    --events-section-gap-lg: clamp(20px, 4.5vw, 28px);
+    --events-section-gap-footer: 0;
+  }
+
+  /* Journey band hidden — flush Memorable Moments to footer */
+  .events-page .events-impact {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
 @media (max-width: 640px) {
   .events-page {
-    --events-section-inline: 10px;
-    --events-section-block-y: 6px;
-    --events-section-stack: 10px;
+    --events-section-inline: 12px;
+    --events-section-block-y: clamp(6px, 1.5vw, 10px);
+    --events-section-stack: clamp(10px, 2.5vw, 14px);
+    --events-section-gap-lg: clamp(18px, 5vw, 24px);
   }
 }
 
