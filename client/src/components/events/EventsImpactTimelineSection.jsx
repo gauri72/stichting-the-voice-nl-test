@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { IconArrowRight } from "@tabler/icons-react";
 import { eventsTimelineItems } from "../../data/eventsTimelineItems.js";
 import { getHighlightGallery } from "../../config/eventHighlights.js";
 import EventsHighlightsGallery from "./EventsHighlightsGallery.jsx";
@@ -30,14 +29,6 @@ export default function EventsImpactTimelineSection() {
               Over the years, our events have created unforgettable experiences and strengthened the
               bonds within our community.
             </p>
-            <button
-              type="button"
-              className="events-impact__highlights-cta"
-              onClick={() => openHighlights(eventsTimelineItems[0]?.highlightId)}
-            >
-              View Highlights
-              <IconArrowRight className="events-impact__highlights-cta-icon" aria-hidden stroke={1.75} />
-            </button>
           </div>
 
           <div className="events-impact__gallery">
@@ -53,13 +44,16 @@ export default function EventsImpactTimelineSection() {
                     role="listitem"
                     style={{ "--timeline-col": index + 1 }}
                   >
+                    <div className="events-impact__timeline-rail" aria-hidden="true">
+                      <span className="events-impact__timeline-rail-bar" />
+                      <span className="events-impact__timeline-marker">v</span>
+                    </div>
                     <div className="events-impact__timeline-years-slot">
                       <p className="events-impact__timeline-years">{years}</p>
                     </div>
                     <div className="events-impact__timeline-event-slot">
                       <h3 className="events-impact__timeline-event">{title}</h3>
                     </div>
-                    <span className="events-impact__timeline-dot" aria-hidden="true" />
                     <button
                       type="button"
                       className="events-impact__thumb"

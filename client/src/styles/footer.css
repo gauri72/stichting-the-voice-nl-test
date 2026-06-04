@@ -2263,6 +2263,8 @@
   }
 
   .footer-columns--main .footer-col-follow {
+    border-top: none;
+    margin-top: 0;
     padding-top: 16px;
     padding-bottom: 16px;
   }

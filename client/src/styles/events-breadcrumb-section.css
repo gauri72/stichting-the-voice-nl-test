@@ -18,6 +18,18 @@
   object-position: center top;
 }
 
+.events-page-hero__image--dark {
+  display: none;
+}
+
 [data-theme="dark"] .events-page-hero {
   background-color: #000000;
+}
+
+[data-theme="dark"] .events-page-hero__image--light {
+  display: none;
+}
+
+[data-theme="dark"] .events-page-hero__image--dark {
+  display: block;
 }

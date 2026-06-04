@@ -1,270 +1,873 @@
-/* Events page — testimonials (site theme + arrow carousel) */
+/* Events page — testimonials (bg image + foreground overlay per design) */
 
-.events-testimonials {
-  background: var(--color-bg);
-  margin: 0 auto clamp(14px, 1.75vw, 18px);
-  padding: clamp(8px, 1.25vw, 14px) clamp(14px, 3vw, 28px);
-  overflow-x: clip;
-  color: var(--color-text);
+.events-reviews {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+  background-color: var(--color-bg);
   font-family: var(--font-poppins);
   box-sizing: border-box;
 }
 
-.events-testimonials__inner {
-  max-width: 1320px;
-  margin: 0 auto;
+.events-reviews__frame {
+  position: relative;
+  display: block;
   width: 100%;
-  min-width: 0;
+  overflow: hidden;
 }
 
-.events-testimonials__header {
-  margin-bottom: clamp(18px, 2.5vw, 28px);
+@media (min-width: 1101px) {
+  .events-reviews__frame {
+    overflow: visible;
+  }
+}
+
+.events-reviews__bg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  vertical-align: top;
+}
+
+.events-reviews__bg--dark {
+  display: none;
+}
+
+[data-theme="dark"] .events-reviews {
+  background-color: #000000;
+}
+
+[data-theme="dark"] .events-reviews__bg--light {
+  display: none;
+}
+
+[data-theme="dark"] .events-reviews__bg--dark {
+  display: block;
+}
+
+/* Foreground overlay aligned to artwork safe zones */
+.events-reviews__inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding-inline: clamp(2.8%, 4.2vw, 5.4%);
+  padding-bottom: 2.8%;
+  padding-top: 0;
+  box-sizing: border-box;
+  line-height: normal;
+  pointer-events: none;
+}
+
+/* Desktop overlay: sit below flame icon baked into testimonials-bg (1536×1024 art) */
+@media (min-width: 1101px) {
+  .events-reviews__inner {
+    padding-top: clamp(78px, 9.5vw, 112px);
+  }
+}
+
+.events-reviews__inner a,
+.events-reviews__inner button,
+.events-reviews__inner input,
+.events-reviews__inner textarea {
+  pointer-events: auto;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Top — label, heading, description (centered)                               */
+/* -------------------------------------------------------------------------- */
+
+.events-reviews__rate {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.events-reviews__header {
+  margin: 0 auto clamp(12px, 1.8vw, 20px);
+  max-width: 40rem;
   text-align: center;
 }
 
-.events-testimonials__eyebrow {
+.events-reviews__eyebrow {
   margin: 0;
-  color: var(--color-accent-teal);
-  font-size: clamp(0.78rem, 1vw, 0.9rem);
+  color: #c2185b;
+  font-size: clamp(0.62rem, 0.95vw, 0.76rem);
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: capitalize;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
-.events-testimonials__title {
-  margin: clamp(8px, 1.2vw, 12px) 0 0;
-  color: var(--color-heading);
-  font-size: clamp(1.15rem, 1.8vw, 1.55rem);
-  font-weight: 800;
-  line-height: 1.2;
+.events-reviews__title {
+  margin: clamp(5px, 0.8vw, 8px) 0 0;
+  color: #1a3348;
+  font-family: "Times New Roman", Times, serif;
+  font-size: clamp(1.5rem, 3.1vw, 2.45rem);
+  font-weight: 700;
+  line-height: 1.12;
   letter-spacing: 0.01em;
 }
 
-.events-testimonials__title-accent {
-  color: var(--color-accent-teal);
+.events-reviews__brand {
+  display: inline;
+  font-family: inherit;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.events-testimonials__slider {
+.events-reviews__brand-vo,
+.events-reviews__brand-vo .events-reviews__brand-dot {
+  color: #d94f9b;
+}
+
+.events-reviews__brand-ice,
+.events-reviews__brand-ice .events-reviews__brand-dot {
+  color: #f39c12;
+}
+
+.events-reviews__brand-nl {
+  color: #2d989b;
+}
+
+.events-reviews__lead {
+  margin: clamp(7px, 1vw, 10px) auto 0;
+  max-width: 34rem;
+  color: #6b7c8f;
+  font-size: clamp(0.8rem, 1.05vw, 0.94rem);
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Middle — left form + right info card (dancer stays in bg image)             */
+/* -------------------------------------------------------------------------- */
+
+.events-reviews__rate-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: clamp(10px, 1.5vw, 18px);
+  grid-template-columns: minmax(0, 52%) minmax(0, 30%) minmax(0, 1fr);
+  gap: clamp(10px, 1vw, 14px);
   align-items: center;
+  width: min(1240px, 90%);
+  max-width: 100%;
+  margin: clamp(18px, 2.4vw, 32px) auto clamp(28px, 3.6vw, 48px);
 }
 
-.events-testimonials__nav {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: clamp(40px, 4vw, 48px);
-  height: clamp(40px, 4vw, 48px);
-  flex-shrink: 0;
-  border: 1px solid var(--color-border);
-  border-radius: 50%;
-  background: var(--color-bg);
-  color: var(--color-accent-teal);
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.15s ease,
-    background 0.2s ease;
-}
-
-.events-testimonials__nav-icon {
-  width: clamp(22px, 2.2vw, 26px);
-  height: clamp(22px, 2.2vw, 26px);
-}
-
-.events-testimonials__nav:hover {
-  border-color: var(--color-accent-teal);
-  box-shadow: 0 4px 14px var(--color-shadow);
-  transform: translateY(-1px);
-}
-
-.events-testimonials__nav:focus-visible {
-  outline: 2px solid var(--color-accent-teal);
-  outline-offset: 3px;
-}
-
-.events-testimonials__carousel {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(12px, 1.8vw, 20px);
-  align-items: stretch;
-  min-width: 0;
-}
-
-.events-testimonials__card {
-  display: flex;
-  align-items: flex-start;
-  gap: clamp(12px, 1.5vw, 16px);
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: clamp(14px, 1.8vw, 20px) clamp(12px, 1.6vw, 18px);
-  box-shadow: 0 2px 10px var(--color-shadow);
-  min-width: 0;
-  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-}
-
-.events-testimonials__avatar {
-  width: clamp(52px, 5vw, 64px);
-  height: clamp(52px, 5vw, 64px);
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-  border: 2px solid var(--color-border);
-}
-
-.events-testimonials__content {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  padding-top: 2px;
-}
-
-.events-testimonials__quote-mark {
-  position: absolute;
-  top: -4px;
-  right: 0;
-  font-size: clamp(2.2rem, 3.2vw, 2.8rem);
-  line-height: 1;
-  font-weight: 800;
-  color: var(--color-accent-teal);
-  opacity: 0.22;
-  pointer-events: none;
-  user-select: none;
-}
-
-.events-testimonials__content blockquote {
-  margin: 0;
-}
-
-.events-testimonials__content blockquote p {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: clamp(0.82rem, 0.95vw, 0.92rem);
-  line-height: 1.5;
-  font-weight: 500;
-  padding-right: clamp(24px, 2.5vw, 36px);
-}
-
-.events-testimonials__content footer {
-  margin-top: clamp(10px, 1.4vw, 14px);
+.events-reviews__form {
+  width: 100%;
+  max-width: none;
+  min-height: clamp(400px, 36vw, 460px);
   display: flex;
   flex-direction: column;
+  gap: 16px;
+  padding: clamp(26px, 2.8vw, 34px) clamp(22px, 2.3vw, 28px);
+  border-radius: 14px;
+  border: 1px solid #e6edf2;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(26, 51, 74, 0.09);
+  box-sizing: border-box;
+}
+
+.events-reviews__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.events-reviews__field:has(textarea) {
+  flex: 1;
+  min-height: 0;
+}
+
+.events-reviews__field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #3d4f61;
+  font-size: clamp(0.88rem, 1.05vw, 0.98rem);
+  font-weight: 700;
+}
+
+.events-reviews__label-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #d94f9b;
+}
+
+.events-reviews__field input,
+.events-reviews__field textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #dce5ec;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1a3348;
+  font-family: inherit;
+  font-size: clamp(0.9rem, 1.05vw, 1rem);
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+.events-reviews__field input {
+  min-height: 46px;
+  padding: 0 16px;
+}
+
+.events-reviews__field textarea {
+  flex: 1;
+  min-height: 132px;
+  padding: 14px 16px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.events-reviews__field input::placeholder,
+.events-reviews__field textarea::placeholder {
+  color: #9aa8b6;
+  font-weight: 400;
+}
+
+.events-reviews__stars {
+  display: flex;
+  align-items: center;
   gap: 3px;
 }
 
-.events-testimonials__content cite {
-  font-style: normal;
-  color: var(--color-heading);
-  font-size: clamp(0.84rem, 0.95vw, 0.92rem);
+.events-reviews__star-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #d5dde5;
+  cursor: pointer;
+}
+
+.events-reviews__star-btn.is-active {
+  color: #f0b429;
+}
+
+.events-reviews__star-icon {
+  width: 26px;
+  height: 26px;
+}
+
+.events-reviews__stars-hint {
+  margin: 0;
+  color: #8a9aab;
+  font-size: clamp(0.74rem, 0.88vw, 0.82rem);
+  font-weight: 400;
+}
+
+.events-reviews__form-status {
+  margin: 0;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.events-reviews__form-status--success {
+  color: #2a7d4f;
+}
+
+.events-reviews__form-status--error {
+  color: #c2185b;
+}
+
+.events-reviews__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 48px;
+  margin-top: auto;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #c2185b 0%, #f39c12 50%, #2d989b 100%);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: clamp(0.88rem, 1vw, 0.96rem);
   font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(194, 24, 91, 0.22);
+}
+
+.events-reviews__submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.events-reviews__submit-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Right info card */
+.events-reviews__inspire {
+  width: 100%;
+  max-width: none;
+  margin-top: 0;
+  padding: clamp(22px, 2.4vw, 28px) clamp(20px, 2vw, 24px);
+  border-radius: 14px;
+  border: 1px solid #f5d4b8;
+  background: #fff0e3;
+  box-shadow: 0 8px 22px rgba(26, 51, 74, 0.06);
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.events-reviews__inspire-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 0 12px;
+  border: 1.5px solid #d94f9b;
+  border-radius: 50%;
+  color: #d94f9b;
+  background: #fde8f2;
+}
+
+.events-reviews__inspire-icon {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+}
+
+.events-reviews__inspire-title {
+  margin: 0;
+  color: #2f3f50;
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  font-weight: 800;
   line-height: 1.3;
+  text-align: left;
 }
 
-.events-testimonials__content footer span {
-  color: var(--color-text-muted);
-  font-size: clamp(0.74rem, 0.85vw, 0.8rem);
+.events-reviews__inspire-text {
+  margin: 10px 0 0;
+  color: #6b7c8f;
+  font-size: clamp(0.82rem, 0.95vw, 0.9rem);
   font-weight: 500;
-  line-height: 1.35;
+  line-height: 1.55;
+  text-align: left;
 }
 
 /* -------------------------------------------------------------------------- */
-/* Dark theme (section)                                                       */
+/* Bottom — community heading, cards, moderation line                         */
 /* -------------------------------------------------------------------------- */
 
-[data-theme="dark"] .events-testimonials {
-  background: #000000;
+.events-reviews__community {
+  margin-top: auto;
+  padding-top: clamp(10px, 1.6vw, 18px);
+  width: min(1320px, 96%);
+  max-width: 100%;
+  margin-inline: auto;
 }
 
-[data-theme="dark"] .events-testimonials__title-accent {
-  color: var(--color-accent-teal);
+.events-reviews__community-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2vw, 22px);
+  margin-bottom: clamp(12px, 1.6vw, 16px);
 }
 
-[data-theme="dark"] .events-testimonials__nav {
-  background: #000000;
-  border-color: var(--color-border-strong);
-  color: var(--color-accent-teal);
+.events-reviews__community-line {
+  flex: 1;
+  height: 1px;
+  max-width: 420px;
+  background: #e8a317;
+  position: relative;
 }
 
-[data-theme="dark"] .events-testimonials__card {
-  background: #000000;
-  border-color: var(--color-border-strong);
+.events-reviews__community-line::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e8a317;
+}
+
+/* Dot at inner end of each line (next to heading), not centered */
+.events-reviews__community-line:first-of-type::after {
+  right: 0;
+  left: auto;
+  transform: translate(50%, -50%);
+}
+
+.events-reviews__community-line:last-of-type::after {
+  left: 0;
+  right: auto;
+  transform: translate(-50%, -50%);
+}
+
+.events-reviews__community-title {
+  margin: 0;
+  color: #c2185b;
+  font-size: clamp(0.62rem, 0.95vw, 0.76rem);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.events-reviews__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: clamp(10px, 1.2vw, 14px);
+}
+
+.events-reviews__card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 148px;
+  padding: clamp(12px, 1.2vw, 14px) clamp(11px, 1.1vw, 13px);
+  border-radius: 12px;
+  border: 1px solid #e8eef3;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(26, 51, 74, 0.07);
+  box-sizing: border-box;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+
+@media (hover: hover) {
+  .events-reviews__card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(217, 79, 155, 0.45);
+    box-shadow: 0 14px 32px rgba(26, 51, 74, 0.14);
+  }
+}
+
+.events-reviews__card-stars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.events-reviews__card-star {
+  width: 13px;
+  height: 13px;
+  color: #f0b429;
+}
+
+.events-reviews__card-quote {
+  margin: 0;
+  flex: 1;
+  color: #3d4f61;
+  font-size: clamp(0.68rem, 0.82vw, 0.76rem);
+  font-weight: 500;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.events-reviews__card-quote-mark {
+  color: #d94f9b;
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-right: 2px;
+}
+
+.events-reviews__card-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.events-reviews__card-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(26, 51, 74, 0.12);
+}
+
+.events-reviews__card-avatar--initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fde8f2 0%, #fff0e3 100%);
+  color: #c2185b;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.events-reviews__card-name {
+  margin: 0;
+  color: #1a3348;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.events-reviews__card-role {
+  margin: 2px 0 0;
+  color: #8a9aab;
+  font-size: 0.66rem;
+  font-weight: 500;
+}
+
+.events-reviews__moderation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: clamp(10px, 1.2vw, 14px) auto 0;
+  max-width: 36rem;
+  color: #8a9aab;
+  font-size: clamp(0.6rem, 0.75vw, 0.68rem);
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.events-reviews__moderation-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: #f39c12;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Dark theme                                                                 */
+/* -------------------------------------------------------------------------- */
+
+[data-theme="dark"] .events-reviews__eyebrow,
+[data-theme="dark"] .events-reviews__community-title {
+  color: #e889a8;
+}
+
+[data-theme="dark"] .events-reviews__title {
+  color: #f2f6fa;
+}
+
+[data-theme="dark"] .events-reviews__brand-vo,
+[data-theme="dark"] .events-reviews__brand-vo .events-reviews__brand-dot {
+  color: #e889c8;
+}
+
+[data-theme="dark"] .events-reviews__brand-ice,
+[data-theme="dark"] .events-reviews__brand-ice .events-reviews__brand-dot {
+  color: #f5b04a;
+}
+
+[data-theme="dark"] .events-reviews__brand-nl {
+  color: #6ec8f0;
+}
+
+[data-theme="dark"] .events-reviews__lead,
+[data-theme="dark"] .events-reviews__inspire-text,
+[data-theme="dark"] .events-reviews__card-quote,
+[data-theme="dark"] .events-reviews__moderation {
+  color: #b8c5d3;
+}
+
+[data-theme="dark"] .events-reviews__form {
+  background: rgba(10, 14, 22, 0.88);
+  border-color: rgba(94, 207, 214, 0.28);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .events-reviews__field-label,
+[data-theme="dark"] .events-reviews__card-name,
+[data-theme="dark"] .events-reviews__inspire-title {
+  color: #eef3f8;
+}
+
+[data-theme="dark"] .events-reviews__field input,
+[data-theme="dark"] .events-reviews__field textarea {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(94, 207, 214, 0.22);
+  color: #eef3f8;
+}
+
+[data-theme="dark"] .events-reviews__inspire {
+  background: rgba(255, 176, 96, 0.14);
+  border-color: rgba(243, 156, 18, 0.35);
+}
+
+[data-theme="dark"] .events-reviews__inspire-icon-wrap {
+  background: rgba(217, 79, 155, 0.22);
+  border-color: #e889c8;
+  color: #f0a8d0;
+}
+
+[data-theme="dark"] .events-reviews__card {
+  background: rgba(10, 14, 22, 0.88);
+  border-color: rgba(94, 207, 214, 0.24);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+
+[data-theme="dark"] .events-reviews__community-line {
+  background: #e8a317;
 }
 
 /* -------------------------------------------------------------------------- */
 /* Responsive                                                                 */
 /* -------------------------------------------------------------------------- */
 
-@media (max-width: 1024px) {
-  .events-testimonials__carousel {
-    display: block;
-    max-width: 560px;
+/* Large tablet — stack form + info card; flow below bg image */
+@media (max-width: 1100px) {
+  .events-reviews {
+    line-height: normal;
+  }
+
+  .events-reviews__frame {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .events-reviews__bg {
+    order: -1;
+  }
+
+  .events-reviews__inner {
+    position: relative;
+    inset: auto;
+    padding: clamp(16px, 2.5vw, 24px) clamp(14px, 2.5vw, 22px);
+    pointer-events: auto;
+  }
+
+  .events-reviews__header {
+    padding-top: 0;
+    margin-top: clamp(8px, 1.5vw, 14px);
+  }
+
+  .events-reviews__rate-row {
+    grid-template-columns: 1fr;
+    gap: clamp(16px, 2.5vw, 24px);
+    width: 100%;
+    max-width: min(640px, 100%);
     margin-inline: auto;
   }
 
-  .events-testimonials__card {
-    display: none;
+  .events-reviews__form {
+    min-height: 0;
   }
 
-  .events-testimonials__card:first-child {
+  .events-reviews__inspire {
+    max-width: min(420px, 100%);
+  }
+
+  .events-reviews__community {
+    width: 100%;
+    padding-inline: 0;
+  }
+
+  .events-reviews__cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Tablet / mobile — content flow (no absolute overlay on artwork) */
+@media (max-width: 899px) {
+  .events-reviews {
+    line-height: normal;
+  }
+
+  .events-reviews__frame {
     display: flex;
+    flex-direction: column;
+  }
+
+  .events-reviews__bg,
+  [data-theme="dark"] .events-reviews__bg--dark {
+    display: none !important;
+  }
+
+  .events-reviews__inner {
+    position: relative;
+    inset: auto;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 4vw, 28px);
+    padding: clamp(20px, 4.5vw, 32px) clamp(16px, 4vw, 24px);
+    pointer-events: auto;
+  }
+
+  .events-reviews__header {
+    padding-top: 0;
+    margin-bottom: clamp(8px, 2vw, 14px);
+  }
+
+  .events-reviews__title {
+    font-size: clamp(1.35rem, 5.5vw, 1.85rem);
+  }
+
+  .events-reviews__brand {
+    white-space: normal;
+  }
+
+  .events-reviews__rate-row {
+    margin-top: 0;
+    margin-bottom: 0;
+    max-width: 100%;
+  }
+
+  .events-reviews__form {
+    padding: clamp(20px, 4vw, 26px) clamp(16px, 3.5vw, 22px);
+    gap: 14px;
+  }
+
+  .events-reviews__field textarea {
+    min-height: 112px;
+  }
+
+  .events-reviews__inspire {
+    max-width: 100%;
+  }
+
+  .events-reviews__community {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .events-reviews__community-line {
+    max-width: none;
+  }
+
+  .events-reviews__moderation {
+    max-width: 100%;
+    padding-inline: 4px;
   }
 }
 
-@media (max-width: 700px) {
-  .events-testimonials__title {
-    font-size: clamp(1.05rem, 4.2vw, 1.35rem);
-  }
-
-  .events-testimonials__eyebrow {
-    font-size: 0.8rem;
-  }
-}
-
+/* Small phones */
 @media (max-width: 640px) {
-  .events-testimonials {
-    margin-bottom: 10px;
-    padding: 6px 10px;
+  .events-reviews__inner {
+    padding: clamp(16px, 4vw, 24px) clamp(12px, 3.5vw, 18px);
+    gap: clamp(16px, 3.5vw, 22px);
   }
 
-  .events-testimonials__slider {
-    gap: 8px;
+  .events-reviews__eyebrow {
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
   }
 
-  .events-testimonials__nav {
+  .events-reviews__title {
+    font-size: clamp(1.2rem, 6.5vw, 1.55rem);
+  }
+
+  .events-reviews__lead {
+    font-size: 0.82rem;
+  }
+
+  .events-reviews__form {
+    min-height: 0;
+    border-radius: 12px;
+  }
+
+  .events-reviews__field-label {
+    font-size: 0.86rem;
+  }
+
+  .events-reviews__field input,
+  .events-reviews__field textarea {
+    font-size: 0.9rem;
+  }
+
+  .events-reviews__star-btn {
     width: 36px;
     height: 36px;
   }
 
-  .events-testimonials__nav-icon {
-    width: 20px;
-    height: 20px;
+  .events-reviews__star-icon {
+    width: 28px;
+    height: 28px;
   }
 
-  .events-testimonials__carousel {
-    max-width: 100%;
+  .events-reviews__submit {
+    min-height: 46px;
+  }
+
+  .events-reviews__community-heading {
+    gap: 6px;
+  }
+
+  .events-reviews__community-title {
+    font-size: 0.56rem;
+    letter-spacing: 0.1em;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.35;
+    max-width: 11rem;
+  }
+
+  .events-reviews__community-line {
+    min-width: 0;
+  }
+
+  .events-reviews__cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .events-reviews__card {
+    min-height: 0;
+  }
+
+  .events-reviews__moderation {
+    font-size: 0.62rem;
+    gap: 6px;
+  }
+}
+
+/* Very narrow — shorten divider lines beside community title */
+@media (max-width: 400px) {
+  .events-reviews__community-heading {
+    gap: 4px;
+  }
+
+  .events-reviews__community-line {
+    flex: 0 1 28px;
+  }
+
+  .events-reviews__community-title {
+    max-width: 9.5rem;
+    font-size: 0.52rem;
+  }
+}
+
+/* Touch devices — tap feedback on cards */
+@media (hover: none) {
+  .events-reviews__card:active {
+    transform: translateY(-3px);
+    border-color: rgba(217, 79, 155, 0.45);
+    box-shadow: 0 10px 24px rgba(26, 51, 74, 0.12);
   }
 }
 
 @media (hover: hover) {
-  .events-testimonials__card:hover {
-    box-shadow: 0 8px 20px var(--color-shadow-strong);
-    border-color: var(--color-border-strong);
-    transform: translateY(-2px);
-  }
-}
-
-@media (hover: none) {
-  .events-testimonials__card:hover {
-    transform: none;
-    box-shadow: 0 2px 10px var(--color-shadow);
-    border-color: var(--color-border);
+  .events-reviews__submit:hover:not(:disabled) {
+    filter: brightness(1.05);
   }
 
-  .events-testimonials__nav:hover {
-    transform: none;
+  [data-theme="dark"] .events-reviews__card:hover {
+    border-color: rgba(94, 207, 214, 0.55);
+    box-shadow:
+      0 14px 32px rgba(0, 0, 0, 0.35),
+      0 0 16px rgba(94, 207, 214, 0.12);
   }
 }

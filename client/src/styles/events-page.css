@@ -21,41 +21,94 @@
 /*
  * Section rhythm — matches site theme (Poppins, --color-bg, moderate clamps)
  * --events-section-stack: default gap between most sections
- * --events-section-gap-lg: Featured Events ↔ Memorable Moments
- * --events-section-gap-footer: Memorable Moments ↔ footer (tighter on small screens)
+ * --events-section-gap-lg: Testimonials ↔ Memorable Moments
+ * --events-section-gap-impact: Memorable Moments ↔ Our Impact (mobile/tablet)
+ * --events-section-gap-footer: Our Impact ↔ footer (tighter on small screens)
  */
 .events-page {
   --events-section-inline: clamp(14px, 3vw, 28px);
   --events-section-block-y: clamp(8px, 1.25vw, 14px);
   --events-section-stack: clamp(14px, 1.75vw, 18px);
   --events-section-gap-lg: clamp(22px, 3.5vw, 32px);
+  --events-section-gap-impact: clamp(28px, 6vw, 44px);
   --events-section-gap-footer: clamp(10px, 1.5vw, 14px);
 }
 
 .events-page .featured-events-section {
   margin-top: clamp(7px, 1vw, 11px);
-  margin-bottom: var(--events-section-gap-lg);
+  margin-bottom: var(--events-section-stack);
   padding: var(--events-section-block-y) var(--events-section-inline);
 }
 
-.events-page .events-impact,
-.events-page .events-testimonials {
+.events-page .events-impact {
   margin-left: auto;
   margin-right: auto;
   margin-bottom: var(--events-section-stack);
   padding: var(--events-section-block-y) var(--events-section-inline);
 }
 
-.events-page .events-cta {
+.events-page .events-reviews {
+  margin: 0 0 var(--events-section-gap-lg);
   padding: 0;
-  margin: 0;
 }
 
-.events-page .events-impact + .events-cta {
+.events-page .our-impact-section {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.events-page .events-impact + .our-impact-section {
   margin-top: 0;
 }
 
-/* Desktop: normal stack before journey band */
+/* Our Impact top strip — light: same as home; dark: black + neon */
+[data-theme="light"] .events-page .our-impact-top {
+  background: linear-gradient(90deg, #0a5f7f 0%, #1f9464 100%);
+}
+
+[data-theme="dark"] .events-page .our-impact-section {
+  background-color: #000000;
+  border-color: var(--events-neon-line);
+  box-shadow:
+    0 0 14px var(--events-neon-glow-soft),
+    inset 0 0 24px rgba(94, 207, 214, 0.03);
+}
+
+[data-theme="dark"] .events-page .our-impact-top {
+  background: #000000;
+  border-bottom: 1px solid var(--events-neon-line);
+  box-shadow:
+    0 0 18px var(--events-neon-glow-soft),
+    inset 0 0 28px rgba(94, 207, 214, 0.05);
+}
+
+[data-theme="dark"] .events-page .our-impact-heading-line {
+  background: var(--events-neon-line);
+  box-shadow: 0 0 10px var(--events-neon-glow);
+}
+
+[data-theme="dark"] .events-page .our-impact-heading::after {
+  background: var(--events-neon-line);
+  box-shadow: 0 0 8px var(--events-neon-glow-soft);
+}
+
+[data-theme="dark"] .events-page .our-impact-stat:not(:last-child) {
+  border-right-color: var(--events-neon-line);
+}
+
+[data-theme="dark"] .events-page .our-impact-stat:not(:last-child)::after {
+  background: var(--events-neon-line);
+}
+
+[data-theme="dark"] .events-page .our-impact-icon {
+  border-color: var(--events-neon-line) !important;
+  box-shadow:
+    0 0 12px var(--events-neon-glow-soft),
+    inset 0 0 16px rgba(94, 207, 214, 0.08) !important;
+}
+
+/* Desktop: stack before Our Impact band */
 @media (min-width: 900px) {
   .events-page .events-impact {
     margin-bottom: var(--events-section-stack);
@@ -69,10 +122,18 @@
     --events-section-gap-footer: 0;
   }
 
-  /* Journey band hidden — flush Memorable Moments to footer */
+  .events-page {
+    --events-section-gap-impact: clamp(24px, 6.5vw, 40px);
+  }
+
   .events-page .events-impact {
+    margin-bottom: var(--events-section-gap-impact);
+    padding-bottom: var(--events-section-block-y);
+  }
+
+  /* Our Impact still sits flush above the footer */
+  .events-page .our-impact-section {
     margin-bottom: 0;
-    padding-bottom: 0;
   }
 }
 
@@ -82,35 +143,13 @@
     --events-section-block-y: clamp(6px, 1.5vw, 10px);
     --events-section-stack: clamp(10px, 2.5vw, 14px);
     --events-section-gap-lg: clamp(18px, 5vw, 24px);
+    --events-section-gap-impact: clamp(20px, 7vw, 32px);
   }
 }
 
 [data-theme="dark"] .events-page,
 [data-theme="dark"] .events-page .featured-events-section {
   background-color: #000000;
-}
-
-[data-theme="dark"] .events-page .events-cta {
-  --events-cta-on-heading: var(--color-heading);
-  --events-cta-on-text: var(--color-text-secondary);
-  --events-cta-on-muted: var(--color-text-muted);
-  --events-cta-on-divider: var(--events-neon-line);
-}
-
-[data-theme="dark"] .events-page .events-cta__impact-heading {
-  color: var(--color-accent-teal);
-}
-
-[data-theme="dark"] .events-page .events-cta__stat-icon {
-  border-color: var(--events-neon-line) !important;
-  box-shadow:
-    0 0 10px var(--events-neon-glow-soft),
-    0 4px 14px rgba(0, 0, 0, 0.35) !important;
-}
-
-[data-theme="dark"] .events-page .events-cta__btn--outline {
-  border-color: var(--events-neon-line) !important;
-  box-shadow: 0 0 10px var(--events-neon-glow-soft) !important;
 }
 
 /* Dark theme: neon glow on featured events card */
@@ -156,12 +195,12 @@
   --color-surface: var(--color-bg);
 }
 
-[data-theme="dark"] .events-page .events-impact,
-[data-theme="dark"] .events-page .events-testimonials {
+[data-theme="dark"] .events-page .events-impact {
   background-color: #000000;
 }
 
-[data-theme="dark"] .events-page .events-testimonials__card {
+[data-theme="dark"] .events-page .events-reviews__card,
+[data-theme="dark"] .events-page .events-reviews__form {
   border-color: var(--events-neon-line) !important;
   box-shadow:
     0 0 10px var(--events-neon-glow),
@@ -169,23 +208,6 @@
     inset 0 0 20px rgba(94, 207, 214, 0.04) !important;
 }
 
-[data-theme="dark"] .events-page .events-testimonials__card:hover {
-  box-shadow:
-    0 0 14px var(--events-neon-glow),
-    0 0 28px var(--events-neon-glow-soft),
-    inset 0 0 24px rgba(94, 207, 214, 0.06) !important;
-}
-
-[data-theme="dark"] .events-page .events-testimonials__nav {
-  border-color: var(--events-neon-line) !important;
-  box-shadow: 0 0 10px var(--events-neon-glow-soft) !important;
-}
-
-[data-theme="dark"] .events-page .events-testimonials__nav:hover {
-  box-shadow:
-    0 0 12px var(--events-neon-glow),
-    0 0 22px var(--events-neon-glow-soft) !important;
-}
 
 @media (min-width: 769px) {
   [data-theme="dark"] .events-page .events-impact__timeline-item {
