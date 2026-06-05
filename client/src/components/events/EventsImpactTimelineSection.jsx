@@ -1,15 +1,14 @@
 import { useState } from "react";
+import { IconMapPinFilled } from "@tabler/icons-react";
 import { eventsTimelineItems } from "../../data/eventsTimelineItems.js";
-import { getHighlightGallery } from "../../config/eventHighlights.js";
-import EventsHighlightsGallery from "./EventsHighlightsGallery.jsx";
+import EventsYouTubeShortsPip from "./EventsYouTubeShortsPip.jsx";
 import "../../styles/events-impact-timeline-section.css";
 
 export default function EventsImpactTimelineSection() {
-  const [activeGallery, setActiveGallery] = useState(null);
+  const [activeVideo, setActiveVideo] = useState(null);
 
-  function openHighlights(highlightId) {
-    const gallery = getHighlightGallery(highlightId);
-    if (gallery) setActiveGallery(gallery);
+  function openHighlightVideo({ title, youtubeId }) {
+    if (youtubeId) setActiveVideo({ title, youtubeId });
   }
 
   return (
@@ -37,16 +36,22 @@ export default function EventsImpactTimelineSection() {
             </p>
             <div className="events-impact__timeline" aria-label="Event highlights timeline">
               <div className="events-impact__timeline-track" role="list">
-                {eventsTimelineItems.map(({ highlightId, title, years, image }, index) => (
+                {eventsTimelineItems.map(({ highlightId, title, years, image, youtubeId }, index) => (
                   <article
                     key={highlightId}
                     className="events-impact__timeline-item"
                     role="listitem"
-                    style={{ "--timeline-col": index + 1 }}
+                    style={{
+                      "--timeline-col": index + 1,
+                      "--timeline-mobile-col": (index % 3) + 1,
+                      "--timeline-band": Math.floor(index / 3),
+                    }}
                   >
                     <div className="events-impact__timeline-rail" aria-hidden="true">
                       <span className="events-impact__timeline-rail-bar" />
-                      <span className="events-impact__timeline-marker">v</span>
+                      <span className="events-impact__timeline-marker">
+                        <IconMapPinFilled className="events-impact__timeline-marker-icon" aria-hidden />
+                      </span>
                     </div>
                     <div className="events-impact__timeline-years-slot">
                       <p className="events-impact__timeline-years">{years}</p>
@@ -57,8 +62,8 @@ export default function EventsImpactTimelineSection() {
                     <button
                       type="button"
                       className="events-impact__thumb"
-                      onClick={() => openHighlights(highlightId)}
-                      aria-label={`View ${title} highlights`}
+                      onClick={() => openHighlightVideo({ title, youtubeId })}
+                      aria-label={`Play ${title} highlight video`}
                     >
                       <span className="events-impact__thumb-inner">
                         <img src={image} alt="" />
@@ -72,7 +77,7 @@ export default function EventsImpactTimelineSection() {
         </div>
       </div>
 
-      <EventsHighlightsGallery gallery={activeGallery} onClose={() => setActiveGallery(null)} />
+      <EventsYouTubeShortsPip video={activeVideo} onClose={() => setActiveVideo(null)} />
     </section>
   );
 }

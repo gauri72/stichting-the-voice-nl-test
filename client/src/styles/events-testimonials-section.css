@@ -11,7 +11,47 @@
   box-sizing: border-box;
 }
 
-.events-reviews__frame {
+/* Community cards — below hero, no artwork frame */
+.events-reviews--community {
+  line-height: normal;
+}
+
+.events-reviews--community .events-reviews__community-shell {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding: clamp(16px, 3vw, 28px) clamp(14px, 3vw, 24px);
+  box-sizing: border-box;
+}
+
+.events-reviews--community .events-reviews__community {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.events-reviews--community .events-reviews__community-line {
+  height: 3px;
+  border-radius: 999px;
+}
+
+.events-reviews--community .events-reviews__community-line::after {
+  width: 9px;
+  height: 9px;
+}
+
+.events-reviews--community .events-reviews__community-title {
+  font-size: clamp(0.9rem, 1.6vw, 1.15rem);
+  letter-spacing: 0.12em;
+}
+
+.events-reviews--submit .events-reviews__eyebrow {
+  font-size: clamp(0.9rem, 1.6vw, 1.15rem);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.events-reviews--submit .events-reviews__frame {
   position: relative;
   display: block;
   width: 100%;
@@ -19,7 +59,7 @@
 }
 
 @media (min-width: 1101px) {
-  .events-reviews__frame {
+  .events-reviews--submit .events-reviews__frame {
     overflow: visible;
   }
 }
@@ -48,8 +88,8 @@
   display: block;
 }
 
-/* Foreground overlay aligned to artwork safe zones */
-.events-reviews__inner {
+/* Foreground overlay aligned to artwork safe zones (submit section only) */
+.events-reviews--submit .events-reviews__inner {
   position: absolute;
   inset: 0;
   display: flex;
@@ -64,15 +104,19 @@
 
 /* Desktop overlay: sit below flame icon baked into testimonials-bg (1536×1024 art) */
 @media (min-width: 1101px) {
-  .events-reviews__inner {
-    padding-top: clamp(78px, 9.5vw, 112px);
+  .events-reviews--submit .events-reviews__inner {
+    padding-top: clamp(56px, 7vw, 84px);
+  }
+
+  [data-theme="light"] .events-reviews--submit .events-reviews__inner {
+    padding-top: clamp(92px, 10.5vw, 128px);
   }
 }
 
-.events-reviews__inner a,
-.events-reviews__inner button,
-.events-reviews__inner input,
-.events-reviews__inner textarea {
+.events-reviews--submit .events-reviews__inner a,
+.events-reviews--submit .events-reviews__inner button,
+.events-reviews--submit .events-reviews__inner input,
+.events-reviews--submit .events-reviews__inner textarea {
   pointer-events: auto;
 }
 
@@ -630,29 +674,37 @@
 
 /* Large tablet — stack form + info card; flow below bg image */
 @media (max-width: 1100px) {
-  .events-reviews {
+  .events-reviews--submit {
     line-height: normal;
   }
 
-  .events-reviews__frame {
+  .events-reviews--submit .events-reviews__frame {
     display: flex;
     flex-direction: column;
   }
 
-  .events-reviews__bg {
+  .events-reviews--submit .events-reviews__bg {
     order: -1;
   }
 
-  .events-reviews__inner {
+  .events-reviews--submit .events-reviews__inner {
     position: relative;
     inset: auto;
-    padding: clamp(16px, 2.5vw, 24px) clamp(14px, 2.5vw, 22px);
+    padding: clamp(8px, 1.5vw, 14px) clamp(14px, 2.5vw, 22px) clamp(16px, 2.5vw, 24px);
     pointer-events: auto;
   }
 
-  .events-reviews__header {
+  .events-reviews--submit .events-reviews__header {
     padding-top: 0;
-    margin-top: clamp(8px, 1.5vw, 14px);
+    margin-top: clamp(2px, 0.5vw, 6px);
+  }
+
+  [data-theme="light"] .events-reviews--submit .events-reviews__inner {
+    padding-top: clamp(22px, 3.5vw, 32px);
+  }
+
+  [data-theme="light"] .events-reviews--submit .events-reviews__header {
+    margin-top: clamp(14px, 2.5vw, 22px);
   }
 
   .events-reviews__rate-row {
@@ -681,23 +733,23 @@
   }
 }
 
-/* Tablet / mobile — content flow (no absolute overlay on artwork) */
+/* Tablet / mobile — bg image visible, form flows below artwork */
 @media (max-width: 899px) {
-  .events-reviews {
+  .events-reviews--submit {
     line-height: normal;
   }
 
-  .events-reviews__frame {
+  .events-reviews--submit .events-reviews__frame {
     display: flex;
     flex-direction: column;
   }
 
-  .events-reviews__bg,
-  [data-theme="dark"] .events-reviews__bg--dark {
+  .events-reviews--submit .events-reviews__bg,
+  [data-theme="dark"] .events-reviews--submit .events-reviews__bg--dark {
     display: none !important;
   }
 
-  .events-reviews__inner {
+  .events-reviews--submit .events-reviews__inner {
     position: relative;
     inset: auto;
     display: flex;
@@ -739,6 +791,20 @@
     max-width: 100%;
   }
 
+  .events-reviews--submit .events-reviews__inspire {
+    text-align: center;
+  }
+
+  .events-reviews--submit .events-reviews__inspire-icon-wrap {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .events-reviews--submit .events-reviews__inspire-title,
+  .events-reviews--submit .events-reviews__inspire-text {
+    text-align: center;
+  }
+
   .events-reviews__community {
     margin-top: 0;
     padding-top: 0;
@@ -756,14 +822,18 @@
 
 /* Small phones */
 @media (max-width: 640px) {
-  .events-reviews__inner {
+  .events-reviews--community .events-reviews__community-shell {
+    padding: clamp(14px, 3.5vw, 22px) clamp(12px, 3.5vw, 18px);
+  }
+
+  .events-reviews--submit .events-reviews__inner {
     padding: clamp(16px, 4vw, 24px) clamp(12px, 3.5vw, 18px);
     gap: clamp(16px, 3.5vw, 22px);
   }
 
-  .events-reviews__eyebrow {
-    font-size: 0.58rem;
-    letter-spacing: 0.12em;
+  .events-reviews--submit .events-reviews__eyebrow {
+    font-size: clamp(0.82rem, 3.8vw, 1rem);
+    letter-spacing: 0.1em;
   }
 
   .events-reviews__title {
@@ -806,17 +876,23 @@
     gap: 6px;
   }
 
-  .events-reviews__community-title {
-    font-size: 0.56rem;
+  .events-reviews--community .events-reviews__community-title {
+    font-size: clamp(0.82rem, 3.8vw, 1rem);
     letter-spacing: 0.1em;
     white-space: normal;
     text-align: center;
     line-height: 1.35;
-    max-width: 11rem;
+    max-width: 14rem;
   }
 
-  .events-reviews__community-line {
+  .events-reviews--community .events-reviews__community-line {
     min-width: 0;
+    height: 2.5px;
+  }
+
+  .events-reviews--community .events-reviews__community-line::after {
+    width: 8px;
+    height: 8px;
   }
 
   .events-reviews__cards {
@@ -840,13 +916,18 @@
     gap: 4px;
   }
 
-  .events-reviews__community-line {
+  .events-reviews--community .events-reviews__community-line {
     flex: 0 1 28px;
+    height: 2.5px;
   }
 
-  .events-reviews__community-title {
-    max-width: 9.5rem;
-    font-size: 0.52rem;
+  .events-reviews--community .events-reviews__community-title {
+    max-width: 12rem;
+    font-size: clamp(0.76rem, 3.5vw, 0.92rem);
+  }
+
+  .events-reviews--submit .events-reviews__eyebrow {
+    font-size: clamp(0.76rem, 3.5vw, 0.92rem);
   }
 }
 

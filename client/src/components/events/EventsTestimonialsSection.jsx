@@ -62,18 +62,65 @@ function CardStars({ count = 5 }) {
   );
 }
 
-function getInitials(name) {
+export function getInitials(name) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "?";
   if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
   return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
 }
 
-export default function EventsTestimonialsSection() {
+function CommunityBlock({ testimonials }) {
+  return (
+    <div className="events-reviews__community">
+      <div className="events-reviews__community-heading">
+        <span className="events-reviews__community-line" aria-hidden="true" />
+        <h3 id="events-community-title" className="events-reviews__community-title">
+          What Our Community Says
+        </h3>
+        <span className="events-reviews__community-line" aria-hidden="true" />
+      </div>
+
+      {testimonials.length > 0 ? (
+        <div className="events-reviews__cards" role="list">
+          {testimonials.map(({ id, name, role, quote, rating: cardRating, initials }) => (
+            <article key={id} className="events-reviews__card" role="listitem">
+              <CardStars count={cardRating} />
+              <p className="events-reviews__card-quote">
+                <span className="events-reviews__card-quote-mark" aria-hidden="true">
+                  &ldquo;
+                </span>
+                {quote}
+              </p>
+              <footer className="events-reviews__card-author">
+                <span
+                  className="events-reviews__card-avatar events-reviews__card-avatar--initials"
+                  aria-hidden="true"
+                >
+                  {initials}
+                </span>
+                <div>
+                  <p className="events-reviews__card-name">{name}</p>
+                  <p className="events-reviews__card-role">{role}</p>
+                </div>
+              </footer>
+            </article>
+          ))}
+        </div>
+      ) : null}
+
+      <p className="events-reviews__moderation">
+        <IconShieldCheck className="events-reviews__moderation-icon" aria-hidden stroke={1.75} />
+        All reviews are moderated to ensure authenticity and maintain a positive community
+        environment.
+      </p>
+    </div>
+  );
+}
+
+function SubmitBlock({ onAddTestimonial }) {
   const [rating, setRating] = useState(0);
   const [status, setStatus] = useState({ text: "", variant: "success" });
   const [submitting, setSubmitting] = useState(false);
-  const [testimonials, setTestimonials] = useState([]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -101,17 +148,14 @@ export default function EventsTestimonialsSection() {
     try {
       await new Promise((resolve) => window.setTimeout(resolve, 600));
 
-      setTestimonials((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          name,
-          role: "Community Member",
-          quote,
-          rating,
-          initials: getInitials(name),
-        },
-      ]);
+      onAddTestimonial({
+        id: crypto.randomUUID(),
+        name,
+        role: "Community Member",
+        quote,
+        rating,
+        initials: getInitials(name),
+      });
 
       setStatus({
         text: "Thank you! Your review has been added to our community.",
@@ -127,7 +171,106 @@ export default function EventsTestimonialsSection() {
   }
 
   return (
-    <section className="events-reviews" aria-labelledby="events-reviews-title">
+    <div className="events-reviews__rate">
+      <header className="events-reviews__header">
+        <p className="events-reviews__eyebrow">Share Your Experience</p>
+        <h2 id="events-reviews-title" className="events-reviews__title">
+          Rate <VoiceBrandTitle />
+        </h2>
+        <p className="events-reviews__lead">
+          Your feedback helps us create better cultural experiences.
+        </p>
+      </header>
+
+      <div className="events-reviews__rate-row">
+        <form className="events-reviews__form" onSubmit={handleSubmit} noValidate>
+          <label className="events-reviews__field">
+            <span className="events-reviews__field-label">
+              <IconUser className="events-reviews__label-icon" aria-hidden stroke={1.75} />
+              Your Name
+            </span>
+            <input
+              type="text"
+              name="name"
+              placeholder="Enter your name"
+              autoComplete="name"
+              disabled={submitting}
+              required
+            />
+          </label>
+
+          <div className="events-reviews__field">
+            <span className="events-reviews__field-label">
+              <IconStar className="events-reviews__label-icon" aria-hidden stroke={1.75} />
+              Your Rating
+            </span>
+            <StarRating value={rating} onChange={setRating} />
+            <input type="hidden" name="rating" value={rating > 0 ? String(rating) : ""} />
+            <p className="events-reviews__stars-hint">Click on a star to rate</p>
+          </div>
+
+          <label className="events-reviews__field">
+            <span className="events-reviews__field-label">
+              <IconMessage className="events-reviews__label-icon" aria-hidden stroke={1.75} />
+              Your Testimonial
+            </span>
+            <textarea
+              name="testimonial"
+              rows={4}
+              placeholder="Share your experience with V.O.I.C.E. NL..."
+              disabled={submitting}
+              required
+            />
+          </label>
+
+          {status.text ? (
+            <p
+              className={`events-reviews__form-status events-reviews__form-status--${status.variant}`}
+              role="status"
+            >
+              {status.text}
+            </p>
+          ) : null}
+
+          <button className="events-reviews__submit" type="submit" disabled={submitting}>
+            <IconSend className="events-reviews__submit-icon" aria-hidden stroke={1.75} />
+            {submitting ? "Submitting..." : "Submit Review"}
+          </button>
+        </form>
+
+        <aside className="events-reviews__inspire" aria-label="Thank you message">
+          <span className="events-reviews__inspire-icon-wrap" aria-hidden="true">
+            <IconStar className="events-reviews__inspire-icon" stroke={2} fill="none" />
+          </span>
+          <h3 className="events-reviews__inspire-title">Your words inspire us</h3>
+          <p className="events-reviews__inspire-text">
+            Thank you for being a part of our journey and helping our community grow.
+          </p>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * @param {{ variant: "community" | "submit", testimonials: Array, onAddTestimonial?: (entry: object) => void }} props
+ */
+export default function EventsTestimonialsSection({ variant, testimonials, onAddTestimonial }) {
+  if (variant === "community") {
+    return (
+      <section
+        className="events-reviews events-reviews--community"
+        aria-labelledby="events-community-title"
+      >
+        <div className="events-reviews__community-shell">
+          <CommunityBlock testimonials={testimonials} />
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="events-reviews events-reviews--submit" aria-labelledby="events-reviews-title">
       <div className="events-reviews__frame">
         <img
           className="events-reviews__bg events-reviews__bg--light"
@@ -143,126 +286,7 @@ export default function EventsTestimonialsSection() {
         />
 
         <div className="events-reviews__inner">
-          <div className="events-reviews__rate">
-            <header className="events-reviews__header">
-              <p className="events-reviews__eyebrow">Share Your Experience</p>
-              <h2 id="events-reviews-title" className="events-reviews__title">
-                Rate <VoiceBrandTitle />
-              </h2>
-              <p className="events-reviews__lead">
-                Your feedback helps us create better cultural experiences.
-              </p>
-            </header>
-
-            <div className="events-reviews__rate-row">
-              <form className="events-reviews__form" onSubmit={handleSubmit} noValidate>
-                <label className="events-reviews__field">
-                  <span className="events-reviews__field-label">
-                    <IconUser className="events-reviews__label-icon" aria-hidden stroke={1.75} />
-                    Your Name
-                  </span>
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Enter your name"
-                    autoComplete="name"
-                    disabled={submitting}
-                    required
-                  />
-                </label>
-
-                <div className="events-reviews__field">
-                  <span className="events-reviews__field-label">
-                    <IconStar className="events-reviews__label-icon" aria-hidden stroke={1.75} />
-                    Your Rating
-                  </span>
-                  <StarRating value={rating} onChange={setRating} />
-                  <input type="hidden" name="rating" value={rating > 0 ? String(rating) : ""} />
-                  <p className="events-reviews__stars-hint">Click on a star to rate</p>
-                </div>
-
-                <label className="events-reviews__field">
-                  <span className="events-reviews__field-label">
-                    <IconMessage className="events-reviews__label-icon" aria-hidden stroke={1.75} />
-                    Your Testimonial
-                  </span>
-                  <textarea
-                    name="testimonial"
-                    rows={4}
-                    placeholder="Share your experience with V.O.I.C.E. NL..."
-                    disabled={submitting}
-                    required
-                  />
-                </label>
-
-                {status.text ? (
-                  <p
-                    className={`events-reviews__form-status events-reviews__form-status--${status.variant}`}
-                    role="status"
-                  >
-                    {status.text}
-                  </p>
-                ) : null}
-
-                <button className="events-reviews__submit" type="submit" disabled={submitting}>
-                  <IconSend className="events-reviews__submit-icon" aria-hidden stroke={1.75} />
-                  {submitting ? "Submitting..." : "Submit Review"}
-                </button>
-              </form>
-
-              <aside className="events-reviews__inspire" aria-label="Thank you message">
-                <span className="events-reviews__inspire-icon-wrap" aria-hidden="true">
-                  <IconStar className="events-reviews__inspire-icon" stroke={2} fill="none" />
-                </span>
-                <h3 className="events-reviews__inspire-title">Your words inspire us</h3>
-                <p className="events-reviews__inspire-text">
-                  Thank you for being a part of our journey and helping our community grow.
-                </p>
-              </aside>
-            </div>
-          </div>
-
-          <div className="events-reviews__community">
-            <div className="events-reviews__community-heading">
-              <span className="events-reviews__community-line" aria-hidden="true" />
-              <h3 className="events-reviews__community-title">What Our Community Says</h3>
-              <span className="events-reviews__community-line" aria-hidden="true" />
-            </div>
-
-            {testimonials.length > 0 ? (
-              <div className="events-reviews__cards" role="list">
-                {testimonials.map(({ id, name, role, quote, rating: cardRating, initials }) => (
-                  <article key={id} className="events-reviews__card" role="listitem">
-                    <CardStars count={cardRating} />
-                    <p className="events-reviews__card-quote">
-                      <span className="events-reviews__card-quote-mark" aria-hidden="true">
-                        &ldquo;
-                      </span>
-                      {quote}
-                    </p>
-                    <footer className="events-reviews__card-author">
-                      <span
-                        className="events-reviews__card-avatar events-reviews__card-avatar--initials"
-                        aria-hidden="true"
-                      >
-                        {initials}
-                      </span>
-                      <div>
-                        <p className="events-reviews__card-name">{name}</p>
-                        <p className="events-reviews__card-role">{role}</p>
-                      </div>
-                    </footer>
-                  </article>
-                ))}
-              </div>
-            ) : null}
-
-            <p className="events-reviews__moderation">
-              <IconShieldCheck className="events-reviews__moderation-icon" aria-hidden stroke={1.75} />
-              All reviews are moderated to ensure authenticity and maintain a positive community
-              environment.
-            </p>
-          </div>
+          <SubmitBlock onAddTestimonial={onAddTestimonial} />
         </div>
       </div>
     </section>
