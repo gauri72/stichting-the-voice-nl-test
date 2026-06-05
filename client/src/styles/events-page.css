@@ -65,6 +65,7 @@
   margin: 0;
   padding: 0;
   width: 100%;
+  border-width: 3px;
 }
 
 .events-page .events-impact + .our-impact-section {
@@ -105,6 +106,51 @@
   font-weight: 600;
 }
 
+/* Our Impact heading dividers — thicker lines + end dots (like community section) */
+.events-page .our-impact-heading-line {
+  height: 3px;
+  border-radius: 999px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.events-page .our-impact-heading-line::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.events-page .our-impact-heading-row .our-impact-heading-line:first-of-type::after {
+  right: 0;
+  left: auto;
+  transform: translate(50%, -50%);
+}
+
+.events-page .our-impact-heading-row .our-impact-heading-line:last-of-type::after {
+  left: 0;
+  right: auto;
+  transform: translate(-50%, -50%);
+}
+
+.events-page .our-impact-heading::after {
+  display: none;
+}
+
+.events-page .our-impact-stat:not(:last-child) {
+  border-right-width: 3px;
+}
+
+.events-page .our-impact-stat:not(:last-child)::after,
+.events-page .our-impact-stat:nth-child(1)::after,
+.events-page .our-impact-stat:nth-child(2)::after {
+  height: 3px;
+  border-radius: 999px;
+}
+
 /* Our Impact top strip — light: same as home; dark: black + neon */
 [data-theme="light"] .events-page .our-impact-top {
   background: linear-gradient(90deg, #0a5f7f 0%, #1f9464 100%);
@@ -120,7 +166,7 @@
 
 [data-theme="dark"] .events-page .our-impact-top {
   background: #000000;
-  border-bottom: 1px solid var(--events-neon-line);
+  border-bottom: 3px solid var(--events-neon-line);
   box-shadow:
     0 0 18px var(--events-neon-glow-soft),
     inset 0 0 28px rgba(94, 207, 214, 0.05);
@@ -131,7 +177,7 @@
   box-shadow: 0 0 10px var(--events-neon-glow);
 }
 
-[data-theme="dark"] .events-page .our-impact-heading::after {
+[data-theme="dark"] .events-page .our-impact-heading-line::after {
   background: var(--events-neon-line);
   box-shadow: 0 0 8px var(--events-neon-glow-soft);
 }
