@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
-  getLocalTimeTheme,
   persistThemePreference,
   readThemePreference,
   resolveTheme,
@@ -24,26 +23,8 @@ export function ThemeProvider({ children }) {
     persistThemePreference(preference);
   }, [preference]);
 
-  useEffect(() => {
-    if (preference !== "auto") return undefined;
-
-    function syncWithLocalTime() {
-      const next = getLocalTimeTheme();
-      setThemeState(next);
-      applyThemeToDocument(next);
-    }
-
-    syncWithLocalTime();
-    const intervalId = window.setInterval(syncWithLocalTime, 60_000);
-    return () => window.clearInterval(intervalId);
-  }, [preference]);
-
   const setTheme = useCallback((next) => {
     setPreference(next === "dark" ? "dark" : "light");
-  }, []);
-
-  const setAutoTheme = useCallback(() => {
-    setPreference("auto");
   }, []);
 
   const toggleTheme = useCallback(() => {
@@ -58,14 +39,12 @@ export function ThemeProvider({ children }) {
       theme,
       preference,
       isDark: theme === "dark",
-      isAuto: preference === "auto",
       setTheme,
-      setAutoTheme,
       toggleTheme,
       setLightTheme: () => setTheme("light"),
       setDarkTheme: () => setTheme("dark")
     }),
-    [theme, preference, setTheme, setAutoTheme, toggleTheme]
+    [theme, preference, setTheme, toggleTheme]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

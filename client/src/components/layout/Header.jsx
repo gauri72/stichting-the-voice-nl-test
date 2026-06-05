@@ -9,6 +9,7 @@ const BUY_TICKETS_URL =
 
 const NAV_ITEMS = [
   { label: "Home", to: "/", end: true },
+  { label: "Become A Member", to: "/membership" },
   {
     label: "Our Pillars",
     children: [
@@ -21,7 +22,6 @@ const NAV_ITEMS = [
   {
     label: "Partner With Us",
     children: [
-      { label: "Become A Member", to: "/membership" },
       { label: "Sponsor Us", to: "/sponsorship" },
       { label: "Donate", to: "/donate" },
     ],

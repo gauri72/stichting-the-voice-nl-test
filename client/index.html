@@ -20,18 +20,11 @@
         var prefKey = "voice-theme-preference";
         var legacyKey = "voice-theme";
         var pref = localStorage.getItem(prefKey);
-        if (pref !== "light" && pref !== "dark" && pref !== "auto") {
+        if (pref !== "light" && pref !== "dark") {
           var legacy = localStorage.getItem(legacyKey);
-          pref = legacy === "light" || legacy === "dark" ? legacy : "auto";
+          pref = legacy === "light" || legacy === "dark" ? legacy : "dark";
         }
-        var theme;
-        if (pref === "light" || pref === "dark") {
-          theme = pref;
-        } else {
-          var hour = new Date().getHours();
-          theme = hour >= 6 && hour < 20 ? "light" : "dark";
-        }
-        document.documentElement.setAttribute("data-theme", theme);
+        document.documentElement.setAttribute("data-theme", pref === "light" ? "light" : "dark");
       })();
       document.documentElement.classList.add("splash-open");
       window.setTimeout(function () {

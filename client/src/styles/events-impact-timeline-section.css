@@ -90,15 +90,16 @@
 
 .events-impact__timeline-track {
   --timeline-line-height: 5px;
+  --timeline-row-gap: 4px;
   --timeline-pin-badge: clamp(30px, 5.5vw, 38px);
   --timeline-pin-icon: clamp(14px, 2.8vw, 17px);
   --timeline-mobile-gap: clamp(8px, 2vw, 14px);
   --timeline-mobile-thumb: min(100px, 28vw);
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: 40px auto auto auto 40px auto auto auto;
+  grid-template-rows: repeat(8, auto);
   column-gap: var(--timeline-mobile-gap);
-  row-gap: 6px;
+  row-gap: var(--timeline-row-gap);
   width: 100%;
   max-width: 100%;
   margin-inline: auto;
@@ -165,7 +166,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  min-height: calc(2 * 1.2em);
+  min-height: 0;
   color: var(--color-text-muted);
   font-size: clamp(0.62rem, 2.4vw, 0.8rem);
   font-weight: 600;
@@ -176,12 +177,12 @@
   grid-row: calc(3 + var(--timeline-band) * 4);
   grid-column: var(--timeline-mobile-col);
   margin: 0;
-  padding: 0 2px 6px;
+  padding: 0 2px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  min-height: calc(2 * 1.1em);
+  min-height: 0;
   color: var(--color-heading);
   font-size: clamp(0.68rem, 2.5vw, 0.82rem);
   font-weight: 800;
@@ -243,9 +244,9 @@
 @media (min-width: 1101px) {
   .events-impact__timeline-track {
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-template-rows: 44px auto auto auto auto auto;
+    grid-template-rows: repeat(4, auto);
     column-gap: clamp(8px, 1.2vw, 14px);
-    row-gap: 6px;
+    row-gap: var(--timeline-row-gap);
     position: relative;
     --timeline-line-height: 6px;
     --timeline-pin-badge: clamp(34px, 2.8vw, 42px);
@@ -281,12 +282,12 @@
   }
 
   .events-impact__timeline-years {
-    grid-row: 2 / span 2;
+    grid-row: 2;
     grid-column: var(--timeline-col);
-    min-height: calc(2 * 1.35em);
+    min-height: 0;
     padding: 0 6px;
     font-size: clamp(0.72rem, 0.88vw, 0.84rem);
-    line-height: 1.35;
+    line-height: 1.25;
   }
 
   .events-impact__timeline-event-slot {
@@ -295,12 +296,12 @@
   }
 
   .events-impact__timeline-event {
-    grid-row: 4 / span 2;
+    grid-row: 3;
     grid-column: var(--timeline-col);
-    min-height: calc(2 * 1.32em);
-    padding: 8px 6px 12px;
+    min-height: 0;
+    padding: 0 6px;
     font-size: clamp(0.78rem, 0.92vw, 0.9rem);
-    line-height: 1.32;
+    line-height: 1.2;
   }
 
   .events-impact__timeline-marker {
@@ -309,12 +310,12 @@
   }
 
   .events-impact__thumb {
-    grid-row: 6;
+    grid-row: 4;
     grid-column: var(--timeline-col);
     justify-self: center;
     width: min(100%, clamp(88px, 9vw, 118px));
     max-width: none;
-    margin-top: 10px;
+    margin-top: 0;
     padding: 5px;
     border-width: 4px;
   }
@@ -425,12 +426,12 @@
 
   .events-impact__timeline-event {
     font-size: clamp(0.72rem, 0.86vw, 0.86rem);
-    padding: 6px 4px 10px;
+    padding: 0 4px;
   }
 
   .events-impact__thumb {
     width: min(100%, clamp(72px, 7.5vw, 96px));
-    margin-top: 8px;
+    margin-top: 0;
   }
 
   .events-impact__timeline-track {
@@ -533,7 +534,8 @@
   .events-impact__timeline-track {
     --timeline-mobile-gap: clamp(6px, 2vw, 10px);
     --timeline-mobile-thumb: min(92px, 30vw);
-    gap: clamp(12px, 3vw, 18px) var(--timeline-mobile-gap);
+    column-gap: var(--timeline-mobile-gap);
+    row-gap: var(--timeline-row-gap);
   }
 }
 
@@ -561,7 +563,8 @@
   .events-impact__timeline-track {
     --timeline-mobile-gap: 6px;
     --timeline-mobile-thumb: min(88px, 32vw);
-    gap: 12px var(--timeline-mobile-gap);
+    column-gap: var(--timeline-mobile-gap);
+    row-gap: var(--timeline-row-gap);
   }
 
   .events-impact__timeline-years {

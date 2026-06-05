@@ -69,6 +69,27 @@
   color: #006d77;
 }
 
+/* Timeline highlights video PiP — close button theme defaults */
+[data-theme="dark"] .events-highlights-pip--video .events-highlights-pip__close {
+  background: #ffffff;
+  color: #000000;
+}
+
+[data-theme="dark"] .events-highlights-pip--video .events-highlights-pip__close:hover {
+  background: #f0f0f0;
+  color: #000000;
+}
+
+[data-theme="light"] .events-highlights-pip--video .events-highlights-pip__close {
+  background: #000000;
+  color: #ffffff;
+}
+
+[data-theme="light"] .events-highlights-pip--video .events-highlights-pip__close:hover {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
 .events-highlights-pip__stage {
   position: relative;
   flex: 1;

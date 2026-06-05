@@ -146,10 +146,7 @@ function SubmitBlock({ onAddTestimonial }) {
 
     setSubmitting(true);
     try {
-      await new Promise((resolve) => window.setTimeout(resolve, 600));
-
-      onAddTestimonial({
-        id: crypto.randomUUID(),
+      await onAddTestimonial({
         name,
         role: "Community Member",
         quote,
