@@ -1,35 +1,23 @@
-import heroBackground from "../../assets/Membership/hero-bg.png";
+import breadcrumbBgLight from "../../assets/Membership/breadcrumb-bg-light.png";
+import breadcrumbBgDark from "../../assets/Membership/breadcrumb-bg-dark.png";
 import "../../styles/membership-breadcrumb-section.css";
 
 export default function MembershipBreadcrumbSection() {
   return (
-    <section
-      className="membership-page"
-      aria-labelledby="membership-title"
-      style={{ backgroundImage: `url(${heroBackground})` }}
-    >
-      <div className="membership-page__container">
-        <p className="membership-page__eyebrow" aria-hidden="false">
-          <span className="membership-page__eyebrow-ornament" aria-hidden="true" />
-          <span className="membership-page__eyebrow-text">
-            Join Stichting The V.O.I.C.E. NL Family
-          </span>
-          <span className="membership-page__eyebrow-ornament" aria-hidden="true" />
-        </p>
-        <h1 id="membership-title">
-          <span className="membership-page__title-line">Be Part of a Global</span>
-          <span className="membership-page__title-gradient">Cultural Movement</span>
-        </h1>
-        <p className="membership-page__intro">
-          Join Stichting The V.O.I.C.E. NL and become part of a diverse community that believes in
-          the power of culture, creativity, and collaboration to build a better tomorrow.
-        </p>
-        <div className="membership-page__actions">
-          <a className="membership-page__cta membership-page__cta--secondary" href="#membership-faqs">
-            Membership FAQs
-          </a>
-        </div>
-      </div>
+    <section className="membership-page-hero" aria-label="Membership">
+      <img
+        className="membership-page-hero__image membership-page-hero__image--light"
+        src={breadcrumbBgLight}
+        alt=""
+        decoding="async"
+        fetchPriority="high"
+      />
+      <img
+        className="membership-page-hero__image membership-page-hero__image--dark"
+        src={breadcrumbBgDark}
+        alt=""
+        decoding="async"
+      />
     </section>
   );
 }

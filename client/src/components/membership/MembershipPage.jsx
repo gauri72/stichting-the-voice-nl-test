@@ -1,32 +1,16 @@
-import { useCallback, useState } from "react";
 import MembershipBreadcrumbSection from "./MembershipBreadcrumbSection";
-import MembershipMatrixSection from "./MembershipMatrixSection";
-import MembershipEventsSection from "./MembershipEventsSection";
-import MembershipFaqSection from "./MembershipFaqSection";
+import MembershipComparisonTableSection from "./MembershipComparisonTableSection";
+import MembershipPlansCardsSection from "./MembershipPlansCardsSection";
+import MembershipJoinCtaSection from "./MembershipJoinCtaSection";
+import "../../styles/membership-page.css";
 
 export default function MembershipPage() {
-  const [membershipsVisible, setMembershipsVisible] = useState(false);
-
-  const openMemberships = useCallback(() => {
-    setMembershipsVisible(true);
-    window.setTimeout(() => {
-      document.getElementById("voice-nl-memberships")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 160);
-  }, []);
-
-  const closeMemberships = useCallback(() => {
-    setMembershipsVisible(false);
-  }, []);
-
   return (
-    <div id="membership-navbar-top">
+    <div id="membership-navbar-top" className="membership-page-shell">
       <MembershipBreadcrumbSection />
-      <MembershipMatrixSection onOpenMemberships={openMemberships} />
-      <MembershipEventsSection visible={membershipsVisible} onClose={closeMemberships} />
-      <MembershipFaqSection />
+      <MembershipComparisonTableSection />
+      <MembershipPlansCardsSection />
+      <MembershipJoinCtaSection />
     </div>
   );
 }

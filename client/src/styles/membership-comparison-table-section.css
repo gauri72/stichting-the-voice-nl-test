@@ -1,0 +1,333 @@
+/* Membership — benefits comparison table (reference dark layout) */
+
+.membership-comparison-table-section {
+  --mct-bg: #060b14;
+  --mct-surface: #0b111a;
+  --mct-border: rgba(255, 255, 255, 0.1);
+  --mct-text: #f4f7fb;
+  --mct-muted: #5a6d82;
+  --mct-price: #ff4d7a;
+  --mct-value-standard: #ffffff;
+  --mct-check-green: #4ade80;
+  --mct-gold: #fbbf24;
+  --mct-gold-bg: linear-gradient(180deg, #f0b429 0%, #e59212 100%);
+  --mct-highlight-glow: rgba(240, 180, 41, 0.14);
+  background: var(--mct-bg);
+  padding: clamp(18px, 3vw, 28px) clamp(12px, 2.5vw, 24px) clamp(10px, 2vw, 18px);
+  font-family: var(--font-poppins);
+}
+
+.membership-comparison-table-section__inner {
+  max-width: 1320px;
+  margin-inline: auto;
+}
+
+.membership-comparison-table__wrap {
+  overflow-x: auto;
+  border: 1px solid var(--mct-border);
+  border-radius: 14px;
+  background: var(--mct-surface);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+}
+
+.membership-comparison-table {
+  width: 100%;
+  min-width: 920px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.membership-comparison-table th,
+.membership-comparison-table td {
+  border: 1px solid var(--mct-border);
+  padding: clamp(10px, 1.2vw, 14px) clamp(8px, 1vw, 12px);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.membership-comparison-table__benefits-head,
+.membership-comparison-table__benefit {
+  width: 24%;
+  text-align: left !important;
+  padding-left: clamp(14px, 1.8vw, 22px) !important;
+  padding-right: clamp(10px, 1.2vw, 14px) !important;
+  font-weight: 600;
+  color: var(--mct-value-standard);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.membership-comparison-table__benefits-head {
+  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.membership-comparison-table__benefit {
+  font-size: clamp(0.88rem, 1.15vw, 1.05rem);
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+.membership-comparison-table__tier-head {
+  font-weight: 700;
+  color: var(--mct-text);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.membership-comparison-table__tier-name {
+  display: block;
+  font-size: clamp(0.78rem, 1vw, 0.92rem);
+  line-height: 1.15;
+  margin-bottom: 4px;
+}
+
+.membership-comparison-table__tier-name-line {
+  display: block;
+}
+
+.membership-comparison-table__tier-price {
+  display: block;
+  color: var(--mct-price);
+  font-size: clamp(0.82rem, 1.05vw, 0.98rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.membership-comparison-table__tier-period {
+  font-size: 0.82em;
+  font-weight: 600;
+}
+
+.membership-comparison-table__tier-head--highlight {
+  background: var(--mct-gold-bg);
+  color: #ffffff;
+  box-shadow:
+    inset 0 0 24px rgba(255, 255, 255, 0.1),
+    0 0 18px rgba(255, 184, 0, 0.22);
+}
+
+.membership-comparison-table__tier-head--highlight .membership-comparison-table__tier-price {
+  color: #ffffff;
+}
+
+.membership-comparison-table__cell--highlight {
+  background: var(--mct-highlight-glow);
+  box-shadow: inset 0 0 18px rgba(240, 180, 41, 0.08);
+}
+
+.membership-comparison-table__dash {
+  color: var(--mct-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.membership-comparison-table__dash--standard {
+  color: var(--mct-value-standard);
+}
+
+.membership-comparison-table__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.membership-comparison-table__check--green {
+  color: var(--mct-check-green);
+  filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.45));
+}
+
+.membership-comparison-table__check--standard {
+  color: var(--mct-value-standard);
+  filter: none;
+}
+
+.membership-comparison-table__check--gold {
+  color: var(--mct-gold);
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.5));
+}
+
+.membership-comparison-table__value {
+  font-size: clamp(0.76rem, 0.95vw, 0.9rem);
+  font-weight: 700;
+}
+
+.membership-comparison-table__value--standard {
+  color: var(--mct-value-standard);
+}
+
+.membership-comparison-table__value--gold {
+  color: var(--mct-gold);
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.42);
+}
+
+[data-theme="light"] .membership-comparison-table-section {
+  --mct-bg: var(--color-bg);
+  --mct-surface: var(--color-surface-elevated);
+  --mct-border: var(--color-border);
+  --mct-text: var(--color-heading);
+  --mct-muted: var(--color-text-muted);
+  --mct-value-standard: #000000;
+  --mct-highlight-glow: rgba(240, 180, 41, 0.08);
+}
+
+[data-theme="light"] .membership-comparison-table__wrap {
+  box-shadow: 0 8px 24px var(--color-shadow);
+}
+
+@media (max-width: 1024px) {
+  .membership-comparison-table__wrap {
+    overflow: hidden;
+  }
+
+  .membership-comparison-table {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .membership-comparison-table th,
+  .membership-comparison-table td {
+    padding: 8px 4px;
+  }
+
+  .membership-comparison-table__benefits-head,
+  .membership-comparison-table__benefit {
+    width: 28%;
+    padding-left: 8px !important;
+    padding-right: 6px !important;
+  }
+
+  .membership-comparison-table__benefits-head {
+    font-size: 0.82rem;
+  }
+
+  .membership-comparison-table__benefit {
+    font-size: 0.68rem;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .membership-comparison-table__tier-name {
+    font-size: 0.58rem;
+    line-height: 1.1;
+    margin-bottom: 2px;
+  }
+
+  .membership-comparison-table__tier-price {
+    font-size: 0.58rem;
+    white-space: nowrap;
+  }
+
+  .membership-comparison-table__tier-period {
+    display: inline;
+    white-space: nowrap;
+  }
+
+  .membership-comparison-table__value {
+    font-size: 0.58rem;
+  }
+
+  .membership-comparison-table__dash {
+    font-size: 0.82rem;
+  }
+
+  .membership-comparison-table__check svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .membership-comparison-table-section {
+    padding-inline: 8px;
+  }
+
+  .membership-comparison-table__wrap {
+    border-radius: 12px;
+  }
+
+  .membership-comparison-table th,
+  .membership-comparison-table td {
+    padding: 6px 2px;
+  }
+
+  .membership-comparison-table__benefits-head,
+  .membership-comparison-table__benefit {
+    width: 30%;
+    padding-left: 6px !important;
+    padding-right: 4px !important;
+  }
+
+  .membership-comparison-table__benefits-head {
+    font-size: 0.72rem;
+  }
+
+  .membership-comparison-table__benefit {
+    font-size: 0.56rem;
+  }
+
+  .membership-comparison-table__tier-name {
+    font-size: 0.5rem;
+  }
+
+  .membership-comparison-table__tier-price {
+    font-size: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .membership-comparison-table__tier-period {
+    display: inline;
+    font-size: 0.9em;
+    white-space: nowrap;
+  }
+
+  .membership-comparison-table__value {
+    font-size: 0.5rem;
+  }
+
+  .membership-comparison-table__check svg {
+    width: 11px !important;
+    height: 11px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .membership-comparison-table-section {
+    padding-inline: 6px;
+  }
+
+  .membership-comparison-table th,
+  .membership-comparison-table td {
+    padding: 5px 1px;
+  }
+
+  .membership-comparison-table__benefits-head {
+    font-size: 0.64rem;
+  }
+
+  .membership-comparison-table__benefit {
+    font-size: 0.5rem;
+  }
+
+  .membership-comparison-table__tier-name {
+    font-size: 0.44rem;
+  }
+
+  .membership-comparison-table__tier-price {
+    font-size: 0.44rem;
+    white-space: nowrap;
+  }
+
+  .membership-comparison-table__tier-period {
+    display: inline;
+    white-space: nowrap;
+  }
+
+  .membership-comparison-table__value {
+    font-size: 0.44rem;
+  }
+
+  .membership-comparison-table__check svg {
+    width: 9px !important;
+    height: 9px !important;
+  }
+}

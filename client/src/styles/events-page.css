@@ -160,41 +160,88 @@
   background-color: #000000;
   border-color: var(--events-neon-line);
   box-shadow:
-    0 0 14px var(--events-neon-glow-soft),
-    inset 0 0 24px rgba(94, 207, 214, 0.03);
+    0 0 10px var(--events-neon-glow),
+    0 0 22px var(--events-neon-glow-soft),
+    0 0 36px rgba(94, 207, 214, 0.1),
+    inset 0 0 28px rgba(94, 207, 214, 0.05);
 }
 
 [data-theme="dark"] .events-page .our-impact-top {
   background: #000000;
   border-bottom: 3px solid var(--events-neon-line);
   box-shadow:
-    0 0 18px var(--events-neon-glow-soft),
+    0 0 10px var(--events-neon-glow),
+    0 0 22px var(--events-neon-glow-soft),
     inset 0 0 28px rgba(94, 207, 214, 0.05);
+}
+
+[data-theme="dark"] .events-page .our-impact-heading {
+  text-shadow:
+    0 0 8px var(--events-neon-glow),
+    0 0 18px var(--events-neon-glow-soft),
+    0 0 32px rgba(94, 207, 214, 0.35);
 }
 
 [data-theme="dark"] .events-page .our-impact-heading-line {
   background: var(--events-neon-line);
-  box-shadow: 0 0 10px var(--events-neon-glow);
+  box-shadow:
+    0 0 10px var(--events-neon-glow),
+    0 0 20px var(--events-neon-glow-soft);
 }
 
 [data-theme="dark"] .events-page .our-impact-heading-line::after {
   background: var(--events-neon-line);
-  box-shadow: 0 0 8px var(--events-neon-glow-soft);
+  box-shadow:
+    0 0 8px var(--events-neon-glow),
+    0 0 16px var(--events-neon-glow-soft);
+}
+
+[data-theme="dark"] .events-page .our-impact-value {
+  color: #eafbfd;
+  text-shadow:
+    0 0 8px var(--events-neon-glow),
+    0 0 16px var(--events-neon-glow-soft);
+}
+
+[data-theme="dark"] .events-page .our-impact-title {
+  color: rgba(94, 207, 214, 0.92);
+  text-shadow: 0 0 10px rgba(94, 207, 214, 0.28);
+}
+
+[data-theme="dark"] .events-page .our-impact-detail {
+  color: rgba(186, 228, 235, 0.88);
 }
 
 [data-theme="dark"] .events-page .our-impact-stat:not(:last-child) {
   border-right-color: var(--events-neon-line);
+  box-shadow: inset -2px 0 10px rgba(94, 207, 214, 0.08);
 }
 
-[data-theme="dark"] .events-page .our-impact-stat:not(:last-child)::after {
+[data-theme="dark"] .events-page .our-impact-stat:not(:last-child)::after,
+[data-theme="dark"] .events-page .our-impact-stat:nth-child(1)::after,
+[data-theme="dark"] .events-page .our-impact-stat:nth-child(2)::after {
   background: var(--events-neon-line);
+  box-shadow:
+    0 0 8px var(--events-neon-glow),
+    0 0 16px var(--events-neon-glow-soft);
 }
 
 [data-theme="dark"] .events-page .our-impact-icon {
   border-color: var(--events-neon-line) !important;
+  background: linear-gradient(
+    145deg,
+    rgba(94, 207, 214, 0.18),
+    rgba(94, 207, 214, 0.04)
+  ) !important;
   box-shadow:
-    0 0 12px var(--events-neon-glow-soft),
-    inset 0 0 16px rgba(94, 207, 214, 0.08) !important;
+    0 0 12px var(--events-neon-glow),
+    0 0 24px var(--events-neon-glow-soft),
+    inset 0 0 16px rgba(94, 207, 214, 0.1) !important;
+}
+
+[data-theme="dark"] .events-page .our-impact-icon svg {
+  color: rgba(94, 207, 214, 0.95);
+  filter: drop-shadow(0 0 6px var(--events-neon-glow));
 }
 
 [data-theme="dark"] .events-page .our-impact-actions {
@@ -202,6 +249,10 @@
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center 68%;
+  border-top: 3px solid var(--events-neon-line);
+  box-shadow:
+    inset 0 0 24px rgba(94, 207, 214, 0.06),
+    0 0 18px var(--events-neon-glow-soft);
 }
 
 [data-theme="dark"] .events-page .our-impact-actions::before {
@@ -217,6 +268,39 @@
 [data-theme="dark"] .events-page .our-impact-action-card {
   position: relative;
   z-index: 1;
+}
+
+[data-theme="dark"] .events-page .our-impact-action-label {
+  color: rgba(94, 207, 214, 0.95);
+  text-shadow:
+    0 0 8px var(--events-neon-glow),
+    0 0 16px var(--events-neon-glow-soft);
+}
+
+[data-theme="dark"] .events-page .our-impact-action-card h3 {
+  text-shadow: 0 0 12px rgba(94, 207, 214, 0.22);
+}
+
+[data-theme="dark"] .events-page .our-impact-action-card p {
+  color: rgba(214, 240, 245, 0.92);
+}
+
+[data-theme="dark"] .events-page .our-impact-action-button {
+  border-color: var(--events-neon-line);
+  background: rgba(94, 207, 214, 0.08);
+  box-shadow:
+    0 0 10px var(--events-neon-glow),
+    0 0 22px var(--events-neon-glow-soft),
+    inset 0 0 16px rgba(94, 207, 214, 0.06);
+}
+
+[data-theme="dark"] .events-page .our-impact-action-button:hover {
+  border-color: rgba(94, 207, 214, 0.85);
+  background: rgba(94, 207, 214, 0.14);
+  box-shadow:
+    0 0 14px var(--events-neon-glow),
+    0 0 28px var(--events-neon-glow-soft),
+    inset 0 0 20px rgba(94, 207, 214, 0.1);
 }
 
 /* Desktop: stack before Our Impact band */

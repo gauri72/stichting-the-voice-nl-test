@@ -1,0 +1,10 @@
+/* Membership page shell */
+
+.membership-page-shell {
+  background-color: #060b14;
+  font-family: var(--font-poppins);
+}
+
+[data-theme="light"] .membership-page-shell {
+  background-color: var(--color-bg);
+}
