@@ -7,7 +7,7 @@ import Membership from "../models/Membership.js";
 import User from "../models/User.js";
 import { buildMembershipId } from "../utils/membershipId.js";
 import { buildMembershipReceiptNumber } from "../utils/membershipReceiptNumber.js";
-import { generateMembershipQrDataUrl } from "./membershipQrService.js";
+import { buildMembershipQrImageUrl } from "./membershipQrService.js";
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -84,7 +84,7 @@ export async function provisionMembershipFromPayment(intent) {
   const startDate = intent.created ? new Date(intent.created * 1000) : new Date();
   const expiryDate = addDays(startDate, plan.durationDays || 365);
   const verificationToken = crypto.randomUUID();
-  const qrCodeUrl = await generateMembershipQrDataUrl(verificationToken);
+  const qrCodeUrl = buildMembershipQrImageUrl(verificationToken);
   const membershipId = await buildMembershipId(plan.id, startDate);
   const receiptNumber = await buildMembershipReceiptNumber(startDate);
   const amountPaidMinor = intent.amount_received || intent.amount;
@@ -161,6 +161,7 @@ export function buildMembershipEmailPayload({ member, plan, intent, paymentMetho
     valid_until: formatDateGb(member.expiryDate),
     payment_status: "Paid",
     qr_code_url: member.qrCodeUrl,
+    verification_token: member.verificationToken,
     benefit_1: benefits[0],
     benefit_2: benefits[1],
     benefit_3: benefits[2],

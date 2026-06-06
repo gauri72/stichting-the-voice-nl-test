@@ -7,6 +7,12 @@ const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   port: Number(process.env.PORT) || 5000,
   clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
+  // Public, internet-reachable base URL of THIS API (used to build QR image / verify
+  // links embedded in emails and PDFs). In production set PUBLIC_API_URL to the live
+  // API host (e.g. https://voice-nl-api.onrender.com).
+  publicApiUrl: (
+    process.env.PUBLIC_API_URL || `http://localhost:${Number(process.env.PORT) || 5000}`
+  ).replace(/\/$/, ""),
   mongoUri: process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/voice_nl",
   stripe: {
     secretKey: process.env.STRIPE_SECRET_KEY || "",
@@ -20,7 +26,14 @@ const env = {
     user: stripEnv(process.env.EMAIL_USER),
     pass: stripEnv(process.env.EMAIL_PASS),
     from: stripEnv(process.env.EMAIL_FROM),
-    orgNotify: stripEnv(process.env.ORG_NOTIFY_EMAIL)
+    orgNotify: stripEnv(process.env.ORG_NOTIFY_EMAIL),
+    // Official sender used for membership confirmation emails (kept separate so it
+    // never falls back to a personal test mailbox). Defaults to the org address.
+    membershipFrom:
+      stripEnv(process.env.MEMBERSHIP_EMAIL_FROM) ||
+      `Stichting The V.O.I.C.E. NL <${
+        stripEnv(process.env.CONTACT_EMAIL) || "info@stichtingthevoice.nl"
+      }>`
   },
   auth: {
     jwtSecret:

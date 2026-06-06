@@ -248,6 +248,11 @@
   color: var(--color-text);
 }
 
+[data-theme="dark"] .sponsorship-payment__success-ref code {
+  background: #000000;
+  color: #ffffff;
+}
+
 .sponsorship-payment__success .sponsorship-payment__continue-btn {
   margin-top: 22px;
   max-width: 320px;
