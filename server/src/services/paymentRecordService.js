@@ -11,14 +11,20 @@ function normalizeEmail(email) {
  * Persists a succeeded Stripe PaymentIntent once (idempotent by paymentIntentId).
  * @param {import('stripe').Stripe.PaymentIntent} intent
  */
-export async function recordSucceededPaymentIntent(intent) {
+export async function recordSucceededPaymentIntent(intent, overrides = {}) {
   if (!intent?.id || intent.status !== "succeeded") return;
 
   const meta = intent.metadata || {};
   const donorEmail = normalizeEmail(meta.sponsor_email);
   if (!donorEmail) return;
 
-  const kind = meta.payment_kind === "donation" ? "donation" : "sponsorship";
+  const kind =
+    overrides.kind ||
+    (meta.payment_kind === "donation"
+      ? "donation"
+      : meta.payment_kind === "membership"
+        ? "membership"
+        : "sponsorship");
   let userId = null;
   if (meta.user_id && mongoose.isValidObjectId(meta.user_id)) {
     userId = new mongoose.Types.ObjectId(meta.user_id);
@@ -32,7 +38,8 @@ export async function recordSucceededPaymentIntent(intent) {
   const tierId = String(meta.tier_id || "");
   const tierName = String(meta.tier_name || "");
   const paidAt = intent.created ? new Date(intent.created * 1000) : new Date();
-  const receiptNumber = buildReceiptNumber(intent.id, intent.created);
+  const receiptNumber =
+    overrides.receiptNumber || buildReceiptNumber(intent.id, intent.created);
 
   await PaymentTransaction.updateOne(
     { paymentIntentId: intent.id },

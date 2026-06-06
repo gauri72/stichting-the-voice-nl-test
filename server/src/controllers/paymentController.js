@@ -1,8 +1,11 @@
 import env from "../config/env.js";
 import { getDonationTier } from "../config/donationTiers.js";
+import { getPlan } from "../config/membershipPlans.js";
 import { getTier } from "../config/sponsorshipTiers.js";
 import { getStripe, isStripeConfigured } from "../services/stripe.js";
 import { sendDonationEmails, sendSponsorshipEmails } from "../services/mailer.js";
+import { sendMembershipEmails } from "../services/membershipMailer.js";
+import { provisionMembershipFromPayment } from "../services/membershipProvisioningService.js";
 import { recordSucceededPaymentIntent } from "../services/paymentRecordService.js";
 import { buildReceiptNumber } from "../utils/receiptNumber.js";
 
@@ -82,6 +85,84 @@ async function emailDonationOnce(payload) {
   }
 }
 
+async function emailMembershipOnce(payload) {
+  const { paymentIntentId } = payload;
+  if (!paymentIntentId) return;
+  if (emailedIntents.has(paymentIntentId)) return;
+  emailedIntents.add(paymentIntentId);
+
+  try {
+    await sendMembershipEmails(payload);
+  } catch (error) {
+    emailedIntents.delete(paymentIntentId);
+    console.error("[payments] Failed to send membership email:", error.message);
+  }
+}
+
+async function handleSucceededPayment(intent) {
+  const meta = intent.metadata || {};
+  const paymentMethod = describePaymentMethod(intent);
+
+  if (meta.payment_kind === "membership") {
+    try {
+      const result = await provisionMembershipFromPayment({
+        ...intent,
+        metadata: { ...meta, payment_method_label: paymentMethod }
+      });
+      try {
+        await recordSucceededPaymentIntent(intent, {
+          kind: "membership",
+          receiptNumber: result.member.receiptNumber
+        });
+      } catch (err) {
+        console.error("[payments] recordSucceededPaymentIntent (membership):", err.message);
+      }
+      await emailMembershipOnce({
+        paymentIntentId: intent.id,
+        emailPayload: result.emailPayload,
+        memberEmail: result.member.email
+      });
+    } catch (error) {
+      console.error("[payments] Membership provisioning failed:", error.message);
+    }
+    return;
+  }
+
+  const sponsor = {
+    name: meta.sponsor_name,
+    firstName: meta.sponsor_first_name || (meta.sponsor_name || "").split(" ")[0] || "",
+    lastName: meta.sponsor_last_name || (meta.sponsor_name || "").split(" ").slice(1).join(" "),
+    email: meta.sponsor_email,
+    phone: meta.sponsor_phone,
+    organization: meta.sponsor_organization,
+    country: meta.sponsor_country,
+    message: meta.sponsor_message
+  };
+  const tier = { id: meta.tier_id, name: meta.tier_name };
+  const payload = {
+    sponsor,
+    tier,
+    amountMinor: intent.amount_received || intent.amount,
+    currency: intent.currency,
+    paymentIntentId: intent.id,
+    paymentCreated: intent.created,
+    paymentMethod,
+    receiptNumber: buildReceiptNumber(intent.id, intent.created)
+  };
+
+  try {
+    await recordSucceededPaymentIntent(intent);
+  } catch (err) {
+    console.error("[payments] recordSucceededPaymentIntent:", err.message);
+  }
+
+  if (meta.payment_kind === "donation") {
+    await emailDonationOnce(payload);
+  } else {
+    await emailSponsorOnce(payload);
+  }
+}
+
 export async function createPaymentIntent(req, res) {
   if (!isStripeConfigured()) {
     return res.status(503).json({
@@ -94,27 +175,45 @@ export async function createPaymentIntent(req, res) {
     const { kind = "sponsorship", tierId, amount: customAmount, sponsor: rawSponsor } =
       req.body || {};
     const isDonation = kind === "donation";
-    const tier = isDonation ? getDonationTier(tierId) : getTier(tierId);
+    const isMembership = kind === "membership";
+    const tier = isMembership
+      ? getPlan(tierId)
+      : isDonation
+        ? getDonationTier(tierId)
+        : getTier(tierId);
+
     if (!tier) {
       return res.status(400).json({
-        error: isDonation ? "Unknown donation tier." : "Unknown sponsorship tier."
+        error: isMembership
+          ? "Unknown membership plan."
+          : isDonation
+            ? "Unknown donation tier."
+            : "Unknown sponsorship tier."
       });
     }
 
     const sponsor = sanitizeSponsor(rawSponsor);
     if (!sponsor.email || !isValidEmail(sponsor.email)) {
       return res.status(400).json({
-        error: isDonation ? "A valid donor email is required." : "A valid sponsor email is required."
+        error: isMembership
+          ? "A valid member email is required."
+          : isDonation
+            ? "A valid donor email is required."
+            : "A valid sponsor email is required."
       });
     }
     if (!sponsor.name) {
       return res.status(400).json({
-        error: isDonation ? "Donor name is required." : "Sponsor name is required."
+        error: isMembership
+          ? "Member name is required."
+          : isDonation
+            ? "Donor name is required."
+            : "Sponsor name is required."
       });
     }
 
     const stripeMinCents = 50;
-    let amountMinor = tier.amount;
+    let amountMinor = tier.amount ?? tier.feeMinor;
     if (tier.allowCustom) {
       if (!Number.isFinite(Number(customAmount))) {
         return res.status(400).json({ error: "A custom amount is required for this option." });
@@ -131,6 +230,8 @@ export async function createPaymentIntent(req, res) {
       tier_id: tier.id,
       tier_name: tier.name,
       sponsor_name: sponsor.name,
+      sponsor_first_name: sponsor.firstName,
+      sponsor_last_name: sponsor.lastName,
       sponsor_email: sponsor.email,
       sponsor_phone: sponsor.phone,
       sponsor_organization: sponsor.organization,
@@ -140,18 +241,22 @@ export async function createPaymentIntent(req, res) {
     const metadata = {
       ...baseMeta,
       ...(isDonation ? { payment_kind: "donation" } : {}),
+      ...(isMembership ? { payment_kind: "membership" } : {}),
       ...(req.user?.id ? { user_id: String(req.user.id) } : {})
     };
 
     const intent = await stripe.paymentIntents.create({
       amount: amountMinor,
       currency: env.stripe.currency,
-      // Do not set receipt_email — your app sends thank-you mail + PDF via SiteGround SMTP.
       automatic_payment_methods: {
         enabled: true,
         allow_redirects: "always"
       },
-      description: isDonation ? `Donation - ${tier.name}` : `Sponsorship - ${tier.name}`,
+      description: isMembership
+        ? `Membership - ${tier.name}`
+        : isDonation
+          ? `Donation - ${tier.name}`
+          : `Sponsorship - ${tier.name}`,
       metadata
     });
 
@@ -168,8 +273,6 @@ export async function createPaymentIntent(req, res) {
   }
 }
 
-// Fallback for environments without Stripe webhooks (e.g. local dev without the Stripe CLI).
-// The client calls this after stripe.confirmPayment() resolves successfully.
 export async function confirmPayment(req, res) {
   if (!isStripeConfigured()) {
     return res.status(503).json({ error: "Stripe is not configured on the server." });
@@ -190,39 +293,7 @@ export async function confirmPayment(req, res) {
       return res.status(202).json({ status: intent.status });
     }
 
-    const meta = intent.metadata || {};
-    const sponsor = {
-      name: meta.sponsor_name,
-      firstName: (meta.sponsor_name || "").split(" ")[0] || "",
-      email: meta.sponsor_email,
-      phone: meta.sponsor_phone,
-      organization: meta.sponsor_organization,
-      country: meta.sponsor_country,
-      message: meta.sponsor_message
-    };
-    const tier = { id: meta.tier_id, name: meta.tier_name };
-    const payload = {
-      sponsor,
-      tier,
-      amountMinor: intent.amount_received || intent.amount,
-      currency: intent.currency,
-      paymentIntentId: intent.id,
-      paymentCreated: intent.created,
-      paymentMethod: describePaymentMethod(intent),
-      receiptNumber: buildReceiptNumber(intent.id, intent.created)
-    };
-
-    try {
-      await recordSucceededPaymentIntent(intent);
-    } catch (err) {
-      console.error("[payments] recordSucceededPaymentIntent (confirm):", err.message);
-    }
-
-    if (meta.payment_kind === "donation") {
-      await emailDonationOnce(payload);
-    } else {
-      await emailSponsorOnce(payload);
-    }
+    await handleSucceededPayment(intent);
 
     return res.status(200).json({ status: "succeeded" });
   } catch (error) {
@@ -231,7 +302,6 @@ export async function confirmPayment(req, res) {
   }
 }
 
-// Stripe webhook handler. Mounted with `express.raw()` body parser in app.js.
 export async function stripeWebhook(req, res) {
   if (!isStripeConfigured()) {
     return res.status(503).end();
@@ -245,8 +315,6 @@ export async function stripeWebhook(req, res) {
     if (env.stripe.webhookSecret) {
       event = stripe.webhooks.constructEvent(req.body, signature, env.stripe.webhookSecret);
     } else {
-      // Webhook secret not configured: parse without signature verification.
-      // This is acceptable only for local experimentation - never in production.
       event = JSON.parse(req.body.toString());
     }
   } catch (error) {
@@ -256,10 +324,7 @@ export async function stripeWebhook(req, res) {
 
   if (event.type === "payment_intent.succeeded") {
     const baseIntent = event.data.object;
-    const meta = baseIntent.metadata || {};
 
-    // The webhook payload omits expanded objects. Re-fetch with expansions so
-    // the receipt PDF / email can show a precise payment method label.
     let intent = baseIntent;
     try {
       intent = await stripe.paymentIntents.retrieve(baseIntent.id, {
@@ -272,38 +337,7 @@ export async function stripeWebhook(req, res) {
       );
     }
 
-    const sponsor = {
-      name: meta.sponsor_name,
-      firstName: (meta.sponsor_name || "").split(" ")[0] || "",
-      email: meta.sponsor_email,
-      phone: meta.sponsor_phone,
-      organization: meta.sponsor_organization,
-      country: meta.sponsor_country,
-      message: meta.sponsor_message
-    };
-    const tier = { id: meta.tier_id, name: meta.tier_name };
-    const payload = {
-      sponsor,
-      tier,
-      amountMinor: intent.amount_received || intent.amount,
-      currency: intent.currency,
-      paymentIntentId: intent.id,
-      paymentCreated: intent.created,
-      paymentMethod: describePaymentMethod(intent),
-      receiptNumber: buildReceiptNumber(intent.id, intent.created)
-    };
-
-    try {
-      await recordSucceededPaymentIntent(intent);
-    } catch (err) {
-      console.error("[payments] recordSucceededPaymentIntent (webhook):", err.message);
-    }
-
-    if (meta.payment_kind === "donation") {
-      await emailDonationOnce(payload);
-    } else {
-      await emailSponsorOnce(payload);
-    }
+    await handleSucceededPayment(intent);
   }
 
   return res.json({ received: true });

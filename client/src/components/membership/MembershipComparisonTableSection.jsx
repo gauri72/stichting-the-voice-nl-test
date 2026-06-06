@@ -18,7 +18,7 @@ const TIER_KEYS = [
 const STANDARD_VALUE_TIERS = new Set([
   "student",
   "privilegedSingle",
-  "privilegedFamily",
+  "premiumSingle",
   "premiumFamily",
 ]);
 

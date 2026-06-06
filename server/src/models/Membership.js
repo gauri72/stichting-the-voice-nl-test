@@ -11,8 +11,18 @@ const membershipSchema = new mongoose.Schema(
     active: { type: Boolean, default: true },
     planId: {
       type: String,
-      enum: ["family", "single", "privileged", "vownl"],
-      default: "family"
+      enum: [
+        "student",
+        "privilegedSingle",
+        "privilegedFamily",
+        "premiumSingle",
+        "premiumFamily",
+        "family",
+        "single",
+        "privileged",
+        "vownl"
+      ],
+      default: "privilegedFamily"
     },
     planName: { type: String, default: "", trim: true, maxlength: 120 },
     feeMinor: { type: Number, default: 0 },
@@ -20,7 +30,7 @@ const membershipSchema = new mongoose.Schema(
     startedAt: { type: Date, required: true },
     endsAt: { type: Date, required: true },
     renewalAt: { type: Date, default: null },
-    membershipNumber: { type: String, default: "", trim: true, maxlength: 32 }
+    membershipNumber: { type: String, default: "", trim: true, maxlength: 40 }
   },
   { timestamps: true }
 );

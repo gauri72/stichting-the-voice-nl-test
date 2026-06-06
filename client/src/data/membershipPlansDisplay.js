@@ -5,7 +5,7 @@ export const MEMBERSHIP_TIERS = [
     id: "student",
     name: "Student",
     tableNameLines: ["Student"],
-    price: "€15",
+    price: "€1",
     theme: "pink",
     popular: false,
     icon: "school",
@@ -40,7 +40,7 @@ export const MEMBERSHIP_TIERS = [
     tableNameLines: ["Privileged", "Family"],
     price: "€45",
     theme: "orange",
-    popular: false,
+    popular: true,
     icon: "family",
     description:
       "Great for families who want to enjoy more together while saving more.",
@@ -57,7 +57,7 @@ export const MEMBERSHIP_TIERS = [
     tableNameLines: ["Premium", "Single"],
     price: "€150",
     theme: "gold",
-    popular: true,
+    popular: false,
     icon: "crown",
     description:
       "The ultimate experience for individuals who want the best of everything.",
@@ -182,4 +182,4 @@ export const MEMBERSHIP_COMPARISON_ROWS = [
   },
 ];
 
-export const MEMBERSHIP_HIGHLIGHT_TIER_ID = "premiumSingle";
+export const MEMBERSHIP_HIGHLIGHT_TIER_ID = "privilegedFamily";

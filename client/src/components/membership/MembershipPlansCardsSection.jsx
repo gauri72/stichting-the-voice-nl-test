@@ -17,7 +17,7 @@ const TIER_ICONS = {
   crownFamily: IconUsersGroup,
 };
 
-export default function MembershipPlansCardsSection() {
+export default function MembershipPlansCardsSection({ selectedTierId, onSelectTier }) {
   return (
     <section
       id="membership-plans"
@@ -93,8 +93,14 @@ export default function MembershipPlansCardsSection() {
                     </ul>
                   </div>
 
-                  <button type="button" className="membership-plans-card__cta">
-                    Become a Member
+                  <button
+                    type="button"
+                    className="membership-plans-card__cta"
+                    onClick={() => onSelectTier?.(tier)}
+                    aria-controls="membership-payment"
+                    aria-expanded={selectedTierId === tier.id}
+                  >
+                    {selectedTierId === tier.id ? "Selected — scroll down" : "Become a Member"}
                   </button>
                 </div>
               </article>

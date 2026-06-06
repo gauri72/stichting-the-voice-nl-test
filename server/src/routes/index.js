@@ -7,6 +7,7 @@ import newsletterRoutes from "./newsletterRoutes.js";
 import publicRoutes from "./publicRoutes.js";
 import contactRoutes from "./contactRoutes.js";
 import testimonialRoutes from "./testimonialRoutes.js";
+import membershipRoutes from "./membershipRoutes.js";
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.use("/newsletter", newsletterRoutes);
 router.use("/testimonials", testimonialRoutes);
 router.use("/auth", authRoutes);
 router.use("/payments", paymentRoutes);
+router.use("/membership", membershipRoutes);
 router.use("/dashboard", dashboardRoutes);
 
 export default router;
