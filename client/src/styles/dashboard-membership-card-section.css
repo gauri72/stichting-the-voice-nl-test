@@ -1,0 +1,368 @@
+/* Dashboard — membership card (two separate areas, no outer wrapper) */
+
+.dash-membership-group {
+  display: grid;
+  gap: clamp(14px, 2cqw, 18px);
+}
+
+.dash-membership__rect {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(26, 167, 196, 0.22);
+  box-shadow: var(--md-shadow-soft);
+}
+
+[data-theme="dark"] .dash-membership__rect {
+  border-color: rgba(26, 167, 196, 0.28);
+}
+
+[data-theme="light"] .dash-membership__rect {
+  border-color: rgba(10, 95, 117, 0.38);
+}
+
+.dash-membership__rect--top {
+  min-height: clamp(170px, 26cqw, 240px);
+}
+
+.dash-membership__rect--bottom {
+  background: rgba(4, 12, 20, 0.42);
+  backdrop-filter: blur(2px);
+}
+
+[data-theme="light"] .dash-membership__rect--bottom {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.dash-membership__bg {
+  position: absolute;
+  inset: 0;
+  line-height: 0;
+  z-index: 0;
+}
+
+.dash-membership__bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.dash-membership__bg-image--dark {
+  display: none;
+}
+
+[data-theme="dark"] .dash-membership__bg-image--light {
+  display: none;
+}
+
+[data-theme="dark"] .dash-membership__bg-image--dark {
+  display: block;
+}
+
+.dash-membership__rect-body {
+  position: relative;
+  z-index: 1;
+  padding: clamp(16px, 2.4cqw, 24px);
+}
+
+.dash-membership__rect--top .dash-membership__rect-body {
+  padding: clamp(12px, 2cqw, 20px);
+}
+
+.dash-membership__eyebrow {
+  margin: 0 0 14px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--md-cyan, #1aa7c4);
+}
+
+.dash-membership__eyebrow--membership,
+.dash-membership__eyebrow--benefits {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.dash-membership__eyebrow--membership {
+  color: var(--md-cyan, #1aa7c4);
+}
+
+.dash-membership__rect--top .dash-membership__eyebrow--membership {
+  justify-content: flex-start;
+  text-align: left;
+  margin-bottom: clamp(10px, 1.6cqw, 14px);
+  font-size: clamp(0.78rem, 1.5cqw, 0.92rem);
+}
+
+[data-theme="light"] .dash-membership__rect--top .dash-membership__eyebrow--membership {
+  color: var(--md-cyan-dark, #0a5f75);
+}
+
+.dash-membership__rect--bottom .dash-membership__eyebrow--benefits {
+  margin-bottom: clamp(12px, 1.8cqw, 16px);
+  font-size: clamp(0.78rem, 1.5cqw, 0.92rem);
+}
+
+.dash-membership__benefits-title {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.dash-membership__rect--bottom .dash-membership__benefits-title.dash-grad-text {
+  background: linear-gradient(120deg, #1aa7c4 0%, #1f86c9 50%, #2fa84f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+[data-theme="light"] .dash-membership__rect--bottom .dash-membership__benefits-title.dash-grad-text {
+  background: linear-gradient(120deg, #0a5f75 0%, #0d5288 50%, #1a6b34 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.dash-membership__rect--top .dash-membership__eyebrow--membership .dash-membership__eyebrow-line {
+  flex: 0 0 min(48px, 7cqw);
+  width: min(48px, 7cqw);
+  min-width: 24px;
+  height: 1px;
+  background: rgba(26, 167, 196, 0.65);
+}
+
+[data-theme="light"] .dash-membership__rect--top .dash-membership__eyebrow--membership .dash-membership__eyebrow-line {
+  background: rgba(10, 107, 122, 0.7);
+}
+
+.dash-membership__rect--bottom .dash-membership__eyebrow--benefits .dash-membership__eyebrow-line {
+  flex: 0 0 min(48px, 7cqw);
+  width: min(48px, 7cqw);
+  min-width: 24px;
+  height: 1px;
+  background: rgba(26, 167, 196, 0.65);
+}
+
+[data-theme="light"] .dash-membership__rect--bottom .dash-membership__eyebrow--benefits .dash-membership__eyebrow-line {
+  background: rgba(10, 107, 122, 0.7);
+}
+
+.dash-membership__eyebrow-line {
+  flex: 1;
+  max-width: 90px;
+  height: 1px;
+}
+
+.dash-membership__card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: clamp(14px, 2.4cqw, 24px);
+  align-items: center;
+}
+
+.dash-membership__plan {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.8cqw, 1.85rem);
+  font-weight: 800;
+  color: var(--md-text);
+}
+
+.dash-membership__rect--top .dash-membership__plan {
+  font-size: clamp(1.05rem, 2.1cqw, 1.5rem);
+}
+
+.dash-membership__member {
+  margin: 6px 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--md-text);
+}
+
+.dash-membership__rect--top .dash-membership__member {
+  margin-top: clamp(4px, 0.8cqw, 6px);
+  font-size: clamp(0.82rem, 1.5cqw, 0.94rem);
+}
+
+.dash-membership__rect--top .dash-membership__id-label {
+  margin: clamp(10px, 1.6cqw, 14px) 0 2px;
+  font-size: clamp(0.58rem, 1cqw, 0.68rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.dash-membership__rect--top .dash-membership__id-value {
+  margin: 0;
+  font-size: clamp(0.82rem, 1.4cqw, 0.94rem);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.dash-membership__rect--top .dash-membership__id-value.dash-grad-text {
+  background: linear-gradient(120deg, #1aa7c4 0%, #1f86c9 50%, #2fa84f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+[data-theme="light"] .dash-membership__rect--top .dash-membership__id-value.dash-grad-text {
+  background: linear-gradient(120deg, #0a5f75 0%, #0d5288 50%, #1a6b34 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.dash-membership__dates {
+  margin-top: 16px;
+  display: flex;
+  align-items: stretch;
+  gap: clamp(18px, 3cqw, 32px);
+  flex-wrap: wrap;
+}
+
+.dash-membership__rect--top .dash-membership__dates {
+  margin-top: clamp(10px, 1.6cqw, 14px);
+  gap: clamp(12px, 2.2cqw, 24px);
+}
+
+.dash-membership__rect--top .dash-membership__date small {
+  display: block;
+  font-size: clamp(0.58rem, 1cqw, 0.68rem);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  margin-bottom: 3px;
+}
+
+.dash-membership__rect--top .dash-membership__date strong {
+  font-size: clamp(0.78rem, 1.3cqw, 0.9rem);
+  font-weight: 700;
+  color: var(--md-text);
+}
+
+.dash-membership__date-divider {
+  width: 1px;
+  align-self: stretch;
+  min-height: 36px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="light"] .dash-membership__rect--top .dash-membership__id-label,
+[data-theme="light"] .dash-membership__rect--top .dash-membership__date small,
+[data-theme="light"] .dash-membership__rect--top .dash-membership__date strong {
+  color: #000000;
+}
+
+[data-theme="light"] .dash-membership__rect--top .dash-membership__date-divider {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="light"] .dash-membership__rect--bottom .dash-membership__benefit-icon {
+  color: var(--md-cyan-dark, #0a5f75);
+}
+
+.dash-membership__qr {
+  background: transparent;
+  border: 2px solid var(--md-cyan, #1aa7c4);
+  border-radius: 12px;
+  padding: clamp(4px, 0.6cqw, 6px);
+  width: fit-content;
+  height: fit-content;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  box-shadow: none;
+  flex-shrink: 0;
+}
+
+[data-theme="light"] .dash-membership__qr {
+  border-color: var(--md-cyan-dark, #0a5f75);
+}
+
+.dash-membership__qr-code {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: clamp(4px, 0.8cqw, 6px);
+  display: grid;
+  place-items: center;
+  line-height: 0;
+}
+
+.dash-membership__qr img {
+  width: auto;
+  height: auto;
+  max-width: clamp(78px, 11cqw, 104px);
+  max-height: clamp(78px, 11cqw, 104px);
+  object-fit: contain;
+  display: block;
+}
+
+.dash-membership__benefits-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dash-membership__benefits-list li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.dash-membership__rect--bottom .dash-membership__benefits-list li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 8%;
+  right: -6px;
+  width: 1px;
+  height: 84%;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+[data-theme="light"] .dash-membership__rect--bottom .dash-membership__benefits-list li:not(:last-child)::after {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.dash-membership__rect--bottom .dash-membership__benefit-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  color: var(--md-cyan, #1aa7c4);
+}
+
+.dash-membership__rect--bottom .dash-membership__benefit-label {
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(0.62rem, 1cqw, 0.68rem);
+  font-weight: 600;
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+[data-theme="light"] .dash-membership__rect--bottom .dash-membership__benefit-label {
+  color: #000000;
+}
+
+.dash-membership__rect--bottom .dash-membership__benefit-label span {
+  display: block;
+}
+

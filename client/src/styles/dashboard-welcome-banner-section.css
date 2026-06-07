@@ -1,0 +1,302 @@
+/* Dashboard — welcome banner */
+
+.dash-welcome {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--color-bg);
+}
+
+.dash-welcome__bg {
+  position: relative;
+  line-height: 0;
+}
+
+.dash-welcome__bg-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.dash-welcome__bg-image--dark {
+  display: none;
+}
+
+[data-theme="dark"] .dash-welcome {
+  background-color: #000000;
+}
+
+[data-theme="dark"] .dash-welcome__bg-image--light {
+  display: none;
+}
+
+[data-theme="dark"] .dash-welcome__bg-image--dark {
+  display: block;
+}
+
+/* Log out — green-themed pill (matches badge pattern) */
+.dash-welcome__logout {
+  position: absolute;
+  top: clamp(14px, 2.2cqw, 24px);
+  right: clamp(14px, 3cqw, 28px);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: clamp(8px, 1cqw, 10px) clamp(14px, 2cqw, 18px);
+  border-radius: 10px;
+  border: 1px solid var(--md-green, #2fa84f);
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(4px);
+  color: var(--md-green, #2fa84f);
+  font-family: inherit;
+  font-size: clamp(0.8rem, 1.1cqw, 0.92rem);
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+[data-theme="light"] .dash-welcome__logout {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: var(--md-green-dark, #1a6b34);
+  color: var(--md-green-dark, #1a6b34);
+  box-shadow: 0 4px 14px rgba(15, 53, 78, 0.08);
+}
+
+.dash-welcome__logout svg {
+  color: var(--md-green, #2fa84f);
+  font-size: 0.95em;
+}
+
+[data-theme="light"] .dash-welcome__logout svg {
+  color: var(--md-green-dark, #1a6b34);
+}
+
+.dash-welcome__logout:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+/* Left content — scaled to banner width (image drives section height) */
+.dash-welcome__content {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-58%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(10px, 1.4cqw, 14px);
+  padding: 0 clamp(24px, 7cqw, 96px);
+  max-width: min(58%, 680px);
+  z-index: 2;
+}
+
+.dash-welcome__greeting {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.6cqw, 1.75rem);
+  font-weight: 800;
+  color: #ffffff;
+}
+
+[data-theme="light"] .dash-welcome__greeting {
+  color: #000000;
+}
+
+.dash-welcome__name {
+  margin: 0;
+  font-size: clamp(2.1rem, 5.2cqw, 3.4rem);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+/* Membership badge — rounded rectangle */
+.dash-welcome__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  padding: clamp(9px, 1.2cqw, 12px) clamp(16px, 2cqw, 22px);
+  border-radius: 10px;
+  border: 1px solid var(--md-cyan, #1aa7c4);
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(4px);
+  font-size: clamp(0.85rem, 1.3cqw, 1rem);
+  font-weight: 600;
+  color: var(--md-cyan, #1aa7c4);
+  text-decoration: none;
+}
+
+[data-theme="light"] .dash-welcome__badge {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: #0a5f75;
+  color: #0a5f75;
+  box-shadow: 0 4px 14px rgba(15, 53, 78, 0.08);
+}
+
+.dash-welcome__badge-icon {
+  color: var(--md-cyan, #1aa7c4);
+  font-size: 1em;
+}
+
+[data-theme="light"] .dash-welcome__badge-icon {
+  color: #0a5f75;
+}
+
+.dash-welcome__badge--cta {
+  border-color: var(--md-green, #2fa84f);
+  color: var(--md-green, #2fa84f);
+}
+
+[data-theme="light"] .dash-welcome__badge--cta {
+  border-color: #1a6b34;
+  color: #1a6b34;
+}
+
+.dash-welcome__valid {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 0;
+  font-size: clamp(0.95rem, 1.5cqw, 1.15rem);
+  font-weight: 600;
+  color: #ffffff;
+}
+
+[data-theme="light"] .dash-welcome__valid {
+  color: #0e2f48;
+}
+
+/* Calendar icon — white (dark) / black (light) */
+.dash-welcome__valid svg {
+  color: #ffffff;
+  font-size: 1.05em;
+}
+
+[data-theme="light"] .dash-welcome__valid svg {
+  color: #000000;
+}
+
+.dash-welcome__valid strong {
+  font-weight: 800;
+}
+
+/* Bottom-center action buttons — scaled to banner */
+.dash-welcome__actions {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(8px, 2cqw, 18px);
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(12px, 1.6cqw, 18px);
+}
+
+.dash-welcome__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: clamp(48px, 5cqw, 56px);
+  padding: clamp(12px, 1.4cqw, 14px) clamp(22px, 3cqw, 32px);
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: clamp(0.88rem, 1.4cqw, 1.05rem);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.dash-welcome__btn svg {
+  font-size: 1.1em;
+}
+
+.dash-welcome__btn--primary {
+  color: #ffffff;
+  background: linear-gradient(120deg, #1f86c9 0%, #149aa6 52%, #2fa84f 100%);
+  box-shadow: 0 6px 18px rgba(31, 134, 201, 0.35);
+}
+
+.dash-welcome__btn--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(47, 168, 79, 0.42);
+}
+
+[data-theme="light"] .dash-welcome__btn--primary {
+  background: linear-gradient(120deg, #0d5288 0%, #0a6b7a 52%, #1a6b34 100%);
+  box-shadow: 0 6px 18px rgba(13, 82, 136, 0.28);
+}
+
+[data-theme="light"] .dash-welcome__btn--primary:hover {
+  box-shadow: 0 10px 24px rgba(26, 107, 52, 0.32);
+}
+
+/* Membership Card — solid fill + gradient border via ::before */
+.dash-welcome__btn--outline {
+  position: relative;
+  isolation: isolate;
+  border: none;
+  background-color: #000000;
+  color: var(--md-cyan, #1aa7c4);
+  box-shadow: none;
+}
+
+.dash-welcome__btn--outline::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(120deg, #1f86c9 0%, #149aa6 52%, #2fa84f 100%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.dash-welcome__btn--outline svg {
+  color: currentColor;
+}
+
+[data-theme="light"] .dash-welcome__btn--outline {
+  background-color: #ffffff;
+  color: #0a5f75;
+}
+
+[data-theme="light"] .dash-welcome__btn--outline::before {
+  background: linear-gradient(120deg, #0d5288 0%, #0a6b7a 52%, #1a6b34 100%);
+}
+
+.dash-welcome__btn--outline:hover {
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .dash-welcome__btn--outline:hover {
+  background-color: #ffffff;
+}
+
+[data-theme="dark"] .dash-welcome__btn--outline:hover {
+  background-color: #000000;
+}
+
+/* Light theme — darker gradient shades for name & valid-until value */
+[data-theme="light"] .dash-welcome .dash-grad-text {
+  background: linear-gradient(120deg, #0d5288 0%, #0a6b7a 50%, #1a6b34 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+

@@ -1,0 +1,147 @@
+/* Dashboard — stat cards (Your V.O.I.C.E. NL Impact) */
+
+.dash-stats-section__title {
+  margin: 0 0 clamp(14px, 2cqw, 20px);
+  font-size: clamp(1.2rem, 2.6cqw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--md-text);
+}
+
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 1.6cqw, 18px);
+}
+
+.dash-stat {
+  background: #0d0d0d;
+  border: 1px solid rgba(26, 167, 196, 0.22);
+  border-radius: 14px;
+  padding: 22px 14px 18px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="light"] .dash-stat {
+  box-shadow: 0 6px 18px rgba(15, 53, 78, 0.08);
+  color: #000000;
+}
+
+[data-theme="light"] .dash-stat--teal {
+  background: rgba(10, 107, 122, 0.07);
+  border-color: rgba(10, 107, 122, 0.42);
+}
+
+[data-theme="light"] .dash-stat--blue {
+  background: rgba(13, 82, 136, 0.07);
+  border-color: rgba(13, 82, 136, 0.42);
+}
+
+[data-theme="light"] .dash-stat--green {
+  background: rgba(26, 107, 52, 0.07);
+  border-color: rgba(26, 107, 52, 0.42);
+}
+
+/* Theme-coloured outline icons */
+.dash-stat__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  background: transparent;
+  border: 2px solid currentColor;
+}
+
+.dash-stat__icon--teal {
+  color: #1aa7c4;
+  background: rgba(26, 167, 196, 0.1);
+}
+
+.dash-stat__icon--blue {
+  color: #1f86c9;
+  background: rgba(31, 134, 201, 0.1);
+}
+
+.dash-stat__icon--green {
+  color: #2fa84f;
+  background: rgba(47, 168, 79, 0.1);
+}
+
+[data-theme="light"] .dash-stat__icon--teal {
+  color: #0a6b7a;
+  background: rgba(10, 107, 122, 0.12);
+}
+
+[data-theme="light"] .dash-stat__icon--blue {
+  color: #0d5288;
+  background: rgba(13, 82, 136, 0.12);
+}
+
+[data-theme="light"] .dash-stat__icon--green {
+  color: #1a6b34;
+  background: rgba(26, 107, 52, 0.12);
+}
+
+.dash-stat__label {
+  margin: 0;
+  min-height: 2.35em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #9db1c3;
+}
+
+[data-theme="light"] .dash-stat__label {
+  color: #000000;
+}
+
+.dash-stat__value {
+  margin: 4px 0 0;
+  font-size: clamp(1.35rem, 2.2cqw, 1.7rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.dash-stat__value--teal {
+  color: #1aa7c4;
+}
+
+.dash-stat__value--blue {
+  color: #1f86c9;
+}
+
+.dash-stat__value--green {
+  color: #2fa84f;
+}
+
+[data-theme="light"] .dash-stat__value--teal {
+  color: #0a6b7a;
+}
+
+[data-theme="light"] .dash-stat__value--blue {
+  color: #0d5288;
+}
+
+[data-theme="light"] .dash-stat__value--green {
+  color: #1a6b34;
+}
+
+.dash-stat__check {
+  margin-top: 4px;
+  color: #2fa84f;
+  font-size: 0.95rem;
+}
+
+[data-theme="light"] .dash-stat__check {
+  color: #1a6b34;
+}
+

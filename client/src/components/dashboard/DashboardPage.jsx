@@ -1,5 +1,5 @@
-import DashboardDesignOne from "./designs/DashboardDesignOne";
+import MemberDashboard from "./MemberDashboard";
 
 export default function DashboardPage() {
-  return <DashboardDesignOne />;
+  return <MemberDashboard />;
 }

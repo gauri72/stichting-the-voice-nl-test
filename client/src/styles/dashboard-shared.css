@@ -1,0 +1,101 @@
+/* Dashboard shell — shared tokens and layout */
+
+.member-dashboard-viewport {
+  width: 100%;
+  overflow: hidden;
+}
+
+.member-dashboard {
+  /* Fixed 1200px design canvas; scaled down on narrow viewports via JS */
+  container-type: inline-size;
+  width: 100%;
+
+  --md-cyan: #1aa7c4;
+  --md-teal: #149aa6;
+  --md-green: #2fa84f;
+  --md-blue: #1f86c9;
+  --md-navy: #0e2f48;
+  --md-cyan-dark: #0a5f75;
+  --md-teal-dark: #0a6b7a;
+  --md-blue-dark: #0d5288;
+  --md-green-dark: #1a6b34;
+  --md-grad: linear-gradient(135deg, #1f86c9 0%, #149aa6 52%, #2fa84f 100%);
+  --md-grad-cyan: linear-gradient(135deg, #1aa7c4 0%, #1f86c9 100%);
+
+  --md-page: #f6f3f1;
+  --md-surface: #ffffff;
+  --md-border: #e2eaf0;
+  --md-border-soft: #eef2f5;
+  --md-text: #102a3c;
+  --md-text-soft: #5c7184;
+  --md-text-faint: #8295a5;
+  --md-shadow-soft: 0 6px 18px rgba(15, 53, 78, 0.06);
+
+  background: var(--md-page);
+  color: var(--md-text);
+  padding-bottom: clamp(36px, 5cqw, 64px);
+}
+
+[data-theme="dark"] .member-dashboard {
+  --md-page: #000000;
+  --md-surface: #0a1119;
+  --md-border: #18242f;
+  --md-border-soft: #131c25;
+  --md-text: #e7eff7;
+  --md-text-soft: #9db1c3;
+  --md-text-faint: #6f8497;
+  --md-shadow-soft: 0 8px 22px rgba(0, 0, 0, 0.4);
+}
+
+.member-dashboard__body {
+  width: 1200px;
+  max-width: 1200px;
+  margin: 32px auto 0;
+  padding: 0 24px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: clamp(20px, 3cqw, 32px);
+}
+
+/* Blue + green theme gradient text (shared across sections, both themes) */
+.dash-grad-text {
+  background: linear-gradient(120deg, #1f86c9 0%, #149aa6 50%, #2fa84f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.member-dashboard__status {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 96px 24px;
+  text-align: center;
+  font-size: 1rem;
+  color: var(--md-text-soft);
+}
+
+.member-dashboard__status--error {
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+  color: #d9534f;
+}
+
+.member-dashboard__retry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1aa7c4 0%, #1f86c9 100%);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
