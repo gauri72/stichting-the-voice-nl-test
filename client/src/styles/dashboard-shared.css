@@ -5,6 +5,12 @@
   overflow: hidden;
 }
 
+#dash-member-profile,
+#dash-membership-card,
+#dash-recent-activity {
+  scroll-margin-top: clamp(72px, 10vw, 96px);
+}
+
 .member-dashboard {
   /* Fixed 1200px design canvas; scaled down on narrow viewports via JS */
   container-type: inline-size;

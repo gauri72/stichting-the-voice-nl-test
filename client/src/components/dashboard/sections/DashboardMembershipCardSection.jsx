@@ -7,9 +7,13 @@ import {
   IconSofa,
   IconTicket,
 } from "@tabler/icons-react";
-import membershipBgLight from "../../../assets/Dashboard/membership-bg-light.png";
-import membershipBgDark from "../../../assets/Dashboard/membership-bg-dark.png";
-import { PREMIUM_BENEFITS } from "../dashboardUtils.js";
+import membershipLogo from "../../../assets/Dashboard/logo.png";
+import {
+  DASHBOARD_MEMBER_PROFILE_ID,
+  DASHBOARD_MEMBERSHIP_CARD_ID,
+  PREMIUM_BENEFITS,
+  splitMembershipIdDisplay,
+} from "../dashboardUtils.js";
 import "../../../styles/dashboard-membership-card-section.css";
 
 const BENEFIT_CONFIG = {
@@ -34,18 +38,14 @@ function TwoLineLabel({ lines }) {
 function MembershipBg() {
   return (
     <div className="dash-membership__bg" aria-hidden>
-      <img
-        className="dash-membership__bg-image dash-membership__bg-image--light"
-        src={membershipBgLight}
-        alt=""
-        decoding="async"
-      />
-      <img
-        className="dash-membership__bg-image dash-membership__bg-image--dark"
-        src={membershipBgDark}
-        alt=""
-        decoding="async"
-      />
+      <div className="dash-membership__bg-logo-wrap">
+        <img
+          className="dash-membership__bg-logo logo-glow"
+          src={membershipLogo}
+          alt=""
+          decoding="async"
+        />
+      </div>
     </div>
   );
 }
@@ -59,11 +59,14 @@ export default function DashboardMembershipCardSection({
   hasMembership,
   qrSrc,
 }) {
+  const { primary: membershipIdPrimary, secondary: membershipIdSecondary } =
+    splitMembershipIdDisplay(membershipId);
+
   return (
     <div className="dash-membership-group">
       <section
         className="dash-membership__rect dash-membership__rect--top"
-        id="dash-membership-card"
+        id={DASHBOARD_MEMBERSHIP_CARD_ID}
         aria-labelledby="dash-membership-title"
       >
         <MembershipBg />
@@ -74,13 +77,18 @@ export default function DashboardMembershipCardSection({
             <span className="dash-membership__eyebrow-line" aria-hidden />
           </p>
           <div className="dash-membership__card">
-            <div className="dash-membership__info">
+            <div className="dash-membership__info" id={DASHBOARD_MEMBER_PROFILE_ID}>
               <h2 className="dash-membership__plan" id="dash-membership-title">
                 {hasMembership ? planShort : "No Active Membership"}
               </h2>
               <p className="dash-membership__member">{displayName}</p>
               <p className="dash-membership__id-label">Membership ID</p>
-              <p className="dash-membership__id-value dash-grad-text">{membershipId}</p>
+              <p className="dash-membership__id-value dash-grad-text">
+                <span className="dash-membership__id-line">{membershipIdPrimary}</span>
+                {membershipIdSecondary ? (
+                  <span className="dash-membership__id-line">{membershipIdSecondary}</span>
+                ) : null}
+              </p>
               <div className="dash-membership__dates">
                 <div className="dash-membership__date">
                   <small>Member Since</small>
@@ -92,6 +100,14 @@ export default function DashboardMembershipCardSection({
                   <strong>{validUntil}</strong>
                 </div>
               </div>
+            </div>
+            <div className="dash-membership__logo-col" aria-hidden>
+              <img
+                className="dash-membership__card-logo logo-glow"
+                src={membershipLogo}
+                alt=""
+                decoding="async"
+              />
             </div>
             <div className="dash-membership__qr">
               <div className="dash-membership__qr-code">

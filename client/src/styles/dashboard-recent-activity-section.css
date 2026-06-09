@@ -61,11 +61,36 @@
 
 .dash-activity__item {
   position: relative;
+  padding-bottom: 18px;
+}
+
+.dash-activity__item-link {
   display: grid;
   grid-template-columns: 40px 1fr;
   gap: 14px;
   align-items: center;
-  padding-bottom: 18px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.dash-activity__item-link:hover {
+  background: rgba(26, 167, 196, 0.08);
+}
+
+.dash-activity__item:not(:has(.dash-activity__item-link)) {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 14px;
+  align-items: center;
 }
 
 .dash-activity__item:last-child {
@@ -178,6 +203,10 @@
 
 /* Quick actions */
 
+.dash-quick-actions__title {
+  display: none;
+}
+
 .dash-quick-actions {
   display: grid;
   gap: 10px;
@@ -253,5 +282,94 @@
 .dash-quick-action__arrow {
   color: currentColor;
   flex-shrink: 0;
+}
+
+.dash-quick-action--teal {
+  border-color: rgba(26, 167, 196, 0.5);
+  background: rgba(26, 167, 196, 0.1);
+  color: var(--md-cyan, #1aa7c4);
+}
+
+.dash-quick-action--blue {
+  border-color: rgba(31, 134, 201, 0.5);
+  background: rgba(31, 134, 201, 0.1);
+  color: var(--md-blue, #1f86c9);
+}
+
+.dash-quick-action--green {
+  border-color: rgba(47, 168, 79, 0.5);
+  background: rgba(47, 168, 79, 0.1);
+  color: var(--md-green, #2fa84f);
+}
+
+[data-theme="light"] .dash-quick-action--teal {
+  border-color: rgba(10, 95, 117, 0.42);
+  background: rgba(10, 107, 122, 0.08);
+  color: var(--md-cyan-dark, #0a5f75);
+}
+
+[data-theme="light"] .dash-quick-action--blue {
+  border-color: rgba(13, 82, 136, 0.42);
+  background: rgba(13, 82, 136, 0.08);
+  color: var(--md-blue-dark, #0d5288);
+}
+
+[data-theme="light"] .dash-quick-action--green {
+  border-color: rgba(26, 107, 52, 0.42);
+  background: rgba(26, 107, 52, 0.08);
+  color: var(--md-green-dark, #1a6b34);
+}
+
+.dash-quick-action--teal-dark {
+  border-color: rgba(20, 154, 166, 0.5);
+  background: rgba(20, 154, 166, 0.1);
+  color: var(--md-teal, #149aa6);
+}
+
+[data-theme="light"] .dash-quick-action--teal-dark {
+  border-color: rgba(10, 107, 122, 0.42);
+  background: rgba(10, 107, 122, 0.08);
+  color: var(--md-teal-dark, #0a6b7a);
+}
+
+/* Desktop — unified theme colour for all quick actions */
+@media (min-width: 768px) {
+  [data-theme="dark"] .dash-quick-actions .dash-quick-action,
+  [data-theme="dark"] .dash-quick-actions .dash-quick-action--teal,
+  [data-theme="dark"] .dash-quick-actions .dash-quick-action--blue,
+  [data-theme="dark"] .dash-quick-actions .dash-quick-action--green,
+  [data-theme="dark"] .dash-quick-actions .dash-quick-action--teal-dark {
+    border-color: rgba(26, 167, 196, 0.55);
+    background: rgba(26, 167, 196, 0.12);
+    color: var(--md-cyan, #1aa7c4);
+  }
+
+  [data-theme="dark"] .dash-quick-actions .dash-quick-action:hover,
+  [data-theme="dark"] .dash-quick-actions .dash-quick-action--teal:hover,
+  [data-theme="dark"] .dash-quick-actions .dash-quick-action--blue:hover,
+  [data-theme="dark"] .dash-quick-actions .dash-quick-action--green:hover,
+  [data-theme="dark"] .dash-quick-actions .dash-quick-action--teal-dark:hover {
+    border-color: var(--md-cyan, #1aa7c4);
+    background: rgba(26, 167, 196, 0.18);
+  }
+
+  [data-theme="light"] .dash-quick-actions .dash-quick-action,
+  [data-theme="light"] .dash-quick-actions .dash-quick-action--teal,
+  [data-theme="light"] .dash-quick-actions .dash-quick-action--blue,
+  [data-theme="light"] .dash-quick-actions .dash-quick-action--green,
+  [data-theme="light"] .dash-quick-actions .dash-quick-action--teal-dark {
+    border-color: rgba(10, 95, 117, 0.45);
+    background: rgba(26, 167, 196, 0.1);
+    color: #0a5f75;
+  }
+
+  [data-theme="light"] .dash-quick-actions .dash-quick-action:hover,
+  [data-theme="light"] .dash-quick-actions .dash-quick-action--teal:hover,
+  [data-theme="light"] .dash-quick-actions .dash-quick-action--blue:hover,
+  [data-theme="light"] .dash-quick-actions .dash-quick-action--green:hover,
+  [data-theme="light"] .dash-quick-actions .dash-quick-action--teal-dark:hover {
+    border-color: #0a5f75;
+    background: rgba(26, 167, 196, 0.16);
+  }
 }
 

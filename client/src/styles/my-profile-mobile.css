@@ -1,0 +1,98 @@
+/* My Profile — mobile layout (max-width: 767px), light + dark */
+
+@media (max-width: 767px) {
+  .profile-hero__content {
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 18px 16px;
+  }
+
+  .profile-hero__title {
+    text-align: left;
+  }
+
+  .profile-hero__subtitle {
+    text-align: left;
+    margin-top: 8px;
+  }
+
+  .profile-hero__bg {
+    min-height: 260px;
+    height: 260px;
+  }
+
+  .profile-hero {
+    min-height: 260px;
+  }
+
+  .my-profile-page__content {
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .profile-card__head {
+    padding: 14px 12px;
+  }
+
+  .profile-card__body {
+    padding: 12px 14px 14px;
+  }
+
+  .profile-pay__item {
+    grid-template-columns: 38px minmax(0, 1fr) auto 24px;
+    gap: 8px;
+    padding: 12px 0;
+  }
+
+  .profile-password__row {
+    grid-template-columns: auto auto 1px minmax(0, 1fr) auto;
+  }
+
+  [data-theme="light"] .profile-hero__overlay {
+    background: linear-gradient(180deg, rgba(5, 10, 20, 0.15) 0%, rgba(5, 10, 20, 0.72) 100%);
+  }
+
+  [data-theme="light"] .profile-hero__title--gradient {
+    background: none;
+    -webkit-text-fill-color: #ffffff;
+    color: #ffffff;
+  }
+
+  [data-theme="light"] .profile-hero__subtitle {
+    color: rgba(228, 240, 250, 0.88);
+  }
+
+  [data-theme="light"] .profile-personal__item span {
+    color: var(--profile-text);
+  }
+
+  [data-theme="light"] .profile-card {
+    border-color: rgba(10, 95, 117, 0.18);
+  }
+}
+
+@media (max-width: 380px) {
+  .profile-personal__grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .profile-personal__divider {
+    display: none;
+  }
+
+  .profile-personal__item {
+    justify-items: start;
+    text-align: left;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .profile-personal__item svg {
+    justify-self: start;
+  }
+}

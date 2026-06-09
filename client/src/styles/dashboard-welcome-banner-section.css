@@ -80,15 +80,16 @@
   transform: translateY(-1px);
 }
 
-/* Left content — scaled to banner width (image drives section height) */
+/* Top-left content — scaled to banner width (image drives section height) */
 .dash-welcome__content {
   position: absolute;
-  top: 50%;
+  top: clamp(16px, 2.8cqw, 32px);
   left: 0;
-  transform: translateY(-58%);
+  transform: none;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  text-align: left;
   gap: clamp(10px, 1.4cqw, 14px);
   padding: 0 clamp(24px, 7cqw, 96px);
   max-width: min(58%, 680px);
@@ -113,6 +114,10 @@
   line-height: 1.05;
 }
 
+[data-theme="dark"] .dash-welcome__name {
+  color: #ffffff;
+}
+
 /* Membership badge — rounded rectangle */
 .dash-welcome__badge {
   display: inline-flex;
@@ -130,11 +135,16 @@
   text-decoration: none;
 }
 
+[data-theme="dark"] .dash-welcome__badge {
+  color: #ffffff;
+}
+
 [data-theme="light"] .dash-welcome__badge {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(4px);
   border-color: #0a5f75;
-  color: #0a5f75;
-  box-shadow: 0 4px 14px rgba(15, 53, 78, 0.08);
+  color: #000000;
+  box-shadow: none;
 }
 
 .dash-welcome__badge-icon {
@@ -142,8 +152,12 @@
   font-size: 1em;
 }
 
+[data-theme="dark"] .dash-welcome__badge-icon {
+  color: #ffffff;
+}
+
 [data-theme="light"] .dash-welcome__badge-icon {
-  color: #0a5f75;
+  color: #000000;
 }
 
 .dash-welcome__badge--cta {
@@ -151,9 +165,16 @@
   color: var(--md-green, #2fa84f);
 }
 
+[data-theme="dark"] .dash-welcome__badge--cta {
+  color: #ffffff;
+}
+
 [data-theme="light"] .dash-welcome__badge--cta {
+  background: rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(4px);
   border-color: #1a6b34;
-  color: #1a6b34;
+  color: #000000;
+  box-shadow: none;
 }
 
 .dash-welcome__valid {
@@ -184,7 +205,46 @@
   font-weight: 800;
 }
 
-/* Bottom-center action buttons — scaled to banner */
+/* View Membership — badge styling, top-right (dark theme) */
+button.dash-welcome__badge,
+a.dash-welcome__badge {
+  margin-top: 0;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+button.dash-welcome__badge:hover,
+a.dash-welcome__badge:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.dash-welcome__top-actions {
+  display: flex;
+  position: absolute;
+  top: clamp(14px, 2.2cqw, 24px);
+  right: clamp(14px, 3cqw, 28px);
+  z-index: 3;
+  align-items: center;
+  gap: clamp(8px, 1.2cqw, 12px);
+}
+
+.dash-welcome__badge.dash-welcome__btn--profile {
+  display: none;
+}
+
+.dash-welcome__top-actions .dash-welcome__btn--profile {
+  display: inline-flex;
+}
+
+.dash-welcome__top-actions .dash-welcome__btn--corner {
+  position: static;
+  top: auto;
+  right: auto;
+}
+
+/* Bottom-center action buttons — scaled to banner (light theme) */
 .dash-welcome__actions {
   position: absolute;
   left: 50%;

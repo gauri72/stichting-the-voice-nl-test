@@ -9,6 +9,7 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { apiFetch, authHeaders } from "../../utils/api.js";
 import {
   buildQrSrc,
+  DASHBOARD_ROUTES,
   downloadMembershipCard,
   planShortLabel,
 } from "./dashboardUtils.js";
@@ -17,10 +18,14 @@ import DashboardStatCardsSection from "./sections/DashboardStatCardsSection.jsx"
 import DashboardMembershipCardSection from "./sections/DashboardMembershipCardSection.jsx";
 import DashboardUpcomingEventsSection from "./sections/DashboardUpcomingEventsSection.jsx";
 import DashboardRecentActivitySection from "./sections/DashboardRecentActivitySection.jsx";
+import DashboardImpactSection from "./sections/DashboardImpactSection.jsx";
 import DashboardClosingCtaSection from "./sections/DashboardClosingCtaSection.jsx";
 import "../../styles/dashboard-shared.css";
+import "../../styles/dashboard-desktop.css";
+import "../../styles/dashboard-mobile.css";
 
 const DASHBOARD_DESIGN_WIDTH = 1200;
+const DASHBOARD_MOBILE_BREAKPOINT = 768;
 
 function useDashboardViewportScale(contentRef) {
   const viewportRef = useRef(null);
@@ -32,6 +37,17 @@ function useDashboardViewportScale(contentRef) {
 
     const update = () => {
       const available = viewport.clientWidth;
+
+      if (available < DASHBOARD_MOBILE_BREAKPOINT) {
+        content.style.width = "";
+        content.style.transform = "";
+        content.style.transformOrigin = "";
+        viewport.style.height = "";
+        viewport.dataset.layout = "mobile";
+        return;
+      }
+
+      viewport.dataset.layout = "desktop";
       const scale = Math.min(1, available / DASHBOARD_DESIGN_WIDTH);
 
       if (scale >= 1) {
@@ -120,14 +136,14 @@ export default function MemberDashboard() {
   const hasMembership = Boolean(membership?.hasMembership && active);
 
   const qrSrc = useMemo(() => buildQrSrc(membershipId), [membershipId]);
-  const activity = (dashboard?.activity || []).slice(0, 4);
+  const activity = dashboard?.activity || [];
 
   const quickActions = [
     {
       id: "explore",
       label: "Explore Events",
       icon: <IconCalendarEvent size={20} stroke={1.75} />,
-      to: "/events",
+      to: DASHBOARD_ROUTES.events,
       tone: "teal",
     },
     {
@@ -150,15 +166,15 @@ export default function MemberDashboard() {
       id: "renew",
       label: "Renew Membership",
       icon: <IconRefresh size={20} stroke={1.75} />,
-      to: "/membership#membership-matrix",
+      to: DASHBOARD_ROUTES.membershipMatrix,
       tone: "green",
     },
     {
       id: "upgrade",
       label: "Upgrade Membership",
       icon: <IconCrown size={20} stroke={1.75} />,
-      to: "/membership#membership-matrix",
-      tone: "teal",
+      to: DASHBOARD_ROUTES.membershipMatrix,
+      tone: "teal-dark",
     },
   ];
 
@@ -188,7 +204,6 @@ export default function MemberDashboard() {
       <DashboardWelcomeBannerSection
         displayName={displayName}
         planShort={planShort}
-        validUntil={validUntil}
         hasMembership={hasMembership}
       />
 
@@ -210,6 +225,8 @@ export default function MemberDashboard() {
         />
 
         <DashboardUpcomingEventsSection />
+
+        <DashboardImpactSection overview={overview} />
 
         <DashboardRecentActivitySection activity={activity} quickActions={quickActions} />
 

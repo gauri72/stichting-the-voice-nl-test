@@ -22,7 +22,13 @@
 }
 
 .dash-membership__rect--top {
+  container-type: inline-size;
   min-height: clamp(170px, 26cqw, 240px);
+  background-color: #ffffff;
+}
+
+[data-theme="dark"] .dash-membership__rect--top {
+  background-color: #000000;
 }
 
 .dash-membership__rect--bottom {
@@ -38,34 +44,77 @@
 .dash-membership__bg {
   position: absolute;
   inset: 0;
-  line-height: 0;
   z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-.dash-membership__bg-image {
+.dash-membership__logo-col {
+  display: none;
+}
+
+.dash-membership__card-logo {
+  display: block;
+  width: clamp(64px, 34cqw, 168px);
+  max-height: clamp(64px, 26cqw, 180px);
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+}
+
+.dash-membership__id-line {
+  display: inline;
+}
+
+.dash-membership__bg-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  margin: 0 auto;
+}
+
+.dash-membership__bg-logo {
+  display: block;
+  width: clamp(64px, 34cqw, 168px);
+  max-width: 40%;
+  max-height: clamp(64px, 26cqw, 180px);
+  height: auto;
+  object-fit: contain;
   object-position: center;
-  display: block;
+  margin: 0 auto;
+  user-select: none;
+  opacity: 0.2;
 }
 
-.dash-membership__bg-image--dark {
-  display: none;
+[data-theme="dark"] .dash-membership__bg-logo.logo-glow {
+  opacity: 0.34;
+  filter:
+    drop-shadow(0 0 15px rgba(0, 210, 255, 0.6))
+    drop-shadow(0 0 30px rgba(0, 126, 255, 0.3));
 }
 
-[data-theme="dark"] .dash-membership__bg-image--light {
-  display: none;
+[data-theme="dark"] .dash-membership__rect--top:hover .dash-membership__bg-logo.logo-glow {
+  filter:
+    drop-shadow(0 0 18px rgba(0, 210, 255, 0.75))
+    drop-shadow(0 0 36px rgba(0, 126, 255, 0.45))
+    drop-shadow(0 0 48px rgba(0, 126, 255, 0.2));
 }
 
-[data-theme="dark"] .dash-membership__bg-image--dark {
-  display: block;
+[data-theme="light"] .dash-membership__bg-logo.logo-glow {
+  opacity: 0.16;
+  filter: none;
 }
 
 .dash-membership__rect-body {
   position: relative;
   z-index: 1;
   padding: clamp(16px, 2.4cqw, 24px);
+  isolation: isolate;
 }
 
 .dash-membership__rect--top .dash-membership__rect-body {
@@ -165,9 +214,18 @@
 
 .dash-membership__card {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: clamp(14px, 2.4cqw, 24px);
   align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.dash-membership__info {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  max-width: 58%;
 }
 
 .dash-membership__plan {
@@ -198,7 +256,11 @@
   font-size: clamp(0.58rem, 1cqw, 0.68rem);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #ffffff;
+  color: var(--md-text-soft);
+}
+
+[data-theme="dark"] .dash-membership__rect--top .dash-membership__id-label {
+  color: #9db1c3;
 }
 
 .dash-membership__rect--top .dash-membership__id-value {
@@ -242,8 +304,12 @@
   font-size: clamp(0.58rem, 1cqw, 0.68rem);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #ffffff;
+  color: var(--md-text-soft);
   margin-bottom: 3px;
+}
+
+[data-theme="dark"] .dash-membership__rect--top .dash-membership__date small {
+  color: #9db1c3;
 }
 
 .dash-membership__rect--top .dash-membership__date strong {
@@ -256,7 +322,11 @@
   width: 1px;
   align-self: stretch;
   min-height: 36px;
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--md-border);
+}
+
+[data-theme="dark"] .dash-membership__rect--top .dash-membership__date-divider {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 [data-theme="light"] .dash-membership__rect--top .dash-membership__id-label,
@@ -266,7 +336,7 @@
 }
 
 [data-theme="light"] .dash-membership__rect--top .dash-membership__date-divider {
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 [data-theme="light"] .dash-membership__rect--bottom .dash-membership__benefit-icon {
@@ -274,6 +344,8 @@
 }
 
 .dash-membership__qr {
+  position: relative;
+  z-index: 2;
   background: transparent;
   border: 2px solid var(--md-cyan, #1aa7c4);
   border-radius: 12px;

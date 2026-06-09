@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { FaArrowRight } from "react-icons/fa";
 import { IconChevronRight } from "@tabler/icons-react";
 import {
   IconHeartHandshake,
@@ -9,7 +8,12 @@ import {
   IconUserCheck,
   IconUsersGroup,
 } from "@tabler/icons-react";
-import { timeAgo } from "../dashboardUtils.js";
+import {
+  activityItemHref,
+  DASHBOARD_RECENT_ACTIVITY_ID,
+  scrollToId,
+  timeAgo,
+} from "../dashboardUtils.js";
 import "../../../styles/dashboard-recent-activity-section.css";
 
 const ACTIVITY_ICON_CONFIG = {
@@ -24,13 +28,14 @@ const FALLBACK_ICON = { Icon: IconShieldCheck, tone: "teal" };
 
 export default function DashboardRecentActivitySection({ activity, quickActions }) {
   return (
-    <section className="dash-activity-split" aria-label="Recent activity and quick actions">
+    <section
+      className="dash-activity-split"
+      id={DASHBOARD_RECENT_ACTIVITY_ID}
+      aria-label="Recent activity and quick actions"
+    >
       <div className="dash-activity">
         <div className="dash-activity__head">
           <h2 className="dash-activity__title">Recent Activity</h2>
-          <Link to="/events" className="dash-activity__viewall">
-            View All <FaArrowRight aria-hidden />
-          </Link>
         </div>
 
         {activity.length === 0 ? (
@@ -43,9 +48,9 @@ export default function DashboardRecentActivitySection({ activity, quickActions 
               const config = ACTIVITY_ICON_CONFIG[item.kind] || FALLBACK_ICON;
               const Icon = config.Icon;
               const tone = config.tone;
-
-              return (
-                <li key={item.id} className="dash-activity__item">
+              const destination = activityItemHref(item.kind);
+              const content = (
+                <>
                   <span
                     className={`dash-activity__icon dash-activity__icon--${tone}`}
                     aria-hidden
@@ -59,6 +64,51 @@ export default function DashboardRecentActivitySection({ activity, quickActions 
                     </div>
                     <time dateTime={item.at || undefined}>{timeAgo(item.at)}</time>
                   </div>
+                </>
+              );
+
+              if (destination?.startsWith("#")) {
+                return (
+                  <li key={item.id} className="dash-activity__item">
+                    <button
+                      type="button"
+                      className="dash-activity__item-link"
+                      onClick={() => scrollToId(destination)}
+                    >
+                      {content}
+                    </button>
+                  </li>
+                );
+              }
+
+              if (destination?.startsWith("http")) {
+                return (
+                  <li key={item.id} className="dash-activity__item">
+                    <a
+                      href={destination}
+                      className="dash-activity__item-link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {content}
+                    </a>
+                  </li>
+                );
+              }
+
+              if (destination) {
+                return (
+                  <li key={item.id} className="dash-activity__item">
+                    <Link to={destination} className="dash-activity__item-link">
+                      {content}
+                    </Link>
+                  </li>
+                );
+              }
+
+              return (
+                <li key={item.id} className="dash-activity__item">
+                  {content}
                 </li>
               );
             })}
@@ -67,6 +117,7 @@ export default function DashboardRecentActivitySection({ activity, quickActions 
       </div>
 
       <div className="dash-quick-actions" aria-label="Quick actions">
+        <h2 className="dash-quick-actions__title">Quick Actions</h2>
         {quickActions.map((action) =>
           action.to ? (
             <Link

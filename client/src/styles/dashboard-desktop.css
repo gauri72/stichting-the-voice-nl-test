@@ -1,0 +1,25 @@
+/* Dashboard — desktop-only alignment (min-width: 768px) */
+
+@media (min-width: 768px) {
+  /* Membership card top — vertically center QR in section */
+  .dash-membership__rect--top .dash-membership__rect-body {
+    min-height: clamp(170px, 26cqw, 240px);
+    box-sizing: border-box;
+  }
+
+  .dash-membership__rect--top .dash-membership__qr {
+    position: absolute;
+    top: calc(50% - clamp(10px, 1.6cqw, 16px));
+    right: clamp(12px, 2.4cqw, 24px);
+    transform: translateY(-50%);
+  }
+
+  .dash-membership__rect--top .dash-membership__card {
+    grid-template-columns: minmax(0, 1fr);
+    padding-right: clamp(100px, 13cqw, 132px);
+  }
+
+  .dash-membership__rect--top .dash-membership__info {
+    max-width: none;
+  }
+}

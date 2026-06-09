@@ -13,6 +13,7 @@ import EventsPage from "./components/events/EventsPage";
 import LoginPage from "./components/login/LoginPage";
 import ResetPasswordPage from "./components/login/ResetPasswordPage";
 import DashboardPage from "./components/dashboard/DashboardPage";
+import MyProfilePage from "./components/profile/MyProfilePage";
 import VentureStudioPage from "./components/venture-studio/VentureStudioPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MaintenancePage from "./components/maintenance/MaintenancePage";
@@ -81,6 +82,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/profile"
+            element={
+              <ProtectedRoute>
+                <MyProfilePage />
               </ProtectedRoute>
             }
           />

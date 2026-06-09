@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { FaArrowRight, FaMapMarkerAlt, FaRegCheckCircle } from "react-icons/fa";
-import featuredEventImage from "../../../assets/Events/signature-events-1.png";
-import { UPCOMING_EVENTS } from "../dashboardUtils.js";
+import featuredEventImage from "../../../assets/Dashboard/upcoming-event-1.png";
+import { DASHBOARD_ROUTES, UPCOMING_EVENTS } from "../dashboardUtils.js";
 import "../../../styles/dashboard-upcoming-events-section.css";
 
 const COMING_SOON_COUNT = 3;
@@ -15,7 +15,7 @@ export default function DashboardUpcomingEventsSection() {
         <h2 id="dash-events-title" className="dash-events-section__title">
           Upcoming Events
         </h2>
-        <Link to="/events" className="dash-events__viewall">
+        <Link to={DASHBOARD_ROUTES.events} className="dash-events__viewall">
           View All <FaArrowRight aria-hidden />
         </Link>
       </div>
@@ -39,9 +39,14 @@ export default function DashboardUpcomingEventsSection() {
               <FaRegCheckCircle aria-hidden />
               Registered
             </p>
-            <Link to="/events" className="dash-events__ticket-btn">
+            <a
+              href={featuredEvent.ticketUrl || DASHBOARD_ROUTES.events}
+              className="dash-events__ticket-btn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               View Ticket
-            </Link>
+            </a>
           </div>
         </article>
 

@@ -8,14 +8,44 @@ export const PREMIUM_BENEFITS = [
   { id: "priority", label: "Priority Registration" },
 ];
 
+export const DASHBOARD_MEMBER_PROFILE_ID = "dash-member-profile";
+export const DASHBOARD_MEMBERSHIP_CARD_ID = "dash-membership-card";
+export const DASHBOARD_RECENT_ACTIVITY_ID = "dash-recent-activity";
+export const DASHBOARD_TICKETS_URL =
+  "https://www.tickettailor.com/events/stichtingthevoicenl/2185529";
+
+export const DASHBOARD_ROUTES = {
+  events: "/events",
+  membership: "/membership",
+  membershipMatrix: "/membership#membership-matrix",
+  profile: "/dashboard/profile",
+  donate: "/donate",
+  sponsorship: "/sponsorship",
+};
+
+const ACTIVITY_VIEW_ROUTES = {
+  donation: DASHBOARD_ROUTES.donate,
+  sponsorship: DASHBOARD_ROUTES.sponsorship,
+  membership: DASHBOARD_ROUTES.membership,
+  event_ticket: DASHBOARD_TICKETS_URL,
+  profile_updated: DASHBOARD_ROUTES.profile,
+};
+
+export function activityItemHref(kind) {
+  const route = ACTIVITY_VIEW_ROUTES[kind];
+  if (!route) return null;
+  return route;
+}
+
 export const UPCOMING_EVENTS = [
   {
     id: "couples-night",
     title: "Couples Night 2026",
-    location: "Amsterdam",
+    location: "Den Haag",
     day: "20",
     month: "Jun",
     imageKey: "signature-events-1",
+    ticketUrl: DASHBOARD_TICKETS_URL,
   },
   {
     id: "short-film",
@@ -120,10 +150,41 @@ export function downloadMembershipCard(card) {
 }
 
 export function scrollToId(id) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const targetId = String(id || "").replace(/^#/, "");
+  const el = document.getElementById(targetId);
+  if (!el) return;
+
+  const viewport = el.closest(".member-dashboard-viewport");
+  if (viewport) {
+    const top =
+      el.getBoundingClientRect().top + window.scrollY - parseInt(
+        getComputedStyle(el).scrollMarginTop || "0",
+        10,
+      );
+    window.scrollTo({ top, behavior: "smooth" });
+    return;
+  }
+
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 export function buildQrSrc(membershipId) {
   const data = encodeURIComponent(membershipId !== "—" ? membershipId : "VOICE-NL");
   return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=${data}`;
+}
+
+/** Split membership ID after year segment e.g. VOICE-STU-2026 | remainder */
+export function splitMembershipIdDisplay(id) {
+  const value = String(id || "").trim();
+  if (!value || value === "—") return { primary: value, secondary: "" };
+
+  const match = value.match(/^(.*?2026)(.*)$/i);
+  if (match) {
+    return {
+      primary: match[1].trim(),
+      secondary: match[2].replace(/^[-_\s]+/, "").trim(),
+    };
+  }
+
+  return { primary: value, secondary: "" };
 }

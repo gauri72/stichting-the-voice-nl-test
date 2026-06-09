@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "sync:highlights": "node scripts/sync-event-highlights.js"
+    "sync:highlights": "node scripts/sync-event-highlights.js",
+    "fix:membership-kind": "node scripts/fix-membership-kind.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

@@ -1,18 +1,26 @@
 import { Link } from "react-router-dom";
-import { FaCrown, FaIdCard, FaQrcode, FaRegCalendarAlt, FaSignOutAlt } from "react-icons/fa";
+import { FaCrown, FaIdCard, FaQrcode } from "react-icons/fa";
 import breadcrumbBgLight from "../../../assets/Dashboard/breadcrumb-bg-light.png";
 import breadcrumbBgDark from "../../../assets/Dashboard/breadcrumb-bg-dark.png";
-import { useAuth } from "../../../contexts/AuthContext.jsx";
-import { membershipBadgeLabel, scrollToId } from "../dashboardUtils.js";
+import { useTheme } from "../../../contexts/ThemeContext.jsx";
+import {
+  DASHBOARD_MEMBERSHIP_CARD_ID,
+  DASHBOARD_ROUTES,
+  membershipBadgeLabel,
+  scrollToId,
+} from "../dashboardUtils.js";
 import "../../../styles/dashboard-welcome-banner-section.css";
+
+function welcomeBadgeLabel(planShort) {
+  return membershipBadgeLabel(planShort).replace(/membership/gi, "Member");
+}
 
 export default function DashboardWelcomeBannerSection({
   displayName,
   planShort,
-  validUntil,
   hasMembership,
 }) {
-  const { logout } = useAuth();
+  const { isDark } = useTheme();
 
   return (
     <header className="dash-welcome" aria-labelledby="dash-welcome-name">
@@ -32,51 +40,41 @@ export default function DashboardWelcomeBannerSection({
         />
       </div>
 
-      <button type="button" className="dash-welcome__logout" onClick={logout}>
-        <FaSignOutAlt aria-hidden />
-        <span>Log Out</span>
-      </button>
-
       <div className="dash-welcome__content">
-        <p className="dash-welcome__greeting">Welcome Back,</p>
-        <h1 id="dash-welcome-name" className="dash-welcome__name dash-grad-text">
+        <p className="dash-welcome__greeting">Welcome,</p>
+        <h1
+          id="dash-welcome-name"
+          className={`dash-welcome__name${isDark ? "" : " dash-grad-text"}`}
+        >
           {displayName}
         </h1>
 
         {hasMembership ? (
           <span className="dash-welcome__badge">
             <FaCrown aria-hidden className="dash-welcome__badge-icon" />
-            {membershipBadgeLabel(planShort)}
+            {welcomeBadgeLabel(planShort)}
           </span>
         ) : (
-          <Link to="/membership" className="dash-welcome__badge dash-welcome__badge--cta">
+          <Link to={DASHBOARD_ROUTES.membership} className="dash-welcome__badge dash-welcome__badge--cta">
             <FaCrown aria-hidden className="dash-welcome__badge-icon" />
             Become a Member
           </Link>
         )}
 
-        <p className="dash-welcome__valid">
-          <FaRegCalendarAlt aria-hidden />
-          Valid Until: <strong className="dash-grad-text">{validUntil}</strong>
-        </p>
       </div>
 
-      <div className="dash-welcome__actions">
+      <div className="dash-welcome__top-actions">
+        <Link to={DASHBOARD_ROUTES.profile} className="dash-welcome__badge dash-welcome__btn--profile">
+          <FaIdCard aria-hidden className="dash-welcome__badge-icon" />
+          My Profile
+        </Link>
         <button
           type="button"
-          className="dash-welcome__btn dash-welcome__btn--primary"
-          onClick={() => scrollToId("dash-membership-card")}
+          className="dash-welcome__badge dash-welcome__btn--corner"
+          onClick={() => scrollToId(DASHBOARD_MEMBERSHIP_CARD_ID)}
         >
-          <FaQrcode aria-hidden />
-          View QR Code
-        </button>
-        <button
-          type="button"
-          className="dash-welcome__btn dash-welcome__btn--outline"
-          onClick={() => scrollToId("dash-membership-card")}
-        >
-          <FaIdCard aria-hidden />
-          Membership Card
+          <FaQrcode aria-hidden className="dash-welcome__badge-icon" />
+          View Membership
         </button>
       </div>
     </header>

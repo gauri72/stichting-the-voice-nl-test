@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { IconTicket, IconUser } from "@tabler/icons-react";
+import { IconLayoutDashboard, IconTicket, IconUser } from "@tabler/icons-react";
+import { useAuth } from "../../contexts/AuthContext.jsx";
 import headerLogo from "../../assets/header-logo.png";
 import ThemeToggle from "./ThemeToggle.jsx";
 
