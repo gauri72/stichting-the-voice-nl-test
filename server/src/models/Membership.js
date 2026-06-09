@@ -32,7 +32,7 @@ const membershipSchema = new mongoose.Schema(
     renewalAt: { type: Date, default: null },
     membershipNumber: { type: String, default: "", trim: true, maxlength: 40 }
   },
-  { timestamps: true }
+  { timestamps: true, collection: "memberships" }
 );
 
 membershipSchema.index({ userId: 1, active: 1 });

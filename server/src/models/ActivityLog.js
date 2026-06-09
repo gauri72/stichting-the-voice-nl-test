@@ -11,7 +11,7 @@ const activityLogSchema = new mongoose.Schema(
     summary: { type: String, required: true, maxlength: 200 },
     detail: { type: String, maxlength: 500, default: "" }
   },
-  { timestamps: true }
+  { timestamps: true, collection: "activitylogs" }
 );
 
 const ActivityLog = mongoose.models.ActivityLog || mongoose.model("ActivityLog", activityLogSchema);

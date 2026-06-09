@@ -12,7 +12,7 @@ const eventRegistrationSchema = new mongoose.Schema(
     eventTitle: { type: String, required: true, trim: true, maxlength: 200 },
     notes: { type: String, default: "", maxlength: 500 }
   },
-  { timestamps: true }
+  { timestamps: true, collection: "eventregistrations" }
 );
 
 const EventRegistration =

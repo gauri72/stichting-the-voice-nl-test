@@ -100,24 +100,12 @@ export async function provisionMembershipFromPayment(intent) {
     userId = new mongoose.Types.ObjectId(meta.user_id);
   }
 
-  if (userId) {
-    await Membership.findOneAndUpdate(
-      { userId, active: true },
-      {
-        userId,
-        active: true,
-        planId: plan.id,
-        planName: plan.name,
-        feeMinor: amountPaidMinor,
-        currency: String(intent.currency || "eur").toLowerCase(),
-        startedAt: startDate,
-        endsAt: expiryDate,
-        membershipNumber: membershipId
-      },
-      { upsert: true, setDefaultsOnInsert: true }
-    );
-  }
-
+  // The unique paymentReference index on Member is the SINGLE idempotency gate.
+  // Create it first: if the Stripe webhook and the client confirmation race, only
+  // one create wins. The loser returns the existing record without writing any
+  // further state, so one payment can never produce duplicate members OR duplicate
+  // active memberships — no overlap or override regardless of how many times the
+  // intent is processed.
   let member;
   try {
     member = await Member.create({
@@ -139,10 +127,6 @@ export async function provisionMembershipFromPayment(intent) {
       userId
     });
   } catch (error) {
-    // Webhook and client confirmation can both provision the same intent
-    // concurrently; the unique paymentReference index makes the loser throw
-    // E11000. Treat that as "already provisioned" and return the winning record
-    // so the flow stays idempotent like donations/sponsorships.
     if (error?.code === 11000) {
       const winner = await Member.findOne({ paymentReference: intent.id });
       if (winner) {
@@ -160,6 +144,26 @@ export async function provisionMembershipFromPayment(intent) {
       }
     }
     throw error;
+  }
+
+  // Only the winning run reaches here, so the user's single active membership is
+  // updated exactly once per payment (keyed by userId + active).
+  if (userId) {
+    await Membership.findOneAndUpdate(
+      { userId, active: true },
+      {
+        userId,
+        active: true,
+        planId: plan.id,
+        planName: plan.name,
+        feeMinor: amountPaidMinor,
+        currency: String(intent.currency || "eur").toLowerCase(),
+        startedAt: startDate,
+        endsAt: expiryDate,
+        membershipNumber: membershipId
+      },
+      { upsert: true, setDefaultsOnInsert: true }
+    );
   }
 
   return {

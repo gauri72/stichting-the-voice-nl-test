@@ -2,6 +2,7 @@ import dns from "node:dns";
 import app from "./app.js";
 import env from "./config/env.js";
 import { connectDb } from "./db/connectDb.js";
+import { ensureIndexes } from "./db/ensureIndexes.js";
 import { logStripeConfiguration } from "./services/stripe.js";
 import { logTicketTailorConfiguration } from "./services/ticketTailorService.js";
 import { startPastDataSyncScheduler } from "./services/pastDataSyncScheduler.js";
@@ -38,8 +39,11 @@ startServer();
 
 if (shouldConnectDb) {
   connectDb(env.mongoUri, env.mongoDbName)
-    .then(() => {
+    .then(async () => {
       console.log(`MongoDB connected (db: ${env.mongoDbName})`);
+      await ensureIndexes().catch((err) =>
+        console.warn("[indexes] ensureIndexes failed:", err.message)
+      );
       startPastDataSyncScheduler();
     })
     .catch((error) => {

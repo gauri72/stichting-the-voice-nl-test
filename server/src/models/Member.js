@@ -24,7 +24,7 @@ const memberSchema = new mongoose.Schema(
     receiptNumber: { type: String, default: "", trim: true, index: true },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null, index: true }
   },
-  { timestamps: true }
+  { timestamps: true, collection: "members" }
 );
 
 const Member = mongoose.models.Member || mongoose.model("Member", memberSchema);
