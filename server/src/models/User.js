@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
     passwordResetTokenHash: { type: String, default: null },
     passwordResetExpires: { type: Date, default: null }
   },
-  { timestamps: true }
+  { timestamps: true, collection: "users" }
 );
 
 userSchema.index({ googleId: 1 }, { unique: true, sparse: true });

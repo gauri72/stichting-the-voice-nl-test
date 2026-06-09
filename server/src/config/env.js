@@ -14,6 +14,8 @@ const env = {
     process.env.PUBLIC_API_URL || `http://localhost:${Number(process.env.PORT) || 5000}`
   ).replace(/\/$/, ""),
   mongoUri: process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/voice_nl",
+  // Logical database name (collections: users, payment_transactions, reviews, past_data).
+  mongoDbName: process.env.MONGODB_DB_NAME || "voice_nl_26",
   stripe: {
     secretKey: process.env.STRIPE_SECRET_KEY || "",
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
@@ -60,6 +62,21 @@ const env = {
       .map((s) => s.trim())
       .filter(Boolean)
   },
+  // Periodic Ticket Tailor -> past_data sync (one aggregated doc per email).
+  // Enabled by default whenever a Ticket Tailor API key is present; set
+  // PAST_DATA_SYNC_ENABLED=false to turn it off.
+  pastDataSync: {
+    enabled: String(process.env.PAST_DATA_SYNC_ENABLED || "true").toLowerCase() !== "false",
+    runOnStartup:
+      String(process.env.PAST_DATA_SYNC_ON_STARTUP || "true").toLowerCase() !== "false",
+    intervalHours: Math.max(1, Number(process.env.PAST_DATA_SYNC_INTERVAL_HOURS) || 24)
+  },
+  // Some local resolvers refuse SRV lookups for mongodb+srv://. In non-production,
+  // fall back to public DNS so local dev can reach Atlas. Override with DNS_SERVERS.
+  dnsServers: (process.env.DNS_SERVERS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
   org: {
     contactEmail:
       stripEnv(process.env.CONTACT_EMAIL) ||

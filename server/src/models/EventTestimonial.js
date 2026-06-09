@@ -9,7 +9,7 @@ const eventTestimonialSchema = new mongoose.Schema(
     initials: { type: String, trim: true, maxlength: 4 },
     approved: { type: Boolean, default: true, index: true }
   },
-  { timestamps: true }
+  { timestamps: true, collection: "reviews" }
 );
 
 const EventTestimonial =
