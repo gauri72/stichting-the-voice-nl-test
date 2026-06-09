@@ -6,13 +6,13 @@ import ProfileHeroSection from "./sections/ProfileHeroSection.jsx";
 import ProfilePersonalDetailsCard from "./sections/ProfilePersonalDetailsCard.jsx";
 import ProfileChangePasswordCard from "./sections/ProfileChangePasswordCard.jsx";
 import ProfilePaymentMethodsCard from "./sections/ProfilePaymentMethodsCard.jsx";
-import { formatProfilePhone, PROFILE_ROUTES } from "./profileUtils.js";
+import { PROFILE_ROUTES } from "./profileUtils.js";
 import "../../styles/my-profile-page.css";
 import "../../styles/my-profile-desktop.css";
 import "../../styles/my-profile-mobile.css";
 
 export default function MyProfilePage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -34,12 +34,32 @@ export default function MyProfilePage() {
     load();
   }, [load]);
 
-  const fullName =
-    profile?.fullName ||
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-    "Member";
+  const handleSaveProfile = useCallback(
+    async (values) => {
+      const { user: updatedUser } = await apiFetch("/api/auth/me", {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify(values),
+      });
+      // Reflect the saved values immediately, then refresh global session.
+      setProfile((prev) => ({
+        ...(prev || {}),
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        fullName: [updatedUser.firstName, updatedUser.lastName].filter(Boolean).join(" "),
+        phone: updatedUser.phone || "",
+        email: updatedUser.email,
+      }));
+      await refreshUser();
+      return updatedUser;
+    },
+    [refreshUser]
+  );
+
+  const firstName = profile?.firstName ?? user?.firstName ?? "";
+  const lastName = profile?.lastName ?? user?.lastName ?? "";
   const email = profile?.email || user?.email || "";
-  const phone = formatProfilePhone(profile?.phone || user?.phone);
+  const phone = profile?.phone ?? user?.phone ?? "";
 
   return (
     <div className="my-profile-page">
@@ -64,7 +84,13 @@ export default function MyProfilePage() {
 
           {!loading && !loadError ? (
             <>
-              <ProfilePersonalDetailsCard fullName={fullName} email={email} phone={phone} />
+              <ProfilePersonalDetailsCard
+                firstName={firstName}
+                lastName={lastName}
+                email={email}
+                phone={phone}
+                onSave={handleSaveProfile}
+              />
               <ProfileChangePasswordCard />
               <ProfilePaymentMethodsCard />
             </>

@@ -244,6 +244,32 @@ a.dash-welcome__badge:hover {
   right: auto;
 }
 
+.dash-welcome__btn--logout {
+  border-color: var(--md-red, #c83b3b);
+  color: var(--md-red, #c83b3b);
+}
+
+.dash-welcome__btn--logout .dash-welcome__badge-icon {
+  color: var(--md-red, #c83b3b);
+}
+
+[data-theme="dark"] .dash-welcome__btn--logout,
+[data-theme="dark"] .dash-welcome__btn--logout .dash-welcome__badge-icon {
+  color: #ff8a8a;
+  border-color: #ff8a8a;
+}
+
+[data-theme="light"] .dash-welcome__btn--logout {
+  background: rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(4px);
+  border-color: #b42318;
+  color: #b42318;
+}
+
+[data-theme="light"] .dash-welcome__btn--logout .dash-welcome__badge-icon {
+  color: #b42318;
+}
+
 /* Bottom-center action buttons — scaled to banner (light theme) */
 .dash-welcome__actions {
   position: absolute;

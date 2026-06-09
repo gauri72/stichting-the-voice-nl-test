@@ -14,7 +14,9 @@ const userSchema = new mongoose.Schema(
     verificationOtpHash: { type: String, default: null },
     verificationOtpExpires: { type: Date, default: null },
     passwordResetTokenHash: { type: String, default: null },
-    passwordResetExpires: { type: Date, default: null }
+    passwordResetExpires: { type: Date, default: null },
+    /** Stripe Customer used to store this user's reusable payment methods. */
+    stripeCustomerId: { type: String, default: "", trim: true }
   },
   { timestamps: true, collection: "users" }
 );

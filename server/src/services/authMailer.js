@@ -84,3 +84,43 @@ export async function sendPasswordResetEmail({ to, firstName, resetUrl }) {
 
   return { sent: true };
 }
+
+export async function sendPasswordChangedEmail({ to, firstName, when = new Date() }) {
+  if (!isMailerConfigured()) {
+    console.warn("[authMailer] SMTP not configured — password change confirmation skipped for", to);
+    return { sent: false };
+  }
+
+  const transport = getSmtpTransporter();
+  const name = escapeHtml(firstName || "there");
+  const supportEmail = escapeHtml(env.org.contactEmail);
+  const changedAt = escapeHtml(
+    new Intl.DateTimeFormat("en-GB", {
+      dateStyle: "long",
+      timeStyle: "short",
+      timeZone: "Europe/Amsterdam"
+    }).format(when)
+  );
+
+  const html = `
+    <div style="font-family:Segoe UI,Tahoma,sans-serif;line-height:1.6;color:#17314b;max-width:560px;margin:0 auto;">
+      <h1 style="color:#0d2847;font-size:22px;">Your password was changed</h1>
+      <p>Hi ${name},</p>
+      <p>This is a confirmation that the password for your Stichting The V.O.I.C.E. NL account was successfully changed on <strong>${changedAt}</strong> (Amsterdam time).</p>
+      <p style="margin:24px 0;padding:14px 16px;background:#f4f7fa;border-radius:8px;font-size:14px;color:#3d5568;">
+        If you made this change, no further action is needed.
+      </p>
+      <p style="font-size:13px;color:#7a8ea3;">If you did <strong>not</strong> change your password, your account may be at risk. Please reset your password immediately and contact us at <a href="mailto:${supportEmail}">${supportEmail}</a>.</p>
+    </div>
+  `;
+
+  await transport.sendMail({
+    ...baseMailOptions(),
+    to,
+    subject: "Your Stichting The V.O.I.C.E. NL password was changed",
+    html,
+    text: `Hi ${firstName || "there"},\n\nThis confirms your account password was changed on ${changedAt} (Amsterdam time).\n\nIf you did not make this change, reset your password immediately and contact ${env.org.contactEmail}.`
+  });
+
+  return { sent: true };
+}

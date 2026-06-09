@@ -352,6 +352,182 @@
   min-height: 30px;
   padding: 5px 10px;
   font-size: 0.64rem;
+  gap: 5px;
+}
+
+.profile-btn--solid {
+  background: var(--profile-accent);
+  color: #ffffff;
+  border-color: var(--profile-accent);
+}
+
+.profile-btn--solid:hover {
+  background: var(--profile-accent);
+  filter: brightness(1.06);
+}
+
+.profile-btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Editable form */
+
+.profile-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.profile-form__field {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.profile-form__field > span {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--profile-text-soft);
+}
+
+.profile-form__field input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 11px;
+  border: 1px solid var(--profile-border);
+  border-radius: 8px;
+  background: var(--profile-bg);
+  color: var(--profile-text);
+  font-family: inherit;
+  font-size: 0.82rem;
+}
+
+.profile-form__field input:focus {
+  outline: none;
+  border-color: var(--profile-accent);
+  box-shadow: 0 0 0 2px var(--profile-accent-soft);
+}
+
+.profile-form__field--readonly input {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.profile-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.profile-form__error {
+  margin: 12px 0 0;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #c0392b;
+}
+
+[data-theme="dark"] .profile-form__error {
+  color: #ff8a7a;
+}
+
+.profile-form__success {
+  margin: 12px 0 0;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--profile-green);
+}
+
+.profile-form__success--padded {
+  padding: 0 14px 14px;
+}
+
+.profile-form__grid--single {
+  grid-template-columns: 1fr;
+}
+
+.profile-form__hint {
+  font-size: 0.66rem;
+  color: var(--profile-text-soft);
+}
+
+.profile-form__password {
+  position: relative;
+  display: block;
+}
+
+.profile-form__password input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.profile-form__password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--profile-text-soft);
+  cursor: pointer;
+}
+
+.profile-form__password-toggle:hover {
+  color: var(--profile-accent);
+  background: var(--profile-accent-soft);
+}
+
+/* Payment methods — Stripe-backed */
+
+.profile-pay__hint {
+  margin: 4px 0 12px;
+  font-size: 0.74rem;
+  color: var(--profile-text-soft);
+}
+
+.profile-pay__setup {
+  padding: 4px 0 14px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--profile-border);
+}
+
+.profile-pay__setup-form {
+  display: grid;
+  gap: 14px;
+}
+
+.profile-pay__secure--inline {
+  margin-top: 2px;
+  padding-top: 0;
+  border-top: none;
+}
+
+.profile-pay__brand--ideal,
+.profile-pay__brand--sepa {
+  width: auto;
+  min-width: 42px;
+  padding: 0 6px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  background: #cc0066;
+}
+
+.profile-pay__brand--sepa {
+  background: #10298e;
+}
+
+.profile-pay__menu[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Payment methods */

@@ -190,6 +190,63 @@ export async function completePaymentReturn(stripe, { onSuccess, onError }) {
   return true;
 }
 
+/* ---- SetupIntent (save a payment method) return handling ---- */
+
+export const SETUP_RETURN_PARAM = "pm_setup_return";
+
+export function buildSetupReturnUrl(path = "/dashboard/profile") {
+  const url = new URL(path, window.location.origin);
+  url.searchParams.set(SETUP_RETURN_PARAM, "1");
+  return url.toString();
+}
+
+export function isSetupReturnUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return (
+    params.get(SETUP_RETURN_PARAM) === "1" &&
+    Boolean(params.get("setup_intent_client_secret"))
+  );
+}
+
+function clearSetupReturnQuery() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete(SETUP_RETURN_PARAM);
+  url.searchParams.delete("setup_intent");
+  url.searchParams.delete("setup_intent_client_secret");
+  url.searchParams.delete("redirect_status");
+  const next = `${url.pathname}${url.search}${url.hash}`;
+  window.history.replaceState({}, "", next);
+}
+
+/**
+ * After a redirect-based payment method (e.g. iDEAL) finishes saving, complete the flow
+ * on the return URL. Returns the succeeded SetupIntent (or null).
+ */
+export async function completeSetupReturn(stripe, { onSuccess, onError } = {}) {
+  if (!stripe || !isSetupReturnUrl()) return null;
+
+  const clientSecret = new URLSearchParams(window.location.search).get(
+    "setup_intent_client_secret"
+  );
+  const { setupIntent, error } = await stripe.retrieveSetupIntent(clientSecret);
+  clearSetupReturnQuery();
+
+  if (error) {
+    onError?.(error.message || "Could not verify your saved payment method.");
+    return null;
+  }
+  if (setupIntent?.status === "succeeded") {
+    await onSuccess?.(setupIntent);
+    return setupIntent;
+  }
+  if (setupIntent?.status === "processing") {
+    onError?.("Your payment method is being saved. It will appear here shortly.");
+    return setupIntent;
+  }
+  onError?.("Saving your payment method was not completed. Please try again.");
+  return setupIntent;
+}
+
 function resolvePayerBillingDetails(payer = {}) {
   const name = String(
     payer.name || [payer.firstName, payer.lastName].filter(Boolean).join(" ") || ""

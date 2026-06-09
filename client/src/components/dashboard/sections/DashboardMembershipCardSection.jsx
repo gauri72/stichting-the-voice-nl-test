@@ -82,24 +82,33 @@ export default function DashboardMembershipCardSection({
                 {hasMembership ? planShort : "No Active Membership"}
               </h2>
               <p className="dash-membership__member">{displayName}</p>
-              <p className="dash-membership__id-label">Membership ID</p>
-              <p className="dash-membership__id-value dash-grad-text">
-                <span className="dash-membership__id-line">{membershipIdPrimary}</span>
-                {membershipIdSecondary ? (
-                  <span className="dash-membership__id-line">{membershipIdSecondary}</span>
-                ) : null}
-              </p>
-              <div className="dash-membership__dates">
-                <div className="dash-membership__date">
-                  <small>Member Since</small>
-                  <strong>{memberSince}</strong>
-                </div>
-                <span className="dash-membership__date-divider" aria-hidden />
-                <div className="dash-membership__date">
-                  <small>Valid Until</small>
-                  <strong>{validUntil}</strong>
-                </div>
-              </div>
+              {hasMembership ? (
+                <>
+                  <p className="dash-membership__id-label">Membership ID</p>
+                  <p className="dash-membership__id-value dash-grad-text">
+                    <span className="dash-membership__id-line">{membershipIdPrimary}</span>
+                    {membershipIdSecondary ? (
+                      <span className="dash-membership__id-line">{membershipIdSecondary}</span>
+                    ) : null}
+                  </p>
+                  <div className="dash-membership__dates">
+                    <div className="dash-membership__date">
+                      <small>Member Since</small>
+                      <strong>{memberSince}</strong>
+                    </div>
+                    <span className="dash-membership__date-divider" aria-hidden />
+                    <div className="dash-membership__date">
+                      <small>Valid Until</small>
+                      <strong>{validUntil}</strong>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p className="dash-membership__empty-hint">
+                  You don&apos;t have an active membership yet. Join to get your digital
+                  card and QR code.
+                </p>
+              )}
             </div>
             <div className="dash-membership__logo-col" aria-hidden>
               <img
@@ -109,11 +118,13 @@ export default function DashboardMembershipCardSection({
                 decoding="async"
               />
             </div>
-            <div className="dash-membership__qr">
-              <div className="dash-membership__qr-code">
-                <img src={qrSrc} alt={`Membership QR code for ${membershipId}`} loading="lazy" />
+            {hasMembership ? (
+              <div className="dash-membership__qr">
+                <div className="dash-membership__qr-code">
+                  <img src={qrSrc} alt={`Membership QR code for ${membershipId}`} loading="lazy" />
+                </div>
               </div>
-            </div>
+            ) : null}
           </div>
         </div>
       </section>

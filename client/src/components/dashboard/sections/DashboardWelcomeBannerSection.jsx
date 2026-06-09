@@ -1,8 +1,9 @@
-import { Link } from "react-router-dom";
-import { FaCrown, FaIdCard, FaQrcode } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { FaCrown, FaIdCard, FaQrcode, FaSignOutAlt } from "react-icons/fa";
 import breadcrumbBgLight from "../../../assets/Dashboard/breadcrumb-bg-light.png";
 import breadcrumbBgDark from "../../../assets/Dashboard/breadcrumb-bg-dark.png";
 import { useTheme } from "../../../contexts/ThemeContext.jsx";
+import { useAuth } from "../../../contexts/AuthContext.jsx";
 import {
   DASHBOARD_MEMBERSHIP_CARD_ID,
   DASHBOARD_ROUTES,
@@ -21,6 +22,13 @@ export default function DashboardWelcomeBannerSection({
   hasMembership,
 }) {
   const { isDark } = useTheme();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate("/my-account", { replace: true });
+  }
 
   return (
     <header className="dash-welcome" aria-labelledby="dash-welcome-name">
@@ -75,6 +83,14 @@ export default function DashboardWelcomeBannerSection({
         >
           <FaQrcode aria-hidden className="dash-welcome__badge-icon" />
           View Membership
+        </button>
+        <button
+          type="button"
+          className="dash-welcome__badge dash-welcome__btn--logout"
+          onClick={handleLogout}
+        >
+          <FaSignOutAlt aria-hidden className="dash-welcome__badge-icon" />
+          Log Out
         </button>
       </div>
     </header>

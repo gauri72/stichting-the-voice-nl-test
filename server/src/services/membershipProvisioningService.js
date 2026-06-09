@@ -89,12 +89,15 @@ export async function provisionMembershipFromPayment(intent) {
   const receiptNumber = await buildMembershipReceiptNumber(startDate);
   const amountPaidMinor = intent.amount_received || intent.amount;
 
+  // Attribute the membership to the account that owns the member email — NOT the
+  // logged-in user from metadata. Otherwise a logged-in user who enters someone
+  // else's email at checkout would have the membership linked to their account.
   let userId = null;
-  if (meta.user_id && mongoose.isValidObjectId(meta.user_id)) {
+  const emailOwner = await User.findOne({ email }).select("_id").lean();
+  if (emailOwner) {
+    userId = emailOwner._id;
+  } else if (meta.user_id && mongoose.isValidObjectId(meta.user_id)) {
     userId = new mongoose.Types.ObjectId(meta.user_id);
-  } else {
-    const match = await User.findOne({ email }).select("_id").lean();
-    userId = match?._id || null;
   }
 
   if (userId) {
@@ -115,24 +118,49 @@ export async function provisionMembershipFromPayment(intent) {
     );
   }
 
-  const member = await Member.create({
-    membershipId,
-    firstName: meta.sponsor_first_name || firstName,
-    lastName: meta.sponsor_last_name || lastName,
-    email,
-    membershipType: plan.name,
-    planId: plan.id,
-    amountPaidMinor,
-    currency: String(intent.currency || "eur").toLowerCase(),
-    startDate,
-    expiryDate,
-    membershipStatus: "active",
-    qrCodeUrl,
-    verificationToken,
-    paymentReference: intent.id,
-    receiptNumber,
-    userId
-  });
+  let member;
+  try {
+    member = await Member.create({
+      membershipId,
+      firstName: meta.sponsor_first_name || firstName,
+      lastName: meta.sponsor_last_name || lastName,
+      email,
+      membershipType: plan.name,
+      planId: plan.id,
+      amountPaidMinor,
+      currency: String(intent.currency || "eur").toLowerCase(),
+      startDate,
+      expiryDate,
+      membershipStatus: "active",
+      qrCodeUrl,
+      verificationToken,
+      paymentReference: intent.id,
+      receiptNumber,
+      userId
+    });
+  } catch (error) {
+    // Webhook and client confirmation can both provision the same intent
+    // concurrently; the unique paymentReference index makes the loser throw
+    // E11000. Treat that as "already provisioned" and return the winning record
+    // so the flow stays idempotent like donations/sponsorships.
+    if (error?.code === 11000) {
+      const winner = await Member.findOne({ paymentReference: intent.id });
+      if (winner) {
+        const winnerPlan = getPlan(winner.planId) || plan;
+        return {
+          member: winner.toObject(),
+          created: false,
+          emailPayload: buildMembershipEmailPayload({
+            member: winner,
+            plan: winnerPlan,
+            intent,
+            paymentMethod: meta.payment_method_label || "Card via Stripe"
+          })
+        };
+      }
+    }
+    throw error;
+  }
 
   return {
     member: member.toObject(),

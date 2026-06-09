@@ -7,7 +7,8 @@ import {
   getUserById,
   requestPasswordReset,
   resetPassword,
-  updateUserProfile
+  updateUserProfile,
+  changePassword
 } from "../services/authService.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
 
@@ -108,6 +109,21 @@ export async function updateProfile(req, res) {
     const { firstName, lastName, phone } = req.body || {};
     const result = await updateUserProfile(req.user.id, { firstName, lastName, phone });
     return res.status(200).json({ user: result.user });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function changePasswordHandler(req, res) {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: "Current and new password are required." });
+    }
+
+    const result = await changePassword(req.user.id, { currentPassword, newPassword });
+    return res.status(200).json(result);
   } catch (error) {
     return handleError(res, error);
   }

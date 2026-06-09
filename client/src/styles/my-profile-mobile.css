@@ -51,6 +51,10 @@
     grid-template-columns: auto auto 1px minmax(0, 1fr) auto;
   }
 
+  .profile-form__grid {
+    grid-template-columns: 1fr;
+  }
+
   [data-theme="light"] .profile-hero__overlay {
     background: linear-gradient(180deg, rgba(5, 10, 20, 0.15) 0%, rgba(5, 10, 20, 0.72) 100%);
   }

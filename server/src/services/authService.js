@@ -6,7 +6,11 @@ import { OAuth2Client } from "google-auth-library";
 import env from "../config/env.js";
 import User from "../models/User.js";
 import ActivityLog from "../models/ActivityLog.js";
-import { sendVerificationOtpEmail, sendPasswordResetEmail } from "./authMailer.js";
+import {
+  sendVerificationOtpEmail,
+  sendPasswordResetEmail,
+  sendPasswordChangedEmail
+} from "./authMailer.js";
 
 const OTP_TTL_MS = 10 * 60 * 1000;
 const RESET_TTL_MS = 60 * 60 * 1000;
@@ -307,6 +311,84 @@ export async function updateUserProfile(userId, { firstName, lastName, phone }) 
   });
 
   return { user: user.toSafeJSON() };
+}
+
+export async function changePassword(userId, { currentPassword, newPassword }) {
+  if (!isDbReady()) {
+    const err = new Error("Database is not available. Please try again later.");
+    err.status = 503;
+    throw err;
+  }
+
+  if (!currentPassword || !newPassword) {
+    const err = new Error("Current and new password are required.");
+    err.status = 400;
+    throw err;
+  }
+
+  if (String(newPassword).length < 8) {
+    const err = new Error("New password must be at least 8 characters long.");
+    err.status = 400;
+    throw err;
+  }
+
+  const user = await User.findById(userId);
+  if (!user || !user.isVerified) {
+    const err = new Error("User not found.");
+    err.status = 404;
+    throw err;
+  }
+
+  if (user.authProvider === "google" && user.googleId) {
+    const err = new Error(
+      "This account uses Google sign-in, so it has no password to change."
+    );
+    err.status = 400;
+    throw err;
+  }
+
+  const currentOk = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!currentOk) {
+    const err = new Error("Your current password is incorrect.");
+    err.status = 400;
+    throw err;
+  }
+
+  const sameAsOld = await bcrypt.compare(newPassword, user.passwordHash);
+  if (sameAsOld) {
+    const err = new Error("Your new password must be different from your current password.");
+    err.status = 400;
+    throw err;
+  }
+
+  user.passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+  // Invalidate any outstanding reset links once the password changes.
+  user.passwordResetTokenHash = null;
+  user.passwordResetExpires = null;
+  await user.save();
+
+  await ActivityLog.create({
+    userId: user._id,
+    kind: "password_changed",
+    summary: "Account password changed"
+  });
+
+  let emailSent = false;
+  try {
+    const result = await sendPasswordChangedEmail({
+      to: user.email,
+      firstName: user.firstName,
+      when: new Date()
+    });
+    emailSent = Boolean(result?.sent);
+  } catch (error) {
+    console.error("[auth] Failed to send password change confirmation:", error.message);
+  }
+
+  return {
+    message: "Your password has been updated. A confirmation email has been sent to you.",
+    emailSent
+  };
 }
 
 let googleOAuthClient = null;

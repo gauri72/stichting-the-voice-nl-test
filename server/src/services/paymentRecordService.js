@@ -25,12 +25,15 @@ export async function recordSucceededPaymentIntent(intent, overrides = {}) {
       : meta.payment_kind === "membership"
         ? "membership"
         : "sponsorship");
+  // Attribute the payment to the account that owns the donor email — NOT the
+  // logged-in user from metadata — so records never leak onto the wrong account
+  // when someone checks out with a different email than they logged in with.
   let userId = null;
-  if (meta.user_id && mongoose.isValidObjectId(meta.user_id)) {
+  const emailOwner = await User.findOne({ email: donorEmail }).select("_id").lean();
+  if (emailOwner) {
+    userId = emailOwner._id;
+  } else if (meta.user_id && mongoose.isValidObjectId(meta.user_id)) {
     userId = new mongoose.Types.ObjectId(meta.user_id);
-  } else {
-    const match = await User.findOne({ email: donorEmail }).select("_id").lean();
-    userId = match?._id || null;
   }
 
   const amountMinor = intent.amount_received || intent.amount;

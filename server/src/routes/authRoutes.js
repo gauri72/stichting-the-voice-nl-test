@@ -9,6 +9,7 @@ import {
   forgotPassword,
   resetPasswordHandler,
   updateProfile,
+  changePasswordHandler,
   requireAuth
 } from "../controllers/authController.js";
 
@@ -23,5 +24,6 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPasswordHandler);
 router.get("/me", requireAuth, me);
 router.patch("/me", requireAuth, updateProfile);
+router.patch("/password", requireAuth, changePasswordHandler);
 
 export default router;

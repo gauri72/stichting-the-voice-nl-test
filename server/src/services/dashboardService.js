@@ -163,31 +163,42 @@ export async function getDashboardPayloadForUser(safeUser) {
   const activityItems = [];
 
   for (const t of transactions) {
+    const at = t.paidAt?.toISOString?.() || t.createdAt?.toISOString?.();
+    const receiptSuffix = t.receiptNumber ? ` (${t.receiptNumber})` : "";
     if (t.kind === "donation") {
       activityItems.push({
         id: `pay-${t.paymentIntentId}`,
         kind: "donation",
         title: "Donation completed",
-        text: `${formatEur(t.amountMinor)} — ${t.tierName || "Donation"}${
-          t.receiptNumber ? ` (${t.receiptNumber})` : ""
-        }`,
-        at: t.paidAt?.toISOString?.() || t.createdAt?.toISOString?.()
+        text: `${formatEur(t.amountMinor)} — ${t.tierName || "Donation"}${receiptSuffix}`,
+        at
+      });
+    } else if (t.kind === "membership") {
+      activityItems.push({
+        id: `pay-${t.paymentIntentId}`,
+        kind: "membership",
+        title: "Membership confirmed",
+        text: `${formatEur(t.amountMinor)} — ${t.tierName || "Membership"}${receiptSuffix}`,
+        at
       });
     } else {
       activityItems.push({
         id: `pay-${t.paymentIntentId}`,
         kind: "sponsorship",
         title: "Sponsorship confirmed",
-        text: `${formatEur(t.amountMinor)} — ${t.tierName || "Sponsorship"}${
-          t.receiptNumber ? ` (${t.receiptNumber})` : ""
-        }`,
-        at: t.paidAt?.toISOString?.() || t.createdAt?.toISOString?.()
+        text: `${formatEur(t.amountMinor)} — ${t.tierName || "Sponsorship"}${receiptSuffix}`,
+        at
       });
     }
   }
 
+  const LOG_TITLES = {
+    profile_updated: "Profile updated",
+    password_changed: "Password changed",
+    payment_method_added: "Payment method added"
+  };
   for (const log of activityLogs) {
-    const title = log.kind === "profile_updated" ? "Profile updated" : "Account activity";
+    const title = LOG_TITLES[log.kind] || "Account activity";
     activityItems.push({
       id: `log-${log._id}`,
       kind: log.kind,
