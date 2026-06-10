@@ -1,5 +1,5 @@
 // Authoritative price list. Amounts are in cents to avoid floating-point errors.
-// Keep in sync with the tiers shown in client/src/components/sponsorship/SponsorshipTiersSection.jsx.
+// Keep in sync with the tiers shown in client/src/data/sponsorshipTiersDisplay.js.
 const SPONSORSHIP_TIERS = {
   associate: {
     id: "associate",
@@ -27,7 +27,7 @@ const SPONSORSHIP_TIERS = {
   },
   custom: {
     id: "custom",
-    name: "Custom sponsorship",
+    name: "Tailored Sponsorship",
     amount: 50,
     minAmount: 50,
     allowCustom: true

@@ -1,4 +1,4 @@
-// Amounts in cents (EUR). Keep in sync with client/src/components/donate/DonateChooseImpactSection.jsx.
+// Amounts in cents (EUR). Keep in sync with client/src/data/donateTiersDisplay.js.
 const DONATION_TIERS = {
   "25": {
     id: "25",
@@ -32,7 +32,7 @@ const DONATION_TIERS = {
   },
   custom: {
     id: "custom",
-    name: "Custom amount",
+    name: "Pay As You Wish",
     amount: 50,
     minAmount: 50,
     allowCustom: true

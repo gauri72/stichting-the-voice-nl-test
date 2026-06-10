@@ -9,6 +9,7 @@ import publicRoutes from "./publicRoutes.js";
 import contactRoutes from "./contactRoutes.js";
 import testimonialRoutes from "./testimonialRoutes.js";
 import membershipRoutes from "./membershipRoutes.js";
+import adminRoutes from "./adminRoutes.js";
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use("/payments", paymentRoutes);
 router.use("/payment-methods", paymentMethodRoutes);
 router.use("/membership", membershipRoutes);
 router.use("/dashboard", dashboardRoutes);
+router.use("/admin", adminRoutes);
 
 export default router;

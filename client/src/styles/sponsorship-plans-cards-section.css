@@ -1,0 +1,550 @@
+/* Sponsorship — tier cards (desktop columns, mobile horizontal rows) */
+
+.sponsorship-plans-cards-section {
+  --spc-bg: #060b14;
+  --spc-card-bg: #0b111a;
+  --spc-text: #f4f7fb;
+  --spc-price: #ff5c8a;
+  --spc-pink: #ff4d8d;
+  --spc-teal: #2ec4c7;
+  --spc-orange: #ff9f43;
+  --spc-gold: #f0b429;
+  --spc-purple: #b47aff;
+  --spc-check-green: #4ade80;
+  background: var(--spc-bg);
+  padding: clamp(14px, 2.5vw, 22px) clamp(12px, 2.5vw, 24px) clamp(20px, 3vw, 30px);
+  font-family: var(--font-poppins);
+}
+
+.sponsorship-plans-cards-section__inner {
+  max-width: 1320px;
+  margin-inline: auto;
+}
+
+.sponsorship-plans-cards {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(10px, 1.4vw, 16px);
+  align-items: stretch;
+}
+
+/* Desktop — original vertical centered cards */
+.sponsorship-plans-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: 100%;
+  padding: clamp(16px, 2vw, 22px) clamp(12px, 1.4vw, 16px) clamp(18px, 2vw, 22px);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--spc-card-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.sponsorship-plans-card__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  min-height: 100%;
+}
+
+.sponsorship-plans-card__content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+.sponsorship-plans-card__badge {
+  margin: 0;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f0b429 0%, #e5a020 100%);
+  color: #1a1200;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  box-shadow: 0 0 16px rgba(240, 180, 41, 0.45);
+}
+
+.sponsorship-plans-card__badge--desktop {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.sponsorship-plans-card__badge--mobile {
+  display: none;
+}
+
+.sponsorship-plans-card__icon-wrap {
+  margin-top: 6px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.sponsorship-plans-card__icon-ring {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(52px, 5vw, 64px);
+  height: clamp(52px, 5vw, 64px);
+  border-radius: 50%;
+  border: 1px solid currentColor;
+}
+
+.sponsorship-plans-card__icon {
+  width: clamp(26px, 2.6vw, 32px);
+  height: clamp(26px, 2.6vw, 32px);
+}
+
+.sponsorship-plans-card__title {
+  margin: 0;
+  color: var(--spc-text);
+  font-size: clamp(0.82rem, 1vw, 0.98rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.sponsorship-plans-card__price {
+  margin: 6px 0 0;
+  color: var(--spc-price);
+  font-size: clamp(0.9rem, 1.1vw, 1.05rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.sponsorship-plans-card__price--custom {
+  font-size: clamp(1rem, 1.25vw, 1.2rem);
+  letter-spacing: 0.02em;
+}
+
+.sponsorship-plans-card__description {
+  margin: 10px 0 0;
+  color: #ffffff;
+  font-size: clamp(0.68rem, 0.82vw, 0.76rem);
+  line-height: 1.45;
+  min-height: 4.5em;
+}
+
+.sponsorship-plans-card__features {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 14px 0 0;
+  width: 100%;
+  text-align: left;
+  flex: 1 1 auto;
+  border-top: 1px solid currentColor;
+}
+
+.sponsorship-plans-card__features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--spc-text);
+  font-size: clamp(0.66rem, 0.8vw, 0.74rem);
+  line-height: 1.35;
+}
+
+.sponsorship-plans-card__features-more {
+  display: none;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.sponsorship-plans-card__feature-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sponsorship-plans-card__cta {
+  margin-top: 16px;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: currentColor;
+  font-family: inherit;
+  font-size: clamp(0.62rem, 0.78vw, 0.72rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sponsorship-plans-card__cta:hover {
+  transform: translateY(-1px);
+}
+
+.sponsorship-plans-card__cta:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Tier themes */
+.sponsorship-plans-card--pink {
+  color: var(--spc-pink);
+  border-color: rgba(255, 77, 141, 0.42);
+}
+
+.sponsorship-plans-card--pink .sponsorship-plans-card__icon-ring {
+  background: rgba(255, 77, 141, 0.18);
+  border-color: rgba(255, 77, 141, 0.55);
+  box-shadow: 0 0 18px rgba(255, 77, 141, 0.35), inset 0 0 14px rgba(255, 77, 141, 0.12);
+}
+
+.sponsorship-plans-card--pink .sponsorship-plans-card__feature-icon {
+  color: var(--spc-pink);
+}
+
+.sponsorship-plans-card--teal {
+  color: var(--spc-teal);
+  border-color: rgba(46, 196, 199, 0.42);
+}
+
+.sponsorship-plans-card--teal .sponsorship-plans-card__icon-ring {
+  background: rgba(46, 196, 199, 0.18);
+  border-color: rgba(46, 196, 199, 0.55);
+  box-shadow: 0 0 18px rgba(46, 196, 199, 0.35), inset 0 0 14px rgba(46, 196, 199, 0.12);
+}
+
+.sponsorship-plans-card--teal .sponsorship-plans-card__feature-icon {
+  color: var(--spc-teal);
+}
+
+.sponsorship-plans-card--orange {
+  color: var(--spc-orange);
+  border-color: rgba(255, 159, 67, 0.42);
+}
+
+.sponsorship-plans-card--orange .sponsorship-plans-card__icon-ring {
+  background: rgba(255, 159, 67, 0.18);
+  border-color: rgba(255, 159, 67, 0.55);
+  box-shadow: 0 0 18px rgba(255, 159, 67, 0.35), inset 0 0 14px rgba(255, 159, 67, 0.12);
+}
+
+.sponsorship-plans-card--orange .sponsorship-plans-card__feature-icon {
+  color: var(--spc-orange);
+}
+
+.sponsorship-plans-card--gold {
+  color: var(--spc-gold);
+  border-color: rgba(240, 180, 41, 0.42);
+}
+
+.sponsorship-plans-card--gold .sponsorship-plans-card__icon-ring {
+  background: rgba(240, 180, 41, 0.18);
+  border-color: rgba(240, 180, 41, 0.55);
+  box-shadow: 0 0 18px rgba(240, 180, 41, 0.35), inset 0 0 14px rgba(240, 180, 41, 0.12);
+}
+
+.sponsorship-plans-card--gold .sponsorship-plans-card__feature-icon {
+  color: var(--spc-gold);
+}
+
+.sponsorship-plans-card--purple {
+  color: var(--spc-purple);
+  border-color: rgba(180, 122, 255, 0.42);
+}
+
+.sponsorship-plans-card--purple .sponsorship-plans-card__icon-ring {
+  background: rgba(180, 122, 255, 0.18);
+  border-color: rgba(180, 122, 255, 0.55);
+  box-shadow: 0 0 18px rgba(180, 122, 255, 0.35), inset 0 0 14px rgba(180, 122, 255, 0.12);
+}
+
+.sponsorship-plans-card--purple .sponsorship-plans-card__feature-icon {
+  color: var(--spc-purple);
+}
+
+.sponsorship-plans-card--popular {
+  margin-top: 14px;
+  border-width: 2px;
+  border-color: var(--spc-gold);
+  box-shadow:
+    0 0 18px rgba(240, 180, 41, 0.28),
+    0 0 36px rgba(240, 180, 41, 0.12),
+    0 10px 28px rgba(0, 0, 0, 0.32);
+}
+
+.sponsorship-plans-card--popular .sponsorship-plans-card__cta {
+  background: linear-gradient(90deg, #f0b429 0%, #e5a020 100%);
+  border-color: transparent;
+  color: #1a1200;
+  box-shadow: 0 0 14px rgba(240, 180, 41, 0.35);
+}
+
+.sponsorship-plans-card--popular .sponsorship-plans-card__cta:hover {
+  box-shadow: 0 0 20px rgba(240, 180, 41, 0.45);
+}
+
+[data-theme="light"] .sponsorship-plans-cards-section {
+  --spc-bg: var(--color-bg);
+  --spc-card-bg: var(--color-surface-elevated);
+  --spc-text: var(--color-heading);
+}
+
+[data-theme="light"] .sponsorship-plans-card__description {
+  color: var(--color-heading);
+}
+
+[data-theme="light"] .sponsorship-plans-card {
+  box-shadow: 0 8px 20px var(--color-shadow);
+}
+
+@media (max-width: 1180px) {
+  .sponsorship-plans-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sponsorship-plans-card--popular {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 820px) and (min-width: 901px) {
+  .sponsorship-plans-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile — stacked layout for readable, aligned tier content */
+@media (max-width: 900px) {
+  .sponsorship-plans-cards-section {
+    padding-inline: 10px;
+  }
+
+  .sponsorship-plans-cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    max-width: none;
+  }
+
+  .sponsorship-plans-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 12px;
+    border-radius: 12px;
+    text-align: left;
+  }
+
+  .sponsorship-plans-card--popular {
+    margin-top: 0;
+  }
+
+  .sponsorship-plans-card__badge--desktop {
+    display: none;
+  }
+
+  .sponsorship-plans-card__badge--mobile {
+    display: inline-block;
+    margin: 0 0 8px;
+    padding: 3px 8px;
+    font-size: 0.46rem;
+    box-shadow: 0 0 10px rgba(240, 180, 41, 0.35);
+  }
+
+  .sponsorship-plans-card__inner {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto auto;
+    align-items: start;
+    column-gap: 12px;
+    row-gap: 12px;
+    width: 100%;
+  }
+
+  .sponsorship-plans-card__icon-wrap {
+    margin: 0;
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  .sponsorship-plans-card__icon-ring {
+    width: 46px;
+    height: 46px;
+  }
+
+  .sponsorship-plans-card__icon {
+    width: 22px;
+    height: 22px;
+    color: #ffffff;
+  }
+
+  [data-theme="light"] .sponsorship-plans-card__icon {
+    color: currentColor;
+  }
+
+  .sponsorship-plans-card__content {
+    display: contents;
+  }
+
+  .sponsorship-plans-card__info {
+    grid-column: 2;
+    grid-row: 1;
+    flex: none;
+    min-width: 0;
+    padding-right: 0;
+    border-right: none;
+    width: auto;
+  }
+
+  .sponsorship-plans-card__title {
+    font-size: 0.92rem;
+    text-align: left;
+    line-height: 1.25;
+  }
+
+  .sponsorship-plans-card--pink .sponsorship-plans-card__price,
+  .sponsorship-plans-card--teal .sponsorship-plans-card__price,
+  .sponsorship-plans-card--orange .sponsorship-plans-card__price,
+  .sponsorship-plans-card--gold .sponsorship-plans-card__price,
+  .sponsorship-plans-card--purple .sponsorship-plans-card__price {
+    color: inherit;
+  }
+
+  .sponsorship-plans-card--pink .sponsorship-plans-card__price {
+    color: var(--spc-pink);
+  }
+
+  .sponsorship-plans-card--teal .sponsorship-plans-card__price {
+    color: var(--spc-teal);
+  }
+
+  .sponsorship-plans-card--orange .sponsorship-plans-card__price {
+    color: var(--spc-orange);
+  }
+
+  .sponsorship-plans-card--gold .sponsorship-plans-card__price,
+  .sponsorship-plans-card--popular .sponsorship-plans-card__price {
+    color: var(--spc-gold);
+  }
+
+  .sponsorship-plans-card--purple .sponsorship-plans-card__price {
+    color: var(--spc-purple);
+  }
+
+  .sponsorship-plans-card__price {
+    margin-top: 4px;
+    font-size: 0.88rem;
+    white-space: normal;
+    text-align: left;
+  }
+
+  .sponsorship-plans-card__description {
+    margin-top: 8px;
+    min-height: 0;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    text-align: left;
+  }
+
+  .sponsorship-plans-card__features {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    flex: none;
+    width: 100%;
+    margin: 0;
+    padding: 12px 0 0;
+    border-top: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+    align-self: stretch;
+  }
+
+  .sponsorship-plans-card__features li {
+    margin-bottom: 6px;
+    font-size: 0.68rem;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .sponsorship-plans-card__features li:last-child {
+    margin-bottom: 0;
+  }
+
+  .sponsorship-plans-card__features-more {
+    display: none;
+  }
+
+  .sponsorship-plans-card__feature-icon {
+    width: 14px;
+    height: 14px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .sponsorship-plans-card__cta {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin-top: 0;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    min-height: 42px;
+    padding: 10px 14px;
+    font-size: 0.68rem;
+    line-height: 1.2;
+    align-self: stretch;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+@media (max-width: 560px) {
+  .sponsorship-plans-card {
+    padding: 12px 10px;
+  }
+
+  .sponsorship-plans-card__inner {
+    gap: 10px;
+  }
+
+  .sponsorship-plans-card__icon-ring {
+    width: 42px;
+    height: 42px;
+  }
+
+  .sponsorship-plans-card__icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sponsorship-plans-card__title {
+    font-size: 0.84rem;
+  }
+
+  .sponsorship-plans-card__price {
+    font-size: 0.8rem;
+  }
+
+  .sponsorship-plans-card__description {
+    font-size: 0.68rem;
+  }
+
+  .sponsorship-plans-card__features li {
+    font-size: 0.64rem;
+  }
+
+  .sponsorship-plans-card__cta {
+    min-height: 40px;
+    font-size: 0.62rem;
+  }
+
+  .sponsorship-plans-card__badge--mobile {
+    font-size: 0.4rem;
+    padding: 2px 6px;
+  }
+}

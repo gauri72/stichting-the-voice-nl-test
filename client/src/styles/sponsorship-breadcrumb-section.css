@@ -1,316 +1,35 @@
+/* Sponsorship page — hero image only (full image visible at all breakpoints) */
+
 .sponsorship-page-hero {
-  background-color: #001933;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  height: clamp(280px, 33.6vw, 520px);
-  padding: clamp(24px, 4vw, 48px) clamp(16px, 4vw, 62px) clamp(22px, 3vw, 34px);
-  display: flex;
-  align-items: flex-start;
-  position: relative;
-  isolation: isolate;
-}
-
-.sponsorship-page-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(1, 25, 52, 0.42), rgba(1, 25, 52, 0.18));
-  opacity: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.sponsorship-page-hero__container {
-  width: min(700px, 100%);
-  position: relative;
-  z-index: 1;
-  text-align: left;
-}
-
-.sponsorship-page-hero h1 {
+  display: block;
+  width: 100%;
   margin: 0;
-  color: #f7fbff;
-  font-size: clamp(1.9rem, 3.7vw, 3.5rem);
-  line-height: 1.12;
-  letter-spacing: 0.01em;
-  font-weight: 800;
-  max-width: none;
+  padding: 0;
+  line-height: 0;
+  background-color: var(--color-bg);
 }
 
-.sponsorship-page-hero__title-line {
+.sponsorship-page-hero__image {
   display: block;
-  color: #f7fbff;
-  white-space: nowrap;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center top;
 }
 
-.sponsorship-page-hero__title-gradient {
+.sponsorship-page-hero__image--dark {
+  display: none;
+}
+
+[data-theme="dark"] .sponsorship-page-hero {
+  background-color: #000000;
+}
+
+[data-theme="dark"] .sponsorship-page-hero__image--light {
+  display: none;
+}
+
+[data-theme="dark"] .sponsorship-page-hero__image--dark {
   display: block;
-  white-space: nowrap;
-  line-height: 1.16;
-  padding-bottom: 0.08em;
-  background: linear-gradient(90deg, #1a7db5, #4da377);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-}
-
-.sponsorship-page-hero__intro {
-  margin: 16px 0 0;
-  color: #e5edf6;
-  font-size: clamp(0.95rem, 1.22vw, 1.2rem);
-  line-height: 1.5;
-  max-width: 52ch;
-}
-
-.sponsorship-page-hero__actions {
-  margin-top: 18px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-
-.sponsorship-page-hero__cta {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  min-height: 48px;
-  padding: 10px 20px;
-  border-radius: 7px;
-  border: 1px solid transparent;
-  text-decoration: none;
-  color: #ffffff;
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  overflow: hidden;
-  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
-}
-
-.sponsorship-page-hero__cta--primary {
-  background: linear-gradient(90deg, #5eaa69 0%, #0f8f90 100%);
-  min-width: 176px;
-}
-
-.sponsorship-page-hero__cta:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
-  filter: brightness(1.06);
-}
-
-.sponsorship-page-hero__cta:focus-visible {
-  outline: 2px solid #9fe6de;
-  outline-offset: 3px;
-}
-
-@media (min-width: 1201px) {
-  .sponsorship-page-hero {
-    height: clamp(320px, 33.6vw, 520px);
-    padding: clamp(28px, 3.2vw, 46px) clamp(30px, 4.5vw, 72px) clamp(18px, 2.2vw, 30px);
-    background-position: center 47%;
-  }
-
-  .sponsorship-page-hero__container {
-    width: min(660px, 56%);
-  }
-
-  .sponsorship-page-hero h1 {
-    font-size: clamp(2.2rem, 3.8vw, 3.9rem);
-    line-height: 1.1;
-    letter-spacing: 0;
-  }
-
-  .sponsorship-page-hero__intro {
-    margin-top: 15px;
-    font-size: clamp(1rem, 1.15vw, 1.24rem);
-    line-height: 1.5;
-    max-width: 48ch;
-  }
-
-  .sponsorship-page-hero__actions {
-    margin-top: 20px;
-    gap: 14px;
-    align-items: center;
-  }
-
-  .sponsorship-page-hero__cta {
-    min-height: 48px;
-    padding: 10px 22px;
-    font-size: 0.86rem;
-  }
-}
-
-@media (max-width: 1200px) and (min-width: 901px) {
-  .sponsorship-page-hero {
-    height: clamp(300px, 34vw, 390px);
-    padding: clamp(22px, 2.8vw, 30px) clamp(20px, 3.5vw, 38px) clamp(18px, 2.2vw, 28px);
-    background-position: 62% center;
-  }
-
-  .sponsorship-page-hero__container {
-    width: min(560px, 58%);
-  }
-
-  .sponsorship-page-hero h1 {
-    font-size: clamp(1.9rem, 3vw, 2.6rem);
-    line-height: 1.12;
-  }
-
-  .sponsorship-page-hero__intro {
-    margin-top: 12px;
-    font-size: clamp(0.92rem, 1.05vw, 1.03rem);
-    max-width: 46ch;
-  }
-
-  .sponsorship-page-hero__actions {
-    margin-top: 16px;
-    gap: 10px;
-  }
-
-  .sponsorship-page-hero__cta {
-    min-height: 44px;
-    padding: 8px 16px;
-    font-size: 0.74rem;
-  }
-}
-
-@media (max-width: 900px) {
-  .sponsorship-page-hero {
-    height: auto;
-    min-height: 340px;
-    padding: 20px 16px 40px;
-    background-position: 68% center;
-  }
-
-  .sponsorship-page-hero::before {
-    opacity: 1;
-    background: linear-gradient(90deg, rgba(1, 25, 52, 0.62), rgba(1, 25, 52, 0.3));
-  }
-
-  .sponsorship-page-hero__container {
-    width: min(500px, 100%);
-  }
-
-  .sponsorship-page-hero h1 {
-    font-size: clamp(1.45rem, 4vw, 2.1rem);
-    line-height: 1.16;
-  }
-
-  .sponsorship-page-hero__title-line,
-  .sponsorship-page-hero__title-gradient {
-    white-space: normal;
-  }
-
-  .sponsorship-page-hero__intro {
-    margin-top: 11px;
-    max-width: 41ch;
-    font-size: 0.9rem;
-    line-height: 1.48;
-  }
-
-  .sponsorship-page-hero__actions {
-    margin-top: 14px;
-    gap: 10px;
-  }
-
-  .sponsorship-page-hero__cta {
-    min-height: 42px;
-    padding: 8px 14px;
-    font-size: 0.76rem;
-    letter-spacing: 0.025em;
-    min-width: 0;
-  }
-}
-
-@media (max-width: 700px) {
-  .sponsorship-page-hero {
-    min-height: 350px;
-    padding: 16px 12px 40px;
-    background-position: 72% center;
-    align-items: flex-start;
-  }
-
-  .sponsorship-page-hero::before {
-    opacity: 1;
-    background: linear-gradient(90deg, rgba(1, 25, 52, 0.72), rgba(1, 25, 52, 0.34));
-  }
-
-  .sponsorship-page-hero__container {
-    width: min(380px, 100%);
-  }
-
-  .sponsorship-page-hero h1 {
-    font-size: clamp(1.26rem, 5.8vw, 1.8rem);
-    line-height: 1.15;
-  }
-
-  .sponsorship-page-hero__title-line,
-  .sponsorship-page-hero__title-gradient {
-    white-space: nowrap;
-  }
-
-  .sponsorship-page-hero__intro {
-    margin-top: 10px;
-    font-size: 0.84rem;
-    line-height: 1.44;
-    max-width: 33ch;
-  }
-
-  .sponsorship-page-hero__actions {
-    margin-top: 12px;
-    gap: 8px;
-  }
-
-  .sponsorship-page-hero__cta {
-    min-height: 40px;
-    padding: 7px 12px;
-    font-size: 0.72rem;
-    white-space: nowrap;
-  }
-}
-
-@media (max-width: 480px) {
-  .sponsorship-page-hero {
-    min-height: 330px;
-    padding: 14px 10px 36px;
-    background-position: 75% center;
-  }
-
-  .sponsorship-page-hero::before {
-    opacity: 1;
-    background: linear-gradient(90deg, rgba(1, 25, 52, 0.76), rgba(1, 25, 52, 0.38));
-  }
-
-  .sponsorship-page-hero__container {
-    width: 100%;
-  }
-
-  .sponsorship-page-hero h1 {
-    font-size: clamp(1.08rem, 6.2vw, 1.42rem);
-  }
-
-  .sponsorship-page-hero__intro {
-    font-size: 0.76rem;
-    max-width: 30ch;
-    line-height: 1.42;
-  }
-
-  .sponsorship-page-hero__actions {
-    width: 100%;
-    gap: 8px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .sponsorship-page-hero__cta {
-    min-height: 38px;
-    font-size: 0.64rem;
-    letter-spacing: 0.02em;
-    padding: 7px 9px;
-    width: min(210px, 100%);
-  }
 }

@@ -7,6 +7,9 @@ import EventTestimonial from "../models/EventTestimonial.js";
 import ActivityLog from "../models/ActivityLog.js";
 import EventRegistration from "../models/EventRegistration.js";
 import SequenceCounter from "../models/SequenceCounter.js";
+import Admin from "../models/Admin.js";
+import EmailTemplate from "../models/EmailTemplate.js";
+import EmailBroadcast from "../models/EmailBroadcast.js";
 
 /**
  * Every model maps to exactly one explicitly-named collection in the active
@@ -24,7 +27,10 @@ const MODELS = [
   ["reviews", EventTestimonial],
   ["activitylogs", ActivityLog],
   ["eventregistrations", EventRegistration],
-  ["sequencecounters", SequenceCounter]
+  ["sequencecounters", SequenceCounter],
+  ["admins", Admin],
+  ["email_templates", EmailTemplate],
+  ["email_broadcasts", EmailBroadcast]
 ];
 
 export async function ensureIndexes() {

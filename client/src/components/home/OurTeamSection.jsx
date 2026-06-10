@@ -1,37 +1,16 @@
+import TEAM_MEMBERS from "../../data/teamMembers.js";
 import "../../styles/our-team.css";
-import team1 from "../../assets/Home/team/team-1.png";
-import team2 from "../../assets/Home/team/team-2.png";
-import team3 from "../../assets/Home/team/team-3.png";
-import team4 from "../../assets/Home/team/team-4.png";
-import team5 from "../../assets/Home/team/team-5.png";
-import team6 from "../../assets/Home/team/team-6.png";
-import team7 from "../../assets/Home/team/team-7.png";
-import team8 from "../../assets/Home/team/team-8.png";
-import team9 from "../../assets/Home/team/team-9.png";
-import team10 from "../../assets/Home/team/team-10.png";
-import team11 from "../../assets/Home/team/team-11.png";
-import team12 from "../../assets/Home/team/team-12.png";
-import team13 from "../../assets/Home/team/team-13.png";
 
-const teamMembers = [
-  { name: "Shivam Joshi", role: "President", image: team1 },
-  { name: "Rajendra Rade", role: "Treasurer", image: team2 },
-  { name: "Saurabh Sharma", role: "Secretary General", image: team3 },
-  { name: "Rucha Naik", role: "Executive Board Member", image: team4 },
-  { name: "Kirtee Kulkarni", role: "Social Media Manager", image: team5 },
-  { name: "Sreedevi Mahadevan", role: "Event Manager", image: team6 },
-  { name: "Aditya Wankhade", role: "Event Management Team", image: team7 },
-  { name: "Priyanka Bhide", role: "Executive Board Member", image: team8 },
-  { name: "Yazhini Sivakumar", role: "Event Management Team", image: team9 },
-  { name: "Dr. Manasi Moharil", role: "Event Management Team", image: team10 },
-  { name: "Shivani Trifaley", role: "PR Manager", image: team11 },
-  { name: "Anshika Singh", role: "PR Manager", image: team12 },
-  { name: "Parth Upadhyay", role: "Event Management Team", image: team13 }
-];
+export default function OurTeamSection({ sectionClassName = "", marquee = false }) {
+  const loopedMembers = marquee ? [...TEAM_MEMBERS, ...TEAM_MEMBERS] : TEAM_MEMBERS;
 
-export default function OurTeamSection() {
   return (
-    <section className="our-team-section" aria-labelledby="our-team-title">
+    <section
+      className={`our-team-section${sectionClassName ? ` ${sectionClassName}` : ""}${
+        marquee ? " our-team-section--marquee" : ""
+      }`}
+      aria-labelledby="our-team-title"
+    >
       <div className="our-team-inner">
         <div className="our-team-heading">
           <span className="our-team-heading-line" aria-hidden="true" />
@@ -41,17 +20,37 @@ export default function OurTeamSection() {
           <span className="our-team-heading-line" aria-hidden="true" />
         </div>
 
-        <div className="our-team-grid" role="list" aria-label="Our team members">
-          {teamMembers.map(({ name, role, image }) => (
-            <article key={name} className="our-team-card" role="listitem">
-              <div className="our-team-photo-wrap">
-                <img className="our-team-photo" src={image} alt={name} loading="lazy" />
-              </div>
-              <h3>{name}</h3>
-              <p>{role}</p>
-            </article>
-          ))}
-        </div>
+        {marquee ? (
+          <div className="our-team-marquee" aria-label="Our team members">
+            <div className="our-team-marquee__track">
+              {loopedMembers.map(({ name, role, image }, index) => (
+                <article
+                  key={`${name}-${index}`}
+                  className="our-team-card our-team-card--marquee"
+                  role="listitem"
+                >
+                  <div className="our-team-photo-wrap">
+                    <img className="our-team-photo" src={image} alt={name} loading="lazy" />
+                  </div>
+                  <h3>{name}</h3>
+                  <p>{role}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="our-team-grid" role="list" aria-label="Our team members">
+            {TEAM_MEMBERS.map(({ name, role, image }) => (
+              <article key={name} className="our-team-card" role="listitem">
+                <div className="our-team-photo-wrap">
+                  <img className="our-team-photo" src={image} alt={name} loading="lazy" />
+                </div>
+                <h3>{name}</h3>
+                <p>{role}</p>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,59 +1,45 @@
-import { FaArrowRightLong } from "react-icons/fa6";
-import { FaGift, FaHandHoldingHeart, FaUserFriends } from "react-icons/fa";
-import "../../styles/donate-section-heading.css";
+import { IconArrowRight, IconGift, IconHeartHandshake, IconUsersGroup } from "@tabler/icons-react";
+import { DONATION_OTHER_WAYS } from "../../data/donateTiersDisplay.js";
 import "../../styles/donate-other-ways-section.css";
 
-const columns = [
-  {
-    title: "Corporate Partnerships",
-    text: "Partner with us to create meaningful impact together.",
-    Icon: FaHandHoldingHeart,
-    href: "/sponsorship",
-  },
-  {
-    title: "In-Kind Donations",
-    text: "Support our cause by donating goods, services or resources.",
-    Icon: FaGift,
-    href: "mailto:info@stichtingthevoice.nl?subject=In-kind%20donation",
-  },
-  {
-    title: "Volunteer With Us",
-    text: "Give your time and skills to help our community thrive.",
-    Icon: FaUserFriends,
-    href: "mailto:info@stichtingthevoice.nl?subject=Volunteering",
-  },
-];
+const OTHER_WAY_ICONS = {
+  handshake: IconHeartHandshake,
+  gift: IconGift,
+  volunteer: IconUsersGroup,
+};
 
 export default function DonateOtherWaysSection() {
   return (
-    <section id="donate-other-ways" className="donate-other" aria-labelledby="donate-other-title">
-      <div className="donate-other__container">
-        <header className="donate-section__header">
-          <div className="donate-section__heading">
-            <span className="donate-section__heading-line" aria-hidden="true" />
-            <h2 id="donate-other-title" className="donate-section__title">
-              Other Ways to Give
-            </h2>
-            <span className="donate-section__heading-line" aria-hidden="true" />
-          </div>
-        </header>
+    <section
+      id="donate-other-ways"
+      className="donate-other-ways-section"
+      aria-labelledby="donate-other-ways-title"
+    >
+      <div className="donate-other-ways-section__inner">
+        <h2 id="donate-other-ways-title" className="donate-other-ways-section__title">
+          Other Ways to Give
+        </h2>
 
-        <div className="donate-other__grid" role="list">
-          {columns.map(({ title, text, Icon, href }) => (
-            <article key={title} className="donate-other__card" role="listitem">
-              <span className="donate-other__icon" aria-hidden="true">
-                <Icon />
-              </span>
-              <div className="donate-other__body">
-                <h3>{title}</h3>
-                <p>{text}</p>
-                <a className="donate-other__link" href={href}>
-                  Learn More
-                  <FaArrowRightLong aria-hidden />
-                </a>
-              </div>
-            </article>
-          ))}
+        <div className="donate-other-ways-section__grid" role="list">
+          {DONATION_OTHER_WAYS.map(({ title, text, icon, href }) => {
+            const Icon = OTHER_WAY_ICONS[icon] || IconGift;
+
+            return (
+              <article key={title} className="donate-other-ways-section__card" role="listitem">
+                <span className="donate-other-ways-section__icon-wrap" aria-hidden="true">
+                  <Icon className="donate-other-ways-section__icon" stroke={1.5} />
+                </span>
+                <div className="donate-other-ways-section__body">
+                  <h3 className="donate-other-ways-section__card-title">{title}</h3>
+                  <p className="donate-other-ways-section__card-text">{text}</p>
+                  <a className="donate-other-ways-section__link" href={href}>
+                    Learn More
+                    <IconArrowRight size={16} stroke={2} aria-hidden />
+                  </a>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

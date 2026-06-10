@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
+import { AdminAuthProvider } from "./contexts/AdminAuthContext.jsx";
 import { ThemeProvider } from "./contexts/ThemeContext.jsx";
 import { initializeCookieConsent } from "./utils/cookieConsent.js";
 import App from "./App";
@@ -33,9 +34,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <AppProviders>
         <ThemeProvider>
           <AuthProvider>
-            <AppErrorBoundary>
-              <App />
-            </AppErrorBoundary>
+            <AdminAuthProvider>
+              <AppErrorBoundary>
+                <App />
+              </AppErrorBoundary>
+            </AdminAuthProvider>
           </AuthProvider>
         </ThemeProvider>
       </AppProviders>

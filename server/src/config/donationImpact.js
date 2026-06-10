@@ -1,5 +1,5 @@
 // Tier impact copy for donation thank-you email and receipt PDF.
-// Keep in sync with client/src/components/donate/DonateChooseImpactSection.jsx tier ids.
+// Keep in sync with client/src/data/donateTiersDisplay.js tier ids.
 
 export const DONATION_IMPACT = [
   {
@@ -35,7 +35,7 @@ export const DONATION_IMPACT = [
   {
     id: "custom",
     amount: "Custom",
-    tier: "Custom donation",
+    tier: "Pay As You Wish",
     description: "Give any amount you wish — every contribution helps our mission."
   }
 ];

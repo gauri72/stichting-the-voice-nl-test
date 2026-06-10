@@ -29,7 +29,7 @@ const footerNavLinks = [
   { label: "Home", to: "/" },
   { label: "Experience", to: "/events" },
   { label: "Stories", to: "/segments/vision-of-sounds" },
-  { label: "Impact", to: "/segments/vownl" },
+  { label: "Impact", to: "/impact" },
   { label: "Innovation", to: "/voice-venture-studio" },
   { label: "Become A Member", to: "/membership" },
   { label: "Sponsor Us", to: "/sponsorship" },

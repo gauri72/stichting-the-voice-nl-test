@@ -40,6 +40,16 @@ body {
   flex: 1;
 }
 
+.app-main--standalone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main--standalone > * {
+  flex: 1;
+}
+
 .app-container {
   max-width: 1180px;
   margin: 0 auto;

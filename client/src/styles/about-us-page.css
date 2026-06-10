@@ -1,0 +1,510 @@
+/* About Us page — mobile-first dark / light theme */
+
+.about-us-page-shell {
+  --au-bg: #060b14;
+  --au-surface: #0b111a;
+  --au-surface-soft: #101722;
+  --au-border: rgba(255, 255, 255, 0.12);
+  --au-text: #f4f7fb;
+  --au-muted: #9fb0c4;
+  --au-accent: #2ec4c7;
+  --au-accent-strong: #1f9ea8;
+  --au-magenta: #d94f9b;
+  --au-gold: #d4a82a;
+  --au-blue: #3b9ede;
+  background: var(--au-bg);
+  color: var(--au-text);
+  font-family: var(--font-poppins);
+  padding-bottom: clamp(24px, 4vw, 40px);
+}
+
+.about-us-accent {
+  color: var(--au-accent);
+}
+
+[data-theme="light"] .about-us-page-shell {
+  --au-bg: var(--color-bg);
+  --au-surface: var(--color-surface-elevated);
+  --au-surface-soft: var(--color-surface);
+  --au-border: var(--color-border);
+  --au-text: var(--color-heading);
+  --au-muted: var(--color-text-secondary);
+}
+
+.about-us-section-title {
+  margin: 0 0 clamp(14px, 2.5vw, 20px);
+  text-align: center;
+  color: var(--au-text);
+  font-size: clamp(1rem, 2.4vw, 1.55rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Breadcrumb */
+
+.about-us-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px clamp(12px, 3vw, 24px) 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.about-us-breadcrumb__home,
+.about-us-breadcrumb__link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--au-accent);
+  text-decoration: none;
+}
+
+.about-us-breadcrumb__link:hover,
+.about-us-breadcrumb__home:hover {
+  text-decoration: underline;
+}
+
+.about-us-breadcrumb__sep {
+  color: var(--au-muted);
+  flex-shrink: 0;
+}
+
+.about-us-breadcrumb__current {
+  color: var(--au-text);
+}
+
+/* Hero */
+
+.about-us-hero {
+  padding: clamp(12px, 2.5vw, 20px) clamp(12px, 3vw, 24px) clamp(16px, 2.5vw, 24px);
+}
+
+.about-us-hero__copy {
+  max-width: 920px;
+}
+
+.about-us-hero__title {
+  margin: 0;
+  font-size: clamp(1.55rem, 5.5vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.about-us-hero__tagline {
+  margin: 10px 0 0;
+  font-size: clamp(0.92rem, 2.8vw, 1.25rem);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.about-us-hero__description {
+  margin: 12px 0 0;
+  max-width: 62ch;
+  color: var(--au-muted);
+  font-size: clamp(0.78rem, 2.2vw, 0.95rem);
+  line-height: 1.55;
+}
+
+.about-us-hero__media {
+  margin-top: 14px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--au-border);
+  line-height: 0;
+}
+
+.about-us-hero__image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.about-us-hero__image--dark {
+  display: none;
+}
+
+[data-theme="dark"] .about-us-hero__image--light {
+  display: none;
+}
+
+[data-theme="dark"] .about-us-hero__image--dark {
+  display: block;
+}
+
+/* Mission */
+
+.about-us-mission {
+  padding: 0 clamp(12px, 3vw, 24px) clamp(16px, 2.5vw, 22px);
+}
+
+.about-us-mission__inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: grid;
+  gap: 12px;
+  padding: clamp(14px, 2vw, 18px);
+  border: 1px solid var(--au-border);
+  border-radius: 12px;
+  background: var(--au-surface);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.about-us-mission__label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.about-us-mission__icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  color: var(--au-accent);
+  border: 1px solid rgba(46, 196, 199, 0.45);
+  background: rgba(46, 196, 199, 0.12);
+  flex-shrink: 0;
+}
+
+.about-us-mission__icon {
+  width: 22px;
+  height: 22px;
+}
+
+.about-us-mission__label {
+  margin: 0;
+  color: var(--au-accent);
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.about-us-mission__text {
+  margin: 0;
+  color: var(--au-muted);
+  font-size: clamp(0.78rem, 2.1vw, 0.92rem);
+  line-height: 1.55;
+}
+
+[data-theme="light"] .about-us-mission__inner {
+  box-shadow: 0 8px 20px var(--color-shadow);
+}
+
+/* Core pillars (home section inside about page) */
+
+.about-us-page-shell .about-us-pillars {
+  margin-bottom: 0;
+  padding-top: 0;
+  background: transparent;
+}
+
+.about-us-page-shell .about-us-pillars .our-pillars-section__title {
+  color: var(--au-text);
+}
+
+.about-us-page-shell .about-us-pillars .our-pillars-section__heading-line {
+  background: var(--au-accent);
+}
+
+/* What we do */
+
+.about-us-what-we-do {
+  padding: clamp(16px, 2.5vw, 24px) clamp(12px, 3vw, 24px);
+}
+
+.about-us-what-we-do__grid {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.about-us-what-card {
+  border: 1px solid var(--au-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--au-surface);
+}
+
+.about-us-what-card__media {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.about-us-what-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.about-us-what-card__body {
+  padding: 12px 14px 14px;
+}
+
+.about-us-what-card__title {
+  margin: 0;
+  font-size: clamp(0.88rem, 2.3vw, 1rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.about-us-what-card__text {
+  margin: 8px 0 0;
+  color: var(--au-muted);
+  font-size: clamp(0.72rem, 2vw, 0.84rem);
+  line-height: 1.45;
+}
+
+.about-us-what-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.about-us-what-card--teal .about-us-what-card__title,
+.about-us-what-card--teal .about-us-what-card__link {
+  color: var(--au-accent-strong);
+}
+
+.about-us-what-card--magenta .about-us-what-card__title,
+.about-us-what-card--magenta .about-us-what-card__link {
+  color: var(--au-magenta);
+}
+
+.about-us-what-card--gold .about-us-what-card__title,
+.about-us-what-card--gold .about-us-what-card__link {
+  color: var(--au-gold);
+}
+
+.about-us-what-card--blue .about-us-what-card__title,
+.about-us-what-card--blue .about-us-what-card__link {
+  color: var(--au-blue);
+}
+
+/* Values */
+
+.about-us-values-section {
+  padding: clamp(16px, 2.5vw, 24px) clamp(12px, 3vw, 24px);
+}
+
+.about-us-values-section__inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  border: 1px solid var(--au-border);
+  border-radius: 12px;
+  background: var(--au-surface);
+  padding: clamp(14px, 2vw, 18px);
+}
+
+.about-us-values-section__grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.about-us-values-section__item {
+  text-align: center;
+  padding: 8px 6px;
+  border: 1px solid var(--au-border);
+  border-radius: 10px;
+  background: var(--au-surface-soft);
+}
+
+.about-us-values-section__icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--au-accent);
+  border: 1px solid rgba(46, 196, 199, 0.35);
+  background: rgba(46, 196, 199, 0.1);
+}
+
+.about-us-values-section__icon {
+  width: 18px;
+  height: 18px;
+}
+
+.about-us-values-section__item-title {
+  margin: 8px 0 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.about-us-values-section__item-text {
+  margin: 4px 0 0;
+  color: var(--au-muted);
+  font-size: 0.62rem;
+  line-height: 1.35;
+}
+
+/* Impact stats */
+
+.about-us-impact {
+  padding: 0 clamp(12px, 3vw, 24px) clamp(16px, 2.5vw, 22px);
+}
+
+.about-us-impact__grid {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.about-us-impact__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 12px 10px;
+  border: 1px solid var(--au-border);
+  border-radius: 12px;
+  background: var(--au-surface);
+}
+
+.about-us-impact__icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.about-us-impact__icon {
+  width: 20px;
+  height: 20px;
+}
+
+.about-us-impact__value {
+  margin: 8px 0 0;
+  font-size: clamp(1rem, 2.8vw, 1.25rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.about-us-impact__label {
+  margin: 4px 0 0;
+  color: var(--au-muted);
+  font-size: clamp(0.68rem, 2vw, 0.78rem);
+  line-height: 1.3;
+}
+
+.about-us-impact__item--teal {
+  color: var(--au-accent-strong);
+}
+
+.about-us-impact__item--magenta {
+  color: var(--au-magenta);
+}
+
+.about-us-impact__item--blue {
+  color: var(--au-blue);
+}
+
+.about-us-impact__item--gold {
+  color: var(--au-gold);
+}
+
+.about-us-page-shell .about-us-team-section {
+  padding-inline: clamp(12px, 3vw, 24px);
+  padding-bottom: clamp(24px, 4vw, 40px);
+  background: transparent;
+}
+
+.about-us-page-shell .about-us-team-section .our-team-inner {
+  max-width: none;
+}
+
+.about-us-page-shell .about-us-team-section .our-team-title {
+  color: var(--au-text);
+}
+
+.about-us-page-shell .about-us-team-section .our-team-heading-line {
+  background: var(--au-border);
+}
+
+@media (max-width: 860px) {
+  .about-us-page-shell .about-us-team-section {
+    padding-inline: 16px;
+  }
+}
+
+/* Tablet */
+
+@media (min-width: 640px) {
+  .about-us-what-we-do__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about-us-values-section__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .about-us-mission__inner {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .about-us-impact__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Desktop */
+
+@media (min-width: 900px) {
+  .about-us-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 18px;
+    align-items: center;
+  }
+
+  .about-us-hero__media {
+    margin-top: 0;
+  }
+
+  .about-us-what-we-do__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .about-us-values-section__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .about-us-values-section__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-us-impact__grid {
+    grid-template-columns: 1fr;
+  }
+}

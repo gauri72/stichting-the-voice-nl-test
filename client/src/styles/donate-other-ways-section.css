@@ -1,165 +1,140 @@
-/* -------------------------------------------------------------------------- */
-/* Donate page — Other Ways to Give                                           */
-/* -------------------------------------------------------------------------- */
+/* Donate — other ways to give */
 
-.donate-other {
-  background: var(--color-bg);
-  padding: 32px 14px 48px;
+.donate-other-ways-section {
+  --dow-bg: #060b14;
+  --dow-surface: #0b111a;
+  --dow-border: rgba(255, 255, 255, 0.1);
+  --dow-text: #f4f7fb;
+  --dow-muted: #9fb0c4;
+  --dow-accent: #2ec4c7;
+  background: var(--dow-bg);
+  padding: clamp(18px, 3vw, 28px) clamp(12px, 2.5vw, 24px) clamp(28px, 4vw, 40px);
+  font-family: var(--font-poppins);
 }
 
-.donate-other__container {
-  max-width: 1180px;
-  margin: 0 auto;
+.donate-other-ways-section__inner {
+  max-width: 1320px;
+  margin-inline: auto;
+  border: 1px solid var(--dow-border);
+  border-radius: 14px;
+  background: var(--dow-surface);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+  padding: clamp(18px, 2.5vw, 26px) clamp(12px, 2vw, 18px);
 }
 
-.donate-other__grid {
-  margin-top: 28px;
+.donate-other-ways-section__title {
+  margin: 0;
+  text-align: center;
+  color: var(--dow-text);
+  font-size: clamp(1.1rem, 2.2vw, 1.75rem);
+  font-weight: 800;
+}
+
+.donate-other-ways-section__grid {
+  margin-top: clamp(14px, 2vw, 20px);
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px clamp(20px, 3vw, 40px);
+  gap: clamp(12px, 1.5vw, 16px);
 }
 
-.donate-other__card {
-  position: relative;
+.donate-other-ways-section__card {
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: clamp(12px, 1.6vw, 18px);
-  text-align: left;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: clamp(14px, 1.8vw, 18px);
+  border: 1px solid var(--dow-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
 }
 
-/* Vertical hairline divider sitting in the middle of the column gap. */
-.donate-other__card::before {
-  content: "";
-  position: absolute;
-  left: calc(-1 * clamp(10px, 1.5vw, 20px));
-  top: 8%;
-  bottom: 8%;
-  width: 1px;
-  background: linear-gradient(
-    180deg,
-    rgba(120, 135, 150, 0) 0%,
-    rgba(120, 135, 150, 0.32) 24%,
-    rgba(120, 135, 150, 0.32) 76%,
-    rgba(120, 135, 150, 0) 100%
-  );
-  pointer-events: none;
-}
-
-.donate-other__card:first-child::before {
-  display: none;
-}
-
-.donate-other__icon {
-  flex: 0 0 auto;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
+.donate-other-ways-section__icon-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.55rem;
-  color: #1f6d62;
-  background: #ecf3f3;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: var(--dow-accent);
+  background: rgba(46, 196, 199, 0.12);
+  border: 1px solid rgba(46, 196, 199, 0.35);
 }
 
-.donate-other__body {
-  flex: 1 1 auto;
-  min-width: 0;
+.donate-other-ways-section__icon {
+  width: 24px;
+  height: 24px;
 }
 
-.donate-other__card h3 {
+.donate-other-ways-section__body {
+  margin-top: 12px;
+}
+
+.donate-other-ways-section__card-title {
   margin: 0;
-  color: #172f48;
-  font-size: 1.08rem;
+  color: var(--dow-text);
+  font-size: clamp(0.88rem, 1.05vw, 1rem);
   font-weight: 800;
-  letter-spacing: 0.01em;
-  line-height: 1.25;
 }
 
-.donate-other__card p {
-  margin: 6px 0 0;
-  color: #4f6070;
-  font-size: 0.92rem;
+.donate-other-ways-section__card-text {
+  margin: 8px 0 0;
+  color: var(--dow-muted);
+  font-size: clamp(0.72rem, 0.88vw, 0.82rem);
   line-height: 1.45;
 }
 
-.donate-other__link {
+.donate-other-ways-section__link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  margin-top: 10px;
-  color: #1f9f78;
+  margin-top: 12px;
+  color: var(--dow-accent);
+  font-size: clamp(0.72rem, 0.88vw, 0.82rem);
   font-weight: 700;
-  font-size: 0.88rem;
   text-decoration: none;
-  letter-spacing: 0.01em;
 }
 
-.donate-other__link svg {
-  font-size: 0.85em;
-  transition: transform 0.2s ease;
+.donate-other-ways-section__link:hover {
+  text-decoration: underline;
 }
 
-.donate-other__link:hover {
-  color: #167d5e;
+[data-theme="light"] .donate-other-ways-section {
+  --dow-bg: var(--color-bg);
+  --dow-surface: var(--color-surface-elevated);
+  --dow-border: var(--color-border);
+  --dow-text: var(--color-heading);
+  --dow-muted: var(--color-text-secondary);
 }
 
-.donate-other__link:hover svg {
-  transform: translateX(2px);
+[data-theme="light"] .donate-other-ways-section__inner {
+  box-shadow: 0 8px 20px var(--color-shadow);
 }
-
-.donate-other__link:focus-visible {
-  outline: 2px solid #1a7db5;
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Responsive                                                                 */
-/* -------------------------------------------------------------------------- */
 
 @media (max-width: 900px) {
-  .donate-other__grid {
+  .donate-other-ways-section {
+    padding-inline: 10px;
+  }
+
+  .donate-other-ways-section__grid {
     grid-template-columns: 1fr;
-    max-width: 420px;
-    margin-inline: auto;
-    gap: 24px;
-  }
-
-  /* Card stacks vertically: icon → title → subtitle → link, all centered. */
-  .donate-other__card {
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
     gap: 12px;
-    text-align: center;
   }
 
-  .donate-other__body {
-    text-align: center;
-    width: 100%;
+  .donate-other-ways-section__card {
+    flex-direction: row;
+    align-items: flex-start;
+    text-align: left;
+    gap: 12px;
   }
 
-  .donate-other__link {
-    margin-inline: auto;
+  .donate-other-ways-section__icon-wrap {
+    flex-shrink: 0;
   }
 
-  /* Stacked layout: turn the vertical divider into a horizontal rule
-     sitting in the row gap above each card. */
-  .donate-other__card::before {
-    left: 8%;
-    right: 8%;
-    top: -12px;
-    bottom: auto;
-    width: auto;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      rgba(120, 135, 150, 0) 0%,
-      rgba(120, 135, 150, 0.32) 24%,
-      rgba(120, 135, 150, 0.32) 76%,
-      rgba(120, 135, 150, 0) 100%
-    );
+  .donate-other-ways-section__body {
+    margin-top: 0;
+    flex: 1;
+    min-width: 0;
   }
 }

@@ -15,8 +15,8 @@ const NAV_ITEMS = [
     label: "Our Pillars",
     children: [
       { label: "Experience", to: "/events" },
-      { label: "Stories", to: "/segments/vision-of-sounds" },
-      { label: "Impact", to: "/segments/vownl" },
+      { label: "Stories", to: "/stories" },
+      { label: "Impact", to: "/impact" },
       { label: "Innovation", to: "/voice-venture-studio" },
     ],
   },

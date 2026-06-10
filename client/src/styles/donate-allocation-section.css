@@ -1,129 +1,107 @@
-/* -------------------------------------------------------------------------- */
-/* Donate page — Where Your Donation Goes                                     */
-/* -------------------------------------------------------------------------- */
+/* Donate — where your donation goes */
 
-.donate-allocation {
-  background: #f4f7fa;
-  padding: 36px 14px 48px;
+.donate-allocation-section {
+  --das-bg: #060b14;
+  --das-surface: #0b111a;
+  --das-border: rgba(255, 255, 255, 0.1);
+  --das-text: #f4f7fb;
+  --das-muted: #9fb0c4;
+  --das-accent: #2ec4c7;
+  background: var(--das-bg);
+  padding: clamp(18px, 3vw, 28px) clamp(12px, 2.5vw, 24px) clamp(10px, 2vw, 16px);
+  font-family: var(--font-poppins);
 }
 
-.donate-allocation__container {
+.donate-allocation-section__inner {
   max-width: 1320px;
-  margin: 0 auto;
+  margin-inline: auto;
+  border: 1px solid var(--das-border);
+  border-radius: 14px;
+  background: var(--das-surface);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+  padding: clamp(18px, 2.5vw, 26px) clamp(12px, 2vw, 18px);
 }
 
-.donate-allocation__grid {
-  margin-top: 28px;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 20px 16px;
-}
-
-.donate-allocation__item {
-  position: relative;
+.donate-allocation-section__title {
+  margin: 0;
   text-align: center;
+  color: var(--das-text);
+  font-size: clamp(1.1rem, 2.2vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.2;
 }
 
-/* Vertical divider sitting in the middle of the column gap (16px). */
-.donate-allocation__item::before {
-  content: "";
-  position: absolute;
-  left: -8px;
-  top: 18%;
-  bottom: 18%;
-  width: 1px;
-  background: linear-gradient(
-    180deg,
-    rgba(120, 135, 150, 0) 0%,
-    rgba(120, 135, 150, 0.3) 22%,
-    rgba(120, 135, 150, 0.3) 78%,
-    rgba(120, 135, 150, 0) 100%
-  );
-  pointer-events: none;
+.donate-allocation-section__grid {
+  margin-top: clamp(14px, 2vw, 20px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 20px);
 }
 
-/* Hide the divider on the first card of each row (6-col layout). */
-.donate-allocation__item:nth-child(6n + 1)::before {
-  display: none;
+.donate-allocation-section__item {
+  padding: clamp(12px, 1.5vw, 16px);
+  text-align: center;
+  border: 1px solid var(--das-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.donate-allocation__icon {
+.donate-allocation-section__icon-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: auto;
-  height: auto;
-  font-size: clamp(2.4rem, 3.4vw, 3rem);
-  line-height: 1;
-  color: #1f6d62;
-  background: none;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
+  width: clamp(44px, 4vw, 52px);
+  height: clamp(44px, 4vw, 52px);
+  border-radius: 50%;
+  color: var(--das-accent);
+  background: rgba(46, 196, 199, 0.12);
+  border: 1px solid rgba(46, 196, 199, 0.35);
 }
 
-.donate-allocation__item h3 {
-  margin: 12px 0 0;
-  color: #172f48;
-  font-size: 1rem;
+.donate-allocation-section__icon {
+  width: clamp(22px, 2.2vw, 26px);
+  height: clamp(22px, 2.2vw, 26px);
+}
+
+.donate-allocation-section__item-title {
+  margin: 10px 0 0;
+  color: var(--das-text);
+  font-size: clamp(0.82rem, 1vw, 0.95rem);
   font-weight: 800;
-  letter-spacing: 0.02em;
 }
 
-.donate-allocation__item p {
+.donate-allocation-section__item-text {
   margin: 8px 0 0;
-  color: #4f6070;
-  font-size: 0.9rem;
+  color: var(--das-muted);
+  font-size: clamp(0.68rem, 0.85vw, 0.78rem);
   line-height: 1.45;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Responsive                                                                 */
-/* -------------------------------------------------------------------------- */
+[data-theme="light"] .donate-allocation-section {
+  --das-bg: var(--color-bg);
+  --das-surface: var(--color-surface-elevated);
+  --das-border: var(--color-border);
+  --das-text: var(--color-heading);
+  --das-muted: var(--color-text-secondary);
+}
+
+[data-theme="light"] .donate-allocation-section__inner {
+  box-shadow: 0 8px 20px var(--color-shadow);
+}
 
 @media (max-width: 900px) {
-  .donate-allocation__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .donate-allocation-section {
+    padding-inline: 10px;
   }
 
-  /* Reset the 6-col divider rule and apply a 2-col divider rule. */
-  .donate-allocation__item:nth-child(6n + 1)::before {
-    display: block;
-  }
-
-  .donate-allocation__item:nth-child(2n + 1)::before {
-    display: none;
+  .donate-allocation-section__grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 
-@media (max-width: 520px) {
-  .donate-allocation__grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* Single-column stack: turn vertical dividers into horizontal rules. */
-  .donate-allocation__item:nth-child(6n + 1)::before,
-  .donate-allocation__item:nth-child(2n + 1)::before {
-    display: block;
-  }
-
-  .donate-allocation__item::before {
-    left: 12%;
-    right: 12%;
-    top: -10px;
-    bottom: auto;
-    width: auto;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      rgba(120, 135, 150, 0) 0%,
-      rgba(120, 135, 150, 0.3) 22%,
-      rgba(120, 135, 150, 0.3) 78%,
-      rgba(120, 135, 150, 0) 100%
-    );
-  }
-
-  .donate-allocation__item:first-child::before {
-    display: none;
+@media (max-width: 1100px) and (min-width: 901px) {
+  .donate-allocation-section__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

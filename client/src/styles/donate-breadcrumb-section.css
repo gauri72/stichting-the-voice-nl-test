@@ -1,0 +1,35 @@
+/* Donate page — hero image only (full image visible at all breakpoints) */
+
+.donate-page-hero {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+  background-color: var(--color-bg);
+}
+
+.donate-page-hero__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center top;
+}
+
+.donate-page-hero__image--dark {
+  display: none;
+}
+
+[data-theme="dark"] .donate-page-hero {
+  background-color: #000000;
+}
+
+[data-theme="dark"] .donate-page-hero__image--light {
+  display: none;
+}
+
+[data-theme="dark"] .donate-page-hero__image--dark {
+  display: block;
+}

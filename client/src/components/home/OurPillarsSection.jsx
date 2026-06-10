@@ -50,14 +50,20 @@ const pillars = [
   },
 ];
 
-export default function OurPillarsSection() {
+export default function OurPillarsSection({
+  title = "Four Pillars. One Mission.",
+  sectionClassName = "",
+}) {
   return (
-    <section className="our-pillars-section" aria-labelledby="our-pillars-title">
+    <section
+      className={`our-pillars-section${sectionClassName ? ` ${sectionClassName}` : ""}`}
+      aria-labelledby="our-pillars-title"
+    >
       <div className="our-pillars-section__inner">
         <div className="our-pillars-section__heading">
           <span className="our-pillars-section__heading-line" aria-hidden="true" />
           <h2 id="our-pillars-title" className="our-pillars-section__title">
-            Four Pillars. One Mission.
+            {title}
           </h2>
           <span className="our-pillars-section__heading-line" aria-hidden="true" />
         </div>

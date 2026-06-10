@@ -25,7 +25,7 @@ export const SPONSORSHIP_COVERAGE = [
       "Sponsor mention in event program/page",
       "1 dedicated social media shout-out",
       "Public acknowledgement during event",
-      "2 complimentary event passes"
+      "4 complimentary event passes"
     ]
   },
   {
@@ -45,7 +45,7 @@ export const SPONSORSHIP_COVERAGE = [
   {
     id: "platinum",
     name: "Platinum Sponsor",
-    amountLabel: "\u20AC1,500+",
+    amountLabel: "\u20AC1,500",
     benefits: [
       "All Gold benefits",
       "Recognition as Main Partner / Presenting Sponsor where applicable",
@@ -59,7 +59,7 @@ export const SPONSORSHIP_COVERAGE = [
   },
   {
     id: "custom",
-    name: "Custom sponsor",
+    name: "Tailored Sponsorship",
     amountLabel: "Custom",
     benefits: [
       "Any contribution amount you choose",

@@ -9,6 +9,9 @@ export async function optionalAuth(req, res, next) {
   }
   try {
     const payload = verifyAuthToken(match[1]);
+    if (payload.type === "admin") {
+      return next();
+    }
     const user = await getUserById(payload.sub);
     if (user) {
       req.user = user;
@@ -28,6 +31,9 @@ export async function requireAuth(req, res, next) {
     }
 
     const payload = verifyAuthToken(match[1]);
+    if (payload.type === "admin") {
+      return res.status(401).json({ error: "Authentication required." });
+    }
     const user = await getUserById(payload.sub);
     if (!user) {
       return res.status(401).json({ error: "Invalid or expired session." });

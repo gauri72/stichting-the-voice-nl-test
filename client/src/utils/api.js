@@ -46,6 +46,9 @@ export async function apiFetch(path, options = {}) {
 }
 
 export const AUTH_TOKEN_KEY = "voice_auth_token";
+export const ADMIN_AUTH_TOKEN_KEY = "voice_admin_token";
+export const ADMIN_REMEMBER_ME_KEY = "voice_admin_remember_me";
+export const ADMIN_REMEMBER_EMAIL_KEY = "voice_admin_remember_email";
 export const REMEMBER_ME_KEY = "voice_remember_me";
 export const REMEMBER_EMAIL_KEY = "voice_remember_email";
 
@@ -83,5 +86,44 @@ export function setRememberedEmail(email, rememberMe) {
 
 export function authHeaders() {
   const token = getStoredToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export function getStoredAdminToken() {
+  return (
+    sessionStorage.getItem(ADMIN_AUTH_TOKEN_KEY) || localStorage.getItem(ADMIN_AUTH_TOKEN_KEY)
+  );
+}
+
+export function setStoredAdminToken(token, rememberMe = true) {
+  localStorage.removeItem(ADMIN_AUTH_TOKEN_KEY);
+  sessionStorage.removeItem(ADMIN_AUTH_TOKEN_KEY);
+
+  if (!token) return;
+
+  if (rememberMe) {
+    localStorage.setItem(ADMIN_AUTH_TOKEN_KEY, token);
+  } else {
+    sessionStorage.setItem(ADMIN_AUTH_TOKEN_KEY, token);
+  }
+}
+
+export function getRememberedAdminEmail() {
+  if (localStorage.getItem(ADMIN_REMEMBER_ME_KEY) !== "true") return "";
+  return localStorage.getItem(ADMIN_REMEMBER_EMAIL_KEY) || "";
+}
+
+export function setRememberedAdminEmail(email, rememberMe) {
+  if (rememberMe && email) {
+    localStorage.setItem(ADMIN_REMEMBER_ME_KEY, "true");
+    localStorage.setItem(ADMIN_REMEMBER_EMAIL_KEY, email);
+  } else {
+    localStorage.removeItem(ADMIN_REMEMBER_ME_KEY);
+    localStorage.removeItem(ADMIN_REMEMBER_EMAIL_KEY);
+  }
+}
+
+export function adminAuthHeaders() {
+  const token = getStoredAdminToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
