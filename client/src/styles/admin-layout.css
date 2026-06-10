@@ -187,6 +187,64 @@
   flex-shrink: 0;
 }
 
+/* Mobile drawer */
+.admin-layout__drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 38;
+}
+
+.admin-layout__drawer-overlay--open {
+  display: block;
+}
+
+.admin-layout__drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 260px;
+  z-index: 39;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  background: var(--ad-surface);
+  border-right: 1px solid var(--ad-border);
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  overflow-y: auto;
+}
+
+.admin-layout__drawer--open {
+  transform: translateX(0);
+}
+
+.admin-layout__drawer-close {
+  display: inline-flex;
+  align-self: flex-end;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 12px;
+  border: 1px solid var(--ad-border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ad-text);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.admin-layout__drawer .admin-layout__nav-item {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 10px;
+  font-size: 0.86rem;
+  padding: 12px 14px;
+}
+
 @media (min-width: 900px) {
   .admin-layout {
     padding-bottom: 0;
@@ -199,8 +257,16 @@
     grid-column: 1 / -1;
   }
 
+  /* Fix grid column order: nav must be col 1, main must be col 2 */
   .admin-layout__bottom-nav {
+    grid-column: 1;
+    grid-row: 2;
+    /* Reset mobile positioning */
     position: sticky;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: auto;
     top: 72px;
     align-self: start;
     display: flex;
@@ -212,6 +278,12 @@
     background: var(--ad-surface);
   }
 
+  .admin-layout__main {
+    grid-column: 2;
+    grid-row: 2;
+    padding: 24px clamp(20px, 3vw, 36px) 36px;
+  }
+
   .admin-layout__nav-item {
     flex-direction: row;
     justify-content: flex-start;
@@ -220,11 +292,13 @@
     padding: 12px 14px;
   }
 
-  .admin-layout__main {
-    padding: 24px clamp(20px, 3vw, 36px) 36px;
-  }
-
   .admin-layout__menu {
     display: none;
+  }
+
+  /* Drawer is mobile-only */
+  .admin-layout__drawer,
+  .admin-layout__drawer-overlay {
+    display: none !important;
   }
 }
