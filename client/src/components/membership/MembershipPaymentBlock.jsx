@@ -132,6 +132,10 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
       );
       return;
     }
+    if (!tier?.id) {
+      setSubmitError("Membership tier is missing. Please refresh and select a plan.");
+      return;
+    }
     setLoading(true);
     setWakingUp(false);
     setSubmitError("");
@@ -227,9 +231,9 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
             <h3 id="membership-payment-title" className="sponsorship-payment__title">
               {step === "done"
                 ? "Welcome to the V.O.I.C.E. NL family!"
-                : `Become a Member — ${tier.name}`}
+                : `Become a Member${tier?.name ? ` — ${tier.name}` : ""}`}
             </h3>
-            {step !== "done" ? (
+            {step !== "done" && tier ? (
               <p className="sponsorship-payment__subtitle">
                 {tier.amountLabel}
                 <span> / year</span>
