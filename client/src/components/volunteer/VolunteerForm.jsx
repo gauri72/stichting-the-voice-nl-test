@@ -17,6 +17,7 @@ function FormNotice({ message, variant = "success" }) {
 export default function VolunteerForm() {
   const [status, setStatus] = useState({ text: "", variant: "success" });
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -25,12 +26,11 @@ export default function VolunteerForm() {
 
     try {
       const data = Object.fromEntries(new FormData(event.target).entries());
-      const result = await apiFetch("/api/contact/volunteer", {
+      await apiFetch("/api/contact/volunteer", {
         method: "POST",
         body: JSON.stringify(data)
       });
-      setStatus({ text: result.message, variant: "success" });
-      event.target.reset();
+      setSubmitted(true);
     } catch (error) {
       setStatus({
         text: error.message || "Could not send your application. Please try again.",
@@ -39,6 +39,16 @@ export default function VolunteerForm() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (submitted) {
+    return (
+      <div className="volunteer-form__success" role="status">
+        <p className="volunteer-form__success-message">
+          Thank you! We have received your volunteer application and will be in touch soon.
+        </p>
+      </div>
+    );
   }
 
   return (

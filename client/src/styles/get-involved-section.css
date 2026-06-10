@@ -49,41 +49,93 @@ button.get-involved-card {
   box-shadow: 0 8px 20px rgba(74, 159, 212, 0.18);
 }
 
-.get-involved-volunteer-panel {
-  margin-top: clamp(16px, 2.5vw, 22px);
-  width: 100%;
-  max-width: min(720px, 100%);
-  margin-left: auto;
-  margin-right: auto;
-  min-width: 0;
-  box-sizing: border-box;
+.volunteer-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 30, 50, 0.55);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
 }
 
-.get-involved-volunteer-panel__title {
-  margin: 0 0 clamp(14px, 2vw, 18px);
+.volunteer-modal {
+  position: relative;
+  background: var(--color-surface);
+  border-radius: 16px;
+  padding: clamp(28px, 4vw, 44px) clamp(22px, 4vw, 44px);
+  max-width: 640px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(10, 30, 50, 0.22);
+  animation: volunteer-modal-in 0.22s ease;
+}
+
+@keyframes volunteer-modal-in {
+  from { opacity: 0; transform: translateY(-14px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.volunteer-modal__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--color-text-secondary, #6b7f93);
+  transition: background 0.15s, color 0.15s;
+}
+
+.volunteer-modal__close:hover {
+  background: rgba(15, 53, 78, 0.08);
+  color: var(--color-heading);
+}
+
+.volunteer-modal__close:focus-visible {
+  outline: 2px solid var(--color-accent-teal);
+  outline-offset: 2px;
+}
+
+.volunteer-modal__title {
+  margin: 0 0 clamp(14px, 2vw, 20px);
+  padding-right: 32px;
   color: var(--color-heading);
   font-size: clamp(1.25rem, 2.2vw, 1.6rem);
   font-weight: 800;
   line-height: 1.2;
   text-align: center;
-  padding-inline: clamp(4px, 2vw, 12px);
-}
-
-@media (max-width: 1100px) {
-  .get-involved-volunteer-panel {
-    max-width: 100%;
-  }
 }
 
 @media (max-width: 640px) {
-  .get-involved-volunteer-panel {
-    margin-top: 14px;
+  .volunteer-modal-backdrop {
+    align-items: flex-start;
+    padding: 12px 10px 24px;
   }
 
-  .get-involved-volunteer-panel__title {
-    font-size: clamp(1.15rem, 4.5vw, 1.35rem);
-    margin-bottom: 12px;
+  .volunteer-modal {
+    max-height: none;
+    padding: 20px 16px;
+    border-radius: 12px;
   }
+
+  .volunteer-modal__title {
+    font-size: clamp(1.1rem, 4.5vw, 1.3rem);
+    margin-bottom: 14px;
+  }
+}
+
+[data-theme="dark"] .volunteer-modal-backdrop {
+  background: rgba(0, 0, 0, 0.65);
 }
 
 .get-involved-card__icon {

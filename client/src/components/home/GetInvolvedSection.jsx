@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   IconArrowRight,
@@ -6,6 +6,7 @@ import {
   IconHandLoveYou,
   IconHeartHandshake,
   IconUsersGroup,
+  IconX,
 } from "@tabler/icons-react";
 import VolunteerForm from "../volunteer/VolunteerForm";
 import "../../styles/get-involved-section.css";
@@ -44,13 +45,31 @@ const volunteerCard = {
 
 export default function GetInvolvedSection() {
   const [volunteerFormOpen, setVolunteerFormOpen] = useState(false);
-  const volunteerPanelRef = useRef(null);
+
+  function openModal() {
+    setVolunteerFormOpen(true);
+  }
+
+  function closeModal() {
+    setVolunteerFormOpen(false);
+  }
+
+  function handleBackdropClick(e) {
+    if (e.target === e.currentTarget) closeModal();
+  }
 
   useEffect(() => {
-    if (!volunteerFormOpen) return;
-    requestAnimationFrame(() => {
-      volunteerPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    });
+    function onKeyDown(e) {
+      if (e.key === "Escape") closeModal();
+    }
+    if (volunteerFormOpen) {
+      document.addEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+    };
   }, [volunteerFormOpen]);
 
   return (
@@ -78,12 +97,9 @@ export default function GetInvolvedSection() {
 
           <button
             type="button"
-            className={`get-involved-card get-involved-card--${volunteerCard.accent}${
-              volunteerFormOpen ? " get-involved-card--active" : ""
-            }`}
-            onClick={() => setVolunteerFormOpen((open) => !open)}
-            aria-expanded={volunteerFormOpen}
-            aria-controls="volunteer-form-panel"
+            className={`get-involved-card get-involved-card--${volunteerCard.accent}`}
+            onClick={openModal}
+            aria-haspopup="dialog"
           >
             <div className="get-involved-card__icon">
               <IconHandLoveYou className="get-involved-card__icon-svg" aria-hidden stroke={1.75} />
@@ -97,18 +113,34 @@ export default function GetInvolvedSection() {
             </div>
           </button>
         </div>
+      </div>
 
-        {volunteerFormOpen ? (
+      {volunteerFormOpen && (
+        <div
+          className="volunteer-modal-backdrop"
+          onClick={handleBackdropClick}
+          role="presentation"
+        >
           <div
-            id="volunteer-form-panel"
-            ref={volunteerPanelRef}
-            className="get-involved-volunteer-panel"
+            className="volunteer-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="volunteer-modal-title"
           >
-            <h2 className="get-involved-volunteer-panel__title">Fill This Form to Volunteer</h2>
+            <button
+              className="volunteer-modal__close"
+              onClick={closeModal}
+              aria-label="Close volunteer form"
+            >
+              <IconX size={20} stroke={2} />
+            </button>
+            <h2 id="volunteer-modal-title" className="volunteer-modal__title">
+              Fill This Form to Volunteer
+            </h2>
             <VolunteerForm />
           </div>
-        ) : null}
-      </div>
+        </div>
+      )}
     </section>
   );
 }
