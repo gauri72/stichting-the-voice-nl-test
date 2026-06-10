@@ -35,7 +35,6 @@ export default function MembershipPage() {
   return (
     <div id="membership-navbar-top" className="membership-page-shell">
       <MembershipBreadcrumbSection />
-      <MembershipComparisonTableSection />
       <MembershipPlansCardsSection
         selectedTierId={selectedTier?.id}
         onSelectTier={handleSelectTier}
@@ -47,6 +46,7 @@ export default function MembershipPage() {
           onClose={() => setSelectedTier(null)}
         />
       ) : null}
+      <MembershipComparisonTableSection />
     </div>
   );
 }
