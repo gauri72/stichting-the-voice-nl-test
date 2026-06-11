@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import env from "../config/env.js";
 import { getDonationTier } from "../config/donationTiers.js";
 import { getPlan } from "../config/membershipPlans.js";
@@ -172,7 +173,7 @@ export async function createPaymentIntent(req, res) {
   }
 
   try {
-    const { kind = "sponsorship", tierId, amount: customAmount, sponsor: rawSponsor } =
+    const { kind = "sponsorship", tierId, amount: customAmount, sponsor: rawSponsor, discountCode } =
       req.body || {};
     const isDonation = kind === "donation";
     const isMembership = kind === "membership";
@@ -225,6 +226,47 @@ export async function createPaymentIntent(req, res) {
       amountMinor = requested;
     }
 
+    let appliedDiscount = null;
+    if (isMembership && discountCode) {
+      const cleanCode = String(discountCode).trim();
+      if (cleanCode) {
+        const DiscountCodeModel = mongoose.model("DiscountCode");
+        const discount = await DiscountCodeModel.findOne({ code: cleanCode });
+
+        if (!discount) {
+          return res.status(400).json({ error: "Invalid discount code." });
+        }
+
+        // Check if it is global or assigned to the user
+        let isAllowed = discount.isGlobal;
+        if (!isAllowed) {
+          if (req.user && discount.assignedUsers.some(uid => uid.toString() === req.user.id)) {
+            isAllowed = true;
+          } else {
+            const formEmail = sponsor.email.trim().toLowerCase();
+            const UserModel = mongoose.model("User");
+            const assignedUsers = await UserModel.find({ _id: { $in: discount.assignedUsers } });
+            const hasMatchingEmail = assignedUsers.some(u => u.email.trim().toLowerCase() === formEmail);
+            if (hasMatchingEmail) {
+              isAllowed = true;
+            }
+          }
+        }
+
+        if (!isAllowed) {
+          return res.status(400).json({ error: "This discount code is not valid for your email / account." });
+        }
+
+        appliedDiscount = {
+          code: discount.code,
+          discountValue: discount.discountValue
+        };
+
+        const discountAmount = Math.round((amountMinor * discount.discountValue) / 100);
+        amountMinor = Math.max(0, amountMinor - discountAmount);
+      }
+    }
+
     const stripe = getStripe();
     const baseMeta = {
       tier_id: tier.id,
@@ -242,7 +284,11 @@ export async function createPaymentIntent(req, res) {
       ...baseMeta,
       ...(isDonation ? { payment_kind: "donation" } : {}),
       ...(isMembership ? { payment_kind: "membership" } : {}),
-      ...(req.user?.id ? { user_id: String(req.user.id) } : {})
+      ...(req.user?.id ? { user_id: String(req.user.id) } : {}),
+      ...(appliedDiscount ? {
+        discount_code: appliedDiscount.code,
+        discount_percent: String(appliedDiscount.discountValue)
+      } : {})
     };
 
     const intent = await stripe.paymentIntents.create({
@@ -265,7 +311,9 @@ export async function createPaymentIntent(req, res) {
       paymentIntentId: intent.id,
       amount: amountMinor,
       currency: env.stripe.currency,
-      tier: { id: tier.id, name: tier.name }
+      tier: { id: tier.id, name: tier.name },
+      discountApplied: !!appliedDiscount,
+      discountInfo: appliedDiscount
     });
   } catch (error) {
     console.error("[payments] createPaymentIntent error:", error);

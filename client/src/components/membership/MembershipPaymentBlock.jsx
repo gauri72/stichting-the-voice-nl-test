@@ -55,6 +55,8 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
     phone: "",
     country: ""
   });
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountInfo, setDiscountInfo] = useState(null);
   const [clientSecret, setClientSecret] = useState("");
   const [intentMeta, setIntentMeta] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -68,6 +70,8 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
     setIntentMeta(null);
     setSubmitError("");
     setSuccess(null);
+    setDiscountCode("");
+    setDiscountInfo(null);
   }, [tier?.id]);
 
   const stripeMissingKey = !PUBLISHABLE_KEY;
@@ -84,6 +88,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
           const saved = readCheckoutSession(MEMBERSHIP_CHECKOUT_SESSION_KEY);
           if (saved?.member) setMember(saved.member);
           if (saved?.intentMeta) setIntentMeta(saved.intentMeta);
+          if (saved?.discountInfo) setDiscountInfo(saved.discountInfo);
           setSubmitError("");
           setSuccess({ id: paymentIntent.id });
           setStep("done");
@@ -155,6 +160,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
           body: JSON.stringify({
             kind: "membership",
             tierId: tier.id,
+            discountCode: discountCode.trim(),
             sponsor: {
               name,
               firstName: name.split(" ")[0] || "",
@@ -179,7 +185,13 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
       };
       setClientSecret(data.clientSecret);
       setIntentMeta(meta);
-      persistCheckoutSession(MEMBERSHIP_CHECKOUT_SESSION_KEY, { tier, member, intentMeta: meta });
+      setDiscountInfo(data.discountApplied ? data.discountInfo : null);
+      persistCheckoutSession(MEMBERSHIP_CHECKOUT_SESSION_KEY, {
+        tier,
+        member,
+        intentMeta: meta,
+        discountInfo: data.discountApplied ? data.discountInfo : null
+      });
       setStep("payment");
     } catch (error) {
       if (error?.name === "AbortError") {
@@ -305,6 +317,18 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
                   placeholder="The Netherlands"
                 />
               </label>
+              <label className="sponsorship-payment__field sponsorship-payment__field--full">
+                <span>Discount code</span>
+                <input
+                  type="text"
+                  value={discountCode}
+                  onChange={(event) => setDiscountCode(event.target.value)}
+                  placeholder="e.g. SAVE20"
+                />
+                <span className="sponsorship-payment__field-hint">
+                  Please note: discount codes are case-sensitive.
+                </span>
+              </label>
             </div>
 
             {submitError ? (
@@ -334,25 +358,35 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
         ) : null}
 
         {step === "payment" && clientSecret && PUBLISHABLE_KEY ? (
-          <Elements
-            key={isDark ? "stripe-dark" : "stripe-light"}
-            stripe={getStripePromise()}
-            options={{
-              clientSecret,
-              appearance: stripeAppearance,
-              locale: "auto"
-            }}
-          >
-            <StripeCheckoutForm
-              amountLabel={amountLabel}
-              payer={member}
-              tier={tier}
-              sessionKey={MEMBERSHIP_CHECKOUT_SESSION_KEY}
-              returnPath={MEMBERSHIP_RETURN_PATH}
-              onSuccess={handleSuccess}
-              onError={(msg) => setSubmitError(msg)}
-            />
-          </Elements>
+          <>
+            {discountInfo ? (
+              <div className="sponsorship-payment__discount-applied">
+                <FaCheckCircle aria-hidden />
+                <span>
+                  Discount code <strong>{discountInfo.code}</strong> applied! ({discountInfo.discountValue}% discount)
+                </span>
+              </div>
+            ) : null}
+            <Elements
+              key={isDark ? "stripe-dark" : "stripe-light"}
+              stripe={getStripePromise()}
+              options={{
+                clientSecret,
+                appearance: stripeAppearance,
+                locale: "auto"
+              }}
+            >
+              <StripeCheckoutForm
+                amountLabel={amountLabel}
+                payer={member}
+                tier={tier}
+                sessionKey={MEMBERSHIP_CHECKOUT_SESSION_KEY}
+                returnPath={MEMBERSHIP_RETURN_PATH}
+                onSuccess={handleSuccess}
+                onError={(msg) => setSubmitError(msg)}
+              />
+            </Elements>
+          </>
         ) : null}
 
         {step === "done" && success ? (
