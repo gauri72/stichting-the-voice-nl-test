@@ -11,7 +11,7 @@ const VALUE_ICONS = {
   Inclusion: IconUsersGroup,
   Integrity: IconShieldCheck,
   Innovation: IconBulb,
-  Collaboration: IconHeartHandshake,
+  Integration: IconHeartHandshake,
   Impact: IconWorld,
 };
 
@@ -20,7 +20,7 @@ export default function AboutUsValuesSection() {
     <section className="about-us-values-section" aria-labelledby="about-us-values-title">
       <div className="about-us-values-section__inner">
         <h2 id="about-us-values-title" className="about-us-section-title">
-          Our Values
+          Our Values - 5Is
         </h2>
         <div className="about-us-values-section__grid" role="list">
           {ABOUT_VALUES.map(({ title, description }) => {

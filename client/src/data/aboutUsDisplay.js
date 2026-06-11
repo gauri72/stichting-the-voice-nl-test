@@ -56,7 +56,7 @@ export const ABOUT_VALUES = [
   { title: "Inclusion", description: "Creating spaces where everyone belongs." },
   { title: "Integrity", description: "Acting with honesty, transparency, and respect." },
   { title: "Innovation", description: "Embracing new ideas to drive meaningful change." },
-  { title: "Collaboration", description: "Working together to amplify shared impact." },
+  { title: "Integration", description: "Creating a sense of belonging through culture, connection, and community." },
   { title: "Impact", description: "Transforming lives through culture and community." },
 ];
 
