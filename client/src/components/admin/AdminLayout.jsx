@@ -8,6 +8,7 @@ import {
   IconMail,
   IconMenu2,
   IconTicket,
+  IconUpload,
   IconUsers,
   IconX,
 } from "@tabler/icons-react";
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { to: "/admin/dashboard", label: "Dashboard", icon: IconLayoutDashboard, end: true },
   { to: "/admin/events", label: "Events", icon: IconTicket },
   { to: "/admin/members", label: "Members", icon: IconUsers },
+  { to: "/admin/templates", label: "Templates", icon: IconUpload },
   { to: "/admin/communication", label: "Communication", icon: IconMail },
   { to: "/admin/reports", label: "More", icon: IconChartBar },
 ];

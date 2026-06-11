@@ -22,7 +22,8 @@ export async function apiFetch(path, options = {}) {
     data = await response.json();
   } else if (!response.ok) {
     const text = await response.text().catch(() => "");
-    if (text) data = { error: text.slice(0, 200) };
+    // Discard HTML proxy error pages — only use plain-text bodies as the message.
+    if (text && !text.trimStart().startsWith("<")) data = { error: text.slice(0, 200) };
   }
 
   if (!response.ok) {
@@ -31,7 +32,9 @@ export async function apiFetch(path, options = {}) {
         ? "Cannot reach the API. Check that the server is running and restart the dev app."
         : null;
     const fallback =
-      response.status === 503
+      response.status === 413
+        ? "The file is too large to upload. Try reducing the template size."
+        : response.status === 503
         ? "The server could not send email right now. Please try again later."
         : response.status >= 500
           ? "Server error. Please try again later."
