@@ -26,6 +26,7 @@ import AdminDashboardPage from "./components/admin/AdminDashboardPage";
 import AdminBroadcastPage from "./components/admin/AdminBroadcastPage";
 import AdminTemplateUploadPage from "./components/admin/AdminTemplateUploadPage";
 import AdminDiscountsPage from "./components/admin/AdminDiscountsPage";
+import AdminUsersPage from "./components/admin/AdminUsersPage";
 import AdminSectionPlaceholder from "./components/admin/AdminSectionPlaceholder";
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
 
@@ -114,6 +115,14 @@ export default function App() {
             element={
               <AdminProtectedRoute>
                 <AdminDiscountsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminProtectedRoute>
+                <AdminUsersPage />
               </AdminProtectedRoute>
             }
           />
