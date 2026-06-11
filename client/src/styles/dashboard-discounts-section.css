@@ -38,7 +38,7 @@
 /* Card layout & anatomy */
 .dash-discounts__card {
   flex: 0 0 260px; /* Fixed width */
-  height: 270px; /* Fixed height */
+  height: 200px; /* Fixed height */
   background: var(--md-surface);
   border: 1px solid var(--md-border);
   border-radius: 16px;

@@ -7,6 +7,7 @@ import {
   IconAlertCircle,
   IconUsers,
   IconSettings,
+  IconEdit,
 } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
@@ -27,10 +28,25 @@ export default function AdminDiscountsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+
+  const handleEdit = (discount) => {
+    setForm({
+      name: discount.name,
+      description: discount.description,
+      code: discount.code,
+      discountValue: String(discount.discountValue),
+      isGlobal: discount.isGlobal,
+      assignedUsers: discount.assignedUsers,
+    });
+    setError("");
+    setEditId(discount.id);
+    setModalOpen(true);
+  };
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -98,8 +114,11 @@ export default function AdminDiscountsPage() {
     setSubmitLoading(true);
 
     try {
-      const data = await apiFetch("/api/admin/discounts", {
-        method: "POST",
+      const method = editId ? "PUT" : "POST";
+      const endpoint = editId ? `/api/admin/discounts/${editId}` : "/api/admin/discounts";
+      
+      await apiFetch(endpoint, {
+        method,
         headers: adminAuthHeaders(),
         body: JSON.stringify({
           ...form,
@@ -108,10 +127,11 @@ export default function AdminDiscountsPage() {
       });
 
       setForm(EMPTY_FORM);
+      setEditId(null);
       setModalOpen(false);
       await loadData();
     } catch (err) {
-      setError(err.message || "Failed to create discount code.");
+      setError(err.message || "Failed to save discount code.");
     } finally {
       setSubmitLoading(false);
     }
@@ -140,6 +160,7 @@ export default function AdminDiscountsPage() {
             onClick={() => {
               setForm(EMPTY_FORM);
               setError("");
+              setEditId(null);
               setModalOpen(true);
             }}
           >
@@ -198,6 +219,15 @@ export default function AdminDiscountsPage() {
                   <button
                     type="button"
                     className="admin-discounts__delete-btn"
+                    style={{ border: "1px solid var(--ad-border)", color: "var(--ad-text)", marginRight: "8px" }}
+                    onClick={() => handleEdit(discount)}
+                    aria-label="Edit discount code"
+                  >
+                    <IconEdit size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-discounts__delete-btn"
                     onClick={() => handleDelete(discount.id)}
                     aria-label="Delete discount code"
                   >
@@ -214,7 +244,7 @@ export default function AdminDiscountsPage() {
         <div className="admin-broadcast-modal" role="dialog" aria-modal="true" aria-labelledby="generate-discount-title">
           <div className="admin-broadcast-modal__panel">
             <div className="admin-broadcast-modal__head">
-              <h2 id="generate-discount-title">Generate Discount Code</h2>
+              <h2 id="generate-discount-title">{editId ? "Edit Discount Code" : "Generate Discount Code"}</h2>
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
@@ -231,7 +261,7 @@ export default function AdminDiscountsPage() {
                   required
                   placeholder="e.g. SUMMER20"
                   value={form.code}
-                  onChange={(e) => setForm((c) => ({ ...c, code: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "") }))}
+                  onChange={(e) => setForm((c) => ({ ...c, code: e.target.value.replace(/\s/g, "") }))}
                   maxLength={40}
                   disabled={submitLoading}
                 />

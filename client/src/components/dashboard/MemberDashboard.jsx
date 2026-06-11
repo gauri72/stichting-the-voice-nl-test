@@ -209,6 +209,8 @@ export default function MemberDashboard() {
       />
 
       <div className="member-dashboard__body">
+        <DashboardDiscountsSection />
+
         <DashboardStatCardsSection
           overview={overview}
           hasMembership={hasMembership}
@@ -226,8 +228,6 @@ export default function MemberDashboard() {
         />
 
         <DashboardUpcomingEventsSection />
-
-        <DashboardDiscountsSection />
 
         <DashboardImpactSection overview={overview} />
 
