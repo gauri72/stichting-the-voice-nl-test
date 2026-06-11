@@ -11,6 +11,7 @@ import {
   IconUpload,
   IconUsers,
   IconX,
+  IconDiscount,
 } from "@tabler/icons-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
 import ThemeToggle from "../layout/ThemeToggle.jsx";
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { to: "/admin/events", label: "Events", icon: IconTicket },
   { to: "/admin/members", label: "Members", icon: IconUsers },
   { to: "/admin/templates", label: "Templates", icon: IconUpload },
+  { to: "/admin/discounts", label: "Discounts", icon: IconDiscount },
   { to: "/admin/communication", label: "Communication", icon: IconMail },
   { to: "/admin/reports", label: "More", icon: IconChartBar },
 ];

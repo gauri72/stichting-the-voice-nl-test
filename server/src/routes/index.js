@@ -10,6 +10,7 @@ import contactRoutes from "./contactRoutes.js";
 import testimonialRoutes from "./testimonialRoutes.js";
 import membershipRoutes from "./membershipRoutes.js";
 import adminRoutes from "./adminRoutes.js";
+import discountRoutes from "./discountRoutes.js";
 
 const router = Router();
 
@@ -23,6 +24,7 @@ router.use("/payments", paymentRoutes);
 router.use("/payment-methods", paymentMethodRoutes);
 router.use("/membership", membershipRoutes);
 router.use("/dashboard", dashboardRoutes);
+router.use("/discounts", discountRoutes);
 router.use("/admin", adminRoutes);
 
 export default router;

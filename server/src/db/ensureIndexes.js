@@ -10,6 +10,7 @@ import SequenceCounter from "../models/SequenceCounter.js";
 import Admin from "../models/Admin.js";
 import EmailTemplate from "../models/EmailTemplate.js";
 import EmailBroadcast from "../models/EmailBroadcast.js";
+import DiscountCode from "../models/DiscountCode.js";
 
 /**
  * Every model maps to exactly one explicitly-named collection in the active
@@ -30,7 +31,8 @@ const MODELS = [
   ["sequencecounters", SequenceCounter],
   ["admins", Admin],
   ["email_templates", EmailTemplate],
-  ["email_broadcasts", EmailBroadcast]
+  ["email_broadcasts", EmailBroadcast],
+  ["discount_codes", DiscountCode]
 ];
 
 export async function ensureIndexes() {

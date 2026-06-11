@@ -1,0 +1,171 @@
+.dash-discounts-section {
+  margin-bottom: clamp(24px, 3cqw, 36px);
+}
+
+.dash-discounts-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: clamp(14px, 2cqw, 20px);
+}
+
+.dash-discounts-section__title {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.6cqw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--md-text);
+}
+
+/* Horizontal scrolling wrapper */
+.dash-discounts__scroll-container {
+  display: flex;
+  flex-direction: row;
+  gap: clamp(12px, 1.6cqw, 18px);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+  padding: 4px 4px 16px 4px;
+  margin: 0 -4px;
+}
+
+.dash-discounts__scroll-container::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+/* Card layout & anatomy */
+.dash-discounts__card {
+  flex: 0 0 260px; /* Fixed width */
+  height: 270px; /* Fixed height */
+  background: var(--md-surface);
+  border: 1px solid var(--md-border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--md-shadow-soft);
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+[data-theme="dark"] .dash-discounts__card {
+  border-color: rgba(168, 85, 247, 0.18);
+}
+
+.dash-discounts__card:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: var(--md-cyan, #1aa7c4);
+  box-shadow: 0 8px 25px rgba(26, 167, 196, 0.15);
+}
+
+[data-theme="dark"] .dash-discounts__card:hover {
+  border-color: var(--md-purple, #a855f7);
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.2);
+}
+
+/* VISUAL TOP BLOCK */
+.dash-discounts__top-block {
+  height: 90px;
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f43f5e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #ffffff;
+  padding: 12px;
+}
+
+[data-theme="light"] .dash-discounts__top-block {
+  background: linear-gradient(135deg, #7e22ce 0%, #be185d 50%, #e11d48 100%);
+}
+
+.dash-discounts__value-text {
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  line-height: 1;
+}
+
+/* Card Body */
+.dash-discounts__body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.dash-discounts__name {
+  margin: 0 0 6px 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--md-text);
+  line-height: 1.25;
+}
+
+.dash-discounts__description {
+  margin: 0 0 14px 0;
+  font-size: 0.78rem;
+  color: var(--md-text-muted, #94a3b8);
+  line-height: 1.4;
+  /* Truncate after 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 2.8em;
+}
+
+[data-theme="light"] .dash-discounts__description {
+  color: #475569;
+}
+
+/* COPY CODE CTA Button */
+.dash-discounts__copy-btn {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--md-cyan, #1aa7c4);
+  background: transparent;
+  color: var(--md-cyan, #1aa7c4);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+[data-theme="light"] .dash-discounts__copy-btn {
+  border-color: var(--md-cyan-dark, #0a5f75);
+  color: var(--md-cyan-dark, #0a5f75);
+}
+
+.dash-discounts__copy-btn:hover {
+  background: rgba(26, 167, 196, 0.1);
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .dash-discounts__copy-btn:hover {
+  background: rgba(10, 95, 117, 0.08);
+}
+
+.dash-discounts__copy-btn--copied {
+  border-color: var(--md-green, #2fa84f) !important;
+  background: rgba(47, 168, 79, 0.12) !important;
+  color: var(--md-green, #2fa84f) !important;
+  font-weight: 800;
+}
+
+[data-theme="light"] .dash-discounts__copy-btn--copied {
+  border-color: var(--md-green-dark, #1a6b34) !important;
+  background: rgba(26, 107, 52, 0.08) !important;
+  color: var(--md-green-dark, #1a6b34) !important;
+}

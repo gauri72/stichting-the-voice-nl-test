@@ -19,6 +19,7 @@ import DashboardMembershipCardSection from "./sections/DashboardMembershipCardSe
 import DashboardUpcomingEventsSection from "./sections/DashboardUpcomingEventsSection.jsx";
 import DashboardRecentActivitySection from "./sections/DashboardRecentActivitySection.jsx";
 import DashboardImpactSection from "./sections/DashboardImpactSection.jsx";
+import DashboardDiscountsSection from "./sections/DashboardDiscountsSection.jsx";
 import DashboardClosingCtaSection from "./sections/DashboardClosingCtaSection.jsx";
 import "../../styles/dashboard-shared.css";
 import "../../styles/dashboard-desktop.css";
@@ -225,6 +226,8 @@ export default function MemberDashboard() {
         />
 
         <DashboardUpcomingEventsSection />
+
+        <DashboardDiscountsSection />
 
         <DashboardImpactSection overview={overview} />
 
