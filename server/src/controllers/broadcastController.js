@@ -83,7 +83,7 @@ export async function broadcastAudienceCount(req, res) {
 
 export async function broadcastPreview(req, res) {
   try {
-    const { templateId, audienceSegment, sampleUserId, mergeVariables } = req.body || {};
+    const { templateId, audienceSegment, sampleUserId, mergeVariables, customEmails } = req.body || {};
     if (!templateId) {
       return res.status(400).json({ error: "templateId is required." });
     }
@@ -93,6 +93,7 @@ export async function broadcastPreview(req, res) {
       audienceSegment: audienceSegment || "all_members",
       sampleUserId,
       mergeVariables,
+      customEmails,
     });
     return res.status(200).json({ preview });
   } catch (error) {
@@ -102,7 +103,7 @@ export async function broadcastPreview(req, res) {
 
 export async function broadcastSend(req, res) {
   try {
-    const { templateId, audienceSegment, mergeVariables } = req.body || {};
+    const { templateId, audienceSegment, mergeVariables, customEmails } = req.body || {};
     if (!templateId || !audienceSegment) {
       return res.status(400).json({ error: "templateId and audienceSegment are required." });
     }
@@ -112,6 +113,7 @@ export async function broadcastSend(req, res) {
       audienceSegment,
       mergeVariables,
       adminId: req.admin?.id,
+      customEmails,
     });
     return res.status(200).json({ broadcast: result });
   } catch (error) {

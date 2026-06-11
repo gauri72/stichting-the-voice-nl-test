@@ -4,6 +4,7 @@ export const AUDIENCE_SEGMENTS = [
   { key: "premium_members", label: "Premium Members", description: "Premium plan holders" },
   { key: "event_attendees", label: "Event Attendees", description: "Past event ticket buyers" },
   { key: "all_users", label: "All Users", description: "Every registered account" },
+  { key: "test_users", label: "Test Email List", description: "Specify a custom list of email addresses" },
 ];
 
 export const WIZARD_STEPS = [

@@ -115,7 +115,7 @@ async function getEventAttendeeEmails() {
   return new Set(rows.map((row) => String(row.email).toLowerCase().trim()).filter(Boolean));
 }
 
-export async function resolveAudience(segment) {
+export async function resolveAudience(segment, customEmails = []) {
   if (!AUDIENCE_SEGMENTS.includes(segment)) {
     const error = new Error("Invalid audience segment.");
     error.status = 400;
@@ -124,7 +124,19 @@ export async function resolveAudience(segment) {
 
   let users = [];
 
-  if (segment === "all_users") {
+  if (segment === "test_users") {
+    const emailList = Array.isArray(customEmails) ? customEmails : [];
+    users = emailList.map((email) => {
+      const emailStr = String(email || "").trim();
+      return {
+        _id: null,
+        firstName: emailStr.split("@")[0] || "Test",
+        lastName: "User",
+        email: emailStr,
+        isVerified: true,
+      };
+    });
+  } else if (segment === "all_users") {
     users = await User.find({}).select("firstName lastName email isVerified").lean();
   } else if (segment === "all_members") {
     users = await User.find({ isVerified: true }).select("firstName lastName email isVerified").lean();
@@ -310,7 +322,7 @@ export async function getSampleUsers(limit = 12) {
   }));
 }
 
-export async function buildPreview({ templateId, audienceSegment, sampleUserId, mergeVariables = {} }) {
+export async function buildPreview({ templateId, audienceSegment, sampleUserId, mergeVariables = {}, customEmails }) {
   const template = await getTemplateById(templateId);
   let sampleUser = null;
 
@@ -331,7 +343,7 @@ export async function buildPreview({ templateId, audienceSegment, sampleUserId, 
     };
   }
 
-  const audience = audienceSegment ? await resolveAudience(audienceSegment) : [];
+  const audience = audienceSegment ? await resolveAudience(audienceSegment, customEmails) : [];
   const userVars = buildUserVariables(sampleUser, mergeVariables);
   const renderedSubject = renderTemplateContent(template.subject, userVars);
   const renderedHtml = renderTemplateContent(template.htmlBody, userVars);
@@ -371,9 +383,9 @@ export async function listRecentCampaigns(limit = 6) {
   }));
 }
 
-export async function sendBroadcast({ templateId, audienceSegment, mergeVariables = {}, adminId }) {
+export async function sendBroadcast({ templateId, audienceSegment, mergeVariables = {}, adminId, customEmails }) {
   const template = await getTemplateById(templateId);
-  const audience = await resolveAudience(audienceSegment);
+  const audience = await resolveAudience(audienceSegment, customEmails);
 
   if (audience.length === 0) {
     const error = new Error("No recipients found for the selected audience.");
@@ -389,6 +401,7 @@ export async function sendBroadcast({ templateId, audienceSegment, mergeVariable
     status: "sending",
     recipientCount: audience.length,
     mergeVariables: { ...DEFAULT_MERGE_VARIABLES, ...mergeVariables },
+    customEmails: Array.isArray(customEmails) ? customEmails : [],
     createdBy: adminId || null,
   });
 

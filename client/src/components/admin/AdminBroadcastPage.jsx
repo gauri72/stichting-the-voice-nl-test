@@ -39,6 +39,13 @@ export default function AdminBroadcastPage() {
   const [wizardStep, setWizardStep] = useState(0);
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [audienceSegment, setAudienceSegment] = useState("all_members");
+  const [testEmailsText, setTestEmailsText] = useState("");
+  const parsedTestEmails = useMemo(() => {
+    return testEmailsText
+      .split(/[\s,;]+/)
+      .map((email) => email.trim())
+      .filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+  }, [testEmailsText]);
   const [sampleUserId, setSampleUserId] = useState("");
   const [preview, setPreview] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -147,6 +154,7 @@ export default function AdminBroadcastPage() {
           templateId: selectedTemplateId,
           audienceSegment,
           sampleUserId: sampleUserId || undefined,
+          customEmails: audienceSegment === "test_users" ? parsedTestEmails : undefined,
         }),
       });
       setPreview(data.preview);
@@ -180,6 +188,7 @@ export default function AdminBroadcastPage() {
         body: JSON.stringify({
           templateId: selectedTemplateId,
           audienceSegment,
+          customEmails: audienceSegment === "test_users" ? parsedTestEmails : undefined,
         }),
       });
       setActionMessage(
@@ -516,6 +525,33 @@ export default function AdminBroadcastPage() {
                       </label>
                     ))}
                   </div>
+                  {audienceSegment === "test_users" ? (
+                    <div style={{ marginTop: "16px", display: "grid", gap: "8px" }}>
+                      <label style={{ display: "grid", gap: "6px", fontSize: "0.86rem", fontWeight: 600 }}>
+                        <span style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          Test Email Addresses (comma or newline separated)
+                          <span className="admin-broadcast__badge admin-broadcast__badge--sent" style={{ marginLeft: "auto", fontSize: "0.72rem" }}>
+                            {parsedTestEmails.length} unique emails parsed
+                          </span>
+                        </span>
+                        <textarea
+                          rows={4}
+                          value={testEmailsText}
+                          onChange={(event) => setTestEmailsText(event.target.value)}
+                          placeholder="test1@example.com, test2@example.com, test3@example.com"
+                          style={{
+                            width: "100%",
+                            border: "1px solid var(--ad-border)",
+                            borderRadius: "12px",
+                            background: "var(--ad-bg)",
+                            color: "var(--ad-text)",
+                            padding: "10px 12px",
+                            font: "inherit",
+                          }}
+                        />
+                      </label>
+                    </div>
+                  ) : null}
                 </>
               ) : null}
 
@@ -580,7 +616,10 @@ export default function AdminBroadcastPage() {
                 <button
                   type="button"
                   className="admin-broadcast__primary-btn"
-                  disabled={wizardStep === 0 && !selectedTemplateId}
+                  disabled={
+                    (wizardStep === 0 && !selectedTemplateId) ||
+                    (wizardStep === 1 && audienceSegment === "test_users" && parsedTestEmails.length === 0)
+                  }
                   onClick={() => setWizardStep((step) => Math.min(2, step + 1))}
                 >
                   Continue

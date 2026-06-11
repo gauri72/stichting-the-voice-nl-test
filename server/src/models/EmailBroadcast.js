@@ -6,6 +6,7 @@ const AUDIENCE_SEGMENTS = [
   "premium_members",
   "event_attendees",
   "all_users",
+  "test_users",
 ];
 
 const emailBroadcastSchema = new mongoose.Schema(
@@ -34,6 +35,7 @@ const emailBroadcastSchema = new mongoose.Schema(
     sentCount: { type: Number, default: 0 },
     failedCount: { type: Number, default: 0 },
     mergeVariables: { type: mongoose.Schema.Types.Mixed, default: {} },
+    customEmails: { type: [String], default: [] },
     errorMessage: { type: String, default: "", trim: true, maxlength: 500 },
     sentAt: { type: Date, default: null },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
