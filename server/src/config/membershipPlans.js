@@ -46,8 +46,8 @@ export const MEMBERSHIP_PLANS = {
     id: "student",
     name: "Student",
     matrixTitle: "Student Membership",
-    feeMinor: 100,
-    feeLabel: "€1",
+    feeMinor: 1500,
+    feeLabel: "€15",
     durationDays: 365,
     durationYears: 1,
     description:

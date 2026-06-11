@@ -5,7 +5,7 @@ export const MEMBERSHIP_TIERS = [
     id: "student",
     name: "Student",
     tableNameLines: ["Student"],
-    price: "€1",
+    price: "€15",
     theme: "pink",
     popular: false,
     icon: "school",
