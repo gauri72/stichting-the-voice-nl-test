@@ -16,6 +16,19 @@ const OTP_TTL_MS = 10 * 60 * 1000;
 const RESET_TTL_MS = 60 * 60 * 1000;
 const BCRYPT_ROUNDS = 12;
 
+function hasPasswordHash(user) {
+  return Boolean(String(user?.passwordHash || "").trim());
+}
+
+async function randomPasswordHash() {
+  return bcrypt.hash(crypto.randomBytes(32).toString("hex"), BCRYPT_ROUNDS);
+}
+
+async function ensurePasswordHashOnUser(user) {
+  if (hasPasswordHash(user)) return;
+  user.passwordHash = await randomPasswordHash();
+}
+
 function isDbReady() {
   return mongoose.connection.readyState === 1;
 }
@@ -87,8 +100,9 @@ export async function registerUser({ firstName, lastName, email, password }) {
   const existing = await User.findOne({ email: normalizedEmail });
 
   if (existing?.isVerified) {
-    const message =
-      existing.googleId && existing.authProvider === "google"
+    const message = !hasPasswordHash(existing)
+      ? "An account with this email already exists but has no password set. Please use Forgot password to create one."
+      : existing.googleId && existing.authProvider === "google"
         ? "An account with this email already exists. Please continue with Google."
         : "An account with this email already exists. Please log in.";
     const err = new Error(message);
@@ -236,6 +250,14 @@ export async function loginUser({ email, password, rememberMe }) {
     throw err;
   }
 
+  if (!hasPasswordHash(user)) {
+    const err = new Error(
+      "Your account does not have a password yet. Please use Forgot password to set one."
+    );
+    err.status = 403;
+    throw err;
+  }
+
   const passwordOk = await bcrypt.compare(password, user.passwordHash);
   if (!passwordOk) {
     const err = new Error("Invalid email or password.");
@@ -302,6 +324,7 @@ export async function updateUserProfile(userId, { firstName, lastName, phone }) 
     user.phone = String(phone || "").trim().slice(0, 40);
   }
 
+  await ensurePasswordHashOnUser(user);
   await user.save();
 
   await ActivityLog.create({
@@ -342,6 +365,14 @@ export async function changePassword(userId, { currentPassword, newPassword }) {
   if (user.authProvider === "google" && user.googleId) {
     const err = new Error(
       "This account uses Google sign-in, so it has no password to change."
+    );
+    err.status = 400;
+    throw err;
+  }
+
+  if (!hasPasswordHash(user)) {
+    const err = new Error(
+      "Your account does not have a password yet. Please use Forgot password to set one."
     );
     err.status = 400;
     throw err;
@@ -484,6 +515,7 @@ export async function loginWithGoogle({ credential, rememberMe }) {
     user.isVerified = true;
     user.verificationOtpHash = null;
     user.verificationOtpExpires = null;
+    await ensurePasswordHashOnUser(user);
     await user.save();
   } else {
     const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), BCRYPT_ROUNDS);
@@ -524,9 +556,18 @@ export async function requestPasswordReset(email) {
   }
 
   const resetToken = crypto.randomBytes(32).toString("hex");
-  user.passwordResetTokenHash = hashResetToken(resetToken);
-  user.passwordResetExpires = new Date(Date.now() + RESET_TTL_MS);
-  await user.save();
+  const tokenHash = hashResetToken(resetToken);
+  const resetExpires = new Date(Date.now() + RESET_TTL_MS);
+
+  await User.updateOne(
+    { _id: user._id },
+    {
+      $set: {
+        passwordResetTokenHash: tokenHash,
+        passwordResetExpires: resetExpires
+      }
+    }
+  );
 
   const resetUrl = `${env.clientUrl.replace(/\/$/, "")}/reset-password?token=${resetToken}`;
   const mailResult = await sendPasswordResetEmail({
@@ -577,6 +618,9 @@ export async function resetPassword({ token, password }) {
   user.passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
   user.passwordResetTokenHash = null;
   user.passwordResetExpires = null;
+  if (!user.isVerified) {
+    user.isVerified = true;
+  }
   await user.save();
 
   return {

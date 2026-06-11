@@ -179,6 +179,10 @@ export async function updateUser(req, res) {
     user.authProvider = mappedProvider;
     user.isVerified = isVerified !== undefined ? Boolean(isVerified) : user.isVerified;
 
+    if (!String(user.passwordHash || "").trim()) {
+      user.passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), BCRYPT_ROUNDS);
+    }
+
     await user.save();
 
     return res.status(200).json({
