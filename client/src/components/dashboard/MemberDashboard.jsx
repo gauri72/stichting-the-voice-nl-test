@@ -202,11 +202,7 @@ export default function MemberDashboard() {
 
   return (
     <DashboardShell>
-      <DashboardWelcomeBannerSection
-        displayName={displayName}
-        planShort={planShort}
-        hasMembership={hasMembership}
-      />
+      <DashboardWelcomeBannerSection displayName={displayName} />
 
       <div className="member-dashboard__body">
         <DashboardDiscountsSection />
