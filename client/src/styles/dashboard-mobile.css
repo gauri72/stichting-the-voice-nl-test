@@ -52,7 +52,7 @@
   }
 
   .dash-welcome__content {
-    top: clamp(12px, 3.5vw, 20px);
+    top: calc(clamp(12px, 3.5vw, 20px) + 10px);
     left: 0;
     right: auto;
     transform: none;

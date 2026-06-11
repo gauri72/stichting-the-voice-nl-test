@@ -3,7 +3,7 @@ import SponsorshipBreadcrumbSection from "./SponsorshipBreadcrumbSection";
 import SponsorshipWhySection from "./SponsorshipWhySection";
 import SponsorshipPlansCardsSection from "./SponsorshipPlansCardsSection";
 import SponsorshipPaymentBlock, { SPONSOR_CHECKOUT_SESSION_KEY } from "./SponsorshipPaymentBlock";
-import { isPaymentReturnUrl, readCheckoutSession } from "../../utils/stripePayment";
+import { getCheckoutPageState } from "../../utils/stripePayment";
 import "../../styles/sponsorship-page.css";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
@@ -36,7 +36,9 @@ async function warmUpApi(signal) {
 }
 
 export default function SponsorshipPage() {
-  const [selectedTier, setSelectedTier] = useState(null);
+  const initialCheckout = getCheckoutPageState(SPONSOR_CHECKOUT_SESSION_KEY);
+  const [selectedTier, setSelectedTier] = useState(initialCheckout.tier);
+  const [showPaymentBlock, setShowPaymentBlock] = useState(initialCheckout.showPaymentBlock);
   const paymentRef = useRef(null);
 
   useEffect(() => {
@@ -46,9 +48,9 @@ export default function SponsorshipPage() {
   }, []);
 
   useEffect(() => {
-    if (!isPaymentReturnUrl()) return;
-    const saved = readCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
-    if (saved?.tier) setSelectedTier(saved.tier);
+    const { tier, showPaymentBlock: show } = getCheckoutPageState(SPONSOR_CHECKOUT_SESSION_KEY);
+    if (tier) setSelectedTier(tier);
+    if (show) setShowPaymentBlock(true);
   }, []);
 
   useEffect(() => {
@@ -58,6 +60,7 @@ export default function SponsorshipPage() {
   }, [selectedTier]);
 
   function handleSelectTier(tier) {
+    setShowPaymentBlock(true);
     setSelectedTier({
       id: tier.id,
       name: tier.name,
@@ -74,11 +77,14 @@ export default function SponsorshipPage() {
         selectedTierId={selectedTier?.id}
         onSelectTier={handleSelectTier}
       />
-      {selectedTier || isPaymentReturnUrl() ? (
+      {showPaymentBlock ? (
         <SponsorshipPaymentBlock
           ref={paymentRef}
-          tier={selectedTier || readCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY)?.tier}
-          onClose={() => setSelectedTier(null)}
+          tier={selectedTier}
+          onClose={() => {
+            setSelectedTier(null);
+            setShowPaymentBlock(false);
+          }}
         />
       ) : null}
       <SponsorshipWhySection />

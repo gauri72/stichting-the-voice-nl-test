@@ -28,7 +28,7 @@ function buildWhatsAppHref() {
 const footerNavLinks = [
   { label: "Home", to: "/" },
   { label: "Experience", to: "/events" },
-  { label: "Stories", to: "/segments/vision-of-sounds" },
+  { label: "Stories", to: "/stories" },
   { label: "Impact", to: "/impact" },
   { label: "Innovation", to: "/voice-venture-studio" },
   { label: "Become A Member", to: "/membership" },

@@ -122,6 +122,12 @@ export function persistCheckoutSession(storageKey, payload) {
   }
 }
 
+/** Merge into an existing checkout session so redirect prep does not wipe intentMeta. */
+export function mergeCheckoutSession(storageKey, patch) {
+  const existing = readCheckoutSession(storageKey) || {};
+  persistCheckoutSession(storageKey, { ...existing, ...patch });
+}
+
 export function readCheckoutSession(storageKey) {
   try {
     const raw = sessionStorage.getItem(storageKey);
@@ -129,6 +135,35 @@ export function readCheckoutSession(storageKey) {
   } catch (_err) {
     return null;
   }
+}
+
+/** Donor / sponsor / member keys differ by flow — read whichever was persisted. */
+export function readCheckoutPayer(saved) {
+  if (!saved) return null;
+  return saved.donor || saved.sponsor || saved.member || saved.payer || null;
+}
+
+/** Initial page state after a Stripe redirect (or restored session). */
+export function getCheckoutPageState(sessionKey) {
+  const saved = readCheckoutSession(sessionKey);
+  const isReturn = isPaymentReturnUrl();
+  return {
+    tier: saved?.tier ?? null,
+    showPaymentBlock: Boolean(saved?.tier) || isReturn
+  };
+}
+
+/** Persist payer under every key so return handling works for all checkout flows. */
+export function persistCheckoutPayer(sessionKey, { tier, payer, intentMeta, ...rest }) {
+  mergeCheckoutSession(sessionKey, {
+    tier,
+    donor: payer,
+    sponsor: payer,
+    member: payer,
+    payer,
+    ...(intentMeta ? { intentMeta } : {}),
+    ...rest
+  });
 }
 
 export function clearCheckoutSession(storageKey) {
@@ -169,23 +204,26 @@ export async function completePaymentReturn(stripe, { onSuccess, onError }) {
   );
 
   const { paymentIntent, error } = await stripe.retrievePaymentIntent(clientSecret);
-  clearPaymentReturnQuery();
 
   if (error) {
+    clearPaymentReturnQuery();
     onError?.(error.message || "Could not verify payment status.");
     return true;
   }
 
   if (paymentIntent?.status === "succeeded") {
-    onSuccess?.(paymentIntent);
+    await onSuccess?.(paymentIntent);
+    clearPaymentReturnQuery();
     return true;
   }
 
   if (paymentIntent?.status === "processing") {
+    clearPaymentReturnQuery();
     onError?.("Payment is processing. We will email you once it is confirmed.");
     return true;
   }
 
+  clearPaymentReturnQuery();
   onError?.("Payment could not be completed. Please try again.");
   return true;
 }

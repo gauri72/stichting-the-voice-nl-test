@@ -9,7 +9,6 @@
     "sync:highlights": "node scripts/sync-event-highlights.js",
     "fix:membership-kind": "node scripts/fix-membership-kind.js",
     "sync:past-data": "node scripts/sync-ticket-tailor-past-data.js",
-    "migrate:voice-nl-26": "node scripts/migrate-to-voice-nl-26.js",
     "fix:legacy-users": "node scripts/fix-legacy-users.js",
     "seed:admin": "node scripts/seed-admin.js"
   },

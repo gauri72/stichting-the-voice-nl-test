@@ -7,9 +7,12 @@ import {
   getStripeElementsAppearance,
   clearCheckoutSession,
   completePaymentReturn,
+  isPaymentReturnUrl,
   persistCheckoutSession,
+  readCheckoutPayer,
   readCheckoutSession
 } from "../../utils/stripePayment";
+import { useResolvedCheckoutTier } from "../../hooks/useResolvedCheckoutTier.js";
 import { useTheme } from "../../contexts/ThemeContext.jsx";
 import { authHeaders } from "../../utils/api.js";
 import "../../styles/sponsorship-payment-block.css";
@@ -49,9 +52,10 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
   ref
 ) {
   const { isDark } = useTheme();
+  const activeTier = useResolvedCheckoutTier(SPONSOR_CHECKOUT_SESSION_KEY, tier);
   const stripeAppearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
   const [step, setStep] = useState("details");
-  const [sponsor, setSponsor] = useState({
+  const [sponsor, setSponsor] = useState(() => readCheckoutPayer(readCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY)) || {
     name: "",
     email: "",
     phone: "",
@@ -66,15 +70,17 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
   const [wakingUp, setWakingUp] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [success, setSuccess] = useState(null);
+  const [handlingReturn, setHandlingReturn] = useState(() => isPaymentReturnUrl());
 
   useEffect(() => {
+    if (isPaymentReturnUrl()) return;
     setStep("details");
     setClientSecret("");
     setIntentMeta(null);
     setSubmitError("");
     setSuccess(null);
     setCustomAmount("");
-  }, [tier?.id]);
+  }, [activeTier?.id]);
 
   const stripeMissingKey = !PUBLISHABLE_KEY;
 
@@ -85,10 +91,13 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
 
     stripePromise.then(async (stripe) => {
       if (!stripe) return;
+      if (!isPaymentReturnUrl()) return;
+      setHandlingReturn(true);
       await completePaymentReturn(stripe, {
         onSuccess: async (paymentIntent) => {
           const saved = readCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
-          if (saved?.sponsor) setSponsor(saved.sponsor);
+          const payer = readCheckoutPayer(saved);
+          if (payer) setSponsor((prev) => ({ ...prev, ...payer }));
           if (saved?.intentMeta) setIntentMeta(saved.intentMeta);
           try {
             await fetch(apiUrl("/api/payments/confirm"), {
@@ -100,7 +109,10 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
             // Webhook may still deliver.
           }
           clearCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
-          setSuccess({ id: paymentIntent.id });
+          setSuccess({
+            id: paymentIntent.id,
+            tierName: saved?.tier?.name || activeTier?.name || ""
+          });
           setStep("done");
         },
         onError: (msg) => {
@@ -108,6 +120,7 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
           setStep("payment");
         }
       });
+      setHandlingReturn(false);
     });
   }, []);
 
@@ -152,8 +165,8 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
         return `${(intentMeta.currency || "EUR").toUpperCase()} ${(intentMeta.amount / 100).toFixed(2)}`;
       }
     }
-    return tier?.amountLabel || "";
-  }, [intentMeta, tier]);
+    return activeTier?.amountLabel || "";
+  }, [intentMeta, activeTier]);
 
   function updateField(name, value) {
     setSponsor((prev) => ({ ...prev, [name]: value }));
@@ -175,9 +188,16 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
     // explaining the delay (most likely a free-tier server cold start).
     const wakingTimer = setTimeout(() => setWakingUp(true), WAKING_HINT_DELAY_MS);
 
+    if (!activeTier?.id) {
+      clearTimeout(wakingTimer);
+      setLoading(false);
+      setSubmitError("Sponsorship tier is missing. Please refresh and select a plan.");
+      return;
+    }
+
     try {
       const body = {
-        tierId: tier.id,
+        tierId: activeTier.id,
         sponsor: {
           name: sponsor.name.trim(),
           firstName: sponsor.name.trim().split(" ")[0] || "",
@@ -190,9 +210,9 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
         }
       };
 
-      if (tier.allowCustom) {
+      if (activeTier.allowCustom) {
         const cents = Math.round(Number(customAmount) * 100);
-        if (tier.customOnly) {
+        if (activeTier.customOnly) {
           if (!Number.isFinite(cents) || cents < 50) {
             throw new Error("Enter a valid sponsorship amount in EUR.");
           }
@@ -226,7 +246,11 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
       };
       setClientSecret(data.clientSecret);
       setIntentMeta(meta);
-      persistCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY, { tier, sponsor, intentMeta: meta });
+      persistCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY, {
+        tier: activeTier,
+        sponsor,
+        intentMeta: meta
+      });
       setStep("payment");
     } catch (error) {
       if (error?.name === "AbortError") {
@@ -257,7 +281,10 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
     } catch (_err) {
       // Webhook may still deliver.
     }
-    setSuccess({ id: paymentIntent.id });
+    setSuccess({
+      id: paymentIntent.id,
+      tierName: activeTier?.name || ""
+    });
     setStep("done");
   }
 
@@ -275,12 +302,12 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
             <h3 id="sponsorship-payment-title" className="sponsorship-payment__title">
               {step === "done"
                 ? "Thank you for your sponsorship!"
-                : tier.name}
+                : activeTier?.name || "Sponsorship"}
             </h3>
-            {step !== "done" ? (
+            {step !== "done" && activeTier ? (
               <p className="sponsorship-payment__subtitle">
-                {tier.amountLabel}
-                {tier.note ? ` - ${tier.note}` : ""}
+                {activeTier.amountLabel}
+                {activeTier.note ? ` - ${activeTier.note}` : ""}
               </p>
             ) : null}
           </div>
@@ -304,7 +331,13 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
           </div>
         ) : null}
 
-        {step === "details" ? (
+        {handlingReturn && step !== "done" ? (
+          <p className="sponsorship-payment__waking-hint" role="status" aria-live="polite">
+            Confirming your payment…
+          </p>
+        ) : null}
+
+        {step === "details" && activeTier && !handlingReturn ? (
           <form className="sponsorship-payment__details" onSubmit={handleDetailsSubmit}>
             <div className="sponsorship-payment__grid">
               <label className="sponsorship-payment__field sponsorship-payment__field--full">
@@ -359,16 +392,16 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
                   placeholder="The Netherlands"
                 />
               </label>
-              {tier.allowCustom ? (
+              {activeTier.allowCustom ? (
                 <label className="sponsorship-payment__field sponsorship-payment__field--full">
                   <span>
-                    {tier.customOnly ? "Sponsorship amount (EUR) *" : "Custom amount (EUR)"}
+                    {activeTier.customOnly ? "Sponsorship amount (EUR) *" : "Custom amount (EUR)"}
                   </span>
                   <input
                     type="number"
                     min="0.5"
                     step="0.01"
-                    required={Boolean(tier.customOnly)}
+                    required={Boolean(activeTier.customOnly)}
                     value={customAmount}
                     onChange={(event) => setCustomAmount(event.target.value)}
                     placeholder="e.g. 500"
@@ -425,7 +458,7 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
             <StripeCheckoutForm
               amountLabel={amountLabel}
               payer={sponsor}
-              tier={tier}
+              tier={activeTier}
               sessionKey={SPONSOR_CHECKOUT_SESSION_KEY}
               returnPath={SPONSOR_RETURN_PATH}
               onSuccess={handleSuccess}
@@ -441,8 +474,11 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
             </span>
             <h4>Your sponsorship has been received.</h4>
             <p>
-              A confirmation email is on its way to <strong>{sponsor.email}</strong>. We
-              are honoured to have you on board as a {tier.name}!
+              A confirmation email is on its way to{" "}
+              <strong>{sponsor.email || "your email address"}</strong>.
+              {success.tierName || activeTier?.name
+                ? ` We are honoured to have you on board as a ${success.tierName || activeTier.name}!`
+                : " We are honoured to have you on board!"}
             </p>
             <p className="sponsorship-payment__success-ref">
               Payment reference: <code>{success.id}</code>

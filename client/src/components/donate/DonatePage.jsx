@@ -5,7 +5,7 @@ import DonatePaymentBlock, { DONATE_CHECKOUT_SESSION_KEY } from "./DonatePayment
 import DonateAllocationSection from "./DonateAllocationSection";
 import DonateRealImpactSection from "./DonateRealImpactSection";
 import DonateOtherWaysSection from "./DonateOtherWaysSection";
-import { isPaymentReturnUrl, readCheckoutSession } from "../../utils/stripePayment";
+import { getCheckoutPageState } from "../../utils/stripePayment";
 import "../../styles/donate-page.css";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
@@ -38,7 +38,9 @@ async function warmUpApi(signal) {
 }
 
 export default function DonatePage() {
-  const [selectedTier, setSelectedTier] = useState(null);
+  const initialCheckout = getCheckoutPageState(DONATE_CHECKOUT_SESSION_KEY);
+  const [selectedTier, setSelectedTier] = useState(initialCheckout.tier);
+  const [showPaymentBlock, setShowPaymentBlock] = useState(initialCheckout.showPaymentBlock);
   const paymentRef = useRef(null);
 
   useEffect(() => {
@@ -48,9 +50,9 @@ export default function DonatePage() {
   }, []);
 
   useEffect(() => {
-    if (!isPaymentReturnUrl()) return;
-    const saved = readCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
-    if (saved?.tier) setSelectedTier(saved.tier);
+    const { tier, showPaymentBlock: show } = getCheckoutPageState(DONATE_CHECKOUT_SESSION_KEY);
+    if (tier) setSelectedTier(tier);
+    if (show) setShowPaymentBlock(true);
   }, []);
 
   useEffect(() => {
@@ -60,6 +62,7 @@ export default function DonatePage() {
   }, [selectedTier]);
 
   function handleSelectTier(tier) {
+    setShowPaymentBlock(true);
     setSelectedTier({
       id: tier.id,
       name: tier.name,
@@ -77,11 +80,14 @@ export default function DonatePage() {
         selectedTierId={selectedTier?.id}
         onSelectTier={handleSelectTier}
       />
-      {selectedTier || isPaymentReturnUrl() ? (
+      {showPaymentBlock ? (
         <DonatePaymentBlock
           ref={paymentRef}
-          tier={selectedTier || readCheckoutSession(DONATE_CHECKOUT_SESSION_KEY)?.tier}
-          onClose={() => setSelectedTier(null)}
+          tier={selectedTier}
+          onClose={() => {
+            setSelectedTier(null);
+            setShowPaymentBlock(false);
+          }}
         />
       ) : null}
       <DonateAllocationSection />

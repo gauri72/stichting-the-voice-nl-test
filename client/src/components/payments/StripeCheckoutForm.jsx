@@ -5,7 +5,7 @@ import {
   buildPaymentElementOptions,
   buildPaymentReturnUrl,
   confirmCheckoutPayment,
-  persistCheckoutSession
+  persistCheckoutPayer
 } from "../../utils/stripePayment";
 
 class PaymentElementErrorBoundary extends Component {
@@ -89,7 +89,7 @@ export default function StripeCheckoutForm({
         return;
       }
 
-      persistCheckoutSession(sessionKey, { tier, donor: payer, sponsor: payer });
+      persistCheckoutPayer(sessionKey, { tier, payer });
 
       const { error, paymentIntent } = await confirmCheckoutPayment(stripe, elements, {
         returnUrl,

@@ -7,9 +7,12 @@ import {
   getStripeElementsAppearance,
   clearCheckoutSession,
   completePaymentReturn,
+  isPaymentReturnUrl,
   persistCheckoutSession,
+  readCheckoutPayer,
   readCheckoutSession
 } from "../../utils/stripePayment";
+import { useResolvedCheckoutTier } from "../../hooks/useResolvedCheckoutTier.js";
 import { useTheme } from "../../contexts/ThemeContext.jsx";
 import { authHeaders } from "../../utils/api.js";
 import "../../styles/sponsorship-payment-block.css";
@@ -47,9 +50,10 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
   ref
 ) {
   const { isDark } = useTheme();
+  const activeTier = useResolvedCheckoutTier(MEMBERSHIP_CHECKOUT_SESSION_KEY, tier);
   const stripeAppearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
   const [step, setStep] = useState("details");
-  const [member, setMember] = useState({
+  const [member, setMember] = useState(() => readCheckoutPayer(readCheckoutSession(MEMBERSHIP_CHECKOUT_SESSION_KEY)) || {
     name: "",
     email: "",
     phone: "",
@@ -63,8 +67,10 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
   const [wakingUp, setWakingUp] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [success, setSuccess] = useState(null);
+  const [handlingReturn, setHandlingReturn] = useState(() => isPaymentReturnUrl());
 
   useEffect(() => {
+    if (isPaymentReturnUrl()) return;
     setStep("details");
     setClientSecret("");
     setIntentMeta(null);
@@ -72,7 +78,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
     setSuccess(null);
     setDiscountCode("");
     setDiscountInfo(null);
-  }, [tier?.id]);
+  }, [activeTier?.id]);
 
   const stripeMissingKey = !PUBLISHABLE_KEY;
 
@@ -83,10 +89,13 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
 
     promise.then(async (stripe) => {
       if (!stripe) return;
+      if (!isPaymentReturnUrl()) return;
+      setHandlingReturn(true);
       await completePaymentReturn(stripe, {
         onSuccess: async (paymentIntent) => {
           const saved = readCheckoutSession(MEMBERSHIP_CHECKOUT_SESSION_KEY);
-          if (saved?.member) setMember(saved.member);
+          const payer = readCheckoutPayer(saved);
+          if (payer) setMember((prev) => ({ ...prev, ...payer }));
           if (saved?.intentMeta) setIntentMeta(saved.intentMeta);
           if (saved?.discountInfo) setDiscountInfo(saved.discountInfo);
           setSubmitError("");
@@ -108,6 +117,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
           setStep("payment");
         }
       });
+      setHandlingReturn(false);
     });
   }, []);
 
@@ -122,8 +132,8 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
         return `${(intentMeta.currency || "EUR").toUpperCase()} ${(intentMeta.amount / 100).toFixed(2)}`;
       }
     }
-    return tier?.amountLabel || "";
-  }, [intentMeta, tier]);
+    return activeTier?.amountLabel || "";
+  }, [intentMeta, activeTier]);
 
   function updateField(name, value) {
     setMember((prev) => ({ ...prev, [name]: value }));
@@ -137,7 +147,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
       );
       return;
     }
-    if (!tier?.id) {
+    if (!activeTier?.id) {
       setSubmitError("Membership tier is missing. Please refresh and select a plan.");
       return;
     }
@@ -159,7 +169,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
           },
           body: JSON.stringify({
             kind: "membership",
-            tierId: tier.id,
+            tierId: activeTier.id,
             discountCode: discountCode.trim(),
             sponsor: {
               name,
@@ -187,7 +197,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
       setIntentMeta(meta);
       setDiscountInfo(data.discountApplied ? data.discountInfo : null);
       persistCheckoutSession(MEMBERSHIP_CHECKOUT_SESSION_KEY, {
-        tier,
+        tier: activeTier,
         member,
         intentMeta: meta,
         discountInfo: data.discountApplied ? data.discountInfo : null
@@ -243,11 +253,11 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
             <h3 id="membership-payment-title" className="sponsorship-payment__title">
               {step === "done"
                 ? "Welcome to the V.O.I.C.E. NL family!"
-                : `Become a Member${tier?.name ? ` — ${tier.name}` : ""}`}
+                : `Become a Member${activeTier?.name ? ` — ${activeTier.name}` : ""}`}
             </h3>
-            {step !== "done" && tier ? (
+            {step !== "done" && activeTier ? (
               <p className="sponsorship-payment__subtitle">
-                {tier.amountLabel}
+                {activeTier.amountLabel}
                 <span> / year</span>
               </p>
             ) : null}
@@ -272,7 +282,13 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
           </div>
         ) : null}
 
-        {step === "details" ? (
+        {handlingReturn && step !== "done" ? (
+          <p className="sponsorship-payment__waking-hint" role="status" aria-live="polite">
+            Confirming your payment…
+          </p>
+        ) : null}
+
+        {step === "details" && activeTier && !handlingReturn ? (
           <form className="sponsorship-payment__details" onSubmit={handleDetailsSubmit}>
             <div className="sponsorship-payment__grid">
               <label className="sponsorship-payment__field sponsorship-payment__field--full">
@@ -379,7 +395,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
               <StripeCheckoutForm
                 amountLabel={amountLabel}
                 payer={member}
-                tier={tier}
+                tier={activeTier}
                 sessionKey={MEMBERSHIP_CHECKOUT_SESSION_KEY}
                 returnPath={MEMBERSHIP_RETURN_PATH}
                 onSuccess={handleSuccess}
@@ -397,7 +413,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
             <h4>Your membership is confirmed.</h4>
             <p>
               A confirmation email with your membership ID, QR code, and receipt is on its way to{" "}
-              <strong>{member.email}</strong>.
+              <strong>{member.email || "your email address"}</strong>.
             </p>
             <p className="sponsorship-payment__success-ref">
               Payment reference: <code>{success.id}</code>

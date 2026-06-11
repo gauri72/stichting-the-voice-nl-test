@@ -5,12 +5,14 @@ import { loadStripe } from "@stripe/stripe-js";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import {
   getStripeElementsAppearance,
-  buildPaymentReturnUrl,
   clearCheckoutSession,
   completePaymentReturn,
+  isPaymentReturnUrl,
   persistCheckoutSession,
+  readCheckoutPayer,
   readCheckoutSession
 } from "../../utils/stripePayment";
+import { useResolvedCheckoutTier } from "../../hooks/useResolvedCheckoutTier.js";
 import { useTheme } from "../../contexts/ThemeContext.jsx";
 import { authHeaders } from "../../utils/api.js";
 import "../../styles/sponsorship-payment-block.css";
@@ -45,9 +47,10 @@ function getStripePromise() {
 
 const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClose }, ref) {
   const { isDark } = useTheme();
+  const activeTier = useResolvedCheckoutTier(DONATE_CHECKOUT_SESSION_KEY, tier);
   const stripeAppearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
   const [step, setStep] = useState("details");
-  const [donor, setDonor] = useState({
+  const [donor, setDonor] = useState(() => readCheckoutPayer(readCheckoutSession(DONATE_CHECKOUT_SESSION_KEY)) || {
     name: "",
     email: "",
     phone: "",
@@ -62,15 +65,17 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
   const [wakingUp, setWakingUp] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [success, setSuccess] = useState(null);
+  const [handlingReturn, setHandlingReturn] = useState(() => isPaymentReturnUrl());
 
   useEffect(() => {
+    if (isPaymentReturnUrl()) return;
     setStep("details");
     setClientSecret("");
     setIntentMeta(null);
     setSubmitError("");
     setSuccess(null);
     setCustomAmount("");
-  }, [tier?.id]);
+  }, [activeTier?.id]);
 
   const stripeMissingKey = !PUBLISHABLE_KEY;
 
@@ -81,13 +86,19 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
 
     stripePromise.then(async (stripe) => {
       if (!stripe) return;
+      if (!isPaymentReturnUrl()) return;
+      setHandlingReturn(true);
       await completePaymentReturn(stripe, {
         onSuccess: async (paymentIntent) => {
           const saved = readCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
-          if (saved?.donor) setDonor(saved.donor);
+          const payer = readCheckoutPayer(saved);
+          if (payer) setDonor((prev) => ({ ...prev, ...payer }));
           if (saved?.intentMeta) setIntentMeta(saved.intentMeta);
           setSubmitError("");
-          setSuccess({ id: paymentIntent.id });
+          setSuccess({
+            id: paymentIntent.id,
+            tierName: saved?.tier?.name || activeTier?.name || ""
+          });
           setStep("done");
           clearCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
           try {
@@ -105,6 +116,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
           setStep("payment");
         }
       });
+      setHandlingReturn(false);
     });
   }, []);
 
@@ -146,8 +158,8 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
         return `${(intentMeta.currency || "EUR").toUpperCase()} ${(intentMeta.amount / 100).toFixed(2)}`;
       }
     }
-    return tier?.amountLabel || "";
-  }, [intentMeta, tier]);
+    return activeTier?.amountLabel || "";
+  }, [intentMeta, activeTier]);
 
   function updateField(name, value) {
     setDonor((prev) => ({ ...prev, [name]: value }));
@@ -167,10 +179,17 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
 
     const wakingTimer = setTimeout(() => setWakingUp(true), WAKING_HINT_DELAY_MS);
 
+    if (!activeTier?.id) {
+      clearTimeout(wakingTimer);
+      setLoading(false);
+      setSubmitError("Donation tier is missing. Please refresh and select a plan.");
+      return;
+    }
+
     try {
       const body = {
         kind: "donation",
-        tierId: tier.id,
+        tierId: activeTier.id,
         sponsor: {
           name: donor.name.trim(),
           firstName: donor.name.trim().split(" ")[0] || "",
@@ -183,9 +202,9 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
         }
       };
 
-      if (tier.allowCustom) {
+      if (activeTier.allowCustom) {
         const cents = Math.round(Number(customAmount) * 100);
-        if (tier.customOnly) {
+        if (activeTier.customOnly) {
           if (!Number.isFinite(cents) || cents < 50) {
             throw new Error("Enter a valid donation amount in EUR.");
           }
@@ -219,7 +238,11 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
       };
       setClientSecret(data.clientSecret);
       setIntentMeta(meta);
-      persistCheckoutSession(DONATE_CHECKOUT_SESSION_KEY, { tier, donor, intentMeta: meta });
+      persistCheckoutSession(DONATE_CHECKOUT_SESSION_KEY, {
+        tier: activeTier,
+        donor,
+        intentMeta: meta
+      });
       setStep("payment");
     } catch (error) {
       if (error?.name === "AbortError") {
@@ -242,7 +265,10 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
 
   async function handleSuccess(paymentIntent) {
     setSubmitError("");
-    setSuccess({ id: paymentIntent.id });
+    setSuccess({
+      id: paymentIntent.id,
+      tierName: activeTier?.name || ""
+    });
     setStep("done");
     clearCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
 
@@ -271,12 +297,14 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
             <h3 id="donate-payment-title" className="sponsorship-payment__title">
               {step === "done"
                 ? "Thank you for your donation!"
-                : `Donate — ${tier.name}`}
+                : activeTier?.name
+                  ? `Donate — ${activeTier.name}`
+                  : "Donate"}
             </h3>
-            {step !== "done" ? (
+            {step !== "done" && activeTier ? (
               <p className="sponsorship-payment__subtitle">
-                {tier.amountLabel}
-                {tier.note ? ` — ${tier.note}` : ""}
+                {activeTier.amountLabel}
+                {activeTier.note ? ` — ${activeTier.note}` : ""}
               </p>
             ) : null}
           </div>
@@ -300,7 +328,13 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
           </div>
         ) : null}
 
-        {step === "details" ? (
+        {handlingReturn && step !== "done" ? (
+          <p className="sponsorship-payment__waking-hint" role="status" aria-live="polite">
+            Confirming your payment…
+          </p>
+        ) : null}
+
+        {step === "details" && activeTier && !handlingReturn ? (
           <form className="sponsorship-payment__details" onSubmit={handleDetailsSubmit}>
             <div className="sponsorship-payment__grid">
               <label className="sponsorship-payment__field sponsorship-payment__field--full">
@@ -355,14 +389,14 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
                   placeholder="The Netherlands"
                 />
               </label>
-              {tier.allowCustom ? (
+              {activeTier.allowCustom ? (
                 <label className="sponsorship-payment__field sponsorship-payment__field--full">
-                  <span>{tier.customOnly ? "Donation amount (EUR) *" : `Custom amount (EUR)`}</span>
+                  <span>{activeTier.customOnly ? "Donation amount (EUR) *" : `Custom amount (EUR)`}</span>
                   <input
                     type="number"
                     min="0.5"
                     step="0.01"
-                    required={Boolean(tier.customOnly)}
+                    required={Boolean(activeTier.customOnly)}
                     value={customAmount}
                     onChange={(event) => setCustomAmount(event.target.value)}
                     placeholder="e.g. 25"
@@ -419,7 +453,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
             <StripeCheckoutForm
               amountLabel={amountLabel}
               payer={donor}
-              tier={tier}
+              tier={activeTier}
               sessionKey={DONATE_CHECKOUT_SESSION_KEY}
               returnPath={DONATE_RETURN_PATH}
               onSuccess={handleSuccess}
@@ -435,8 +469,11 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
             </span>
             <h4>Your donation has been received.</h4>
             <p>
-              A confirmation email is on its way to <strong>{donor.email}</strong>. We are
-              grateful for your support as a {tier.name}!
+              A confirmation email is on its way to{" "}
+              <strong>{donor.email || "your email address"}</strong>.
+              {success.tierName || activeTier?.name
+                ? ` We are grateful for your support as a ${success.tierName || activeTier.name}!`
+                : " We are grateful for your support!"}
             </p>
             <p className="sponsorship-payment__success-ref">
               Payment reference: <code>{success.id}</code>
