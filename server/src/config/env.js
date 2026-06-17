@@ -95,6 +95,24 @@ const env = {
       "https://e.pcloud.com/#/puplink?code=a0d7Z7oHyALJyo1QSVj7EPvLx5y5ySo37",
     /** Optional single line below donation thank-you email (plain text; leave empty to omit). */
     emailFooterOptional: stripEnv(process.env.EMAIL_FOOTER_OPTIONAL)
+  },
+  wallet: {
+    apple: {
+      passTypeIdentifier: stripEnv(process.env.APPLE_WALLET_PASS_TYPE_ID),
+      teamIdentifier: stripEnv(process.env.APPLE_WALLET_TEAM_ID),
+      wwdrCertPath: stripEnv(process.env.APPLE_WALLET_WWDR_CERT_PATH),
+      signerCertPath: stripEnv(process.env.APPLE_WALLET_SIGNER_CERT_PATH),
+      signerKeyPath: stripEnv(process.env.APPLE_WALLET_SIGNER_KEY_PATH),
+      signerKeyPassphrase: stripEnv(process.env.APPLE_WALLET_SIGNER_KEY_PASSPHRASE)
+    },
+    google: {
+      issuerId: stripEnv(process.env.GOOGLE_WALLET_ISSUER_ID),
+      classSuffix: stripEnv(process.env.GOOGLE_WALLET_CLASS_SUFFIX) || "voice_membership",
+      serviceAccountEmail: stripEnv(process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL),
+      serviceAccountPrivateKey: (
+        process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_PRIVATE_KEY || ""
+      ).replace(/\\n/g, "\n")
+    }
   }
 };
 

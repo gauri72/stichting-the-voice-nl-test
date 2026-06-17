@@ -181,39 +181,40 @@
 
   /* ── Membership card ── */
 
-  .dash-membership-group {
-    gap: 12px;
-  }
-
-  .dash-membership__rect {
-    border-radius: 12px;
-    max-width: 100%;
-  }
-
-  .dash-membership__rect--top {
-    min-height: 0;
-  }
-
-  .dash-membership__rect-body {
-    padding: 14px;
-  }
-
   .dash-membership__rect--top .dash-membership__rect-body {
-    padding: 12px 14px;
+    padding: 0;
   }
 
   .dash-membership__rect--top .dash-membership__eyebrow--membership {
     justify-content: center;
     text-align: center;
-    font-size: clamp(0.625rem, 2.2vw, 0.6875rem);
+    font-size: clamp(0.625rem, 2.2vw, 0.8125rem);
     letter-spacing: 0.1em;
     margin-bottom: 10px;
+    gap: 10px;
   }
 
   .dash-membership__rect--top .dash-membership__eyebrow--membership .dash-membership__eyebrow-line {
     flex: 1;
     width: auto;
     max-width: none;
+    min-width: 16px;
+  }
+
+  .voice-ecard {
+    width: min(100%, 480px);
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .dash-membership-group {
+    gap: 12px;
+  }
+
+  .dash-membership__rect--top {
+    min-height: 0;
+    border: none;
+    box-shadow: none;
   }
 
   .dash-membership__rect--top .dash-membership__bg {

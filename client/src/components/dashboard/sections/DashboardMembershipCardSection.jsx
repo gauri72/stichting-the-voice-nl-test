@@ -1,18 +1,23 @@
+import { useRef, useState } from "react";
 import {
   IconBolt,
+  IconBrandGoogle,
   IconCrown,
+  IconDownload,
   IconHeartHandshake,
   IconRosetteDiscount,
   IconShoppingBag,
   IconSofa,
   IconTicket,
 } from "@tabler/icons-react";
-import membershipLogo from "../../../assets/Dashboard/logo.png";
+import MembershipEcard from "../MembershipEcard.jsx";
 import {
-  DASHBOARD_MEMBER_PROFILE_ID,
+  addMembershipToGoogleWallet,
+  downloadMembershipEcard,
+} from "../../../utils/membershipEcard.js";
+import {
   DASHBOARD_MEMBERSHIP_CARD_ID,
   PREMIUM_BENEFITS,
-  splitMembershipIdDisplay,
 } from "../dashboardUtils.js";
 import "../../../styles/dashboard-membership-card-section.css";
 
@@ -35,97 +40,106 @@ function TwoLineLabel({ lines }) {
   );
 }
 
-function MembershipBg() {
-  return (
-    <div className="dash-membership__bg" aria-hidden>
-      <div className="dash-membership__bg-logo-wrap">
-        <img
-          className="dash-membership__bg-logo logo-glow"
-          src={membershipLogo}
-          alt=""
-          decoding="async"
-        />
-      </div>
-    </div>
-  );
-}
-
 export default function DashboardMembershipCardSection({
-  displayName,
   planShort,
+  planId,
   membershipId,
   memberSince,
   validUntil,
+  validFrom,
   hasMembership,
   qrSrc,
+  wallet,
 }) {
-  const { primary: membershipIdPrimary, secondary: membershipIdSecondary } =
-    splitMembershipIdDisplay(membershipId);
+  const cardRef = useRef(null);
+  const [actionMessage, setActionMessage] = useState("");
+  const [busyAction, setBusyAction] = useState("");
+
+  const googleEnabled = Boolean(wallet?.googleAvailable);
+
+  const runAction = async (actionId, task) => {
+    setActionMessage("");
+    setBusyAction(actionId);
+    try {
+      await task();
+    } catch (error) {
+      setActionMessage(error.message || "Something went wrong. Please try again.");
+    } finally {
+      setBusyAction("");
+    }
+  };
 
   return (
     <div className="dash-membership-group">
       <section
-        className="dash-membership__rect dash-membership__rect--top"
+        className="dash-membership__rect dash-membership__rect--top dash-membership__rect--ecard"
         id={DASHBOARD_MEMBERSHIP_CARD_ID}
         aria-labelledby="dash-membership-title"
       >
-        <MembershipBg />
         <div className="dash-membership__rect-body">
           <p className="dash-membership__eyebrow dash-membership__eyebrow--membership">
             <span className="dash-membership__eyebrow-line" aria-hidden />
-            Your Membership
+            <span id="dash-membership-title">Your Membership Card</span>
             <span className="dash-membership__eyebrow-line" aria-hidden />
           </p>
-          <div className="dash-membership__card">
-            <div className="dash-membership__info" id={DASHBOARD_MEMBER_PROFILE_ID}>
-              <h2 className="dash-membership__plan" id="dash-membership-title">
-                {hasMembership ? planShort : "No Active Membership"}
-              </h2>
-              <p className="dash-membership__member">{displayName}</p>
-              {hasMembership ? (
-                <>
-                  <p className="dash-membership__id-label">Membership ID</p>
-                  <p className="dash-membership__id-value dash-grad-text">
-                    <span className="dash-membership__id-line">{membershipIdPrimary}</span>
-                    {membershipIdSecondary ? (
-                      <span className="dash-membership__id-line">{membershipIdSecondary}</span>
-                    ) : null}
-                  </p>
-                  <div className="dash-membership__dates">
-                    <div className="dash-membership__date">
-                      <small>Member Since</small>
-                      <strong>{memberSince}</strong>
-                    </div>
-                    <span className="dash-membership__date-divider" aria-hidden />
-                    <div className="dash-membership__date">
-                      <small>Valid Until</small>
-                      <strong>{validUntil}</strong>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <p className="dash-membership__empty-hint">
-                  You don&apos;t have an active membership yet. Join to get your digital
-                  card and QR code.
-                </p>
-              )}
+
+          <MembershipEcard
+            ref={cardRef}
+            membershipId={membershipId}
+            memberSince={memberSince}
+            validUntil={validUntil}
+            validFrom={validFrom}
+            planShort={planShort}
+            planId={planId}
+            qrSrc={qrSrc}
+            hasMembership={hasMembership}
+          />
+
+          {hasMembership ? (
+            <div className="voice-ecard__actions" aria-label="Membership card actions">
+              <button
+                type="button"
+                className="voice-ecard__action"
+                disabled={Boolean(busyAction)}
+                onClick={() =>
+                  runAction("download", () => downloadMembershipEcard(cardRef.current, membershipId))
+                }
+              >
+                <span className="voice-ecard__action-icon" aria-hidden>
+                  <IconDownload size={18} stroke={1.75} />
+                </span>
+                {busyAction === "download" ? "Preparing…" : "Download E-Card"}
+              </button>
+
+              <button
+                type="button"
+                className="voice-ecard__action voice-ecard__action--google"
+                disabled={!googleEnabled || Boolean(busyAction)}
+                title={
+                  googleEnabled
+                    ? "Save this membership to Google Wallet"
+                    : "Google Wallet is not configured on the server yet"
+                }
+                onClick={() => runAction("google", addMembershipToGoogleWallet)}
+              >
+                <span className="voice-ecard__action-icon" aria-hidden>
+                  <IconBrandGoogle size={18} stroke={1.75} />
+                </span>
+                {busyAction === "google" ? "Opening…" : "Add to Google Wallet"}
+              </button>
             </div>
-            <div className="dash-membership__logo-col" aria-hidden>
-              <img
-                className="dash-membership__card-logo logo-glow"
-                src={membershipLogo}
-                alt=""
-                decoding="async"
-              />
-            </div>
-            {hasMembership ? (
-              <div className="dash-membership__qr">
-                <div className="dash-membership__qr-code">
-                  <img src={qrSrc} alt={`Membership QR code for ${membershipId}`} loading="lazy" />
-                </div>
-              </div>
-            ) : null}
-          </div>
+          ) : null}
+
+          {actionMessage ? (
+            <p className="voice-ecard__wallet-note" role="alert">
+              {actionMessage}
+            </p>
+          ) : hasMembership && !googleEnabled ? (
+            <p className="voice-ecard__wallet-note">
+              Download your e-card anytime. Google Wallet becomes available once credentials are
+              configured for this environment.
+            </p>
+          ) : null}
         </div>
       </section>
 

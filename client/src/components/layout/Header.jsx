@@ -80,32 +80,36 @@ export default function Header() {
 
   const memberCta = (
     <Link
-      className="donate-button nav-toolbar__cta-member"
+      className="donate-button nav-toolbar__cta-member dash-welcome__badge"
       to="/membership"
       onClick={closeMenu}
     >
-      <IconUserPlus className="nav-toolbar__cta-icon" aria-hidden stroke={1.75} />
+      <IconUserPlus className="nav-toolbar__cta-icon dash-welcome__badge-icon" aria-hidden stroke={1.75} />
       <span>Become A Member</span>
     </Link>
   );
 
   const buyTicketsCta = (
     <a
-      className="donate-button buy-tickets-button"
+      className="donate-button buy-tickets-button dash-welcome__badge"
       href={BUY_TICKETS_URL}
       target="_blank"
       rel="noopener noreferrer"
       onClick={closeMenu}
       aria-label="Buy tickets on Ticket Tailor"
     >
-      <IconTicket className="nav-toolbar__cta-icon buy-tickets-icon" aria-hidden stroke={1.75} />
+      <IconTicket className="nav-toolbar__cta-icon dash-welcome__badge-icon buy-tickets-icon" aria-hidden stroke={1.75} />
       <span>Buy Tickets</span>
     </a>
   );
 
   const authCta = (
-    <Link className="donate-button auth-button nav-toolbar__cta-auth" to="/my-account" onClick={closeMenu}>
-      <IconUser className="nav-toolbar__cta-icon auth-button-icon" aria-hidden stroke={1.75} />
+    <Link
+      className="donate-button auth-button nav-toolbar__cta-auth dash-welcome__badge"
+      to="/my-account"
+      onClick={closeMenu}
+    >
+      <IconUser className="nav-toolbar__cta-icon dash-welcome__badge-icon auth-button-icon" aria-hidden stroke={1.75} />
       <span>Log In Or Sign Up</span>
     </Link>
   );

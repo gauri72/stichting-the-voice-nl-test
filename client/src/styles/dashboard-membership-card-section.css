@@ -23,12 +23,26 @@
 
 .dash-membership__rect--top {
   container-type: inline-size;
-  min-height: clamp(170px, 26cqw, 240px);
-  background-color: #ffffff;
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  overflow: visible;
 }
 
-[data-theme="dark"] .dash-membership__rect--top {
-  background-color: #000000;
+.dash-membership__rect--ecard {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+[data-theme="dark"] .dash-membership__rect--top,
+[data-theme="light"] .dash-membership__rect--top {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.dash-membership__rect--top .dash-membership__rect-body {
+  padding: clamp(8px, 1.6cqw, 16px) 0;
 }
 
 .dash-membership__rect--bottom {
@@ -144,8 +158,8 @@
 }
 
 .dash-membership__rect--top .dash-membership__eyebrow--membership {
-  justify-content: flex-start;
-  text-align: left;
+  justify-content: center;
+  text-align: center;
   margin-bottom: clamp(10px, 1.6cqw, 14px);
   font-size: clamp(0.875rem, 1.5cqw, 0.92rem);
 }
@@ -183,9 +197,10 @@
 }
 
 .dash-membership__rect--top .dash-membership__eyebrow--membership .dash-membership__eyebrow-line {
-  flex: 0 0 min(48px, 7cqw);
-  width: min(48px, 7cqw);
-  min-width: 24px;
+  flex: 1;
+  width: auto;
+  max-width: none;
+  min-width: 20px;
   height: 1px;
   background: rgba(26, 167, 196, 0.65);
 }

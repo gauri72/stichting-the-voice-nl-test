@@ -1,6 +1,11 @@
 import Membership from "../models/Membership.js";
+import Member from "../models/Member.js";
 import User from "../models/User.js";
 import { getPlan, getUpgradePlan, MEMBERSHIP_PLANS } from "../config/membershipPlans.js";
+import {
+  isAppleWalletConfigured,
+  isGoogleWalletConfigured,
+} from "./membershipWalletConfig.js";
 import {
   getTicketTailorStatus,
   isTicketTailorConfigured,
@@ -379,6 +384,41 @@ async function fetchTicketTailorMembershipData(email) {
   }
 }
 
+function findMemberForUser(user, membershipCode) {
+  const email = String(user.email || "").trim().toLowerCase();
+  const queries = [{ userId: user._id }];
+  if (email) queries.push({ email });
+  if (membershipCode) queries.push({ membershipId: membershipCode });
+
+  return Member.findOne({
+    $or: queries,
+    membershipStatus: "active",
+  })
+    .sort({ expiryDate: -1 })
+    .lean();
+}
+
+async function attachWalletMetadata(payload, user) {
+  payload.wallet = {
+    appleAvailable: isAppleWalletConfigured(),
+    googleAvailable: isGoogleWalletConfigured(),
+  };
+
+  if (!payload.active) return payload;
+
+  const membershipCode = payload.active.membershipCode || payload.active.membershipNumber;
+  const memberDoc = await findMemberForUser(user, membershipCode);
+  if (memberDoc?.qrCodeUrl) {
+    payload.active.qrCodeUrl = memberDoc.qrCodeUrl.startsWith("/")
+      ? memberDoc.qrCodeUrl
+      : memberDoc.qrCodeUrl.replace(/^https?:\/\/[^/]+/i, "");
+  } else if (memberDoc?.verificationToken) {
+    payload.active.qrCodeUrl = `/api/membership/qr/${memberDoc.verificationToken}.png`;
+  }
+
+  return payload;
+}
+
 function buildPayloadFromResolved(user, resolved, ticketTailor) {
   if (!resolved.hasMembership || !resolved.primary) {
     return {
@@ -532,7 +572,7 @@ export async function getMembershipPageForUser(safeUser) {
       "No issued membership was found for your login email in Ticket Tailor. Purchases must use the same email as your account.";
   }
 
-  return payload;
+  return attachWalletMetadata(payload, user);
 }
 
 /** Ensures a membership row exists for dev/demo when user has none (optional seed). */

@@ -11,6 +11,7 @@ import AppErrorBoundary from "./components/layout/AppErrorBoundary.jsx";
 import "./styles/themes.css";
 import "./styles/poppins.css";
 import "./styles/global.css";
+import "./styles/dashboard-welcome-banner-section.css";
 import "./styles/header.css";
 import "./styles/theme-toggle.css";
 import "./styles/dark-theme-overrides.css";

@@ -125,30 +125,6 @@ export function timeAgo(iso) {
   return "";
 }
 
-export function downloadMembershipCard(card) {
-  if (!card) return;
-  const code = card.membershipCode || card.membershipNumber || "VOICE";
-  const lines = [
-    "STICHTING THE V.O.I.C.E. NL",
-    "Membership Card",
-    "-------------------",
-    `Member: ${card.memberName || ""}`,
-    `Plan: ${card.planName || ""}`,
-    `Membership ID: ${code}`,
-    card.validFrom ? `Member since: ${card.validFrom}` : null,
-    card.validTo ? `Valid until: ${card.validTo}` : null,
-    "",
-    "Present this code at member events.",
-  ].filter(Boolean);
-  const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `voice-membership-${code}.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 export function scrollToId(id) {
   const targetId = String(id || "").replace(/^#/, "");
   const el = document.getElementById(targetId);
@@ -171,6 +147,17 @@ export function scrollToId(id) {
 export function buildQrSrc(membershipId) {
   const data = encodeURIComponent(membershipId !== "—" ? membershipId : "VOICE-NL");
   return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=${data}`;
+}
+
+/** Prefer same-origin API paths so Vite proxy / production host serves the QR image. */
+export function resolveMembershipQrSrc(qrCodeUrl, membershipId) {
+  const fallback = buildQrSrc(membershipId);
+  if (!qrCodeUrl) return fallback;
+
+  const match = String(qrCodeUrl).match(/\/api\/membership\/qr\/[^?\s"]+\.png/i);
+  if (match) return match[0];
+
+  return qrCodeUrl || fallback;
 }
 
 /** Split membership ID after year segment e.g. VOICE-STU-2026 | remainder */

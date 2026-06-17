@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import AppSplash from "./components/layout/AppSplash";
 import Header from "./components/layout/Header";
@@ -12,7 +12,7 @@ import DonatePage from "./components/donate/DonatePage";
 import EventsPage from "./components/events/EventsPage";
 import LoginPage from "./components/login/LoginPage";
 import ResetPasswordPage from "./components/login/ResetPasswordPage";
-import DashboardPage from "./components/dashboard/DashboardPage";
+const DashboardPage = lazy(() => import("./components/dashboard/DashboardPage"));
 import MyProfilePage from "./components/profile/MyProfilePage";
 import VentureStudioPage from "./components/venture-studio/VentureStudioPage";
 import StoriesPage from "./components/stories/StoriesPage";
@@ -171,7 +171,9 @@ export default function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <DashboardPage />
+                <Suspense fallback={<div className="member-dashboard__status">Loading your dashboard…</div>}>
+                  <DashboardPage />
+                </Suspense>
               </ProtectedRoute>
             }
           />

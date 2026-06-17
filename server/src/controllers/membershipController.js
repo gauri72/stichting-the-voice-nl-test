@@ -1,4 +1,5 @@
 import Member from "../models/Member.js";
+import env from "../config/env.js";
 import { generateMembershipQrPngBuffer } from "../services/membershipQrService.js";
 
 function escapeHtml(value) {
@@ -136,6 +137,7 @@ export async function getMembershipQr(req, res) {
     const buffer = await generateMembershipQrPngBuffer(token);
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "public, max-age=86400");
+    res.setHeader("Access-Control-Allow-Origin", env.clientUrl);
     return res.status(200).end(buffer);
   } catch (error) {
     console.error("[membership] getMembershipQr error:", error);

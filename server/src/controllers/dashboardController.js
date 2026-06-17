@@ -1,6 +1,11 @@
 import { getDashboardPayloadForUser } from "../services/dashboardService.js";
 import env from "../config/env.js";
 import { getMembershipPageForUser, ensureDemoMembership } from "../services/membershipService.js";
+import {
+  createAppleWalletPass,
+  createGoogleWalletSaveUrl,
+  resolveWalletContext,
+} from "../services/membershipWalletService.js";
 
 export async function getDashboard(req, res) {
   try {
@@ -42,6 +47,39 @@ export async function seedMembership(req, res) {
   } catch (error) {
     const status = error.status || 500;
     const message = error.message || "Could not create membership.";
+    return res.status(status).json({ error: message });
+  }
+}
+
+export async function getAppleWalletPass(req, res) {
+  try {
+    const context = await resolveWalletContext(req.user);
+    const buffer = await createAppleWalletPass(context);
+    const filename = `voice-membership-${context.membershipCode || "card"}.pkpass`;
+    res.setHeader("Content-Type", "application/vnd.apple.pkpass");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    return res.status(200).send(buffer);
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || "Could not create Apple Wallet pass.";
+    if (status >= 500) {
+      console.error("[dashboard/wallet/apple]", error);
+    }
+    return res.status(status).json({ error: message });
+  }
+}
+
+export async function getGoogleWalletPass(req, res) {
+  try {
+    const context = await resolveWalletContext(req.user);
+    const saveUrl = await createGoogleWalletSaveUrl(context);
+    return res.status(200).json({ saveUrl });
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || "Could not create Google Wallet pass.";
+    if (status >= 500) {
+      console.error("[dashboard/wallet/google]", error);
+    }
     return res.status(status).json({ error: message });
   }
 }

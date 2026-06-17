@@ -8,11 +8,11 @@ import {
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { apiFetch, authHeaders } from "../../utils/api.js";
 import {
-  buildQrSrc,
   DASHBOARD_ROUTES,
-  downloadMembershipCard,
   planShortLabel,
+  resolveMembershipQrSrc,
 } from "./dashboardUtils.js";
+import { downloadMembershipEcard } from "../../utils/membershipEcard.js";
 import DashboardWelcomeBannerSection from "./sections/DashboardWelcomeBannerSection.jsx";
 import DashboardStatCardsSection from "./sections/DashboardStatCardsSection.jsx";
 import DashboardMembershipCardSection from "./sections/DashboardMembershipCardSection.jsx";
@@ -134,9 +134,14 @@ export default function MemberDashboard() {
   const membershipId = active?.membershipCode || active?.membershipNumber || "—";
   const validUntil = active?.validTo || "—";
   const memberSince = active?.validFrom || profile?.memberSince || "—";
+  const validFrom = active?.validFromIso || active?.validFrom || memberSince;
   const hasMembership = Boolean(membership?.hasMembership && active);
+  const wallet = membership?.wallet || {};
 
-  const qrSrc = useMemo(() => buildQrSrc(membershipId), [membershipId]);
+  const qrSrc = useMemo(
+    () => resolveMembershipQrSrc(active?.qrCodeUrl, membershipId),
+    [active?.qrCodeUrl, membershipId],
+  );
   const activity = dashboard?.activity || [];
 
   const quickActions = [
@@ -152,16 +157,12 @@ export default function MemberDashboard() {
       label: "Download Card",
       icon: <IconDownload size={20} stroke={1.75} />,
       tone: "blue",
-      onClick: () =>
-        downloadMembershipCard(
-          membership?.downloadCard || {
-            membershipCode: membershipId,
-            memberName: displayName,
-            planName: planShort,
-            validFrom: memberSince,
-            validTo: validUntil,
-          },
-        ),
+      onClick: () => {
+        const card = document.querySelector(".voice-ecard:not(.voice-ecard--empty)");
+        if (card) {
+          downloadMembershipEcard(card, membershipId);
+        }
+      },
     },
     {
       id: "renew",
@@ -214,13 +215,15 @@ export default function MemberDashboard() {
         />
 
         <DashboardMembershipCardSection
-          displayName={displayName}
           planShort={planShort}
+          planId={planId}
           membershipId={membershipId}
           memberSince={memberSince}
           validUntil={validUntil}
+          validFrom={validFrom}
           hasMembership={hasMembership}
           qrSrc={qrSrc}
+          wallet={wallet}
         />
 
         <DashboardUpcomingEventsSection />

@@ -1,0 +1,18 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.nl.stichtingthevoice.membership",
+  "teamIdentifier": "TEAMID",
+  "organizationName": "Stichting The V.O.I.C.E. NL",
+  "description": "VOICE NL Membership Card",
+  "logoText": "VOICE NL",
+  "foregroundColor": "rgb(255, 255, 255)",
+  "backgroundColor": "rgb(0, 0, 0)",
+  "labelColor": "rgb(26, 167, 196)",
+  "storeCard": {
+    "headerFields": [],
+    "primaryFields": [],
+    "secondaryFields": [],
+    "auxiliaryFields": [],
+    "backFields": []
+  }
+}

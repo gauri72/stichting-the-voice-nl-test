@@ -13,7 +13,9 @@ export default function AppSplash() {
   useEffect(() => {
     const splashFailsafe = window.setTimeout(() => {
       document.documentElement.classList.remove("splash-open");
-    }, 8000);
+      startedFade.current = true;
+      setPhase("gone");
+    }, 4000);
 
     const start = performance.now();
 
@@ -32,11 +34,14 @@ export default function AppSplash() {
       finish();
     } else {
       window.addEventListener("load", finish, { once: true });
+      // Do not wait forever for third-party scripts (e.g. Google GSI) to finish loading.
+      window.addEventListener("DOMContentLoaded", finish, { once: true });
     }
 
     return () => {
       window.clearTimeout(splashFailsafe);
       window.removeEventListener("load", finish);
+      window.removeEventListener("DOMContentLoaded", finish);
     };
   }, []);
 
