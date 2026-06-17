@@ -1,0 +1,16 @@
+.captcha-field {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.turnstile-widget {
+  width: 100%;
+  min-height: 68px;
+  display: flex;
+  justify-content: center;
+}
+
+.turnstile-widget > div {
+  margin-inline: auto;
+}

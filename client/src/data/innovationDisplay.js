@@ -1,10 +1,6 @@
 import heroVisual from "../assets/Innovation/innovation-hero-lightbulb.png";
 import ctaWorkspace from "../assets/Innovation/innovation-cta-workspace.png";
 import ventureStudioLogo from "../assets/logos/VOICE Venture Studio_Copyright Logo(1).png";
-import {
-  VENTURE_STUDIO_WHATSAPP_URL,
-  WHATSAPP_GROUP_URL,
-} from "../constants/siteLinks.js";
 
 export const INNOVATION_HERO = {
   titleLead: "V.O.I.C.E.",
@@ -44,9 +40,6 @@ export const INNOVATION_INITIATIVES = [
       "Funding & Resources",
       "Leadership Opportunities",
     ],
-    buttonLabel: "Join WhatsApp Group",
-    buttonHref: VENTURE_STUDIO_WHATSAPP_URL,
-    buttonStyle: "whatsapp",
   },
   {
     key: "consultancy",
@@ -62,9 +55,6 @@ export const INNOVATION_INITIATIVES = [
       "Digital Transformation",
       "Growth Strategy",
     ],
-    buttonLabel: "Connect With Us",
-    buttonHref: WHATSAPP_GROUP_URL,
-    buttonStyle: "whatsapp",
   },
   {
     key: "digital-growth",

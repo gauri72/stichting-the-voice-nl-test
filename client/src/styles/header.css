@@ -640,7 +640,7 @@
     min-height: 40px;
     height: 100%;
     padding: 6px 4px;
-    font-size: clamp(7px, 1.95vw, 10px);
+    font-size: clamp(8px, 2.15vw, 11px);
     letter-spacing: 0.01em;
     line-height: 1.15;
     text-align: center;
@@ -965,7 +965,7 @@
   .nav-toolbar .auth-button {
     min-height: 38px;
     padding: 5px 3px;
-    font-size: 8px;
+    font-size: 9px;
   }
 
   .nav-toolbar .menu-toggle,
@@ -998,7 +998,7 @@
   .nav-toolbar .auth-button {
     min-height: 36px;
     padding: 4px 2px;
-    font-size: 7px;
+    font-size: 8px;
   }
 
   .nav-toolbar .menu-toggle,

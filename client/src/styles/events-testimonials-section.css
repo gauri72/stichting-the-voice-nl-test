@@ -120,6 +120,14 @@
   pointer-events: auto;
 }
 
+.events-reviews--submit .events-reviews__inner .events-reviews__captcha,
+.events-reviews--submit .events-reviews__inner .captcha-field,
+.events-reviews--submit .events-reviews__inner .turnstile-widget,
+.events-reviews--submit .events-reviews__inner .turnstile-widget *,
+.events-reviews--submit .events-reviews__inner iframe {
+  pointer-events: auto;
+}
+
 /* -------------------------------------------------------------------------- */
 /* Top — label, heading, description (centered)                               */
 /* -------------------------------------------------------------------------- */
@@ -322,6 +330,10 @@
 
 .events-reviews__form-status--error {
   color: #c2185b;
+}
+
+.events-reviews__captcha {
+  margin-top: -2px;
 }
 
 .events-reviews__submit {

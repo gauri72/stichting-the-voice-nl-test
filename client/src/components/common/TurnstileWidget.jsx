@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import { isTurnstileEnabled } from "../utils/captcha.js";
-import "../styles/turnstile-widget.css";
+import { isTurnstileEnabled } from "../../utils/captcha.js";
+import "../../styles/turnstile-widget.css";
 
 const SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY?.trim() || "";
 

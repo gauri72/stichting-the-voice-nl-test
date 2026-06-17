@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
+import CaptchaField from "../common/CaptchaField.jsx";
+import { useCaptcha } from "../../hooks/useCaptcha.js";
 import { apiFetch } from "../../utils/api.js";
+import { CAPTCHA_REQUIRED_MESSAGE } from "../../utils/captcha.js";
 import LoginBreadcrumbSection from "./LoginBreadcrumbSection.jsx";
 import LoginCtaSection from "./LoginCtaSection.jsx";
 import "../../styles/login-page.css";
@@ -57,6 +60,7 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(null);
+  const captcha = useCaptcha();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -80,17 +84,27 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    if (captcha.required && !captcha.token) {
+      setError(CAPTCHA_REQUIRED_MESSAGE);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       const data = await apiFetch("/api/auth/reset-password", {
         method: "POST",
-        body: JSON.stringify({ token, password: trimmedPassword })
+        body: JSON.stringify({
+          token,
+          password: trimmedPassword,
+          captchaToken: captcha.token
+        })
       });
       setSuccess({ message: data.message });
     } catch (err) {
       setError(err.message || "Could not reset password. Please try again.");
     } finally {
+      captcha.reset();
       setIsSubmitting(false);
     }
   }
@@ -155,6 +169,8 @@ export default function ResetPasswordPage() {
                   {error}
                 </p>
               ) : null}
+
+              <CaptchaField captcha={captcha} className="login-form-section__captcha" />
 
               <button type="submit" className="login-form-section__submit" disabled={isSubmitting}>
                 <FaLock aria-hidden />

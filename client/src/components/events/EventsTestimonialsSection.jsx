@@ -7,6 +7,9 @@ import {
   IconStarFilled,
   IconUser,
 } from "@tabler/icons-react";
+import CaptchaField from "../common/CaptchaField.jsx";
+import { useCaptcha } from "../../hooks/useCaptcha.js";
+import { CAPTCHA_REQUIRED_MESSAGE } from "../../utils/captcha.js";
 import testimonialsBgLight from "../../assets/Events/testimonials-bg-light.png";
 import testimonialsBgDark from "../../assets/Events/testimonials-bg-dark.png";
 import "../../styles/events-testimonials-section.css";
@@ -121,6 +124,7 @@ function SubmitBlock({ onAddTestimonial }) {
   const [rating, setRating] = useState(0);
   const [status, setStatus] = useState({ text: "", variant: "success" });
   const [submitting, setSubmitting] = useState(false);
+  const captcha = useCaptcha();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -143,6 +147,10 @@ function SubmitBlock({ onAddTestimonial }) {
       setStatus({ text: "Please share your testimonial.", variant: "error" });
       return;
     }
+    if (captcha.required && !captcha.token) {
+      setStatus({ text: CAPTCHA_REQUIRED_MESSAGE, variant: "error" });
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -152,6 +160,7 @@ function SubmitBlock({ onAddTestimonial }) {
         quote,
         rating,
         initials: getInitials(name),
+        captchaToken: captcha.token
       });
 
       setStatus({
@@ -163,6 +172,7 @@ function SubmitBlock({ onAddTestimonial }) {
     } catch {
       setStatus({ text: "Could not submit your review. Please try again.", variant: "error" });
     } finally {
+      captcha.reset();
       setSubmitting(false);
     }
   }
@@ -228,6 +238,8 @@ function SubmitBlock({ onAddTestimonial }) {
               {status.text}
             </p>
           ) : null}
+
+          <CaptchaField captcha={captcha} className="events-reviews__captcha" />
 
           <button className="events-reviews__submit" type="submit" disabled={submitting}>
             <IconSend className="events-reviews__submit-icon" aria-hidden stroke={1.75} />

@@ -243,6 +243,10 @@
   gap: 16px;
 }
 
+.admin-login-form__captcha {
+  margin-top: -4px;
+}
+
 .admin-login-form__field label {
   display: block;
   margin-bottom: 8px;

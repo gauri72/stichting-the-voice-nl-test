@@ -93,9 +93,12 @@ export default function ImpactAreasSection() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <IconBrandWhatsapp size={18} stroke={1.6} aria-hidden />
-                      {buttonLabel}
-                      <IconArrowRight size={16} stroke={2} aria-hidden />
+                      <IconBrandWhatsapp
+                        className="impact-area-card__button-whatsapp-icon"
+                        aria-hidden
+                        stroke={1.75}
+                      />
+                      <span>{buttonLabel}</span>
                     </a>
                   ) : (
                     <Link

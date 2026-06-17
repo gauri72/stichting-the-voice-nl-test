@@ -72,34 +72,36 @@ export default function InnovationInitiativesSection() {
                   ))}
                 </ul>
 
-                {buttonStyle === "whatsapp" ? (
-                  <a
-                    className="innovation-initiative-card__button innovation-initiative-card__button--whatsapp"
-                    href={buttonHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <IconBrandWhatsapp size={18} stroke={1.6} aria-hidden />
-                    {buttonLabel}
-                    <IconArrowRight size={16} stroke={2} aria-hidden />
-                  </a>
-                ) : buttonHref ? (
-                  <a
-                    href={buttonHref}
-                    className="innovation-initiative-card__button innovation-initiative-card__button--outline"
-                  >
-                    {buttonLabel}
-                    <IconArrowRight size={16} stroke={2} aria-hidden />
-                  </a>
-                ) : (
-                  <Link
-                    to={buttonTo}
-                    className="innovation-initiative-card__button innovation-initiative-card__button--outline"
-                  >
-                    {buttonLabel}
-                    <IconArrowRight size={16} stroke={2} aria-hidden />
-                  </Link>
-                )}
+                {buttonLabel ? (
+                  buttonStyle === "whatsapp" ? (
+                    <a
+                      className="innovation-initiative-card__button innovation-initiative-card__button--whatsapp"
+                      href={buttonHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <IconBrandWhatsapp size={18} stroke={1.6} aria-hidden />
+                      {buttonLabel}
+                      <IconArrowRight size={16} stroke={2} aria-hidden />
+                    </a>
+                  ) : buttonHref ? (
+                    <a
+                      href={buttonHref}
+                      className="innovation-initiative-card__button innovation-initiative-card__button--outline"
+                    >
+                      {buttonLabel}
+                      <IconArrowRight size={16} stroke={2} aria-hidden />
+                    </a>
+                  ) : (
+                    <Link
+                      to={buttonTo}
+                      className="innovation-initiative-card__button innovation-initiative-card__button--outline"
+                    >
+                      {buttonLabel}
+                      <IconArrowRight size={16} stroke={2} aria-hidden />
+                    </Link>
+                  )
+                ) : null}
               </article>
             );
           }

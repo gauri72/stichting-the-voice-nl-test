@@ -9,6 +9,9 @@ import {
   FaPhone
 } from "react-icons/fa6";
 import { apiFetch } from "../../utils/api.js";
+import { useCaptcha } from "../../hooks/useCaptcha.js";
+import { CAPTCHA_REQUIRED_MESSAGE } from "../../utils/captcha.js";
+import CaptchaField from "../common/CaptchaField.jsx";
 
 const DEFAULT_CONTACT_EMAIL = "info@stichtingthevoice.nl";
 
@@ -51,6 +54,8 @@ export default function VentureStudioContactSection() {
   const [quoteStatus, setQuoteStatus] = useState({ text: "", variant: "success" });
   const [messageSubmitting, setMessageSubmitting] = useState(false);
   const [quoteSubmitting, setQuoteSubmitting] = useState(false);
+  const messageCaptcha = useCaptcha();
+  const quoteCaptcha = useCaptcha();
 
   useEffect(() => {
     apiFetch("/api/public/site")
@@ -63,13 +68,22 @@ export default function VentureStudioContactSection() {
   async function handleMessageSubmit(e) {
     e.preventDefault();
     setMessageStatus({ text: "", variant: "success" });
+
+    if (messageCaptcha.required && !messageCaptcha.token) {
+      setMessageStatus({ text: CAPTCHA_REQUIRED_MESSAGE, variant: "error" });
+      return;
+    }
+
     setMessageSubmitting(true);
 
     try {
       const data = formDataFromForm(e.target);
       const result = await apiFetch("/api/contact/venture-studio/message", {
         method: "POST",
-        body: JSON.stringify(data)
+        body: JSON.stringify({
+          ...data,
+          captchaToken: messageCaptcha.token
+        })
       });
       setMessageStatus({ text: result.message, variant: "success" });
       e.target.reset();
@@ -79,6 +93,7 @@ export default function VentureStudioContactSection() {
         variant: "error"
       });
     } finally {
+      messageCaptcha.reset();
       setMessageSubmitting(false);
     }
   }
@@ -86,13 +101,22 @@ export default function VentureStudioContactSection() {
   async function handleQuoteSubmit(e) {
     e.preventDefault();
     setQuoteStatus({ text: "", variant: "success" });
+
+    if (quoteCaptcha.required && !quoteCaptcha.token) {
+      setQuoteStatus({ text: CAPTCHA_REQUIRED_MESSAGE, variant: "error" });
+      return;
+    }
+
     setQuoteSubmitting(true);
 
     try {
       const data = formDataFromForm(e.target);
       const result = await apiFetch("/api/contact/venture-studio/quote", {
         method: "POST",
-        body: JSON.stringify(data)
+        body: JSON.stringify({
+          ...data,
+          captchaToken: quoteCaptcha.token
+        })
       });
       setQuoteStatus({ text: result.message, variant: "success" });
       e.target.reset();
@@ -102,6 +126,7 @@ export default function VentureStudioContactSection() {
         variant: "error"
       });
     } finally {
+      quoteCaptcha.reset();
       setQuoteSubmitting(false);
     }
   }
@@ -208,6 +233,7 @@ export default function VentureStudioContactSection() {
                 disabled={messageSubmitting}
               />
             </label>
+            <CaptchaField captcha={messageCaptcha} className="vvs-contact__captcha" />
             <button type="submit" className="vvs-contact__btn" disabled={messageSubmitting}>
               <FaPaperPlane aria-hidden />
               {messageSubmitting ? "Sending…" : "Send Message"}
@@ -266,6 +292,7 @@ export default function VentureStudioContactSection() {
                 disabled={quoteSubmitting}
               />
             </label>
+            <CaptchaField captcha={quoteCaptcha} className="vvs-contact__captcha" />
             <button type="submit" className="vvs-contact__btn" disabled={quoteSubmitting}>
               {quoteSubmitting ? "Sending…" : "Request a Quote"}
               {!quoteSubmitting && <FaChevronRight aria-hidden />}

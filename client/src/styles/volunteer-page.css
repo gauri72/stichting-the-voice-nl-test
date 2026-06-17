@@ -96,6 +96,10 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
+.volunteer-form__captcha {
+  margin-bottom: 4px;
+}
+
 .volunteer-form__submit:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(0, 120, 171, 0.28);

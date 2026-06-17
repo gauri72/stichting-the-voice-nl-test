@@ -12,3 +12,40 @@
 .membership-page-shell .sponsorship-payment {
   padding: clamp(18px, 3vw, 28px) clamp(12px, 2.5vw, 24px) clamp(28px, 4vw, 40px);
 }
+
+@media (max-width: 900px) {
+  .membership-page-shell .sponsorship-payment {
+    padding-inline: 10px;
+  }
+
+  .membership-page-shell .sponsorship-payment__eyebrow {
+    font-size: clamp(0.6875rem, 2.5vw, 0.75rem);
+    letter-spacing: 0.05em;
+  }
+
+  .membership-page-shell .sponsorship-payment__title {
+    font-size: clamp(1.125rem, 4.5vw, 1.3rem);
+    line-height: 1.2;
+  }
+
+  .membership-page-shell .sponsorship-payment__subtitle {
+    font-size: clamp(0.8125rem, 3vw, 0.9375rem);
+    line-height: 1.45;
+  }
+
+  .membership-page-shell .sponsorship-payment__notice,
+  .membership-page-shell .sponsorship-payment__field span,
+  .membership-page-shell .sponsorship-payment__assurance,
+  .membership-page-shell .sponsorship-payment__field-hint {
+    font-size: clamp(0.8125rem, 3vw, 0.9375rem);
+    line-height: 1.45;
+  }
+
+  .membership-page-shell .sponsorship-payment__continue-btn,
+  .membership-page-shell .sponsorship-payment__pay-btn {
+    min-height: 44px;
+    font-size: clamp(0.75rem, 2.8vw, 0.875rem);
+    letter-spacing: 0.02em;
+    text-transform: capitalize;
+  }
+}

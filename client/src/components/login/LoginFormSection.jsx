@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEnvelope, FaEye, FaEyeSlash, FaLock, FaUser } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useCaptcha } from "../../hooks/useCaptcha.js";
 import { apiFetch, getRememberedEmail, setRememberedEmail } from "../../utils/api.js";
+import { CAPTCHA_REQUIRED_MESSAGE } from "../../utils/captcha.js";
+import CaptchaField from "../common/CaptchaField.jsx";
 import GoogleSignInButton, { isGoogleSignInEnabled } from "./GoogleSignInButton.jsx";
 import "../../styles/login-form-section.css";
 
@@ -45,6 +48,15 @@ function PasswordField({
   );
 }
 
+function ensureCaptchaToken(captcha, setError) {
+  if (captcha.required && !captcha.token) {
+    setError(CAPTCHA_REQUIRED_MESSAGE);
+    return false;
+  }
+
+  return true;
+}
+
 export default function LoginFormSection({ mode = "login", onModeChange }) {
   const navigate = useNavigate();
   const { loginWithToken } = useAuth();
@@ -80,6 +92,10 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
   const [forgotSuccess, setForgotSuccess] = useState(null);
   const [isSubmittingForgot, setIsSubmittingForgot] = useState(false);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
+  const loginCaptcha = useCaptcha();
+  const signUpCaptcha = useCaptcha();
+  const otpCaptcha = useCaptcha();
+  const forgotCaptcha = useCaptcha();
 
   useEffect(() => {
     if (isSignUp) {
@@ -125,19 +141,28 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
       return;
     }
 
+    if (!ensureCaptchaToken(otpCaptcha, setOtpError)) {
+      return;
+    }
+
     setOtpError("");
     setIsVerifyingOtp(true);
 
     try {
       const data = await apiFetch("/api/auth/verify-otp", {
         method: "POST",
-        body: JSON.stringify({ email: signUpSuccess.email, otp: trimmedOtp })
+        body: JSON.stringify({
+          email: signUpSuccess.email,
+          otp: trimmedOtp,
+          captchaToken: otpCaptcha.token
+        })
       });
       await loginWithToken(data.token, data.user, true);
       navigate("/dashboard", { replace: true });
     } catch (error) {
       setOtpError(error.message || "Verification failed. Please try again.");
     } finally {
+      otpCaptcha.reset();
       setIsVerifyingOtp(false);
     }
   }
@@ -145,13 +170,20 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
   async function handleResendOtp() {
     if (!signUpSuccess?.email || isResendingOtp) return;
 
+    if (!ensureCaptchaToken(otpCaptcha, setOtpError)) {
+      return;
+    }
+
     setOtpError("");
     setIsResendingOtp(true);
 
     try {
       const data = await apiFetch("/api/auth/resend-otp", {
         method: "POST",
-        body: JSON.stringify({ email: signUpSuccess.email })
+        body: JSON.stringify({
+          email: signUpSuccess.email,
+          captchaToken: otpCaptcha.token
+        })
       });
       setSignUpSuccess((prev) => ({
         ...prev,
@@ -162,6 +194,7 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
     } catch (error) {
       setOtpError(error.message || "Could not resend code. Please try again.");
     } finally {
+      otpCaptcha.reset();
       setIsResendingOtp(false);
     }
   }
@@ -178,11 +211,21 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
     setIsGoogleSigningIn(true);
 
     const useRememberMe = isSignUp ? true : rememberMe;
+    const activeCaptcha = isSignUp ? signUpCaptcha : loginCaptcha;
+
+    if (!ensureCaptchaToken(activeCaptcha, isSignUp ? setSignUpError : setLoginError)) {
+      setIsGoogleSigningIn(false);
+      return;
+    }
 
     try {
       const data = await apiFetch("/api/auth/google", {
         method: "POST",
-        body: JSON.stringify({ credential, rememberMe: useRememberMe })
+        body: JSON.stringify({
+          credential,
+          rememberMe: useRememberMe,
+          captchaToken: activeCaptcha.token
+        })
       });
       if (data.user?.email) {
         setRememberedEmail(data.user.email, useRememberMe);
@@ -198,6 +241,7 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
         setLoginError(message);
       }
     } finally {
+      activeCaptcha.reset();
       setIsGoogleSigningIn(false);
     }
   }
@@ -243,12 +287,22 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
   async function handleLoginSubmit(event) {
     event.preventDefault();
     setLoginError("");
+
+    if (!ensureCaptchaToken(loginCaptcha, setLoginError)) {
+      return;
+    }
+
     setIsLoggingIn(true);
 
     try {
       const data = await apiFetch("/api/auth/login", {
         method: "POST",
-        body: JSON.stringify({ email, password, rememberMe })
+        body: JSON.stringify({
+          email,
+          password,
+          rememberMe,
+          captchaToken: loginCaptcha.token
+        })
       });
       setRememberedEmail(email.trim(), rememberMe);
       await loginWithToken(data.token, data.user, rememberMe);
@@ -256,6 +310,7 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
     } catch (error) {
       setLoginError(error.message || "Log in failed. Please try again.");
     } finally {
+      loginCaptcha.reset();
       setIsLoggingIn(false);
     }
   }
@@ -294,6 +349,10 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
       return;
     }
 
+    if (!ensureCaptchaToken(signUpCaptcha, setSignUpError)) {
+      return;
+    }
+
     setIsSigningUp(true);
 
     try {
@@ -303,7 +362,8 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           email: signUpEmail.trim(),
-          password: trimmedPassword
+          password: trimmedPassword,
+          captchaToken: signUpCaptcha.token
         })
       });
 
@@ -317,6 +377,7 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
     } catch (error) {
       setSignUpError(error.message || "Could not create account. Please try again.");
     } finally {
+      signUpCaptcha.reset();
       setIsSigningUp(false);
     }
   }
@@ -324,12 +385,20 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
   async function handleForgotSubmit(event) {
     event.preventDefault();
     setForgotError("");
+
+    if (!ensureCaptchaToken(forgotCaptcha, setForgotError)) {
+      return;
+    }
+
     setIsSubmittingForgot(true);
 
     try {
       const data = await apiFetch("/api/auth/forgot-password", {
         method: "POST",
-        body: JSON.stringify({ email: forgotEmail.trim() })
+        body: JSON.stringify({
+          email: forgotEmail.trim(),
+          captchaToken: forgotCaptcha.token
+        })
       });
       setForgotSuccess({
         message: data.message,
@@ -338,6 +407,7 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
     } catch (error) {
       setForgotError(error.message || "Could not send reset email. Please try again.");
     } finally {
+      forgotCaptcha.reset();
       setIsSubmittingForgot(false);
     }
   }
@@ -428,6 +498,7 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
                   {otpError}
                 </p>
               ) : null}
+              <CaptchaField captcha={otpCaptcha} className="login-form-section__captcha" />
               <button type="submit" className="login-form-section__submit" disabled={isVerifyingOtp}>
                 <FaEnvelope aria-hidden />
                 {isVerifyingOtp ? "Verifying…" : "Verify & go to dashboard"}
@@ -490,6 +561,8 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
                 {forgotError}
               </p>
             ) : null}
+
+            <CaptchaField captcha={forgotCaptcha} className="login-form-section__captcha" />
 
             <button type="submit" className="login-form-section__submit" disabled={isSubmittingForgot}>
               <FaEnvelope aria-hidden />
@@ -591,6 +664,8 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
               </p>
             ) : null}
 
+            <CaptchaField captcha={signUpCaptcha} className="login-form-section__captcha" />
+
             <button type="submit" className="login-form-section__submit" disabled={isSigningUp}>
               <FaUser aria-hidden />
               {isSigningUp ? "Sending verification…" : "Create New Account"}
@@ -668,6 +743,8 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
                 Forgot Password?
               </button>
             </div>
+
+            <CaptchaField captcha={loginCaptcha} className="login-form-section__captcha" />
 
             <button type="submit" className="login-form-section__submit" disabled={isLoggingIn}>
               <FaLock aria-hidden />

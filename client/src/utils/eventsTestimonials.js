@@ -69,7 +69,8 @@ export async function saveEventTestimonial(entry) {
         name: normalized.name,
         role: normalized.role,
         quote: normalized.quote,
-        rating: normalized.rating
+        rating: normalized.rating,
+        captchaToken: entry.captchaToken
       })
     });
 

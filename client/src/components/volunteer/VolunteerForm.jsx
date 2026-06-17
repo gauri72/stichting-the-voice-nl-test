@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { FaPaperPlane } from "react-icons/fa6";
 import { apiFetch } from "../../utils/api.js";
+import { useCaptcha } from "../../hooks/useCaptcha.js";
+import { CAPTCHA_REQUIRED_MESSAGE } from "../../utils/captcha.js";
+import CaptchaField from "../common/CaptchaField.jsx";
 
 function FormNotice({ message, variant = "success" }) {
   if (!message) return null;
@@ -18,17 +21,27 @@ export default function VolunteerForm() {
   const [status, setStatus] = useState({ text: "", variant: "success" });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const captcha = useCaptcha();
 
   async function handleSubmit(event) {
     event.preventDefault();
     setStatus({ text: "", variant: "success" });
+
+    if (captcha.required && !captcha.token) {
+      setStatus({ text: CAPTCHA_REQUIRED_MESSAGE, variant: "error" });
+      return;
+    }
+
     setSubmitting(true);
 
     try {
       const data = Object.fromEntries(new FormData(event.target).entries());
       await apiFetch("/api/contact/volunteer", {
         method: "POST",
-        body: JSON.stringify(data)
+        body: JSON.stringify({
+          ...data,
+          captchaToken: captcha.token
+        })
       });
       setSubmitted(true);
     } catch (error) {
@@ -37,6 +50,7 @@ export default function VolunteerForm() {
         variant: "error"
       });
     } finally {
+      captcha.reset();
       setSubmitting(false);
     }
   }
@@ -99,6 +113,8 @@ export default function VolunteerForm() {
           disabled={submitting}
         />
       </label>
+
+      <CaptchaField captcha={captcha} className="volunteer-form__captcha" />
 
       <button type="submit" className="volunteer-form__submit" disabled={submitting}>
         <FaPaperPlane aria-hidden />

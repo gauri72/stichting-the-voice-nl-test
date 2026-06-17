@@ -19,8 +19,17 @@
   margin-bottom: 12px;
 }
 
+.dash-activity__toggle:disabled {
+  cursor: default;
+}
+
+.dash-activity__toggle:disabled:hover {
+  opacity: 1;
+}
+
 .dash-activity__title {
   margin: 0;
+  width: 100%;
   font-size: clamp(0.95rem, 1.8cqw, 1.1rem);
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -28,22 +37,71 @@
   color: var(--md-text);
 }
 
-.dash-activity__viewall {
-  display: inline-flex;
+.dash-activity__toggle {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: var(--font-small);
-  font-weight: 700;
-  color: var(--md-cyan, #1aa7c4);
-  text-decoration: none;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 8px;
+  transition: opacity 0.15s ease;
 }
 
-[data-theme="light"] .dash-activity__viewall {
+.dash-activity__toggle:hover {
+  opacity: 0.88;
+}
+
+.dash-activity__toggle:focus-visible {
+  outline: 2px solid var(--md-cyan, #1aa7c4);
+  outline-offset: 3px;
+}
+
+.dash-activity__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  margin-left: auto;
+  border-radius: 999px;
+  background: rgba(26, 167, 196, 0.16);
+  color: var(--md-cyan, #1aa7c4);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+[data-theme="light"] .dash-activity__count {
+  background: rgba(10, 95, 117, 0.12);
   color: var(--md-cyan-dark, #0a5f75);
 }
 
-.dash-activity__viewall:hover {
-  text-decoration: underline;
+.dash-activity__chevron {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--md-cyan, #1aa7c4);
+  transition: transform 0.2s ease;
+}
+
+[data-theme="light"] .dash-activity__chevron {
+  color: var(--md-cyan-dark, #0a5f75);
+}
+
+.dash-activity.is-open .dash-activity__chevron {
+  transform: rotate(180deg);
 }
 
 .dash-activity__empty {

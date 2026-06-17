@@ -32,6 +32,12 @@ import {
 
 import { ADMIN_LOGIN } from "../../data/adminLoginDisplay.js";
 
+import { useCaptcha } from "../../hooks/useCaptcha.js";
+
+import { CAPTCHA_REQUIRED_MESSAGE } from "../../utils/captcha.js";
+
+import CaptchaField from "../common/CaptchaField.jsx";
+
 import ThemeToggle from "../layout/ThemeToggle.jsx";
 
 import "../../styles/admin-login-page.css";
@@ -57,6 +63,8 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const captcha = useCaptcha();
 
 
 
@@ -90,6 +98,14 @@ export default function AdminLoginPage() {
 
     setError("");
 
+    if (captcha.required && !captcha.token) {
+
+      setError(CAPTCHA_REQUIRED_MESSAGE);
+
+      return;
+
+    }
+
     setIsSubmitting(true);
 
 
@@ -100,7 +116,7 @@ export default function AdminLoginPage() {
 
         method: "POST",
 
-        body: JSON.stringify({ email, password, rememberMe }),
+        body: JSON.stringify({ email, password, rememberMe, captchaToken: captcha.token }),
 
       });
 
@@ -115,6 +131,8 @@ export default function AdminLoginPage() {
       setError(submitError.message || "Sign in failed. Please try again.");
 
     } finally {
+
+      captcha.reset();
 
       setIsSubmitting(false);
 
@@ -383,6 +401,10 @@ export default function AdminLoginPage() {
               <span>{rememberLabel}</span>
 
             </label>
+
+
+
+            <CaptchaField captcha={captcha} className="admin-login-form__captcha" />
 
 
 

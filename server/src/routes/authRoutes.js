@@ -12,16 +12,17 @@ import {
   changePasswordHandler,
   requireAuth
 } from "../controllers/authController.js";
+import { requireCaptcha } from "../middleware/captchaMiddleware.js";
 
 const router = Router();
 
-router.post("/register", register);
-router.post("/verify-otp", verifyOtp);
-router.post("/resend-otp", resendOtp);
-router.post("/login", login);
-router.post("/google", googleAuth);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password", resetPasswordHandler);
+router.post("/register", requireCaptcha(), register);
+router.post("/verify-otp", requireCaptcha(), verifyOtp);
+router.post("/resend-otp", requireCaptcha(), resendOtp);
+router.post("/login", requireCaptcha(), login);
+router.post("/google", requireCaptcha(), googleAuth);
+router.post("/forgot-password", requireCaptcha(), forgotPassword);
+router.post("/reset-password", requireCaptcha(), resetPasswordHandler);
 router.get("/me", requireAuth, me);
 router.patch("/me", requireAuth, updateProfile);
 router.patch("/password", requireAuth, changePasswordHandler);

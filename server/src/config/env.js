@@ -45,6 +45,11 @@ const env = {
         : "dev-only-jwt-secret-change-in-production"),
     googleClientId: process.env.GOOGLE_CLIENT_ID || ""
   },
+  captcha: {
+    turnstileSecretKey: stripEnv(process.env.TURNSTILE_SECRET_KEY),
+    turnstileVerifyUrl:
+      process.env.TURNSTILE_VERIFY_URL || "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+  },
   ticketTailor: {
     apiKey: process.env.TICKET_TAILOR_API_KEY || "",
     apiBase: (process.env.TICKET_TAILOR_API_BASE || "https://api.tickettailor.com").replace(

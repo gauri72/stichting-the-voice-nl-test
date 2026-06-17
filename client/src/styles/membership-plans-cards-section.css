@@ -129,7 +129,7 @@
 .membership-plans-card__description {
   margin: 10px 0 0;
   color: #ffffff;
-  font-size: clamp(0.875rem, 0.82vw, 0.76rem);
+  font-size: clamp(0.76rem, 0.82vw, 0.875rem);
   line-height: 1.45;
   min-height: 4.5em;
 }
@@ -150,7 +150,7 @@
   gap: 8px;
   margin-bottom: 8px;
   color: var(--mpc-text);
-  font-size: clamp(0.875rem, 0.8vw, 0.74rem);
+  font-size: clamp(0.74rem, 0.8vw, 0.875rem);
   line-height: 1.35;
 }
 
@@ -175,10 +175,10 @@
   background: transparent;
   color: currentColor;
   font-family: inherit;
-  font-size: clamp(0.875rem, 0.78vw, 0.72rem);
+  font-size: clamp(0.72rem, 0.78vw, 0.875rem);
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
   flex-shrink: 0;
@@ -351,20 +351,21 @@
     display: inline-block;
     margin: 0 0 6px;
     padding: 3px 8px;
-    font-size: var(--font-small);
+    font-size: clamp(0.625rem, 2.2vw, 0.6875rem);
+    letter-spacing: 0.06em;
     box-shadow: 0 0 10px rgba(240, 180, 41, 0.35);
   }
 
   .membership-plans-card__inner {
-    flex-direction: row;
-    align-items: center;
+    flex-wrap: wrap;
+    align-items: stretch;
     text-align: left;
     gap: 10px;
   }
 
   .membership-plans-card__icon-wrap {
     margin: 0;
-    align-self: center;
+    align-self: flex-start;
   }
 
   .membership-plans-card__icon-ring {
@@ -383,7 +384,7 @@
   }
 
   .membership-plans-card__content {
-    flex: 1 1 auto;
+    flex: 1 1 calc(100% - 56px);
     flex-direction: row;
     align-items: stretch;
     min-width: 0;
@@ -398,7 +399,9 @@
   }
 
   .membership-plans-card__title {
-    font-size: var(--font-small);
+    font-size: clamp(0.9375rem, 3.5vw, 1.0625rem);
+    font-weight: 800;
+    line-height: 1.2;
     text-align: left;
   }
 
@@ -433,7 +436,8 @@
 
   .membership-plans-card__price {
     margin-top: 4px;
-    font-size: var(--font-small);
+    font-size: clamp(0.875rem, 3.2vw, 1rem);
+    font-weight: 800;
     white-space: nowrap;
     text-align: left;
   }
@@ -441,8 +445,8 @@
   .membership-plans-card__description {
     margin-top: 6px;
     min-height: 0;
-    font-size: var(--font-small);
-    line-height: 1.4;
+    font-size: clamp(0.75rem, 2.8vw, 0.8125rem);
+    line-height: 1.45;
     text-align: left;
   }
 
@@ -456,13 +460,14 @@
 
   .membership-plans-card__features li {
     margin-bottom: 5px;
-    font-size: var(--font-small);
+    font-size: clamp(0.6875rem, 2.5vw, 0.75rem);
+    line-height: 1.35;
     gap: 5px;
   }
 
   .membership-plans-card__features-more {
     display: list-item;
-    font-size: var(--font-small);
+    font-size: clamp(0.6875rem, 2.5vw, 0.75rem);
   }
 
   .membership-plans-card__feature-icon {
@@ -472,20 +477,27 @@
   }
 
   .membership-plans-card__cta {
-    margin-top: 0;
-    width: auto;
-    min-width: 72px;
-    max-width: 88px;
-    min-height: 72px;
-    padding: 8px 6px;
-    font-size: var(--font-small);
-    line-height: 1.25;
-    align-self: center;
-    white-space: normal;
+    flex: 1 1 100%;
+    margin-top: 4px;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: clamp(0.75rem, 2.8vw, 0.875rem);
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    text-transform: capitalize;
+    white-space: nowrap;
+    align-self: stretch;
   }
 }
 
 @media (max-width: 560px) {
+  .membership-plans-card {
+    padding: 10px 8px;
+  }
+
   .membership-plans-card__inner {
     gap: 8px;
   }
@@ -500,31 +512,36 @@
     height: 20px;
   }
 
+  .membership-plans-card__content {
+    flex: 1 1 calc(100% - 48px);
+  }
+
   .membership-plans-card__title {
-    font-size: var(--font-small);
+    font-size: clamp(0.875rem, 3.8vw, 0.9375rem);
   }
 
   .membership-plans-card__price {
-    font-size: var(--font-small);
+    font-size: clamp(0.8125rem, 3.4vw, 0.9375rem);
   }
 
   .membership-plans-card__description {
-    font-size: var(--font-small);
+    font-size: clamp(0.6875rem, 2.6vw, 0.75rem);
   }
 
-  .membership-plans-card__features li {
-    font-size: var(--font-small);
+  .membership-plans-card__features li,
+  .membership-plans-card__features-more {
+    font-size: clamp(0.625rem, 2.3vw, 0.6875rem);
   }
 
   .membership-plans-card__cta {
-    min-width: 64px;
-    max-width: 76px;
-    min-height: 64px;
-    font-size: var(--font-small);
+    min-height: 42px;
+    padding: 9px 12px;
+    font-size: clamp(0.6875rem, 2.6vw, 0.8125rem);
   }
 
   .membership-plans-card__badge--mobile {
-    font-size: var(--font-small);
+    font-size: clamp(0.5625rem, 2vw, 0.625rem);
+    letter-spacing: 0.05em;
     padding: 2px 6px;
   }
 }

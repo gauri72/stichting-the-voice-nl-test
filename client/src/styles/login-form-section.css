@@ -62,6 +62,10 @@
   gap: 6px;
 }
 
+.login-form-section__captcha {
+  margin-top: -2px;
+}
+
 .login-form-section__error {
   margin: -4px 0 0;
   padding: 10px 12px;
