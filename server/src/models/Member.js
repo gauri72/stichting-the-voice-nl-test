@@ -14,10 +14,21 @@ const memberSchema = new mongoose.Schema(
     expiryDate: { type: Date, required: true },
     membershipStatus: {
       type: String,
-      enum: ["active", "expired", "cancelled"],
+      enum: ["active", "expired", "cancelled", "pending_payment"],
       default: "active",
       index: true
     },
+    phone: { type: String, default: "", trim: true, maxlength: 40 },
+    country: { type: String, default: "", trim: true, maxlength: 80 },
+    paymentStatus: {
+      type: String,
+      enum: ["paid", "pending", "failed", "refunded", "complimentary"],
+      default: "paid",
+      index: true
+    },
+    autoRenewal: { type: Boolean, default: false, index: true },
+    notes: { type: String, default: "", trim: true, maxlength: 5000 },
+    cardPdfUrl: { type: String, default: "", trim: true },
     qrCodeUrl: { type: String, default: "", trim: true },
     verificationToken: { type: String, required: true, unique: true, index: true },
     paymentReference: { type: String, required: true, unique: true, index: true },

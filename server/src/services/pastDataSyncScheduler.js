@@ -1,5 +1,6 @@
 import env from "../config/env.js";
 import { syncTicketTailorPastData } from "./pastDataSyncService.js";
+import { syncTicketTailorBookings } from "./ticketTailorBookingSyncService.js";
 
 let timer = null;
 let running = false;
@@ -13,6 +14,14 @@ async function runOnce(reason) {
       `[past-data] sync (${reason}): wrote ${s.written} doc(s) for ${s.emails} email(s) ` +
         `from ${s.orders} order(s) + ${s.issuedMemberships} issued membership(s).`
     );
+    try {
+      const tt = await syncTicketTailorBookings();
+      console.log(
+        `[tickettailor] booking sync (${reason}): upserted ${tt.upserted} line(s), skipped ${tt.skipped}.`
+      );
+    } catch (ttErr) {
+      console.warn(`[tickettailor] booking sync (${reason}) failed: ${ttErr.message}`);
+    }
   } catch (err) {
     console.warn(`[past-data] sync (${reason}) failed: ${err.message}`);
   } finally {

@@ -38,6 +38,61 @@
   gap: 14px;
 }
 
+.admin-dashboard-section {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-dashboard-section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--ad-text);
+}
+
+.admin-dashboard-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.admin-dashboard-section-meta {
+  margin: 0;
+  font-size: var(--font-small);
+  color: var(--ad-muted);
+}
+
+.admin-dashboard-section--tt .admin-dashboard-section-title {
+  color: var(--color-accent-teal, #3ecf9a);
+}
+
+.admin-dashboard-stat--tt {
+  border-color: rgba(62, 207, 154, 0.2);
+}
+
+.admin-dashboard-stat__icon--tt {
+  color: var(--color-accent-teal, #3ecf9a);
+  border-color: rgba(62, 207, 154, 0.28);
+  background: rgba(62, 207, 154, 0.08);
+}
+
+.admin-dashboard-tt-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-accent-teal, #3ecf9a);
+  font-size: var(--font-small);
+  font-weight: 700;
+  text-decoration: none;
+  margin-top: 4px;
+}
+
+.admin-dashboard-tt-link:hover {
+  text-decoration: underline;
+}
+
 .admin-dashboard-stat {
   padding: 18px 16px;
   border: 1px solid var(--ad-border);

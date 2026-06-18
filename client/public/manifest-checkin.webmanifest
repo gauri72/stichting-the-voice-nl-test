@@ -1,0 +1,27 @@
+{
+  "id": "/check-in",
+  "name": "V.O.I.C.E. Check-in",
+  "short_name": "Check-in",
+  "description": "QR ticket check-in for Stichting The V.O.I.C.E. NL events.",
+  "theme_color": "#6338c2",
+  "background_color": "#080d18",
+  "display": "standalone",
+  "orientation": "portrait",
+  "start_url": "/check-in",
+  "scope": "/",
+  "categories": ["business", "events"],
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

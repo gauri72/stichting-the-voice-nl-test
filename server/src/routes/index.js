@@ -11,10 +11,14 @@ import testimonialRoutes from "./testimonialRoutes.js";
 import membershipRoutes from "./membershipRoutes.js";
 import adminRoutes from "./adminRoutes.js";
 import discountRoutes from "./discountRoutes.js";
+import eventRoutes from "./eventRoutes.js";
+import ticketPublicRoutes from "./ticketPublicRoutes.js";
+import verifyMembershipRoutes from "./verifyMembershipRoutes.js";
 
 const router = Router();
 
 router.get("/health", getHealth);
+router.use("/verify-membership", verifyMembershipRoutes);
 router.use("/public", publicRoutes);
 router.use("/contact", contactRoutes);
 router.use("/newsletter", newsletterRoutes);
@@ -25,6 +29,8 @@ router.use("/payment-methods", paymentMethodRoutes);
 router.use("/membership", membershipRoutes);
 router.use("/dashboard", dashboardRoutes);
 router.use("/discounts", discountRoutes);
+router.use("/events", eventRoutes);
+router.use("/tickets", ticketPublicRoutes);
 router.use("/admin", adminRoutes);
 
 export default router;

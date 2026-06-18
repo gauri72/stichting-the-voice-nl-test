@@ -22,10 +22,13 @@ import "../../styles/admin-layout.css";
 const NAV_ITEMS = [
   { to: "/admin/dashboard", label: "Dashboard", icon: IconLayoutDashboard, end: true },
   { to: "/admin/events", label: "Events", icon: IconTicket },
-  { to: "/admin/members", label: "Members", icon: IconUsers },
+  { to: "/admin/tickets", label: "Tickets", icon: IconTicket },
+  { to: "/admin/check-in", label: "Check-in", icon: IconTicket },
+  { to: "/admin/memberships", label: "Memberships", icon: IconUsers },
   { to: "/admin/users", label: "Users", icon: IconUser },
   { to: "/admin/templates", label: "Templates", icon: IconUpload },
   { to: "/admin/discounts", label: "Discounts", icon: IconDiscount },
+  { to: "/admin/vouchers", label: "Vouchers", icon: IconDiscount },
   { to: "/admin/communication", label: "Communication", icon: IconMail },
   { to: "/admin/reports", label: "More", icon: IconChartBar },
 ];
@@ -33,8 +36,8 @@ const NAV_ITEMS = [
 const MOBILE_NAV_ITEMS = [
   { to: "/admin/dashboard", label: "Dashboard", icon: IconLayoutDashboard, end: true },
   { to: "/admin/events", label: "Events", icon: IconTicket },
-  { to: "/admin/members", label: "Members", icon: IconUsers },
-  { to: "/admin/communication", label: "Communication", icon: IconMail },
+  { to: "/admin/tickets", label: "Tickets", icon: IconTicket },
+  { to: "/admin/memberships", label: "Memberships", icon: IconUsers },
   { to: "/admin/reports", label: "More", icon: IconChartBar },
 ];
 

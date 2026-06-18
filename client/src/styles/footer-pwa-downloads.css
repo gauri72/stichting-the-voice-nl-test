@@ -1,0 +1,73 @@
+.footer-pwa-downloads {
+  margin-top: 14px;
+}
+
+.footer-pwa-downloads__title {
+  margin: 0 0 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.footer-pwa-downloads__title--desktop {
+  font-size: clamp(0.72rem, 0.95vw, 0.82rem);
+  color: #49bee7;
+  text-transform: capitalize;
+  letter-spacing: normal;
+}
+
+.footer-pwa-downloads__name {
+  display: block;
+}
+
+.footer-pwa-downloads__sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.58rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.58);
+  text-transform: none;
+}
+
+.footer-pwa-downloads__btn {
+  width: 100%;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.footer-desktop-quick-link.footer-pwa-downloads__btn {
+  text-align: center;
+}
+
+.footer-pwa-downloads .footer-desktop-quick-link__label,
+.footer-pwa-downloads .footer-mobile-quick-link__label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.footer-pwa-downloads .footer-desktop-quick-link__label {
+  align-items: center;
+  text-align: center;
+}
+
+.footer-pwa-downloads .footer-mobile-quick-link,
+.footer-pwa-downloads .footer-desktop-quick-link {
+  border-color: rgba(124, 58, 237, 0.45);
+}
+
+.footer-pwa-downloads .footer-mobile-quick-link:hover,
+.footer-pwa-downloads .footer-desktop-quick-link:hover {
+  border-color: rgba(124, 58, 237, 0.75);
+  background: rgba(49, 24, 92, 0.55);
+}
+
+.footer-pwa-downloads .footer-mobile-quick-link__icon,
+.footer-pwa-downloads .footer-desktop-quick-link__icon {
+  color: #c4b5fd;
+}

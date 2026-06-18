@@ -150,6 +150,15 @@ export function buildQrSrc(membershipId) {
 }
 
 /** Prefer same-origin API paths so Vite proxy / production host serves the QR image. */
+export function resolveTicketQrSrc(qrCodeUrl) {
+  if (!qrCodeUrl) return "";
+
+  const match = String(qrCodeUrl).match(/\/api\/tickets\/qr\/[^?\s"]+\.png/i);
+  if (match) return match[0];
+
+  return qrCodeUrl;
+}
+
 export function resolveMembershipQrSrc(qrCodeUrl, membershipId) {
   const fallback = buildQrSrc(membershipId);
   if (!qrCodeUrl) return fallback;

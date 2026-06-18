@@ -1,0 +1,325 @@
+import crypto from "crypto";
+import Event from "../models/Event.js";
+import TicketType from "../models/TicketType.js";
+
+function slugify(text) {
+  return String(text || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 200);
+}
+
+async function uniqueSlug(base) {
+  let slug = slugify(base);
+  if (!slug) slug = `event-${Date.now()}`;
+  let candidate = slug;
+  let n = 1;
+  while (await Event.findOne({ slug: candidate }).select("_id").lean()) {
+    candidate = `${slug}-${n}`;
+    n += 1;
+  }
+  return candidate;
+}
+
+export function formatEvent(event, ticketTypes = []) {
+  if (!event) return null;
+  const id = event._id?.toString() || event.id;
+  return {
+    id,
+    title: event.title,
+    description: event.description,
+    date: event.date,
+    startTime: event.startTime,
+    endTime: event.endTime,
+    venueName: event.venueName,
+    venueAddress: event.venueAddress,
+    heroImage: event.heroImage || "",
+    bookingFeeMinor: event.bookingFeeMinor || 0,
+    salesEnabled: Boolean(event.salesEnabled),
+    status: event.status,
+    slug: event.slug,
+    createdAt: event.createdAt,
+    updatedAt: event.updatedAt,
+    ticketTypes: ticketTypes.map(formatTicketType),
+  };
+}
+
+export function formatTicketType(tt) {
+  if (!tt) return null;
+  const available = Math.max(0, (tt.capacity || 0) - (tt.soldCount || 0));
+  return {
+    id: tt._id?.toString() || tt.id,
+    eventId: tt.eventId?.toString?.() || tt.eventId,
+    name: tt.name,
+    description: tt.description,
+    priceMinor: tt.priceMinor,
+    price: (tt.priceMinor / 100).toFixed(2),
+    capacity: tt.capacity,
+    soldCount: tt.soldCount || 0,
+    available,
+    maxPerOrder: tt.maxPerOrder,
+    saleStartDate: tt.saleStartDate,
+    saleEndDate: tt.saleEndDate,
+    status: tt.status,
+    sortOrder: tt.sortOrder || 0,
+  };
+}
+
+export async function listEvents({ status, admin = false } = {}) {
+  const filter = {};
+  if (status) filter.status = status;
+  else if (!admin) filter.status = "published";
+
+  const events = await Event.find(filter).sort({ date: 1, createdAt: -1 }).lean();
+  return events.map((e) => formatEvent(e));
+}
+
+export async function getEventById(eventId, { includeHiddenTypes = false } = {}) {
+  const event = await Event.findById(eventId).lean();
+  if (!event) {
+    const err = new Error("Event not found.");
+    err.status = 404;
+    throw err;
+  }
+
+  const typeFilter = { eventId: event._id };
+  if (!includeHiddenTypes) {
+    typeFilter.status = { $ne: "hidden" };
+  }
+
+  const ticketTypes = await TicketType.find(typeFilter).sort({ sortOrder: 1, createdAt: 1 }).lean();
+  return formatEvent(event, ticketTypes);
+}
+
+export async function getPublishedEventBySlugOrId(idOrSlug) {
+  let event = null;
+  if (idOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
+    event = await Event.findOne({ _id: idOrSlug, status: "published" }).lean();
+  }
+  if (!event) {
+    event = await Event.findOne({ slug: idOrSlug, status: "published" }).lean();
+  }
+  if (!event) {
+    const err = new Error("Event not found.");
+    err.status = 404;
+    throw err;
+  }
+
+  const now = new Date();
+  const ticketTypes = await TicketType.find({
+    eventId: event._id,
+    status: { $in: ["active", "sold_out"] },
+  })
+    .sort({ sortOrder: 1, createdAt: 1 })
+    .lean();
+
+  const visibleTypes = ticketTypes.filter((tt) => {
+    if (tt.status === "hidden") return false;
+    if (tt.saleStartDate && now < new Date(tt.saleStartDate)) return false;
+    if (tt.saleEndDate && now > new Date(tt.saleEndDate)) return false;
+    return true;
+  });
+
+  return formatEvent(event, visibleTypes);
+}
+
+export async function createEvent(payload, adminId) {
+  const {
+    title,
+    description,
+    date,
+    startTime,
+    endTime,
+    venueName,
+    venueAddress,
+    heroImage,
+    bookingFeeMinor,
+    salesEnabled,
+    status,
+    ticketTypes,
+  } = payload;
+
+  if (!title?.trim() || !date || !startTime?.trim() || !venueName?.trim() || !venueAddress?.trim()) {
+    const err = new Error("Title, date, start time, venue name, and venue address are required.");
+    err.status = 400;
+    throw err;
+  }
+
+  const slug = await uniqueSlug(title);
+  const event = await Event.create({
+    title: title.trim(),
+    description: String(description || "").trim(),
+    date: new Date(date),
+    startTime: startTime.trim(),
+    endTime: String(endTime || "").trim(),
+    venueName: venueName.trim(),
+    venueAddress: String(venueAddress || "").trim(),
+    heroImage: heroImage || "",
+    bookingFeeMinor: Math.max(0, Number(bookingFeeMinor) || 0),
+    salesEnabled: salesEnabled !== false,
+    status: status === "published" ? "published" : "draft",
+    slug,
+    createdBy: adminId || null,
+  });
+
+  if (Array.isArray(ticketTypes) && ticketTypes.length) {
+    await upsertTicketTypes(event._id, ticketTypes);
+  }
+
+  return getEventById(event._id, { includeHiddenTypes: true });
+}
+
+export async function updateEvent(eventId, payload) {
+  const event = await Event.findById(eventId);
+  if (!event) {
+    const err = new Error("Event not found.");
+    err.status = 404;
+    throw err;
+  }
+
+  const merged = {
+    title: payload.title !== undefined ? payload.title : event.title,
+    date: payload.date !== undefined ? payload.date : event.date,
+    startTime: payload.startTime !== undefined ? payload.startTime : event.startTime,
+    venueName: payload.venueName !== undefined ? payload.venueName : event.venueName,
+    venueAddress: payload.venueAddress !== undefined ? payload.venueAddress : event.venueAddress,
+  };
+
+  if (
+    !String(merged.title || "").trim() ||
+    !merged.date ||
+    !String(merged.startTime || "").trim() ||
+    !String(merged.venueName || "").trim() ||
+    !String(merged.venueAddress || "").trim()
+  ) {
+    const err = new Error("Title, date, start time, venue name, and venue address are required.");
+    err.status = 400;
+    throw err;
+  }
+
+  const fields = [
+    "title",
+    "description",
+    "date",
+    "startTime",
+    "endTime",
+    "venueName",
+    "venueAddress",
+    "heroImage",
+    "bookingFeeMinor",
+    "salesEnabled",
+    "status",
+  ];
+
+  for (const key of fields) {
+    if (payload[key] !== undefined) {
+      if (key === "date") event.date = new Date(payload.date);
+      else if (key === "bookingFeeMinor") event.bookingFeeMinor = Math.max(0, Number(payload[key]) || 0);
+      else if (key === "salesEnabled") event.salesEnabled = Boolean(payload[key]);
+      else if (key === "status") event.status = payload[key];
+      else event[key] = String(payload[key] ?? "").trim();
+    }
+  }
+
+  if (payload.title && payload.title.trim() !== event.title) {
+    event.slug = await uniqueSlug(payload.title);
+  }
+
+  await event.save();
+
+  if (Array.isArray(payload.ticketTypes)) {
+    await upsertTicketTypes(event._id, payload.ticketTypes);
+  }
+
+  return getEventById(event._id, { includeHiddenTypes: true });
+}
+
+export async function upsertTicketTypes(eventId, ticketTypes) {
+  const existing = await TicketType.find({ eventId }).lean();
+  const existingIds = new Set(existing.map((t) => t._id.toString()));
+  const incomingIds = new Set();
+
+  for (let i = 0; i < ticketTypes.length; i += 1) {
+    const tt = ticketTypes[i];
+    const data = {
+      eventId,
+      name: String(tt.name || "").trim(),
+      description: String(tt.description || "").trim(),
+      priceMinor: Math.max(0, Math.round(Number(tt.priceMinor ?? tt.price * 100) || 0)),
+      capacity: Math.max(0, Number(tt.capacity ?? tt.qty) || 0),
+      maxPerOrder: Math.max(1, Number(tt.maxPerOrder) || 10),
+      saleStartDate: tt.saleStartDate ? new Date(tt.saleStartDate) : null,
+      saleEndDate: tt.saleEndDate ? new Date(tt.saleEndDate) : null,
+      status: tt.status || (tt.enabled === false ? "hidden" : "active"),
+      sortOrder: Number(tt.sortOrder ?? i),
+    };
+
+    if (!data.name) continue;
+
+    const sold = existing.find((e) => e._id.toString() === tt.id)?.soldCount || 0;
+    if (data.capacity > 0 && sold >= data.capacity) data.status = "sold_out";
+
+    if (tt.id && existingIds.has(tt.id)) {
+      incomingIds.add(tt.id);
+      await TicketType.findByIdAndUpdate(tt.id, { $set: data });
+    } else {
+      const created = await TicketType.create({ ...data, soldCount: 0 });
+      incomingIds.add(created._id.toString());
+    }
+  }
+
+  for (const old of existing) {
+    if (!incomingIds.has(old._id.toString()) && (old.soldCount || 0) === 0) {
+      await TicketType.findByIdAndDelete(old._id);
+    }
+  }
+}
+
+export async function publishEvent(eventId) {
+  const event = await Event.findById(eventId);
+  if (!event) {
+    const err = new Error("Event not found.");
+    err.status = 404;
+    throw err;
+  }
+  event.status = "published";
+  await event.save();
+  return getEventById(eventId, { includeHiddenTypes: true });
+}
+
+export async function saveEventDraft(eventId) {
+  const event = await Event.findById(eventId);
+  if (!event) {
+    const err = new Error("Event not found.");
+    err.status = 404;
+    throw err;
+  }
+  event.status = "draft";
+  await event.save();
+  return getEventById(eventId, { includeHiddenTypes: true });
+}
+
+export async function deleteEvent(eventId) {
+  const event = await Event.findById(eventId);
+  if (!event) {
+    const err = new Error("Event not found.");
+    err.status = 404;
+    throw err;
+  }
+  const soldTypes = await TicketType.countDocuments({ eventId, soldCount: { $gt: 0 } });
+  if (soldTypes > 0) {
+    const err = new Error("Cannot delete an event with sold tickets.");
+    err.status = 400;
+    throw err;
+  }
+  await TicketType.deleteMany({ eventId });
+  await event.deleteOne();
+  return { ok: true };
+}
+
+export function generateVerificationToken() {
+  return crypto.randomUUID();
+}

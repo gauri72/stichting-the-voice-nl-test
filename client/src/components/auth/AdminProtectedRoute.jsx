@@ -1,9 +1,20 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { useCallback } from "react";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
+import IdleSessionGuard from "./IdleSessionGuard.jsx";
 
 export default function AdminProtectedRoute({ children }) {
-  const { admin, loading } = useAdminAuth();
+  const { admin, loading, logout } = useAdminAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleIdleLogout = useCallback(() => {
+    logout();
+    navigate("/admin/login", {
+      replace: true,
+      state: { sessionExpired: true, from: location.pathname },
+    });
+  }, [logout, navigate, location.pathname]);
 
   if (loading) {
     return (
@@ -17,5 +28,9 @@ export default function AdminProtectedRoute({ children }) {
     return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />;
   }
 
-  return children;
+  return (
+    <IdleSessionGuard enabled onIdle={handleIdleLogout}>
+      {children}
+    </IdleSessionGuard>
+  );
 }

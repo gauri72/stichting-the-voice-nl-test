@@ -11,6 +11,13 @@ import Admin from "../models/Admin.js";
 import EmailTemplate from "../models/EmailTemplate.js";
 import EmailBroadcast from "../models/EmailBroadcast.js";
 import DiscountCode from "../models/DiscountCode.js";
+import Event from "../models/Event.js";
+import TicketType from "../models/TicketType.js";
+import TicketOrder from "../models/TicketOrder.js";
+import Ticket from "../models/Ticket.js";
+import Voucher from "../models/Voucher.js";
+import TicketTailorBooking from "../models/TicketTailorBooking.js";
+import AdminAuditLog from "../models/AdminAuditLog.js";
 
 /**
  * Every model maps to exactly one explicitly-named collection in the active
@@ -32,7 +39,14 @@ const MODELS = [
   ["admins", Admin],
   ["email_templates", EmailTemplate],
   ["email_broadcasts", EmailBroadcast],
-  ["discount_codes", DiscountCode]
+  ["discount_codes", DiscountCode],
+  ["events", Event],
+  ["ticket_types", TicketType],
+  ["ticket_orders", TicketOrder],
+  ["tickets", Ticket],
+  ["vouchers", Voucher],
+  ["tickettailor_bookings", TicketTailorBooking],
+  ["admin_audit_logs", AdminAuditLog]
 ];
 
 export async function ensureIndexes() {

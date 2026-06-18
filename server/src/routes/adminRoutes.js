@@ -4,6 +4,9 @@ import { requireCaptcha } from "../middleware/captchaMiddleware.js";
 import adminBroadcastRoutes from "./adminBroadcastRoutes.js";
 import adminDiscountRoutes from "./adminDiscountRoutes.js";
 import adminUserRoutes from "./adminUserRoutes.js";
+import adminEventRoutes from "./adminEventRoutes.js";
+import adminMembershipRoutes from "./adminMembershipRoutes.js";
+import { syncTicketTailor } from "../controllers/adminMembershipController.js";
 
 const router = Router();
 
@@ -13,5 +16,8 @@ router.get("/dashboard", requireAdmin, adminDashboard);
 router.use("/broadcasts", adminBroadcastRoutes);
 router.use("/discounts", requireAdmin, adminDiscountRoutes);
 router.use("/users", requireAdmin, adminUserRoutes);
+router.use("/events", adminEventRoutes);
+router.post("/tickettailor/sync", requireAdmin, syncTicketTailor);
+router.use("/memberships", requireAdmin, adminMembershipRoutes);
 
 export default router;

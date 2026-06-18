@@ -1,0 +1,398 @@
+/* Check-in app + PWA shell */
+
+.checkin-pwa-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--ad-bg, #060912);
+  color: var(--ad-text, #f8fafc);
+}
+
+.checkin-pwa-shell__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 13, 24, 0.92);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(10px);
+}
+
+.checkin-pwa-shell__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.checkin-pwa-shell__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6338c2, #8b5cf6);
+  color: #fff;
+  font-weight: 800;
+}
+
+.checkin-pwa-shell__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.checkin-pwa-shell__subtitle {
+  margin: 2px 0 0;
+  font-size: 0.68rem;
+  color: var(--ad-muted, #94a3b8);
+}
+
+.checkin-pwa-shell__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkin-pwa-shell__status,
+.checkin-pwa-shell__logout,
+.checkin-pwa-shell__install {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.checkin-pwa-shell__status--online {
+  color: #3ecf9a;
+  border-color: rgba(62, 207, 154, 0.25);
+}
+
+.checkin-pwa-shell__install {
+  color: #3ecf9a;
+  border-color: rgba(62, 207, 154, 0.28);
+  background: rgba(62, 207, 154, 0.08);
+}
+
+.checkin-pwa-shell__staff,
+.checkin-pwa-shell__tip {
+  margin: 0;
+  padding: 10px 16px;
+  font-size: 0.78rem;
+  color: var(--ad-muted, #94a3b8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.checkin-pwa-shell__tip a {
+  color: #c4b5fd;
+}
+
+.checkin-pwa-shell__main {
+  flex: 1;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
+.checkin-pwa-install {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(99, 56, 194, 0.12);
+  border: 1px solid rgba(99, 56, 194, 0.28);
+}
+
+.checkin-pwa-install p {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: var(--ad-muted, #94a3b8);
+}
+
+.checkin-pwa-install__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.checkin-pwa-install__primary,
+.checkin-pwa-install__dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 0;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.checkin-pwa-install__primary {
+  background: linear-gradient(135deg, #6338c2, #8b5cf6);
+  color: #fff;
+}
+
+.checkin-pwa-install__dismiss {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: inherit;
+}
+
+.checkin-admin-link {
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+}
+
+.checkin-admin-link a {
+  color: #3ecf9a;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.checkin-app {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.checkin-app--pwa {
+  max-width: none;
+}
+
+.checkin-app__offline {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.checkin-app__scanner {
+  background: var(--ad-card, #0d111c);
+  border: 1px solid rgba(62, 207, 154, 0.15);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.checkin-app--pwa .checkin-app__scanner {
+  padding: 16px;
+}
+
+.checkin-app__scan-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 28px 20px;
+  border: 2px dashed rgba(62, 207, 154, 0.35);
+  border-radius: 14px;
+  background: rgba(62, 207, 154, 0.06);
+  color: #3ecf9a;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.checkin-app--pwa .checkin-app__scan-btn {
+  min-height: 160px;
+  justify-content: center;
+}
+
+.checkin-app__scan-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.checkin-app__reader-wrap {
+  margin-bottom: 14px;
+}
+
+.checkin-app__reader {
+  width: 100%;
+  min-height: 280px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+}
+
+.checkin-app--pwa .checkin-app__reader {
+  min-height: min(58dvh, 420px);
+}
+
+.checkin-app__reader video {
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.checkin-app__hint {
+  margin: 10px 0 0;
+  font-size: 0.84rem;
+  color: var(--ad-muted, #94a3b8);
+  text-align: center;
+}
+
+.checkin-app__form label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  margin: 16px 0 8px;
+}
+
+.checkin-app__input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--ad-input-bg, #080d18);
+  color: inherit;
+  font: inherit;
+  margin-bottom: 12px;
+}
+
+.checkin-app__submit,
+.checkin-app__secondary-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 999px;
+  border: 0;
+  background: linear-gradient(135deg, #d1007f, #7b2ff7);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.checkin-app__submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.checkin-app__secondary-btn {
+  margin-top: 10px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: inherit;
+}
+
+.checkin-app__result {
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.checkin-app__result--success {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+.checkin-app__result--error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.checkin-app__result--warning {
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.checkin-app__details {
+  margin: 16px 0;
+  text-align: left;
+}
+
+.checkin-app__details div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.checkin-app__details dt {
+  color: var(--ad-muted, #94a3b8);
+  font-size: 0.8rem;
+}
+
+.checkin-app__details dd {
+  margin: 0;
+  font-weight: 600;
+  color: var(--ad-text, #f8fafc);
+  text-align: right;
+}
+
+.checkin-app__recent {
+  margin-top: 8px;
+}
+
+.checkin-app__recent h3 {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ad-muted, #94a3b8);
+}
+
+.checkin-app__recent ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.checkin-app__recent li {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.8rem;
+}
+
+.checkin-app__recent strong {
+  font-size: 0.88rem;
+}
+
+.checkin-app__recent span {
+  color: var(--ad-muted, #94a3b8);
+}
+
+@media (min-width: 768px) {
+  .checkin-pwa-shell__main {
+    padding: 24px;
+  }
+}

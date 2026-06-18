@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import {
 
@@ -50,6 +50,8 @@ export default function AdminLoginPage() {
 
   const navigate = useNavigate();
 
+  const location = useLocation();
+
 
 
   const [email, setEmail] = useState("");
@@ -81,6 +83,18 @@ export default function AdminLoginPage() {
     }
 
   }, []);
+
+
+
+  useEffect(() => {
+
+    if (location.state?.sessionExpired) {
+
+      setError("Your session expired after 10 minutes of inactivity. Please sign in again.");
+
+    }
+
+  }, [location.state?.sessionExpired]);
 
 
 

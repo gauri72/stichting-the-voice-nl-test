@@ -29,9 +29,11 @@ import { WHATSAPP_GROUP_URL } from "../../constants/siteLinks.js";
 import footerBg from "../../assets/footer-bg.png";
 import voiceNlLogo from "../../assets/logos/V.O.I.C.E. NL Copyright HD Logo.png";
 import voiceVentureStudioLogo from "../../assets/VOICE Venture Studio.png";
+import FooterPwaDownloads from "./FooterPwaDownloads.jsx";
 import "../../styles/footer.css";
 import "../../styles/footer-mobile.css";
 import "../../styles/footer-desktop.css";
+import "../../styles/footer-pwa-downloads.css";
 
 function buildWhatsAppHref() {
   const raw = import.meta.env.VITE_WHATSAPP_E164;
@@ -255,6 +257,7 @@ export default function Footer() {
               </Link>
             ))}
           </div>
+          <FooterPwaDownloads variant="mobile" />
         </section>
 
         <section className="footer-mobile-section" id="contact" aria-label="Contact us">
@@ -382,6 +385,7 @@ export default function Footer() {
                 <FooterDesktopQuickLink key={to} label={label} to={to} Icon={Icon} />
               ))}
             </div>
+            <FooterPwaDownloads variant="desktop" />
           </section>
 
           <span className="footer-desktop-nav__vline" aria-hidden="true" />

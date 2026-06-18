@@ -6,11 +6,18 @@ const SPLASH_LOGO_SRC = `${import.meta.env.BASE_URL}favicon.png`;
 const MIN_MS = 650;
 const FADE_MS = 480;
 
-export default function AppSplash() {
-  const [phase, setPhase] = useState("show");
-  const startedFade = useRef(false);
+export default function AppSplash({ disabled = false }) {
+  const [phase, setPhase] = useState(disabled ? "gone" : "show");
+  const startedFade = useRef(disabled);
 
   useEffect(() => {
+    if (disabled) {
+      document.documentElement.classList.remove("splash-open");
+    }
+  }, [disabled]);
+
+  useEffect(() => {
+    if (disabled) return undefined;
     const splashFailsafe = window.setTimeout(() => {
       document.documentElement.classList.remove("splash-open");
       startedFade.current = true;
@@ -43,7 +50,7 @@ export default function AppSplash() {
       window.removeEventListener("load", finish);
       window.removeEventListener("DOMContentLoaded", finish);
     };
-  }, []);
+  }, [disabled]);
 
   useEffect(() => {
     if (phase !== "fade") return undefined;
@@ -54,7 +61,7 @@ export default function AppSplash() {
     return () => window.clearTimeout(t);
   }, [phase]);
 
-  if (phase === "gone") return null;
+  if (disabled || phase === "gone") return null;
 
   return (
     <div

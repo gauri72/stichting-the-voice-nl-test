@@ -112,13 +112,22 @@ export async function verifyMembership(req, res) {
 
     return res.status(200).json({
       valid,
+      status,
       membershipId: member.membershipId,
       memberName,
       membershipType: member.membershipType,
       email: member.email,
       startDate: member.startDate,
       expiryDate: member.expiryDate,
-      membershipStatus: status
+      membershipStatus: status,
+      member: {
+        membershipId: member.membershipId,
+        memberName,
+        fullName: memberName,
+        membershipType: member.membershipType,
+        validUntil: formatDate(member.expiryDate),
+        memberUntilLabel: formatDate(member.expiryDate),
+      },
     });
   } catch (error) {
     console.error("[membership] verifyMembership error:", error);

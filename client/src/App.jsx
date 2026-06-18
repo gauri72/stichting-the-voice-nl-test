@@ -28,8 +28,19 @@ import AdminTemplateUploadPage from "./components/admin/AdminTemplateUploadPage"
 import AdminDiscountsPage from "./components/admin/AdminDiscountsPage";
 import AdminUsersPage from "./components/admin/AdminUsersPage";
 import AdminEventsPage from "./components/admin/AdminEventsPage.jsx";
+import AdminTicketsPage from "./components/admin/AdminTicketsPage.jsx";
+import AdminCheckInPage from "./components/admin/AdminCheckInPage.jsx";
+import CheckInPwaPage from "./components/checkin/CheckInPwaPage.jsx";
+import AdminVouchersPage from "./components/admin/AdminVouchersPage.jsx";
+import AdminMembershipsPage from "./components/admin/AdminMembershipsPage.jsx";
+import AdminMemberProfilePage from "./components/admin/AdminMemberProfilePage.jsx";
+import VerifyMembershipPage from "./components/membership/VerifyMembershipPage.jsx";
+import TicketBookingPage from "./components/events/TicketBookingPage.jsx";
+import TicketConfirmationPage from "./components/events/TicketConfirmationPage.jsx";
 import AdminSectionPlaceholder from "./components/admin/AdminSectionPlaceholder";
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
+import ManifestRouter from "./components/pwa/ManifestRouter.jsx";
+import SiteInstallPwaPrompt from "./components/pwa/SiteInstallPwaPrompt.jsx";
 
 // Enable by setting VITE_MAINTENANCE_MODE=true in your .env / hosting environment.
 const MAINTENANCE_MODE = import.meta.env.VITE_MAINTENANCE_MODE === "true";
@@ -59,16 +70,20 @@ function ScrollToHash() {
 
 export default function App() {
   const location = useLocation();
-  const isStandalonePage = location.pathname.startsWith("/admin");
+  const isStandalonePage =
+    location.pathname.startsWith("/admin") || location.pathname === "/check-in";
+  const hideSiteChrome = isStandalonePage;
+  const hideSplash = location.pathname === "/check-in";
 
   if (MAINTENANCE_MODE) return <MaintenancePage />;
 
   return (
     <>
-      <AppSplash />
+      <AppSplash disabled={hideSplash} />
     <div className="app-shell">
+      <ManifestRouter />
       <ScrollToHash />
-      {!isStandalonePage && <Header />}
+      {!hideSiteChrome && <Header />}
       <main className={`app-main${isStandalonePage ? " app-main--standalone" : ""}`}>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -76,6 +91,8 @@ export default function App() {
           <Route path="/about-us" element={<AboutUsPage />} />
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/events" element={<EventsPage />} />
+          <Route path="/events/:eventIdOrSlug/tickets" element={<TicketBookingPage />} />
+          <Route path="/events/:eventIdOrSlug/tickets/confirmation/:orderNumber" element={<TicketConfirmationPage />} />
           <Route path="/stories" element={<StoriesPage />} />
           <Route path="/impact" element={<ImpactPage />} />
           <Route path="/sponsorship" element={<SponsorshipPage />} />
@@ -90,6 +107,7 @@ export default function App() {
           <Route path="/contact" element={<PlaceholderPage title="Contact Us" />} />
           <Route path="/voice-venture-studio" element={<VentureStudioPage />} />
           <Route path="/film-festival" element={<EmptyPage />} />
+          <Route path="/verify-membership/:token" element={<VerifyMembershipPage />} />
           <Route path="/privacy-policy" element={<PoliciesPage />} />
           <Route path="/terms-and-conditions" element={<PoliciesPage />} />
           <Route path="/my-account" element={<LoginPage />} />
@@ -144,14 +162,54 @@ export default function App() {
             }
           />
           <Route
+            path="/admin/tickets"
+            element={
+              <AdminProtectedRoute>
+                <AdminTicketsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/vouchers"
+            element={
+              <AdminProtectedRoute>
+                <AdminVouchersPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/check-in"
+            element={<CheckInPwaPage />}
+          />
+          <Route
+            path="/admin/check-in"
+            element={
+              <AdminProtectedRoute>
+                <AdminCheckInPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/memberships"
+            element={
+              <AdminProtectedRoute>
+                <AdminMembershipsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/memberships/:id"
+            element={
+              <AdminProtectedRoute>
+                <AdminMemberProfilePage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/members"
             element={
               <AdminProtectedRoute>
-                <AdminSectionPlaceholder
-                  pageTitle="Members"
-                  pageSubtitle="Member management is coming soon."
-                  message="Audience segments for broadcasts are already sourced from cluster17 users and memberships."
-                />
+                <AdminMembershipsPage />
               </AdminProtectedRoute>
             }
           />
@@ -187,8 +245,9 @@ export default function App() {
           />
         </Routes>
       </main>
-      {!isStandalonePage && <Footer />}
-      {!isStandalonePage && <CookieConsentBanner />}
+      {!hideSiteChrome && <Footer />}
+      {!hideSiteChrome && <SiteInstallPwaPrompt />}
+      {!hideSiteChrome && <CookieConsentBanner />}
     </div>
     </>
   );

@@ -19,6 +19,8 @@ export default function LoginPage() {
     }
   }, [location.state?.authMode]);
 
+  const sessionExpired = Boolean(location.state?.sessionExpired);
+
   if (!loading && user) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -26,6 +28,11 @@ export default function LoginPage() {
   return (
     <div id="login-navbar-top" className="login-page-shell">
       <LoginBreadcrumbSection mode={authMode} />
+      {sessionExpired ? (
+        <p className="login-page-session-notice" role="status">
+          Your session expired after 10 minutes of inactivity. Please sign in again.
+        </p>
+      ) : null}
       <LoginFormSection mode={authMode} onModeChange={setAuthMode} />
       <LoginCtaSection />
     </div>
