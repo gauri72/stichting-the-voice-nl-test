@@ -5,7 +5,6 @@ import Event from "../models/Event.js";
 import { formatOrder, formatTicket } from "./ticketOrderService.js";
 import { formatMoney } from "./ticketPricingService.js";
 import { sendTicketConfirmationEmail } from "./ticketMailer.js";
-import { renderTicketPdf } from "./ticketPdfService.js";
 
 export async function listAdminTickets(filters = {}) {
   const {
@@ -233,26 +232,8 @@ export async function getTicketPdfBuffer(ticketNumber) {
     Event.findById(ticket.eventId).lean(),
   ]);
 
-  const eventDate = event?.date
-    ? new Date(event.date).toLocaleDateString("nl-NL", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : "—";
-
-  return renderTicketPdf({
-    verification_token: ticket.verificationToken,
-    event_name: event?.title || "—",
-    attendee_name: ticket.attendeeName,
-    ticket_type: ticket.ticketTypeName,
-    event_date: eventDate,
-    event_time: event?.startTime || "—",
-    venue: [event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—",
-    order_number: order?.orderNumber || "—",
-    ticket_number: ticket.ticketNumber,
-  });
+  const { generateTicketPdfFromDocs } = await import("./ticketPdfService.js");
+  return generateTicketPdfFromDocs(ticket, order, event);
 }
 
 export async function exportTicketsCsv(filters = {}) {

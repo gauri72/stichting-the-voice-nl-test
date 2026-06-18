@@ -1,10 +1,30 @@
 import env from "../config/env.js";
 import { getMailFromAddress, getSmtpTransporter, isMailerConfigured } from "./smtpTransport.js";
-import { buildTicketQrImageUrl, generateTicketQrPngBuffer } from "./ticketQrService.js";
+import { generateTicketQrPngBuffer } from "./ticketQrService.js";
+import { generateTicketPdfFromDocs } from "./ticketPdfService.js";
 
 const WEBSITE_URL = "https://stichtingthevoice.nl";
 const PRIVACY_URL = `${WEBSITE_URL}/privacy-policy`;
 const TERMS_URL = `${WEBSITE_URL}/terms-and-conditions`;
+
+const EMAIL_STYLES = `
+  body { margin:0;padding:0; }
+  img { border:0;line-height:100%;outline:none;text-decoration:none; }
+  table { border-collapse:collapse; }
+  @media only screen and (max-width: 600px) {
+    .email-shell { padding:16px 10px 32px !important; }
+    .email-card { border-radius:16px !important; }
+    .card-pad { padding:20px 18px !important; }
+    .hero-pad { padding:24px 18px 26px !important; }
+    .hero-title { font-size:26px !important; }
+    .brand-row td { display:block !important; width:100% !important; text-align:left !important; }
+    .brand-row .brand-event { padding-top:10px !important; }
+    .help-col { display:block !important; width:100% !important; text-align:left !important; padding:0 !important; }
+    .help-col-right { padding-top:16px !important; }
+    .preheader-row td { display:block !important; width:100% !important; text-align:left !important; }
+    .preheader-link { padding-top:8px !important; text-align:left !important; }
+  }
+`;
 
 function escapeHtml(value) {
   return String(value || "")
@@ -58,23 +78,42 @@ function eventTagline(event) {
 
 function detailRow(label, value) {
   return `<tr>
-    <td style="padding:14px 0;border-bottom:1px solid rgba(62,198,212,0.12);">
+    <td style="padding:12px 0;border-bottom:1px solid rgba(62,198,212,0.14);">
       <p style="margin:0 0 4px;font-size:10px;letter-spacing:1.2px;font-weight:700;color:#6b7d94;text-transform:uppercase;">${escapeHtml(label)}</p>
       <p style="margin:0;font-size:14px;line-height:1.5;color:#ffffff;font-weight:600;">${value}</p>
     </td>
   </tr>`;
 }
 
+function buildTicketEmailText({ order, ticket, event }) {
+  const eventTitle = event?.title || "Event";
+  const viewUrl = `${env.clientUrl}/events/${event?.slug || event?._id || "event"}/tickets/confirmation/${order.orderNumber}`;
+  return `Your ticket for ${eventTitle} is confirmed.
+
+Order: ${order.orderNumber}
+Ticket: ${ticket.ticketNumber}
+Ticket type: ${ticket.ticketTypeName}
+Holder: ${ticket.attendeeName}
+Date: ${formatEventDate(event?.date)}
+Time: ${formatEventTime(event?.startTime, event?.endTime)}
+Venue: ${[event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—"}
+
+Your ticket PDF is attached to this email. Show the QR code at the venue entrance for check-in.
+
+View online: ${viewUrl}
+
+Need help? ${env.org.contactEmail || "info@stichtingthevoice.nl"}
+${WEBSITE_URL}
+
+Stichting The V.O.I.C.E. NL`;
+}
+
 function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
   const qrCid = branding.qrCid || null;
-  const qrSrc = qrCid
-    ? `cid:${qrCid}`
-    : ticket.verificationToken
-      ? buildTicketQrImageUrl(ticket.verificationToken)
-      : "";
+  const qrSrc = qrCid ? `cid:${qrCid}` : "";
   const qrCell = qrSrc
-    ? `<img src="${qrSrc}" alt="Ticket QR code" width="168" height="168" style="display:block;margin:0 auto;width:168px;height:168px;border:10px solid #ffffff;border-radius:18px;background:#ffffff;" />`
-    : `<div style="width:168px;height:168px;margin:0 auto;border:10px solid #ffffff;border-radius:18px;background:#ffffff;color:#98a2b3;font-size:12px;line-height:168px;text-align:center;">QR code</div>`;
+    ? `<img src="${qrSrc}" alt="Ticket QR code" width="168" height="168" style="display:block;margin:0 auto;width:168px;max-width:100%;height:auto;aspect-ratio:1/1;border:10px solid #ffffff;border-radius:18px;background:#ffffff;" />`
+    : `<div style="width:168px;max-width:100%;aspect-ratio:1/1;margin:0 auto;border:10px solid #ffffff;border-radius:18px;background:#ffffff;color:#98a2b3;font-size:12px;line-height:148px;text-align:center;">QR code</div>`;
 
   const eventTitle = escapeHtml(event?.title || "Event");
   const venueName = escapeHtml(event?.venueName || "—");
@@ -85,26 +124,29 @@ function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
   const viewInBrowserUrl = `${env.clientUrl}/events/${event?.slug || event?._id || "event"}/tickets/confirmation/${order.orderNumber}`;
   const supportEmail = escapeHtml(env.org.contactEmail || "info@stichtingthevoice.nl");
   const tagline = escapeHtml(eventTagline(event));
+  const websiteLabel = escapeHtml(WEBSITE_URL.replace(/^https?:\/\//, ""));
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Your V.O.I.C.E. NL Ticket Confirmation</title>
+  <style type="text/css">${EMAIL_STYLES}</style>
 </head>
-<body style="margin:0;padding:0;background:#030712;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#ffffff;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#030712;padding:24px 12px 40px;">
+<body style="margin:0;padding:0;background:#030712;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#ffffff;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="email-shell" style="background:#030712;padding:24px 12px 40px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" style="max-width:600px;width:100%;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" class="email-card" style="max-width:600px;width:100%;">
 
           <tr>
             <td style="padding:0 4px 18px;border-bottom:1px solid rgba(62,198,212,0.12);">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="preheader-row">
                 <tr>
-                  <td style="font-size:12px;color:#8a9bb5;">Thank you for your purchase!</td>
-                  <td align="right" style="font-size:12px;">
+                  <td style="font-size:12px;line-height:1.5;color:#8a9bb5;">Thank you for your purchase!</td>
+                  <td align="right" class="preheader-link" style="font-size:12px;line-height:1.5;">
                     <a href="${escapeHtml(viewInBrowserUrl)}" style="color:#3ec6d4;text-decoration:none;">View in browser</a>
                   </td>
                 </tr>
@@ -114,19 +156,19 @@ function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
 
           <tr>
             <td style="padding:18px 4px 24px;">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="brand-row">
                 <tr>
-                  <td style="font-size:13px;color:#ffffff;font-weight:600;">Stichting The V.O.I.C.E. NL</td>
-                  <td align="right" style="font-size:13px;color:#c7d3e6;">${eventTitle}</td>
+                  <td style="font-size:13px;line-height:1.4;color:#ffffff;font-weight:600;">Stichting The V.O.I.C.E. NL</td>
+                  <td align="right" class="brand-event" style="font-size:13px;line-height:1.4;color:#c7d3e6;">${eventTitle}</td>
                 </tr>
               </table>
             </td>
           </tr>
 
           <tr>
-            <td style="padding:28px 24px 30px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.18);background-image:radial-gradient(circle at 88% 18%, rgba(209,0,127,0.22) 0%, rgba(6,16,31,0) 52%);">
+            <td class="hero-pad" style="padding:28px 24px 30px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.18);">
               <p style="margin:0 0 10px;font-size:11px;letter-spacing:2px;font-weight:800;color:#3ec6d4;text-transform:uppercase;">Ticket Confirmation</p>
-              <h1 style="margin:0 0 12px;font-size:30px;line-height:1.2;color:#ffffff;font-family:Georgia,'Times New Roman',serif;font-weight:700;">Your Ticket Is Confirmed!</h1>
+              <h1 class="hero-title" style="margin:0 0 12px;font-size:30px;line-height:1.2;color:#ffffff;font-family:Georgia,'Times New Roman',serif;font-weight:700;">Your Ticket Is Confirmed!</h1>
               <p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:#d7e0ef;">We are excited to welcome you at <strong style="color:#ffffff;">${eventTitle}</strong>.</p>
               <p style="margin:0;font-size:14px;line-height:1.6;color:#f06db3;font-weight:600;">${tagline}</p>
             </td>
@@ -135,26 +177,26 @@ function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
           <tr><td style="height:20px;font-size:0;line-height:0;">&nbsp;</td></tr>
 
           <tr>
-            <td style="padding:24px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.22);">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+            <td class="card-pad" style="padding:24px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.22);">
+              <p style="margin:0 0 4px;font-size:16px;font-weight:700;color:#3ec6d4;">Ticket Details</p>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:8px;">
+                ${detailRow("Event", eventTitle)}
+                ${detailRow("Date", escapeHtml(formatEventDate(event?.date)))}
+                ${detailRow("Time", escapeHtml(formatEventTime(event?.startTime, event?.endTime)))}
+                ${detailRow("Venue", venueValue)}
+                ${detailRow("Ticket Type", escapeHtml(ticket.ticketTypeName))}
+                ${detailRow("Ticket Holder", escapeHtml(ticket.attendeeName))}
+                ${detailRow("Order ID", escapeHtml(order.orderNumber))}
+                ${detailRow("Purchase Date", escapeHtml(formatPurchaseDate(order.createdAt)))}
+              </table>
+
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:22px;">
                 <tr>
-                  <td valign="top" style="width:58%;padding-right:18px;">
-                    <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:#3ec6d4;">Ticket Details</p>
-                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
-                      ${detailRow("Event", eventTitle)}
-                      ${detailRow("Date", escapeHtml(formatEventDate(event?.date)))}
-                      ${detailRow("Time", escapeHtml(formatEventTime(event?.startTime, event?.endTime)))}
-                      ${detailRow("Venue", venueValue)}
-                      ${detailRow("Ticket Type", escapeHtml(ticket.ticketTypeName))}
-                      ${detailRow("Ticket Holder", escapeHtml(ticket.attendeeName))}
-                      ${detailRow("Order ID", escapeHtml(order.orderNumber))}
-                      ${detailRow("Purchase Date", escapeHtml(formatPurchaseDate(order.createdAt)))}
-                    </table>
-                  </td>
-                  <td valign="top" align="center" style="width:42%;padding-left:6px;">
+                  <td align="center" style="padding:8px 0 0;">
                     <p style="margin:0 0 14px;font-size:11px;letter-spacing:1.4px;font-weight:800;color:#3ec6d4;text-transform:uppercase;">Your QR Code</p>
                     ${qrCell}
-                    <p style="margin:14px 0 0;font-size:12px;line-height:1.6;color:#8a9bb5;text-align:center;">Show this QR code at the venue entrance for check-in.</p>
+                    <p style="margin:14px auto 0;max-width:280px;font-size:12px;line-height:1.6;color:#8a9bb5;text-align:center;">Show this QR code at the venue entrance for check-in.</p>
+                    <p style="margin:16px auto 0;max-width:320px;font-size:12px;line-height:1.6;color:#c7d3e6;text-align:center;">Your printable ticket PDF is attached to this email.</p>
                   </td>
                 </tr>
               </table>
@@ -164,7 +206,7 @@ function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
           <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>
 
           <tr>
-            <td style="padding:22px 24px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.22);">
+            <td class="card-pad" style="padding:22px 24px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.22);">
               <p style="margin:0 0 14px;font-size:16px;font-weight:700;color:#3ec6d4;">Important Information</p>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                 <tr><td style="padding:6px 0;font-size:14px;line-height:1.7;color:#d7e0ef;">
@@ -186,21 +228,21 @@ function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
           <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>
 
           <tr>
-            <td style="padding:20px 24px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.22);">
+            <td class="card-pad" style="padding:20px 24px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.22);">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td valign="top" style="width:50%;padding-right:12px;">
+                  <td valign="top" class="help-col" style="width:50%;padding-right:12px;">
                     <p style="margin:0 0 6px;font-size:16px;font-weight:700;color:#3ec6d4;">Need Help?</p>
                     <p style="margin:0;font-size:14px;line-height:1.6;color:#d7e0ef;">Our support team is here for you.</p>
                   </td>
-                  <td valign="top" align="right" style="width:50%;padding-left:12px;">
+                  <td valign="top" align="right" class="help-col help-col-right" style="width:50%;padding-left:12px;">
                     <p style="margin:0 0 8px;font-size:14px;line-height:1.5;color:#ffffff;">
                       <span style="color:#3ec6d4;margin-right:8px;">✉</span>
                       <a href="mailto:${supportEmail}" style="color:#ffffff;text-decoration:none;">${supportEmail}</a>
                     </p>
                     <p style="margin:0;font-size:14px;line-height:1.5;">
                       <span style="color:#3ec6d4;margin-right:8px;">🌐</span>
-                      <a href="${WEBSITE_URL}" style="color:#3ec6d4;text-decoration:none;">${WEBSITE_URL.replace(/^https?:\/\//, "")}</a>
+                      <a href="${WEBSITE_URL}" style="color:#3ec6d4;text-decoration:none;">${websiteLabel}</a>
                     </p>
                   </td>
                 </tr>
@@ -241,22 +283,36 @@ export async function sendTicketConfirmationEmail({ order, ticket, event }) {
   }
 
   const transporter = getSmtpTransporter();
+  const attachments = [];
 
-  let qrAtt = null;
   if (ticket.verificationToken) {
     try {
-      qrAtt = {
+      attachments.push({
         filename: "ticket-qr.png",
         content: await generateTicketQrPngBuffer(ticket.verificationToken),
         cid: "ticketQr",
         contentDisposition: "inline",
-      };
+      });
     } catch (error) {
       console.warn("[tickets] Could not generate QR for email:", error.message);
     }
   }
 
-  const html = buildTicketEmailHtml({ order, ticket, event }, { qrCid: qrAtt?.cid || null });
+  try {
+    const pdfBuffer = await generateTicketPdfFromDocs(ticket, order, event);
+    attachments.push({
+      filename: `ticket-${ticket.ticketNumber}.pdf`,
+      content: pdfBuffer,
+      contentType: "application/pdf",
+      contentDisposition: "attachment",
+    });
+  } catch (error) {
+    console.warn("[tickets] Could not generate PDF for email:", error.message);
+  }
+
+  const qrCid = attachments.find((a) => a.cid)?.cid || null;
+  const html = buildTicketEmailHtml({ order, ticket, event }, { qrCid });
+  const text = buildTicketEmailText({ order, ticket, event });
   const eventTitle = event?.title || "V.O.I.C.E. NL Event";
 
   try {
@@ -264,8 +320,9 @@ export async function sendTicketConfirmationEmail({ order, ticket, event }) {
       from: getMailFromAddress(),
       to: ticket.attendeeEmail,
       subject: `Your ticket for ${eventTitle} — ${ticket.ticketNumber}`,
+      text,
       html,
-      attachments: qrAtt ? [qrAtt] : [],
+      attachments,
     });
   } catch (error) {
     console.error(

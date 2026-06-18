@@ -121,3 +121,36 @@ export async function renderTicketPdf(values) {
   doc.end();
   return promise;
 }
+
+function formatTicketPdfEventDate(date) {
+  if (!date) return "—";
+  try {
+    return new Date(date).toLocaleDateString("en-GB", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return String(date);
+  }
+}
+
+/** Build PDF field map from persisted ticket / order / event documents. */
+export function buildTicketPdfValuesFromDocs(ticket, order, event) {
+  return {
+    verification_token: ticket?.verificationToken || "",
+    event_name: event?.title || "—",
+    attendee_name: ticket?.attendeeName || "—",
+    ticket_type: ticket?.ticketTypeName || "—",
+    event_date: formatTicketPdfEventDate(event?.date),
+    event_time: event?.startTime || "—",
+    venue: [event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—",
+    order_number: order?.orderNumber || "—",
+    ticket_number: ticket?.ticketNumber || "—",
+  };
+}
+
+export async function generateTicketPdfFromDocs(ticket, order, event) {
+  return renderTicketPdf(buildTicketPdfValuesFromDocs(ticket, order, event));
+}
