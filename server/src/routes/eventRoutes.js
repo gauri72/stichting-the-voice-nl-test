@@ -7,6 +7,7 @@ import {
   quoteOrder,
   checkout,
   confirmPayment,
+  confirmPaymentByIntent,
   getOrder,
   myOrders,
 } from "../controllers/ticketController.js";
@@ -16,6 +17,7 @@ const router = Router();
 router.get("/", listPublishedEvents);
 router.get("/orders/my", requireAuth, myOrders);
 router.get("/orders/:orderNumber", optionalAuth, getOrder);
+router.post("/orders/confirm-intent", optionalAuth, confirmPaymentByIntent);
 router.post("/orders/:orderId/confirm", optionalAuth, confirmPayment);
 
 router.get("/:idOrSlug", getPublishedEvent);

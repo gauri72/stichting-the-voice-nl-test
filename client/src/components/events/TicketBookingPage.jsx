@@ -129,17 +129,48 @@ export default function TicketBookingPage() {
     }
   }, [step, refreshQuote, selectedItems.length]);
 
-  const confirmOrder = useCallback(
-    async (orderId, paymentIntentId) => {
-      const confirmed = await apiFetch(`/api/events/orders/${orderId}/confirm`, {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({ paymentIntentId }),
-      });
+  const goToConfirmation = useCallback(
+    (orderNumber) => {
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
-      navigate(`/events/${eventIdOrSlug}/tickets/confirmation/${confirmed.order.orderNumber}`);
+      navigate(`/events/${eventIdOrSlug}/tickets/confirmation/${orderNumber}`);
     },
     [eventIdOrSlug, navigate]
+  );
+
+  const resolveOrderId = useCallback((paymentIntent) => {
+    const saved = readCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
+    return (
+      saved?.orderId ||
+      paymentIntent?.metadata?.order_id ||
+      null
+    );
+  }, []);
+
+  const finalizeTicketPayment = useCallback(
+    async (paymentIntent) => {
+      const orderId = resolveOrderId(paymentIntent);
+      try {
+        if (orderId) {
+          const confirmed = await apiFetch(`/api/events/orders/${orderId}/confirm`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
+          });
+          goToConfirmation(confirmed.order.orderNumber);
+          return;
+        }
+
+        const confirmed = await apiFetch("/api/events/orders/confirm-intent", {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
+        });
+        goToConfirmation(confirmed.order.orderNumber);
+      } catch (err) {
+        setError(err.message || "Could not confirm your booking.");
+      }
+    },
+    [goToConfirmation, resolveOrderId]
   );
 
   useEffect(() => {
@@ -150,19 +181,7 @@ export default function TicketBookingPage() {
       if (!stripe) return;
       setHandlingReturn(true);
       await completePaymentReturn(stripe, {
-        onSuccess: async (paymentIntent) => {
-          const saved = readCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
-          const orderId = saved?.orderId;
-          if (!orderId) {
-            setError("Could not find your order. Please contact support.");
-            return;
-          }
-          try {
-            await confirmOrder(orderId, paymentIntent.id);
-          } catch (err) {
-            setError(err.message || "Could not confirm your booking.");
-          }
-        },
+        onSuccess: finalizeTicketPayment,
         onError: (msg) => {
           setError(msg);
           setStep(3);
@@ -170,7 +189,7 @@ export default function TicketBookingPage() {
       });
       setHandlingReturn(false);
     });
-  }, [confirmOrder]);
+  }, [finalizeTicketPayment]);
 
   async function applyVoucher() {
     if (!voucherCode.trim()) return;
@@ -221,6 +240,7 @@ export default function TicketBookingPage() {
       persistCheckoutSession(TICKET_CHECKOUT_SESSION_KEY, {
         orderId: checkout.order.id,
         orderNumber: checkout.order.orderNumber,
+        paymentIntentId: checkout.payment?.paymentIntentId || null,
         eventIdOrSlug,
         payer,
       });
@@ -229,7 +249,10 @@ export default function TicketBookingPage() {
         checkout.payment?.mode === "free" ||
         checkout.order.totalAmountMinor === 0
       ) {
-        await confirmOrder(checkout.order.id, checkout.payment?.paymentIntentId || null);
+        await finalizeTicketPayment({
+          id: checkout.payment?.paymentIntentId || null,
+          metadata: { order_id: checkout.order.id },
+        });
         return;
       }
 
@@ -262,12 +285,13 @@ export default function TicketBookingPage() {
   }, [step, clientSecret, checkoutLoading, handlingReturn, checkoutOrder]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleStripeSuccess(paymentIntent) {
-    if (!checkoutOrder?.id) {
+    const orderId = checkoutOrder?.id || resolveOrderId(paymentIntent);
+    if (!orderId && !paymentIntent?.id) {
       setError("Order reference missing. Please contact support.");
       return;
     }
     try {
-      await confirmOrder(checkoutOrder.id, paymentIntent.id);
+      await finalizeTicketPayment(paymentIntent);
     } catch (err) {
       setError(err.message || "Payment succeeded but booking confirmation failed.");
     }

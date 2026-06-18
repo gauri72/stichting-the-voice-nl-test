@@ -182,6 +182,35 @@ export async function createCheckout(eventId, payload, userId) {
   };
 }
 
+export async function completeOrderPaymentByIntent(paymentIntentId) {
+  if (!paymentIntentId) {
+    const err = new Error("Payment intent ID is required.");
+    err.status = 400;
+    throw err;
+  }
+
+  const existing = await TicketOrder.findOne({ paymentIntentId }).lean();
+  if (existing) {
+    return completeOrderPayment(existing._id.toString(), paymentIntentId);
+  }
+
+  const confirmed = await confirmTicketPayment(paymentIntentId);
+  if (!confirmed.success) {
+    const err = new Error(confirmed.error || "Payment not found.");
+    err.status = 404;
+    throw err;
+  }
+
+  const orderId = confirmed.intent?.metadata?.order_id;
+  if (!orderId) {
+    const err = new Error("Order not found for this payment.");
+    err.status = 404;
+    throw err;
+  }
+
+  return completeOrderPayment(orderId, paymentIntentId);
+}
+
 export async function completeOrderPayment(orderId, paymentIntentId) {
   const existingTickets = await Ticket.find({ orderId }).sort({ createdAt: 1 }).lean();
   if (existingTickets.length > 0) {

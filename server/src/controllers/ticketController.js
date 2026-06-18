@@ -76,6 +76,16 @@ export async function confirmPayment(req, res) {
   }
 }
 
+export async function confirmPaymentByIntent(req, res) {
+  try {
+    const { completeOrderPaymentByIntent } = await import("../services/ticketOrderService.js");
+    const result = await completeOrderPaymentByIntent(req.body?.paymentIntentId);
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function getOrder(req, res) {
   try {
     const { getOrderForUser } = await import("../services/ticketOrderService.js");

@@ -115,10 +115,16 @@ export function buildPaymentReturnUrl(checkoutPath) {
 }
 
 export function persistCheckoutSession(storageKey, payload) {
+  const json = JSON.stringify(payload);
   try {
-    sessionStorage.setItem(storageKey, JSON.stringify(payload));
+    sessionStorage.setItem(storageKey, json);
   } catch (_err) {
     // Private browsing / quota — redirect return may lack donor details.
+  }
+  try {
+    localStorage.setItem(storageKey, json);
+  } catch (_err) {
+    // Same as above; localStorage survives bank-app redirects better than sessionStorage.
   }
 }
 
@@ -130,7 +136,8 @@ export function mergeCheckoutSession(storageKey, patch) {
 
 export function readCheckoutSession(storageKey) {
   try {
-    const raw = sessionStorage.getItem(storageKey);
+    const raw =
+      sessionStorage.getItem(storageKey) || localStorage.getItem(storageKey);
     return raw ? JSON.parse(raw) : null;
   } catch (_err) {
     return null;
@@ -169,6 +176,7 @@ export function persistCheckoutPayer(sessionKey, { tier, payer, intentMeta, ...r
 export function clearCheckoutSession(storageKey) {
   try {
     sessionStorage.removeItem(storageKey);
+    localStorage.removeItem(storageKey);
   } catch (_err) {
     // ignore
   }
