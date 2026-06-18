@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IconDeviceMobile, IconDownload, IconQrcode } from "@tabler/icons-react";
+import { IconDownload } from "@tabler/icons-react";
 import PwaInstallDialog from "../pwa/PwaInstallDialog.jsx";
 import { isStandalonePwa, PWA_VARIANTS } from "../../pwa/manifestConfig.js";
 
@@ -32,64 +32,29 @@ function DesktopPwaItem({ icon: Icon, label, subtitle, onClick }) {
 }
 
 export default function FooterPwaDownloads({ variant = "mobile" }) {
-  const [activeDialog, setActiveDialog] = useState(null);
-  const standalone = isStandalonePwa();
+  const [dialogOpen, setDialogOpen] = useState(false);
   const Item = variant === "desktop" ? DesktopPwaItem : MobilePwaItem;
-  const gridClass =
-    variant === "desktop" ? "footer-desktop-quick-grid" : "footer-mobile-quick-grid";
 
-  if (standalone) {
-    return (
-      <div className="footer-pwa-downloads">
-        <p className={`footer-pwa-downloads__title footer-pwa-downloads__title--${variant}`}>
-          Download apps
-        </p>
-        <div className={gridClass}>
-          <Item
-            icon={IconQrcode}
-            label="Check-in app"
-            subtitle="QR ticket scanning"
-            onClick={() => setActiveDialog(PWA_VARIANTS.checkin)}
-          />
-        </div>
-        <PwaInstallDialog
-          open={activeDialog === PWA_VARIANTS.checkin}
-          variant={PWA_VARIANTS.checkin}
-          onClose={() => setActiveDialog(null)}
-        />
-      </div>
-    );
-  }
+  if (isStandalonePwa()) return null;
 
   return (
     <div className="footer-pwa-downloads">
       <p className={`footer-pwa-downloads__title footer-pwa-downloads__title--${variant}`}>
-        Download apps
+        Download app
       </p>
-      <div className={gridClass}>
+      <div className={variant === "desktop" ? "footer-desktop-quick-grid" : "footer-mobile-quick-grid"}>
         <Item
           icon={IconDownload}
           label="V.O.I.C.E. app"
           subtitle="Install website"
-          onClick={() => setActiveDialog(PWA_VARIANTS.site)}
-        />
-        <Item
-          icon={IconQrcode}
-          label="Check-in app"
-          subtitle="QR ticket scanning"
-          onClick={() => setActiveDialog(PWA_VARIANTS.checkin)}
+          onClick={() => setDialogOpen(true)}
         />
       </div>
 
       <PwaInstallDialog
-        open={activeDialog === PWA_VARIANTS.site}
+        open={dialogOpen}
         variant={PWA_VARIANTS.site}
-        onClose={() => setActiveDialog(null)}
-      />
-      <PwaInstallDialog
-        open={activeDialog === PWA_VARIANTS.checkin}
-        variant={PWA_VARIANTS.checkin}
-        onClose={() => setActiveDialog(null)}
+        onClose={() => setDialogOpen(false)}
       />
     </div>
   );
