@@ -3,8 +3,12 @@ import env from "../config/env.js";
 
 let transporter = null;
 
+export function getMailFromAddress() {
+  return env.email.from || env.email.membershipFrom || "";
+}
+
 export function isMailerConfigured() {
-  return Boolean(env.email.host && env.email.user && env.email.pass && env.email.from);
+  return Boolean(env.email.host && env.email.user && env.email.pass && getMailFromAddress());
 }
 
 function buildTransportOptions() {
@@ -56,7 +60,7 @@ export function logMailConfiguration() {
     return;
   }
   console.log(
-    `[mail] SMTP configured (${env.email.host}:${env.email.port}, secure=${env.email.secure}, from=${env.email.from})`
+    `[mail] SMTP configured (${env.email.host}:${env.email.port}, secure=${env.email.secure}, from=${getMailFromAddress()})`
   );
 }
 

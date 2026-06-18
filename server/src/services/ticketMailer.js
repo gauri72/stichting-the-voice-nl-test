@@ -1,5 +1,5 @@
 import env from "../config/env.js";
-import { getSmtpTransporter, isMailerConfigured } from "./smtpTransport.js";
+import { getMailFromAddress, getSmtpTransporter, isMailerConfigured } from "./smtpTransport.js";
 import { buildTicketQrImageUrl, generateTicketQrPngBuffer } from "./ticketQrService.js";
 
 const WEBSITE_URL = "https://stichtingthevoice.nl";
@@ -259,13 +259,21 @@ export async function sendTicketConfirmationEmail({ order, ticket, event }) {
   const html = buildTicketEmailHtml({ order, ticket, event }, { qrCid: qrAtt?.cid || null });
   const eventTitle = event?.title || "V.O.I.C.E. NL Event";
 
-  await transporter.sendMail({
-    from: env.email.from || env.email.membershipFrom,
-    to: ticket.attendeeEmail,
-    subject: `Your ticket for ${eventTitle} — ${ticket.ticketNumber}`,
-    html,
-    attachments: qrAtt ? [qrAtt] : [],
-  });
+  try {
+    await transporter.sendMail({
+      from: getMailFromAddress(),
+      to: ticket.attendeeEmail,
+      subject: `Your ticket for ${eventTitle} — ${ticket.ticketNumber}`,
+      html,
+      attachments: qrAtt ? [qrAtt] : [],
+    });
+  } catch (error) {
+    console.error(
+      `[tickets] confirmation email failed for ${ticket.ticketNumber} → ${ticket.attendeeEmail}:`,
+      error.message
+    );
+    throw error;
+  }
 
   return { sent: true };
 }

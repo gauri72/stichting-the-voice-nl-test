@@ -1,8 +1,14 @@
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
 export function apiUrl(path) {
+  if (/^https?:\/\//i.test(path)) return path;
   const normalized = path.startsWith("/") ? path : `/${path}`;
-  return API_BASE ? `${API_BASE}${normalized}` : normalized;
+  if (!API_BASE) return normalized;
+  const base = API_BASE.replace(/\/$/, "");
+  if (base.endsWith("/api") && normalized.startsWith("/api/")) {
+    return `${base}${normalized.slice(4)}`;
+  }
+  return `${base}${normalized}`;
 }
 
 export async function apiFetch(path, options = {}) {

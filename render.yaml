@@ -59,6 +59,9 @@ services:
       # so CORS allows requests from the frontend.
       - key: CLIENT_URL
         sync: false
+      # Public API URL for QR verify links in emails/PDFs (e.g. https://voice-nl-api.onrender.com)
+      - key: PUBLIC_API_URL
+        sync: false
 
   # -----------------------------------------------------------------
   # Frontend (Vite static build of the React app)

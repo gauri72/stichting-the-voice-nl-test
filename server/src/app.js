@@ -13,7 +13,12 @@ const walletAssetsDir = path.join(__dirname, "assets", "wallet");
 
 const app = express();
 
-app.use(helmet());
+// Allow QR / PDF assets to load on the separate static frontend host (e.g. Render web + API).
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 app.use(
   cors({
     origin: env.clientUrl

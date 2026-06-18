@@ -13,7 +13,7 @@ import {
   buildOrderSummary,
   formatMoney,
 } from "./ticketPricingService.js";
-import { buildTicketQrImageUrl } from "./ticketQrService.js";
+import { buildTicketQrPath } from "./ticketQrService.js";
 import { sendTicketConfirmationEmail } from "./ticketMailer.js";
 import { createTicketPaymentIntent, confirmTicketPayment } from "./ticketPaymentService.js";
 
@@ -296,7 +296,7 @@ export async function completeOrderPayment(orderId, paymentIntentId) {
         attendeeName,
         attendeeEmail: order.attendeeEmail,
         verificationToken,
-        qrCodeUrl: buildTicketQrImageUrl(verificationToken),
+        qrCodeUrl: buildTicketQrPath(verificationToken),
         pdfUrl: `/api/tickets/${ticketNumber}/pdf`,
         status: "valid",
       });
@@ -364,8 +364,19 @@ export function formatOrder(order) {
   };
 }
 
+function normalizeTicketQrPath(qrCodeUrl, verificationToken) {
+  const match = String(qrCodeUrl || "").match(/\/api\/tickets\/qr\/([^/?\s"]+)\.png/i);
+  if (match?.[1]) return `/api/tickets/qr/${match[1]}.png`;
+  if (verificationToken) return `/api/tickets/qr/${verificationToken}.png`;
+  return "";
+}
+
 export function formatTicket(ticket) {
   if (!ticket) return null;
+  const verificationToken = ticket.verificationToken || "";
+  const pdfFallback = ticket.ticketNumber
+    ? `/api/tickets/${ticket.ticketNumber}/pdf`
+    : "";
   return {
     id: ticket._id?.toString() || ticket.id,
     ticketNumber: ticket.ticketNumber,
@@ -375,8 +386,11 @@ export function formatTicket(ticket) {
     ticketTypeName: ticket.ticketTypeName,
     attendeeName: ticket.attendeeName,
     attendeeEmail: ticket.attendeeEmail,
-    qrCodeUrl: ticket.qrCodeUrl,
-    pdfUrl: ticket.pdfUrl,
+    verificationToken,
+    qrCodeUrl: normalizeTicketQrPath(ticket.qrCodeUrl, verificationToken),
+    pdfUrl: ticket.pdfUrl?.startsWith("/")
+      ? ticket.pdfUrl
+      : pdfFallback || ticket.pdfUrl,
     status: ticket.status,
     checkedIn: ticket.checkedIn,
     checkedInAt: ticket.checkedInAt,

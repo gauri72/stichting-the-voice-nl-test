@@ -11,8 +11,13 @@ export function buildTicketVerifyUrl(verificationToken) {
   return `${env.publicApiUrl}/api/tickets/verify/${verificationToken}`;
 }
 
+/** Same-origin path stored on tickets and used by the React app (via VITE_API_BASE_URL). */
+export function buildTicketQrPath(verificationToken) {
+  return `/api/tickets/qr/${verificationToken}.png`;
+}
+
 export function buildTicketQrImageUrl(verificationToken) {
-  return `${env.publicApiUrl}/api/tickets/qr/${verificationToken}.png`;
+  return `${env.publicApiUrl}${buildTicketQrPath(verificationToken)}`;
 }
 
 export async function generateTicketQrDataUrl(verificationToken) {

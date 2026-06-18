@@ -58,7 +58,9 @@ export default function TicketConfirmationPage() {
 
         <ul className="ticket-booking__confirm-tickets">
           {tickets.map((t) => {
-            const qrSrc = resolveTicketQrSrc(t.qrCodeUrl);
+            const qrSrc = t.verificationToken
+              ? `/api/tickets/qr/${t.verificationToken}.png`
+              : resolveTicketQrSrc(t.qrCodeUrl);
             return (
             <li key={t.id} className="ticket-booking__confirm-ticket">
               <div>
