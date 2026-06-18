@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.png"],
+      includeAssets: ["favicon.png", "pwa/icon-192.png", "pwa/icon-512.png"],
       devOptions: {
         enabled: true,
         type: "module",
@@ -27,16 +27,22 @@ export default defineConfig({
         categories: ["nonprofit", "lifestyle", "events"],
         icons: [
           {
-            src: "/favicon.png",
+            src: "/pwa/icon-192.png",
             sizes: "192x192",
             type: "image/png",
             purpose: "any",
           },
           {
-            src: "/favicon.png",
+            src: "/pwa/icon-512.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "any maskable",
+            purpose: "any",
+          },
+          {
+            src: "/pwa/icon-512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
           },
         ],
         shortcuts: [
@@ -44,19 +50,19 @@ export default defineConfig({
             name: "Events",
             short_name: "Events",
             url: "/events",
-            icons: [{ src: "/favicon.png", sizes: "192x192", type: "image/png" }],
+            icons: [{ src: "/pwa/icon-192.png", sizes: "192x192", type: "image/png" }],
           },
           {
             name: "Membership",
             short_name: "Member",
             url: "/membership",
-            icons: [{ src: "/favicon.png", sizes: "192x192", type: "image/png" }],
+            icons: [{ src: "/pwa/icon-192.png", sizes: "192x192", type: "image/png" }],
           },
           {
             name: "Donate",
             short_name: "Donate",
             url: "/donate",
-            icons: [{ src: "/favicon.png", sizes: "192x192", type: "image/png" }],
+            icons: [{ src: "/pwa/icon-192.png", sizes: "192x192", type: "image/png" }],
           },
         ],
       },

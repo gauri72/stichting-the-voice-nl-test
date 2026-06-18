@@ -1,14 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { IconDownload, IconLogout, IconWifi, IconWifiOff } from "@tabler/icons-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
-import { usePwaInstall } from "../../hooks/usePwaInstall.js";
 import { isStandalonePwa, PWA_VARIANTS } from "../../pwa/manifestConfig.js";
+import PwaInstallDialog from "../pwa/PwaInstallDialog.jsx";
 import "../../styles/checkin-pwa.css";
 
 export default function CheckInPwaShell({ children }) {
   const { admin, logout } = useAdminAuth();
   const navigate = useNavigate();
-  const { canInstall, promptInstall } = usePwaInstall(PWA_VARIANTS.checkin);
+  const [installOpen, setInstallOpen] = useState(false);
   const standalone = isStandalonePwa();
   const online = typeof navigator !== "undefined" ? navigator.onLine : true;
 
@@ -36,8 +37,8 @@ export default function CheckInPwaShell({ children }) {
             {online ? <IconWifi size={18} /> : <IconWifiOff size={18} />}
           </span>
 
-          {canInstall && !standalone ? (
-            <button type="button" className="checkin-pwa-shell__install" onClick={promptInstall}>
+          {!standalone ? (
+            <button type="button" className="checkin-pwa-shell__install" onClick={() => setInstallOpen(true)}>
               <IconDownload size={16} aria-hidden />
               Install
             </button>
@@ -62,6 +63,12 @@ export default function CheckInPwaShell({ children }) {
       ) : null}
 
       <main className="checkin-pwa-shell__main">{children}</main>
+
+      <PwaInstallDialog
+        open={installOpen}
+        variant={PWA_VARIANTS.checkin}
+        onClose={() => setInstallOpen(false)}
+      />
     </div>
   );
 }
