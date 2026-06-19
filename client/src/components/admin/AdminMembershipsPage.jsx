@@ -65,6 +65,35 @@ export default function AdminMembershipsPage() {
   const [editForm, setEditForm] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [checkoutSettings, setCheckoutSettings] = useState(null);
+  const [checkoutSettingsSaving, setCheckoutSettingsSaving] = useState(false);
+
+  const loadCheckoutSettings = useCallback(async () => {
+    try {
+      const data = await apiFetch("/api/admin/memberships/checkout-settings", {
+        headers: adminAuthHeaders(),
+      });
+      setCheckoutSettings(data.settings);
+    } catch {
+      /* optional */
+    }
+  }, []);
+
+  async function saveCheckoutSettings() {
+    setCheckoutSettingsSaving(true);
+    try {
+      const data = await apiFetch("/api/admin/memberships/checkout-settings", {
+        method: "PATCH",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify(checkoutSettings),
+      });
+      setCheckoutSettings(data.settings);
+    } catch (err) {
+      window.alert(err.message || "Could not save checkout settings.");
+    } finally {
+      setCheckoutSettingsSaving(false);
+    }
+  }
 
   const buildParams = useCallback(() => {
     const params = new URLSearchParams();
@@ -97,6 +126,10 @@ export default function AdminMembershipsPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    loadCheckoutSettings();
+  }, [loadCheckoutSettings]);
 
   async function handleIssue(e) {
     e.preventDefault();
@@ -252,6 +285,79 @@ export default function AdminMembershipsPage() {
                 <p className="admin-memberships__stat-label">{s.label}</p>
               </article>
             ))}
+          </section>
+        ) : null}
+
+        {checkoutSettings ? (
+          <section className="admin-memberships__checkout-settings">
+            <h2>Ticket checkout settings</h2>
+            <div className="admin-memberships__checkout-grid">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.allowPurchaseDuringTicketCheckout !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      allowPurchaseDuringTicketCheckout: e.target.checked,
+                    }))
+                  }
+                />
+                Allow membership purchase during ticket checkout
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.allowRenewalDuringTicketCheckout !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      allowRenewalDuringTicketCheckout: e.target.checked,
+                    }))
+                  }
+                />
+                Allow renewal during ticket checkout
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.instantBenefitRules?.applyToCurrentTicketPurchase !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      instantBenefitRules: {
+                        ...s.instantBenefitRules,
+                        applyToCurrentTicketPurchase: e.target.checked,
+                      },
+                    }))
+                  }
+                />
+                Instant benefit applies to current ticket purchase
+              </label>
+              <label>
+                Membership checkout discount (%)
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={checkoutSettings.membershipCheckoutDiscountPercent || 0}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      membershipCheckoutDiscountPercent: Number(e.target.value),
+                    }))
+                  }
+                />
+              </label>
+            </div>
+            <button
+              type="button"
+              className="admin-memberships__primary-btn"
+              disabled={checkoutSettingsSaving}
+              onClick={saveCheckoutSettings}
+            >
+              {checkoutSettingsSaving ? "Saving…" : "Save checkout settings"}
+            </button>
           </section>
         ) : null}
 

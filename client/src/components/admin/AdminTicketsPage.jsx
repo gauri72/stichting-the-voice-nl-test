@@ -151,7 +151,7 @@ export default function AdminTicketsPage() {
         <td>{t.ticketTypeName}</td>
         <td>
           <span className={`admin-tickets__badge admin-tickets__badge--${t.order?.paymentStatus}`}>
-            {t.order?.paymentStatus || "—"}
+            {t.order?.paymentStatus === "free" ? "Free Booking" : (t.order?.paymentStatus || "—")}
           </span>
         </td>
         <td>{t.checkedIn ? "✓ Yes" : "No"}</td>
@@ -261,6 +261,7 @@ export default function AdminTicketsPage() {
           <select value={filters.paymentStatus} onChange={(e) => setFilters((f) => ({ ...f, paymentStatus: e.target.value }))}>
             <option value="">All payments</option>
             <option value="paid">Paid</option>
+            <option value="free">Free booking</option>
             <option value="pending">Pending</option>
             <option value="refunded">Refunded</option>
           </select>

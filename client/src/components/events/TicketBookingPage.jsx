@@ -3,6 +3,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Elements } from "@stripe/react-stripe-js";
 import { IconCalendar, IconMapPin, IconTicket, IconCheck } from "@tabler/icons-react";
 import StripeCheckoutForm from "../payments/StripeCheckoutForm.jsx";
+import MembershipBenefitBanner from "./MembershipBenefitBanner.jsx";
+import MembershipPlanCards from "./MembershipPlanCards.jsx";
+import BookingPricePreview from "./BookingPricePreview.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useTheme } from "../../contexts/ThemeContext.jsx";
 import { apiFetch, authHeaders } from "../../utils/api.js";
@@ -27,6 +30,15 @@ const EMPTY_ATTENDEE = {
   phone: "",
 };
 
+const STEPS = [
+  "Select tickets",
+  "Your details",
+  "Member benefits",
+  "Membership",
+  "Review",
+  "Payment",
+];
+
 export default function TicketBookingPage() {
   const { eventIdOrSlug } = useParams();
   const navigate = useNavigate();
@@ -39,7 +51,7 @@ export default function TicketBookingPage() {
   const [attendee, setAttendee] = useState(EMPTY_ATTENDEE);
   const [voucherCode, setVoucherCode] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [quote, setQuote] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -49,6 +61,16 @@ export default function TicketBookingPage() {
   const [checkoutOrder, setCheckoutOrder] = useState(null);
   const [handlingReturn, setHandlingReturn] = useState(() => isPaymentReturnUrl());
   const checkoutInitRef = useRef(false);
+
+  const [sessionId, setSessionId] = useState("");
+  const [memberDetection, setMemberDetection] = useState(null);
+  const [detectionMessages, setDetectionMessages] = useState(null);
+  const [membershipPlans, setMembershipPlans] = useState([]);
+  const [includeMembership, setIncludeMembership] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState(null);
+  const [purchaseType, setPurchaseType] = useState("NEW");
+  const [applyMemberBenefit, setApplyMemberBenefit] = useState(true);
+  const [detectingMember, setDetectingMember] = useState(false);
 
   const returnPath = `/events/${eventIdOrSlug}/tickets`;
   const payer = useMemo(
@@ -62,7 +84,18 @@ export default function TicketBookingPage() {
     [attendee]
   );
 
-  const amountLabel = quote?.summary?.total || "€0.00";
+  const amountLabel = preview?.combined?.grandTotal || "€0.00";
+
+  const isFreeCheckout = (preview?.combined?.grandTotalMinor ?? 1) <= 0;
+
+  const selectedItems = (event?.ticketTypes || [])
+    .filter((tt) => (quantities[tt.id] || 0) > 0)
+    .map((tt) => ({ ticketTypeId: tt.id, quantity: quantities[tt.id] }));
+
+  const checkoutSettings = event?.checkoutSettings || {};
+  const showMembershipStep =
+    checkoutSettings.enableMembershipUpsell !== false &&
+    checkoutSettings.allowMembershipTicketBundle !== false;
 
   useEffect(() => {
     if (user) {
@@ -81,14 +114,29 @@ export default function TicketBookingPage() {
       setLoading(true);
       setError("");
       try {
-        const data = await apiFetch(`/api/events/${eventIdOrSlug}`);
+        const [eventData, sessionData] = await Promise.all([
+          apiFetch(`/api/events/${eventIdOrSlug}`),
+          apiFetch("/api/checkout/session", { method: "POST" }),
+        ]);
         if (!cancelled) {
-          setEvent(data.event);
+          setEvent(eventData.event);
+          setSessionId(sessionData.sessionId);
           const initial = {};
-          (data.event.ticketTypes || []).forEach((tt) => {
+          (eventData.event.ticketTypes || []).forEach((tt) => {
             initial[tt.id] = 0;
           });
           setQuantities(initial);
+
+          if (eventData.event?.id) {
+            try {
+              const plansData = await apiFetch(
+                `/api/checkout/membership-plans/${eventData.event.id}`
+              );
+              if (!cancelled) setMembershipPlans(plansData.plans || []);
+            } catch {
+              /* plans optional */
+            }
+          }
         }
       } catch (err) {
         if (!cancelled) setError(err.message || "Event not found.");
@@ -100,39 +148,82 @@ export default function TicketBookingPage() {
     return () => { cancelled = true; };
   }, [eventIdOrSlug]);
 
-  const selectedItems = (event?.ticketTypes || [])
-    .filter((tt) => (quantities[tt.id] || 0) > 0)
-    .map((tt) => ({ ticketTypeId: tt.id, quantity: quantities[tt.id] }));
-
-  const refreshQuote = useCallback(async () => {
+  const refreshPreview = useCallback(async (overrides = {}) => {
     if (!selectedItems.length || !event?.id) {
-      setQuote(null);
+      setPreview(null);
       return;
     }
     try {
-      const data = await apiFetch(`/api/events/${event.id}/quote`, {
+      const data = await apiFetch("/api/checkout/calculate-preview", {
         method: "POST",
         headers: authHeaders(),
         body: JSON.stringify({
+          eventId: event.id,
           items: selectedItems,
-          voucherCode: voucherCode || undefined,
-          discountCode: voucherCode || undefined,
           email: attendee.email || undefined,
+          includeMembership: overrides.includeMembership ?? includeMembership,
+          selectedPlanId: overrides.selectedPlanId ?? selectedPlanId,
+          purchaseType: overrides.purchaseType ?? purchaseType,
+          discountCode: voucherCode || undefined,
+          applyMemberBenefit: overrides.applyMemberBenefit ?? applyMemberBenefit,
+          sessionId: sessionId || undefined,
         }),
       });
-      setQuote(data);
+      setPreview(data.preview);
       setError("");
     } catch (err) {
       setError(err.message || "Could not calculate total.");
     }
-  }, [event?.id, selectedItems, voucherCode]);
+  }, [
+    event?.id,
+    selectedItems,
+    attendee.email,
+    includeMembership,
+    selectedPlanId,
+    purchaseType,
+    voucherCode,
+    applyMemberBenefit,
+    sessionId,
+  ]);
+
+  const detectMember = useCallback(async (email) => {
+    if (!email?.trim()) return;
+    setDetectingMember(true);
+    try {
+      const data = await apiFetch("/api/checkout/detect-member-status", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ email, sessionId }),
+      });
+      setMemberDetection(data);
+      setDetectionMessages(data.messages);
+
+      if (
+        data.status === "GUEST_EMAIL_EXPIRED_MEMBER" ||
+        data.status === "LOGGED_IN_EXPIRED_MEMBER"
+      ) {
+        setPurchaseType("RENEWAL");
+        if (data.membership?.planId) setSelectedPlanId(data.membership.planId);
+      }
+    } catch (err) {
+      console.warn("Member detection failed:", err.message);
+    } finally {
+      setDetectingMember(false);
+    }
+  }, [sessionId]);
 
   useEffect(() => {
-    if (step >= 2 && selectedItems.length) {
-      const timer = window.setTimeout(refreshQuote, 300);
+    if (step >= 2 && attendee.email?.includes("@")) {
+      detectMember(attendee.email);
+    }
+  }, [step, attendee.email, user, detectMember]);
+
+  useEffect(() => {
+    if (step >= 4 && selectedItems.length) {
+      const timer = window.setTimeout(refreshPreview, 300);
       return () => window.clearTimeout(timer);
     }
-  }, [step, refreshQuote, selectedItems.length]);
+  }, [step, refreshPreview, selectedItems.length, includeMembership, selectedPlanId, applyMemberBenefit]);
 
   const goToConfirmation = useCallback(
     (orderNumber) => {
@@ -144,11 +235,7 @@ export default function TicketBookingPage() {
 
   const resolveOrderId = useCallback((paymentIntent) => {
     const saved = readCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
-    return (
-      saved?.orderId ||
-      paymentIntent?.metadata?.order_id ||
-      null
-    );
+    return saved?.orderId || paymentIntent?.metadata?.order_id || null;
   }, []);
 
   const finalizeTicketPayment = useCallback(
@@ -189,7 +276,7 @@ export default function TicketBookingPage() {
         onSuccess: finalizeTicketPayment,
         onError: (msg) => {
           setError(msg);
-          setStep(3);
+          setStep(6);
         },
       });
       setHandlingReturn(false);
@@ -207,19 +294,20 @@ export default function TicketBookingPage() {
           code: voucherCode,
           eventId: event.id,
           orderType: "tickets",
-          subtotalMinor: quote?.summary?.subtotalMinor || 0,
+          subtotalMinor: preview?.ticketPricing?.subtotalMinor || 0,
           email: attendee.email,
         }),
       });
       setVoucherMessage("Discount code applied successfully.");
-      refreshQuote();
+      refreshPreview();
     } catch (err) {
       setVoucherMessage(err.message || "Invalid discount code.");
     }
   }
 
   async function initCheckout() {
-    if (!STRIPE_PUBLISHABLE_KEY && (quote?.summary?.totalAmountMinor ?? 1) > 0) {
+    const totalMinor = preview?.combined?.grandTotalMinor ?? 1;
+    if (!STRIPE_PUBLISHABLE_KEY && totalMinor > 0) {
       setError(
         "Stripe is not configured. Add VITE_STRIPE_PUBLISHABLE_KEY to client/.env and STRIPE_SECRET_KEY to server/.env."
       );
@@ -244,6 +332,11 @@ export default function TicketBookingPage() {
           voucherCode: voucherCode || undefined,
           discountCode: voucherCode || undefined,
           termsAccepted,
+          includeMembership,
+          selectedPlanId: includeMembership ? selectedPlanId : undefined,
+          purchaseType: includeMembership ? purchaseType : undefined,
+          applyMemberBenefit,
+          sessionId,
         }),
       });
 
@@ -257,14 +350,7 @@ export default function TicketBookingPage() {
         payer,
       });
 
-      if (
-        checkout.payment?.mode === "free" ||
-        checkout.order.totalAmountMinor === 0
-      ) {
-        await finalizeTicketPayment({
-          id: checkout.payment?.paymentIntentId || null,
-          metadata: { order_id: checkout.order.id },
-        });
+      if (checkout.payment?.mode === "free" || checkout.order.totalAmountMinor === 0) {
         return;
       }
 
@@ -276,7 +362,40 @@ export default function TicketBookingPage() {
       throw new Error(checkout.payment?.message || "Could not start secure checkout.");
     } catch (err) {
       setError(err.message || "Could not start checkout.");
-      setStep(2);
+      setStep(5);
+    } finally {
+      setCheckoutLoading(false);
+    }
+  }
+
+  async function completeFreeBooking() {
+    setCheckoutLoading(true);
+    setError("");
+    try {
+      const result = await apiFetch("/api/checkout/complete-free-order", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          eventId: event.id,
+          items: selectedItems,
+          attendeeFirstName: attendee.firstName,
+          attendeeLastName: attendee.lastName,
+          attendeeEmail: attendee.email,
+          attendeePhone: attendee.phone,
+          voucherCode: voucherCode || undefined,
+          discountCode: voucherCode || undefined,
+          termsAccepted,
+          includeMembership,
+          selectedPlanId: includeMembership ? selectedPlanId : undefined,
+          purchaseType: includeMembership ? purchaseType : undefined,
+          applyMemberBenefit,
+          sessionId,
+        }),
+      });
+      clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
+      goToConfirmation(result.order.orderNumber);
+    } catch (err) {
+      setError(err.message || "We could not complete your free booking. Please try again.");
     } finally {
       setCheckoutLoading(false);
     }
@@ -286,15 +405,15 @@ export default function TicketBookingPage() {
     checkoutInitRef.current = false;
     setClientSecret("");
     setCheckoutOrder(null);
-    setStep(3);
+    setStep(6);
   }
 
   useEffect(() => {
-    if (step !== 3 || clientSecret || checkoutLoading || handlingReturn || checkoutOrder) return;
+    if (isFreeCheckout || step !== 6 || clientSecret || checkoutLoading || handlingReturn || checkoutOrder) return;
     if (checkoutInitRef.current) return;
     checkoutInitRef.current = true;
     initCheckout();
-  }, [step, clientSecret, checkoutLoading, handlingReturn, checkoutOrder]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [step, clientSecret, checkoutLoading, handlingReturn, checkoutOrder, isFreeCheckout]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleStripeSuccess(paymentIntent) {
     const orderId = checkoutOrder?.id || resolveOrderId(paymentIntent);
@@ -307,6 +426,55 @@ export default function TicketBookingPage() {
     } catch (err) {
       setError(err.message || "Payment succeeded but booking confirmation failed.");
     }
+  }
+
+  function handleAddMembership() {
+    setIncludeMembership(true);
+    if (!selectedPlanId && membershipPlans[0]) {
+      setSelectedPlanId(membershipPlans[0].id);
+    }
+    if (
+      memberDetection?.status === "GUEST_EMAIL_EXPIRED_MEMBER" ||
+      memberDetection?.status === "LOGGED_IN_EXPIRED_MEMBER"
+    ) {
+      setPurchaseType("RENEWAL");
+    }
+    setStep(4);
+  }
+
+  function handleTicketsOnly() {
+    setIncludeMembership(false);
+    setSelectedPlanId(null);
+    setApplyMemberBenefit(false);
+    setStep(5);
+  }
+
+  function handleContinueWithoutDiscount() {
+    setApplyMemberBenefit(false);
+    setStep(3);
+  }
+
+  function nextFromDetails() {
+    if (!attendee.firstName || !attendee.lastName || !attendee.email) return;
+    setStep(3);
+  }
+
+  function nextFromBenefits() {
+    if (includeMembership || showMembershipStep) {
+      setStep(4);
+    } else {
+      setStep(5);
+    }
+  }
+
+  function nextFromMembership() {
+    if (includeMembership && !selectedPlanId) {
+      setError("Please select a membership plan.");
+      return;
+    }
+    setError("");
+    refreshPreview();
+    setStep(5);
   }
 
   if (loading) {
@@ -333,6 +501,13 @@ export default function TicketBookingPage() {
     day: "numeric",
   });
 
+  const visibleSteps = showMembershipStep ? STEPS : STEPS.filter((s) => s !== "Membership");
+  const displayStep = showMembershipStep
+    ? step
+    : step > 4
+      ? step - 1
+      : step;
+
   return (
     <div className="ticket-booking">
       {event.heroImage ? (
@@ -353,9 +528,12 @@ export default function TicketBookingPage() {
         </header>
 
         <div className="ticket-booking__steps" aria-label="Booking progress">
-          {["Select tickets", "Your details", "Payment"].map((label, i) => (
-            <span key={label} className={`ticket-booking__step${step === i + 1 ? " ticket-booking__step--active" : ""}${step > i + 1 ? " ticket-booking__step--done" : ""}`}>
-              {step > i + 1 ? <IconCheck size={14} /> : i + 1} {label}
+          {visibleSteps.map((label, i) => (
+            <span
+              key={label}
+              className={`ticket-booking__step${displayStep === i + 1 ? " ticket-booking__step--active" : ""}${displayStep > i + 1 ? " ticket-booking__step--done" : ""}`}
+            >
+              {displayStep > i + 1 ? <IconCheck size={14} /> : i + 1} {label}
             </span>
           ))}
         </div>
@@ -377,15 +555,15 @@ export default function TicketBookingPage() {
                   <label className="ticket-booking__qty-label">
                     <span className="ticket-booking__qty-text">Qty</span>
                     <select
-                    value={quantities[tt.id] || 0}
-                    disabled={tt.status === "sold_out" || tt.available === 0}
-                    onChange={(e) => setQuantities((q) => ({ ...q, [tt.id]: Number(e.target.value) }))}
-                    aria-label={`Quantity for ${tt.name}`}
-                  >
-                    {Array.from({ length: Math.min(tt.maxPerOrder, tt.available) + 1 }, (_, i) => (
-                      <option key={i} value={i}>{i}</option>
-                    ))}
-                  </select>
+                      value={quantities[tt.id] || 0}
+                      disabled={tt.status === "sold_out" || tt.available === 0}
+                      onChange={(e) => setQuantities((q) => ({ ...q, [tt.id]: Number(e.target.value) }))}
+                      aria-label={`Quantity for ${tt.name}`}
+                    >
+                      {Array.from({ length: Math.min(tt.maxPerOrder, tt.available) + 1 }, (_, i) => (
+                        <option key={i} value={i}>{i}</option>
+                      ))}
+                    </select>
                   </label>
                 </li>
               ))}
@@ -403,7 +581,10 @@ export default function TicketBookingPage() {
 
         {step === 2 ? (
           <section className="ticket-booking__card">
-            <h2>Attendee information</h2>
+            <h2>Your details</h2>
+            <p className="ticket-booking__hint">
+              Enter your email so we can check for membership benefits.
+            </p>
             <div className="ticket-booking__form-grid">
               <label>
                 First name *
@@ -415,19 +596,94 @@ export default function TicketBookingPage() {
               </label>
               <label>
                 Email *
-                <input type="email" value={attendee.email} onChange={(e) => setAttendee((a) => ({ ...a, email: e.target.value }))} />
+                <input
+                  type="email"
+                  value={attendee.email}
+                  onChange={(e) => setAttendee((a) => ({ ...a, email: e.target.value }))}
+                  onBlur={() => attendee.email && detectMember(attendee.email)}
+                />
               </label>
               <label>
                 Phone
                 <input type="tel" value={attendee.phone} onChange={(e) => setAttendee((a) => ({ ...a, phone: e.target.value }))} />
               </label>
             </div>
+            {detectingMember ? <p className="ticket-booking__status">Checking membership…</p> : null}
+            <div className="ticket-booking__nav">
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(1)}>Back</button>
+              <button
+                type="button"
+                className="ticket-booking__cta"
+                disabled={!attendee.firstName || !attendee.lastName || !attendee.email}
+                onClick={nextFromDetails}
+              >
+                Continue
+              </button>
+            </div>
+          </section>
+        ) : null}
 
-            {(quote?.membershipDiscountPercent > 0 || quote?.memberDiscountLabel) ? (
-              <p className="ticket-booking__discount-note">
-                {quote.memberDiscountLabel || `Member discount: ${quote.membershipDiscountPercent}% applied automatically`}
+        {step === 3 ? (
+          <section className="ticket-booking__card">
+            <h2>Membership benefit check</h2>
+            <MembershipBenefitBanner
+              detection={memberDetection}
+              messages={detectionMessages}
+              includeMembership={includeMembership}
+              onLogin={() => setApplyMemberBenefit(true)}
+              onContinueWithoutDiscount={handleContinueWithoutDiscount}
+              onAddMembership={handleAddMembership}
+              onTicketsOnly={handleTicketsOnly}
+            />
+            {!memberDetection?.isActive && !includeMembership ? (
+              <p className="ticket-booking__hint">
+                You can continue without membership or add a plan in the next step.
               </p>
             ) : null}
+            <div className="ticket-booking__nav">
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(2)}>Back</button>
+              <button type="button" className="ticket-booking__cta" onClick={nextFromBenefits}>
+                Continue
+              </button>
+            </div>
+          </section>
+        ) : null}
+
+        {step === 4 && showMembershipStep ? (
+          <section className="ticket-booking__card">
+            <h2>Membership add-on</h2>
+            <label className="ticket-booking__toggle">
+              <input
+                type="checkbox"
+                checked={includeMembership}
+                onChange={(e) => {
+                  setIncludeMembership(e.target.checked);
+                  if (!e.target.checked) setSelectedPlanId(null);
+                  else if (!selectedPlanId && membershipPlans[0]) setSelectedPlanId(membershipPlans[0].id);
+                }}
+              />
+              Include membership with this booking
+            </label>
+            {includeMembership ? (
+              <MembershipPlanCards
+                plans={membershipPlans}
+                selectedPlanId={selectedPlanId}
+                purchaseType={purchaseType}
+                onSelect={setSelectedPlanId}
+              />
+            ) : null}
+            <div className="ticket-booking__nav">
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(3)}>Back</button>
+              <button type="button" className="ticket-booking__cta" onClick={nextFromMembership}>
+                Continue to review
+              </button>
+            </div>
+          </section>
+        ) : null}
+
+        {step === 5 ? (
+          <section className="ticket-booking__card">
+            <h2>Review your booking</h2>
 
             <div className="ticket-booking__voucher">
               <input
@@ -438,27 +694,14 @@ export default function TicketBookingPage() {
               <button type="button" onClick={applyVoucher}>Apply</button>
             </div>
             {voucherMessage ? <p className="ticket-booking__voucher-msg">{voucherMessage}</p> : null}
-            {quote?.codeDiscountLabel ? (
-              <p className="ticket-booking__discount-note">{quote.codeDiscountLabel}</p>
+
+            {preview?.membershipBenefitApplied ? (
+              <p className="ticket-booking__discount-note">
+                {preview.memberDiscountLabel || "Member Discount Applied"}
+              </p>
             ) : null}
 
-            {quote?.summary ? (
-              <div className="ticket-booking__summary">
-                <div><span>Subtotal</span><span>{quote.summary.subtotal}</span></div>
-                {quote.summary.membershipDiscountMinor > 0 ? (
-                  <div className="ticket-booking__summary-discount"><span>Member Discount</span><span>-{quote.summary.memberDiscount}</span></div>
-                ) : null}
-                {(quote.summary.voucherDiscountMinor + (quote.summary.personalDiscountMinor || 0)) > 0 ? (
-                  <div className="ticket-booking__summary-discount"><span>Voucher Discount</span><span>-{quote.summary.voucherDiscount}</span></div>
-                ) : null}
-                {quote.summary.referralDiscountMinor > 0 ? (
-                  <div className="ticket-booking__summary-discount"><span>Referral Discount</span><span>-{quote.summary.referralDiscount}</span></div>
-                ) : null}
-                <div><span>Booking fee</span><span>{quote.summary.bookingFee}</span></div>
-                <div><span>VAT (incl.)</span><span>{quote.summary.vat}</span></div>
-                <div className="ticket-booking__summary-total"><span>Total</span><span>{quote.summary.total}</span></div>
-              </div>
-            ) : null}
+            <BookingPricePreview preview={preview} />
 
             <label className="ticket-booking__terms">
               <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
@@ -466,63 +709,97 @@ export default function TicketBookingPage() {
             </label>
 
             <div className="ticket-booking__nav">
-              <button type="button" className="ticket-booking__back" onClick={() => setStep(1)}>Back</button>
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(showMembershipStep ? 4 : 3)}>Back</button>
               <button
                 type="button"
                 className="ticket-booking__cta"
-                disabled={!termsAccepted || !attendee.firstName || !attendee.lastName || !attendee.email}
+                disabled={!termsAccepted || !preview}
                 onClick={goToPaymentStep}
               >
-                Continue to payment
+                {isFreeCheckout ? "Complete free booking" : "Continue to payment"}
               </button>
             </div>
           </section>
         ) : null}
 
-        {step === 3 ? (
+        {step === 6 ? (
           <section className="ticket-booking__card ticket-booking__card--payment">
-            <h2>Secure payment</h2>
-            {quote?.summary ? (
-              <div className="ticket-booking__summary ticket-booking__summary--large">
-                <div className="ticket-booking__summary-total"><span>Total due</span><span>{quote.summary.total}</span></div>
-              </div>
-            ) : null}
-
-            {handlingReturn || checkoutLoading ? (
-              <p className="ticket-booking__status" role="status">
-                {handlingReturn ? "Confirming your payment…" : "Preparing secure checkout…"}
-              </p>
-            ) : null}
-
-            {!STRIPE_PUBLISHABLE_KEY && (quote?.summary?.totalAmountMinor ?? 0) > 0 ? (
-              <p className="ticket-booking__error">
-                Stripe is not configured. Add <code>VITE_STRIPE_PUBLISHABLE_KEY</code> to client/.env and restart.
-              </p>
-            ) : null}
-
-            {clientSecret && STRIPE_PUBLISHABLE_KEY ? (
-              <div className="ticket-booking__stripe">
-                <Elements
-                  key={isDark ? "ticket-stripe-dark" : "ticket-stripe-light"}
-                  stripe={getStripePromise()}
-                  options={{
-                    clientSecret,
-                    appearance: stripeAppearance,
-                    locale: "auto",
-                  }}
+            {isFreeCheckout ? (
+              <>
+                <h2>Secure booking</h2>
+                <p className="ticket-booking__free-note">
+                  Your discount covers the full amount. No payment is required.
+                </p>
+                {preview?.combined ? (
+                  <div className="ticket-booking__summary ticket-booking__summary--large">
+                    <div className="ticket-booking__summary-total">
+                      <span>Total due</span><span>{preview.combined.grandTotal}</span>
+                    </div>
+                    {preview.combined.totalSavingsMinor > 0 ? (
+                      <p className="ticket-booking__savings">{preview.combined.savingsMessage}</p>
+                    ) : (
+                      <p className="ticket-booking__discount-note">Discount applied</p>
+                    )}
+                  </div>
+                ) : null}
+                {preview ? <BookingPricePreview preview={preview} /> : null}
+                <button
+                  type="button"
+                  className="ticket-booking__cta ticket-booking__cta--free"
+                  disabled={checkoutLoading || !termsAccepted}
+                  onClick={completeFreeBooking}
                 >
-                  <StripeCheckoutForm
-                    amountLabel={amountLabel}
-                    payer={payer}
-                    tier={{ id: event.id, name: event.title }}
-                    sessionKey={TICKET_CHECKOUT_SESSION_KEY}
-                    returnPath={returnPath}
-                    onSuccess={handleStripeSuccess}
-                    onError={(msg) => setError(msg)}
-                  />
-                </Elements>
-              </div>
-            ) : null}
+                  {checkoutLoading ? "Completing booking…" : "Complete Free Booking"}
+                </button>
+              </>
+            ) : (
+              <>
+                <h2>Secure payment</h2>
+                {preview?.combined ? (
+                  <div className="ticket-booking__summary ticket-booking__summary--large">
+                    <div className="ticket-booking__summary-total">
+                      <span>Total due</span><span>{preview.combined.grandTotal}</span>
+                    </div>
+                  </div>
+                ) : null}
+
+                {handlingReturn || checkoutLoading ? (
+                  <p className="ticket-booking__status" role="status">
+                    {handlingReturn ? "Confirming your payment…" : "Preparing secure checkout…"}
+                  </p>
+                ) : null}
+
+                {!STRIPE_PUBLISHABLE_KEY && (preview?.combined?.grandTotalMinor ?? 0) > 0 ? (
+                  <p className="ticket-booking__error">
+                    Stripe is not configured. Add <code>VITE_STRIPE_PUBLISHABLE_KEY</code> to client/.env and restart.
+                  </p>
+                ) : null}
+
+                {clientSecret && STRIPE_PUBLISHABLE_KEY ? (
+                  <div className="ticket-booking__stripe">
+                    <Elements
+                      key={isDark ? "ticket-stripe-dark" : "ticket-stripe-light"}
+                      stripe={getStripePromise()}
+                      options={{
+                        clientSecret,
+                        appearance: stripeAppearance,
+                        locale: "auto",
+                      }}
+                    >
+                      <StripeCheckoutForm
+                        amountLabel={amountLabel}
+                        payer={payer}
+                        tier={{ id: event.id, name: event.title }}
+                        sessionKey={TICKET_CHECKOUT_SESSION_KEY}
+                        returnPath={returnPath}
+                        onSuccess={handleStripeSuccess}
+                        onError={(msg) => setError(msg)}
+                      />
+                    </Elements>
+                  </div>
+                ) : null}
+              </>
+            )}
 
             <div className="ticket-booking__nav">
               <button
@@ -532,7 +809,8 @@ export default function TicketBookingPage() {
                 onClick={() => {
                   setClientSecret("");
                   setCheckoutOrder(null);
-                  setStep(2);
+                  checkoutInitRef.current = false;
+                  setStep(5);
                 }}
               >
                 Back

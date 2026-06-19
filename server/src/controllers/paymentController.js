@@ -104,6 +104,19 @@ async function handleSucceededPayment(intent) {
   const meta = intent.metadata || {};
   const paymentMethod = describePaymentMethod(intent);
 
+  if (meta.payment_kind === "event_ticket" || meta.payment_kind === "ticket_and_membership") {
+    const orderId = meta.order_id;
+    if (orderId) {
+      try {
+        const { fulfillOrder } = await import("../services/postPaymentFulfillmentService.js");
+        await fulfillOrder(orderId, intent.id);
+      } catch (error) {
+        console.error("[payments] Ticket bundle fulfillment failed:", error.message);
+      }
+    }
+    return;
+  }
+
   if (meta.payment_kind === "membership") {
     try {
       const result = await provisionMembershipFromPayment({

@@ -3,6 +3,7 @@ import TicketOrder from "../models/TicketOrder.js";
 import TicketType from "../models/TicketType.js";
 import Event from "../models/Event.js";
 import { formatOrder, formatTicket } from "./ticketOrderService.js";
+import { isOrderPaymentSettled } from "../utils/orderPaymentUtils.js";
 import { formatMoney } from "./ticketPricingService.js";
 import { sendTicketConfirmationEmail } from "./ticketMailer.js";
 
@@ -89,7 +90,7 @@ export async function listAdminTickets(filters = {}) {
 export async function getTicketStats() {
   const [soldTickets, paidOrders, checkedIn, refunded, revenueAgg, capacityAgg] = await Promise.all([
     Ticket.countDocuments({ status: "valid" }),
-    TicketOrder.countDocuments({ paymentStatus: "paid" }),
+    TicketOrder.countDocuments({ paymentStatus: { $in: ["paid", "free"] } }),
     Ticket.countDocuments({ checkedIn: true, status: "valid" }),
     Ticket.countDocuments({ status: "refunded" }),
     TicketOrder.aggregate([
@@ -174,7 +175,7 @@ export async function checkInTicket(verificationToken, adminId) {
     Event.findById(ticket.eventId).lean(),
   ]);
 
-  if (!order || order.paymentStatus !== "paid") {
+  if (!order || !isOrderPaymentSettled(order.paymentStatus)) {
     const err = new Error("Payment not confirmed for this ticket.");
     err.status = 400;
     throw err;
@@ -210,7 +211,7 @@ export async function resendTicketEmail(ticketId) {
     TicketOrder.findById(ticket.orderId),
     Event.findById(ticket.eventId).lean(),
   ]);
-  if (!order || order.paymentStatus !== "paid") {
+  if (!order || !isOrderPaymentSettled(order.paymentStatus)) {
     const err = new Error("Cannot resend email for unpaid ticket.");
     err.status = 400;
     throw err;

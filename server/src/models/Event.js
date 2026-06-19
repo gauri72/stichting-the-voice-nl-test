@@ -16,6 +16,18 @@ const eventSchema = new mongoose.Schema(
     showOnDashboard: { type: Boolean, default: true, index: true },
     membershipIncluded: { type: Boolean, default: false },
     membershipDiscountEligible: { type: Boolean, default: true },
+    checkoutSettings: {
+      enableMemberDiscount: { type: Boolean, default: true },
+      enableMembershipUpsell: { type: Boolean, default: true },
+      allowInstantMembershipBenefit: { type: Boolean, default: true },
+      allowMembershipTicketBundle: { type: Boolean, default: true },
+      eligibleMembershipTypes: {
+        type: [String],
+        default: () => ["student", "privilegedSingle", "privilegedFamily", "premiumSingle", "premiumFamily"],
+      },
+      allowDiscountStacking: { type: Boolean, default: true },
+      showPriceComparisonPreview: { type: Boolean, default: true },
+    },
     category: { type: String, default: "Experience", trim: true, maxlength: 80 },
     archived: { type: Boolean, default: false, index: true },
     status: {

@@ -31,6 +31,9 @@ import FinanceTransaction from "../models/FinanceTransaction.js";
 import AuditReport from "../models/AuditReport.js";
 import FinanceAuditLog from "../models/FinanceAuditLog.js";
 import FinanceSettings from "../models/FinanceSettings.js";
+import CheckoutSession from "../models/CheckoutSession.js";
+import CheckoutAuditLog from "../models/CheckoutAuditLog.js";
+import MembershipCheckoutSettings from "../models/MembershipCheckoutSettings.js";
 
 /**
  * Every model maps to exactly one explicitly-named collection in the active
@@ -73,6 +76,9 @@ const MODELS = [
   ["audit_reports", AuditReport],
   ["finance_audit_logs", FinanceAuditLog],
   ["finance_settings", FinanceSettings],
+  ["checkout_sessions", CheckoutSession],
+  ["checkout_audit_logs", CheckoutAuditLog],
+  ["membership_checkout_settings", MembershipCheckoutSettings],
 ];
 
 export async function ensureIndexes() {

@@ -13,10 +13,16 @@ import {
   regenerateMembershipQr,
   downloadMembershipCard,
 } from "../controllers/adminMembershipController.js";
+import {
+  getMembershipCheckoutSettingsHandler,
+  updateMembershipCheckoutSettingsHandler,
+} from "../controllers/checkoutBundleController.js";
 
 const router = Router();
 
 router.get("/stats", membershipStats);
+router.get("/checkout-settings", getMembershipCheckoutSettingsHandler);
+router.patch("/checkout-settings", updateMembershipCheckoutSettingsHandler);
 router.get("/export", exportMemberships);
 router.get("/", listMemberships);
 router.get("/:id/download-card", downloadMembershipCard);

@@ -43,6 +43,21 @@ export function formatEvent(event, ticketTypes = []) {
     showOnDashboard: event.showOnDashboard !== false,
     membershipIncluded: Boolean(event.membershipIncluded),
     membershipDiscountEligible: event.membershipDiscountEligible !== false,
+    checkoutSettings: event.checkoutSettings || {
+      enableMemberDiscount: true,
+      enableMembershipUpsell: true,
+      allowInstantMembershipBenefit: true,
+      allowMembershipTicketBundle: true,
+      eligibleMembershipTypes: [
+        "student",
+        "privilegedSingle",
+        "privilegedFamily",
+        "premiumSingle",
+        "premiumFamily",
+      ],
+      allowDiscountStacking: true,
+      showPriceComparisonPreview: true,
+    },
     category: event.category || "Experience",
     archived: Boolean(event.archived),
     status: event.status,
@@ -233,6 +248,7 @@ export async function updateEvent(eventId, payload) {
     "showOnDashboard",
     "membershipIncluded",
     "membershipDiscountEligible",
+    "checkoutSettings",
     "category",
     "archived",
     "status",
@@ -251,6 +267,9 @@ export async function updateEvent(eventId, payload) {
         key === "archived"
       ) {
         event[key] = Boolean(payload[key]);
+      } else if (key === "checkoutSettings" && payload.checkoutSettings) {
+        const current = event.checkoutSettings?.toObject?.() || event.checkoutSettings || {};
+        event.checkoutSettings = { ...current, ...payload.checkoutSettings };
       } else if (key === "status") event.status = payload[key];
       else event[key] = String(payload[key] ?? "").trim();
     }

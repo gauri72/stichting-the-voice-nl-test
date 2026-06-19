@@ -22,6 +22,7 @@ import {
   markCheckedIn,
   markRefunded,
 } from "../controllers/ticketAdminController.js";
+import { updateEventMembershipSettings } from "../controllers/checkoutBundleController.js";
 
 const router = Router();
 
@@ -45,6 +46,7 @@ router.delete("/vouchers/:id", deleteVoucher);
 router.get("/", listEvents);
 router.post("/", createEvent);
 router.get("/:id", getEvent);
+router.patch("/:id/membership-discount-settings", updateEventMembershipSettings);
 router.put("/:id", updateEvent);
 router.post("/:id/publish", publishEvent);
 router.post("/:id/draft", saveDraft);

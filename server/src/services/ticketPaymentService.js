@@ -10,6 +10,9 @@ export async function createTicketPaymentIntent({
   orderNumber,
   amountMinor,
   eventTitle,
+  orderType = "TICKET_ONLY",
+  includeMembership = false,
+  membershipPlanId = "",
 }) {
   if (amountMinor <= 0) {
     return {
@@ -27,14 +30,19 @@ export async function createTicketPaymentIntent({
   }
 
   const stripe = getStripe();
+  const paymentKind =
+    orderType === "TICKET_AND_MEMBERSHIP" ? "ticket_and_membership" : "event_ticket";
+
   const intent = await stripe.paymentIntents.create({
     amount: amountMinor,
     currency: env.stripe.currency,
     metadata: {
-      payment_kind: "event_ticket",
+      payment_kind: paymentKind,
       order_id: orderId,
       order_number: orderNumber,
       event_title: eventTitle || "",
+      include_membership: includeMembership ? "true" : "false",
+      membership_plan_id: membershipPlanId || "",
     },
     automatic_payment_methods: { enabled: true },
   });

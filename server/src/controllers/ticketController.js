@@ -130,7 +130,7 @@ export async function verifyTicket(req, res) {
     }
 
     return res.status(200).json({
-      valid: ticket.status === "valid" && order?.paymentStatus === "paid",
+      valid: ticket.status === "valid" && (order?.paymentStatus === "paid" || order?.paymentStatus === "free"),
       checkedIn: ticket.checkedIn,
       ticket: formatTicket(ticket),
       order: order ? formatOrder(order) : null,

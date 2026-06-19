@@ -1,33 +1,12 @@
 import TicketOrder from "../models/TicketOrder.js";
 import Ticket from "../models/Ticket.js";
-import TicketType from "../models/TicketType.js";
-import DiscountRule from "../models/DiscountRule.js";
-import Event from "../models/Event.js";
-import { getNextSequence } from "../utils/sequence.js";
-import { getPublishedEventBySlugOrId, generateVerificationToken } from "./eventService.js";
+import { getPublishedEventBySlugOrId } from "./eventService.js";
 import {
-  validateVoucher,
-  applyVoucherDiscount,
   buildOrderSummary,
   formatMoney,
   applyDiscountsToOrder,
 } from "./ticketPricingService.js";
-import { recordDiscountUsage } from "./discountService.js";
-import { buildTicketQrPath } from "./ticketQrService.js";
-import { sendTicketConfirmationEmail } from "./ticketMailer.js";
-import { createTicketPaymentIntent, confirmTicketPayment } from "./ticketPaymentService.js";
-
-async function buildOrderNumber() {
-  const seq = await getNextSequence("ticket_order");
-  const year = new Date().getFullYear();
-  return `VOICE-${year}-${String(seq).padStart(6, "0")}`;
-}
-
-async function buildTicketNumber() {
-  const seq = await getNextSequence("ticket");
-  const year = new Date().getFullYear();
-  return `TKT-${year}-${String(seq).padStart(6, "0")}`;
-}
+import { confirmTicketPayment } from "./ticketPaymentService.js";
 
 export async function quoteOrder(eventId, { items, voucherCode, discountCode, userId, email }) {
   const event = await getPublishedEventBySlugOrId(eventId);
@@ -139,82 +118,8 @@ export async function quoteOrder(eventId, { items, voucherCode, discountCode, us
 }
 
 export async function createCheckout(eventId, payload, userId) {
-  const {
-    items,
-    attendeeFirstName,
-    attendeeLastName,
-    attendeeEmail,
-    attendeePhone,
-    voucherCode,
-    discountCode,
-    termsAccepted,
-  } = payload;
-
-  const code = discountCode || voucherCode;
-
-  if (!attendeeFirstName?.trim() || !attendeeLastName?.trim() || !attendeeEmail?.trim()) {
-    const err = new Error("Attendee first name, last name, and email are required.");
-    err.status = 400;
-    throw err;
-  }
-  if (!termsAccepted) {
-    const err = new Error("You must accept the terms and conditions.");
-    err.status = 400;
-    throw err;
-  }
-
-  const quote = await quoteOrder(eventId, {
-    items,
-    voucherCode: code,
-    discountCode: code,
-    userId,
-    email: attendeeEmail?.trim().toLowerCase(),
-  });
-  const orderNumber = await buildOrderNumber();
-
-  const order = await TicketOrder.create({
-    orderNumber,
-    userId: userId || null,
-    eventId: quote.event.id,
-    attendeeFirstName: attendeeFirstName.trim(),
-    attendeeLastName: attendeeLastName.trim(),
-    attendeeEmail: attendeeEmail.trim().toLowerCase(),
-    attendeePhone: String(attendeePhone || "").trim(),
-    lineItems: quote.lineItems,
-    subtotalMinor: quote.summary.subtotalMinor,
-    discountAmountMinor: quote.summary.discountAmountMinor,
-    membershipDiscountMinor: quote.summary.membershipDiscountMinor,
-    voucherDiscountMinor: quote.summary.voucherDiscountMinor + quote.summary.personalDiscountMinor,
-    referralDiscountMinor: quote.summary.referralDiscountMinor,
-    personalDiscountMinor: quote.summary.personalDiscountMinor,
-    bookingFeeMinor: quote.summary.bookingFeeMinor,
-    vatAmountMinor: quote.summary.vatAmountMinor,
-    totalAmountMinor: quote.summary.totalAmountMinor,
-    voucherCode: quote.voucherCode,
-    discountCode: quote.discountCode,
-    referralCode: quote.referralCode,
-    discountRuleId: quote.discountResult?.codeRule?.id || quote.discountResult?.codeRule?._id || null,
-    memberDiscountRuleId: quote.discountResult?.memberRule?.id || quote.discountResult?.memberRule?._id || null,
-    membershipDiscountPercent: quote.membershipDiscountPercent,
-    paymentStatus: "pending",
-    termsAccepted: true,
-  });
-
-  const payment = await createTicketPaymentIntent({
-    orderId: order._id.toString(),
-    orderNumber: order.orderNumber,
-    amountMinor: order.totalAmountMinor,
-    eventTitle: quote.event.title,
-  });
-
-  order.paymentIntentId = payment.paymentIntentId;
-  await order.save();
-
-  return {
-    order: formatOrder(order),
-    payment,
-    summary: quote.summary,
-  };
+  const { createBundleCheckout } = await import("./checkoutBundleService.js");
+  return createBundleCheckout(eventId, payload, userId);
 }
 
 export async function completeOrderPaymentByIntent(paymentIntentId) {
@@ -247,160 +152,10 @@ export async function completeOrderPaymentByIntent(paymentIntentId) {
 }
 
 export async function completeOrderPayment(orderId, paymentIntentId) {
-  const existingTickets = await Ticket.find({ orderId }).sort({ createdAt: 1 }).lean();
-  if (existingTickets.length > 0) {
-    const order = await TicketOrder.findById(orderId);
-    if (!order) {
-      const err = new Error("Order not found.");
-      err.status = 404;
-      throw err;
-    }
-    if (order.paymentStatus !== "paid") {
-      order.paymentStatus = "paid";
-      await order.save();
-    }
-    return {
-      order: formatOrder(order),
-      tickets: existingTickets.map(formatTicket),
-      alreadyPaid: true,
-    };
-  }
-
-  const order = await TicketOrder.findOneAndUpdate(
-    { _id: orderId, paymentStatus: { $in: ["pending", "failed"] } },
-    { $set: { paymentStatus: "processing" } },
-    { new: true }
-  );
-
-  if (!order) {
-    const settled = await TicketOrder.findById(orderId);
-    if (!settled) {
-      const err = new Error("Order not found.");
-      err.status = 404;
-      throw err;
-    }
-    if (settled.paymentStatus === "paid") {
-      const tickets = await Ticket.find({ orderId: settled._id }).lean();
-      return {
-        order: formatOrder(settled),
-        tickets: tickets.map(formatTicket),
-        alreadyPaid: true,
-      };
-    }
-    const err = new Error("This order is already being processed. Please wait a moment.");
-    err.status = 409;
-    throw err;
-  }
-
-  const confirmed = await confirmTicketPayment(paymentIntentId || order.paymentIntentId);
-  if (!confirmed.success) {
-    order.paymentStatus = "failed";
-    await order.save();
-    const err = new Error(confirmed.error || "Payment failed.");
-    err.status = 400;
-    throw err;
-  }
-
-  const event = await Event.findById(order.eventId).lean();
-  const tickets = [];
-
-  for (const line of order.lineItems) {
-    const tt = await TicketType.findById(line.ticketTypeId);
-    if (!tt) continue;
-
-    const available = tt.capacity - (tt.soldCount || 0);
-    if (available < line.quantity) {
-      order.paymentStatus = "failed";
-      await order.save();
-      const err = new Error(`Not enough tickets available for ${line.ticketTypeName}.`);
-      err.status = 400;
-      throw err;
-    }
-
-    for (let i = 0; i < line.quantity; i += 1) {
-      const verificationToken = generateVerificationToken();
-      const ticketNumber = await buildTicketNumber();
-      const attendeeName = `${order.attendeeFirstName} ${order.attendeeLastName}`.trim();
-
-      const ticket = await Ticket.create({
-        ticketNumber,
-        orderId: order._id,
-        eventId: order.eventId,
-        ticketTypeId: line.ticketTypeId,
-        ticketTypeName: line.ticketTypeName,
-        attendeeName,
-        attendeeEmail: order.attendeeEmail,
-        verificationToken,
-        qrCodeUrl: buildTicketQrPath(verificationToken),
-        pdfUrl: `/api/tickets/${ticketNumber}/pdf`,
-        status: "valid",
-      });
-      tickets.push(ticket);
-    }
-
-    tt.soldCount = (tt.soldCount || 0) + line.quantity;
-    if (tt.soldCount >= tt.capacity) tt.status = "sold_out";
-    await tt.save();
-  }
-
-  if (order.voucherCode) {
-    await Voucher.findOneAndUpdate(
-      { code: order.voucherCode.toUpperCase() },
-      { $inc: { usedCount: 1 } }
-    );
-  }
-
-  if (order.memberDiscountRuleId && order.membershipDiscountMinor > 0) {
-    const memberRule = await DiscountRule.findById(order.memberDiscountRuleId).lean();
-    if (memberRule) {
-      await recordDiscountUsage({
-        discountRule: { ...memberRule, id: memberRule._id.toString() },
-        userId: order.userId,
-        userEmail: order.attendeeEmail,
-        orderId: order.orderNumber,
-        eventId: order.eventId,
-        subtotalBeforeDiscount: order.subtotalMinor,
-        discountAmount: order.membershipDiscountMinor,
-        totalAfterDiscount: order.totalAmountMinor,
-      }).catch((err) => console.error("[discounts] member usage record failed:", err.message));
-    }
-  }
-
-  if (order.discountRuleId && (order.voucherDiscountMinor + order.referralDiscountMinor + order.personalDiscountMinor) > 0) {
-    const codeRule = await DiscountRule.findById(order.discountRuleId).lean();
-    if (codeRule) {
-      await recordDiscountUsage({
-        discountRule: { ...codeRule, id: codeRule._id.toString() },
-        userId: order.userId,
-        userEmail: order.attendeeEmail,
-        orderId: order.orderNumber,
-        eventId: order.eventId,
-        subtotalBeforeDiscount: order.subtotalMinor - order.membershipDiscountMinor,
-        discountAmount: order.voucherDiscountMinor + order.referralDiscountMinor + order.personalDiscountMinor,
-        totalAfterDiscount: order.totalAmountMinor,
-      }).catch((err) => console.error("[discounts] code usage record failed:", err.message));
-    }
-  }
-
-  order.paymentStatus = "paid";
-  await order.save();
-
-  for (const ticket of tickets) {
-    try {
-      await sendTicketConfirmationEmail({
-        order,
-        ticket,
-        event,
-      });
-    } catch (err) {
-      console.error("[tickets] confirmation email failed:", err.message);
-    }
-  }
-
-  return {
-    order: formatOrder(order),
-    tickets: tickets.map(formatTicket),
-  };
+  const { fulfillOrder } = await import("./postPaymentFulfillmentService.js");
+  const order = await TicketOrder.findById(orderId).select("totalAmountMinor").lean();
+  const isFreeOrder = !order || order.totalAmountMinor <= 0;
+  return fulfillOrder(orderId, paymentIntentId, { isFreeOrder });
 }
 
 export function formatOrder(order) {
@@ -408,6 +163,7 @@ export function formatOrder(order) {
   return {
     id: order._id?.toString() || order.id,
     orderNumber: order.orderNumber,
+    orderType: order.orderType || "TICKET_ONLY",
     userId: order.userId?.toString?.() || order.userId || null,
     eventId: order.eventId?.toString?.() || order.eventId,
     attendeeFirstName: order.attendeeFirstName,
@@ -416,18 +172,26 @@ export function formatOrder(order) {
     attendeePhone: order.attendeePhone,
     attendeeName: `${order.attendeeFirstName} ${order.attendeeLastName}`.trim(),
     lineItems: order.lineItems,
+    membershipItems: order.membershipItems || [],
+    appliedDiscounts: order.appliedDiscounts || [],
+    memberStatusAtCheckout: order.memberStatusAtCheckout || "",
+    membershipBenefitApplied: Boolean(order.membershipBenefitApplied),
+    totalSavingsMinor: order.totalSavingsMinor || 0,
     subtotalMinor: order.subtotalMinor,
     discountAmountMinor: order.discountAmountMinor,
     bookingFeeMinor: order.bookingFeeMinor,
     vatAmountMinor: order.vatAmountMinor,
     totalAmountMinor: order.totalAmountMinor,
     paymentStatus: order.paymentStatus,
+    orderStatus: order.orderStatus || "PENDING",
+    isFreeBooking: order.paymentStatus === "free" || order.totalAmountMinor <= 0,
     createdAt: order.createdAt,
     subtotal: formatMoney(order.subtotalMinor),
     discount: formatMoney(order.discountAmountMinor),
     bookingFee: formatMoney(order.bookingFeeMinor),
     vat: formatMoney(order.vatAmountMinor),
     total: formatMoney(order.totalAmountMinor),
+    totalSavings: formatMoney(order.totalSavingsMinor || 0),
   };
 }
 
@@ -466,14 +230,14 @@ export function formatTicket(ticket) {
 }
 
 export async function getUserOrders(userId) {
-  const orders = await TicketOrder.find({ userId, paymentStatus: "paid" })
+  const orders = await TicketOrder.find({ userId, paymentStatus: { $in: ["paid", "free"] } })
     .sort({ createdAt: -1 })
     .lean();
   return orders.map(formatOrder);
 }
 
 export async function getUserTickets(userId) {
-  const orders = await TicketOrder.find({ userId, paymentStatus: "paid" }).select("_id").lean();
+  const orders = await TicketOrder.find({ userId, paymentStatus: { $in: ["paid", "free"] } }).select("_id").lean();
   const orderIds = orders.map((o) => o._id);
   const tickets = await Ticket.find({ orderId: { $in: orderIds } })
     .sort({ createdAt: -1 })

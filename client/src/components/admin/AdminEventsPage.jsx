@@ -45,6 +45,14 @@ const EMPTY_EVENT = {
   showOnDashboard: true,
   membershipIncluded: false,
   membershipDiscountEligible: true,
+  checkoutSettings: {
+    enableMemberDiscount: true,
+    enableMembershipUpsell: true,
+    allowInstantMembershipBenefit: true,
+    allowMembershipTicketBundle: true,
+    allowDiscountStacking: true,
+    showPriceComparisonPreview: true,
+  },
   category: "Experience",
   ticketTypes: [
     { ...EMPTY_TICKET, name: "Early Bird", description: "Limited early access pricing", price: "29" },
@@ -100,6 +108,14 @@ function toFormEvent(event) {
     showOnDashboard: event.showOnDashboard !== false,
     membershipIncluded: Boolean(event.membershipIncluded),
     membershipDiscountEligible: event.membershipDiscountEligible !== false,
+    checkoutSettings: {
+      enableMemberDiscount: event.checkoutSettings?.enableMemberDiscount !== false,
+      enableMembershipUpsell: event.checkoutSettings?.enableMembershipUpsell !== false,
+      allowInstantMembershipBenefit: event.checkoutSettings?.allowInstantMembershipBenefit !== false,
+      allowMembershipTicketBundle: event.checkoutSettings?.allowMembershipTicketBundle !== false,
+      allowDiscountStacking: event.checkoutSettings?.allowDiscountStacking !== false,
+      showPriceComparisonPreview: event.checkoutSettings?.showPriceComparisonPreview !== false,
+    },
     category: event.category || "Experience",
     ticketTypes: (event.ticketTypes || []).map((tt) => ({
       id: tt.id,
@@ -131,6 +147,7 @@ function toPayload(form, status) {
     showOnDashboard: form.showOnDashboard,
     membershipIncluded: form.membershipIncluded,
     membershipDiscountEligible: form.membershipDiscountEligible,
+    checkoutSettings: form.checkoutSettings,
     category: form.category?.trim() || "Experience",
     status,
     ticketTypes: form.ticketTypes.map((tt, i) => ({
@@ -819,6 +836,32 @@ export default function AdminEventsPage() {
                   <span className="admin-events__toggle-track" />
                   <span>Membership Discount Eligible</span>
                 </label>
+              </div>
+              <div className="admin-events__dashboard-settings">
+                <h3 className="admin-events__settings-title">Ticket Checkout Settings</h3>
+                {[
+                  ["enableMemberDiscount", "Enable Member Discount"],
+                  ["enableMembershipUpsell", "Enable Membership Upsell"],
+                  ["allowInstantMembershipBenefit", "Allow Instant Membership Benefit"],
+                  ["allowMembershipTicketBundle", "Allow Membership + Ticket Bundle"],
+                  ["allowDiscountStacking", "Allow Discount Stacking"],
+                  ["showPriceComparisonPreview", "Show Price Comparison Preview"],
+                ].map(([key, label]) => (
+                  <label key={key} className="admin-events__toggle">
+                    <input
+                      type="checkbox"
+                      checked={form.checkoutSettings?.[key] !== false}
+                      onChange={(e) =>
+                        updateField("checkoutSettings", {
+                          ...form.checkoutSettings,
+                          [key]: e.target.checked,
+                        })
+                      }
+                    />
+                    <span className="admin-events__toggle-track" />
+                    <span>{label}</span>
+                  </label>
+                ))}
               </div>
             </div>
           </section>

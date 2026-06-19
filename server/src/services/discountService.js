@@ -54,16 +54,16 @@ export async function getActiveMembership(userId) {
 
   const member = await Member.findOne({
     userId,
-    status: "active",
-    endDate: { $gt: new Date() },
+    membershipStatus: "active",
+    expiryDate: { $gt: new Date() },
   })
-    .sort({ endDate: -1 })
+    .sort({ expiryDate: -1 })
     .lean();
 
   if (member) {
     return {
-      planId: member.membershipType || member.planId,
-      endsAt: member.endDate,
+      planId: member.planId || member.membershipType,
+      endsAt: member.expiryDate,
       active: true,
     };
   }
@@ -74,13 +74,18 @@ export async function getActiveMembership(userId) {
 export async function getAutomaticMemberDiscount(userId, eventId, orderType = "tickets") {
   const membership = await getActiveMembership(userId);
   if (!membership) return null;
+  return getAutomaticMemberDiscountForPlan(resolvePlanId(membership.planId), eventId, orderType);
+}
 
-  const planId = resolvePlanId(membership.planId);
+export async function getAutomaticMemberDiscountForPlan(planId, eventId, orderType = "tickets") {
+  if (!planId) return null;
+
+  const resolvedPlanId = resolvePlanId(planId);
 
   const rules = await DiscountRule.find({
     type: "automatic_member",
     status: "active",
-    eligibleMembershipTypes: planId,
+    eligibleMembershipTypes: resolvedPlanId,
   }).lean();
 
   const rule = rules.find((r) => isRuleActive(r) && appliesToOrderType(r, orderType) && appliesToEvent(r, eventId));
@@ -89,7 +94,7 @@ export async function getAutomaticMemberDiscount(userId, eventId, orderType = "t
   return {
     ...rule,
     id: rule._id.toString(),
-    membershipPlanId: planId,
+    membershipPlanId: resolvedPlanId,
     label: "Member Discount Applied",
   };
 }
@@ -397,13 +402,31 @@ export async function applyDiscountsToOrder({
   subtotalMinor,
   discountCode,
   voucherCode,
+  memberPlanId = null,
+  allowStacking = true,
 }) {
   const code = discountCode || voucherCode;
-  const memberRule = await getAutomaticMemberDiscount(userId, eventId, orderType);
+  let memberRule = null;
+
+  if (memberPlanId) {
+    memberRule = await getAutomaticMemberDiscountForPlan(memberPlanId, eventId, orderType);
+  } else if (userId) {
+    memberRule = await getAutomaticMemberDiscount(userId, eventId, orderType);
+  }
 
   let codeRule = null;
   if (code?.trim()) {
     codeRule = await validateDiscountCode(code, userId, email, eventId, orderType, subtotalMinor);
+  }
+
+  if (!allowStacking && memberRule && codeRule) {
+    const memberOnly = resolveStackedDiscounts({ subtotalMinor, memberRule, codeRule: null, orderType });
+    const codeOnly = resolveStackedDiscounts({ subtotalMinor, memberRule: null, codeRule, orderType });
+    if (codeOnly.discountAmountMinor > memberOnly.discountAmountMinor) {
+      memberRule = null;
+    } else {
+      codeRule = null;
+    }
   }
 
   return resolveStackedDiscounts({

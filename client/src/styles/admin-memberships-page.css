@@ -13,6 +13,41 @@
   margin-bottom: 20px;
 }
 
+.admin-memberships__checkout-settings {
+  background: var(--ad-card, #0d111c);
+  border: 1px solid rgba(62, 207, 154, 0.15);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.admin-memberships__checkout-settings h2 {
+  margin: 0 0 14px;
+  font-size: 1rem;
+}
+
+.admin-memberships__checkout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.admin-memberships__checkout-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.admin-memberships__checkout-grid input[type="number"] {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+}
+
 .admin-memberships__stat {
   background: var(--ad-card, #0d111c);
   border: 1px solid rgba(62, 207, 154, 0.15);

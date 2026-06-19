@@ -42,6 +42,9 @@ export default function TicketConfirmationPage() {
       <div className="ticket-booking__container">
         <div className="ticket-booking__success-icon"><IconCheck size={48} /></div>
         <h1>Booking confirmed!</h1>
+        {order.isFreeBooking || order.paymentStatus === "free" ? (
+          <p className="ticket-booking__free-badge">Free booking — no payment required</p>
+        ) : null}
         <p>Order <strong>{order.orderNumber}</strong> · {order.total}</p>
         {order.lineItems?.length ? (
           <ul className="ticket-booking__confirm-lines">

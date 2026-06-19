@@ -68,7 +68,7 @@ function isPrivilegedPlan(planId) {
 }
 
 export function resolveBookingStatus(orders, tickets) {
-  const paidOrders = (orders || []).filter((o) => o.paymentStatus === "paid");
+  const paidOrders = (orders || []).filter((o) => o.paymentStatus === "paid" || o.paymentStatus === "free");
   if (!paidOrders.length) return "NOT_BOOKED";
 
   const eventTickets = tickets || [];
@@ -251,7 +251,7 @@ export async function getDashboardEventsForUser(userId) {
     if (!isEventExpired(event, now)) continue;
     const eventId = event._id.toString();
     const tickets = ticketsByEvent.get(eventId) || [];
-    const orders = (ordersByEvent.get(eventId) || []).filter((o) => o.paymentStatus === "paid");
+    const orders = (ordersByEvent.get(eventId) || []).filter((o) => o.paymentStatus === "paid" || o.paymentStatus === "free");
     if (orders.length && tickets.length) pastEventIds.add(eventId);
   }
 
