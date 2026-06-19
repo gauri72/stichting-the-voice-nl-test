@@ -206,7 +206,7 @@ export default function TicketBookingPage() {
         body: JSON.stringify({
           email,
           sessionId,
-          membershipCode: codeOverride ?? membershipCode || undefined,
+          membershipCode: codeOverride ?? (membershipCode || undefined),
         }),
       });
       setMemberDetection(data);
