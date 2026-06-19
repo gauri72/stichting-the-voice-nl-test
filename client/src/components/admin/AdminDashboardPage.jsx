@@ -7,6 +7,14 @@ import {
   IconTicket,
   IconUserCheck,
   IconUsers,
+  IconHeartHandshake,
+  IconHeart,
+  IconPlus,
+  IconReceipt,
+  IconDownload,
+  IconReportMoney,
+  IconFileInvoice,
+  IconChartBar,
 } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
@@ -59,6 +67,9 @@ export default function AdminDashboardPage() {
 
   const overview = payload?.overview;
   const ticketTailor = payload?.ticketTailor;
+  const sponsorships = payload?.sponsorships;
+  const donations = payload?.donations;
+  const finance = payload?.finance;
   const recentActivity = payload?.recentActivity || [];
 
   return (
@@ -162,6 +173,100 @@ export default function AdminDashboardPage() {
                 <Link to="/admin/memberships" className="admin-dashboard-tt-link">
                   <IconCloudDownload size={16} /> View memberships &amp; sync TicketTailor
                 </Link>
+              </section>
+            ) : null}
+
+            <section className="admin-dashboard-section" aria-label="Quick actions">
+              <h2 className="admin-dashboard-section-title">Quick Actions</h2>
+              <div className="admin-dashboard-quick-actions">
+                <Link to="/admin/sponsorships" className="admin-dashboard-quick-action">Send Sponsorship Reminder</Link>
+                <Link to="/admin/donations" className="admin-dashboard-quick-action">Resend Donation Receipt</Link>
+                <Link to="/admin/donations" className="admin-dashboard-quick-action"><IconDownload size={14} /> Export Donations</Link>
+                <Link to="/admin/sponsorships" className="admin-dashboard-quick-action"><IconPlus size={14} /> Add Sponsor</Link>
+                <Link to="/admin/donations" className="admin-dashboard-quick-action"><IconPlus size={14} /> Add Donation</Link>
+                <Link to="/admin/finance/invoices" className="admin-dashboard-quick-action"><IconFileInvoice size={14} /> Create Invoice</Link>
+                <Link to="/admin/finance/event-budgets" className="admin-dashboard-quick-action"><IconReportMoney size={14} /> Create Budget Sheet</Link>
+                <Link to="/admin/finance/transactions" className="admin-dashboard-quick-action"><IconPlus size={14} /> Add Transaction</Link>
+                <Link to="/admin/finance/audit-reports" className="admin-dashboard-quick-action"><IconReceipt size={14} /> Generate Audit Report</Link>
+              </div>
+            </section>
+
+            {finance ? (
+              <section className="admin-dashboard-section" aria-label="Finance statistics">
+                <div className="admin-dashboard-section-head">
+                  <h2 className="admin-dashboard-section-title">Finance &amp; Audit</h2>
+                  <Link to="/admin/finance/reports" className="admin-dashboard-activity__link">
+                    <IconReportMoney size={16} /> View financial reports
+                  </Link>
+                </div>
+                <div className="admin-dashboard-stats">
+                  {[
+                    { label: "Total Income", value: finance.totalIncome, icon: IconCreditCard },
+                    { label: "Total Expenses", value: finance.totalExpenses, icon: IconReceipt },
+                    { label: "Net Result", value: finance.netResult, icon: IconReportMoney },
+                    { label: "Pending Invoices", value: finance.pendingInvoices, icon: IconMail },
+                    { label: "Overdue Invoices", value: finance.overdueInvoices, icon: IconMail },
+                    { label: "Budget Variance", value: finance.eventBudgetVariance, icon: IconChartBar },
+                    { label: "Audit Reports", value: finance.auditReportsGenerated, icon: IconReceipt },
+                    { label: "Receipts Missing", value: finance.receiptsMissing, icon: IconDownload },
+                  ].map(({ label, value, icon: Icon }) => (
+                    <article key={label} className="admin-dashboard-stat">
+                      <span className="admin-dashboard-stat__icon" aria-hidden="true"><Icon size={22} stroke={1.6} /></span>
+                      <p className="admin-dashboard-stat__value">{value}</p>
+                      <p className="admin-dashboard-stat__label">{label}</p>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {sponsorships ? (
+              <section className="admin-dashboard-section" aria-label="Sponsorship statistics">
+                <div className="admin-dashboard-section-head">
+                  <h2 className="admin-dashboard-section-title">Sponsorships</h2>
+                  <Link to="/admin/sponsorships" className="admin-dashboard-activity__link">
+                    <IconHeartHandshake size={16} /> Manage sponsorships
+                  </Link>
+                </div>
+                <div className="admin-dashboard-stats">
+                  {[
+                    { label: "Sponsorship Revenue", value: sponsorships.sponsorshipRevenue, icon: IconCreditCard },
+                    { label: "Pending Payments", value: sponsorships.pendingPayments, icon: IconMail },
+                    { label: "Active Sponsors", value: sponsorships.activeSponsorships, icon: IconUsers },
+                    { label: "Follow-ups Due", value: sponsorships.followUpsDue, icon: IconReceipt },
+                  ].map(({ label, value, icon: Icon }) => (
+                    <article key={label} className="admin-dashboard-stat">
+                      <span className="admin-dashboard-stat__icon" aria-hidden="true"><Icon size={22} stroke={1.6} /></span>
+                      <p className="admin-dashboard-stat__value">{value}</p>
+                      <p className="admin-dashboard-stat__label">{label}</p>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {donations ? (
+              <section className="admin-dashboard-section" aria-label="Donation statistics">
+                <div className="admin-dashboard-section-head">
+                  <h2 className="admin-dashboard-section-title">Donations</h2>
+                  <Link to="/admin/donations" className="admin-dashboard-activity__link">
+                    <IconHeart size={16} /> Manage donations
+                  </Link>
+                </div>
+                <div className="admin-dashboard-stats">
+                  {[
+                    { label: "Donation Revenue", value: donations.donationRevenue, icon: IconCreditCard },
+                    { label: "Total Donors", value: donations.totalDonors, icon: IconUsers },
+                    { label: "Recurring Donors", value: donations.recurringDonations, icon: IconHeart },
+                    { label: "Pending Receipts", value: donations.pendingReceipts, icon: IconReceipt },
+                  ].map(({ label, value, icon: Icon }) => (
+                    <article key={label} className="admin-dashboard-stat">
+                      <span className="admin-dashboard-stat__icon" aria-hidden="true"><Icon size={22} stroke={1.6} /></span>
+                      <p className="admin-dashboard-stat__value">{value}</p>
+                      <p className="admin-dashboard-stat__label">{label}</p>
+                    </article>
+                  ))}
+                </div>
               </section>
             ) : null}
 

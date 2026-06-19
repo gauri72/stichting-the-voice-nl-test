@@ -47,8 +47,10 @@ export async function quoteOrder(req, res) {
     const { quoteOrder } = await import("../services/ticketOrderService.js");
     const quote = await quoteOrder(req.params.eventId, {
       items: req.body?.items,
-      voucherCode: req.body?.voucherCode,
+      voucherCode: req.body?.voucherCode || req.body?.discountCode,
+      discountCode: req.body?.discountCode || req.body?.voucherCode,
       userId: req.user?.id || req.user?._id,
+      email: req.body?.email || req.user?.email,
     });
     return res.status(200).json(quote);
   } catch (error) {
@@ -148,10 +150,18 @@ export async function verifyTicket(req, res) {
 
 export async function ticketQrImage(req, res) {
   try {
-    const token = req.params.token.replace(/\.png$/i, "");
+    const token = req.params.token.replace(/\.(png|svg)$/i, "");
     const Ticket = (await import("../models/Ticket.js")).default;
     const ticket = await Ticket.findOne({ verificationToken: token }).select("_id").lean();
     if (!ticket) return res.status(404).send("Not found");
+    const wantsSvg = /\.svg$/i.test(req.params.token) || (req.headers.accept || "").includes("image/svg");
+    if (wantsSvg) {
+      const { generateTicketQrSvgString } = await import("../services/ticketQrService.js");
+      const svg = await generateTicketQrSvgString(token);
+      res.setHeader("Content-Type", "image/svg+xml");
+      res.setHeader("Cache-Control", "public, max-age=86400");
+      return res.send(svg);
+    }
     const { generateTicketQrPngBuffer } = await import("../services/ticketQrService.js");
     const buffer = await generateTicketQrPngBuffer(token);
     res.setHeader("Content-Type", "image/png");

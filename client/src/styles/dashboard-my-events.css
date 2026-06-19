@@ -1,0 +1,607 @@
+/* My Events — dashboard page, widget, and tickets */
+
+.dash-my-events-page {
+  padding: clamp(16px, 3cqw, 28px);
+}
+
+.dash-my-events__hero {
+  margin-bottom: clamp(18px, 3cqw, 28px);
+}
+
+.dash-my-events__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: var(--md-cyan, #1aa7c4);
+  text-decoration: none;
+  font-size: var(--font-small);
+  font-weight: 600;
+}
+
+[data-theme="light"] .dash-my-events__back {
+  color: var(--md-cyan-dark, #0a5f75);
+}
+
+.dash-my-events__page-title {
+  margin: 0 0 6px;
+  font-size: clamp(1.5rem, 3.5cqw, 2rem);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--md-text);
+}
+
+.dash-my-events__page-subtitle {
+  margin: 0;
+  color: var(--md-text-muted, #94a3b8);
+  font-size: var(--font-body);
+}
+
+.dash-my-events__toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.dash-my-events__search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--md-border);
+  background: var(--md-surface);
+}
+
+.dash-my-events__search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+
+.dash-my-events__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dash-my-events__filter {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--md-border);
+  background: var(--md-surface);
+  color: var(--md-text);
+  font-size: var(--font-small);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dash-my-events__filter--active {
+  border-color: var(--md-cyan, #1aa7c4);
+  background: rgba(26, 167, 196, 0.12);
+  color: var(--md-cyan, #1aa7c4);
+}
+
+.dash-my-events__section {
+  margin-bottom: 32px;
+}
+
+.dash-my-events__section-title {
+  margin: 0 0 16px;
+  font-size: clamp(1.1rem, 2.4cqw, 1.4rem);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--md-text);
+}
+
+.dash-my-events__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: clamp(12px, 2cqw, 18px);
+}
+
+.dash-my-events__grid--upcoming {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.dash-my-events__card {
+  background: var(--md-surface);
+  border: 1px solid var(--md-border);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--md-shadow-soft);
+}
+
+.dash-my-events__card-link {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  color: inherit;
+  text-decoration: none;
+}
+
+.dash-my-events__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.dash-my-events__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dash-my-events__date-chip {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  min-width: 44px;
+  background: linear-gradient(135deg, #1f86c9 0%, #149aa6 52%, #2fa84f 100%);
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 8px;
+  text-align: center;
+  line-height: 1;
+}
+
+.dash-my-events__date-chip strong {
+  display: block;
+  font-size: var(--font-body);
+}
+
+.dash-my-events__date-chip small {
+  font-size: var(--font-small);
+  text-transform: uppercase;
+}
+
+.dash-my-events__badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dash-my-events__badge--featured {
+  background: linear-gradient(135deg, #7b2ff7, #00a6b7);
+  color: #fff;
+}
+
+.dash-my-events__badge--days {
+  top: auto;
+  bottom: 10px;
+  right: 10px;
+  left: auto;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+}
+
+.dash-my-events__body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.dash-my-events__category {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--md-cyan, #1aa7c4);
+}
+
+.dash-my-events__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--md-text);
+  line-height: 1.3;
+}
+
+.dash-my-events__desc {
+  margin: 0;
+  font-size: var(--font-small);
+  color: var(--md-text-muted, #94a3b8);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.dash-my-events__meta {
+  margin: 0;
+  font-size: var(--font-small);
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-my-events__location {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--font-small);
+  color: var(--md-text);
+}
+
+.dash-my-events__membership {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.dash-my-events__membership-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(62, 207, 154, 0.15);
+  color: var(--md-green, #2fa84f);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.dash-my-events__membership-value {
+  font-size: var(--font-small);
+  font-weight: 800;
+  color: var(--md-green, #2fa84f);
+}
+
+.dash-my-events__status {
+  margin: 6px 0 0;
+  font-size: var(--font-small);
+  font-weight: 700;
+}
+
+.dash-my-events__status--booked,
+.dash-my-events__status--checked_in {
+  color: var(--md-green, #2fa84f);
+}
+
+.dash-my-events__status--cancelled,
+.dash-my-events__status--refunded {
+  color: #f59e0b;
+}
+
+.dash-my-events__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.dash-my-events__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-size: var(--font-small);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+.dash-my-events__btn--primary {
+  background: linear-gradient(135deg, #1f86c9, #149aa6);
+  color: #fff;
+}
+
+.dash-my-events__btn--secondary {
+  border-color: var(--md-cyan, #1aa7c4);
+  color: var(--md-cyan, #1aa7c4);
+  background: transparent;
+}
+
+.dash-my-events__btn--ghost {
+  border-color: var(--md-border);
+  background: transparent;
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-my-events__btn--disabled,
+.dash-my-events__btn--primary.dash-my-events__btn--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.dash-my-events__empty {
+  text-align: center;
+  padding: 40px 20px;
+  border-radius: 16px;
+  border: 1px dashed var(--md-border);
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-my-events__empty--inline {
+  padding: 24px;
+}
+
+.dash-my-events__empty h2 {
+  margin: 12px 0 8px;
+  color: var(--md-text);
+  font-size: 1.1rem;
+}
+
+.dash-my-events__no-results {
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-my-events__history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dash-my-events__history-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--md-border);
+  background: var(--md-surface);
+}
+
+.dash-my-events__history-row strong {
+  display: block;
+  color: var(--md-text);
+}
+
+.dash-my-events__history-row span {
+  font-size: var(--font-small);
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-my-events__history-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.dash-my-events__history-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dash-my-events__link-btn {
+  font-size: var(--font-small);
+  font-weight: 700;
+  color: var(--md-cyan, #1aa7c4);
+  text-decoration: none;
+}
+
+/* Widget on dashboard home */
+.dash-my-events-widget {
+  margin-bottom: 24px;
+}
+
+.dash-my-events-widget__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.dash-my-events-widget__title {
+  margin: 0 0 4px;
+  font-size: clamp(1.2rem, 2.6cqw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--md-text);
+}
+
+.dash-my-events-widget__subtitle {
+  margin: 0;
+  font-size: var(--font-small);
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-my-events-widget__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 1.6cqw, 18px);
+}
+
+.dash-my-events-widget__empty {
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px dashed var(--md-border);
+  text-align: center;
+}
+
+.dash-my-events-widget__empty p {
+  margin: 0 0 12px;
+  color: var(--md-text-muted, #94a3b8);
+}
+
+/* Tickets detail page */
+.dash-event-tickets__summary {
+  margin-bottom: 28px;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid var(--md-border);
+  background: var(--md-surface);
+}
+
+.dash-event-tickets__summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+  margin: 0 0 12px;
+}
+
+.dash-event-tickets__summary-grid dt {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-event-tickets__summary-grid dd {
+  margin: 4px 0 0;
+  font-weight: 700;
+  color: var(--md-text);
+}
+
+.dash-event-tickets__event-meta {
+  margin: 0;
+  font-size: var(--font-small);
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-event-tickets__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dash-event-tickets__card {
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid var(--md-border);
+  background: var(--md-surface);
+}
+
+.dash-event-tickets__card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.dash-event-tickets__type {
+  margin: 0 0 4px;
+  font-size: var(--font-small);
+  color: var(--md-cyan, #1aa7c4);
+  font-weight: 700;
+}
+
+.dash-event-tickets__holder {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  color: var(--md-text);
+}
+
+.dash-event-tickets__number {
+  margin: 0;
+  font-family: monospace;
+  font-size: var(--font-small);
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-event-tickets__qr {
+  border-radius: 8px;
+  background: #fff;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.dash-event-tickets__status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.dash-event-tickets__pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.dash-event-tickets__pill--valid {
+  background: rgba(47, 168, 79, 0.15);
+  color: var(--md-green, #2fa84f);
+}
+
+.dash-event-tickets__pill--cancelled,
+.dash-event-tickets__pill--refunded {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.dash-event-tickets__order-ref {
+  font-size: var(--font-small);
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-event-tickets__actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+.dash-event-tickets__footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--md-border);
+}
+
+@media (max-width: 900px) {
+  .dash-my-events-widget__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-my-events__history-row {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-my-events__history-meta,
+  .dash-my-events__history-actions {
+    align-items: flex-start;
+  }
+
+  .dash-event-tickets__card-head {
+    flex-direction: column;
+  }
+
+  .dash-event-tickets__actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dash-my-events__filters {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+
+  .dash-my-events__filter {
+    flex-shrink: 0;
+  }
+}

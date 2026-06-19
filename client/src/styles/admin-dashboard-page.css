@@ -232,3 +232,28 @@
     white-space: normal;
   }
 }
+
+.admin-dashboard-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-dashboard-quick-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 166, 183, 0.25);
+  background: var(--ad-card, #0d111c);
+  color: var(--color-accent-teal, #3ecf9a);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.admin-dashboard-quick-action:hover {
+  border-color: rgba(124, 58, 237, 0.4);
+  color: #a78bfa;
+}

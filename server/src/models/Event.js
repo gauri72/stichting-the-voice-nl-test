@@ -12,6 +12,12 @@ const eventSchema = new mongoose.Schema(
     heroImage: { type: String, default: "" },
     bookingFeeMinor: { type: Number, default: 0, min: 0 },
     salesEnabled: { type: Boolean, default: true },
+    featured: { type: Boolean, default: false, index: true },
+    showOnDashboard: { type: Boolean, default: true, index: true },
+    membershipIncluded: { type: Boolean, default: false },
+    membershipDiscountEligible: { type: Boolean, default: true },
+    category: { type: String, default: "Experience", trim: true, maxlength: 80 },
+    archived: { type: Boolean, default: false, index: true },
     status: {
       type: String,
       enum: ["draft", "published", "cancelled"],

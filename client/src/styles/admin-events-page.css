@@ -1417,6 +1417,27 @@
   cursor: pointer;
 }
 
+.admin-events__dashboard-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ae-border, rgba(255, 255, 255, 0.08));
+}
+
+.admin-events__settings-title {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ae-text, #e2e8f0);
+}
+
+.admin-events__source-badge--featured {
+  background: linear-gradient(135deg, #7b2ff7, #00a6b7);
+  color: #fff;
+}
+
 .admin-events__toggle input {
   position: absolute;
   opacity: 0;

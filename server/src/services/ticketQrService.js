@@ -30,3 +30,10 @@ export async function generateTicketQrPngBuffer(verificationToken) {
     type: "png",
   });
 }
+
+export async function generateTicketQrSvgString(verificationToken) {
+  return QRCode.toString(buildTicketVerifyUrl(verificationToken), {
+    ...QR_OPTIONS,
+    type: "svg",
+  });
+}

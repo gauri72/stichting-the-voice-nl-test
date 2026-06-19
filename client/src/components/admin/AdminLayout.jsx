@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   IconBell,
   IconChartBar,
@@ -14,6 +14,14 @@ import {
   IconX,
   IconChevronDown,
   IconDiscount,
+  IconHeartHandshake,
+  IconHeart,
+  IconReportMoney,
+  IconReceipt,
+  IconFileInvoice,
+  IconArrowsExchange,
+  IconShieldCheck,
+  IconSettings,
 } from "@tabler/icons-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
 import ThemeToggle from "../layout/ThemeToggle.jsx";
@@ -28,6 +36,21 @@ const NAV_ITEMS = [
   { to: "/admin/users", label: "Users", icon: IconUser },
   { to: "/admin/templates", label: "Templates", icon: IconUpload },
   { to: "/admin/discounts", label: "Discounts", icon: IconDiscount },
+  { to: "/admin/sponsorships", label: "Sponsorships", icon: IconHeartHandshake },
+  { to: "/admin/donations", label: "Donations", icon: IconHeart },
+  {
+    label: "Finance & Audit",
+    icon: IconReportMoney,
+    basePath: "/admin/finance",
+    children: [
+      { to: "/admin/finance/invoices", label: "Invoices", icon: IconFileInvoice },
+      { to: "/admin/finance/event-budgets", label: "Event Budgets", icon: IconChartBar },
+      { to: "/admin/finance/transactions", label: "Transactions", icon: IconArrowsExchange },
+      { to: "/admin/finance/audit-reports", label: "Audit Reports", icon: IconShieldCheck },
+      { to: "/admin/finance/reports", label: "Financial Reports", icon: IconReceipt },
+      { to: "/admin/finance/settings", label: "Settings", icon: IconSettings },
+    ],
+  },
   { to: "/admin/vouchers", label: "Vouchers", icon: IconDiscount },
   { to: "/admin/communication", label: "Communication", icon: IconMail },
   { to: "/admin/reports", label: "More", icon: IconChartBar },
@@ -44,7 +67,9 @@ const MOBILE_NAV_ITEMS = [
 export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBottomNav = false }) {
   const { admin, logout } = useAdminAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [financeOpen, setFinanceOpen] = useState(() => location.pathname.startsWith("/admin/finance"));
 
   function handleLogout() {
     logout();
@@ -53,6 +78,58 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
 
   function closeDrawer() {
     setDrawerOpen(false);
+  }
+
+  function renderNavItem(item, onClick) {
+    if (item.children) {
+      const isGroupActive = location.pathname.startsWith(item.basePath);
+      return (
+        <div key={item.label} className="admin-layout__nav-group">
+          <button
+            type="button"
+            className={`admin-layout__nav-item admin-layout__nav-group-btn${isGroupActive ? " admin-layout__nav-item--active" : ""}`}
+            onClick={() => setFinanceOpen((o) => !o)}
+            aria-expanded={financeOpen}
+          >
+            <item.icon size={20} stroke={1.7} aria-hidden />
+            <span>{item.label}</span>
+            <IconChevronDown size={14} className={`admin-layout__nav-chevron${financeOpen ? " admin-layout__nav-chevron--open" : ""}`} />
+          </button>
+          {financeOpen ? (
+            <div className="admin-layout__nav-sub">
+              {item.children.map((child) => (
+                <NavLink
+                  key={child.to}
+                  to={child.to}
+                  onClick={onClick}
+                  className={({ isActive }) =>
+                    `admin-layout__nav-subitem${isActive ? " admin-layout__nav-subitem--active" : ""}`
+                  }
+                >
+                  <child.icon size={16} stroke={1.7} aria-hidden />
+                  <span>{child.label}</span>
+                </NavLink>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      );
+    }
+    const Icon = item.icon;
+    return (
+      <NavLink
+        key={item.to}
+        to={item.to}
+        end={item.end}
+        onClick={onClick}
+        className={({ isActive }) =>
+          `admin-layout__nav-item${isActive ? " admin-layout__nav-item--active" : ""}`
+        }
+      >
+        <Icon size={20} stroke={1.7} aria-hidden />
+        <span>{item.label}</span>
+      </NavLink>
+    );
   }
 
   return (
@@ -118,20 +195,7 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
         >
           <IconX size={20} stroke={1.8} />
         </button>
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            onClick={closeDrawer}
-            className={({ isActive }) =>
-              `admin-layout__nav-item${isActive ? " admin-layout__nav-item--active" : ""}`
-            }
-          >
-            <Icon size={20} stroke={1.7} aria-hidden />
-            <span>{label}</span>
-          </NavLink>
-        ))}
+        {NAV_ITEMS.map((item) => renderNavItem(item, closeDrawer))}
       </nav>
 
       <main className="admin-layout__main">
@@ -165,19 +229,7 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
       ) : null}
 
       <nav className="admin-layout__bottom-nav admin-layout__bottom-nav--desktop" aria-label="Admin sidebar">
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) =>
-              `admin-layout__nav-item${isActive ? " admin-layout__nav-item--active" : ""}`
-            }
-          >
-            <Icon size={20} stroke={1.7} aria-hidden />
-            <span>{label}</span>
-          </NavLink>
-        ))}
+        {NAV_ITEMS.map((item) => renderNavItem(item))}
       </nav>
     </div>
   );

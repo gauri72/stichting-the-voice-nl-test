@@ -16,10 +16,11 @@ import { downloadMembershipEcard } from "../../utils/membershipEcard.js";
 import DashboardWelcomeBannerSection from "./sections/DashboardWelcomeBannerSection.jsx";
 import DashboardStatCardsSection from "./sections/DashboardStatCardsSection.jsx";
 import DashboardMembershipCardSection from "./sections/DashboardMembershipCardSection.jsx";
-import DashboardUpcomingEventsSection from "./sections/DashboardUpcomingEventsSection.jsx";
+import DashboardMyEventsWidget from "./sections/DashboardMyEventsWidget.jsx";
 import DashboardRecentActivitySection from "./sections/DashboardRecentActivitySection.jsx";
 import DashboardImpactSection from "./sections/DashboardImpactSection.jsx";
 import DashboardDiscountsSection from "./sections/DashboardDiscountsSection.jsx";
+import DashboardReferralSection from "./sections/DashboardReferralSection.jsx";
 import DashboardClosingCtaSection from "./sections/DashboardClosingCtaSection.jsx";
 import "../../styles/dashboard-shared.css";
 import "../../styles/dashboard-desktop.css";
@@ -149,7 +150,7 @@ export default function MemberDashboard() {
       id: "explore",
       label: "Explore Events",
       icon: <IconCalendarEvent size={20} stroke={1.75} />,
-      to: DASHBOARD_ROUTES.events,
+      to: DASHBOARD_ROUTES.myEvents,
       tone: "teal",
     },
     {
@@ -207,6 +208,7 @@ export default function MemberDashboard() {
 
       <div className="member-dashboard__body">
         <DashboardDiscountsSection />
+        <DashboardReferralSection />
 
         <DashboardStatCardsSection
           overview={overview}
@@ -226,7 +228,7 @@ export default function MemberDashboard() {
           wallet={wallet}
         />
 
-        <DashboardUpcomingEventsSection />
+        <DashboardMyEventsWidget />
 
         <DashboardImpactSection overview={overview} />
 

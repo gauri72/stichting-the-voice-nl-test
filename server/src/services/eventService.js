@@ -39,6 +39,12 @@ export function formatEvent(event, ticketTypes = []) {
     heroImage: event.heroImage || "",
     bookingFeeMinor: event.bookingFeeMinor || 0,
     salesEnabled: Boolean(event.salesEnabled),
+    featured: Boolean(event.featured),
+    showOnDashboard: event.showOnDashboard !== false,
+    membershipIncluded: Boolean(event.membershipIncluded),
+    membershipDiscountEligible: event.membershipDiscountEligible !== false,
+    category: event.category || "Experience",
+    archived: Boolean(event.archived),
     status: event.status,
     slug: event.slug,
     createdAt: event.createdAt,
@@ -138,6 +144,12 @@ export async function createEvent(payload, adminId) {
     heroImage,
     bookingFeeMinor,
     salesEnabled,
+    featured,
+    showOnDashboard,
+    membershipIncluded,
+    membershipDiscountEligible,
+    category,
+    archived,
     status,
     ticketTypes,
   } = payload;
@@ -160,6 +172,12 @@ export async function createEvent(payload, adminId) {
     heroImage: heroImage || "",
     bookingFeeMinor: Math.max(0, Number(bookingFeeMinor) || 0),
     salesEnabled: salesEnabled !== false,
+    featured: Boolean(featured),
+    showOnDashboard: showOnDashboard !== false,
+    membershipIncluded: Boolean(membershipIncluded),
+    membershipDiscountEligible: membershipDiscountEligible !== false,
+    category: String(category || "Experience").trim() || "Experience",
+    archived: Boolean(archived),
     status: status === "published" ? "published" : "draft",
     slug,
     createdBy: adminId || null,
@@ -211,6 +229,12 @@ export async function updateEvent(eventId, payload) {
     "heroImage",
     "bookingFeeMinor",
     "salesEnabled",
+    "featured",
+    "showOnDashboard",
+    "membershipIncluded",
+    "membershipDiscountEligible",
+    "category",
+    "archived",
     "status",
   ];
 
@@ -218,8 +242,16 @@ export async function updateEvent(eventId, payload) {
     if (payload[key] !== undefined) {
       if (key === "date") event.date = new Date(payload.date);
       else if (key === "bookingFeeMinor") event.bookingFeeMinor = Math.max(0, Number(payload[key]) || 0);
-      else if (key === "salesEnabled") event.salesEnabled = Boolean(payload[key]);
-      else if (key === "status") event.status = payload[key];
+      else if (
+        key === "salesEnabled" ||
+        key === "featured" ||
+        key === "showOnDashboard" ||
+        key === "membershipIncluded" ||
+        key === "membershipDiscountEligible" ||
+        key === "archived"
+      ) {
+        event[key] = Boolean(payload[key]);
+      } else if (key === "status") event.status = payload[key];
       else event[key] = String(payload[key] ?? "").trim();
     }
   }

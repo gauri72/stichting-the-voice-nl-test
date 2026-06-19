@@ -113,7 +113,12 @@ export default function TicketBookingPage() {
       const data = await apiFetch(`/api/events/${event.id}/quote`, {
         method: "POST",
         headers: authHeaders(),
-        body: JSON.stringify({ items: selectedItems, voucherCode: voucherCode || undefined }),
+        body: JSON.stringify({
+          items: selectedItems,
+          voucherCode: voucherCode || undefined,
+          discountCode: voucherCode || undefined,
+          email: attendee.email || undefined,
+        }),
       });
       setQuote(data);
       setError("");
@@ -195,15 +200,21 @@ export default function TicketBookingPage() {
     if (!voucherCode.trim()) return;
     setVoucherMessage("");
     try {
-      await apiFetch(`/api/events/${event.id}/validate-voucher`, {
+      await apiFetch("/api/checkout/validate-code", {
         method: "POST",
         headers: authHeaders(),
-        body: JSON.stringify({ code: voucherCode }),
+        body: JSON.stringify({
+          code: voucherCode,
+          eventId: event.id,
+          orderType: "tickets",
+          subtotalMinor: quote?.summary?.subtotalMinor || 0,
+          email: attendee.email,
+        }),
       });
-      setVoucherMessage("Voucher applied successfully.");
+      setVoucherMessage("Discount code applied successfully.");
       refreshQuote();
     } catch (err) {
-      setVoucherMessage(err.message || "Invalid voucher.");
+      setVoucherMessage(err.message || "Invalid discount code.");
     }
   }
 
@@ -231,6 +242,7 @@ export default function TicketBookingPage() {
           attendeeEmail: attendee.email,
           attendeePhone: attendee.phone,
           voucherCode: voucherCode || undefined,
+          discountCode: voucherCode || undefined,
           termsAccepted,
         }),
       });
@@ -411,29 +423,38 @@ export default function TicketBookingPage() {
               </label>
             </div>
 
-            {quote?.membershipDiscountPercent > 0 ? (
+            {(quote?.membershipDiscountPercent > 0 || quote?.memberDiscountLabel) ? (
               <p className="ticket-booking__discount-note">
-                Member discount: {quote.membershipDiscountPercent}% applied automatically
+                {quote.memberDiscountLabel || `Member discount: ${quote.membershipDiscountPercent}% applied automatically`}
               </p>
             ) : null}
 
             <div className="ticket-booking__voucher">
               <input
-                placeholder="Voucher code"
+                placeholder="Discount or referral code"
                 value={voucherCode}
                 onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
               />
               <button type="button" onClick={applyVoucher}>Apply</button>
             </div>
             {voucherMessage ? <p className="ticket-booking__voucher-msg">{voucherMessage}</p> : null}
+            {quote?.codeDiscountLabel ? (
+              <p className="ticket-booking__discount-note">{quote.codeDiscountLabel}</p>
+            ) : null}
 
             {quote?.summary ? (
               <div className="ticket-booking__summary">
                 <div><span>Subtotal</span><span>{quote.summary.subtotal}</span></div>
-                <div><span>Booking fee</span><span>{quote.summary.bookingFee}</span></div>
-                {quote.summary.discountAmountMinor > 0 ? (
-                  <div className="ticket-booking__summary-discount"><span>Discount</span><span>-{quote.summary.discount}</span></div>
+                {quote.summary.membershipDiscountMinor > 0 ? (
+                  <div className="ticket-booking__summary-discount"><span>Member Discount</span><span>-{quote.summary.memberDiscount}</span></div>
                 ) : null}
+                {(quote.summary.voucherDiscountMinor + (quote.summary.personalDiscountMinor || 0)) > 0 ? (
+                  <div className="ticket-booking__summary-discount"><span>Voucher Discount</span><span>-{quote.summary.voucherDiscount}</span></div>
+                ) : null}
+                {quote.summary.referralDiscountMinor > 0 ? (
+                  <div className="ticket-booking__summary-discount"><span>Referral Discount</span><span>-{quote.summary.referralDiscount}</span></div>
+                ) : null}
+                <div><span>Booking fee</span><span>{quote.summary.bookingFee}</span></div>
                 <div><span>VAT (incl.)</span><span>{quote.summary.vat}</span></div>
                 <div className="ticket-booking__summary-total"><span>Total</span><span>{quote.summary.total}</span></div>
               </div>

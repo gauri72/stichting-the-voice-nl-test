@@ -6,6 +6,9 @@ import ActivityLog from "../models/ActivityLog.js";
 import PastData from "../models/PastData.js";
 import TicketTailorBooking from "../models/TicketTailorBooking.js";
 import { getTicketTailorStats } from "./ticketTailorBookingSyncService.js";
+import { getSponsorshipDashboardStats } from "./adminSponsorshipService.js";
+import { getDonationDashboardStats } from "./adminDonationService.js";
+import { getFinanceDashboardStats } from "./adminFinanceDashboardService.js";
 
 function formatEur(minor) {
   try {
@@ -61,6 +64,9 @@ export async function getAdminDashboardPayload(admin) {
     paymentStats,
     recentActivity,
     ticketTailor,
+    sponsorshipStats,
+    donationStats,
+    financeStats,
   ] = await Promise.all([
     User.countDocuments({}),
     User.countDocuments({ isVerified: true }),
@@ -81,6 +87,9 @@ export async function getAdminDashboardPayload(admin) {
       .populate("userId", "firstName lastName email")
       .lean(),
     getTicketTailorDashboardStats(),
+    getSponsorshipDashboardStats(),
+    getDonationDashboardStats(),
+    getFinanceDashboardStats(),
   ]);
 
   const paidSummary = paymentStats[0] || { count: 0, totalMinor: 0 };
@@ -96,6 +105,9 @@ export async function getAdminDashboardPayload(admin) {
       totalRevenue: formatEur(paidSummary.totalMinor),
     },
     ticketTailor,
+    sponsorships: sponsorshipStats,
+    donations: donationStats,
+    finance: financeStats,
     recentActivity: recentActivity.map((entry) => ({
       id: entry._id.toString(),
       kind: entry.kind,

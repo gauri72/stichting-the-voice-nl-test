@@ -41,6 +41,11 @@ const EMPTY_EVENT = {
   heroImage: "",
   bookingFee: "",
   salesEnabled: true,
+  featured: false,
+  showOnDashboard: true,
+  membershipIncluded: false,
+  membershipDiscountEligible: true,
+  category: "Experience",
   ticketTypes: [
     { ...EMPTY_TICKET, name: "Early Bird", description: "Limited early access pricing", price: "29" },
     { ...EMPTY_TICKET, name: "Regular", description: "Standard entry ticket", price: "45" },
@@ -91,6 +96,11 @@ function toFormEvent(event) {
     heroImage: event.heroImage || "",
     bookingFee: event.bookingFeeMinor ? (event.bookingFeeMinor / 100).toFixed(2) : "",
     salesEnabled: event.salesEnabled !== false,
+    featured: Boolean(event.featured),
+    showOnDashboard: event.showOnDashboard !== false,
+    membershipIncluded: Boolean(event.membershipIncluded),
+    membershipDiscountEligible: event.membershipDiscountEligible !== false,
+    category: event.category || "Experience",
     ticketTypes: (event.ticketTypes || []).map((tt) => ({
       id: tt.id,
       name: tt.name,
@@ -117,6 +127,11 @@ function toPayload(form, status) {
     heroImage: form.heroImage,
     bookingFeeMinor: Math.round((Number(form.bookingFee) || 0) * 100),
     salesEnabled: form.salesEnabled,
+    featured: form.featured,
+    showOnDashboard: form.showOnDashboard,
+    membershipIncluded: form.membershipIncluded,
+    membershipDiscountEligible: form.membershipDiscountEligible,
+    category: form.category?.trim() || "Experience",
     status,
     ticketTypes: form.ticketTypes.map((tt, i) => ({
       id: tt.id,
@@ -437,6 +452,9 @@ export default function AdminEventsPage() {
                 <span className={`admin-events__status-badge admin-events__status-badge--${ev.status}`}>
                   {ev.status}
                 </span>
+                {ev.featured ? (
+                  <span className="admin-events__source-badge admin-events__source-badge--featured">Featured</span>
+                ) : null}
                 {readOnly ? (
                   <span className="admin-events__source-badge">TicketTailor</span>
                 ) : null}
@@ -767,6 +785,39 @@ export default function AdminEventsPage() {
                   <input type="checkbox" checked={form.salesEnabled} onChange={(e) => updateField("salesEnabled", e.target.checked)} />
                   <span className="admin-events__toggle-track" />
                   <span>Ticket sales enabled</span>
+                </label>
+              </div>
+              <div className="admin-events__field">
+                <label className="admin-events__label" htmlFor="event-category">Category</label>
+                <input
+                  id="event-category"
+                  className="admin-events__input"
+                  value={form.category}
+                  onChange={(e) => updateField("category", e.target.value)}
+                  placeholder="Experience"
+                />
+              </div>
+              <div className="admin-events__dashboard-settings">
+                <h3 className="admin-events__settings-title">Dashboard &amp; Membership</h3>
+                <label className="admin-events__toggle">
+                  <input type="checkbox" checked={form.featured} onChange={(e) => updateField("featured", e.target.checked)} />
+                  <span className="admin-events__toggle-track" />
+                  <span>Featured Event</span>
+                </label>
+                <label className="admin-events__toggle">
+                  <input type="checkbox" checked={form.showOnDashboard} onChange={(e) => updateField("showOnDashboard", e.target.checked)} />
+                  <span className="admin-events__toggle-track" />
+                  <span>Show on Dashboard</span>
+                </label>
+                <label className="admin-events__toggle">
+                  <input type="checkbox" checked={form.membershipIncluded} onChange={(e) => updateField("membershipIncluded", e.target.checked)} />
+                  <span className="admin-events__toggle-track" />
+                  <span>Membership Included (Premium free entry)</span>
+                </label>
+                <label className="admin-events__toggle">
+                  <input type="checkbox" checked={form.membershipDiscountEligible} onChange={(e) => updateField("membershipDiscountEligible", e.target.checked)} />
+                  <span className="admin-events__toggle-track" />
+                  <span>Membership Discount Eligible</span>
                 </label>
               </div>
             </div>

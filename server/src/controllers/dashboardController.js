@@ -1,4 +1,11 @@
 import { getDashboardPayloadForUser } from "../services/dashboardService.js";
+import {
+  getDashboardEventsForUser,
+  getEventTicketsForUser,
+  getEventBookingStatusForUser,
+} from "../services/dashboardEventService.js";
+import { getUserReferralData } from "../services/adminDiscountRuleService.js";
+import { REFERRAL_SYSTEM_ENABLED } from "../config/discountConfig.js";
 import env from "../config/env.js";
 import { getMembershipPageForUser, ensureDemoMembership } from "../services/membershipService.js";
 import {
@@ -80,6 +87,57 @@ export async function getGoogleWalletPass(req, res) {
     if (status >= 500) {
       console.error("[dashboard/wallet/google]", error);
     }
+    return res.status(status).json({ error: message });
+  }
+}
+
+export async function getReferrals(req, res) {
+  if (!REFERRAL_SYSTEM_ENABLED) {
+    return res.status(200).json({ enabled: false, referral: null });
+  }
+  try {
+    const referral = await getUserReferralData(req.user.id, req.user.email);
+    return res.status(200).json({ enabled: true, referral });
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || "Referral data unavailable.";
+    if (status >= 500) console.error("[dashboard/referrals]", error);
+    return res.status(status).json({ error: message });
+  }
+}
+
+export async function getDashboardEvents(req, res) {
+  try {
+    const data = await getDashboardEventsForUser(req.user.id);
+    return res.status(200).json(data);
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || "Events unavailable.";
+    if (status >= 500) console.error("[dashboard/events]", error);
+    return res.status(status).json({ error: message });
+  }
+}
+
+export async function getDashboardEventTickets(req, res) {
+  try {
+    const data = await getEventTicketsForUser(req.user.id, req.params.eventId);
+    return res.status(200).json(data);
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || "Tickets unavailable.";
+    if (status >= 500) console.error("[dashboard/events/tickets]", error);
+    return res.status(status).json({ error: message });
+  }
+}
+
+export async function getDashboardEventBookingStatus(req, res) {
+  try {
+    const data = await getEventBookingStatusForUser(req.user.id, req.params.eventId);
+    return res.status(200).json(data);
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || "Booking status unavailable.";
+    if (status >= 500) console.error("[dashboard/events/booking-status]", error);
     return res.status(status).json({ error: message });
   }
 }

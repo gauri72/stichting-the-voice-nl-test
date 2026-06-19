@@ -11,6 +11,9 @@ import Admin from "../models/Admin.js";
 import EmailTemplate from "../models/EmailTemplate.js";
 import EmailBroadcast from "../models/EmailBroadcast.js";
 import DiscountCode from "../models/DiscountCode.js";
+import DiscountRule from "../models/DiscountRule.js";
+import DiscountUsage from "../models/DiscountUsage.js";
+import ReferralReward from "../models/ReferralReward.js";
 import Event from "../models/Event.js";
 import TicketType from "../models/TicketType.js";
 import TicketOrder from "../models/TicketOrder.js";
@@ -18,6 +21,16 @@ import Ticket from "../models/Ticket.js";
 import Voucher from "../models/Voucher.js";
 import TicketTailorBooking from "../models/TicketTailorBooking.js";
 import AdminAuditLog from "../models/AdminAuditLog.js";
+import Sponsorship from "../models/Sponsorship.js";
+import Donation from "../models/Donation.js";
+import ReminderLog from "../models/ReminderLog.js";
+import ReceiptLog from "../models/ReceiptLog.js";
+import Invoice from "../models/Invoice.js";
+import EventBudget from "../models/EventBudget.js";
+import FinanceTransaction from "../models/FinanceTransaction.js";
+import AuditReport from "../models/AuditReport.js";
+import FinanceAuditLog from "../models/FinanceAuditLog.js";
+import FinanceSettings from "../models/FinanceSettings.js";
 
 /**
  * Every model maps to exactly one explicitly-named collection in the active
@@ -40,13 +53,26 @@ const MODELS = [
   ["email_templates", EmailTemplate],
   ["email_broadcasts", EmailBroadcast],
   ["discount_codes", DiscountCode],
+  ["discount_rules", DiscountRule],
+  ["discount_usages", DiscountUsage],
+  ["referral_rewards", ReferralReward],
   ["events", Event],
   ["ticket_types", TicketType],
   ["ticket_orders", TicketOrder],
   ["tickets", Ticket],
   ["vouchers", Voucher],
   ["tickettailor_bookings", TicketTailorBooking],
-  ["admin_audit_logs", AdminAuditLog]
+  ["admin_audit_logs", AdminAuditLog],
+  ["sponsorships", Sponsorship],
+  ["donations", Donation],
+  ["reminder_logs", ReminderLog],
+  ["receipt_logs", ReceiptLog],
+  ["invoices", Invoice],
+  ["event_budgets", EventBudget],
+  ["finance_transactions", FinanceTransaction],
+  ["audit_reports", AuditReport],
+  ["finance_audit_logs", FinanceAuditLog],
+  ["finance_settings", FinanceSettings],
 ];
 
 export async function ensureIndexes() {

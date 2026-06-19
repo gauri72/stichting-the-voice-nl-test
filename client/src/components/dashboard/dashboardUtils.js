@@ -16,6 +16,7 @@ export const DASHBOARD_TICKETS_URL =
 
 export const DASHBOARD_ROUTES = {
   events: "/events",
+  myEvents: "/dashboard/events",
   membership: "/membership",
   membershipMatrix: "/membership#membership-matrix",
   profile: "/dashboard/profile",
@@ -27,7 +28,7 @@ const ACTIVITY_VIEW_ROUTES = {
   donation: DASHBOARD_ROUTES.donate,
   sponsorship: DASHBOARD_ROUTES.sponsorship,
   membership: DASHBOARD_ROUTES.membership,
-  event_ticket: DASHBOARD_TICKETS_URL,
+  event_ticket: DASHBOARD_ROUTES.myEvents,
   profile_updated: DASHBOARD_ROUTES.profile,
 };
 

@@ -1,31 +1,19 @@
-import Membership from "../models/Membership.js";
 import Voucher from "../models/Voucher.js";
-import { resolvePlanId } from "../config/membershipPlans.js";
+import {
+  getAutomaticMemberDiscount,
+  applyDiscountsToOrder,
+  calculateDiscountAmount,
+} from "./discountService.js";
 
 /** Netherlands standard VAT rate for cultural events */
 export const VAT_RATE = 0.21;
 
-const MEMBERSHIP_TICKET_DISCOUNTS = {
-  student: 0,
-  privilegedSingle: 10,
-  privilegedFamily: 20,
-  premiumSingle: 100,
-  premiumFamily: 100,
-};
-
-export async function getMembershipDiscountPercent(userId) {
-  if (!userId) return 0;
-  const membership = await Membership.findOne({
-    userId,
-    active: true,
-    endsAt: { $gt: new Date() },
-  })
-    .sort({ endsAt: -1 })
-    .lean();
-
-  if (!membership) return 0;
-  const planId = resolvePlanId(membership.planId);
-  return MEMBERSHIP_TICKET_DISCOUNTS[planId] ?? 0;
+export async function getMembershipDiscountPercent(userId, eventId) {
+  const rule = await getAutomaticMemberDiscount(userId, eventId, "tickets");
+  if (!rule) return 0;
+  if (rule.discountType === "free_ticket" || rule.discountValue >= 100) return 100;
+  if (rule.discountType === "percentage") return rule.discountValue;
+  return 0;
 }
 
 export async function validateVoucher(code, eventId) {
@@ -95,11 +83,14 @@ export function buildOrderSummary({
   bookingFeeMinor = 0,
   membershipDiscountMinor = 0,
   voucherDiscountMinor = 0,
+  referralDiscountMinor = 0,
+  personalDiscountMinor = 0,
   applyVat = true,
 }) {
+  const codeDiscountMinor = voucherDiscountMinor + referralDiscountMinor + personalDiscountMinor;
   const discountAmountMinor = Math.min(
     subtotalMinor,
-    membershipDiscountMinor + voucherDiscountMinor
+    membershipDiscountMinor + codeDiscountMinor
   );
   const discountedSubtotal = Math.max(0, subtotalMinor - discountAmountMinor);
   const preVatTotal = discountedSubtotal + bookingFeeMinor;
@@ -111,11 +102,15 @@ export function buildOrderSummary({
     bookingFeeMinor,
     membershipDiscountMinor,
     voucherDiscountMinor,
+    referralDiscountMinor,
+    personalDiscountMinor,
     discountAmountMinor,
     vatAmountMinor,
     totalAmountMinor,
   };
 }
+
+export { applyDiscountsToOrder, calculateDiscountAmount };
 
 export function formatMoney(minor) {
   return new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(

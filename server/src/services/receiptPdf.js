@@ -1130,3 +1130,64 @@ export function renderDonationReceiptPdf(payload) {
 }
 
 export default renderSponsorshipReceiptPdf;
+
+/**
+ * Sponsorship invoice PDF (payment request).
+ */
+export function renderSponsorshipInvoicePdf(payload) {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({
+        size: "A4",
+        margins: { top: 44, bottom: 12, left: 56, right: 56 },
+        bufferPages: true,
+        info: {
+          Title: `Sponsorship Invoice ${payload.invoiceNumber || ""}`.trim(),
+          Author: "Stichting The V.O.I.C.E. NL",
+        },
+      });
+
+      const chunks = [];
+      doc.on("data", (chunk) => chunks.push(chunk));
+      doc.on("end", () => resolve(Buffer.concat(chunks)));
+      doc.on("error", reject);
+
+      drawPageChrome(doc);
+      drawHeaderBanner(doc);
+      drawTitle(doc, "Sponsorship Invoice", "Payment request for sponsorship contribution");
+
+      const left = doc.page.margins.left;
+      const width = doc.page.width - left - doc.page.margins.right;
+
+      drawLabeledBox(doc, left, doc.y, width / 2 - 6, 43, "Invoice No:", payload.invoiceNumber);
+      drawLabeledBox(doc, left + width / 2 + 6, doc.y - 43, width / 2 - 6, 43, "Due Date:", payload.paymentDate);
+      doc.y += 6;
+
+      drawSponsorRow(doc, {
+        sponsorName: payload.sponsorName,
+        companyName: payload.companyName,
+        sponsorEmail: payload.sponsorEmail,
+      });
+
+      drawLabeledBox(doc, left, doc.y, width, 43, "Amount Due:", payload.sponsorshipAmount);
+      doc.y += 53;
+
+      if (payload.sponsorshipTier) {
+        drawLabeledBox(doc, left, doc.y, width, 43, "Package:", payload.sponsorshipTier);
+        doc.y += 53;
+      }
+      if (payload.campaignName) {
+        drawLabeledBox(doc, left, doc.y, width, 43, "Event / Campaign:", payload.campaignName);
+        doc.y += 53;
+      }
+
+      drawConfirmationBlock(doc);
+      drawAuthorisedBy(doc);
+      drawFooterBar(doc, "© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.");
+
+      doc.end();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}

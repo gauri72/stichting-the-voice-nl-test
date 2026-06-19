@@ -13,6 +13,8 @@ import EventsPage from "./components/events/EventsPage";
 import LoginPage from "./components/login/LoginPage";
 import ResetPasswordPage from "./components/login/ResetPasswordPage";
 const DashboardPage = lazy(() => import("./components/dashboard/DashboardPage"));
+const DashboardMyEventsPage = lazy(() => import("./components/dashboard/DashboardMyEventsPage"));
+const DashboardEventTicketsPage = lazy(() => import("./components/dashboard/DashboardEventTicketsPage"));
 import MyProfilePage from "./components/profile/MyProfilePage";
 import VentureStudioPage from "./components/venture-studio/VentureStudioPage";
 import StoriesPage from "./components/stories/StoriesPage";
@@ -34,6 +36,17 @@ import CheckInPwaPage from "./components/checkin/CheckInPwaPage.jsx";
 import AdminVouchersPage from "./components/admin/AdminVouchersPage.jsx";
 import AdminMembershipsPage from "./components/admin/AdminMembershipsPage.jsx";
 import AdminMemberProfilePage from "./components/admin/AdminMemberProfilePage.jsx";
+import AdminSponsorshipsPage from "./components/admin/AdminSponsorshipsPage.jsx";
+import AdminSponsorshipDetailPage from "./components/admin/AdminSponsorshipDetailPage.jsx";
+import AdminDonationsPage from "./components/admin/AdminDonationsPage.jsx";
+import AdminDonationDetailPage from "./components/admin/AdminDonationDetailPage.jsx";
+import AdminFinanceInvoicesPage from "./components/admin/AdminFinanceInvoicesPage.jsx";
+import AdminFinanceEventBudgetsPage from "./components/admin/AdminFinanceEventBudgetsPage.jsx";
+import AdminFinanceEventBudgetDetailPage from "./components/admin/AdminFinanceEventBudgetDetailPage.jsx";
+import AdminFinanceTransactionsPage from "./components/admin/AdminFinanceTransactionsPage.jsx";
+import AdminFinanceAuditReportsPage from "./components/admin/AdminFinanceAuditReportsPage.jsx";
+import AdminFinanceReportsPage from "./components/admin/AdminFinanceReportsPage.jsx";
+import AdminFinanceSettingsPage from "./components/admin/AdminFinanceSettingsPage.jsx";
 import VerifyMembershipPage from "./components/membership/VerifyMembershipPage.jsx";
 import TicketBookingPage from "./components/events/TicketBookingPage.jsx";
 import TicketConfirmationPage from "./components/events/TicketConfirmationPage.jsx";
@@ -214,6 +227,66 @@ export default function App() {
             }
           />
           <Route
+            path="/admin/sponsorships"
+            element={
+              <AdminProtectedRoute>
+                <AdminSponsorshipsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/sponsorships/:id"
+            element={
+              <AdminProtectedRoute>
+                <AdminSponsorshipDetailPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/donations"
+            element={
+              <AdminProtectedRoute>
+                <AdminDonationsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/donations/:id"
+            element={
+              <AdminProtectedRoute>
+                <AdminDonationDetailPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/finance/invoices"
+            element={<AdminProtectedRoute><AdminFinanceInvoicesPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/finance/event-budgets"
+            element={<AdminProtectedRoute><AdminFinanceEventBudgetsPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/finance/event-budgets/:id"
+            element={<AdminProtectedRoute><AdminFinanceEventBudgetDetailPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/finance/transactions"
+            element={<AdminProtectedRoute><AdminFinanceTransactionsPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/finance/audit-reports"
+            element={<AdminProtectedRoute><AdminFinanceAuditReportsPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/finance/reports"
+            element={<AdminProtectedRoute><AdminFinanceReportsPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/finance/settings"
+            element={<AdminProtectedRoute><AdminFinanceSettingsPage /></AdminProtectedRoute>}
+          />
+          <Route
             path="/admin/reports"
             element={
               <AdminProtectedRoute>
@@ -231,6 +304,26 @@ export default function App() {
               <ProtectedRoute>
                 <Suspense fallback={<div className="member-dashboard__status">Loading your dashboard…</div>}>
                   <DashboardPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/events"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="member-dashboard__status">Loading your events…</div>}>
+                  <DashboardMyEventsPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/events/:eventId/tickets"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="member-dashboard__status">Loading your tickets…</div>}>
+                  <DashboardEventTicketsPage />
                 </Suspense>
               </ProtectedRoute>
             }
