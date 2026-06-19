@@ -1,7 +1,9 @@
-import Member from "../models/Member.js";
-import Membership from "../models/Membership.js";
-import User from "../models/User.js";
-import { resolvePlanId } from "../config/membershipPlans.js";
+import {
+  detectByEmail as unifiedDetectByEmail,
+  detectByUserId as unifiedDetectByUserId,
+  getMembershipStatus as unifiedGetMembershipStatus,
+  MEMBERSHIP_STATUS,
+} from "./membershipDetectionService.js";
 
 export const MEMBER_STATES = {
   GUEST_UNKNOWN: "GUEST_UNKNOWN",
@@ -13,241 +15,88 @@ export const MEMBER_STATES = {
   GUEST_EMAIL_NON_MEMBER: "GUEST_EMAIL_NON_MEMBER",
 };
 
-function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
+function mapToMemberState(unified, isLoggedIn) {
+  if (unified.status === MEMBERSHIP_STATUS.ACTIVE) {
+    return isLoggedIn
+      ? MEMBER_STATES.LOGGED_IN_ACTIVE_MEMBER
+      : MEMBER_STATES.GUEST_EMAIL_ACTIVE_MEMBER;
+  }
+  if (unified.status === MEMBERSHIP_STATUS.EXPIRED) {
+    return isLoggedIn
+      ? MEMBER_STATES.LOGGED_IN_EXPIRED_MEMBER
+      : MEMBER_STATES.GUEST_EMAIL_EXPIRED_MEMBER;
+  }
+  if (unified.status === MEMBERSHIP_STATUS.NON_MEMBER) {
+    return isLoggedIn
+      ? MEMBER_STATES.LOGGED_IN_NON_MEMBER
+      : MEMBER_STATES.GUEST_EMAIL_NON_MEMBER;
+  }
+  return MEMBER_STATES.GUEST_UNKNOWN;
 }
 
-async function findMembershipByUserId(userId) {
-  if (!userId) return null;
-
-  const membership = await Membership.findOne({
-    userId,
-    active: true,
-    endsAt: { $gt: new Date() },
-  })
-    .sort({ endsAt: -1 })
-    .lean();
-
-  if (membership) {
-    return {
-      source: "membership",
-      planId: resolvePlanId(membership.planId),
-      planName: membership.planName || "",
-      endsAt: membership.endsAt,
-      startedAt: membership.startedAt,
-      membershipNumber: membership.membershipNumber || "",
-      active: true,
-      userId,
-    };
-  }
-
-  const member = await Member.findOne({
-    userId,
-    membershipStatus: "active",
-    expiryDate: { $gt: new Date() },
-  })
-    .sort({ expiryDate: -1 })
-    .lean();
-
-  if (member) {
-    return {
-      source: "member",
-      planId: resolvePlanId(member.planId || member.membershipType),
-      planName: member.membershipType || "",
-      endsAt: member.expiryDate,
-      startedAt: member.startDate,
-      membershipNumber: member.membershipId || "",
-      memberId: member._id?.toString(),
-      active: true,
-      userId,
-    };
-  }
-
-  return null;
+function wrapUnified(unified, isLoggedIn) {
+  const checkoutStatus = mapToMemberState(unified, isLoggedIn);
+  return {
+    ...unified,
+    membershipStatus: unified.status,
+    status: checkoutStatus,
+    membership: unified.membership,
+    isActive: unified.isActive,
+    isExpired: unified.isExpired,
+    requiresLogin: unified.requiresLogin,
+    requiresAccountLinking: unified.requiresAccountLinking,
+  };
 }
 
-async function findExpiredMembershipByUserId(userId) {
-  if (!userId) return null;
-
-  const membership = await Membership.findOne({ userId })
-    .sort({ endsAt: -1 })
-    .lean();
-
-  if (membership && (!membership.active || new Date(membership.endsAt) <= new Date())) {
-    return {
-      source: "membership",
-      planId: resolvePlanId(membership.planId),
-      planName: membership.planName || "",
-      endsAt: membership.endsAt,
-      startedAt: membership.startedAt,
-      membershipNumber: membership.membershipNumber || "",
-      active: false,
-      userId,
-    };
-  }
-
-  const member = await Member.findOne({ userId })
-    .sort({ expiryDate: -1 })
-    .lean();
-
-  if (
-    member &&
-    (member.membershipStatus === "expired" ||
-      member.membershipStatus === "cancelled" ||
-      new Date(member.expiryDate) <= new Date())
-  ) {
-    return {
-      source: "member",
-      planId: resolvePlanId(member.planId || member.membershipType),
-      planName: member.membershipType || "",
-      endsAt: member.expiryDate,
-      startedAt: member.startDate,
-      membershipNumber: member.membershipId || "",
-      memberId: member._id?.toString(),
-      active: false,
-      userId,
-    };
-  }
-
-  return null;
-}
-
-async function findMembershipByEmail(email) {
-  const normalized = normalizeEmail(email);
-  if (!normalized) return null;
-
-  const member = await Member.findOne({ email: normalized })
-    .sort({ expiryDate: -1 })
-    .lean();
-
-  if (member) {
-    const active =
-      member.membershipStatus === "active" && new Date(member.expiryDate) > new Date();
-    return {
-      source: "member",
-      planId: resolvePlanId(member.planId || member.membershipType),
-      planName: member.membershipType || "",
-      endsAt: member.expiryDate,
-      startedAt: member.startDate,
-      membershipNumber: member.membershipId || "",
-      memberId: member._id?.toString(),
-      active,
-      email: normalized,
-      userId: member.userId?.toString() || null,
-    };
-  }
-
-  const user = await User.findOne({ email: normalized }).select("_id").lean();
-  if (user) {
-    return findMembershipByUserId(user._id);
-  }
-
-  return null;
-}
-
-export async function detectByUserId(userId) {
+export async function detectByUserId(userId, options = {}) {
   if (!userId) {
     return {
       status: MEMBER_STATES.GUEST_UNKNOWN,
       membership: null,
       isActive: false,
       isExpired: false,
+      found: false,
+      source: "NONE",
     };
   }
-
-  const active = await findMembershipByUserId(userId);
-  if (active) {
-    return {
-      status: MEMBER_STATES.LOGGED_IN_ACTIVE_MEMBER,
-      membership: active,
-      isActive: true,
-      isExpired: false,
-    };
-  }
-
-  const expired = await findExpiredMembershipByUserId(userId);
-  if (expired) {
-    return {
-      status: MEMBER_STATES.LOGGED_IN_EXPIRED_MEMBER,
-      membership: expired,
-      isActive: false,
-      isExpired: true,
-    };
-  }
-
-  return {
-    status: MEMBER_STATES.LOGGED_IN_NON_MEMBER,
-    membership: null,
-    isActive: false,
-    isExpired: false,
-  };
+  const unified = await unifiedDetectByUserId(userId, {
+    email: options.email,
+    isLoggedIn: true,
+  });
+  return wrapUnified(unified, true);
 }
 
-export async function detectByEmail(email) {
-  const normalized = normalizeEmail(email);
-  if (!normalized) {
-    return {
-      status: MEMBER_STATES.GUEST_UNKNOWN,
-      membership: null,
-      isActive: false,
-      isExpired: false,
-    };
-  }
-
-  const record = await findMembershipByEmail(normalized);
-  if (!record) {
-    return {
-      status: MEMBER_STATES.GUEST_EMAIL_NON_MEMBER,
-      membership: null,
-      isActive: false,
-      isExpired: false,
-    };
-  }
-
-  if (record.active) {
-    return {
-      status: MEMBER_STATES.GUEST_EMAIL_ACTIVE_MEMBER,
-      membership: record,
-      isActive: true,
-      isExpired: false,
-      requiresLogin: true,
-    };
-  }
-
-  return {
-    status: MEMBER_STATES.GUEST_EMAIL_EXPIRED_MEMBER,
-    membership: record,
-    isActive: false,
-    isExpired: true,
-  };
+export async function detectByEmail(email, options = {}) {
+  const unified = await unifiedDetectByEmail(email, {
+    isLoggedIn: Boolean(options.isLoggedIn),
+  });
+  return wrapUnified(unified, Boolean(options.isLoggedIn));
 }
 
-export async function getMembershipStatus({ userId, email }) {
-  if (userId) {
-    return detectByUserId(userId);
-  }
-  if (email) {
-    return detectByEmail(email);
-  }
-  return {
-    status: MEMBER_STATES.GUEST_UNKNOWN,
-    membership: null,
-    isActive: false,
-    isExpired: false,
-  };
+export async function getMembershipStatus({ userId, email, isLoggedIn }) {
+  const unified = await unifiedGetMembershipStatus({ userId, email, isLoggedIn });
+  return wrapUnified(unified, Boolean(isLoggedIn && userId));
 }
 
 export async function detectMemberStatus({ userId, email, isLoggedIn }) {
   if (isLoggedIn && userId) {
-    return detectByUserId(userId);
+    return detectByUserId(userId, { email });
   }
   if (email) {
-    return detectByEmail(email);
+    return detectByEmail(email, { isLoggedIn: false });
   }
   return {
     status: MEMBER_STATES.GUEST_UNKNOWN,
     membership: null,
     isActive: false,
     isExpired: false,
+    found: false,
+    source: "NONE",
   };
 }
+
+export {
+  detectByEmail as detectMembershipByEmail,
+  detectByUserId as detectMembershipByUserId,
+  getMembershipStatus as getUnifiedMembershipStatus,
+} from "./membershipDetectionService.js";

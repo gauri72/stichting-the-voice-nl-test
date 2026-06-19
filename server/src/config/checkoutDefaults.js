@@ -18,6 +18,17 @@ export const DEFAULT_EVENT_CHECKOUT_SETTINGS = {
   showPriceComparisonPreview: true,
 };
 
+export const DEFAULT_MEMBERSHIP_TICKET_KEYWORDS = [
+  "student membership",
+  "privileged single",
+  "privileged family",
+  "premium single",
+  "premium family",
+  "premium members",
+  "membership",
+  "member pass",
+];
+
 export const DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS = {
   allowPurchaseDuringTicketCheckout: true,
   allowRenewalDuringTicketCheckout: true,
@@ -27,6 +38,12 @@ export const DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS = {
     applyToCurrentTicketPurchase: true,
     allowWithCodeDiscounts: true,
   },
+  enableTicketTailorLookup: true,
+  useLiveTicketTailorApi: true,
+  useSyncedTicketTailorData: true,
+  membershipTicketKeywords: [...DEFAULT_MEMBERSHIP_TICKET_KEYWORDS],
+  autoLinkTicketTailorMembership: true,
+  applyTicketTailorMembershipDiscounts: true,
 };
 
 export function getPlanBenefitsSummary(planId) {

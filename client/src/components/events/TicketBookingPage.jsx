@@ -362,6 +362,7 @@ export default function TicketBookingPage() {
       throw new Error(checkout.payment?.message || "Could not start secure checkout.");
     } catch (err) {
       setError(err.message || "Could not start checkout.");
+      checkoutInitRef.current = false;
       setStep(5);
     } finally {
       setCheckoutLoading(false);
@@ -402,6 +403,50 @@ export default function TicketBookingPage() {
   }
 
   function goToPaymentStep() {
+    if (!attendee.email?.includes("@")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    void proceedToPayment();
+  }
+
+  async function proceedToPayment() {
+    setError("");
+    setDetectingMember(true);
+
+    let detection = memberDetection;
+    try {
+      detection = await apiFetch("/api/checkout/detect-member-status", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ email: attendee.email, sessionId }),
+      });
+      setMemberDetection(detection);
+      setDetectionMessages(detection.messages);
+    } catch (err) {
+      console.warn("Member detection failed:", err.message);
+    } finally {
+      setDetectingMember(false);
+    }
+
+    const status = detection?.status;
+    const isActiveGuest = status === "GUEST_EMAIL_ACTIVE_MEMBER";
+    const isExpiredGuest =
+      status === "GUEST_EMAIL_EXPIRED_MEMBER" && applyMemberBenefit && !includeMembership;
+
+    if (isActiveGuest && applyMemberBenefit) {
+      setError("Please log in to apply member benefits, or choose Continue Without Benefits.");
+      setStep(3);
+      return;
+    }
+
+    if (isExpiredGuest) {
+      setError("Renew your membership to apply benefits, or choose Tickets Only.");
+      setStep(3);
+      return;
+    }
+
     checkoutInitRef.current = false;
     setClientSecret("");
     setCheckoutOrder(null);
@@ -451,7 +496,8 @@ export default function TicketBookingPage() {
 
   function handleContinueWithoutDiscount() {
     setApplyMemberBenefit(false);
-    setStep(3);
+    setError("");
+    refreshPreview({ applyMemberBenefit: false });
   }
 
   function nextFromDetails() {
@@ -460,6 +506,13 @@ export default function TicketBookingPage() {
   }
 
   function nextFromBenefits() {
+    if (
+      memberDetection?.status === "GUEST_EMAIL_ACTIVE_MEMBER" &&
+      applyMemberBenefit
+    ) {
+      setError("Please log in to apply member benefits, or choose Continue Without Benefits.");
+      return;
+    }
     if (includeMembership || showMembershipStep) {
       setStep(4);
     } else {
@@ -608,16 +661,20 @@ export default function TicketBookingPage() {
                 <input type="tel" value={attendee.phone} onChange={(e) => setAttendee((a) => ({ ...a, phone: e.target.value }))} />
               </label>
             </div>
-            {detectingMember ? <p className="ticket-booking__status">Checking membership…</p> : null}
+            {detectingMember ? (
+              <p className="ticket-booking__status" role="status">
+                Checking membership benefits…
+              </p>
+            ) : null}
             <div className="ticket-booking__nav">
               <button type="button" className="ticket-booking__back" onClick={() => setStep(1)}>Back</button>
               <button
                 type="button"
                 className="ticket-booking__cta"
-                disabled={!attendee.firstName || !attendee.lastName || !attendee.email}
+                disabled={!attendee.firstName || !attendee.lastName || !attendee.email || detectingMember}
                 onClick={nextFromDetails}
               >
-                Continue
+                {detectingMember ? "Checking membership benefits…" : "Continue"}
               </button>
             </div>
           </section>
@@ -630,6 +687,7 @@ export default function TicketBookingPage() {
               detection={memberDetection}
               messages={detectionMessages}
               includeMembership={includeMembership}
+              returnPath={returnPath}
               onLogin={() => setApplyMemberBenefit(true)}
               onContinueWithoutDiscount={handleContinueWithoutDiscount}
               onAddMembership={handleAddMembership}
@@ -708,15 +766,24 @@ export default function TicketBookingPage() {
               I accept the <Link to="/terms-and-conditions" target="_blank">terms and conditions</Link>
             </label>
 
+            {detectingMember ? (
+              <p className="ticket-booking__status" role="status">
+                Checking membership benefits…
+              </p>
+            ) : null}
             <div className="ticket-booking__nav">
               <button type="button" className="ticket-booking__back" onClick={() => setStep(showMembershipStep ? 4 : 3)}>Back</button>
               <button
                 type="button"
                 className="ticket-booking__cta"
-                disabled={!termsAccepted || !preview}
+                disabled={!termsAccepted || !preview || detectingMember || checkoutLoading}
                 onClick={goToPaymentStep}
               >
-                {isFreeCheckout ? "Complete free booking" : "Continue to payment"}
+                {detectingMember
+                  ? "Checking membership benefits…"
+                  : isFreeCheckout
+                    ? "Complete free booking"
+                    : "Continue to payment"}
               </button>
             </div>
           </section>

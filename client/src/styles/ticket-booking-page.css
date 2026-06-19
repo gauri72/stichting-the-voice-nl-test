@@ -485,6 +485,25 @@
   background: rgba(139, 92, 246, 0.1);
 }
 
+.ticket-booking__member-banner--warning {
+  border-color: rgba(251, 191, 36, 0.35);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.ticket-booking__member-details {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: #a8b8cc;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.ticket-booking__member-detail-line {
+  margin: 8px 0 0;
+  color: #a8b8cc;
+  font-size: 0.9rem;
+}
+
 .ticket-booking__member-banner-title {
   margin: 0 0 6px;
   font-weight: 700;

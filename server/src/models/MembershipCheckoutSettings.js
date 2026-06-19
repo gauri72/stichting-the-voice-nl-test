@@ -32,6 +32,30 @@ const membershipCheckoutSettingsSchema = new mongoose.Schema(
         default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.instantBenefitRules.allowWithCodeDiscounts,
       },
     },
+    enableTicketTailorLookup: {
+      type: Boolean,
+      default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.enableTicketTailorLookup,
+    },
+    useLiveTicketTailorApi: {
+      type: Boolean,
+      default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.useLiveTicketTailorApi,
+    },
+    useSyncedTicketTailorData: {
+      type: Boolean,
+      default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.useSyncedTicketTailorData,
+    },
+    membershipTicketKeywords: {
+      type: [String],
+      default: () => [...DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.membershipTicketKeywords],
+    },
+    autoLinkTicketTailorMembership: {
+      type: Boolean,
+      default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.autoLinkTicketTailorMembership,
+    },
+    applyTicketTailorMembershipDiscounts: {
+      type: Boolean,
+      default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.applyTicketTailorMembershipDiscounts,
+    },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
   },
   { timestamps: true, collection: "membership_checkout_settings" }

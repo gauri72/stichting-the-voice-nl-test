@@ -1,5 +1,12 @@
 import { Link } from "react-router-dom";
-import { IconLogin, IconUserCheck, IconAlertCircle, IconSparkles } from "@tabler/icons-react";
+import { IconLogin, IconUserCheck, IconAlertCircle, IconSparkles, IconUserPlus } from "@tabler/icons-react";
+
+function formatSource(source) {
+  if (source === "BOTH") return "Local + TicketTailor";
+  if (source === "TICKETTAILOR") return "TicketTailor";
+  if (source === "LOCAL") return "Local";
+  return "";
+}
 
 export default function MembershipBenefitBanner({
   detection,
@@ -9,13 +16,28 @@ export default function MembershipBenefitBanner({
   onAddMembership,
   onTicketsOnly,
   includeMembership,
+  returnPath,
 }) {
-  if (!detection?.status || detection.status === "GUEST_UNKNOWN") return null;
+  if (!detection?.status || detection.status === "GUEST_UNKNOWN") {
+    if (detection?.verificationWarning) {
+      return (
+        <div className="ticket-booking__member-banner ticket-booking__member-banner--warning">
+          <IconAlertCircle size={22} />
+          <p className="ticket-booking__member-banner-body">{detection.verificationWarning}</p>
+        </div>
+      );
+    }
+    return null;
+  }
 
-  const isActiveGuest =
-    detection.status === "GUEST_EMAIL_ACTIVE_MEMBER";
-  const isActiveLoggedIn =
-    detection.status === "LOGGED_IN_ACTIVE_MEMBER";
+  const membershipType =
+    detection.membershipType || detection.membership?.planName || "Membership";
+  const memberUntil =
+    detection.memberUntil || detection.membership?.memberUntilFormatted || "";
+  const sourceLabel = formatSource(detection.source);
+
+  const isActiveGuest = detection.status === "GUEST_EMAIL_ACTIVE_MEMBER";
+  const isActiveLoggedIn = detection.status === "LOGGED_IN_ACTIVE_MEMBER";
   const isExpired =
     detection.status === "GUEST_EMAIL_EXPIRED_MEMBER" ||
     detection.status === "LOGGED_IN_EXPIRED_MEMBER";
@@ -30,7 +52,9 @@ export default function MembershipBenefitBanner({
         <div>
           <p className="ticket-booking__member-banner-title">Member Discount Applied</p>
           <p className="ticket-booking__member-banner-body">
-            Your active {detection.membership?.planName || "membership"} benefits are applied to this booking.
+            Your active {membershipType} benefits are applied to this booking.
+            {memberUntil ? ` Valid until ${memberUntil}.` : ""}
+            {sourceLabel ? ` Source: ${sourceLabel}.` : ""}
           </p>
         </div>
       </div>
@@ -38,25 +62,59 @@ export default function MembershipBenefitBanner({
   }
 
   if (isActiveGuest) {
+    const loginHref = returnPath
+      ? `/login?returnTo=${encodeURIComponent(returnPath)}`
+      : "/login";
+
     return (
       <div className="ticket-booking__member-banner ticket-booking__member-banner--login">
         <IconLogin size={22} />
         <div>
-          <p className="ticket-booking__member-banner-title">{messages?.title || "Active membership found"}</p>
+          <p className="ticket-booking__member-banner-title">
+            {messages?.title || "Active Membership Found"}
+          </p>
           <p className="ticket-booking__member-banner-body">
             {messages?.body ||
-              "You already have an active V.O.I.C.E. NL membership. Please log in to apply your member benefits."}
+              "We found an active V.O.I.C.E. NL membership associated with this email."}
           </p>
+          <ul className="ticket-booking__member-details">
+            <li>
+              <strong>Membership:</strong> {membershipType}
+            </li>
+            {memberUntil ? (
+              <li>
+                <strong>Valid until:</strong> {memberUntil}
+              </li>
+            ) : null}
+            {sourceLabel ? (
+              <li>
+                <strong>Source:</strong> {sourceLabel}
+              </li>
+            ) : null}
+          </ul>
           <div className="ticket-booking__member-banner-actions">
-            <Link to="/login" className="ticket-booking__cta ticket-booking__cta--small" onClick={onLogin}>
-              Login to Apply Member Discount
-            </Link>
+            {detection.requiresAccountLinking ? (
+              <Link
+                to={`/register?email=${encodeURIComponent(detection.membership?.email || "")}&returnTo=${encodeURIComponent(returnPath || "/")}`}
+                className="ticket-booking__cta ticket-booking__cta--small"
+              >
+                <IconUserPlus size={16} /> Create Account &amp; Apply Benefits
+              </Link>
+            ) : (
+              <Link
+                to={loginHref}
+                className="ticket-booking__cta ticket-booking__cta--small"
+                onClick={onLogin}
+              >
+                Login &amp; Apply Benefits
+              </Link>
+            )}
             <button
               type="button"
               className="ticket-booking__back"
               onClick={onContinueWithoutDiscount}
             >
-              Continue Without Member Discount
+              Continue Without Benefits
             </button>
           </div>
         </div>
@@ -69,18 +127,30 @@ export default function MembershipBenefitBanner({
       <div className="ticket-booking__member-banner ticket-booking__member-banner--expired">
         <IconAlertCircle size={22} />
         <div>
-          <p className="ticket-booking__member-banner-title">{messages?.title || "Membership expired"}</p>
+          <p className="ticket-booking__member-banner-title">
+            {messages?.title || "Membership Expired"}
+          </p>
           <p className="ticket-booking__member-banner-body">
             {messages?.body ||
               "Your V.O.I.C.E. NL membership has expired. Renew your membership with this booking and enjoy member benefits immediately."}
           </p>
+          {memberUntil ? (
+            <p className="ticket-booking__member-detail-line">
+              Expired on: <strong>{memberUntil}</strong>
+              {sourceLabel ? ` · Source: ${sourceLabel}` : ""}
+            </p>
+          ) : null}
           {!includeMembership ? (
             <div className="ticket-booking__member-banner-actions">
-              <button type="button" className="ticket-booking__cta ticket-booking__cta--small" onClick={onAddMembership}>
-                Renew Membership + Buy Tickets
+              <button
+                type="button"
+                className="ticket-booking__cta ticket-booking__cta--small"
+                onClick={onAddMembership}
+              >
+                Renew Membership + Tickets
               </button>
               <button type="button" className="ticket-booking__back" onClick={onTicketsOnly}>
-                Buy Tickets Only
+                Tickets Only
               </button>
             </div>
           ) : null}
@@ -94,14 +164,20 @@ export default function MembershipBenefitBanner({
       <div className="ticket-booking__member-banner ticket-booking__member-banner--upsell">
         <IconSparkles size={22} />
         <div>
-          <p className="ticket-booking__member-banner-title">{messages?.title || "Become a member"}</p>
+          <p className="ticket-booking__member-banner-title">
+            {messages?.title || "Become a member"}
+          </p>
           <p className="ticket-booking__member-banner-body">
             {messages?.body ||
               "Become a V.O.I.C.E. NL member and unlock exclusive discounts, priority access and member benefits."}
           </p>
           {!includeMembership ? (
             <div className="ticket-booking__member-banner-actions">
-              <button type="button" className="ticket-booking__cta ticket-booking__cta--small" onClick={onAddMembership}>
+              <button
+                type="button"
+                className="ticket-booking__cta ticket-booking__cta--small"
+                onClick={onAddMembership}
+              >
                 Add Membership + Buy Tickets
               </button>
               <button type="button" className="ticket-booking__back" onClick={onTicketsOnly}>

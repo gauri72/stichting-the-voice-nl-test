@@ -135,11 +135,17 @@ export async function detectMemberForCheckout({ userId, email, isLoggedIn, sessi
 }
 
 function buildDetectionMessages(detection) {
+  const membershipLabel = detection.membershipType || detection.membership?.planName || "membership";
+  const validUntil = detection.memberUntil || detection.membership?.memberUntilFormatted || "";
+  const sourceLabel = detection.source || "LOCAL";
+
   switch (detection.status) {
     case MEMBER_STATES.GUEST_EMAIL_ACTIVE_MEMBER:
       return {
-        title: "Active membership found",
-        body: "You already have an active V.O.I.C.E. NL membership. Please log in to apply your member benefits.",
+        title: "Active Membership Found",
+        body: detection.requiresAccountLinking
+          ? `We found an active V.O.I.C.E. NL ${membershipLabel} membership (valid until ${validUntil}, source: ${sourceLabel}). Create an account to link it and apply benefits.`
+          : `We found an active V.O.I.C.E. NL membership associated with this email. Membership: ${membershipLabel}. Valid until: ${validUntil}. Source: ${sourceLabel}.`,
         showLoginPrompt: true,
         showRenewalOption: false,
         showUpsell: false,
@@ -155,8 +161,8 @@ function buildDetectionMessages(detection) {
     case MEMBER_STATES.GUEST_EMAIL_EXPIRED_MEMBER:
     case MEMBER_STATES.LOGGED_IN_EXPIRED_MEMBER:
       return {
-        title: "Membership expired",
-        body: "Your V.O.I.C.E. NL membership has expired. Renew your membership with this booking and enjoy member benefits immediately.",
+        title: "Membership Expired",
+        body: `Your membership expired on ${validUntil || "the previous renewal date"}. Renew your membership with this booking to enjoy member benefits immediately.`,
         showLoginPrompt: false,
         showRenewalOption: true,
         showUpsell: false,
@@ -246,8 +252,11 @@ export async function validateBundle({
     applyMemberBenefit &&
     !includeMembership
   ) {
-    const err = new Error("Please log in to apply your member discount.");
+    const err = new Error(
+      "Please log in to apply your member discount, or continue without member benefits."
+    );
     err.status = 400;
+    err.code = "MEMBER_LOGIN_REQUIRED";
     throw err;
   }
 
@@ -256,8 +265,11 @@ export async function validateBundle({
     applyMemberBenefit &&
     !includeMembership
   ) {
-    const err = new Error("Renew your membership to apply member benefits.");
+    const err = new Error(
+      "Renew your membership to apply member benefits, or continue with tickets only."
+    );
     err.status = 400;
+    err.code = "MEMBER_RENEWAL_REQUIRED";
     throw err;
   }
 
@@ -308,6 +320,24 @@ export async function createBundleCheckout(eventId, payload, userId) {
     discountCode: code,
     applyMemberBenefit,
   });
+
+  console.log("[CHECKOUT_PAYMENT_STARTED]", {
+    email,
+    eventId,
+    includeMembership,
+    applyMemberBenefit,
+    isLoggedIn,
+  });
+
+  if (sessionId) {
+    await logCheckoutAction({
+      action: CHECKOUT_AUDIT_ACTIONS.CHECKOUT_PAYMENT_STARTED,
+      sessionId,
+      userId,
+      email,
+      eventId,
+    });
+  }
 
   const preview = await calculatePricePreview({
     eventId,

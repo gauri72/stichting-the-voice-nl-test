@@ -37,6 +37,24 @@ export async function updateMembershipCheckoutSettings(data, adminId) {
       allowWithCodeDiscounts: data.instantBenefitRules.allowWithCodeDiscounts !== false,
     };
   }
+  if (data.enableTicketTailorLookup !== undefined) {
+    update.enableTicketTailorLookup = Boolean(data.enableTicketTailorLookup);
+  }
+  if (data.useLiveTicketTailorApi !== undefined) {
+    update.useLiveTicketTailorApi = Boolean(data.useLiveTicketTailorApi);
+  }
+  if (data.useSyncedTicketTailorData !== undefined) {
+    update.useSyncedTicketTailorData = Boolean(data.useSyncedTicketTailorData);
+  }
+  if (Array.isArray(data.membershipTicketKeywords)) {
+    update.membershipTicketKeywords = data.membershipTicketKeywords;
+  }
+  if (data.autoLinkTicketTailorMembership !== undefined) {
+    update.autoLinkTicketTailorMembership = Boolean(data.autoLinkTicketTailorMembership);
+  }
+  if (data.applyTicketTailorMembershipDiscounts !== undefined) {
+    update.applyTicketTailorMembershipDiscounts = Boolean(data.applyTicketTailorMembershipDiscounts);
+  }
   if (adminId) update.updatedBy = adminId;
 
   const doc = await MembershipCheckoutSettings.findOneAndUpdate(
@@ -59,6 +77,15 @@ function formatSettings(doc) {
         doc.instantBenefitRules?.applyToCurrentTicketPurchase !== false,
       allowWithCodeDiscounts: doc.instantBenefitRules?.allowWithCodeDiscounts !== false,
     },
+    enableTicketTailorLookup: doc.enableTicketTailorLookup !== false,
+    useLiveTicketTailorApi: doc.useLiveTicketTailorApi !== false,
+    useSyncedTicketTailorData: doc.useSyncedTicketTailorData !== false,
+    membershipTicketKeywords:
+      doc.membershipTicketKeywords?.length > 0
+        ? doc.membershipTicketKeywords
+        : DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.membershipTicketKeywords,
+    autoLinkTicketTailorMembership: doc.autoLinkTicketTailorMembership !== false,
+    applyTicketTailorMembershipDiscounts: doc.applyTicketTailorMembershipDiscounts !== false,
     updatedAt: doc.updatedAt,
   };
 }

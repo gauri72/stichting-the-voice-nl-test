@@ -350,6 +350,91 @@ export default function AdminMembershipsPage() {
                 />
               </label>
             </div>
+
+            <h3>TicketTailor membership detection</h3>
+            <div className="admin-memberships__checkout-grid">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.enableTicketTailorLookup !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      enableTicketTailorLookup: e.target.checked,
+                    }))
+                  }
+                />
+                Enable TicketTailor membership lookup
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.useLiveTicketTailorApi !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      useLiveTicketTailorApi: e.target.checked,
+                    }))
+                  }
+                />
+                Use live TicketTailor API
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.useSyncedTicketTailorData !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      useSyncedTicketTailorData: e.target.checked,
+                    }))
+                  }
+                />
+                Use synced TicketTailor membership data
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.autoLinkTicketTailorMembership !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      autoLinkTicketTailorMembership: e.target.checked,
+                    }))
+                  }
+                />
+                Auto-link TicketTailor membership on account creation
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.applyTicketTailorMembershipDiscounts !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      applyTicketTailorMembershipDiscounts: e.target.checked,
+                    }))
+                  }
+                />
+                Apply TicketTailor membership discounts
+              </label>
+              <label className="admin-memberships__full-width">
+                Membership ticket type keywords (one per line)
+                <textarea
+                  rows={6}
+                  value={(checkoutSettings.membershipTicketKeywords || []).join("\n")}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      membershipTicketKeywords: e.target.value
+                        .split("\n")
+                        .map((line) => line.trim())
+                        .filter(Boolean),
+                    }))
+                  }
+                />
+              </label>
+            </div>
             <button
               type="button"
               className="admin-memberships__primary-btn"
