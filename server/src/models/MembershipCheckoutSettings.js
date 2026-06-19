@@ -56,6 +56,10 @@ const membershipCheckoutSettingsSchema = new mongoose.Schema(
       type: Boolean,
       default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.applyTicketTailorMembershipDiscounts,
     },
+    enableMembershipCodeValidation: {
+      type: Boolean,
+      default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.enableMembershipCodeValidation,
+    },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
   },
   { timestamps: true, collection: "membership_checkout_settings" }

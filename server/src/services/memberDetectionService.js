@@ -78,12 +78,12 @@ export async function getMembershipStatus({ userId, email, isLoggedIn }) {
   return wrapUnified(unified, Boolean(isLoggedIn && userId));
 }
 
-export async function detectMemberStatus({ userId, email, isLoggedIn }) {
+export async function detectMemberStatus({ userId, email, isLoggedIn, membershipCode = null }) {
   if (isLoggedIn && userId) {
-    return detectByUserId(userId, { email });
+    return detectByUserId(userId, { email, membershipCode });
   }
   if (email) {
-    return detectByEmail(email, { isLoggedIn: false });
+    return detectByEmail(email, { isLoggedIn: false, membershipCode });
   }
   return {
     status: MEMBER_STATES.GUEST_UNKNOWN,

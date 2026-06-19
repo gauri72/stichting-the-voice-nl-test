@@ -87,11 +87,183 @@ export async function getSession(sessionId) {
   return session;
 }
 
-export async function detectMemberForCheckout({ userId, email, isLoggedIn, sessionId }) {
+export async function saveCheckoutBeforeLogin({
+  sessionId,
+  eventId,
+  eventSlug = "",
+  userId = null,
+  email = "",
+  items = [],
+  attendeeDetails = {},
+  discountCode = "",
+  referralCode = "",
+  membershipCode = "",
+  memberDetection = null,
+  returnStep = 3,
+  includeMembership = false,
+  selectedPlanId = null,
+  purchaseType = "NEW",
+  applyMemberBenefit = true,
+}) {
+  const sid = sessionId || generateSessionId();
+  const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
+
+  console.log("[LOGIN_REDIRECT_STARTED] sessionId=%s eventId=%s", sid, eventId);
+  console.log("[CHECKOUT_SESSION_SAVED_BEFORE_LOGIN] sessionId=%s", sid);
+
+  await CheckoutSession.findOneAndUpdate(
+    { sessionId: sid },
+    {
+      sessionId: sid,
+      userId: userId || null,
+      email: String(email || attendeeDetails.email || "").toLowerCase(),
+      eventId,
+      eventSlug,
+      selectedTickets: items,
+      attendeeDetails: {
+        firstName: attendeeDetails.firstName || "",
+        lastName: attendeeDetails.lastName || "",
+        email: String(attendeeDetails.email || email || "").toLowerCase(),
+        phone: attendeeDetails.phone || "",
+      },
+      detectedMemberStatus: memberDetection?.status || "GUEST_UNKNOWN",
+      membershipDetectionResult: memberDetection || null,
+      includeMembership,
+      selectedMembership: includeMembership
+        ? { planId: selectedPlanId || "", purchaseType }
+        : { planId: "", purchaseType: "" },
+      discountCode: discountCode || "",
+      referralCode: referralCode || "",
+      membershipCode: membershipCode || "",
+      applyMemberBenefit,
+      returnStep,
+      expiresAt,
+    },
+    { upsert: true, new: true }
+  );
+
+  await logCheckoutAction({
+    action: CHECKOUT_AUDIT_ACTIONS.CHECKOUT_SESSION_SAVED_BEFORE_LOGIN,
+    sessionId: sid,
+    userId,
+    email,
+    eventId,
+    memberStatus: memberDetection?.status || "",
+    details: { eventSlug, returnStep },
+  });
+
+  const returnPath = eventSlug
+    ? `/events/${eventSlug}/tickets?checkoutSessionId=${sid}`
+    : `/events/${eventId}/tickets?checkoutSessionId=${sid}`;
+
+  console.log("[LOGIN_REDIRECT_URL_BUILT] url=%s", returnPath);
+
+  return { sessionId: sid, returnPath, expiresAt };
+}
+
+export async function restoreCheckoutSession(sessionId) {
+  const session = await getSession(sessionId);
+  console.log("[CHECKOUT_SESSION_RESTORED_AFTER_LOGIN] sessionId=%s", sessionId);
+
+  await logCheckoutAction({
+    action: CHECKOUT_AUDIT_ACTIONS.CHECKOUT_SESSION_RESTORED_AFTER_LOGIN,
+    sessionId,
+    userId: session.userId,
+    email: session.email,
+    eventId: session.eventId,
+    memberStatus: session.detectedMemberStatus,
+  });
+
+  return {
+    sessionId: session.sessionId,
+    eventId: session.eventId?.toString?.() || session.eventId,
+    eventSlug: session.eventSlug || "",
+    email: session.email,
+    items: session.selectedTickets || [],
+    attendeeDetails: session.attendeeDetails || {},
+    discountCode: session.discountCode || "",
+    referralCode: session.referralCode || "",
+    membershipCode: session.membershipCode || "",
+    memberDetection: session.membershipDetectionResult || null,
+    includeMembership: session.includeMembership,
+    selectedPlanId: session.selectedMembership?.planId || null,
+    purchaseType: session.selectedMembership?.purchaseType || "NEW",
+    applyMemberBenefit: session.applyMemberBenefit !== false,
+    returnStep: session.returnStep || 3,
+    pricePreview: session.pricePreview || null,
+  };
+}
+
+export async function applyMemberBenefitsAfterLogin({ sessionId, userId, email }) {
+  const session = await getSession(sessionId);
+  const checkoutEmail = email || session.email || session.attendeeDetails?.email || "";
+
+  console.log("[AUTH_CALLBACK_RECEIVED] sessionId=%s userId=%s", sessionId, userId);
+
+  const detection = await detectMemberForCheckout({
+    userId,
+    email: checkoutEmail,
+    isLoggedIn: true,
+    sessionId,
+    membershipCode: session.membershipCode || null,
+  });
+
+  const items = session.selectedTickets || [];
+  const includeMembership = session.includeMembership;
+  const selectedPlanId = session.selectedMembership?.planId || null;
+  const purchaseType = session.selectedMembership?.purchaseType || "NEW";
+
+  const result = await createOrUpdateSession({
+    sessionId,
+    eventId: session.eventId,
+    userId,
+    email: checkoutEmail,
+    items,
+    includeMembership,
+    selectedPlanId,
+    purchaseType,
+    discountCode: session.discountCode || "",
+    applyMemberBenefit: true,
+    isLoggedIn: true,
+  });
+
+  await CheckoutSession.findOneAndUpdate(
+    { sessionId },
+    {
+      userId,
+      email: checkoutEmail,
+      detectedMemberStatus: detection.status,
+      membershipDetectionResult: detection,
+      applyMemberBenefit: true,
+    }
+  );
+
+  await logCheckoutAction({
+    action: CHECKOUT_AUDIT_ACTIONS.MEMBER_DISCOUNT_APPLIED_AFTER_LOGIN,
+    sessionId,
+    userId,
+    email: checkoutEmail,
+    eventId: session.eventId,
+    memberStatus: detection.status,
+    details: { membershipType: detection.membershipType },
+  });
+
+  console.log("[MEMBER_DISCOUNT_APPLIED_AFTER_LOGIN] sessionId=%s status=%s", sessionId, detection.status);
+
+  return {
+    ...result,
+    detection,
+    messages: buildDetectionMessages(detection),
+    restored: await restoreCheckoutSession(sessionId),
+  };
+}
+
+export async function detectMemberForCheckout({ userId, email, isLoggedIn, sessionId, membershipCode = null }) {
   const detection = await detectMemberStatus({
     userId,
     email,
     isLoggedIn: Boolean(isLoggedIn && userId),
+    membershipCode,
   });
 
   if (sessionId) {

@@ -10,12 +10,12 @@ const email = process.argv[2] || "shivamjoshi1726@gmail.com";
 
 async function main() {
   await mongoose.connect(process.env.MONGODB_URI);
-  const Member = (await import("./src/models/Member.js")).default;
-  const Membership = (await import("./src/models/Membership.js")).default;
-  const User = (await import("./src/models/User.js")).default;
-  const PastData = (await import("./src/models/PastData.js")).default;
-  const TicketTailorBooking = (await import("./src/models/TicketTailorBooking.js")).default;
-  const { detectByEmail } = await import("./src/services/membershipDetectionService.js");
+  const Member = (await import("../src/models/Member.js")).default;
+  const Membership = (await import("../src/models/Membership.js")).default;
+  const User = (await import("../src/models/User.js")).default;
+  const PastData = (await import("../src/models/PastData.js")).default;
+  const TicketTailorBooking = (await import("../src/models/TicketTailorBooking.js")).default;
+  const { detectByEmail } = await import("../src/services/membershipDetectionService.js");
 
   const normalized = email.trim().toLowerCase();
   const member = await Member.findOne({ email: normalized }).lean();

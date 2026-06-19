@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Elements } from "@stripe/react-stripe-js";
 import { IconCalendar, IconMapPin, IconTicket, IconCheck } from "@tabler/icons-react";
 import StripeCheckoutForm from "../payments/StripeCheckoutForm.jsx";
@@ -41,6 +41,7 @@ const STEPS = [
 
 export default function TicketBookingPage() {
   const { eventIdOrSlug } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isDark } = useTheme();
@@ -71,8 +72,15 @@ export default function TicketBookingPage() {
   const [purchaseType, setPurchaseType] = useState("NEW");
   const [applyMemberBenefit, setApplyMemberBenefit] = useState(true);
   const [detectingMember, setDetectingMember] = useState(false);
+  const [membershipCode, setMembershipCode] = useState("");
+  const [membershipCodeMessage, setMembershipCodeMessage] = useState("");
+  const [membershipCodeApplied, setMembershipCodeApplied] = useState(false);
+  const sessionRestoreRef = useRef(false);
 
-  const returnPath = `/events/${eventIdOrSlug}/tickets`;
+  const checkoutSessionIdFromUrl = searchParams.get("checkoutSessionId") || "";
+  const returnPath = checkoutSessionIdFromUrl
+    ? `/events/${eventIdOrSlug}/tickets?checkoutSessionId=${checkoutSessionIdFromUrl}`
+    : `/events/${eventIdOrSlug}/tickets`;
   const payer = useMemo(
     () => ({
       firstName: attendee.firstName,
@@ -166,6 +174,7 @@ export default function TicketBookingPage() {
           purchaseType: overrides.purchaseType ?? purchaseType,
           discountCode: voucherCode || undefined,
           applyMemberBenefit: overrides.applyMemberBenefit ?? applyMemberBenefit,
+          membershipCode: membershipCode || undefined,
           sessionId: sessionId || undefined,
         }),
       });
@@ -184,16 +193,21 @@ export default function TicketBookingPage() {
     voucherCode,
     applyMemberBenefit,
     sessionId,
+    membershipCode,
   ]);
 
-  const detectMember = useCallback(async (email) => {
-    if (!email?.trim()) return;
+  const detectMember = useCallback(async (email, codeOverride = null) => {
+    if (!email?.trim() && !codeOverride) return;
     setDetectingMember(true);
     try {
       const data = await apiFetch("/api/checkout/detect-member-status", {
         method: "POST",
         headers: authHeaders(),
-        body: JSON.stringify({ email, sessionId }),
+        body: JSON.stringify({
+          email,
+          sessionId,
+          membershipCode: codeOverride ?? membershipCode || undefined,
+        }),
       });
       setMemberDetection(data);
       setDetectionMessages(data.messages);
@@ -210,7 +224,117 @@ export default function TicketBookingPage() {
     } finally {
       setDetectingMember(false);
     }
-  }, [sessionId]);
+  }, [sessionId, membershipCode]);
+
+  const saveCheckoutBeforeLogin = useCallback(async () => {
+    if (!event?.id) return { returnPath };
+    const data = await apiFetch("/api/checkout/save-before-login", {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({
+        sessionId,
+        eventId: event.id,
+        eventSlug: event.slug || eventIdOrSlug,
+        email: attendee.email,
+        items: selectedItems,
+        attendeeDetails: attendee,
+        discountCode: voucherCode || "",
+        membershipCode: membershipCode || "",
+        memberDetection,
+        returnStep: step,
+        includeMembership,
+        selectedPlanId,
+        purchaseType,
+        applyMemberBenefit: true,
+      }),
+    });
+    if (data.sessionId) setSessionId(data.sessionId);
+    return data;
+  }, [
+    event,
+    eventIdOrSlug,
+    sessionId,
+    attendee,
+    selectedItems,
+    voucherCode,
+    membershipCode,
+    memberDetection,
+    step,
+    includeMembership,
+    selectedPlanId,
+    purchaseType,
+    returnPath,
+  ]);
+
+  const restoreCheckoutFromSession = useCallback(async (checkoutSessionId) => {
+    const data = await apiFetch(`/api/checkout/session/${checkoutSessionId}`, {
+      headers: authHeaders(),
+    });
+    const restored = data.session;
+    if (!restored) return;
+
+    if (restored.attendeeDetails) {
+      setAttendee({
+        firstName: restored.attendeeDetails.firstName || "",
+        lastName: restored.attendeeDetails.lastName || "",
+        email: restored.attendeeDetails.email || "",
+        phone: restored.attendeeDetails.phone || "",
+      });
+    }
+    if (restored.discountCode) setVoucherCode(restored.discountCode);
+    if (restored.membershipCode) {
+      setMembershipCode(restored.membershipCode);
+      setMembershipCodeApplied(true);
+    }
+    if (restored.includeMembership) setIncludeMembership(true);
+    if (restored.selectedPlanId) setSelectedPlanId(restored.selectedPlanId);
+    if (restored.purchaseType) setPurchaseType(restored.purchaseType);
+    setApplyMemberBenefit(restored.applyMemberBenefit !== false);
+    setSessionId(restored.sessionId);
+    if (restored.items?.length && event?.ticketTypes) {
+      const next = {};
+      event.ticketTypes.forEach((tt) => { next[tt.id] = 0; });
+      restored.items.forEach((item) => {
+        next[item.ticketTypeId] = item.quantity;
+      });
+      setQuantities(next);
+    }
+    if (restored.memberDetection) {
+      setMemberDetection(restored.memberDetection);
+    }
+    setStep(restored.returnStep || 3);
+  }, [event?.ticketTypes]);
+
+  useEffect(() => {
+    if (!checkoutSessionIdFromUrl || !event?.id || sessionRestoreRef.current) return;
+    sessionRestoreRef.current = true;
+
+    async function restore() {
+      try {
+        await restoreCheckoutFromSession(checkoutSessionIdFromUrl);
+        if (user) {
+          const result = await apiFetch("/api/checkout/apply-member-benefits-after-login", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({
+              sessionId: checkoutSessionIdFromUrl,
+              email: user.email,
+            }),
+          });
+          if (result.detection) {
+            setMemberDetection(result.detection);
+            setDetectionMessages(result.messages);
+            setApplyMemberBenefit(true);
+          }
+          if (result.preview) setPreview(result.preview);
+        }
+      } catch (err) {
+        console.warn("Could not restore checkout session:", err.message);
+      }
+    }
+
+    restore();
+  }, [checkoutSessionIdFromUrl, event?.id, user, restoreCheckoutFromSession]);
 
   useEffect(() => {
     if (step >= 2 && attendee.email?.includes("@")) {
@@ -283,6 +407,42 @@ export default function TicketBookingPage() {
     });
   }, [finalizeTicketPayment]);
 
+  async function applyMembershipCode() {
+    if (!membershipCode.trim()) return;
+    setMembershipCodeMessage("");
+    setDetectingMember(true);
+    try {
+      const data = await apiFetch("/api/checkout/validate-membership-code", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          code: membershipCode.trim(),
+          email: attendee.email,
+          sessionId,
+        }),
+      });
+      if (data.valid) {
+        setMembershipCodeApplied(true);
+        setMembershipCodeMessage(
+          `Membership Benefit Applied — ${data.detection?.membershipType || "Membership"}${
+            data.detection?.memberUntil ? ` · Valid until ${data.detection.memberUntil}` : ""
+          }`
+        );
+        setApplyMemberBenefit(true);
+        if (attendee.email) await detectMember(attendee.email, membershipCode.trim());
+        refreshPreview({ applyMemberBenefit: true });
+      } else {
+        setMembershipCodeApplied(false);
+        setMembershipCodeMessage(data.message || "This membership code is invalid or expired.");
+      }
+    } catch (err) {
+      setMembershipCodeApplied(false);
+      setMembershipCodeMessage(err.message || "This membership code is invalid or expired.");
+    } finally {
+      setDetectingMember(false);
+    }
+  }
+
   async function applyVoucher() {
     if (!voucherCode.trim()) return;
     setVoucherMessage("");
@@ -337,6 +497,7 @@ export default function TicketBookingPage() {
           purchaseType: includeMembership ? purchaseType : undefined,
           applyMemberBenefit,
           sessionId,
+          membershipCode: membershipCode || undefined,
         }),
       });
 
@@ -391,6 +552,7 @@ export default function TicketBookingPage() {
           purchaseType: includeMembership ? purchaseType : undefined,
           applyMemberBenefit,
           sessionId,
+          membershipCode: membershipCode || undefined,
         }),
       });
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
@@ -420,7 +582,11 @@ export default function TicketBookingPage() {
       detection = await apiFetch("/api/checkout/detect-member-status", {
         method: "POST",
         headers: authHeaders(),
-        body: JSON.stringify({ email: attendee.email, sessionId }),
+        body: JSON.stringify({
+          email: attendee.email,
+          sessionId,
+          membershipCode: membershipCode || undefined,
+        }),
       });
       setMemberDetection(detection);
       setDetectionMessages(detection.messages);
@@ -661,6 +827,38 @@ export default function TicketBookingPage() {
                 <input type="tel" value={attendee.phone} onChange={(e) => setAttendee((a) => ({ ...a, phone: e.target.value }))} />
               </label>
             </div>
+            <div className="ticket-booking__membership-code">
+              <label>
+                Membership Code
+                <input
+                  placeholder="Enter Membership Code"
+                  value={membershipCode}
+                  onChange={(e) => {
+                    setMembershipCode(e.target.value.toUpperCase());
+                    setMembershipCodeMessage("");
+                    setMembershipCodeApplied(false);
+                  }}
+                />
+              </label>
+              <button
+                type="button"
+                className="ticket-booking__cta ticket-booking__cta--small"
+                disabled={!membershipCode.trim() || detectingMember}
+                onClick={applyMembershipCode}
+              >
+                Apply Membership Code
+              </button>
+            </div>
+            {membershipCodeMessage ? (
+              <p
+                className={`ticket-booking__membership-code-msg${
+                  membershipCodeApplied ? " ticket-booking__membership-code-msg--success" : ""
+                }`}
+                role="status"
+              >
+                {membershipCodeMessage}
+              </p>
+            ) : null}
             {detectingMember ? (
               <p className="ticket-booking__status" role="status">
                 Checking membership benefits…
@@ -688,6 +886,7 @@ export default function TicketBookingPage() {
               messages={detectionMessages}
               includeMembership={includeMembership}
               returnPath={returnPath}
+              onSaveBeforeLogin={saveCheckoutBeforeLogin}
               onLogin={() => setApplyMemberBenefit(true)}
               onContinueWithoutDiscount={handleContinueWithoutDiscount}
               onAddMembership={handleAddMembership}
@@ -752,6 +951,35 @@ export default function TicketBookingPage() {
               <button type="button" onClick={applyVoucher}>Apply</button>
             </div>
             {voucherMessage ? <p className="ticket-booking__voucher-msg">{voucherMessage}</p> : null}
+
+            <div className="ticket-booking__membership-code">
+              <input
+                placeholder="Enter Membership Code"
+                value={membershipCode}
+                onChange={(e) => {
+                  setMembershipCode(e.target.value.toUpperCase());
+                  setMembershipCodeMessage("");
+                  setMembershipCodeApplied(false);
+                }}
+              />
+              <button
+                type="button"
+                onClick={applyMembershipCode}
+                disabled={!membershipCode.trim() || detectingMember}
+              >
+                Apply Membership Code
+              </button>
+            </div>
+            {membershipCodeMessage ? (
+              <p
+                className={`ticket-booking__membership-code-msg${
+                  membershipCodeApplied ? " ticket-booking__membership-code-msg--success" : ""
+                }`}
+                role="status"
+              >
+                {membershipCodeMessage}
+              </p>
+            ) : null}
 
             {preview?.membershipBenefitApplied ? (
               <p className="ticket-booking__discount-note">

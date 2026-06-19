@@ -29,6 +29,17 @@ const checkoutSessionSchema = new mongoose.Schema(
     includeMembership: { type: Boolean, default: false },
     applyMemberBenefit: { type: Boolean, default: false },
     discountCode: { type: String, default: "", trim: true },
+    referralCode: { type: String, default: "", trim: true },
+    membershipCode: { type: String, default: "", trim: true },
+    eventSlug: { type: String, default: "", trim: true },
+    attendeeDetails: {
+      firstName: { type: String, default: "", trim: true },
+      lastName: { type: String, default: "", trim: true },
+      email: { type: String, default: "", lowercase: true, trim: true },
+      phone: { type: String, default: "", trim: true },
+    },
+    membershipDetectionResult: { type: mongoose.Schema.Types.Mixed, default: null },
+    returnStep: { type: Number, default: 3, min: 1, max: 6 },
     expiresAt: { type: Date, required: true },
   },
   { timestamps: true, collection: "checkout_sessions" }

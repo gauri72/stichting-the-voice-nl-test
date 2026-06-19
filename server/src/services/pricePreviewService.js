@@ -148,6 +148,7 @@ export async function calculatePricePreview({
   discountCode = null,
   applyMemberBenefit = true,
   sessionId = null,
+  membershipCode = null,
 }) {
   const event = await getPublishedEventBySlugOrId(eventId);
   const eventSettings = getEventCheckoutSettings(event);
@@ -159,6 +160,7 @@ export async function calculatePricePreview({
     userId,
     email,
     isLoggedIn: Boolean(isLoggedIn && userId),
+    membershipCode,
   });
 
   const { memberPlanId, benefitReason, benefitApplied } = resolveMemberBenefitContext({
@@ -309,7 +311,14 @@ export async function calculatePricePreview({
         ? {
             planId: memberDetection.membership.planId,
             planName: memberDetection.membership.planName,
-            endsAt: memberDetection.membership.endsAt,
+            endsAt:
+              memberDetection.membership.memberUntil ||
+              memberDetection.membership.endsAt ||
+              null,
+            memberUntil:
+              memberDetection.memberUntil ||
+              memberDetection.membership.memberUntilFormatted ||
+              "",
             membershipNumber: memberDetection.membership.membershipNumber,
           }
         : null,

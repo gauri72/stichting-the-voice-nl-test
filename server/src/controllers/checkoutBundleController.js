@@ -3,7 +3,12 @@ import {
   createOrUpdateSession,
   createBundleCheckout,
   completeFreeOrder,
+  saveCheckoutBeforeLogin,
+  restoreCheckoutSession,
+  applyMemberBenefitsAfterLogin,
 } from "../services/checkoutBundleService.js";
+import { detectByMembershipCode } from "../services/membershipDetectionService.js";
+import { checkRateLimit } from "../utils/rateLimit.js";
 import {
   calculatePricePreview,
   getAvailableMembershipPlans,
@@ -26,7 +31,7 @@ function handleError(res, error) {
 
 export async function detectMemberStatus(req, res) {
   try {
-    const { email, sessionId } = req.body || {};
+    const { email, sessionId, membershipCode } = req.body || {};
     const userId = req.user?.id || req.user?._id || null;
     const isLoggedIn = Boolean(userId);
 
@@ -35,6 +40,101 @@ export async function detectMemberStatus(req, res) {
       email: email || req.user?.email,
       isLoggedIn,
       sessionId,
+      membershipCode: membershipCode || null,
+    });
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function validateMembershipCode(req, res) {
+  try {
+    const { code, email, sessionId } = req.body || {};
+    const ip = req.ip || req.headers["x-forwarded-for"] || "unknown";
+    const limitKey = `membership-code:${ip}:${sessionId || "anon"}`;
+    const limit = checkRateLimit(limitKey, { maxAttempts: 10, windowMs: 60_000 });
+    if (!limit.allowed) {
+      return res.status(429).json({
+        error: "Too many membership code attempts. Please wait a moment and try again.",
+      });
+    }
+
+    const userId = req.user?.id || req.user?._id || null;
+    const result = await detectByMembershipCode(code, {
+      email,
+      isLoggedIn: Boolean(userId),
+      sessionUserId: userId,
+    });
+
+    if (sessionId) {
+      await logCheckoutAction({
+        action: result.codeValid
+          ? CHECKOUT_AUDIT_ACTIONS.MEMBERSHIP_CODE_VALIDATED
+          : CHECKOUT_AUDIT_ACTIONS.MEMBERSHIP_CODE_REJECTED,
+        sessionId,
+        userId,
+        email,
+        details: { code: String(code || "").trim(), message: result.codeMessage },
+      });
+    }
+
+    return res.status(200).json({
+      valid: result.codeValid,
+      message: result.codeMessage,
+      detection: result,
+    });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function saveBeforeLogin(req, res) {
+  try {
+    const payload = req.body || {};
+    if (!payload.eventId) {
+      return res.status(400).json({ error: "Event ID is required." });
+    }
+
+    console.log("[LOGIN_APPLY_BENEFITS_CLICKED] email=%s", payload.email || payload.attendeeDetails?.email || "");
+
+    const result = await saveCheckoutBeforeLogin({
+      ...payload,
+      userId: req.user?.id || req.user?._id || null,
+    });
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function getCheckoutSession(req, res) {
+  try {
+    const { checkoutSessionId } = req.params;
+    const restored = await restoreCheckoutSession(checkoutSessionId);
+    return res.status(200).json({ session: restored });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function applyMemberBenefitsAfterLoginHandler(req, res) {
+  try {
+    const { sessionId, email } = req.body || {};
+    const userId = req.user?.id || req.user?._id || null;
+    if (!userId) {
+      return res.status(401).json({ error: "Login required to apply member benefits." });
+    }
+    if (!sessionId) {
+      return res.status(400).json({ error: "Checkout session ID is required." });
+    }
+
+    const result = await applyMemberBenefitsAfterLogin({
+      sessionId,
+      userId,
+      email: email || req.user?.email,
     });
 
     return res.status(200).json(result);
@@ -55,6 +155,7 @@ export async function calculatePreview(req, res) {
       discountCode = null,
       applyMemberBenefit = true,
       sessionId = null,
+      membershipCode = null,
     } = req.body || {};
 
     if (!eventId || !items?.length) {
@@ -74,6 +175,7 @@ export async function calculatePreview(req, res) {
       discountCode,
       applyMemberBenefit,
       sessionId,
+      membershipCode,
     });
 
     return res.status(200).json({ preview });

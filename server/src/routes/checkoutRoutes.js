@@ -17,6 +17,10 @@ import {
   paymentSuccess,
   getMembershipPlansForEvent,
   initCheckoutSession,
+  validateMembershipCode,
+  saveBeforeLogin,
+  getCheckoutSession,
+  applyMemberBenefitsAfterLoginHandler,
 } from "../controllers/checkoutBundleController.js";
 
 const router = Router();
@@ -28,6 +32,10 @@ router.post("/validate-code", optionalAuth, validateCode);
 
 router.post("/session", initCheckoutSession);
 router.post("/detect-member-status", optionalAuth, detectMemberStatus);
+router.post("/validate-membership-code", optionalAuth, validateMembershipCode);
+router.post("/save-before-login", optionalAuth, saveBeforeLogin);
+router.get("/session/:checkoutSessionId", optionalAuth, getCheckoutSession);
+router.post("/apply-member-benefits-after-login", requireAuth, applyMemberBenefitsAfterLoginHandler);
 router.post("/calculate-preview", optionalAuth, calculatePreview);
 router.post("/apply-membership-benefit", optionalAuth, applyMembershipBenefit);
 router.post("/add-membership-to-cart", optionalAuth, addMembershipToCart);

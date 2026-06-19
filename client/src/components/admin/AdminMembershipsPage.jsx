@@ -418,6 +418,19 @@ export default function AdminMembershipsPage() {
                 />
                 Apply TicketTailor membership discounts
               </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.enableMembershipCodeValidation !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      enableMembershipCodeValidation: e.target.checked,
+                    }))
+                  }
+                />
+                Enable membership code validation
+              </label>
               <label className="admin-memberships__full-width">
                 Membership ticket type keywords (one per line)
                 <textarea

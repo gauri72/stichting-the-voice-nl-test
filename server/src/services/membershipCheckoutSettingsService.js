@@ -55,6 +55,9 @@ export async function updateMembershipCheckoutSettings(data, adminId) {
   if (data.applyTicketTailorMembershipDiscounts !== undefined) {
     update.applyTicketTailorMembershipDiscounts = Boolean(data.applyTicketTailorMembershipDiscounts);
   }
+  if (data.enableMembershipCodeValidation !== undefined) {
+    update.enableMembershipCodeValidation = Boolean(data.enableMembershipCodeValidation);
+  }
   if (adminId) update.updatedBy = adminId;
 
   const doc = await MembershipCheckoutSettings.findOneAndUpdate(
@@ -86,6 +89,7 @@ function formatSettings(doc) {
         : DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.membershipTicketKeywords,
     autoLinkTicketTailorMembership: doc.autoLinkTicketTailorMembership !== false,
     applyTicketTailorMembershipDiscounts: doc.applyTicketTailorMembershipDiscounts !== false,
+    enableMembershipCodeValidation: doc.enableMembershipCodeValidation !== false,
     updatedAt: doc.updatedAt,
   };
 }

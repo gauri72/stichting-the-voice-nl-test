@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import AppSplash from "./components/layout/AppSplash";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
@@ -81,6 +81,11 @@ function ScrollToHash() {
   return null;
 }
 
+function AuthAliasRedirect() {
+  const location = useLocation();
+  return <Navigate to={`/my-account${location.search}`} replace />;
+}
+
 export default function App() {
   const location = useLocation();
   const isStandalonePage =
@@ -124,6 +129,8 @@ export default function App() {
           <Route path="/privacy-policy" element={<PoliciesPage />} />
           <Route path="/terms-and-conditions" element={<PoliciesPage />} />
           <Route path="/my-account" element={<LoginPage />} />
+          <Route path="/login" element={<AuthAliasRedirect />} />
+          <Route path="/register" element={<AuthAliasRedirect />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route

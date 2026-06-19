@@ -57,7 +57,7 @@ function ensureCaptchaToken(captcha, setError) {
   return true;
 }
 
-export default function LoginFormSection({ mode = "login", onModeChange }) {
+export default function LoginFormSection({ mode = "login", onModeChange, returnTo = "/dashboard", prefillEmail = "" }) {
   const navigate = useNavigate();
   const { loginWithToken } = useAuth();
   const isSignUp = mode === "signup";
@@ -115,8 +115,12 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
     if (savedEmail) {
       setEmail(savedEmail);
       setRememberMe(true);
+    } else if (prefillEmail && isSignUp) {
+      setSignUpEmail(prefillEmail);
+    } else if (prefillEmail && !isSignUp) {
+      setEmail(prefillEmail);
     }
-  }, []);
+  }, [prefillEmail, isSignUp]);
 
   function clearSignUpFeedback() {
     setSignUpError("");
@@ -158,7 +162,7 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
         })
       });
       await loginWithToken(data.token, data.user, true);
-      navigate("/dashboard", { replace: true });
+      navigate(returnTo, { replace: true });
     } catch (error) {
       setOtpError(error.message || "Verification failed. Please try again.");
     } finally {
@@ -231,7 +235,7 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
         setRememberedEmail(data.user.email, useRememberMe);
       }
       await loginWithToken(data.token, data.user, useRememberMe);
-      navigate("/dashboard", { replace: true });
+      navigate(returnTo, { replace: true });
     } catch (error) {
       const message = error.message || "Google sign-in failed. Please try again.";
       if (isSignUp) {
@@ -306,7 +310,7 @@ export default function LoginFormSection({ mode = "login", onModeChange }) {
       });
       setRememberedEmail(email.trim(), rememberMe);
       await loginWithToken(data.token, data.user, rememberMe);
-      navigate("/dashboard", { replace: true });
+      navigate(returnTo, { replace: true });
     } catch (error) {
       setLoginError(error.message || "Log in failed. Please try again.");
     } finally {

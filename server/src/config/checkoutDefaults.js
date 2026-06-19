@@ -44,6 +44,7 @@ export const DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS = {
   membershipTicketKeywords: [...DEFAULT_MEMBERSHIP_TICKET_KEYWORDS],
   autoLinkTicketTailorMembership: true,
   applyTicketTailorMembershipDiscounts: true,
+  enableMembershipCodeValidation: true,
 };
 
 export function getPlanBenefitsSummary(planId) {

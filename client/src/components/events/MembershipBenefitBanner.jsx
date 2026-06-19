@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { IconLogin, IconUserCheck, IconAlertCircle, IconSparkles, IconUserPlus } from "@tabler/icons-react";
+import { buildLoginUrl, buildRegisterUrl } from "../../utils/authRedirect.js";
 
 function formatSource(source) {
   if (source === "BOTH") return "Local + TicketTailor";
@@ -12,12 +14,15 @@ export default function MembershipBenefitBanner({
   detection,
   messages,
   onLogin,
+  onSaveBeforeLogin,
   onContinueWithoutDiscount,
   onAddMembership,
   onTicketsOnly,
   includeMembership,
   returnPath,
 }) {
+  const [loginSaving, setLoginSaving] = useState(false);
+
   if (!detection?.status || detection.status === "GUEST_UNKNOWN") {
     if (detection?.verificationWarning) {
       return (
@@ -45,6 +50,24 @@ export default function MembershipBenefitBanner({
     detection.status === "GUEST_EMAIL_NON_MEMBER" ||
     detection.status === "LOGGED_IN_NON_MEMBER";
 
+  async function handleLoginClick(event) {
+    event.preventDefault();
+    onLogin?.();
+    setLoginSaving(true);
+    try {
+      let targetPath = returnPath || "/dashboard";
+      if (onSaveBeforeLogin) {
+        const saved = await onSaveBeforeLogin();
+        if (saved?.returnPath) targetPath = saved.returnPath;
+      }
+      window.location.href = buildLoginUrl(targetPath);
+    } catch {
+      window.location.href = buildLoginUrl(returnPath || "/dashboard");
+    } finally {
+      setLoginSaving(false);
+    }
+  }
+
   if (isActiveLoggedIn) {
     return (
       <div className="ticket-booking__member-banner ticket-booking__member-banner--active">
@@ -62,9 +85,8 @@ export default function MembershipBenefitBanner({
   }
 
   if (isActiveGuest) {
-    const loginHref = returnPath
-      ? `/login?returnTo=${encodeURIComponent(returnPath)}`
-      : "/login";
+    const memberEmail = detection.membership?.email || "";
+    const registerHref = buildRegisterUrl(memberEmail, returnPath || "/dashboard");
 
     return (
       <div className="ticket-booking__member-banner ticket-booking__member-banner--login">
@@ -95,19 +117,21 @@ export default function MembershipBenefitBanner({
           <div className="ticket-booking__member-banner-actions">
             {detection.requiresAccountLinking ? (
               <Link
-                to={`/register?email=${encodeURIComponent(detection.membership?.email || "")}&returnTo=${encodeURIComponent(returnPath || "/")}`}
+                to={registerHref}
                 className="ticket-booking__cta ticket-booking__cta--small"
               >
                 <IconUserPlus size={16} /> Create Account &amp; Apply Benefits
               </Link>
             ) : (
-              <Link
-                to={loginHref}
+              <button
+                type="button"
                 className="ticket-booking__cta ticket-booking__cta--small"
-                onClick={onLogin}
+                onClick={handleLoginClick}
+                disabled={loginSaving}
               >
-                Login &amp; Apply Benefits
-              </Link>
+                <IconLogin size={16} />
+                {loginSaving ? "Saving checkout…" : "Login & Apply Benefits"}
+              </button>
             )}
             <button
               type="button"

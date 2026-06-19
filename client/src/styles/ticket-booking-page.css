@@ -226,6 +226,54 @@
   margin: 0 0 12px;
 }
 
+.ticket-booking__membership-code {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 8px;
+  flex-wrap: wrap;
+}
+
+.ticket-booking__membership-code label {
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.ticket-booking__membership-code input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #06152f;
+  color: inherit;
+  font: inherit;
+  text-transform: uppercase;
+}
+
+.ticket-booking__membership-code button {
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(62, 207, 154, 0.3);
+  background: rgba(62, 207, 154, 0.1);
+  color: #3ecf9a;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.ticket-booking__membership-code-msg {
+  font-size: 0.85rem;
+  color: #f59e0b;
+  margin: 0 0 12px;
+}
+
+.ticket-booking__membership-code-msg--success {
+  color: #3ecf9a;
+}
+
 .ticket-booking__discount-note {
   padding: 12px;
   border-radius: 10px;

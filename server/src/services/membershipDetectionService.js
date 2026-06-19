@@ -60,6 +60,10 @@ function isDateActiveUntil(memberUntil, now = new Date()) {
   return untilStr >= nowStr;
 }
 
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function matchesMembershipKeyword(text, keywords) {
   const blob = String(text || "").toLowerCase();
   if (!blob) return false;
@@ -495,13 +499,14 @@ function mergeMembershipResults(local, ttSynced, ttLive) {
   return { active, expired, source };
 }
 
-function buildDetectionResult({ active, expired, source, email, userId, isLoggedIn }) {
-  const user = userId ? { linked: true } : null;
-  const hasUserAccount = Boolean(userId);
+function buildDetectionResult({ active, expired, source, email, userId, isLoggedIn, sessionUserId = null }) {
+  const linkedUserId = sessionUserId || userId;
+  const hasUserAccount = Boolean(linkedUserId);
 
   if (active) {
     const requiresLogin = !isLoggedIn;
     const requiresAccountLinking =
+      !isLoggedIn &&
       !hasUserAccount &&
       (source === MEMBERSHIP_SOURCE.TICKETTAILOR || source === MEMBERSHIP_SOURCE.BOTH);
 
@@ -570,6 +575,160 @@ function buildDetectionResult({ active, expired, source, email, userId, isLogged
   };
 }
 
+export async function detectByMembershipCode(code, options = {}) {
+  const normalizedCode = String(code || "").trim();
+  if (!normalizedCode) {
+    return {
+      found: false,
+      status: MEMBERSHIP_STATUS.NON_MEMBER,
+      source: MEMBERSHIP_SOURCE.NONE,
+      membershipType: "",
+      memberUntil: "",
+      eligibleForBenefits: false,
+      requiresLogin: false,
+      requiresAccountLinking: false,
+      membership: null,
+      isActive: false,
+      isExpired: false,
+      verificationWarning: null,
+      codeValid: false,
+      codeMessage: "Membership code is required.",
+    };
+  }
+
+  const settings = options.settings || (await getMembershipCheckoutSettings());
+  if (settings.enableMembershipCodeValidation === false) {
+    const err = new Error("Membership code validation is disabled.");
+    err.status = 403;
+    throw err;
+  }
+
+  logDetection("MEMBERSHIP_CODE_ENTERED", { code: normalizedCode });
+  logDetection("MEMBERSHIP_CODE_VALIDATION_STARTED", { code: normalizedCode });
+
+  const codeRegex = new RegExp(`^${escapeRegex(normalizedCode)}$`, "i");
+  const checkoutEmail = normalizeEmail(options.email || "");
+  const isLoggedIn = Boolean(options.isLoggedIn);
+
+  let record = null;
+
+  const member = await Member.findOne({ membershipId: codeRegex }).lean();
+  if (member) {
+    if (member.membershipStatus === "cancelled") {
+      logDetection("MEMBERSHIP_CODE_INVALID", { code: normalizedCode, reason: "cancelled" });
+      return buildCodeValidationFailure("This membership code is invalid or expired.");
+    }
+    const active =
+      member.membershipStatus === "active" && isDateActiveUntil(member.expiryDate);
+    record = normalizeRecord({
+      planId: member.planId || member.membershipType,
+      planName: member.membershipType,
+      memberUntil: member.expiryDate,
+      memberFrom: member.startDate,
+      active,
+      source: MEMBERSHIP_SOURCE.LOCAL,
+      membershipNumber: member.membershipId,
+      memberId: member._id?.toString(),
+      userId: member.userId?.toString() || null,
+      email: member.email,
+    });
+  }
+
+  if (!record) {
+    const membership = await Membership.findOne({ membershipNumber: codeRegex }).lean();
+    if (membership) {
+      const active = membership.active && isDateActiveUntil(membership.endsAt);
+      record = normalizeRecord({
+        planId: membership.planId,
+        planName: membership.planName,
+        memberUntil: membership.endsAt,
+        memberFrom: membership.startedAt,
+        active,
+        source: MEMBERSHIP_SOURCE.LOCAL,
+        membershipNumber: membership.membershipNumber || "",
+        userId: membership.userId?.toString() || null,
+      });
+    }
+  }
+
+  if (!record && checkoutEmail && settings.useSyncedTicketTailorData !== false) {
+    const pastDoc = await PastData.findById(checkoutEmail).lean();
+    for (const issued of pastDoc?.issuedMemberships || []) {
+      const issuedCode = String(issued.code || issued.id || "").trim();
+      if (!issuedCode || !codeRegex.test(issuedCode)) continue;
+      const keywords = settings.membershipTicketKeywords || DEFAULT_MEMBERSHIP_TICKET_KEYWORDS;
+      record = evaluateIssuedMembershipRecord(issued, keywords);
+      if (record) break;
+    }
+  }
+
+  if (!record) {
+    logDetection("MEMBERSHIP_CODE_INVALID", { code: normalizedCode });
+    return buildCodeValidationFailure("This membership code is invalid or expired.");
+  }
+
+  if (
+    checkoutEmail &&
+    record.email &&
+    normalizeEmail(record.email) !== checkoutEmail
+  ) {
+    logDetection("MEMBERSHIP_CODE_INVALID", { code: normalizedCode, reason: "email_mismatch" });
+    return {
+      ...buildCodeValidationFailure(
+        "This membership code does not match the email provided. Please log in with the account linked to this membership."
+      ),
+      requiresLogin: true,
+      emailMismatch: true,
+    };
+  }
+
+  if (!record.active) {
+    logDetection("MEMBERSHIP_CODE_INVALID", { code: normalizedCode, reason: "expired" });
+    return buildCodeValidationFailure("This membership code is invalid or expired.");
+  }
+
+  logDetection("MEMBERSHIP_CODE_VALID", {
+    code: normalizedCode,
+    planId: record.planId,
+    memberUntil: record.memberUntilFormatted,
+  });
+
+  const result = buildDetectionResult({
+    active: record,
+    expired: null,
+    source: record.source,
+    email: record.email || checkoutEmail,
+    userId: record.userId,
+    isLoggedIn,
+    sessionUserId: options.sessionUserId || null,
+  });
+
+  return {
+    ...result,
+    codeValid: true,
+    codeMessage: "Membership Benefit Applied",
+  };
+}
+
+function buildCodeValidationFailure(message) {
+  return {
+    found: false,
+    status: MEMBERSHIP_STATUS.NON_MEMBER,
+    source: MEMBERSHIP_SOURCE.NONE,
+    membershipType: "",
+    memberUntil: "",
+    eligibleForBenefits: false,
+    requiresLogin: false,
+    requiresAccountLinking: false,
+    membership: null,
+    isActive: false,
+    isExpired: false,
+    verificationWarning: null,
+    codeValid: false,
+    codeMessage: message,
+  };
+}
+
 export async function detectByEmail(email, options = {}) {
   const normalized = normalizeEmail(email);
   const settings = options.settings || (await getMembershipCheckoutSettings());
@@ -618,12 +777,25 @@ export async function detectByEmail(email, options = {}) {
   }
 
   const merged = mergeMembershipResults(local, ttSynced, ttLive);
-  const result = buildDetectionResult({
+  let result = buildDetectionResult({
     ...merged,
     email: normalized,
     userId: local.active?.userId || local.expired?.userId || null,
     isLoggedIn,
+    sessionUserId: options.sessionUserId || null,
   });
+
+  if (options.membershipCode) {
+    const codeResult = await detectByMembershipCode(options.membershipCode, {
+      email: normalized,
+      isLoggedIn,
+      sessionUserId: options.sessionUserId || null,
+      settings,
+    });
+    if (codeResult.codeValid && codeResult.status === MEMBERSHIP_STATUS.ACTIVE) {
+      result = codeResult;
+    }
+  }
 
   logDetection("CHECK_MEMBERSHIP_LOOKUP", {
     email: normalized,
@@ -662,10 +834,26 @@ export async function detectByUserId(userId, options = {}) {
       email: active.email || options.email || "",
       userId,
       isLoggedIn: true,
+      sessionUserId: userId,
     });
   }
 
   const expired = await lookupLocalExpiredByUserId(userId);
+
+  if (options.email) {
+    const emailResult = await detectByEmail(options.email, {
+      ...options,
+      isLoggedIn: true,
+      sessionUserId: userId,
+    });
+    if (emailResult.status === MEMBERSHIP_STATUS.ACTIVE) {
+      return { ...emailResult, requiresLogin: false, requiresAccountLinking: false };
+    }
+    if (emailResult.status === MEMBERSHIP_STATUS.EXPIRED && !expired) {
+      return emailResult;
+    }
+  }
+
   if (expired) {
     return buildDetectionResult({
       active: null,
@@ -674,29 +862,27 @@ export async function detectByUserId(userId, options = {}) {
       email: expired.email || options.email || "",
       userId,
       isLoggedIn: true,
+      sessionUserId: userId,
     });
-  }
-
-  if (options.email) {
-    return detectByEmail(options.email, { ...options, isLoggedIn: true });
   }
 
   return buildDetectionResult({
     active: null,
     expired: null,
     source: MEMBERSHIP_SOURCE.NONE,
-    email: "",
+    email: options.email || "",
     userId,
     isLoggedIn: true,
+    sessionUserId: userId,
   });
 }
 
-export async function getMembershipStatus({ userId, email, isLoggedIn = false }) {
+export async function getMembershipStatus({ userId, email, isLoggedIn = false, membershipCode = null, sessionUserId = null }) {
   if (isLoggedIn && userId) {
-    return detectByUserId(userId, { email, isLoggedIn: true });
+    return detectByUserId(userId, { email, isLoggedIn: true, membershipCode, sessionUserId: userId });
   }
   if (email) {
-    return detectByEmail(email, { isLoggedIn: false });
+    return detectByEmail(email, { isLoggedIn: false, membershipCode, sessionUserId });
   }
   return {
     found: false,
