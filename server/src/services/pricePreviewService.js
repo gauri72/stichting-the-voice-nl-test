@@ -6,6 +6,10 @@ import { detectMemberStatus, MEMBER_STATES } from "./memberDetectionService.js";
 import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
 import { MEMBERSHIP_SOURCE } from "./membershipDetectionService.js";
 import {
+  CUSTOMER_MEMBERSHIP_MESSAGES,
+  sanitizeCustomerDiscountLabel,
+} from "../utils/membershipDisplayLabels.js";
+import {
   applyDiscountsToOrder,
   calculateDiscountAmount,
   getMembershipDiscountRule,
@@ -379,11 +383,9 @@ export async function calculatePricePreview({
       discountResult.memberRule?.source === "TICKETTAILOR";
     appliedDiscounts.push({
       type: isTicketTailorDiscount ? "tickettailor_member" : "member",
-      label:
-        discountResult.memberLabel ||
-        (isTicketTailorDiscount
-          ? "TicketTailor Membership Benefit Applied"
-          : "Member Discount"),
+      label: sanitizeCustomerDiscountLabel(
+        discountResult.memberLabel || CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied
+      ),
       amountMinor: discountResult.memberDiscountMinor,
       ruleId: discountResult.memberRule?.id || null,
       membershipSource: isTicketTailorDiscount ? MEMBERSHIP_SOURCE.TICKETTAILOR : membershipSource,
@@ -489,7 +491,7 @@ export async function calculatePricePreview({
     membershipBenefitReason: benefitReason,
     membershipSource,
     membershipDiscountWarning: discountWarning,
-    memberDiscountLabel: discountResult.memberLabel || "",
+    memberDiscountLabel: sanitizeCustomerDiscountLabel(discountResult.memberLabel || ""),
     codeDiscountLabel: discountResult.codeLabel || "",
     appliedDiscounts,
     comparison,

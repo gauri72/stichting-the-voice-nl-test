@@ -1,5 +1,6 @@
 import { DEFAULT_TICKETTAILOR_DISCOUNT_RULES } from "../config/checkoutDefaults.js";
 import { normalizeMembershipType, resolveMembershipPlanId } from "./membershipTypeUtils.js";
+import { formatMembershipDiscountLabel } from "./membershipDisplayLabels.js";
 
 export function getTicketTailorDiscountRule(planId, settings, membershipType = "") {
   const resolved = resolveMembershipPlanId({ planId, membershipType });
@@ -13,18 +14,13 @@ export function buildMemberRuleFromTicketTailorDiscount(discountRule, membership
   }
 
   const normalized = normalizeMembershipType(membershipType);
-  const typeLabel = normalized.label || membershipType || planId || "Membership";
-  const valueLabel =
-    discountRule.discountType === "percentage"
-      ? `${discountRule.discountValue}%`
-      : `€${Number(discountRule.discountValue).toFixed(2)} off`;
 
   return {
     type: "automatic_member",
     discountType: discountRule.discountType,
     discountValue: discountRule.discountValue,
     appliesTo: "both",
-    label: `TicketTailor Member Discount (${typeLabel} — ${valueLabel})`,
+    label: formatMembershipDiscountLabel(normalized.label || membershipType, discountRule),
     membershipPlanId: resolveMembershipPlanId({ planId, membershipType }),
     allowStacking: true,
     source: "TICKETTAILOR",

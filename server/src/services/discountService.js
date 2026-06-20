@@ -12,6 +12,10 @@ import {
   buildMemberRuleFromTicketTailorDiscount,
   getTicketTailorDiscountRule,
 } from "../utils/membershipDiscountRules.js";
+import {
+  CUSTOMER_MEMBERSHIP_MESSAGES,
+  sanitizeCustomerDiscountLabel,
+} from "../utils/membershipDisplayLabels.js";
 import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
 import {
   normalizeMembershipType,
@@ -349,7 +353,9 @@ export function resolveStackedDiscounts({
 
   if (memberRule && appliesToOrderType(memberRule, orderType)) {
     memberDiscountMinor = calculateDiscountAmount(subtotalMinor, memberRule);
-    memberLabel = memberRule.label || "Member Discount Applied";
+    memberLabel = sanitizeCustomerDiscountLabel(
+      memberRule.label || CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied
+    );
   }
 
   const remaining = Math.max(0, subtotalMinor - memberDiscountMinor);

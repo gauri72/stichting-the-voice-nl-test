@@ -18,7 +18,7 @@ import {
   persistCheckoutSession,
   readCheckoutSession,
 } from "../../utils/stripePayment.js";
-import "../../styles/ticket-booking-page.css";
+import { CUSTOMER_MEMBERSHIP_MESSAGES, sanitizeCustomerDiscountLabel } from "../../utils/membershipDisplayLabels.js";
 import "../../styles/sponsorship-payment-block.css";
 
 const TICKET_CHECKOUT_SESSION_KEY = "voice_nl_ticket_checkout";
@@ -423,10 +423,12 @@ export default function TicketBookingPage() {
       });
       if (data.valid) {
         setMembershipCodeApplied(true);
+        const typeLabel = data.detection?.membershipType || "Membership";
+        const until = data.detection?.memberUntil ? ` · Valid until ${data.detection.memberUntil}` : "";
         setMembershipCodeMessage(
-          `Membership Benefit Applied — ${data.detection?.membershipType || "Membership"}${
-            data.detection?.memberUntil ? ` · Valid until ${data.detection.memberUntil}` : ""
-          }`
+          data.message
+            ? `${data.message} — ${typeLabel}${until}`
+            : `${CUSTOMER_MEMBERSHIP_MESSAGES.verified} — ${typeLabel}${until}`
         );
         setApplyMemberBenefit(true);
         if (attendee.email) await detectMember(attendee.email, membershipCode.trim());
@@ -986,7 +988,9 @@ export default function TicketBookingPage() {
 
             {preview?.membershipBenefitApplied && preview?.ticketPricing?.memberDiscountMinor > 0 ? (
               <p className="ticket-booking__discount-note ticket-booking__discount-note--success">
-                {preview.memberDiscountLabel || "Member Discount Applied"}
+                {sanitizeCustomerDiscountLabel(
+                  preview.memberDiscountLabel || CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied
+                )}
               </p>
             ) : preview?.membershipDiscountWarning ? (
               <p className="ticket-booking__discount-note ticket-booking__discount-note--warning" role="status">

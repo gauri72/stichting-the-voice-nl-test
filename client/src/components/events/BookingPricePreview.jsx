@@ -1,19 +1,37 @@
+import {
+  CUSTOMER_MEMBERSHIP_MESSAGES,
+  sanitizeCustomerDiscountLabel,
+} from "../../utils/membershipDisplayLabels.js";
+
 export default function BookingPricePreview({ preview }) {
   if (!preview) return null;
 
-  const { ticketPricing, membershipPricing, combined, comparison, appliedDiscounts, membershipSource } = preview;
+  const { ticketPricing, membershipPricing, combined, comparison, appliedDiscounts } = preview;
 
-  const ttDiscount = appliedDiscounts?.find((d) => d.type === "tickettailor_member");
-  const otherDiscounts = appliedDiscounts?.filter((d) => d.type !== "tickettailor_member") || [];
+  const memberDiscount = appliedDiscounts?.find(
+    (d) => d.type === "tickettailor_member" || d.type === "member"
+  );
+  const otherDiscounts =
+    appliedDiscounts?.filter((d) => d.type !== "tickettailor_member" && d.type !== "member") || [];
+
+  const memberDiscountLineLabel = memberDiscount
+    ? sanitizeCustomerDiscountLabel(memberDiscount.label)
+    : CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied;
+
+  const memberBenefitTitle =
+    memberDiscountLineLabel.includes("Premium") ||
+    memberDiscountLineLabel.includes("100%")
+      ? CUSTOMER_MEMBERSHIP_MESSAGES.premiumBenefitApplied
+      : CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied;
 
   return (
     <div className="ticket-booking__price-preview">
       <h3>Price preview</h3>
 
-      {ttDiscount ? (
+      {memberDiscount ? (
         <div className="ticket-booking__tt-benefit-banner">
-          <p className="ticket-booking__tt-benefit-title">TicketTailor Membership Benefit Applied</p>
-          <p className="ticket-booking__tt-benefit-body">{ttDiscount.label}</p>
+          <p className="ticket-booking__tt-benefit-title">{memberBenefitTitle}</p>
+          <p className="ticket-booking__tt-benefit-body">{memberDiscountLineLabel}</p>
         </div>
       ) : null}
 
@@ -27,21 +45,21 @@ export default function BookingPricePreview({ preview }) {
               <span>-€{(ticketPricing.eventDiscountMinor / 100).toFixed(2)}</span>
             </div>
           ) : null}
-          {ttDiscount ? (
+          {memberDiscount ? (
             <div className="ticket-booking__summary-discount ticket-booking__summary-discount--tt">
-              <span>TicketTailor membership discount</span>
-              <span>-€{(ttDiscount.amountMinor / 100).toFixed(2)}</span>
+              <span>{memberDiscountLineLabel}</span>
+              <span>-€{(memberDiscount.amountMinor / 100).toFixed(2)}</span>
             </div>
           ) : null}
-          {!ttDiscount && ticketPricing.memberDiscountMinor > 0 ? (
+          {!memberDiscount && ticketPricing.memberDiscountMinor > 0 ? (
             <div className="ticket-booking__summary-discount">
-              <span>{membershipSource === "TICKETTAILOR" ? "TicketTailor membership discount" : "Member discount"}</span>
+              <span>{CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied}</span>
               <span>-{ticketPricing.memberDiscount}</span>
             </div>
           ) : null}
           {otherDiscounts.map((d) => (
             <div key={`${d.type}-${d.label}`} className="ticket-booking__summary-discount">
-              <span>{d.label}</span>
+              <span>{sanitizeCustomerDiscountLabel(d.label)}</span>
               <span>-€{(d.amountMinor / 100).toFixed(2)}</span>
             </div>
           ))}

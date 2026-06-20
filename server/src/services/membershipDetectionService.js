@@ -12,6 +12,7 @@ import {
   loadTicketTailorAccountData,
   getTicketTailorStatus,
 } from "./ticketTailorService.js";
+import { CUSTOMER_MEMBERSHIP_MESSAGES } from "../utils/membershipDisplayLabels.js";
 
 export const MEMBERSHIP_STATUS = {
   ACTIVE: "ACTIVE",
@@ -741,7 +742,7 @@ export async function detectByMembershipCode(code, options = {}) {
   return {
     ...result,
     codeValid: true,
-    codeMessage: "Membership Benefit Applied",
+    codeMessage: CUSTOMER_MEMBERSHIP_MESSAGES.verified,
   };
 }
 

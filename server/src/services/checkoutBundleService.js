@@ -3,6 +3,11 @@ import CheckoutSession from "../models/CheckoutSession.js";
 import { getPublishedEventBySlugOrId } from "./eventService.js";
 import { detectMemberStatus, MEMBER_STATES } from "./memberDetectionService.js";
 import { MEMBERSHIP_SOURCE } from "./membershipDetectionService.js";
+import {
+  CUSTOMER_MEMBERSHIP_MESSAGES,
+  buildActiveMembershipAppliedBody,
+  buildActiveMembershipFoundBody,
+} from "../utils/membershipDisplayLabels.js";
 import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
 import { calculatePricePreview, generateSessionId } from "./pricePreviewService.js";
 import { logCheckoutAction, CHECKOUT_AUDIT_ACTIONS } from "./checkoutAuditService.js";
@@ -321,36 +326,27 @@ export async function detectMemberForCheckout({ userId, email, isLoggedIn, sessi
 function buildDetectionMessages(detection) {
   const membershipLabel = detection.membershipType || detection.membership?.planName || "membership";
   const validUntil = detection.memberUntil || detection.membership?.memberUntilFormatted || "";
-  const sourceLabel = detection.source || "LOCAL";
-  const isTicketTailor =
-    sourceLabel === MEMBERSHIP_SOURCE.TICKETTAILOR || sourceLabel === "TICKETTAILOR";
 
   switch (detection.status) {
     case MEMBER_STATES.GUEST_EMAIL_ACTIVE_MEMBER:
       return {
-        title: isTicketTailor ? "Active TicketTailor Membership Found" : "Active Membership Found",
-        body: isTicketTailor
-          ? `We found an active V.O.I.C.E. NL membership from TicketTailor linked to this email. Membership: ${membershipLabel}. Valid until: ${validUntil}.`
-          : detection.requiresAccountLinking
-            ? `We found an active V.O.I.C.E. NL ${membershipLabel} membership (valid until ${validUntil}, source: ${sourceLabel}). Create an account to link it and apply benefits.`
-            : `We found an active V.O.I.C.E. NL membership associated with this email. Membership: ${membershipLabel}. Valid until: ${validUntil}. Source: ${sourceLabel}.`,
+        title: CUSTOMER_MEMBERSHIP_MESSAGES.activeFound,
+        body: buildActiveMembershipFoundBody({
+          membershipLabel,
+          validUntil,
+          requiresAccountLinking: detection.requiresAccountLinking,
+        }),
         showLoginPrompt: true,
         showRenewalOption: false,
         showUpsell: false,
-        isTicketTailor,
       };
     case MEMBER_STATES.LOGGED_IN_ACTIVE_MEMBER:
       return {
-        title: isTicketTailor
-          ? "TicketTailor Membership Benefit Applied"
-          : "Member benefits available",
-        body: isTicketTailor
-          ? `Your active TicketTailor ${membershipLabel} membership discount is applied.${validUntil ? ` Valid until ${validUntil}.` : ""}`
-          : "Your active membership discount will be applied automatically.",
+        title: CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied,
+        body: buildActiveMembershipAppliedBody({ membershipLabel, validUntil }),
         showLoginPrompt: false,
         showRenewalOption: false,
         showUpsell: false,
-        isTicketTailor,
       };
     case MEMBER_STATES.GUEST_EMAIL_EXPIRED_MEMBER:
     case MEMBER_STATES.LOGGED_IN_EXPIRED_MEMBER:

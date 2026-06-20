@@ -2,13 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { IconLogin, IconUserCheck, IconAlertCircle, IconSparkles, IconUserPlus } from "@tabler/icons-react";
 import { buildLoginUrl, buildRegisterUrl } from "../../utils/authRedirect.js";
-
-function formatSource(source) {
-  if (source === "BOTH") return "Local + TicketTailor";
-  if (source === "TICKETTAILOR") return "TicketTailor";
-  if (source === "LOCAL") return "Local";
-  return "";
-}
+import {
+  CUSTOMER_MEMBERSHIP_MESSAGES,
+  formatMemberDiscountLineLabel,
+  sanitizeCustomerDiscountLabel,
+} from "../../utils/membershipDisplayLabels.js";
 
 export default function MembershipBenefitBanner({
   detection,
@@ -42,7 +40,6 @@ export default function MembershipBenefitBanner({
     detection.membershipType || detection.membership?.planName || "Membership";
   const memberUntil =
     detection.memberUntil || detection.membership?.memberUntilFormatted || "";
-  const sourceLabel = formatSource(detection.source);
 
   const isActiveGuest = detection.status === "GUEST_EMAIL_ACTIVE_MEMBER";
   const isActiveLoggedIn = detection.status === "LOGGED_IN_ACTIVE_MEMBER";
@@ -72,7 +69,6 @@ export default function MembershipBenefitBanner({
   }
 
   if (isActiveLoggedIn) {
-    const isTicketTailor = messages?.isTicketTailor || detection.source === "TICKETTAILOR";
     const hasDiscount = memberDiscountApplied || (detection.discountValue > 0 && !discountWarning);
 
     if (discountWarning && !memberDiscountApplied) {
@@ -80,7 +76,9 @@ export default function MembershipBenefitBanner({
         <div className="ticket-booking__member-banner ticket-booking__member-banner--warning">
           <IconAlertCircle size={22} />
           <div>
-            <p className="ticket-booking__member-banner-title">Active Membership Found</p>
+            <p className="ticket-booking__member-banner-title">
+              {CUSTOMER_MEMBERSHIP_MESSAGES.activeFound}
+            </p>
             <p className="ticket-booking__member-banner-body">{discountWarning}</p>
           </div>
         </div>
@@ -89,24 +87,27 @@ export default function MembershipBenefitBanner({
 
     if (!hasDiscount) return null;
 
+    const discountTitle = sanitizeCustomerDiscountLabel(
+      memberDiscountLabel || CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied
+    );
+
     return (
       <div className="ticket-booking__member-banner ticket-booking__member-banner--active">
         <IconUserCheck size={22} />
         <div>
-          <p className="ticket-booking__member-banner-title">
-            {memberDiscountLabel ||
-              (isTicketTailor ? "TicketTailor Membership Benefit Applied" : "Member Discount Applied")}
-          </p>
+          <p className="ticket-booking__member-banner-title">{discountTitle}</p>
           <p className="ticket-booking__member-banner-body">
-            {isTicketTailor
-              ? `Your active TicketTailor ${membershipType} membership discount is applied.`
-              : `Your active ${membershipType} benefits are applied to this booking.`}
+            {messages?.body ||
+              `Your active ${membershipType} membership discount is applied to this booking.`}
             {memberUntil ? ` Valid until ${memberUntil}.` : ""}
-            {sourceLabel && !isTicketTailor ? ` Source: ${sourceLabel}.` : ""}
           </p>
           {detection.discountValue > 0 ? (
             <p className="ticket-booking__member-detail-line">
-              {membershipType} — {detection.discountType === "percentage" ? `${detection.discountValue}% discount` : `€${detection.discountValue} off`}
+              {formatMemberDiscountLineLabel(
+                membershipType,
+                detection.discountType,
+                detection.discountValue
+              )}
             </p>
           ) : null}
         </div>
@@ -115,7 +116,6 @@ export default function MembershipBenefitBanner({
   }
 
   if (isActiveGuest) {
-    const isTicketTailor = messages?.isTicketTailor || detection.source === "TICKETTAILOR";
     const memberEmail = detection.membership?.email || "";
     const registerHref = buildRegisterUrl(memberEmail, returnPath || "/dashboard");
 
@@ -124,13 +124,11 @@ export default function MembershipBenefitBanner({
         <IconLogin size={22} />
         <div>
           <p className="ticket-booking__member-banner-title">
-            {messages?.title || (isTicketTailor ? "Active TicketTailor Membership Found" : "Active Membership Found")}
+            {messages?.title || CUSTOMER_MEMBERSHIP_MESSAGES.activeDetected}
           </p>
           <p className="ticket-booking__member-banner-body">
             {messages?.body ||
-              (isTicketTailor
-                ? "We found an active V.O.I.C.E. NL membership from TicketTailor linked to this email."
-                : "We found an active V.O.I.C.E. NL membership associated with this email.")}
+              "We found an active V.O.I.C.E. NL membership associated with this email."}
           </p>
           <ul className="ticket-booking__member-details">
             <li>
@@ -139,11 +137,6 @@ export default function MembershipBenefitBanner({
             {memberUntil ? (
               <li>
                 <strong>Valid Until:</strong> {memberUntil}
-              </li>
-            ) : null}
-            {sourceLabel ? (
-              <li>
-                <strong>Source:</strong> {sourceLabel}
               </li>
             ) : null}
           </ul>
@@ -194,7 +187,6 @@ export default function MembershipBenefitBanner({
           {memberUntil ? (
             <p className="ticket-booking__member-detail-line">
               Expired on: <strong>{memberUntil}</strong>
-              {sourceLabel ? ` · Source: ${sourceLabel}` : ""}
             </p>
           ) : null}
           {!includeMembership ? (

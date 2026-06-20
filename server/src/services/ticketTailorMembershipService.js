@@ -173,7 +173,7 @@ export async function applyTicketTailorMembershipBenefit({
     detection.requiresLoginForBenefits &&
     !isLoggedIn
   ) {
-    const err = new Error("Please log in to apply TicketTailor membership benefits.");
+    const err = new Error("Please log in to apply membership benefits.");
     err.status = 401;
     err.code = "MEMBER_LOGIN_REQUIRED";
     throw err;

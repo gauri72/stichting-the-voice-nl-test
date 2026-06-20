@@ -93,13 +93,13 @@ export async function sendDiscountExpiringEmail({ email, firstName, discountCode
 
 export async function sendMembershipDiscountAppliedEmail({ email, firstName, discountValue, eventName }) {
   const html = `
-    <h2 style="color:#0891b2;">Member Discount Applied</h2>
+    <h2 style="color:#0891b2;">Membership Discount Applied</h2>
     <p>Hi ${escapeHtml(firstName || "there")},</p>
-    <p>Your member discount of <strong>${escapeHtml(discountValue)}</strong> has been applied to your order.</p>
+    <p>Your membership discount of <strong>${escapeHtml(discountValue)}</strong> has been applied to your order.</p>
     ${eventName ? `<p>Event: ${escapeHtml(eventName)}</p>` : ""}
     <p>Thank you for being a member of ${ORG_NAME}!</p>
   `;
-  return sendEmail({ to: email, subject: `Member discount applied — ${ORG_NAME}`, html });
+  return sendEmail({ to: email, subject: `Membership discount applied — ${ORG_NAME}`, html });
 }
 
 export { renderTemplate, ORG_NAME };

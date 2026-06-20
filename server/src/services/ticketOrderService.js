@@ -6,6 +6,7 @@ import {
   formatMoney,
   applyDiscountsToOrder,
 } from "./ticketPricingService.js";
+import { sanitizeCustomerDiscountLabel } from "../utils/membershipDisplayLabels.js";
 import { confirmTicketPayment } from "./ticketPaymentService.js";
 
 export async function quoteOrder(eventId, { items, voucherCode, discountCode, userId, email }) {
@@ -97,7 +98,7 @@ export async function quoteOrder(eventId, { items, voucherCode, discountCode, us
     },
     lineItems,
     membershipDiscountPercent: membershipPercent,
-    memberDiscountLabel: discountResult.memberLabel || "",
+    memberDiscountLabel: sanitizeCustomerDiscountLabel(discountResult.memberLabel || ""),
     voucherCode: discountResult.codeRule?.isLegacyVoucher ? discountResult.codeRule.code : "",
     discountCode: discountResult.codeRule && !discountResult.codeRule.isLegacyVoucher ? discountResult.codeRule.code : "",
     referralCode: discountResult.codeRule?.type === "referral_code" ? discountResult.codeRule.code : "",
