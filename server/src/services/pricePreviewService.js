@@ -4,14 +4,11 @@ import { DEFAULT_EVENT_CHECKOUT_SETTINGS } from "../config/checkoutDefaults.js";
 import { getPublishedEventBySlugOrId } from "./eventService.js";
 import { detectMemberStatus, MEMBER_STATES } from "./memberDetectionService.js";
 import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
-import {
-  buildMemberRuleFromTicketTailorDiscount,
-  getTicketTailorDiscountRule,
-} from "./ticketTailorMembershipService.js";
 import { MEMBERSHIP_SOURCE } from "./membershipDetectionService.js";
 import {
   applyDiscountsToOrder,
   calculateDiscountAmount,
+  getMembershipDiscountRule,
 } from "./discountService.js";
 import { buildOrderSummary, formatMoney } from "./ticketPricingService.js";
 import { logCheckoutAction, CHECKOUT_AUDIT_ACTIONS } from "./checkoutAuditService.js";
@@ -75,7 +72,7 @@ async function buildTicketLineItems(event, items) {
   return { lineItems, subtotalMinor };
 }
 
-function resolveMemberBenefitContext({
+async function resolveMemberBenefitContext({
   memberDetection,
   includeMembership,
   selectedPlanId,
@@ -84,6 +81,8 @@ function resolveMemberBenefitContext({
   membershipSettings,
   applyMemberBenefit,
   isLoggedIn,
+  eventId,
+  subtotalMinor,
 }) {
   const instantAllowed =
     eventSettings.allowInstantMembershipBenefit &&
@@ -94,6 +93,13 @@ function resolveMemberBenefitContext({
   let benefitApplied = false;
   let memberRuleOverride = null;
   let membershipSource = memberDetection.source || memberDetection.membershipSource || "LOCAL";
+  let discountWarning = null;
+
+  const membershipType =
+    memberDetection.membershipType ||
+    memberDetection.membership?.planName ||
+    "";
+  const rawPlanId = memberDetection.membership?.planId || memberDetection.normalizedPlanId || null;
 
   const isTicketTailorActive =
     memberDetection.isActive &&
@@ -110,20 +116,54 @@ function resolveMemberBenefitContext({
     applyMemberBenefit !== false
   ) {
     if (isLoggedIn || canApplyWithoutLogin) {
-      memberPlanId = memberDetection.membership?.planId;
+      memberPlanId = rawPlanId;
+
       if (isTicketTailorActive && membershipSettings.applyTicketTailorMembershipDiscounts !== false) {
-        const ttRule = getTicketTailorDiscountRule(memberPlanId, membershipSettings);
-        memberRuleOverride = buildMemberRuleFromTicketTailorDiscount(
-          ttRule,
-          memberDetection.membershipType || memberDetection.membership?.planName,
-          memberPlanId
-        );
-        benefitReason = "tickettailor_active_member";
         membershipSource = MEMBERSHIP_SOURCE.TICKETTAILOR;
-      } else {
+        memberRuleOverride = await getMembershipDiscountRule({
+          planId: rawPlanId,
+          membershipType,
+          source: MEMBERSHIP_SOURCE.TICKETTAILOR,
+          eventId,
+          orderType: "tickets",
+          settings: membershipSettings,
+        });
+        benefitReason = "tickettailor_active_member";
+      } else if (memberPlanId || membershipType) {
+        memberRuleOverride = await getMembershipDiscountRule({
+          planId: rawPlanId,
+          membershipType,
+          source: membershipSource,
+          eventId,
+          orderType: "tickets",
+          settings: membershipSettings,
+        });
         benefitReason = "active_member_logged_in";
       }
-      benefitApplied = Boolean(memberPlanId || memberRuleOverride);
+
+      if (memberRuleOverride && subtotalMinor > 0) {
+        const previewAmount = calculateDiscountAmount(subtotalMinor, memberRuleOverride);
+        benefitApplied = previewAmount > 0;
+        console.log(
+          "[TT_DISCOUNT_AMOUNT_CALCULATED] subtotal=%s discountType=%s discountValue=%s amount=%s",
+          subtotalMinor,
+          memberRuleOverride.discountType,
+          memberRuleOverride.discountValue,
+          previewAmount
+        );
+        if (!benefitApplied) {
+          discountWarning =
+            "Membership found, but no discount is configured for this membership type.";
+        }
+      } else if (memberDetection.isActive) {
+        discountWarning =
+          "Membership found, but no discount is configured for this membership type.";
+        console.log(
+          "[TT_DISCOUNT_RULE_NOT_FOUND] membershipType=%s source=%s",
+          membershipType,
+          membershipSource
+        );
+      }
     }
   } else if (
     includeMembership &&
@@ -134,10 +174,25 @@ function resolveMemberBenefitContext({
   ) {
     memberPlanId = resolvePlanId(selectedPlanId);
     benefitReason = purchaseType === "RENEWAL" ? "instant_benefit_renewal" : "instant_benefit_new";
-    benefitApplied = true;
+    memberRuleOverride = await getMembershipDiscountRule({
+      planId: memberPlanId,
+      membershipType: "",
+      source: "LOCAL",
+      eventId,
+      orderType: "tickets",
+      settings: membershipSettings,
+    });
+    benefitApplied = Boolean(memberRuleOverride);
   }
 
-  return { memberPlanId, benefitReason, benefitApplied, memberRuleOverride, membershipSource };
+  return {
+    memberPlanId,
+    benefitReason,
+    benefitApplied,
+    memberRuleOverride,
+    membershipSource,
+    discountWarning,
+  };
 }
 
 export function calculateMembershipPrice(planId, membershipSettings) {
@@ -194,8 +249,8 @@ export async function calculatePricePreview({
     membershipCode,
   });
 
-  const { memberPlanId, benefitReason, benefitApplied, memberRuleOverride, membershipSource } =
-    resolveMemberBenefitContext({
+  const { memberPlanId, benefitReason, benefitApplied, memberRuleOverride, membershipSource, discountWarning } =
+    await resolveMemberBenefitContext({
     memberDetection,
     includeMembership,
     selectedPlanId,
@@ -204,7 +259,18 @@ export async function calculatePricePreview({
     membershipSettings,
     applyMemberBenefit,
     isLoggedIn,
+    eventId: event.id,
+    subtotalMinor,
   });
+
+  if (memberRuleOverride && benefitApplied) {
+    console.log(
+      "[TT_DISCOUNT_APPLIED_TO_PREVIEW] source=%s type=%s value=%s",
+      membershipSource,
+      memberRuleOverride.discountType,
+      memberRuleOverride.discountValue
+    );
+  }
 
   const allowStacking =
     (eventSettings.allowDiscountStacking &&
@@ -221,10 +287,19 @@ export async function calculatePricePreview({
     subtotalMinor,
     discountCode,
     voucherCode: discountCode,
-    memberPlanId: benefitApplied && !memberRuleOverride ? memberPlanId : null,
+    memberPlanId: null,
     memberRuleOverride: benefitApplied ? memberRuleOverride : null,
     allowStacking,
   });
+
+  if (benefitApplied && discountResult.memberDiscountMinor > 0) {
+    console.log(
+      "[TT_TOTAL_RECALCULATED] subtotal=%s discount=%s total=%s",
+      subtotalMinor,
+      discountResult.memberDiscountMinor,
+      subtotalMinor - discountResult.memberDiscountMinor
+    );
+  }
 
   const ticketSummary = buildOrderSummary({
     subtotalMinor,
@@ -410,9 +485,10 @@ export async function calculatePricePreview({
       savingsMessage:
         totalSavingsMinor > 0 ? `You save ${formatMoney(totalSavingsMinor)} with this option.` : "",
     },
-    membershipBenefitApplied: benefitApplied,
+    membershipBenefitApplied: benefitApplied && discountResult.memberDiscountMinor > 0,
     membershipBenefitReason: benefitReason,
     membershipSource,
+    membershipDiscountWarning: discountWarning,
     memberDiscountLabel: discountResult.memberLabel || "",
     codeDiscountLabel: discountResult.codeLabel || "",
     appliedDiscounts,

@@ -1,5 +1,4 @@
 import { resolvePlanId } from "../config/membershipPlans.js";
-import { DEFAULT_TICKETTAILOR_DISCOUNT_RULES } from "../config/checkoutDefaults.js";
 import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
 import {
   detectByEmail,
@@ -10,31 +9,21 @@ import {
 import { calculatePricePreview } from "./pricePreviewService.js";
 import CheckoutSession from "../models/CheckoutSession.js";
 import { logCheckoutAction, CHECKOUT_AUDIT_ACTIONS } from "./checkoutAuditService.js";
+import {
+  normalizeMembershipType,
+  resolveMembershipPlanId,
+} from "../utils/membershipTypeUtils.js";
+import {
+  getTicketTailorDiscountRule,
+} from "../utils/membershipDiscountRules.js";
 
-export function getTicketTailorDiscountRule(planId, settings) {
-  const resolved = resolvePlanId(planId);
-  const rules = settings?.ticketTailorDiscountRules || DEFAULT_TICKETTAILOR_DISCOUNT_RULES;
-  return rules[resolved] || rules[planId] || null;
-}
+export { getTicketTailorDiscountRule, buildMemberRuleFromTicketTailorDiscount } from "../utils/membershipDiscountRules.js";
 
-export function buildMemberRuleFromTicketTailorDiscount(discountRule, membershipType, planId) {
-  if (!discountRule || discountRule.discountValue <= 0) return null;
-
-  const typeLabel = membershipType || planId || "Membership";
-  const valueLabel =
-    discountRule.discountType === "percentage"
-      ? `${discountRule.discountValue}% discount`
-      : `€${Number(discountRule.discountValue).toFixed(2)} off`;
-
-  return {
-    type: "automatic_member",
-    discountType: discountRule.discountType,
-    discountValue: discountRule.discountValue,
-    label: `TicketTailor Membership Benefit Applied — ${typeLabel} (${valueLabel})`,
-    membershipPlanId: resolvePlanId(planId),
-    allowStacking: true,
-    source: "TICKETTAILOR",
-  };
+function logTT(tag, payload = {}) {
+  const parts = Object.entries(payload)
+    .map(([k, v]) => `${k}=${v}`)
+    .join(" ");
+  console.log(`[${tag}] ${parts}`);
 }
 
 export async function detectMembershipForCheckout(email, userId, options = {}) {
@@ -75,7 +64,22 @@ export async function detectMembershipForCheckout(email, userId, options = {}) {
     };
   }
 
-  const planId = unified.membership?.planId || null;
+  const planId = resolveMembershipPlanId({
+    planId: unified.membership?.planId,
+    membershipType: unified.membershipType || unified.membership?.planName,
+  });
+  const rawType = unified.membershipType || unified.membership?.planName || "";
+  const normalized = normalizeMembershipType(rawType);
+
+  logTT("TT_MEMBERSHIP_DETECTED", {
+    email: email || "",
+    source: unified.source,
+    status: unified.status,
+    rawType,
+  });
+  logTT("TT_MEMBERSHIP_TYPE_RAW", { type: rawType });
+  logTT("TT_MEMBERSHIP_TYPE_NORMALIZED", { planId, label: normalized.label });
+
   let discountRule = null;
   let discountType = null;
   let discountValue = null;
@@ -85,10 +89,14 @@ export async function detectMembershipForCheckout(email, userId, options = {}) {
     unified.source === MEMBERSHIP_SOURCE.TICKETTAILOR &&
     settings.applyTicketTailorMembershipDiscounts !== false
   ) {
-    discountRule = getTicketTailorDiscountRule(planId, settings);
+    logTT("TT_DISCOUNT_LOOKUP_STARTED", { planId, eventId: options.eventId || "" });
+    discountRule = getTicketTailorDiscountRule(planId, settings, rawType);
     if (discountRule) {
       discountType = discountRule.discountType;
       discountValue = discountRule.discountValue;
+      logTT("TT_DISCOUNT_RULE_FOUND", { discountType, discountValue });
+    } else {
+      logTT("TT_DISCOUNT_RULE_NOT_FOUND", { planId });
     }
   }
 
@@ -110,6 +118,8 @@ export async function detectMembershipForCheckout(email, userId, options = {}) {
     discountRule,
     discountType,
     discountValue,
+    normalizedMembershipType: normalized.label,
+    normalizedPlanId: planId,
     requiresLoginForBenefits:
       unified.isActive &&
       !isLoggedIn &&

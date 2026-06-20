@@ -891,6 +891,9 @@ export default function TicketBookingPage() {
               onContinueWithoutDiscount={handleContinueWithoutDiscount}
               onAddMembership={handleAddMembership}
               onTicketsOnly={handleTicketsOnly}
+              memberDiscountApplied={preview?.ticketPricing?.memberDiscountMinor > 0}
+              discountWarning={preview?.membershipDiscountWarning || ""}
+              memberDiscountLabel={preview?.memberDiscountLabel || ""}
             />
             {!memberDetection?.isActive && !includeMembership ? (
               <p className="ticket-booking__hint">
@@ -981,9 +984,13 @@ export default function TicketBookingPage() {
               </p>
             ) : null}
 
-            {preview?.membershipBenefitApplied ? (
-              <p className="ticket-booking__discount-note">
+            {preview?.membershipBenefitApplied && preview?.ticketPricing?.memberDiscountMinor > 0 ? (
+              <p className="ticket-booking__discount-note ticket-booking__discount-note--success">
                 {preview.memberDiscountLabel || "Member Discount Applied"}
+              </p>
+            ) : preview?.membershipDiscountWarning ? (
+              <p className="ticket-booking__discount-note ticket-booking__discount-note--warning" role="status">
+                {preview.membershipDiscountWarning}
               </p>
             ) : null}
 

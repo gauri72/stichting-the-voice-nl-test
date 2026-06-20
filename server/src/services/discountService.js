@@ -7,6 +7,16 @@ import Voucher from "../models/Voucher.js";
 import { resolvePlanId } from "../config/membershipPlans.js";
 import { STACKING_CONFIG } from "../config/discountConfig.js";
 import { getNextSequence } from "../utils/sequence.js";
+import { MEMBERSHIP_SOURCE } from "./membershipDetectionService.js";
+import {
+  buildMemberRuleFromTicketTailorDiscount,
+  getTicketTailorDiscountRule,
+} from "../utils/membershipDiscountRules.js";
+import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
+import {
+  normalizeMembershipType,
+  resolveMembershipPlanId,
+} from "../utils/membershipTypeUtils.js";
 
 function throwError(message, status = 400) {
   const err = new Error(message);
@@ -29,7 +39,7 @@ function isRuleActive(rule) {
 
 function appliesToOrderType(rule, orderType) {
   if (!rule) return false;
-  if (rule.appliesTo === "both") return true;
+  if (!rule.appliesTo || rule.appliesTo === "both") return true;
   return rule.appliesTo === orderType;
 }
 
@@ -95,8 +105,88 @@ export async function getAutomaticMemberDiscountForPlan(planId, eventId, orderTy
     ...rule,
     id: rule._id.toString(),
     membershipPlanId: resolvedPlanId,
-    label: "Member Discount Applied",
+    label: rule.label || "Member Discount Applied",
   };
+}
+
+function logTTDiscount(tag, payload = {}) {
+  const parts = Object.entries(payload)
+    .map(([k, v]) => `${k}=${v}`)
+    .join(" ");
+  console.log(`[${tag}] ${parts}`);
+}
+
+/**
+ * Resolve membership discount rule with TicketTailor-first priority.
+ * 1. TicketTailor admin discount rules
+ * 2. Local automatic member discount rule (DiscountRule collection)
+ * 3. Default membershipCheckoutDiscountPercent from settings
+ */
+export async function getMembershipDiscountRule({
+  planId,
+  membershipType,
+  source,
+  eventId,
+  orderType = "tickets",
+  settings = null,
+}) {
+  const rawType = membershipType || "";
+  const normalized = normalizeMembershipType(rawType);
+  const resolvedPlanId = resolveMembershipPlanId({ planId, membershipType: rawType });
+
+  logTTDiscount("TT_DISCOUNT_LOOKUP_STARTED", {
+    rawType,
+    normalizedPlanId: resolvedPlanId,
+    source: source || "",
+    eventId: eventId || "",
+  });
+
+  const resolvedSettings = settings || (await getMembershipCheckoutSettings());
+
+  if (
+    source === MEMBERSHIP_SOURCE.TICKETTAILOR &&
+    resolvedSettings.applyTicketTailorMembershipDiscounts !== false
+  ) {
+    const ttConfig = getTicketTailorDiscountRule(resolvedPlanId, resolvedSettings, rawType);
+    if (ttConfig?.discountValue > 0) {
+      const rule = buildMemberRuleFromTicketTailorDiscount(ttConfig, rawType, resolvedPlanId);
+      if (rule) {
+        logTTDiscount("TT_DISCOUNT_RULE_FOUND", {
+          discountType: rule.discountType,
+          discountValue: rule.discountValue,
+          label: rule.label,
+        });
+        return rule;
+      }
+    }
+    logTTDiscount("TT_DISCOUNT_RULE_NOT_FOUND", { planId: resolvedPlanId, rawType });
+  }
+
+  if (resolvedPlanId) {
+    const dbRule = await getAutomaticMemberDiscountForPlan(resolvedPlanId, eventId, orderType);
+    if (dbRule) {
+      logTTDiscount("TT_DISCOUNT_RULE_FOUND", { source: "LOCAL_DB", planId: resolvedPlanId });
+      return dbRule;
+    }
+  }
+
+  const fallbackPercent = resolvedSettings.membershipCheckoutDiscountPercent || 0;
+  if (fallbackPercent > 0) {
+    logTTDiscount("TT_DISCOUNT_RULE_FOUND", { source: "SETTINGS_FALLBACK", discountValue: fallbackPercent });
+    return {
+      type: "automatic_member",
+      discountType: "percentage",
+      discountValue: fallbackPercent,
+      appliesTo: "both",
+      label: `Member Discount (${normalized.label || "Membership"} — ${fallbackPercent}%)`,
+      membershipPlanId: resolvedPlanId,
+      allowStacking: true,
+      source: source || "LOCAL",
+    };
+  }
+
+  logTTDiscount("TT_DISCOUNT_RULE_NOT_FOUND", { planId: resolvedPlanId, rawType, source: source || "" });
+  return null;
 }
 
 export async function countUserDiscountUsage(discountId, userId, userEmail) {

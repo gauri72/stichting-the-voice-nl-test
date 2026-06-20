@@ -20,6 +20,9 @@ export default function MembershipBenefitBanner({
   onTicketsOnly,
   includeMembership,
   returnPath,
+  memberDiscountApplied = false,
+  discountWarning = "",
+  memberDiscountLabel = "",
 }) {
   const [loginSaving, setLoginSaving] = useState(false);
 
@@ -70,12 +73,29 @@ export default function MembershipBenefitBanner({
 
   if (isActiveLoggedIn) {
     const isTicketTailor = messages?.isTicketTailor || detection.source === "TICKETTAILOR";
+    const hasDiscount = memberDiscountApplied || (detection.discountValue > 0 && !discountWarning);
+
+    if (discountWarning && !memberDiscountApplied) {
+      return (
+        <div className="ticket-booking__member-banner ticket-booking__member-banner--warning">
+          <IconAlertCircle size={22} />
+          <div>
+            <p className="ticket-booking__member-banner-title">Active Membership Found</p>
+            <p className="ticket-booking__member-banner-body">{discountWarning}</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (!hasDiscount) return null;
+
     return (
       <div className="ticket-booking__member-banner ticket-booking__member-banner--active">
         <IconUserCheck size={22} />
         <div>
           <p className="ticket-booking__member-banner-title">
-            {isTicketTailor ? "TicketTailor Membership Benefit Applied" : "Member Discount Applied"}
+            {memberDiscountLabel ||
+              (isTicketTailor ? "TicketTailor Membership Benefit Applied" : "Member Discount Applied")}
           </p>
           <p className="ticket-booking__member-banner-body">
             {isTicketTailor
