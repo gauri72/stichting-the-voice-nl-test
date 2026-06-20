@@ -29,6 +29,14 @@ export const DEFAULT_MEMBERSHIP_TICKET_KEYWORDS = [
   "member pass",
 ];
 
+export const DEFAULT_TICKETTAILOR_DISCOUNT_RULES = {
+  student: { discountType: "percentage", discountValue: 0 },
+  privilegedSingle: { discountType: "percentage", discountValue: 10 },
+  privilegedFamily: { discountType: "percentage", discountValue: 20 },
+  premiumSingle: { discountType: "percentage", discountValue: 100 },
+  premiumFamily: { discountType: "percentage", discountValue: 100 },
+};
+
 export const DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS = {
   allowPurchaseDuringTicketCheckout: true,
   allowRenewalDuringTicketCheckout: true,
@@ -45,6 +53,11 @@ export const DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS = {
   autoLinkTicketTailorMembership: true,
   applyTicketTailorMembershipDiscounts: true,
   enableMembershipCodeValidation: true,
+  enableTicketTailorMembershipPriority: true,
+  checkTicketTailorBeforeLocal: true,
+  requireLoginForTicketTailorBenefits: true,
+  allowTicketTailorMembershipDiscountStacking: true,
+  ticketTailorDiscountRules: { ...DEFAULT_TICKETTAILOR_DISCOUNT_RULES },
 };
 
 export function getPlanBenefitsSummary(planId) {

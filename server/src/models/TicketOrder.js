@@ -52,8 +52,11 @@ const ticketOrderSchema = new mongoose.Schema(
       },
     ],
     memberStatusAtCheckout: { type: String, default: "", trim: true },
+    membershipSourceAtCheckout: { type: String, default: "", trim: true },
+    membershipTypeAtCheckout: { type: String, default: "", trim: true },
     membershipBenefitApplied: { type: Boolean, default: false },
     membershipBenefitReason: { type: String, default: "", trim: true },
+    membershipDiscountAmount: { type: Number, default: 0, min: 0 },
     totalSavingsMinor: { type: Number, default: 0, min: 0 },
     orderStatus: {
       type: String,

@@ -230,11 +230,8 @@ async function lookupLocalByEmail(email) {
 function evaluateIssuedMembershipRecord(issued, keywords) {
   if (!issued?.id) return null;
   const typeName = issued.membership_type_name || issued.membershipTypeName || "";
-  if (!matchesMembershipKeyword(typeName, keywords) && typeName) {
-    const planId = inferPlanIdFromTitle(typeName);
-    if (!planId || planId === "family") {
-      /* still allow if type name present from TT issued list */
-    }
+  if (typeName && !matchesMembershipKeyword(typeName, keywords)) {
+    return null;
   }
 
   const validTo = issued.valid_to || issued.validTo;
@@ -337,8 +334,10 @@ async function lookupTicketTailorSynced(email, keywords) {
 
   if (bestActive) {
     logDetection("TICKETTAILOR_MEMBERSHIP_FOUND", { email: normalized, mode: "synced", active: true });
+    logDetection("TICKETTAILOR_MEMBERSHIP_ACTIVE", { email: normalized, planId: bestActive.planId });
   } else if (bestExpired) {
     logDetection("TICKETTAILOR_MEMBERSHIP_FOUND", { email: normalized, mode: "synced", active: false });
+    logDetection("TICKETTAILOR_MEMBERSHIP_EXPIRED", { email: normalized, planId: bestExpired.planId });
   } else {
     logDetection("TICKETTAILOR_MEMBERSHIP_NOT_FOUND", { email: normalized, mode: "synced" });
   }
@@ -425,8 +424,10 @@ async function lookupTicketTailorLive(email, keywords, settings) {
 
     if (bestActive) {
       logDetection("TICKETTAILOR_MEMBERSHIP_FOUND", { email: normalized, mode: "live_api", active: true });
+      logDetection("TICKETTAILOR_MEMBERSHIP_ACTIVE", { email: normalized, planId: bestActive.planId });
     } else if (bestExpired) {
       logDetection("TICKETTAILOR_MEMBERSHIP_FOUND", { email: normalized, mode: "live_api", active: false });
+      logDetection("TICKETTAILOR_MEMBERSHIP_EXPIRED", { email: normalized, planId: bestExpired.planId });
     } else {
       logDetection("TICKETTAILOR_MEMBERSHIP_NOT_FOUND", { email: normalized, mode: "live_api" });
     }
@@ -438,7 +439,9 @@ async function lookupTicketTailorLive(email, keywords, settings) {
   }
 }
 
-function mergeMembershipResults(local, ttSynced, ttLive) {
+function mergeMembershipResults(local, ttSynced, ttLive, options = {}) {
+  const ttFirst = options.checkTicketTailorBeforeLocal !== false;
+
   let active = null;
   let expired = null;
   let source = MEMBERSHIP_SOURCE.NONE;
@@ -448,42 +451,66 @@ function mergeMembershipResults(local, ttSynced, ttLive) {
   const localExpired = local?.expired;
   const ttExpired = ttLive?.expired || ttSynced?.expired;
 
-  if (localActive?.active) {
-    active = { ...localActive, source: MEMBERSHIP_SOURCE.LOCAL };
-    source = MEMBERSHIP_SOURCE.LOCAL;
-  }
-  if (ttActive?.active) {
-    if (active) {
-      active = {
-        ...active,
-        source: MEMBERSHIP_SOURCE.BOTH,
-        ticketTailorMembership: ttActive,
-      };
-      source = MEMBERSHIP_SOURCE.BOTH;
-    } else {
+  if (ttFirst) {
+    // Priority: 1) Active TT  2) Active Local  3) Expired TT  4) Expired Local
+    if (ttActive?.active) {
       active = { ...ttActive, source: MEMBERSHIP_SOURCE.TICKETTAILOR };
       source = MEMBERSHIP_SOURCE.TICKETTAILOR;
-    }
-  }
-
-  if (!active) {
-    if (localExpired) {
-      expired = { ...localExpired, source: MEMBERSHIP_SOURCE.LOCAL };
+      if (localActive?.active) {
+        active.alternateLocalMembership = localActive;
+      }
+    } else if (localActive?.active) {
+      active = { ...localActive, source: MEMBERSHIP_SOURCE.LOCAL };
       source = MEMBERSHIP_SOURCE.LOCAL;
     }
-    if (ttExpired) {
-      if (expired) {
-        expired = { ...expired, source: MEMBERSHIP_SOURCE.BOTH };
-        source = MEMBERSHIP_SOURCE.BOTH;
-      } else {
+
+    if (!active) {
+      if (ttExpired) {
         expired = { ...ttExpired, source: MEMBERSHIP_SOURCE.TICKETTAILOR };
         source = MEMBERSHIP_SOURCE.TICKETTAILOR;
+      } else if (localExpired) {
+        expired = { ...localExpired, source: MEMBERSHIP_SOURCE.LOCAL };
+        source = MEMBERSHIP_SOURCE.LOCAL;
+      }
+    }
+  } else {
+    // Legacy: local active first, then TT
+    if (localActive?.active) {
+      active = { ...localActive, source: MEMBERSHIP_SOURCE.LOCAL };
+      source = MEMBERSHIP_SOURCE.LOCAL;
+    }
+    if (ttActive?.active) {
+      if (active) {
+        active = { ...active, source: MEMBERSHIP_SOURCE.BOTH, ticketTailorMembership: ttActive };
+        source = MEMBERSHIP_SOURCE.BOTH;
+      } else {
+        active = { ...ttActive, source: MEMBERSHIP_SOURCE.TICKETTAILOR };
+        source = MEMBERSHIP_SOURCE.TICKETTAILOR;
+      }
+    }
+    if (!active) {
+      if (localExpired) {
+        expired = { ...localExpired, source: MEMBERSHIP_SOURCE.LOCAL };
+        source = MEMBERSHIP_SOURCE.LOCAL;
+      }
+      if (ttExpired) {
+        if (expired) {
+          expired = { ...expired, source: MEMBERSHIP_SOURCE.BOTH };
+          source = MEMBERSHIP_SOURCE.BOTH;
+        } else {
+          expired = { ...ttExpired, source: MEMBERSHIP_SOURCE.TICKETTAILOR };
+          source = MEMBERSHIP_SOURCE.TICKETTAILOR;
+        }
       }
     }
   }
 
   if (active) {
-    logDetection("MEMBERSHIP_SOURCE_SELECTED", {
+    const logTag =
+      source === MEMBERSHIP_SOURCE.TICKETTAILOR
+        ? "MEMBERSHIP_PRIORITY_SELECTED_TICKETTAILOR"
+        : "MEMBERSHIP_SOURCE_SELECTED";
+    logDetection(logTag, {
       source,
       status: MEMBERSHIP_STATUS.ACTIVE,
       planId: active.planId,
@@ -499,12 +526,18 @@ function mergeMembershipResults(local, ttSynced, ttLive) {
   return { active, expired, source };
 }
 
-function buildDetectionResult({ active, expired, source, email, userId, isLoggedIn, sessionUserId = null }) {
+function buildDetectionResult({ active, expired, source, email, userId, isLoggedIn, sessionUserId = null, settings = null }) {
   const linkedUserId = sessionUserId || userId;
   const hasUserAccount = Boolean(linkedUserId);
+  const requireLoginForTT =
+    settings?.requireLoginForTicketTailorBenefits !== false;
 
   if (active) {
-    const requiresLogin = !isLoggedIn;
+    const isTicketTailorSource =
+      source === MEMBERSHIP_SOURCE.TICKETTAILOR || source === MEMBERSHIP_SOURCE.BOTH;
+    const requiresLogin =
+      !isLoggedIn &&
+      (isTicketTailorSource ? requireLoginForTT : true);
     const requiresAccountLinking =
       !isLoggedIn &&
       !hasUserAccount &&
@@ -528,6 +561,8 @@ function buildDetectionResult({ active, expired, source, email, userId, isLogged
       requiresLogin,
       requiresAccountLinking,
       membership: active,
+      ticketTailorMembershipId:
+        source === MEMBERSHIP_SOURCE.TICKETTAILOR ? active.membershipNumber || "" : "",
       isActive: true,
       isExpired: false,
       verificationWarning: null,
@@ -752,37 +787,57 @@ export async function detectByEmail(email, options = {}) {
   let ttLive = { active: null, expired: null };
   let verificationWarning = null;
 
-  try {
-    local = await lookupLocalByEmail(normalized);
-  } catch (error) {
-    logDetection("LOCAL_MEMBERSHIP_LOOKUP_FAILED", { email: normalized, error: error.message });
-    verificationWarning = "Unable to verify local membership at this moment.";
-  }
+  const ttFirst =
+    settings.enableTicketTailorMembershipPriority !== false &&
+    settings.checkTicketTailorBeforeLocal !== false;
 
-  if (settings.useSyncedTicketTailorData !== false) {
+  async function runTicketTailorLookups() {
+    if (settings.useSyncedTicketTailorData !== false) {
+      try {
+        ttSynced = await lookupTicketTailorSynced(normalized, keywords);
+      } catch (error) {
+        logDetection("TICKETTAILOR_SYNC_LOOKUP_FAILED", { email: normalized, error: error.message });
+      }
+    }
     try {
-      ttSynced = await lookupTicketTailorSynced(normalized, keywords);
+      ttLive = await lookupTicketTailorLive(normalized, keywords, settings);
+      if (ttLive.error && !ttSynced.active && !ttSynced.expired) {
+        verificationWarning = verificationWarning || "Unable to verify TicketTailor membership at this moment.";
+      }
     } catch (error) {
-      logDetection("TICKETTAILOR_SYNC_LOOKUP_FAILED", { email: normalized, error: error.message });
+      logDetection("TICKETTAILOR_API_FAILED", { email: normalized, error: error.message });
     }
   }
 
-  try {
-    ttLive = await lookupTicketTailorLive(normalized, keywords, settings);
-    if (ttLive.error && !ttSynced.active && !ttSynced.expired) {
-      verificationWarning = verificationWarning || "Unable to verify TicketTailor membership at this moment.";
+  async function runLocalLookup() {
+    try {
+      local = await lookupLocalByEmail(normalized);
+    } catch (error) {
+      logDetection("LOCAL_MEMBERSHIP_LOOKUP_FAILED", { email: normalized, error: error.message });
+      verificationWarning = "Unable to verify local membership at this moment.";
     }
-  } catch (error) {
-    logDetection("TICKETTAILOR_API_FAILED", { email: normalized, error: error.message });
   }
 
-  const merged = mergeMembershipResults(local, ttSynced, ttLive);
+  if (ttFirst) {
+    await runTicketTailorLookups();
+    await runLocalLookup();
+  } else {
+    await runLocalLookup();
+    await runTicketTailorLookups();
+  }
+
+  const merged = mergeMembershipResults(local, ttSynced, ttLive, {
+    checkTicketTailorBeforeLocal:
+      settings.enableTicketTailorMembershipPriority !== false &&
+      settings.checkTicketTailorBeforeLocal !== false,
+  });
   let result = buildDetectionResult({
     ...merged,
     email: normalized,
     userId: local.active?.userId || local.expired?.userId || null,
     isLoggedIn,
     sessionUserId: options.sessionUserId || null,
+    settings,
   });
 
   if (options.membershipCode) {
@@ -825,6 +880,37 @@ export async function detectByUserId(userId, options = {}) {
 
   logDetection("CHECKOUT_MEMBER_DETECTION_STARTED", { userId: userId?.toString?.() });
 
+  const settings = options.settings || (await getMembershipCheckoutSettings());
+
+  // TicketTailor-first: check by email before falling back to local-only lookup
+  if (options.email && settings.checkTicketTailorBeforeLocal !== false) {
+    const emailResult = await detectByEmail(options.email, {
+      ...options,
+      isLoggedIn: true,
+      sessionUserId: userId,
+      settings,
+    });
+    if (emailResult.status === MEMBERSHIP_STATUS.ACTIVE) {
+      return { ...emailResult, requiresLogin: false, requiresAccountLinking: false };
+    }
+    if (emailResult.status === MEMBERSHIP_STATUS.EXPIRED) {
+      const localActive = await lookupLocalByUserId(userId);
+      if (localActive?.active) {
+        return buildDetectionResult({
+          active: localActive,
+          expired: null,
+          source: MEMBERSHIP_SOURCE.LOCAL,
+          email: localActive.email || options.email || "",
+          userId,
+          isLoggedIn: true,
+          sessionUserId: userId,
+          settings,
+        });
+      }
+      return { ...emailResult, requiresLogin: false, requiresAccountLinking: false };
+    }
+  }
+
   const active = await lookupLocalByUserId(userId);
   if (active?.active) {
     return buildDetectionResult({
@@ -835,6 +921,7 @@ export async function detectByUserId(userId, options = {}) {
       userId,
       isLoggedIn: true,
       sessionUserId: userId,
+      settings,
     });
   }
 
@@ -845,12 +932,13 @@ export async function detectByUserId(userId, options = {}) {
       ...options,
       isLoggedIn: true,
       sessionUserId: userId,
+      settings,
     });
     if (emailResult.status === MEMBERSHIP_STATUS.ACTIVE) {
       return { ...emailResult, requiresLogin: false, requiresAccountLinking: false };
     }
     if (emailResult.status === MEMBERSHIP_STATUS.EXPIRED && !expired) {
-      return emailResult;
+      return { ...emailResult, requiresLogin: false, requiresAccountLinking: false };
     }
   }
 
@@ -863,6 +951,7 @@ export async function detectByUserId(userId, options = {}) {
       userId,
       isLoggedIn: true,
       sessionUserId: userId,
+      settings,
     });
   }
 
@@ -874,6 +963,7 @@ export async function detectByUserId(userId, options = {}) {
     userId,
     isLoggedIn: true,
     sessionUserId: userId,
+    settings,
   });
 }
 

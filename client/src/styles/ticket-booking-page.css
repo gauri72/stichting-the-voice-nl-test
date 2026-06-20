@@ -685,6 +685,30 @@
   font-size: 1rem;
 }
 
+.ticket-booking__tt-benefit-banner {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(62, 207, 154, 0.35);
+  background: rgba(62, 207, 154, 0.08);
+}
+
+.ticket-booking__tt-benefit-title {
+  margin: 0 0 4px;
+  font-weight: 600;
+  color: #3ecf9a;
+}
+
+.ticket-booking__tt-benefit-body {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.ticket-booking__summary-discount--tt span:first-child {
+  color: #3ecf9a;
+}
+
 .ticket-booking__preview-section {
   margin-bottom: 16px;
   padding: 14px;

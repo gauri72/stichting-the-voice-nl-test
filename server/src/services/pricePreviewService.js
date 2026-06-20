@@ -5,6 +5,11 @@ import { getPublishedEventBySlugOrId } from "./eventService.js";
 import { detectMemberStatus, MEMBER_STATES } from "./memberDetectionService.js";
 import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
 import {
+  buildMemberRuleFromTicketTailorDiscount,
+  getTicketTailorDiscountRule,
+} from "./ticketTailorMembershipService.js";
+import { MEMBERSHIP_SOURCE } from "./membershipDetectionService.js";
+import {
   applyDiscountsToOrder,
   calculateDiscountAmount,
 } from "./discountService.js";
@@ -87,12 +92,38 @@ function resolveMemberBenefitContext({
   let memberPlanId = null;
   let benefitReason = "";
   let benefitApplied = false;
+  let memberRuleOverride = null;
+  let membershipSource = memberDetection.source || memberDetection.membershipSource || "LOCAL";
 
-  if (isLoggedIn && memberDetection.isActive && eventSettings.enableMemberDiscount) {
-    if (applyMemberBenefit !== false) {
+  const isTicketTailorActive =
+    memberDetection.isActive &&
+    (membershipSource === MEMBERSHIP_SOURCE.TICKETTAILOR ||
+      memberDetection.membership?.source === MEMBERSHIP_SOURCE.TICKETTAILOR);
+
+  const canApplyWithoutLogin =
+    isTicketTailorActive &&
+    membershipSettings.requireLoginForTicketTailorBenefits === false;
+
+  if (
+    memberDetection.isActive &&
+    eventSettings.enableMemberDiscount &&
+    applyMemberBenefit !== false
+  ) {
+    if (isLoggedIn || canApplyWithoutLogin) {
       memberPlanId = memberDetection.membership?.planId;
-      benefitReason = "active_member_logged_in";
-      benefitApplied = Boolean(memberPlanId);
+      if (isTicketTailorActive && membershipSettings.applyTicketTailorMembershipDiscounts !== false) {
+        const ttRule = getTicketTailorDiscountRule(memberPlanId, membershipSettings);
+        memberRuleOverride = buildMemberRuleFromTicketTailorDiscount(
+          ttRule,
+          memberDetection.membershipType || memberDetection.membership?.planName,
+          memberPlanId
+        );
+        benefitReason = "tickettailor_active_member";
+        membershipSource = MEMBERSHIP_SOURCE.TICKETTAILOR;
+      } else {
+        benefitReason = "active_member_logged_in";
+      }
+      benefitApplied = Boolean(memberPlanId || memberRuleOverride);
     }
   } else if (
     includeMembership &&
@@ -106,7 +137,7 @@ function resolveMemberBenefitContext({
     benefitApplied = true;
   }
 
-  return { memberPlanId, benefitReason, benefitApplied };
+  return { memberPlanId, benefitReason, benefitApplied, memberRuleOverride, membershipSource };
 }
 
 export function calculateMembershipPrice(planId, membershipSettings) {
@@ -163,7 +194,8 @@ export async function calculatePricePreview({
     membershipCode,
   });
 
-  const { memberPlanId, benefitReason, benefitApplied } = resolveMemberBenefitContext({
+  const { memberPlanId, benefitReason, benefitApplied, memberRuleOverride, membershipSource } =
+    resolveMemberBenefitContext({
     memberDetection,
     includeMembership,
     selectedPlanId,
@@ -175,9 +207,11 @@ export async function calculatePricePreview({
   });
 
   const allowStacking =
-    eventSettings.allowDiscountStacking &&
-    (membershipSettings.instantBenefitRules?.allowWithCodeDiscounts !== false ||
-      !includeMembership);
+    (eventSettings.allowDiscountStacking &&
+      (membershipSettings.instantBenefitRules?.allowWithCodeDiscounts !== false ||
+        !includeMembership)) ||
+    (membershipSource === MEMBERSHIP_SOURCE.TICKETTAILOR &&
+      membershipSettings.allowTicketTailorMembershipDiscountStacking !== false);
 
   const discountResult = await applyDiscountsToOrder({
     userId: benefitApplied && isLoggedIn ? userId : null,
@@ -187,7 +221,8 @@ export async function calculatePricePreview({
     subtotalMinor,
     discountCode,
     voucherCode: discountCode,
-    memberPlanId: benefitApplied ? memberPlanId : null,
+    memberPlanId: benefitApplied && !memberRuleOverride ? memberPlanId : null,
+    memberRuleOverride: benefitApplied ? memberRuleOverride : null,
     allowStacking,
   });
 
@@ -264,11 +299,19 @@ export async function calculatePricePreview({
 
   const appliedDiscounts = [];
   if (discountResult.memberDiscountMinor > 0) {
+    const isTicketTailorDiscount =
+      membershipSource === MEMBERSHIP_SOURCE.TICKETTAILOR ||
+      discountResult.memberRule?.source === "TICKETTAILOR";
     appliedDiscounts.push({
-      type: "member",
-      label: discountResult.memberLabel || "Member Discount",
+      type: isTicketTailorDiscount ? "tickettailor_member" : "member",
+      label:
+        discountResult.memberLabel ||
+        (isTicketTailorDiscount
+          ? "TicketTailor Membership Benefit Applied"
+          : "Member Discount"),
       amountMinor: discountResult.memberDiscountMinor,
       ruleId: discountResult.memberRule?.id || null,
+      membershipSource: isTicketTailorDiscount ? MEMBERSHIP_SOURCE.TICKETTAILOR : membershipSource,
     });
   }
   if (discountResult.voucherDiscountMinor > 0) {
@@ -306,7 +349,12 @@ export async function calculatePricePreview({
       status: memberDetection.status,
       isActive: memberDetection.isActive,
       isExpired: memberDetection.isExpired,
-      requiresLogin: memberDetection.status === MEMBER_STATES.GUEST_EMAIL_ACTIVE_MEMBER,
+      source: memberDetection.source || memberDetection.membershipSource || "",
+      membershipType: memberDetection.membershipType || "",
+      memberUntil: memberDetection.memberUntil || "",
+      requiresLogin: memberDetection.requiresLogin || memberDetection.requiresLoginForBenefits || false,
+      discountType: memberDetection.discountType || null,
+      discountValue: memberDetection.discountValue || null,
       membership: memberDetection.membership
         ? {
             planId: memberDetection.membership.planId,
@@ -328,6 +376,11 @@ export async function calculatePricePreview({
       subtotalMinor,
       subtotal: formatMoney(subtotalMinor),
       eventDiscountMinor: 0,
+      ticketTailorMembershipDiscountMinor:
+        membershipSource === MEMBERSHIP_SOURCE.TICKETTAILOR ? discountResult.memberDiscountMinor : 0,
+      ticketTailorMembershipDiscount: formatMoney(
+        membershipSource === MEMBERSHIP_SOURCE.TICKETTAILOR ? discountResult.memberDiscountMinor : 0
+      ),
       memberDiscountMinor: discountResult.memberDiscountMinor,
       memberDiscount: formatMoney(discountResult.memberDiscountMinor),
       voucherDiscountMinor:
@@ -359,6 +412,7 @@ export async function calculatePricePreview({
     },
     membershipBenefitApplied: benefitApplied,
     membershipBenefitReason: benefitReason,
+    membershipSource,
     memberDiscountLabel: discountResult.memberLabel || "",
     codeDiscountLabel: discountResult.codeLabel || "",
     appliedDiscounts,

@@ -31,7 +31,7 @@ function handleError(res, error) {
 
 export async function detectMemberStatus(req, res) {
   try {
-    const { email, sessionId, membershipCode } = req.body || {};
+    const { email, sessionId, membershipCode, eventId, checkoutSessionId } = req.body || {};
     const userId = req.user?.id || req.user?._id || null;
     const isLoggedIn = Boolean(userId);
 
@@ -39,8 +39,54 @@ export async function detectMemberStatus(req, res) {
       userId,
       email: email || req.user?.email,
       isLoggedIn,
-      sessionId,
+      sessionId: sessionId || checkoutSessionId,
       membershipCode: membershipCode || null,
+      eventId,
+    });
+
+    return res.status(200).json({
+      found: result.found,
+      source: result.source || result.membershipSource,
+      status: result.membershipStatus || result.status,
+      membershipType: result.membershipType,
+      memberUntil: result.memberUntil,
+      eligibleForBenefits: result.eligibleForBenefits,
+      requiresLogin: result.requiresLogin || result.requiresLoginForBenefits,
+      discountType: result.discountType,
+      discountValue: result.discountValue,
+      discountRule: result.discountRule,
+      ticketTailorMembershipId: result.ticketTailorMembershipId,
+      ...result,
+    });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function applyTicketTailorMembershipBenefitHandler(req, res) {
+  try {
+    const {
+      checkoutSessionId,
+      email,
+      eventId,
+      membershipSource,
+      membershipType,
+    } = req.body || {};
+    const userId = req.user?.id || req.user?._id || null;
+    const isLoggedIn = Boolean(userId);
+
+    const { applyTicketTailorMembershipBenefit } = await import(
+      "../services/ticketTailorMembershipService.js"
+    );
+
+    const result = await applyTicketTailorMembershipBenefit({
+      checkoutSessionId,
+      email: email || req.user?.email,
+      eventId,
+      membershipSource,
+      membershipType,
+      userId,
+      isLoggedIn,
     });
 
     return res.status(200).json(result);

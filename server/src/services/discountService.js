@@ -403,14 +403,15 @@ export async function applyDiscountsToOrder({
   discountCode,
   voucherCode,
   memberPlanId = null,
+  memberRuleOverride = null,
   allowStacking = true,
 }) {
   const code = discountCode || voucherCode;
-  let memberRule = null;
+  let memberRule = memberRuleOverride || null;
 
-  if (memberPlanId) {
+  if (!memberRule && memberPlanId) {
     memberRule = await getAutomaticMemberDiscountForPlan(memberPlanId, eventId, orderType);
-  } else if (userId) {
+  } else if (!memberRule && userId) {
     memberRule = await getAutomaticMemberDiscount(userId, eventId, orderType);
   }
 

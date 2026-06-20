@@ -3,7 +3,9 @@ import {
   detectByUserId as unifiedDetectByUserId,
   getMembershipStatus as unifiedGetMembershipStatus,
   MEMBERSHIP_STATUS,
+  MEMBERSHIP_SOURCE,
 } from "./membershipDetectionService.js";
+import { detectMembershipForCheckout } from "./ticketTailorMembershipService.js";
 
 export const MEMBER_STATES = {
   GUEST_UNKNOWN: "GUEST_UNKNOWN",
@@ -79,21 +81,14 @@ export async function getMembershipStatus({ userId, email, isLoggedIn }) {
 }
 
 export async function detectMemberStatus({ userId, email, isLoggedIn, membershipCode = null }) {
-  if (isLoggedIn && userId) {
-    return detectByUserId(userId, { email, membershipCode });
-  }
-  if (email) {
-    return detectByEmail(email, { isLoggedIn: false, membershipCode });
-  }
-  return {
-    status: MEMBER_STATES.GUEST_UNKNOWN,
-    membership: null,
-    isActive: false,
-    isExpired: false,
-    found: false,
-    source: "NONE",
-  };
+  const detection = await detectMembershipForCheckout(email, userId, {
+    isLoggedIn: Boolean(isLoggedIn && userId),
+    membershipCode,
+  });
+  return wrapUnified(detection, Boolean(isLoggedIn && userId));
 }
+
+export { detectMembershipForCheckout } from "./ticketTailorMembershipService.js";
 
 export {
   detectByEmail as detectMembershipByEmail,

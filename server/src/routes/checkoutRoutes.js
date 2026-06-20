@@ -21,6 +21,7 @@ import {
   saveBeforeLogin,
   getCheckoutSession,
   applyMemberBenefitsAfterLoginHandler,
+  applyTicketTailorMembershipBenefitHandler,
 } from "../controllers/checkoutBundleController.js";
 
 const router = Router();
@@ -36,6 +37,7 @@ router.post("/validate-membership-code", optionalAuth, validateMembershipCode);
 router.post("/save-before-login", optionalAuth, saveBeforeLogin);
 router.get("/session/:checkoutSessionId", optionalAuth, getCheckoutSession);
 router.post("/apply-member-benefits-after-login", requireAuth, applyMemberBenefitsAfterLoginHandler);
+router.post("/apply-tickettailor-membership-benefit", optionalAuth, applyTicketTailorMembershipBenefitHandler);
 router.post("/calculate-preview", optionalAuth, calculatePreview);
 router.post("/apply-membership-benefit", optionalAuth, applyMembershipBenefit);
 router.post("/add-membership-to-cart", optionalAuth, addMembershipToCart);

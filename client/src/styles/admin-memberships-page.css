@@ -48,6 +48,33 @@
   color: inherit;
 }
 
+.admin-memberships__tt-discount-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.admin-memberships__tt-discount-row {
+  display: grid;
+  grid-template-columns: 1fr 140px 80px 24px;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-memberships__tt-discount-label {
+  font-size: 0.9rem;
+}
+
+.admin-memberships__tt-discount-row select,
+.admin-memberships__tt-discount-row input[type="number"] {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+}
+
 .admin-memberships__stat {
   background: var(--ad-card, #0d111c);
   border: 1px solid rgba(62, 207, 154, 0.15);

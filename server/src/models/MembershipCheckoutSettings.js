@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
-import { DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS } from "../config/checkoutDefaults.js";
+import {
+  DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS,
+  DEFAULT_TICKETTAILOR_DISCOUNT_RULES,
+} from "../config/checkoutDefaults.js";
 
 const membershipCheckoutSettingsSchema = new mongoose.Schema(
   {
@@ -59,6 +62,26 @@ const membershipCheckoutSettingsSchema = new mongoose.Schema(
     enableMembershipCodeValidation: {
       type: Boolean,
       default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.enableMembershipCodeValidation,
+    },
+    enableTicketTailorMembershipPriority: {
+      type: Boolean,
+      default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.enableTicketTailorMembershipPriority,
+    },
+    checkTicketTailorBeforeLocal: {
+      type: Boolean,
+      default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.checkTicketTailorBeforeLocal,
+    },
+    requireLoginForTicketTailorBenefits: {
+      type: Boolean,
+      default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.requireLoginForTicketTailorBenefits,
+    },
+    allowTicketTailorMembershipDiscountStacking: {
+      type: Boolean,
+      default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.allowTicketTailorMembershipDiscountStacking,
+    },
+    ticketTailorDiscountRules: {
+      type: mongoose.Schema.Types.Mixed,
+      default: () => ({ ...DEFAULT_TICKETTAILOR_DISCOUNT_RULES }),
     },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
   },

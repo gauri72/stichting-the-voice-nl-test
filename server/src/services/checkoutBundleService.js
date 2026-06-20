@@ -2,6 +2,7 @@ import crypto from "crypto";
 import CheckoutSession from "../models/CheckoutSession.js";
 import { getPublishedEventBySlugOrId } from "./eventService.js";
 import { detectMemberStatus, MEMBER_STATES } from "./memberDetectionService.js";
+import { MEMBERSHIP_SOURCE } from "./membershipDetectionService.js";
 import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
 import { calculatePricePreview, generateSessionId } from "./pricePreviewService.js";
 import { logCheckoutAction, CHECKOUT_AUDIT_ACTIONS } from "./checkoutAuditService.js";
@@ -66,6 +67,17 @@ export async function createOrUpdateSession({
       includeMembership,
       applyMemberBenefit,
       discountCode: discountCode || "",
+      membershipDetected: preview.memberDetection.isActive,
+      membershipSource: preview.membershipSource || preview.memberDetection.source || "",
+      membershipStatus: preview.memberDetection.status || "",
+      membershipType: preview.memberDetection.membershipType || "",
+      memberUntil: preview.memberDetection.memberUntil || "",
+      ticketTailorMembershipId: preview.memberDetection.membership?.membershipNumber || "",
+      requiresLogin: preview.memberDetection.requiresLogin || false,
+      membershipBenefitApplied: preview.membershipBenefitApplied,
+      membershipDiscountAmount: preview.discountResult?.memberDiscountMinor || 0,
+      membershipDiscountRule: preview.memberDetection.discountRule || null,
+      membershipDetectionResult: preview.memberDetection,
       expiresAt,
     },
     { upsert: true, new: true }
@@ -310,25 +322,35 @@ function buildDetectionMessages(detection) {
   const membershipLabel = detection.membershipType || detection.membership?.planName || "membership";
   const validUntil = detection.memberUntil || detection.membership?.memberUntilFormatted || "";
   const sourceLabel = detection.source || "LOCAL";
+  const isTicketTailor =
+    sourceLabel === MEMBERSHIP_SOURCE.TICKETTAILOR || sourceLabel === "TICKETTAILOR";
 
   switch (detection.status) {
     case MEMBER_STATES.GUEST_EMAIL_ACTIVE_MEMBER:
       return {
-        title: "Active Membership Found",
-        body: detection.requiresAccountLinking
-          ? `We found an active V.O.I.C.E. NL ${membershipLabel} membership (valid until ${validUntil}, source: ${sourceLabel}). Create an account to link it and apply benefits.`
-          : `We found an active V.O.I.C.E. NL membership associated with this email. Membership: ${membershipLabel}. Valid until: ${validUntil}. Source: ${sourceLabel}.`,
+        title: isTicketTailor ? "Active TicketTailor Membership Found" : "Active Membership Found",
+        body: isTicketTailor
+          ? `We found an active V.O.I.C.E. NL membership from TicketTailor linked to this email. Membership: ${membershipLabel}. Valid until: ${validUntil}.`
+          : detection.requiresAccountLinking
+            ? `We found an active V.O.I.C.E. NL ${membershipLabel} membership (valid until ${validUntil}, source: ${sourceLabel}). Create an account to link it and apply benefits.`
+            : `We found an active V.O.I.C.E. NL membership associated with this email. Membership: ${membershipLabel}. Valid until: ${validUntil}. Source: ${sourceLabel}.`,
         showLoginPrompt: true,
         showRenewalOption: false,
         showUpsell: false,
+        isTicketTailor,
       };
     case MEMBER_STATES.LOGGED_IN_ACTIVE_MEMBER:
       return {
-        title: "Member benefits available",
-        body: "Your active membership discount will be applied automatically.",
+        title: isTicketTailor
+          ? "TicketTailor Membership Benefit Applied"
+          : "Member benefits available",
+        body: isTicketTailor
+          ? `Your active TicketTailor ${membershipLabel} membership discount is applied.${validUntil ? ` Valid until ${validUntil}.` : ""}`
+          : "Your active membership discount will be applied automatically.",
         showLoginPrompt: false,
         showRenewalOption: false,
         showUpsell: false,
+        isTicketTailor,
       };
     case MEMBER_STATES.GUEST_EMAIL_EXPIRED_MEMBER:
     case MEMBER_STATES.LOGGED_IN_EXPIRED_MEMBER:
@@ -563,8 +585,11 @@ export async function createBundleCheckout(eventId, payload, userId) {
     membershipItems,
     appliedDiscounts: preview.appliedDiscounts,
     memberStatusAtCheckout: preview.memberDetection.status,
+    membershipSourceAtCheckout: preview.membershipSource || preview.memberDetection.source || "",
+    membershipTypeAtCheckout: preview.memberDetection.membershipType || "",
     membershipBenefitApplied: preview.membershipBenefitApplied,
     membershipBenefitReason: preview.membershipBenefitReason,
+    membershipDiscountAmount: preview.discountResult.memberDiscountMinor,
     subtotalMinor: preview.ticketPricing.subtotalMinor,
     discountAmountMinor: preview.discountResult.discountAmountMinor,
     membershipDiscountMinor: preview.discountResult.memberDiscountMinor,
@@ -835,8 +860,11 @@ export async function completeFreeOrder(eventId, payload, userId) {
     membershipItems,
     appliedDiscounts: preview.appliedDiscounts,
     memberStatusAtCheckout: preview.memberDetection.status,
+    membershipSourceAtCheckout: preview.membershipSource || preview.memberDetection.source || "",
+    membershipTypeAtCheckout: preview.memberDetection.membershipType || "",
     membershipBenefitApplied: preview.membershipBenefitApplied,
     membershipBenefitReason: preview.membershipBenefitReason,
+    membershipDiscountAmount: preview.discountResult.memberDiscountMinor,
     subtotalMinor: preview.ticketPricing.subtotalMinor,
     discountAmountMinor: preview.discountResult.discountAmountMinor,
     membershipDiscountMinor: preview.discountResult.memberDiscountMinor,

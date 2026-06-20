@@ -431,6 +431,62 @@ export default function AdminMembershipsPage() {
                 />
                 Enable membership code validation
               </label>
+            </div>
+
+            <h3>TicketTailor priority</h3>
+            <div className="admin-memberships__checkout-grid">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.enableTicketTailorMembershipPriority !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      enableTicketTailorMembershipPriority: e.target.checked,
+                    }))
+                  }
+                />
+                Enable TicketTailor membership priority
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.checkTicketTailorBeforeLocal !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      checkTicketTailorBeforeLocal: e.target.checked,
+                    }))
+                  }
+                />
+                Check TicketTailor before local membership
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.requireLoginForTicketTailorBenefits !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      requireLoginForTicketTailorBenefits: e.target.checked,
+                    }))
+                  }
+                />
+                Require login to apply TicketTailor membership benefits
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.allowTicketTailorMembershipDiscountStacking !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      allowTicketTailorMembershipDiscountStacking: e.target.checked,
+                    }))
+                  }
+                />
+                Allow TicketTailor membership discount stacking
+              </label>
               <label className="admin-memberships__full-width">
                 Membership ticket type keywords (one per line)
                 <textarea
@@ -447,6 +503,58 @@ export default function AdminMembershipsPage() {
                   }
                 />
               </label>
+            </div>
+
+            <h3>TicketTailor discount rules by membership type</h3>
+            <div className="admin-memberships__tt-discount-rules">
+              {[
+                { id: "student", label: "Student Membership" },
+                { id: "privilegedSingle", label: "Privileged Single" },
+                { id: "privilegedFamily", label: "Privileged Family" },
+                { id: "premiumSingle", label: "Premium Single" },
+                { id: "premiumFamily", label: "Premium Family" },
+              ].map(({ id, label }) => {
+                const rule = checkoutSettings.ticketTailorDiscountRules?.[id] || {
+                  discountType: "percentage",
+                  discountValue: 0,
+                };
+                return (
+                  <div key={id} className="admin-memberships__tt-discount-row">
+                    <span className="admin-memberships__tt-discount-label">{label}</span>
+                    <select
+                      value={rule.discountType || "percentage"}
+                      onChange={(e) =>
+                        setCheckoutSettings((s) => ({
+                          ...s,
+                          ticketTailorDiscountRules: {
+                            ...(s.ticketTailorDiscountRules || {}),
+                            [id]: { ...rule, discountType: e.target.value },
+                          },
+                        }))
+                      }
+                    >
+                      <option value="percentage">Percentage</option>
+                      <option value="fixed_amount">Fixed amount</option>
+                    </select>
+                    <input
+                      type="number"
+                      min="0"
+                      max={rule.discountType === "percentage" ? 100 : 9999}
+                      value={rule.discountValue ?? 0}
+                      onChange={(e) =>
+                        setCheckoutSettings((s) => ({
+                          ...s,
+                          ticketTailorDiscountRules: {
+                            ...(s.ticketTailorDiscountRules || {}),
+                            [id]: { ...rule, discountValue: Number(e.target.value) },
+                          },
+                        }))
+                      }
+                    />
+                    <span>{rule.discountType === "percentage" ? "%" : "€"}</span>
+                  </div>
+                );
+              })}
             </div>
             <button
               type="button"

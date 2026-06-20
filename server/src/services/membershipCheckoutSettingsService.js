@@ -1,5 +1,5 @@
 import MembershipCheckoutSettings from "../models/MembershipCheckoutSettings.js";
-import { DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS } from "../config/checkoutDefaults.js";
+import { DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS, DEFAULT_TICKETTAILOR_DISCOUNT_RULES } from "../config/checkoutDefaults.js";
 
 export async function getMembershipCheckoutSettings() {
   let doc = await MembershipCheckoutSettings.findOne({ key: "default" }).lean();
@@ -58,6 +58,23 @@ export async function updateMembershipCheckoutSettings(data, adminId) {
   if (data.enableMembershipCodeValidation !== undefined) {
     update.enableMembershipCodeValidation = Boolean(data.enableMembershipCodeValidation);
   }
+  if (data.enableTicketTailorMembershipPriority !== undefined) {
+    update.enableTicketTailorMembershipPriority = Boolean(data.enableTicketTailorMembershipPriority);
+  }
+  if (data.checkTicketTailorBeforeLocal !== undefined) {
+    update.checkTicketTailorBeforeLocal = Boolean(data.checkTicketTailorBeforeLocal);
+  }
+  if (data.requireLoginForTicketTailorBenefits !== undefined) {
+    update.requireLoginForTicketTailorBenefits = Boolean(data.requireLoginForTicketTailorBenefits);
+  }
+  if (data.allowTicketTailorMembershipDiscountStacking !== undefined) {
+    update.allowTicketTailorMembershipDiscountStacking = Boolean(
+      data.allowTicketTailorMembershipDiscountStacking
+    );
+  }
+  if (data.ticketTailorDiscountRules && typeof data.ticketTailorDiscountRules === "object") {
+    update.ticketTailorDiscountRules = data.ticketTailorDiscountRules;
+  }
   if (adminId) update.updatedBy = adminId;
 
   const doc = await MembershipCheckoutSettings.findOneAndUpdate(
@@ -90,6 +107,15 @@ function formatSettings(doc) {
     autoLinkTicketTailorMembership: doc.autoLinkTicketTailorMembership !== false,
     applyTicketTailorMembershipDiscounts: doc.applyTicketTailorMembershipDiscounts !== false,
     enableMembershipCodeValidation: doc.enableMembershipCodeValidation !== false,
+    enableTicketTailorMembershipPriority: doc.enableTicketTailorMembershipPriority !== false,
+    checkTicketTailorBeforeLocal: doc.checkTicketTailorBeforeLocal !== false,
+    requireLoginForTicketTailorBenefits: doc.requireLoginForTicketTailorBenefits !== false,
+    allowTicketTailorMembershipDiscountStacking:
+      doc.allowTicketTailorMembershipDiscountStacking !== false,
+    ticketTailorDiscountRules: {
+      ...DEFAULT_TICKETTAILOR_DISCOUNT_RULES,
+      ...(doc.ticketTailorDiscountRules || {}),
+    },
     updatedAt: doc.updatedAt,
   };
 }

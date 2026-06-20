@@ -69,22 +69,33 @@ export default function MembershipBenefitBanner({
   }
 
   if (isActiveLoggedIn) {
+    const isTicketTailor = messages?.isTicketTailor || detection.source === "TICKETTAILOR";
     return (
       <div className="ticket-booking__member-banner ticket-booking__member-banner--active">
         <IconUserCheck size={22} />
         <div>
-          <p className="ticket-booking__member-banner-title">Member Discount Applied</p>
-          <p className="ticket-booking__member-banner-body">
-            Your active {membershipType} benefits are applied to this booking.
-            {memberUntil ? ` Valid until ${memberUntil}.` : ""}
-            {sourceLabel ? ` Source: ${sourceLabel}.` : ""}
+          <p className="ticket-booking__member-banner-title">
+            {isTicketTailor ? "TicketTailor Membership Benefit Applied" : "Member Discount Applied"}
           </p>
+          <p className="ticket-booking__member-banner-body">
+            {isTicketTailor
+              ? `Your active TicketTailor ${membershipType} membership discount is applied.`
+              : `Your active ${membershipType} benefits are applied to this booking.`}
+            {memberUntil ? ` Valid until ${memberUntil}.` : ""}
+            {sourceLabel && !isTicketTailor ? ` Source: ${sourceLabel}.` : ""}
+          </p>
+          {detection.discountValue > 0 ? (
+            <p className="ticket-booking__member-detail-line">
+              {membershipType} — {detection.discountType === "percentage" ? `${detection.discountValue}% discount` : `€${detection.discountValue} off`}
+            </p>
+          ) : null}
         </div>
       </div>
     );
   }
 
   if (isActiveGuest) {
+    const isTicketTailor = messages?.isTicketTailor || detection.source === "TICKETTAILOR";
     const memberEmail = detection.membership?.email || "";
     const registerHref = buildRegisterUrl(memberEmail, returnPath || "/dashboard");
 
@@ -93,19 +104,21 @@ export default function MembershipBenefitBanner({
         <IconLogin size={22} />
         <div>
           <p className="ticket-booking__member-banner-title">
-            {messages?.title || "Active Membership Found"}
+            {messages?.title || (isTicketTailor ? "Active TicketTailor Membership Found" : "Active Membership Found")}
           </p>
           <p className="ticket-booking__member-banner-body">
             {messages?.body ||
-              "We found an active V.O.I.C.E. NL membership associated with this email."}
+              (isTicketTailor
+                ? "We found an active V.O.I.C.E. NL membership from TicketTailor linked to this email."
+                : "We found an active V.O.I.C.E. NL membership associated with this email.")}
           </p>
           <ul className="ticket-booking__member-details">
             <li>
-              <strong>Membership:</strong> {membershipType}
+              <strong>Membership Type:</strong> {membershipType}
             </li>
             {memberUntil ? (
               <li>
-                <strong>Valid until:</strong> {memberUntil}
+                <strong>Valid Until:</strong> {memberUntil}
               </li>
             ) : null}
             {sourceLabel ? (
