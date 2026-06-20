@@ -82,21 +82,23 @@ export default function AdminVouchersPage() {
           <button type="submit" className="admin-tickets__btn admin-tickets__btn--primary"><IconPlus size={16} /> Add</button>
         </form>
         {loading ? <p className="admin-tickets__status">Loading…</p> : (
-          <table className="admin-tickets__table">
-            <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Used</th><th>Expires</th><th></th></tr></thead>
-            <tbody>
-              {vouchers.map((v) => (
-                <tr key={v.id}>
-                  <td className="admin-tickets__mono">{v.code}</td>
-                  <td>{v.discountType}</td>
-                  <td>{v.discountType === "percentage" ? `${v.discountValue}%` : `€${v.discountValue}`}</td>
-                  <td>{v.usedCount}{v.usageLimit ? ` / ${v.usageLimit}` : ""}</td>
-                  <td>{v.expiryDate ? new Date(v.expiryDate).toLocaleDateString() : "—"}</td>
-                  <td><button type="button" onClick={() => handleDelete(v.id)}><IconTrash size={14} /></button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="admin-tickets__table-wrap admin-table-scroll">
+            <table className="admin-tickets__table">
+              <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Used</th><th>Expires</th><th></th></tr></thead>
+              <tbody>
+                {vouchers.map((v) => (
+                  <tr key={v.id}>
+                    <td className="admin-tickets__mono">{v.code}</td>
+                    <td>{v.discountType}</td>
+                    <td>{v.discountType === "percentage" ? `${v.discountValue}%` : `€${v.discountValue}`}</td>
+                    <td>{v.usedCount}{v.usageLimit ? ` / ${v.usageLimit}` : ""}</td>
+                    <td>{v.expiryDate ? new Date(v.expiryDate).toLocaleDateString() : "—"}</td>
+                    <td><button type="button" onClick={() => handleDelete(v.id)} aria-label="Delete voucher"><IconTrash size={14} /></button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </AdminLayout>

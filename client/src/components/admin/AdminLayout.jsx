@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   IconBell,
@@ -26,6 +26,7 @@ import {
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
 import ThemeToggle from "../layout/ThemeToggle.jsx";
 import "../../styles/admin-layout.css";
+import "../../styles/admin-mobile.css";
 
 const NAV_ITEMS = [
   { to: "/admin/dashboard", label: "Dashboard", icon: IconLayoutDashboard, end: true },
@@ -60,8 +61,8 @@ const MOBILE_NAV_ITEMS = [
   { to: "/admin/dashboard", label: "Dashboard", icon: IconLayoutDashboard, end: true },
   { to: "/admin/events", label: "Events", icon: IconTicket },
   { to: "/admin/tickets", label: "Tickets", icon: IconTicket },
-  { to: "/admin/memberships", label: "Memberships", icon: IconUsers },
-  { to: "/admin/reports", label: "More", icon: IconChartBar },
+  { to: "/admin/memberships", label: "Members", icon: IconUsers },
+  { type: "menu", label: "Menu", icon: IconMenu2 },
 ];
 
 export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBottomNav = false }) {
@@ -71,13 +72,26 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [financeOpen, setFinanceOpen] = useState(() => location.pathname.startsWith("/admin/finance"));
 
+  function closeDrawer() {
+    setDrawerOpen(false);
+  }
+
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!drawerOpen) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [drawerOpen]);
+
   function handleLogout() {
     logout();
     navigate("/admin/login", { replace: true });
-  }
-
-  function closeDrawer() {
-    setDrawerOpen(false);
   }
 
   function renderNavItem(item, onClick) {
@@ -133,7 +147,7 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
   }
 
   return (
-    <div className={`admin-layout${hideBottomNav ? " admin-layout--no-bottom-nav" : ""}`}>
+    <div className={`admin-layout${hideBottomNav ? " admin-layout--no-bottom-nav" : ""}${drawerOpen ? " admin-layout--drawer-open" : ""}`}>
       <header className="admin-layout__topbar">
         <button
           type="button"
@@ -186,16 +200,28 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
       <nav
         className={`admin-layout__drawer${drawerOpen ? " admin-layout__drawer--open" : ""}`}
         aria-label="Admin navigation drawer"
+        aria-hidden={!drawerOpen}
       >
-        <button
-          type="button"
-          className="admin-layout__drawer-close"
-          onClick={closeDrawer}
-          aria-label="Close menu"
-        >
-          <IconX size={20} stroke={1.8} />
-        </button>
-        {NAV_ITEMS.map((item) => renderNavItem(item, closeDrawer))}
+        <div className="admin-layout__drawer-header">
+          <span className="admin-layout__drawer-title">Admin Menu</span>
+          <button
+            type="button"
+            className="admin-layout__drawer-close"
+            onClick={closeDrawer}
+            aria-label="Close menu"
+          >
+            <IconX size={20} stroke={1.8} />
+          </button>
+        </div>
+        <div className="admin-layout__drawer-nav">
+          {NAV_ITEMS.map((item) => renderNavItem(item, closeDrawer))}
+        </div>
+        <div className="admin-layout__drawer-footer">
+          <button type="button" className="admin-layout__drawer-logout" onClick={handleLogout}>
+            <IconLogout size={18} stroke={1.8} />
+            Log out
+          </button>
+        </div>
       </nav>
 
       <main className="admin-layout__main">
@@ -212,19 +238,36 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
 
       {!hideBottomNav ? (
         <nav className="admin-layout__bottom-nav admin-layout__bottom-nav--mobile" aria-label="Admin navigation">
-          {MOBILE_NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                `admin-layout__nav-item${isActive ? " admin-layout__nav-item--active" : ""}`
-              }
-            >
-              <Icon size={20} stroke={1.7} aria-hidden />
-              <span>{label}</span>
-            </NavLink>
-          ))}
+          {MOBILE_NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            if (item.type === "menu") {
+              return (
+                <button
+                  key="menu"
+                  type="button"
+                  className="admin-layout__nav-item admin-layout__nav-item--menu"
+                  onClick={() => setDrawerOpen(true)}
+                  aria-label="Open admin menu"
+                >
+                  <Icon size={20} stroke={1.7} aria-hidden />
+                  <span>{item.label}</span>
+                </button>
+              );
+            }
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  `admin-layout__nav-item${isActive ? " admin-layout__nav-item--active" : ""}`
+                }
+              >
+                <Icon size={20} stroke={1.7} aria-hidden />
+                <span>{item.label}</span>
+              </NavLink>
+            );
+          })}
         </nav>
       ) : null}
 

@@ -255,3 +255,24 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+@media (max-width: 899px) {
+  .admin-template-upload__grid,
+  .admin-upload-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-upload-dropzone {
+    min-height: 160px;
+    padding: 20px 16px;
+  }
+
+  .admin-upload-actions {
+    flex-direction: column;
+  }
+
+  .admin-upload-actions button {
+    width: 100%;
+    min-height: 44px;
+  }
+}

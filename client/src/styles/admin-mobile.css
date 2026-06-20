@@ -1,0 +1,254 @@
+/**
+ * Shared responsive utilities for the V.O.I.C.E. NL admin panel.
+ * Mobile-first helpers; desktop layout unchanged at 900px+.
+ */
+
+@media (max-width: 899px) {
+  /* Allow horizontal scroll for wide admin content */
+  .admin-layout {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-layout__main {
+    overflow-x: visible;
+    max-width: 100%;
+  }
+
+  /* Scrollable table regions — matches existing BEM wrappers + bare tables */
+  .admin-layout__main [class*="__table-wrap"],
+  .admin-layout__main [class*="__table-container"],
+  .admin-table-scroll {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--ad-border, rgba(255, 255, 255, 0.1));
+    background: var(--ad-surface, #0b1220);
+  }
+
+  .admin-layout__main [class*="__table-wrap"] table,
+  .admin-layout__main [class*="__table-container"] table,
+  .admin-table-scroll > table,
+  .admin-layout__main table[class*="__table"] {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: collapse;
+  }
+
+  .admin-layout__main [class*="__table-wrap"]::after,
+  .admin-layout__main [class*="__table-container"]::after,
+  .admin-table-scroll::after {
+    content: "";
+    display: block;
+    height: 1px;
+  }
+
+  /* Compact topbar on phones */
+  .admin-layout__topbar {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .admin-layout__brand-line--top {
+    font-size: 0.72rem;
+  }
+
+  .admin-layout__brand-line--bottom {
+    display: none;
+  }
+
+  .admin-layout__profile-chevron {
+    display: none;
+  }
+
+  .admin-layout__actions .admin-layout__icon-btn[aria-label="Notifications"] {
+    display: none;
+  }
+
+  .admin-layout__actions .admin-layout__icon-btn[aria-label="Log out"] {
+    display: none;
+  }
+
+  /* Drawer — full navigation without eating content width */
+  .admin-layout__drawer {
+    width: min(300px, 88vw);
+    padding: 12px 10px calc(12px + env(safe-area-inset-bottom));
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .admin-layout__drawer .admin-layout__nav-item,
+  .admin-layout__drawer .admin-layout__nav-subitem {
+    min-height: 44px;
+  }
+
+  .admin-layout--drawer-open {
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  /* Bottom nav — larger touch targets */
+  .admin-layout__bottom-nav--mobile .admin-layout__nav-item {
+    min-height: 48px;
+    padding: 6px 2px;
+    font-size: 0.65rem;
+  }
+
+  .admin-layout__bottom-nav--mobile .admin-layout__nav-item--menu {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+    width: 100%;
+  }
+
+  /* Page headers */
+  .admin-layout__page-header h1 {
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
+
+  .admin-layout__page-header p {
+    font-size: 0.85rem;
+  }
+
+  /* Toolbars — stack on narrow screens */
+  .admin-layout__main [class*="__toolbar"],
+  .admin-layout__main [class*="__top-actions"],
+  .admin-layout__main [class*="__hero-actions"] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-layout__main [class*="__toolbar"] > *,
+  .admin-layout__main [class*="__top-actions"] > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .admin-layout__main [class*="__search"] {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Forms — full width inputs */
+  .admin-layout__main [class*="__voucher-form"],
+  .admin-layout__main [class*="__field-row"] {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .admin-layout__main [class*="__voucher-form"] input,
+  .admin-layout__main [class*="__voucher-form"] select,
+  .admin-layout__main [class*="__voucher-form"] button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  /* Modals / drawers — use full viewport width */
+  .admin-layout__main [class*="__drawer"],
+  .admin-layout__main [class*="__modal"],
+  .admin-layout__main [class*="__panel-overlay"] [class*="__panel"] {
+    max-width: 100vw;
+  }
+
+  [class*="__drawer"]:not(.admin-layout__drawer) {
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+
+  /* Stats grids — 2 columns on mobile */
+  .admin-layout__main [class*="__stats"],
+  .admin-layout__main [class*="__kpis"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Action buttons — touch friendly */
+  .admin-layout__main button,
+  .admin-layout__main [class*="__btn"],
+  .admin-layout__main a[class*="__btn"] {
+    min-height: 40px;
+  }
+
+  /* Dashboard quick actions */
+  .admin-dashboard-quick-actions {
+    flex-direction: column;
+  }
+
+  .admin-dashboard-quick-action {
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* Events form sticky footer clearance above bottom nav */
+  .admin-events--form .admin-events__footer--actions {
+    bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+
+  /* Check-in — already narrow, ensure padding */
+  .admin-checkin {
+    padding-bottom: 8px;
+  }
+
+  /* Template upload */
+  .admin-template-upload__grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Broadcast compose */
+  .admin-broadcast__compose-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-broadcast__hero-actions {
+    justify-content: stretch;
+  }
+
+  .admin-broadcast__hero-actions button {
+    width: 100%;
+  }
+
+  /* Finance detail pages */
+  .admin-finance-detail__grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Discounts FAB clearance */
+  .admin-discounts__fab {
+    bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 899px) and (min-width: 600px) {
+  .admin-layout__main [class*="__stats"],
+  .admin-layout__main [class*="__kpis"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-layout__main [class*="__stats"],
+  .admin-layout__main [class*="__kpis"] {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .admin-layout__avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.65rem;
+  }
+}
+
+/* Keep scrollable tables available on mobile where no card view exists */
+@media (max-width: 899px) {
+  .admin-tickets__table-wrap,
+  .admin-users__table-container {
+    display: block;
+  }
+}

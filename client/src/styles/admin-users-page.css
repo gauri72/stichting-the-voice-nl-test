@@ -234,7 +234,22 @@
   border-color: var(--ad-purple);
 }
 
-.admin-users__select option {
-  background: var(--ad-surface);
-  color: var(--ad-text);
+@media (max-width: 899px) {
+  .admin-users__table-container {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-users__table {
+    min-width: 720px;
+  }
+
+  .admin-users__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-users__search-wrap {
+    width: 100%;
+    min-width: 0;
+  }
 }

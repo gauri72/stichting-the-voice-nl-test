@@ -832,7 +832,7 @@
   min-width: 0;
   margin: 0 auto;
   padding-bottom: 12px;
-  overflow-x: clip;
+  overflow-x: visible;
 }
 
 .admin-events.admin-events--list {

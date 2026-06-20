@@ -275,3 +275,37 @@
   border-color: rgba(62, 207, 154, 0.35);
   color: var(--color-accent-teal, #3ecf9a);
 }
+
+@media (max-width: 899px) {
+  .admin-tickets__voucher-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .admin-tickets__voucher-form input,
+  .admin-tickets__voucher-form select,
+  .admin-tickets__voucher-form button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .admin-tickets__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-tickets__search {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .admin-tickets__table-wrap {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-tickets__table {
+    min-width: 640px;
+  }
+}
