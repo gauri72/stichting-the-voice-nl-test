@@ -54,7 +54,7 @@ const NAV_ITEMS = [
   },
   { to: "/admin/vouchers", label: "Vouchers", icon: IconDiscount },
   { to: "/admin/communication", label: "Communication", icon: IconMail },
-  { to: "/admin/reports", label: "More", icon: IconChartBar },
+  { to: "/admin/reports", label: "Reports", icon: IconChartBar },
 ];
 
 const MOBILE_NAV_ITEMS = [

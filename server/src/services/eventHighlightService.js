@@ -114,7 +114,6 @@ function formatHighlightCard(event, { legacy = false } = {}) {
     date: event.date,
     formattedDate: eventDate
       ? eventDate.toLocaleDateString("en-GB", {
-          day: "numeric",
           month: "long",
           year: "numeric",
         })

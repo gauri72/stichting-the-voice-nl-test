@@ -208,6 +208,8 @@ export default function MemberDashboard() {
 
       <div className="member-dashboard__body">
         <DashboardDiscountsSection />
+        <DashboardMyEventsWidget />
+
         <DashboardReferralSection />
 
         <DashboardStatCardsSection
@@ -227,8 +229,6 @@ export default function MemberDashboard() {
           qrSrc={qrSrc}
           wallet={wallet}
         />
-
-        <DashboardMyEventsWidget />
 
         <DashboardImpactSection overview={overview} />
 

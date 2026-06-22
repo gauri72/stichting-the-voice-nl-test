@@ -77,6 +77,7 @@ const sponsorshipSchema = new mongoose.Schema(
     internalNotes: [internalNoteSchema],
     addToMailingList: { type: Boolean, default: false },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
+    source: { type: String, default: "", trim: true, maxlength: 40 },
   },
   { timestamps: true, collection: "sponsorships" }
 );

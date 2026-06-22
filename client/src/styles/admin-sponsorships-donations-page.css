@@ -311,6 +311,18 @@
   font-size: 0.85rem;
 }
 
+.admin-finance__empty {
+  margin: 24px 0;
+  padding: 20px 24px;
+  border-radius: 12px;
+  border: 1px dashed rgba(0, 166, 183, 0.25);
+  background: rgba(0, 166, 183, 0.04);
+  color: var(--ad-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .admin-finance__cards-mobile {
   display: none;
 }

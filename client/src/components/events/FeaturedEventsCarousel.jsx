@@ -280,10 +280,9 @@ export default function FeaturedEventsCarousel({
                 </div>
                 <div className="fec__actions">
                   <Link className="fec__cta fec__cta--primary" to={event.ticketsUrl}>
-                    {event.featuredCtaText || "Book Tickets"}
-                  </Link>
-                  <Link className="fec__cta fec__cta--secondary" to={event.detailsUrl}>
-                    View Event Details
+                    {event.featuredCtaText === "Book Tickets" || !event.featuredCtaText
+                      ? "Buy Tickets"
+                      : event.featuredCtaText}
                   </Link>
                 </div>
               </div>

@@ -48,6 +48,8 @@ import AdminFinanceTransactionsPage from "./components/admin/AdminFinanceTransac
 import AdminFinanceAuditReportsPage from "./components/admin/AdminFinanceAuditReportsPage.jsx";
 import AdminFinanceReportsPage from "./components/admin/AdminFinanceReportsPage.jsx";
 import AdminFinanceSettingsPage from "./components/admin/AdminFinanceSettingsPage.jsx";
+import AdminReportsPage from "./components/admin/AdminReportsPage.jsx";
+import AdminCustomReportsPage from "./components/admin/AdminCustomReportsPage.jsx";
 import VerifyMembershipPage from "./components/membership/VerifyMembershipPage.jsx";
 import TicketBookingPage from "./components/events/TicketBookingPage.jsx";
 import TicketConfirmationPage from "./components/events/TicketConfirmationPage.jsx";
@@ -304,15 +306,11 @@ export default function App() {
           />
           <Route
             path="/admin/reports"
-            element={
-              <AdminProtectedRoute>
-                <AdminSectionPlaceholder
-                  pageTitle="Reports"
-                  pageSubtitle="Campaign analytics are coming soon."
-                  message="Recent campaign summaries are available under Communication."
-                />
-              </AdminProtectedRoute>
-            }
+            element={<AdminProtectedRoute><AdminReportsPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/reports/custom"
+            element={<AdminProtectedRoute><AdminCustomReportsPage /></AdminProtectedRoute>}
           />
           <Route
             path="/dashboard"

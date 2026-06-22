@@ -32,10 +32,25 @@ export async function sponsorshipDashboard(req, res) {
 
 export async function listSponsorships(req, res) {
   try {
-    const { listSponsorships } = await import("../services/adminSponsorshipService.js");
-    const sponsorships = await listSponsorships(parseFilters(req.query));
-    return res.status(200).json({ sponsorships });
+    console.log("[SPONSORSHIPS_ADMIN_FETCH_STARTED]", JSON.stringify(parseFilters(req.query)));
+    const { listSponsorships, getSponsorshipDashboardStats } = await import("../services/adminSponsorshipService.js");
+    const filters = parseFilters(req.query);
+    const [sponsorships, stats] = await Promise.all([
+      listSponsorships(filters),
+      getSponsorshipDashboardStats(),
+    ]);
+    console.log("[SPONSORSHIPS_ADMIN_FETCH_COUNT]", sponsorships.length, {
+      paymentStatuses: [...new Set(sponsorships.map((s) => s.paymentStatus))],
+      receiptStatuses: [...new Set(sponsorships.map((s) => s.receiptStatus))],
+    });
+    return res.status(200).json({
+      sponsorships,
+      records: sponsorships,
+      stats,
+      pagination: { total: sponsorships.length, page: 1, limit: 500 },
+    });
   } catch (error) {
+    console.error("[SPONSORSHIPS_ADMIN_FETCH_ERROR]", error.message);
     return handleError(res, error);
   }
 }
@@ -163,6 +178,16 @@ export async function exportSponsorships(req, res) {
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader("Content-Disposition", 'attachment; filename="sponsorships-export.csv"');
     return res.send(csv);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function backfillFromPayments(req, res) {
+  try {
+    const { backfillFromPaymentTransactions } = await import("../services/sponsorshipDonationRecordService.js");
+    const result = await backfillFromPaymentTransactions();
+    return res.status(200).json(result);
   } catch (error) {
     return handleError(res, error);
   }

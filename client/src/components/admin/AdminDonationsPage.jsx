@@ -11,6 +11,7 @@ import {
   IconMail,
   IconReceipt,
   IconCheck,
+  IconRefresh,
 } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
 import { adminAuthHeaders, apiFetch, apiUrl } from "../../utils/api.js";
@@ -50,6 +51,16 @@ const RECURRING_STATUSES = [
   { value: "cancelled", label: "Cancelled" },
   { value: "failed_payment", label: "Failed Payment" },
 ];
+
+const EMPTY_FILTERS = {
+  donationType: "",
+  paymentStatus: "",
+  receiptStatus: "",
+  recurringStatus: "",
+  campaignName: "",
+  dateFrom: "",
+  dateTo: "",
+};
 
 const EMPTY_FORM = {
   donorType: "individual",
@@ -106,15 +117,7 @@ export default function AdminDonationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState({
-    donationType: "",
-    paymentStatus: "",
-    receiptStatus: "",
-    recurringStatus: "",
-    campaignName: "",
-    dateFrom: "",
-    dateTo: "",
-  });
+  const [filters, setFilters] = useState({ ...EMPTY_FILTERS });
   const [selected, setSelected] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -133,20 +136,28 @@ export default function AdminDonationsPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     setError("");
+    const endpoint = `/api/admin/donations?${buildParams()}`;
+    console.log("[DONATIONS_ADMIN_FETCH_STARTED]", { endpoint, filters, search });
     try {
-      const params = buildParams();
       const [listData, statsData] = await Promise.all([
-        apiFetch(`/api/admin/donations?${params}`, { headers: adminAuthHeaders() }),
+        apiFetch(endpoint, { headers: adminAuthHeaders() }),
         apiFetch("/api/admin/donations/dashboard", { headers: adminAuthHeaders() }),
       ]);
-      setItems(listData.donations || []);
-      setStats(statsData.stats || null);
+      const records = listData.donations || listData.records || [];
+      console.log("[DONATIONS_ADMIN_FETCH_COUNT]", {
+        count: records.length,
+        paymentStatuses: [...new Set(records.map((r) => r.paymentStatus))],
+        receiptStatuses: [...new Set(records.map((r) => r.receiptStatus))],
+      });
+      setItems(records);
+      setStats(statsData.stats || listData.stats || null);
     } catch (err) {
+      console.error("[DONATIONS_ADMIN_FETCH_ERROR]", err.message);
       setError(err.message || "Could not load donations.");
     } finally {
       setLoading(false);
     }
-  }, [buildParams]);
+  }, [buildParams, filters, search]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -227,6 +238,26 @@ export default function AdminDonationsPage() {
     }
   }
 
+  async function runBackfill() {
+    try {
+      const result = await apiFetch("/api/admin/sponsorships/backfill-payments", {
+        method: "POST",
+        headers: adminAuthHeaders(),
+      });
+      window.alert(
+        `Imported ${result.sponsorshipsCreated || 0} sponsorship(s) and ${result.donationsCreated || 0} donation(s) from payment records.`
+      );
+      loadData();
+    } catch (err) {
+      setError(err.message || "Backfill failed.");
+    }
+  }
+
+  function resetFilters() {
+    setSearch("");
+    setFilters({ ...EMPTY_FILTERS });
+  }
+
   async function handleExport(exportType = "") {
     const params = buildParams();
     if (exportType) params.set("exportType", exportType);
@@ -251,6 +282,7 @@ export default function AdminDonationsPage() {
           <button type="button" className="admin-finance__btn" disabled={!selected.length} onClick={() => selected[0] && handleAction(selected[0], "receipt")}><IconReceipt size={16} /> Send Receipt</button>
           <button type="button" className="admin-finance__btn" onClick={() => handleExport()}><IconDownload size={16} /> Export Donations</button>
           <button type="button" className="admin-finance__btn" onClick={() => handleExport("paid")}><IconDownload size={16} /> Download Report</button>
+          <button type="button" className="admin-finance__btn" onClick={runBackfill}>Import from Payments</button>
         </div>
 
         {statCards.length ? (
@@ -283,11 +315,20 @@ export default function AdminDonationsPage() {
           </select>
           <input type="date" value={filters.dateFrom} onChange={(e) => setFilters((f) => ({ ...f, dateFrom: e.target.value }))} aria-label="From" />
           <input type="date" value={filters.dateTo} onChange={(e) => setFilters((f) => ({ ...f, dateTo: e.target.value }))} aria-label="To" />
+          <button type="button" className="admin-finance__btn" onClick={loadData}><IconRefresh size={16} /> Refresh</button>
+          <button type="button" className="admin-finance__btn" onClick={resetFilters}>Reset Filters</button>
         </div>
 
         {error ? <p className="admin-finance__error">{error}</p> : null}
         {loading ? <p className="admin-finance__status">Loading donations…</p> : null}
+        {!loading && !error && items.length === 0 ? (
+          <p className="admin-finance__empty">
+            No donation records found. If payments were completed on the website, use
+            &quot;Import from Payments&quot; to load them from payment history.
+          </p>
+        ) : null}
 
+        {!loading && items.length > 0 ? (
         <div className="admin-finance__table-wrap">
           <table className="admin-finance__table">
             <thead>
@@ -335,6 +376,7 @@ export default function AdminDonationsPage() {
             </tbody>
           </table>
         </div>
+        ) : null}
       </div>
 
       {drawerOpen ? (

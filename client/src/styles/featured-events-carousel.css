@@ -241,6 +241,21 @@
   border: 1px solid rgba(126, 232, 255, 0.35);
 }
 
+[data-theme="light"] .fec__membership-badge {
+  color: #78350f;
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.28) 0%,
+    rgba(245, 158, 11, 0.12) 100%
+  );
+  border: 1px solid rgba(180, 83, 9, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+[data-theme="light"] .fec__membership-badge svg {
+  color: #b45309;
+}
+
 .fec__actions {
   display: flex;
   flex-wrap: wrap;
@@ -263,14 +278,32 @@
 }
 
 .fec__cta--primary {
-  color: #0b1a24;
-  background: linear-gradient(180deg, #ffffff 0%, #e8f6fa 100%);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  color: #ffffff;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-link) 82%, var(--color-accent-teal)) 0%,
+    color-mix(in srgb, var(--color-accent-teal) 78%, var(--color-accent)) 48%,
+    color-mix(in srgb, var(--color-accent) 88%, transparent) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--color-accent-teal) 55%, rgba(255, 255, 255, 0.35));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 4px 20px color-mix(in srgb, var(--color-accent-teal) 28%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .fec__cta--primary:hover {
   transform: translateY(-1px);
-  background: #ffffff;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-link) 90%, var(--color-accent-teal)) 0%,
+    color-mix(in srgb, var(--color-accent-teal) 85%, var(--color-accent)) 48%,
+    color-mix(in srgb, var(--color-accent) 95%, transparent) 100%
+  );
+  box-shadow:
+    0 6px 24px color-mix(in srgb, var(--color-accent-teal) 38%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .fec__cta--secondary {
@@ -559,12 +592,6 @@
   [data-theme="light"] .fec__description,
   [data-theme="light"] .fec__meta-item {
     color: var(--color-text-secondary, #334155);
-  }
-
-  [data-theme="light"] .fec__cta--secondary {
-    color: #0f172a;
-    background: rgba(15, 23, 42, 0.06);
-    border-color: rgba(15, 23, 42, 0.15);
   }
 }
 

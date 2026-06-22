@@ -8,6 +8,7 @@ import { sendDonationEmails, sendSponsorshipEmails } from "../services/mailer.js
 import { sendMembershipEmails } from "../services/membershipMailer.js";
 import { provisionMembershipFromPayment } from "../services/membershipProvisioningService.js";
 import { recordSucceededPaymentIntent } from "../services/paymentRecordService.js";
+import { linkPaymentIntentToRecords } from "../services/sponsorshipDonationRecordService.js";
 import { buildReceiptNumber } from "../utils/receiptNumber.js";
 
 // In-memory guard so we don't email twice if both webhook and client confirmation fire.
@@ -168,6 +169,12 @@ async function handleSucceededPayment(intent) {
     await recordSucceededPaymentIntent(intent);
   } catch (err) {
     console.error("[payments] recordSucceededPaymentIntent:", err.message);
+  }
+
+  try {
+    await linkPaymentIntentToRecords(intent, paymentMethod);
+  } catch (err) {
+    console.error("[payments] linkPaymentIntentToRecords:", err.message);
   }
 
   if (meta.payment_kind === "donation") {

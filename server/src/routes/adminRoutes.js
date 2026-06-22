@@ -9,6 +9,7 @@ import adminMembershipRoutes from "./adminMembershipRoutes.js";
 import adminSponsorshipRoutes from "./adminSponsorshipRoutes.js";
 import adminDonationRoutes from "./adminDonationRoutes.js";
 import adminFinanceRoutes from "./adminFinanceRoutes.js";
+import adminReportRoutes from "./adminReportRoutes.js";
 import { syncTicketTailor } from "../controllers/adminMembershipController.js";
 
 const router = Router();
@@ -25,5 +26,6 @@ router.use("/memberships", requireAdmin, adminMembershipRoutes);
 router.use("/sponsorships", requireAdmin, adminSponsorshipRoutes);
 router.use("/donations", requireAdmin, adminDonationRoutes);
 router.use("/finance", requireAdmin, adminFinanceRoutes);
+router.use("/reports", requireAdmin, adminReportRoutes);
 
 export default router;

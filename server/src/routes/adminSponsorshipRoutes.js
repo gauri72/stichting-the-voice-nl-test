@@ -13,12 +13,14 @@ import {
   markPaid,
   markOverdue,
   exportSponsorships,
+  backfillFromPayments,
 } from "../controllers/adminSponsorshipController.js";
 
 const router = Router();
 
 router.get("/dashboard", sponsorshipDashboard);
 router.get("/export", exportSponsorships);
+router.post("/backfill-payments", backfillFromPayments);
 router.get("/", listSponsorships);
 router.post("/", createSponsorship);
 router.get("/:id/download-receipt", downloadReceipt);

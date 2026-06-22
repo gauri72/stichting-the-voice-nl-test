@@ -33,10 +33,25 @@ export async function donationDashboard(req, res) {
 
 export async function listDonations(req, res) {
   try {
-    const { listDonations } = await import("../services/adminDonationService.js");
-    const donations = await listDonations(parseFilters(req.query));
-    return res.status(200).json({ donations });
+    console.log("[DONATIONS_ADMIN_FETCH_STARTED]", JSON.stringify(parseFilters(req.query)));
+    const { listDonations, getDonationDashboardStats } = await import("../services/adminDonationService.js");
+    const filters = parseFilters(req.query);
+    const [donations, stats] = await Promise.all([
+      listDonations(filters),
+      getDonationDashboardStats(),
+    ]);
+    console.log("[DONATIONS_ADMIN_FETCH_COUNT]", donations.length, {
+      paymentStatuses: [...new Set(donations.map((d) => d.paymentStatus))],
+      receiptStatuses: [...new Set(donations.map((d) => d.receiptStatus))],
+    });
+    return res.status(200).json({
+      donations,
+      records: donations,
+      stats,
+      pagination: { total: donations.length, page: 1, limit: 500 },
+    });
   } catch (error) {
+    console.error("[DONATIONS_ADMIN_FETCH_ERROR]", error.message);
     return handleError(res, error);
   }
 }
