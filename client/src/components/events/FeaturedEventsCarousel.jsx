@@ -186,10 +186,16 @@ export default function FeaturedEventsCarousel({
   const overlay = (slide.featuredOverlayStrength || "Medium").toLowerCase();
   const modeClass = DISPLAY_MODE_CLASS[slide.featuredDisplayMode] || DISPLAY_MODE_CLASS.Auto;
 
+  const slidesToRender = isMobile
+    ? activeSlide
+      ? [{ event: activeSlide, index: activeIndex }]
+      : []
+    : events.map((event, index) => ({ event, index }));
+
   return (
     <section
       ref={containerRef}
-      className={`featured-events-carousel fec--${variant} ${modeClass} fec--align-${alignment} fec--overlay-${overlay}`}
+      className={`featured-events-carousel fec--${variant} ${modeClass} fec--align-${alignment} fec--overlay-${overlay}${isMobile ? " fec--mobile" : ""}`}
       aria-roledescription="carousel"
       aria-label="Featured events"
       onMouseEnter={() => setIsPaused(true)}
@@ -202,7 +208,7 @@ export default function FeaturedEventsCarousel({
       onTouchEnd={handleTouchEnd}
     >
       <div className="fec__viewport">
-        {events.map((event, index) => {
+        {slidesToRender.map(({ event, index }) => {
           const slideImage = resolveImageUrl(event, isMobile) || defaultHeroLight;
           const isActive = index === activeIndex;
           const showMembershipBadge =
@@ -211,63 +217,67 @@ export default function FeaturedEventsCarousel({
           return (
             <article
               key={event.id}
-              className={`fec__slide${isActive ? " fec__slide--active" : ""}`}
+              className={`fec__slide${isActive || isMobile ? " fec__slide--active" : ""}`}
               aria-hidden={!isActive}
               style={{
                 "--fec-object-position": event.imageObjectPosition || "center center",
               }}
             >
-              <img
-                className="fec__image"
-                src={slideImage}
-                alt={event.featuredImageAlt || event.featuredTitle}
-                loading={index === 0 ? "eager" : "lazy"}
-                decoding="async"
-                fetchPriority={index === 0 ? "high" : "auto"}
-              />
-              <div className="fec__overlay" aria-hidden />
+              <div className="fec__media" aria-hidden={!isActive}>
+                <img
+                  className="fec__image"
+                  src={slideImage}
+                  alt={event.featuredImageAlt || event.featuredTitle}
+                  loading={index === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                  fetchPriority={index === 0 ? "high" : "auto"}
+                />
+                <div className="fec__overlay" />
+              </div>
               <div className="fec__content">
-                <p className="fec__badge">{event.featuredBadgeText}</p>
-                <h2 className="fec__title">{event.featuredTitle}</h2>
-                {event.featuredSubtitle ? (
-                  <p className="fec__subtitle">{event.featuredSubtitle}</p>
-                ) : null}
-                {event.featuredDescription ? (
-                  <p className="fec__description">{event.featuredDescription}</p>
-                ) : null}
-                <div className="fec__meta" aria-label="Event details">
-                  {event.venueName ? (
-                    <p className="fec__meta-item">
-                      <IconMapPin aria-hidden stroke={1.75} size={16} />
-                      <span>{event.venueName}</span>
-                    </p>
+                <div className="fec__content-body">
+                  <p className="fec__badge">{event.featuredBadgeText}</p>
+                  <h2 className="fec__title">{event.featuredTitle}</h2>
+                  {event.featuredSubtitle ? (
+                    <p className="fec__subtitle">{event.featuredSubtitle}</p>
                   ) : null}
-                  {event.formattedDate ? (
-                    <p className="fec__meta-item">
-                      <IconCalendar aria-hidden stroke={1.75} size={16} />
+                  {event.featuredDescription ? (
+                    <p className="fec__description">{event.featuredDescription}</p>
+                  ) : null}
+                  <div className="fec__meta" aria-label="Event details">
+                    {event.venueName ? (
+                      <p className="fec__meta-item">
+                        <IconMapPin aria-hidden stroke={1.75} size={16} />
+                        <span>{event.venueName}</span>
+                      </p>
+                    ) : null}
+                    {event.formattedDate ? (
+                      <p className="fec__meta-item">
+                        <IconCalendar aria-hidden stroke={1.75} size={16} />
+                        <span>
+                          {event.formattedDate}
+                          {event.startTime ? ` · ${event.startTime}` : ""}
+                        </span>
+                      </p>
+                    ) : null}
+                    {isActive && timeRemaining ? (
+                      <p className="fec__meta-item fec__meta-item--time">
+                        <IconClock aria-hidden stroke={1.75} size={16} />
+                        <span>{timeRemaining}</span>
+                      </p>
+                    ) : null}
+                  </div>
+                  {showMembershipBadge ? (
+                    <p className="fec__membership-badge">
+                      <IconSparkles size={14} aria-hidden stroke={2} />
                       <span>
-                        {event.formattedDate}
-                        {event.startTime ? ` · ${event.startTime}` : ""}
+                        {event.membershipIncluded
+                          ? "Included with Premium membership"
+                          : "Member discounts available"}
                       </span>
                     </p>
                   ) : null}
-                  {isActive && timeRemaining ? (
-                    <p className="fec__meta-item fec__meta-item--time">
-                      <IconClock aria-hidden stroke={1.75} size={16} />
-                      <span>{timeRemaining}</span>
-                    </p>
-                  ) : null}
                 </div>
-                {showMembershipBadge ? (
-                  <p className="fec__membership-badge">
-                    <IconSparkles size={14} aria-hidden stroke={2} />
-                    <span>
-                      {event.membershipIncluded
-                        ? "Included with Premium membership"
-                        : "Member discounts available"}
-                    </span>
-                  </p>
-                ) : null}
                 <div className="fec__actions">
                   <Link className="fec__cta fec__cta--primary" to={event.ticketsUrl}>
                     {event.featuredCtaText || "Book Tickets"}

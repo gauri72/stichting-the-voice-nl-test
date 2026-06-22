@@ -20,6 +20,11 @@ import {
   approveReferral,
   markReferralPaid,
   cancelReferral,
+  updateCatalogDiscount,
+  hideCatalogDiscount,
+  archiveCatalogDiscount,
+  deleteCatalogDiscount,
+  bulkArchiveLegacyDiscounts,
 } from "../controllers/adminDiscountController.js";
 
 const router = Router();
@@ -37,6 +42,12 @@ router.patch("/referrals/:id/cancel", cancelReferral);
 
 router.get("/legacy", listLegacyDiscounts);
 router.post("/legacy", createLegacyDiscount);
+router.post("/legacy/bulk-archive", bulkArchiveLegacyDiscounts);
+
+router.patch("/catalog/:catalogId", updateCatalogDiscount);
+router.post("/catalog/:catalogId/hide-dashboard", hideCatalogDiscount);
+router.post("/catalog/:catalogId/archive", archiveCatalogDiscount);
+router.delete("/catalog/:catalogId", deleteCatalogDiscount);
 
 router.get("/", listDiscounts);
 router.post("/", createDiscount);

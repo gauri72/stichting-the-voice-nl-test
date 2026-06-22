@@ -1,4 +1,5 @@
 import * as adminDiscountService from "../services/adminDiscountRuleService.js";
+import * as adminCatalogService from "../services/adminDiscountCatalogService.js";
 import DiscountCode from "../models/DiscountCode.js";
 import User from "../models/User.js";
 import {
@@ -24,7 +25,7 @@ export async function getDashboard(req, res) {
 
 export async function listDiscounts(req, res) {
   try {
-    const discounts = await adminDiscountService.listDiscountRules(req.query);
+    const discounts = await adminCatalogService.listAllDiscountsForAdmin(req.query);
     return res.status(200).json({ discounts });
   } catch (error) {
     return handleError(res, error);
@@ -33,7 +34,16 @@ export async function listDiscounts(req, res) {
 
 export async function getDiscount(req, res) {
   try {
-    const data = await adminDiscountService.getDiscountRuleById(req.params.id);
+    const { kind, id } = adminCatalogService.parseCatalogId(req.params.id);
+    if (kind === "legacy") {
+      const data = await adminCatalogService.getLegacyDiscountDetail(id);
+      return res.status(200).json(data);
+    }
+    if (kind === "voucher") {
+      const data = await adminCatalogService.getVoucherDiscountDetail(id);
+      return res.status(200).json(data);
+    }
+    const data = await adminDiscountService.getDiscountRuleById(id);
     return res.status(200).json(data);
   } catch (error) {
     return handleError(res, error);
@@ -168,12 +178,22 @@ export async function listLegacyDiscounts(req, res) {
 
     return res.status(200).json({
       discounts: discounts.map((d) => ({
+        catalogId: `legacy:${d._id.toString()}`,
         id: d._id.toString(),
+        recordKind: "legacy",
         name: d.name,
         description: d.description,
         code: d.code,
         discountValue: d.discountValue,
+        discountLabel: `${d.discountValue}%`,
         isGlobal: d.isGlobal,
+        status: d.status || "active",
+        visibleToUsers: d.visibleToUsers !== false,
+        showOnDashboard: d.showOnDashboard !== false,
+        source: d.source || "legacy",
+        type: "legacy_code",
+        startsAt: d.startsAt,
+        expiresAt: d.expiresAt,
         assignedUsers: (d.assignedUsers || []).map((u) => ({
           id: u._id.toString(),
           firstName: u.firstName,
@@ -245,6 +265,61 @@ export async function cancelReferral(req, res) {
   try {
     const reward = await adminDiscountService.cancelReferralReward(req.params.id, req.admin?.id);
     return res.status(200).json({ reward });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function updateCatalogDiscount(req, res) {
+  try {
+    const discount = await adminCatalogService.updateCatalogDiscount(
+      req.params.catalogId,
+      req.body || {},
+      req.admin?.id,
+    );
+    return res.status(200).json({ discount });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function hideCatalogDiscount(req, res) {
+  try {
+    const discount = await adminCatalogService.hideCatalogDiscountFromDashboard(
+      req.params.catalogId,
+      req.admin?.id,
+    );
+    return res.status(200).json({ discount });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function archiveCatalogDiscount(req, res) {
+  try {
+    const discount = await adminCatalogService.archiveCatalogDiscount(
+      req.params.catalogId,
+      req.admin?.id,
+    );
+    return res.status(200).json({ discount });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function deleteCatalogDiscount(req, res) {
+  try {
+    const result = await adminCatalogService.deleteCatalogDiscount(req.params.catalogId, req.admin?.id);
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function bulkArchiveLegacyDiscounts(req, res) {
+  try {
+    const result = await adminCatalogService.bulkArchiveLegacyEventDiscounts(req.admin?.id);
+    return res.status(200).json(result);
   } catch (error) {
     return handleError(res, error);
   }

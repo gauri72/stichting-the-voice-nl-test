@@ -157,6 +157,8 @@
 }
 
 .admin-discounts__badge--active { background: rgba(62, 207, 154, 0.15); color: #3ecf9a; }
+.admin-discounts__badge--inactive { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
+.admin-discounts__badge--archived { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
 .admin-discounts__badge--paused { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
 .admin-discounts__badge--expired { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
 .admin-discounts__badge--pending { background: rgba(0, 166, 183, 0.15); color: #00a6b7; }

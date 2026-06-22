@@ -244,10 +244,22 @@ export async function createPaymentIntent(req, res) {
       const cleanCode = String(discountCode).trim();
       if (cleanCode) {
         const DiscountCodeModel = mongoose.model("DiscountCode");
-        const discount = await DiscountCodeModel.findOne({ code: cleanCode });
+        const discount = await DiscountCodeModel.findOne({
+          code: cleanCode,
+          deletedAt: null,
+          status: "active",
+        });
 
         if (!discount) {
           return res.status(400).json({ error: "Invalid discount code." });
+        }
+
+        if (discount.expiresAt && new Date() > new Date(discount.expiresAt)) {
+          return res.status(400).json({ error: "This discount code has expired." });
+        }
+
+        if (discount.visibleToUsers === false) {
+          return res.status(400).json({ error: "This discount code is no longer available." });
         }
 
         // Check if it is global or assigned to the user

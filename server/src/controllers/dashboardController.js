@@ -4,6 +4,7 @@ import {
   getEventTicketsForUser,
   getEventBookingStatusForUser,
 } from "../services/dashboardEventService.js";
+import { getAvailableDiscountsForUser } from "../services/dashboardAvailableDiscountsService.js";
 import { getUserReferralData } from "../services/adminDiscountRuleService.js";
 import { REFERRAL_SYSTEM_ENABLED } from "../config/discountConfig.js";
 import env from "../config/env.js";
@@ -102,6 +103,18 @@ export async function getReferrals(req, res) {
     const status = error.status || 500;
     const message = error.message || "Referral data unavailable.";
     if (status >= 500) console.error("[dashboard/referrals]", error);
+    return res.status(status).json({ error: message });
+  }
+}
+
+export async function getAvailableDiscounts(req, res) {
+  try {
+    const data = await getAvailableDiscountsForUser(req.user);
+    return res.status(200).json(data);
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || "Discounts unavailable.";
+    if (status >= 500) console.error("[dashboard/available-discounts]", error);
     return res.status(status).json({ error: message });
   }
 }

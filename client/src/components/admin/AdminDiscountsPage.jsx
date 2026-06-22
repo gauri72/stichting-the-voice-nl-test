@@ -27,13 +27,31 @@ const DISCOUNT_TYPES = [
   { value: "campaign_code", label: "Campaign Code" },
   { value: "event_code", label: "Event Code" },
   { value: "membership_code", label: "Membership Code" },
+  { value: "legacy", label: "Legacy Code" },
+  { value: "voucher", label: "Voucher" },
 ];
 
 const STATUS_OPTIONS = [
   { value: "", label: "All statuses" },
   { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
   { value: "paused", label: "Paused" },
   { value: "expired", label: "Expired" },
+  { value: "archived", label: "Archived" },
+  { value: "hidden", label: "Hidden from dashboard" },
+  { value: "deleted", label: "Deleted / Archived" },
+];
+
+const SOURCE_OPTIONS = [
+  { value: "", label: "All sources" },
+  { value: "platform", label: "Platform" },
+  { value: "legacy", label: "Legacy" },
+  { value: "voucher", label: "Voucher" },
+  { value: "campaign", label: "Campaign" },
+  { value: "referral", label: "Referral" },
+  { value: "personal", label: "Personal" },
+  { value: "event", label: "Event" },
+  { value: "tickettailor", label: "TicketTailor" },
 ];
 
 const TYPE_LABELS = Object.fromEntries(DISCOUNT_TYPES.filter((t) => t.value).map((t) => [t.value, t.label]));
@@ -63,6 +81,9 @@ const EMPTY_FORM = {
   allowStacking: true,
   status: "active",
   description: "",
+  visibleToUsers: true,
+  showOnDashboard: true,
+  source: "platform",
 };
 
 function formatMoney(minor) {
@@ -87,7 +108,9 @@ export default function AdminDiscountsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState({ type: "", status: "" });
+  const [filters, setFilters] = useState({ type: "", status: "", source: "" });
+  const [editCatalogId, setEditCatalogId] = useState(null);
+  const [editRecordKind, setEditRecordKind] = useState("rule");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -105,6 +128,7 @@ export default function AdminDiscountsPage() {
     if (search) params.set("search", search);
     if (filters.type) params.set("type", filters.type);
     if (filters.status) params.set("status", filters.status);
+    if (filters.source) params.set("source", filters.source);
     return params;
   }, [search, filters]);
 
@@ -136,11 +160,12 @@ export default function AdminDiscountsPage() {
     loadData();
   }, [loadData]);
 
-  async function openDetail(id) {
-    setDetailId(id);
+  async function openDetail(discount) {
+    const catalogId = discount.catalogId || discount.id;
+    setDetailId(catalogId);
     setDetailOpen(true);
     try {
-      const data = await apiFetch(`/api/admin/discounts/${id}`, { headers: adminAuthHeaders() });
+      const data = await apiFetch(`/api/admin/discounts/${catalogId}`, { headers: adminAuthHeaders() });
       setDetail(data);
     } catch (err) {
       setError(err.message || "Could not load details.");
@@ -151,6 +176,8 @@ export default function AdminDiscountsPage() {
     setCreateType(type);
     setForm({ ...EMPTY_FORM, type });
     setEditId(null);
+    setEditCatalogId(null);
+    setEditRecordKind("rule");
     setDrawerOpen(true);
   }
 
@@ -158,9 +185,9 @@ export default function AdminDiscountsPage() {
     setForm({
       name: d.name || "",
       code: d.code || "",
-      type: d.type,
-      discountType: d.discountType,
-      discountValue: String(d.discountValue),
+      type: d.type === "legacy_code" ? "campaign_code" : d.type,
+      discountType: d.discountType === "fixed" ? "fixed_amount" : d.discountType || "percentage",
+      discountValue: String(d.discountValue ?? ""),
       appliesTo: d.appliesTo || "tickets",
       eligibleEventIds: d.eligibleEventIds || [],
       eligibleMembershipTypes: d.eligibleMembershipTypes || [],
@@ -175,13 +202,18 @@ export default function AdminDiscountsPage() {
       usageLimit: d.usageLimit != null ? String(d.usageLimit) : "",
       usageLimitPerUser: d.usageLimitPerUser != null ? String(d.usageLimitPerUser) : "",
       minimumOrderAmount: d.minimumOrderAmount ? String(d.minimumOrderAmount / 100) : "",
-      startDate: d.startDate ? d.startDate.slice(0, 10) : "",
-      expiryDate: d.expiryDate ? d.expiryDate.slice(0, 10) : "",
+      startDate: d.startDate ? String(d.startDate).slice(0, 10) : "",
+      expiryDate: d.expiryDate ? String(d.expiryDate).slice(0, 10) : "",
       allowStacking: d.allowStacking !== false,
       status: d.status || "active",
       description: d.description || "",
+      visibleToUsers: d.visibleToUsers !== false,
+      showOnDashboard: d.showOnDashboard !== false,
+      source: d.source || "platform",
     });
     setEditId(d.id);
+    setEditCatalogId(d.catalogId || d.id);
+    setEditRecordKind(d.recordKind || "rule");
     setDrawerOpen(true);
   }
 
@@ -199,13 +231,20 @@ export default function AdminDiscountsPage() {
         minimumOrderAmount: form.minimumOrderAmount ? Math.round(Number(form.minimumOrderAmount) * 100) : 0,
         assignedUserId: form.assignedUserId || null,
         referrerUserId: form.referrerUserId || null,
+        visibleToUsers: Boolean(form.visibleToUsers),
+        showOnDashboard: Boolean(form.showOnDashboard),
       };
       const method = editId ? "PATCH" : "POST";
-      const url = editId ? `/api/admin/discounts/${editId}` : "/api/admin/discounts";
+      let url = editId ? `/api/admin/discounts/${editId}` : "/api/admin/discounts";
+      if (editId && (editRecordKind === "legacy" || editRecordKind === "voucher")) {
+        url = `/api/admin/discounts/catalog/${editCatalogId}`;
+      }
       await apiFetch(url, { method, headers: adminAuthHeaders(), body: JSON.stringify(payload) });
       setDrawerOpen(false);
       setForm(EMPTY_FORM);
       setEditId(null);
+      setEditCatalogId(null);
+      setEditRecordKind("rule");
       await loadData();
     } catch (err) {
       setError(err.message || "Save failed.");
@@ -214,21 +253,46 @@ export default function AdminDiscountsPage() {
     }
   }
 
-  async function runAction(id, action) {
+  async function runAction(discount, action) {
+    const catalogId = discount.catalogId || discount.id;
+    const recordKind = discount.recordKind || "rule";
     try {
       if (action === "delete") {
         if (!window.confirm("Delete this discount?")) return;
-        await apiFetch(`/api/admin/discounts/${id}`, { method: "DELETE", headers: adminAuthHeaders() });
+        if (recordKind === "legacy" || recordKind === "voucher") {
+          await apiFetch(`/api/admin/discounts/catalog/${catalogId}`, { method: "DELETE", headers: adminAuthHeaders() });
+        } else {
+          await apiFetch(`/api/admin/discounts/${catalogId}`, { method: "DELETE", headers: adminAuthHeaders() });
+        }
       } else if (action === "pause") {
-        await apiFetch(`/api/admin/discounts/${id}/pause`, { method: "POST", headers: adminAuthHeaders() });
+        await apiFetch(`/api/admin/discounts/${catalogId}/pause`, { method: "POST", headers: adminAuthHeaders() });
       } else if (action === "activate") {
-        await apiFetch(`/api/admin/discounts/${id}/activate`, { method: "POST", headers: adminAuthHeaders() });
+        await apiFetch(`/api/admin/discounts/${catalogId}/activate`, { method: "POST", headers: adminAuthHeaders() });
       } else if (action === "duplicate") {
-        await apiFetch(`/api/admin/discounts/${id}/duplicate`, { method: "POST", headers: adminAuthHeaders() });
+        await apiFetch(`/api/admin/discounts/${catalogId}/duplicate`, { method: "POST", headers: adminAuthHeaders() });
+      } else if (action === "hide") {
+        await apiFetch(`/api/admin/discounts/catalog/${catalogId}/hide-dashboard`, { method: "POST", headers: adminAuthHeaders() });
+      } else if (action === "archive") {
+        if (!window.confirm("Archive this discount? It will be hidden from members.")) return;
+        await apiFetch(`/api/admin/discounts/catalog/${catalogId}/archive`, { method: "POST", headers: adminAuthHeaders() });
       }
       await loadData();
     } catch (err) {
       window.alert(err.message || "Action failed.");
+    }
+  }
+
+  async function bulkArchiveLegacy() {
+    if (!window.confirm("Archive all legacy Couples Night / 10off discount codes?")) return;
+    try {
+      const result = await apiFetch("/api/admin/discounts/legacy/bulk-archive", {
+        method: "POST",
+        headers: adminAuthHeaders(),
+      });
+      window.alert(`Archived ${result.archived || 0} legacy discount(s).`);
+      await loadData();
+    } catch (err) {
+      window.alert(err.message || "Bulk archive failed.");
     }
   }
 
@@ -306,6 +370,9 @@ export default function AdminDiscountsPage() {
           <button type="button" className="admin-discounts__btn admin-discounts__btn--accent" onClick={syncDiscounts} disabled={syncing}>
             <IconRefresh size={16} /> {syncing ? "Syncing…" : "Sync Discounts"}
           </button>
+          <button type="button" className="admin-discounts__btn" onClick={bulkArchiveLegacy}>
+            Archive Legacy Event Codes
+          </button>
         </div>
 
         {stats ? (
@@ -329,6 +396,9 @@ export default function AdminDiscountsPage() {
           </select>
           <select value={filters.status} onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}>
             {STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+          <select value={filters.source} onChange={(e) => setFilters((f) => ({ ...f, source: e.target.value }))}>
+            {SOURCE_OPTIONS.map((o) => <option key={o.value || "all-source"} value={o.value}>{o.label}</option>)}
           </select>
           <button type="button" className="admin-discounts__btn" onClick={() => setShowReferrals((v) => !v)}>
             <IconTag size={16} /> {showReferrals ? "Hide Referrals" : "Referral Rewards"}
@@ -386,31 +456,39 @@ export default function AdminDiscountsPage() {
               <table className="admin-discounts__table">
                 <thead>
                   <tr>
-                    <th>Code / Rule</th><th>Type</th><th>Discount</th><th>Applies To</th><th>Usage</th><th>Revenue Impact</th><th>Start</th><th>Expiry</th><th>Status</th><th>Actions</th>
+                    <th>Code / Rule</th><th>Source</th><th>Type</th><th>Discount</th><th>Applies To</th><th>Visibility</th><th>Usage</th><th>Expiry</th><th>Status</th><th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {discounts.map((d) => (
-                    <tr key={d.id}>
+                    <tr key={d.catalogId || d.id}>
                       <td><strong>{d.name}</strong>{d.code ? <span className="admin-discounts__code-tag">{d.code}</span> : null}</td>
+                      <td>{d.source || "—"}</td>
                       <td>{TYPE_LABELS[d.type] || d.type}</td>
                       <td>{d.discountLabel}</td>
                       <td>{d.appliesTo}</td>
+                      <td>{d.showOnDashboard === false ? "Hidden" : "Dashboard"}</td>
                       <td>{d.usage}/{d.usageLimit ?? "∞"}</td>
-                      <td>{formatMoney(d.revenueImpact)}</td>
-                      <td>{formatDate(d.startDate)}</td>
                       <td>{formatDate(d.expiryDate)}</td>
                       <td><span className={statusBadge(d.status)}>{d.status}</span></td>
                       <td className="admin-discounts__actions-cell">
-                        <button type="button" aria-label="View" onClick={() => openDetail(d.id)}><IconEye size={16} /></button>
+                        <button type="button" aria-label="View" onClick={() => openDetail(d)}><IconEye size={16} /></button>
                         <button type="button" aria-label="Edit" onClick={() => openEdit(d)}><IconEdit size={16} /></button>
-                        <button type="button" aria-label="Duplicate" onClick={() => runAction(d.id, "duplicate")}><IconCopy size={16} /></button>
-                        {d.status === "active" ? (
-                          <button type="button" aria-label="Pause" onClick={() => runAction(d.id, "pause")}><IconPlayerPause size={16} /></button>
-                        ) : (
-                          <button type="button" aria-label="Activate" onClick={() => runAction(d.id, "activate")}><IconPlayerPlay size={16} /></button>
-                        )}
-                        <button type="button" aria-label="Delete" onClick={() => runAction(d.id, "delete")}><IconTrash size={16} /></button>
+                        {d.recordKind === "rule" ? (
+                          <button type="button" aria-label="Duplicate" onClick={() => runAction(d, "duplicate")}><IconCopy size={16} /></button>
+                        ) : null}
+                        {d.status === "active" && d.recordKind === "rule" ? (
+                          <button type="button" aria-label="Pause" onClick={() => runAction(d, "pause")}><IconPlayerPause size={16} /></button>
+                        ) : d.recordKind === "rule" ? (
+                          <button type="button" aria-label="Activate" onClick={() => runAction(d, "activate")}><IconPlayerPlay size={16} /></button>
+                        ) : null}
+                        {d.showOnDashboard !== false ? (
+                          <button type="button" aria-label="Hide from dashboard" onClick={() => runAction(d, "hide")}>Hide</button>
+                        ) : null}
+                        {d.status !== "archived" ? (
+                          <button type="button" aria-label="Archive" onClick={() => runAction(d, "archive")}>Archive</button>
+                        ) : null}
+                        <button type="button" aria-label="Delete" onClick={() => runAction(d, "delete")}><IconTrash size={16} /></button>
                       </td>
                     </tr>
                   ))}
@@ -420,17 +498,18 @@ export default function AdminDiscountsPage() {
 
             <div className="admin-discounts__cards admin-discounts__cards--mobile">
               {discounts.map((d) => (
-                <article key={d.id} className="admin-discounts__card">
+                <article key={d.catalogId || d.id} className="admin-discounts__card">
                   <div className="admin-discounts__card-head">
                     <h3>{d.name}</h3>
                     {d.code ? <span className="admin-discounts__code-tag">{d.code}</span> : null}
                   </div>
-                  <p>{TYPE_LABELS[d.type]} · {d.discountLabel}</p>
-                  <p>Usage: {d.usage} · {formatMoney(d.revenueImpact)} saved</p>
+                  <p>{d.source} · {TYPE_LABELS[d.type] || d.type} · {d.discountLabel}</p>
+                  <p>Usage: {d.usage} · {d.showOnDashboard === false ? "Hidden" : "On dashboard"}</p>
                   <span className={statusBadge(d.status)}>{d.status}</span>
                   <div className="admin-discounts__card-actions">
-                    <button type="button" onClick={() => openDetail(d.id)}>Details</button>
+                    <button type="button" onClick={() => openDetail(d)}>Details</button>
                     <button type="button" onClick={() => openEdit(d)}>Edit</button>
+                    <button type="button" onClick={() => runAction(d, "hide")}>Hide</button>
                   </div>
                 </article>
               ))}
@@ -543,10 +622,14 @@ export default function AdminDiscountsPage() {
                 <label>Status
                   <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}>
                     <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
                     <option value="paused">Paused</option>
                     <option value="expired">Expired</option>
+                    <option value="archived">Archived</option>
                   </select>
                 </label>
+                <label className="admin-discounts__checkbox"><input type="checkbox" checked={form.visibleToUsers} onChange={(e) => setForm((f) => ({ ...f, visibleToUsers: e.target.checked }))} /> Visible to users</label>
+                <label className="admin-discounts__checkbox"><input type="checkbox" checked={form.showOnDashboard} onChange={(e) => setForm((f) => ({ ...f, showOnDashboard: e.target.checked }))} /> Show on member dashboard</label>
               </fieldset>
 
               {!["automatic_member", "membership_code"].includes(form.type) ? (

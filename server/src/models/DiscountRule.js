@@ -4,6 +4,7 @@ import {
   DISCOUNT_VALUE_TYPES,
   APPLIES_TO,
   DISCOUNT_STATUSES,
+  DISCOUNT_SOURCES,
   REWARD_TYPES,
 } from "../config/discountConfig.js";
 
@@ -52,6 +53,16 @@ const discountRuleSchema = new mongoose.Schema(
       default: "active",
       index: true,
     },
+    visibleToUsers: { type: Boolean, default: true },
+    showOnDashboard: { type: Boolean, default: true, index: true },
+    source: {
+      type: String,
+      enum: DISCOUNT_SOURCES,
+      default: "platform",
+      index: true,
+    },
+    deletedAt: { type: Date, default: null },
+    archivedAt: { type: Date, default: null },
     description: { type: String, default: "", trim: true, maxlength: 500 },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
   },

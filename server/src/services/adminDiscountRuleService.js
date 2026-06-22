@@ -60,6 +60,11 @@ function formatRule(rule) {
     expiryDate: r.expiryDate,
     allowStacking: r.allowStacking !== false,
     status: r.status,
+    visibleToUsers: r.visibleToUsers !== false,
+    showOnDashboard: r.showOnDashboard !== false,
+    source: r.source || "platform",
+    deletedAt: r.deletedAt,
+    archivedAt: r.archivedAt,
     description: r.description || "",
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
@@ -254,6 +259,9 @@ export async function createDiscountRule(payload, adminId) {
     allowStacking,
     status,
     description,
+    visibleToUsers,
+    showOnDashboard,
+    source,
   } = payload;
 
   if (!name?.trim() || !type || !discountType || discountValue === undefined) {
@@ -296,6 +304,9 @@ export async function createDiscountRule(payload, adminId) {
     allowStacking: allowStacking !== false,
     status: status || "active",
     description: String(description || "").trim(),
+    visibleToUsers: visibleToUsers !== false,
+    showOnDashboard: showOnDashboard !== false,
+    source: source || "platform",
     createdBy: adminId || null,
   });
 
@@ -313,6 +324,7 @@ export async function updateDiscountRule(id, payload, adminId) {
     "isPublic", "referrerUserId", "referrerEmail", "referrerName", "rewardType",
     "rewardValue", "usageLimit", "usageLimitPerUser", "minimumOrderAmount",
     "startDate", "expiryDate", "allowStacking", "status", "description",
+    "visibleToUsers", "showOnDashboard", "source",
   ];
 
   for (const field of fields) {

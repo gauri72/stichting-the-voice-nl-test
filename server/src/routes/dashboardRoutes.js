@@ -7,6 +7,7 @@ import {
   getGoogleWalletPass,
   seedMembership,
   getReferrals,
+  getAvailableDiscounts,
   getDashboardEvents,
   getDashboardEventTickets,
   getDashboardEventBookingStatus,
@@ -15,6 +16,7 @@ import {
 const router = Router();
 
 router.get("/", requireAuth, getDashboard);
+router.get("/available-discounts", requireAuth, getAvailableDiscounts);
 router.get("/referrals", requireAuth, getReferrals);
 router.get("/events", requireAuth, getDashboardEvents);
 router.get("/events/:eventId/tickets", requireAuth, getDashboardEventTickets);

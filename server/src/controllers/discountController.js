@@ -1,4 +1,4 @@
-import DiscountCode from "../models/DiscountCode.js";
+import { getAvailableDiscountsForUser } from "../services/dashboardAvailableDiscountsService.js";
 
 function handleError(res, error) {
   const status = error.status || 500;
@@ -9,27 +9,12 @@ function handleError(res, error) {
   return res.status(status).json({ error: message });
 }
 
+/** @deprecated Use GET /api/dashboard/available-discounts */
 export async function getCustomerDiscounts(req, res) {
   try {
-    const userId = req.user._id;
-    const discounts = await DiscountCode.find({
-      $or: [
-        { isGlobal: true },
-        { assignedUsers: userId },
-      ],
-    })
-      .sort({ createdAt: -1 })
-      .lean();
-
-    return res.status(200).json({
-      discounts: discounts.map((d) => ({
-        id: d._id.toString(),
-        name: d.name,
-        description: d.description,
-        code: d.code,
-        discountValue: d.discountValue,
-      })),
-    });
+    console.log("[HARDCODED_DISCOUNT_SOURCE_FOUND] legacy_endpoint=/api/discounts redirecting_to=available-discounts-service");
+    const data = await getAvailableDiscountsForUser(req.user);
+    return res.status(200).json(data);
   } catch (error) {
     return handleError(res, error);
   }
