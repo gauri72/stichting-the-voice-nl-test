@@ -1,6 +1,6 @@
 import Hero from "./Hero";
 import ImpactStatsBar from "./ImpactStatsBar";
-import FeaturedEventsSection from "./FeaturedEventsSection";
+import FeaturedEventsCarousel from "../events/FeaturedEventsCarousel";
 import GetInvolvedSection from "./GetInvolvedSection";
 import OurPillarsSection from "./OurPillarsSection";
 import SponsorsSection from "./SponsorsSection";
@@ -10,7 +10,7 @@ export default function HomePage() {
   return (
     <div className="home-page">
       <Hero />
-      <FeaturedEventsSection />
+      <FeaturedEventsCarousel pageContext="home" variant="fullHero" />
       <OurPillarsSection />
       <GetInvolvedSection />
       <ImpactStatsBar />

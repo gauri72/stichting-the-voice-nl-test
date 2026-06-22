@@ -30,6 +30,7 @@ import AdminTemplateUploadPage from "./components/admin/AdminTemplateUploadPage"
 import AdminDiscountsPage from "./components/admin/AdminDiscountsPage";
 import AdminUsersPage from "./components/admin/AdminUsersPage";
 import AdminEventsPage from "./components/admin/AdminEventsPage.jsx";
+import AdminEventHighlightsPage from "./components/admin/AdminEventHighlightsPage.jsx";
 import AdminTicketsPage from "./components/admin/AdminTicketsPage.jsx";
 import AdminCheckInPage from "./components/admin/AdminCheckInPage.jsx";
 import CheckInPwaPage from "./components/checkin/CheckInPwaPage.jsx";
@@ -170,6 +171,14 @@ export default function App() {
             element={
               <AdminProtectedRoute>
                 <AdminBroadcastPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/events/highlights"
+            element={
+              <AdminProtectedRoute>
+                <AdminEventHighlightsPage />
               </AdminProtectedRoute>
             }
           />

@@ -8,6 +8,9 @@ import {
   publishEvent,
   saveDraft,
   deleteEvent,
+  patchFeaturedFlags,
+  generateFeaturedStyle,
+  generateFeaturedImagePrompt,
   listVouchers,
   createVoucher,
   updateVoucher,
@@ -23,10 +26,19 @@ import {
   markRefunded,
 } from "../controllers/ticketAdminController.js";
 import { updateEventMembershipSettings } from "../controllers/checkoutBundleController.js";
+import {
+  getHighlightAdmin,
+  listHighlightsAdmin,
+  patchHighlightAdmin,
+  previewYoutubeAdmin,
+  uploadHighlightThumbnailAdmin,
+} from "../controllers/eventHighlightController.js";
 
 const router = Router();
 
 router.use(requireAdmin);
+
+router.get("/highlights", listHighlightsAdmin);
 
 router.get("/stats", ticketStats);
 router.get("/tickets", listTickets);
@@ -46,6 +58,13 @@ router.delete("/vouchers/:id", deleteVoucher);
 router.get("/", listEvents);
 router.post("/", createEvent);
 router.get("/:id", getEvent);
+router.get("/:id/highlight", getHighlightAdmin);
+router.patch("/:id/highlight", patchHighlightAdmin);
+router.post("/:id/highlight/preview-youtube", previewYoutubeAdmin);
+router.post("/:id/highlight/upload-thumbnail", uploadHighlightThumbnailAdmin);
+router.patch("/:id/featured-flags", patchFeaturedFlags);
+router.post("/:id/ai/featured-style", generateFeaturedStyle);
+router.post("/:id/ai/featured-image-prompt", generateFeaturedImagePrompt);
 router.patch("/:id/membership-discount-settings", updateEventMembershipSettings);
 router.put("/:id", updateEvent);
 router.post("/:id/publish", publishEvent);

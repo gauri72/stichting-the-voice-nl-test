@@ -99,6 +99,40 @@ export async function deleteEvent(req, res) {
   }
 }
 
+export async function patchFeaturedFlags(req, res) {
+  try {
+    const { patchEventFeaturedFlags } = await import("../services/eventService.js");
+    const event = await patchEventFeaturedFlags(req.params.id, req.body || {});
+    return res.status(200).json({ event });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function generateFeaturedStyle(req, res) {
+  try {
+    const { getEventById } = await import("../services/eventService.js");
+    const { generateFeaturedDisplayStyle } = await import("../services/featuredEventAiService.js");
+    const event = await getEventById(req.params.id, { includeHiddenTypes: true });
+    const suggestion = generateFeaturedDisplayStyle(event);
+    return res.status(200).json({ suggestion });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function generateFeaturedImagePrompt(req, res) {
+  try {
+    const { getEventById } = await import("../services/eventService.js");
+    const { generateFeaturedImagePrompt: buildPrompt } = await import("../services/featuredEventAiService.js");
+    const event = await getEventById(req.params.id, { includeHiddenTypes: true });
+    const prompt = buildPrompt(event);
+    return res.status(200).json({ prompt });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function listVouchers(req, res) {
   try {
     const { listVouchers } = await import("../services/voucherService.js");

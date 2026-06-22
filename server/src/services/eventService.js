@@ -40,6 +40,22 @@ export function formatEvent(event, ticketTypes = []) {
     bookingFeeMinor: event.bookingFeeMinor || 0,
     salesEnabled: Boolean(event.salesEnabled),
     featured: Boolean(event.featured),
+    showOnHomePage: Boolean(event.showOnHomePage),
+    showOnEventsPage: Boolean(event.showOnEventsPage),
+    featuredPriority: event.featuredPriority ?? 100,
+    featuredHeroImageUrl: event.featuredHeroImageUrl || "",
+    featuredMobileImageUrl: event.featuredMobileImageUrl || "",
+    featuredImageAlt: event.featuredImageAlt || "",
+    featuredTitle: event.featuredTitle || "",
+    featuredSubtitle: event.featuredSubtitle || "",
+    featuredDescription: event.featuredDescription || "",
+    featuredBadgeText: event.featuredBadgeText || "Featured Event",
+    featuredCtaText: event.featuredCtaText || "Book Tickets",
+    featuredDisplayMode: event.featuredDisplayMode || "Auto",
+    featuredTextAlignment: event.featuredTextAlignment || "Left",
+    featuredOverlayStrength: event.featuredOverlayStrength || "Medium",
+    featuredImageFocusPosition: event.featuredImageFocusPosition || "Center",
+    aiSuggestedStyle: event.aiSuggestedStyle || null,
     showOnDashboard: event.showOnDashboard !== false,
     membershipIncluded: Boolean(event.membershipIncluded),
     membershipDiscountEligible: event.membershipDiscountEligible !== false,
@@ -62,6 +78,21 @@ export function formatEvent(event, ticketTypes = []) {
     archived: Boolean(event.archived),
     status: event.status,
     slug: event.slug,
+    showInMemorableMoments: event.showInMemorableMoments !== false,
+    highlightStatus: event.highlightStatus || "Coming Soon",
+    youtubeHighlightUrl: event.youtubeHighlightUrl || "",
+    youtubeVideoId: event.youtubeVideoId || "",
+    youtubeEmbedUrl: event.youtubeEmbedUrl || "",
+    youtubeThumbnailUrl: event.youtubeThumbnailUrl || "",
+    highlightTitle: event.highlightTitle || "",
+    highlightSubtitle: event.highlightSubtitle || "",
+    highlightDescription: event.highlightDescription || "",
+    impactText: event.impactText || "",
+    highlightThumbnailImageUrl: event.highlightThumbnailImageUrl || "",
+    galleryUrl: event.galleryUrl || "",
+    featuredHighlight: Boolean(event.featuredHighlight),
+    highlightPriority: event.highlightPriority ?? 100,
+    highlightUpdatedAt: event.highlightUpdatedAt || null,
     createdAt: event.createdAt,
     updatedAt: event.updatedAt,
     ticketTypes: ticketTypes.map(formatTicketType),
@@ -160,6 +191,22 @@ export async function createEvent(payload, adminId) {
     bookingFeeMinor,
     salesEnabled,
     featured,
+    showOnHomePage,
+    showOnEventsPage,
+    featuredPriority,
+    featuredHeroImageUrl,
+    featuredMobileImageUrl,
+    featuredImageAlt,
+    featuredTitle,
+    featuredSubtitle,
+    featuredDescription,
+    featuredBadgeText,
+    featuredCtaText,
+    featuredDisplayMode,
+    featuredTextAlignment,
+    featuredOverlayStrength,
+    featuredImageFocusPosition,
+    aiSuggestedStyle,
     showOnDashboard,
     membershipIncluded,
     membershipDiscountEligible,
@@ -188,6 +235,22 @@ export async function createEvent(payload, adminId) {
     bookingFeeMinor: Math.max(0, Number(bookingFeeMinor) || 0),
     salesEnabled: salesEnabled !== false,
     featured: Boolean(featured),
+    showOnHomePage: Boolean(showOnHomePage),
+    showOnEventsPage: Boolean(showOnEventsPage),
+    featuredPriority: Math.max(0, Number(featuredPriority) || 100),
+    featuredHeroImageUrl: featuredHeroImageUrl || "",
+    featuredMobileImageUrl: featuredMobileImageUrl || "",
+    featuredImageAlt: String(featuredImageAlt || "").trim(),
+    featuredTitle: String(featuredTitle || "").trim(),
+    featuredSubtitle: String(featuredSubtitle || "").trim(),
+    featuredDescription: String(featuredDescription || "").trim(),
+    featuredBadgeText: String(featuredBadgeText || "Featured Event").trim() || "Featured Event",
+    featuredCtaText: String(featuredCtaText || "Book Tickets").trim() || "Book Tickets",
+    featuredDisplayMode: featuredDisplayMode || "Auto",
+    featuredTextAlignment: featuredTextAlignment || "Left",
+    featuredOverlayStrength: featuredOverlayStrength || "Medium",
+    featuredImageFocusPosition: featuredImageFocusPosition || "Center",
+    aiSuggestedStyle: aiSuggestedStyle ?? null,
     showOnDashboard: showOnDashboard !== false,
     membershipIncluded: Boolean(membershipIncluded),
     membershipDiscountEligible: membershipDiscountEligible !== false,
@@ -245,6 +308,22 @@ export async function updateEvent(eventId, payload) {
     "bookingFeeMinor",
     "salesEnabled",
     "featured",
+    "showOnHomePage",
+    "showOnEventsPage",
+    "featuredPriority",
+    "featuredHeroImageUrl",
+    "featuredMobileImageUrl",
+    "featuredImageAlt",
+    "featuredTitle",
+    "featuredSubtitle",
+    "featuredDescription",
+    "featuredBadgeText",
+    "featuredCtaText",
+    "featuredDisplayMode",
+    "featuredTextAlignment",
+    "featuredOverlayStrength",
+    "featuredImageFocusPosition",
+    "aiSuggestedStyle",
     "showOnDashboard",
     "membershipIncluded",
     "membershipDiscountEligible",
@@ -252,6 +331,20 @@ export async function updateEvent(eventId, payload) {
     "category",
     "archived",
     "status",
+    "showInMemorableMoments",
+    "highlightStatus",
+    "youtubeHighlightUrl",
+    "youtubeVideoId",
+    "youtubeEmbedUrl",
+    "youtubeThumbnailUrl",
+    "highlightTitle",
+    "highlightSubtitle",
+    "highlightDescription",
+    "impactText",
+    "highlightThumbnailImageUrl",
+    "galleryUrl",
+    "featuredHighlight",
+    "highlightPriority",
   ];
 
   for (const key of fields) {
@@ -261,12 +354,20 @@ export async function updateEvent(eventId, payload) {
       else if (
         key === "salesEnabled" ||
         key === "featured" ||
+        key === "showOnHomePage" ||
+        key === "showOnEventsPage" ||
         key === "showOnDashboard" ||
         key === "membershipIncluded" ||
         key === "membershipDiscountEligible" ||
-        key === "archived"
+        key === "archived" ||
+        key === "showInMemorableMoments" ||
+        key === "featuredHighlight"
       ) {
         event[key] = Boolean(payload[key]);
+      } else if (key === "featuredPriority" || key === "highlightPriority") {
+        event[key] = Math.max(0, Number(payload[key]) || 0);
+      } else if (key === "aiSuggestedStyle") {
+        event.aiSuggestedStyle = payload.aiSuggestedStyle;
       } else if (key === "checkoutSettings" && payload.checkoutSettings) {
         const current = event.checkoutSettings?.toObject?.() || event.checkoutSettings || {};
         event.checkoutSettings = { ...current, ...payload.checkoutSettings };
@@ -279,6 +380,38 @@ export async function updateEvent(eventId, payload) {
     event.slug = await uniqueSlug(payload.title);
   }
 
+  const { syncHighlightFieldsForEvent } = await import("./eventHighlightService.js");
+  const { parseYoutubeHighlightUrl } = await import("../utils/youtubeUrl.js");
+
+  if (payload.youtubeHighlightUrl !== undefined) {
+    const raw = String(payload.youtubeHighlightUrl || "").trim();
+    if (raw) {
+      try {
+        const parsed = parseYoutubeHighlightUrl(raw);
+        event.youtubeHighlightUrl = parsed.youtubeHighlightUrl;
+        event.youtubeVideoId = parsed.youtubeVideoId;
+        event.youtubeEmbedUrl = parsed.youtubeEmbedUrl;
+        event.youtubeThumbnailUrl = parsed.youtubeThumbnailUrl;
+      } catch {
+        /* validation handled by dedicated highlight endpoint */
+      }
+    } else {
+      event.youtubeHighlightUrl = "";
+      event.youtubeVideoId = "";
+      event.youtubeEmbedUrl = "";
+      event.youtubeThumbnailUrl = "";
+    }
+  }
+
+  syncHighlightFieldsForEvent(event);
+  if (
+    payload.youtubeHighlightUrl !== undefined ||
+    payload.highlightStatus !== undefined ||
+    payload.showInMemorableMoments !== undefined
+  ) {
+    event.highlightUpdatedAt = new Date();
+  }
+
   await event.save();
 
   if (Array.isArray(payload.ticketTypes)) {
@@ -286,6 +419,32 @@ export async function updateEvent(eventId, payload) {
   }
 
   return getEventById(event._id, { includeHiddenTypes: true });
+}
+
+export async function patchEventFeaturedFlags(eventId, flags) {
+  const event = await Event.findById(eventId);
+  if (!event) {
+    const err = new Error("Event not found.");
+    err.status = 404;
+    throw err;
+  }
+
+  const allowed = ["featured", "showOnHomePage", "showOnEventsPage"];
+  for (const key of allowed) {
+    if (flags[key] !== undefined) {
+      event[key] = Boolean(flags[key]);
+    }
+  }
+
+  if (event.featured && flags.featured !== false) {
+    if (flags.showOnHomePage === undefined && !event.showOnHomePage && !event.showOnEventsPage) {
+      event.showOnHomePage = true;
+      event.showOnEventsPage = true;
+    }
+  }
+
+  await event.save();
+  return getEventById(eventId, { includeHiddenTypes: true });
 }
 
 export async function upsertTicketTypes(eventId, ticketTypes) {

@@ -13,11 +13,41 @@ import {
   IconTicket,
   IconTrash,
   IconUpload,
+  IconSparkles,
+  IconStar,
+  IconStarOff,
+  IconCopy,
+  IconHome,
+  IconLayoutGrid,
+  IconVideo,
   IconWorldUpload,
+  IconDots,
+  IconSearch,
 } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
 import "../../styles/admin-events-page.css";
+
+const FEATURED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const FEATURED_IMAGE_MIN_WIDTH = 1280;
+const FEATURED_IMAGE_MIN_HEIGHT = 720;
+const FEATURED_IMAGE_MAX_BYTES = 6 * 1024 * 1024;
+
+const DISPLAY_MODES = [
+  "Auto",
+  "Light",
+  "Dark",
+  "Cinematic",
+  "Elegant",
+  "Women-focused",
+  "Cultural",
+  "Concert/DJ",
+  "Family/Community",
+];
+
+const TEXT_ALIGNMENTS = ["Left", "Center", "Right"];
+const OVERLAY_STRENGTHS = ["Light", "Medium", "Strong"];
+const IMAGE_FOCUS_POSITIONS = ["Center", "Top", "Bottom", "Left", "Right"];
 
 const EMPTY_TICKET = {
   name: "",
@@ -42,6 +72,34 @@ const EMPTY_EVENT = {
   bookingFee: "",
   salesEnabled: true,
   featured: false,
+  showOnHomePage: false,
+  showOnEventsPage: false,
+  featuredPriority: 100,
+  featuredHeroImageUrl: "",
+  featuredMobileImageUrl: "",
+  featuredImageAlt: "",
+  featuredTitle: "",
+  featuredSubtitle: "",
+  featuredDescription: "",
+  featuredBadgeText: "Featured Event",
+  featuredCtaText: "Book Tickets",
+  featuredDisplayMode: "Auto",
+  featuredTextAlignment: "Left",
+  featuredOverlayStrength: "Medium",
+  featuredImageFocusPosition: "Center",
+  aiSuggestedStyle: null,
+  showInMemorableMoments: true,
+  highlightStatus: "Coming Soon",
+  youtubeHighlightUrl: "",
+  youtubeVideoId: "",
+  highlightTitle: "",
+  highlightSubtitle: "",
+  highlightDescription: "",
+  impactText: "",
+  highlightThumbnailImageUrl: "",
+  galleryUrl: "",
+  featuredHighlight: false,
+  highlightPriority: 100,
   showOnDashboard: true,
   membershipIncluded: false,
   membershipDiscountEligible: true,
@@ -105,6 +163,34 @@ function toFormEvent(event) {
     bookingFee: event.bookingFeeMinor ? (event.bookingFeeMinor / 100).toFixed(2) : "",
     salesEnabled: event.salesEnabled !== false,
     featured: Boolean(event.featured),
+    showOnHomePage: Boolean(event.showOnHomePage),
+    showOnEventsPage: Boolean(event.showOnEventsPage),
+    featuredPriority: event.featuredPriority ?? 100,
+    featuredHeroImageUrl: event.featuredHeroImageUrl || "",
+    featuredMobileImageUrl: event.featuredMobileImageUrl || "",
+    featuredImageAlt: event.featuredImageAlt || "",
+    featuredTitle: event.featuredTitle || "",
+    featuredSubtitle: event.featuredSubtitle || "",
+    featuredDescription: event.featuredDescription || "",
+    featuredBadgeText: event.featuredBadgeText || "Featured Event",
+    featuredCtaText: event.featuredCtaText || "Book Tickets",
+    featuredDisplayMode: event.featuredDisplayMode || "Auto",
+    featuredTextAlignment: event.featuredTextAlignment || "Left",
+    featuredOverlayStrength: event.featuredOverlayStrength || "Medium",
+    featuredImageFocusPosition: event.featuredImageFocusPosition || "Center",
+    aiSuggestedStyle: event.aiSuggestedStyle || null,
+    showInMemorableMoments: event.showInMemorableMoments !== false,
+    highlightStatus: event.highlightStatus || "Coming Soon",
+    youtubeHighlightUrl: event.youtubeHighlightUrl || "",
+    youtubeVideoId: event.youtubeVideoId || "",
+    highlightTitle: event.highlightTitle || "",
+    highlightSubtitle: event.highlightSubtitle || "",
+    highlightDescription: event.highlightDescription || "",
+    impactText: event.impactText || "",
+    highlightThumbnailImageUrl: event.highlightThumbnailImageUrl || "",
+    galleryUrl: event.galleryUrl || "",
+    featuredHighlight: Boolean(event.featuredHighlight),
+    highlightPriority: event.highlightPriority ?? 100,
     showOnDashboard: event.showOnDashboard !== false,
     membershipIncluded: Boolean(event.membershipIncluded),
     membershipDiscountEligible: event.membershipDiscountEligible !== false,
@@ -144,6 +230,34 @@ function toPayload(form, status) {
     bookingFeeMinor: Math.round((Number(form.bookingFee) || 0) * 100),
     salesEnabled: form.salesEnabled,
     featured: form.featured,
+    showOnHomePage: form.showOnHomePage,
+    showOnEventsPage: form.showOnEventsPage,
+    featuredPriority: Number(form.featuredPriority) || 100,
+    featuredHeroImageUrl: form.featuredHeroImageUrl,
+    featuredMobileImageUrl: form.featuredMobileImageUrl,
+    featuredImageAlt: form.featuredImageAlt,
+    featuredTitle: form.featuredTitle,
+    featuredSubtitle: form.featuredSubtitle,
+    featuredDescription: form.featuredDescription,
+    featuredBadgeText: form.featuredBadgeText,
+    featuredCtaText: form.featuredCtaText,
+    featuredDisplayMode: form.featuredDisplayMode,
+    featuredTextAlignment: form.featuredTextAlignment,
+    featuredOverlayStrength: form.featuredOverlayStrength,
+    featuredImageFocusPosition: form.featuredImageFocusPosition,
+    aiSuggestedStyle: form.aiSuggestedStyle,
+    showInMemorableMoments: form.showInMemorableMoments,
+    highlightStatus: form.highlightStatus,
+    youtubeHighlightUrl: form.youtubeHighlightUrl,
+    youtubeVideoId: form.youtubeVideoId,
+    highlightTitle: form.highlightTitle,
+    highlightSubtitle: form.highlightSubtitle,
+    highlightDescription: form.highlightDescription,
+    impactText: form.impactText,
+    highlightThumbnailImageUrl: form.highlightThumbnailImageUrl,
+    galleryUrl: form.galleryUrl,
+    featuredHighlight: form.featuredHighlight,
+    highlightPriority: Number(form.highlightPriority) || 100,
     showOnDashboard: form.showOnDashboard,
     membershipIncluded: form.membershipIncluded,
     membershipDiscountEligible: form.membershipDiscountEligible,
@@ -270,6 +384,263 @@ function PickerField({
   );
 }
 
+function renderEventBadges(ev, { readOnly = false } = {}) {
+  return (
+    <div className="admin-events__event-badges">
+      <span className={`admin-events__status-badge admin-events__status-badge--${ev.status}`}>
+        {ev.status}
+      </span>
+      {ev.featured ? (
+        <span className="admin-events__source-badge admin-events__source-badge--featured">Featured</span>
+      ) : null}
+      {ev.showOnHomePage ? (
+        <span className="admin-events__source-badge admin-events__source-badge--home">Home</span>
+      ) : null}
+      {ev.showOnEventsPage ? (
+        <span className="admin-events__source-badge admin-events__source-badge--events">Events</span>
+      ) : null}
+      {readOnly ? <span className="admin-events__source-badge">TicketTailor</span> : null}
+    </div>
+  );
+}
+
+function AdminEventCardActions({
+  ev,
+  readOnly,
+  deletingId,
+  onEdit,
+  onDelete,
+  onPatchFeatured,
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    function onDocClick() {
+      setMenuOpen(false);
+    }
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
+  }, [menuOpen]);
+
+  if (readOnly) {
+    return (
+      <div className="admin-events__event-card-actions">
+        {ev.bookingUrl ? (
+          <a
+            href={ev.bookingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="admin-events__action-btn admin-events__action-btn--primary admin-events__action-btn--mobile-primary"
+          >
+            <IconExternalLink size={16} aria-hidden />
+            <span>View on TicketTailor</span>
+          </a>
+        ) : (
+          <span className="admin-events__tt-note">Synced from TicketTailor</span>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="admin-events__event-card-actions">
+      <button
+        type="button"
+        className="admin-events__action-btn admin-events__action-btn--primary admin-events__action-btn--mobile-primary"
+        onClick={onEdit}
+      >
+        <IconPencil size={16} aria-hidden />
+        <span>Edit</span>
+      </button>
+      {ev.status === "published" ? (
+        <Link
+          to={`/events/${ev.slug || ev.id}/tickets`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="admin-events__action-btn admin-events__action-btn--mobile-primary"
+        >
+          <IconExternalLink size={16} aria-hidden />
+          <span>Booking</span>
+        </Link>
+      ) : null}
+      <div className="admin-events__action-more-wrap">
+        <button
+          type="button"
+          className="admin-events__action-btn admin-events__action-btn--more"
+          aria-expanded={menuOpen}
+          aria-haspopup="menu"
+          onClick={(event) => {
+            event.stopPropagation();
+            setMenuOpen((open) => !open);
+          }}
+        >
+          <IconDots size={18} aria-hidden />
+          <span>More</span>
+        </button>
+        {menuOpen ? (
+          <div className="admin-events__action-menu" role="menu" onClick={(e) => e.stopPropagation()}>
+            <Link
+              to={`/admin/events?id=${ev.id}#post-event-highlights`}
+              className="admin-events__action-menu-item"
+              role="menuitem"
+              onClick={() => setMenuOpen(false)}
+            >
+              <IconVideo size={16} aria-hidden />
+              <span>Highlights</span>
+            </Link>
+            <button
+              type="button"
+              className="admin-events__action-menu-item"
+              role="menuitem"
+              onClick={() => {
+                onPatchFeatured({
+                  featured: !ev.featured,
+                  ...(ev.featured ? {} : { showOnHomePage: true, showOnEventsPage: true }),
+                });
+                setMenuOpen(false);
+              }}
+            >
+              {ev.featured ? <IconStarOff size={16} aria-hidden /> : <IconStar size={16} aria-hidden />}
+              <span>{ev.featured ? "Remove Featured" : "Mark Featured"}</span>
+            </button>
+            <button
+              type="button"
+              className="admin-events__action-menu-item"
+              role="menuitem"
+              onClick={() => {
+                onPatchFeatured({ showOnHomePage: !ev.showOnHomePage, featured: ev.featured || true });
+                setMenuOpen(false);
+              }}
+            >
+              <IconHome size={16} aria-hidden />
+              <span>{ev.showOnHomePage ? "Hide from Home" : "Show on Home"}</span>
+            </button>
+            <button
+              type="button"
+              className="admin-events__action-menu-item"
+              role="menuitem"
+              onClick={() => {
+                onPatchFeatured({ showOnEventsPage: !ev.showOnEventsPage, featured: ev.featured || true });
+                setMenuOpen(false);
+              }}
+            >
+              <IconLayoutGrid size={16} aria-hidden />
+              <span>{ev.showOnEventsPage ? "Hide from Events" : "Show on Events"}</span>
+            </button>
+            {ev.status === "published" && ev.slug ? (
+              <Link
+                to={`/events/${ev.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="admin-events__action-menu-item"
+                role="menuitem"
+                onClick={() => setMenuOpen(false)}
+              >
+                <IconExternalLink size={16} aria-hidden />
+                <span>View Public Page</span>
+              </Link>
+            ) : null}
+            <button
+              type="button"
+              className="admin-events__action-menu-item admin-events__action-menu-item--danger"
+              role="menuitem"
+              disabled={deletingId === ev.id}
+              onClick={() => {
+                setMenuOpen(false);
+                onDelete();
+              }}
+            >
+              <IconTrash size={16} aria-hidden />
+              <span>{deletingId === ev.id ? "Deleting…" : "Delete"}</span>
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="admin-events__event-card-actions-desktop">
+        <Link
+          to={`/admin/events?id=${ev.id}#post-event-highlights`}
+          className="admin-events__action-btn"
+        >
+          <IconVideo size={16} aria-hidden />
+          <span>Highlights</span>
+        </Link>
+        <button
+          type="button"
+          className="admin-events__action-btn"
+          onClick={() =>
+            onPatchFeatured({
+              featured: !ev.featured,
+              ...(ev.featured ? {} : { showOnHomePage: true, showOnEventsPage: true }),
+            })
+          }
+        >
+          {ev.featured ? <IconStarOff size={16} aria-hidden /> : <IconStar size={16} aria-hidden />}
+          <span>{ev.featured ? "Unfeature" : "Feature"}</span>
+        </button>
+        <button
+          type="button"
+          className={`admin-events__action-btn${ev.showOnHomePage ? " admin-events__action-btn--primary" : ""}`}
+          onClick={() => onPatchFeatured({ showOnHomePage: !ev.showOnHomePage, featured: ev.featured || true })}
+        >
+          <IconHome size={16} aria-hidden />
+          <span>Home</span>
+        </button>
+        <button
+          type="button"
+          className={`admin-events__action-btn${ev.showOnEventsPage ? " admin-events__action-btn--primary" : ""}`}
+          onClick={() => onPatchFeatured({ showOnEventsPage: !ev.showOnEventsPage, featured: ev.featured || true })}
+        >
+          <IconLayoutGrid size={16} aria-hidden />
+          <span>Events</span>
+        </button>
+        <button type="button" className="admin-events__action-btn admin-events__action-btn--primary" onClick={onEdit}>
+          <IconPencil size={16} aria-hidden />
+          <span>Edit</span>
+        </button>
+        {ev.status === "published" ? (
+          <Link
+            to={`/events/${ev.slug || ev.id}/tickets`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="admin-events__action-btn"
+          >
+            <IconExternalLink size={16} aria-hidden />
+            <span>Booking</span>
+          </Link>
+        ) : null}
+        <button
+          type="button"
+          className="admin-events__action-btn admin-events__action-btn--danger"
+          disabled={deletingId === ev.id}
+          onClick={onDelete}
+        >
+          <IconTrash size={16} aria-hidden />
+          <span>{deletingId === ev.id ? "Deleting…" : "Delete"}</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AdminEventListSkeleton() {
+  return (
+    <ul className="admin-events__event-list admin-events__event-list--skeleton" aria-hidden>
+      {[0, 1, 2].map((key) => (
+        <li key={key} className="admin-events__event-card admin-events__event-card--skeleton">
+          <div className="admin-events__skeleton-chip" />
+          <div className="admin-events__skeleton-lines">
+            <div className="admin-events__skeleton-line admin-events__skeleton-line--title" />
+            <div className="admin-events__skeleton-line" />
+            <div className="admin-events__skeleton-line admin-events__skeleton-line--short" />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default function AdminEventsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const editId = searchParams.get("id");
@@ -286,6 +657,12 @@ export default function AdminEventsPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [aiLoading, setAiLoading] = useState("");
+  const [aiMessage, setAiMessage] = useState("");
+  const [youtubePreview, setYoutubePreview] = useState(null);
+  const [youtubePreviewLoading, setYoutubePreviewLoading] = useState(false);
+  const [listSearch, setListSearch] = useState("");
+  const [listFilter, setListFilter] = useState("all");
 
   const loadEvents = useCallback(async () => {
     setLoading(true);
@@ -359,6 +736,147 @@ export default function AdminEventsPage() {
       ...f,
       ticketTypes: f.ticketTypes.filter((_, i) => i !== index),
     }));
+  }
+
+  function handleHighlightThumbnailUpload(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => updateField("highlightThumbnailImageUrl", reader.result);
+    reader.readAsDataURL(file);
+    event.target.value = "";
+  }
+
+  async function previewYoutubeUrl(url) {
+    if (!editId || editId === "new" || !url?.trim()) {
+      setYoutubePreview(null);
+      return;
+    }
+    setYoutubePreviewLoading(true);
+    setError("");
+    try {
+      const data = await apiFetch(`/api/admin/events/${editId}/highlight/preview-youtube`, {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify({ url }),
+      });
+      setYoutubePreview(data.preview);
+      updateField("youtubeVideoId", data.preview.youtubeVideoId);
+      setMessage("YouTube link validated.");
+    } catch (err) {
+      setYoutubePreview(null);
+      setError(err.message || "Please enter a valid YouTube video link.");
+    } finally {
+      setYoutubePreviewLoading(false);
+    }
+  }
+
+  function handleFeaturedImageUpload(key, event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!FEATURED_IMAGE_TYPES.includes(file.type)) {
+      setError("Featured image must be JPG, PNG, or WEBP.");
+      return;
+    }
+    if (file.size > FEATURED_IMAGE_MAX_BYTES) {
+      setError("Featured image must be smaller than 6 MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      const img = new Image();
+      img.onload = () => {
+        if (img.width < FEATURED_IMAGE_MIN_WIDTH || img.height < FEATURED_IMAGE_MIN_HEIGHT) {
+          setError(`Featured image must be at least ${FEATURED_IMAGE_MIN_WIDTH}×${FEATURED_IMAGE_MIN_HEIGHT}px (16:9 recommended).`);
+          return;
+        }
+        setError("");
+        updateField(key, dataUrl);
+      };
+      img.onerror = () => setError("Could not read featured image.");
+      img.src = dataUrl;
+    };
+    reader.onerror = () => setError("Could not read featured image.");
+    reader.readAsDataURL(file);
+    event.target.value = "";
+  }
+
+  async function patchFeaturedFlag(eventId, flags) {
+    setError("");
+    setMessage("");
+    try {
+      const data = await apiFetch(`/api/admin/events/${eventId}/featured-flags`, {
+        method: "PATCH",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify(flags),
+      });
+      setEvents((prev) => prev.map((ev) => (ev.id === eventId ? { ...ev, ...data.event } : ev)));
+      setMessage("Featured settings updated.");
+      window.setTimeout(() => setMessage(""), 3000);
+    } catch (err) {
+      setError(err.message || "Could not update featured settings.");
+    }
+  }
+
+  async function applyAiFeaturedStyle() {
+    if (!editId || editId === "new") return;
+    setAiLoading("style");
+    setAiMessage("");
+    setError("");
+    try {
+      const data = await apiFetch(`/api/admin/events/${editId}/ai/featured-style`, {
+        method: "POST",
+        headers: adminAuthHeaders(),
+      });
+      const suggestion = data.suggestion || {};
+      setForm((f) => ({
+        ...f,
+        featuredDisplayMode: suggestion.featuredDisplayMode || f.featuredDisplayMode,
+        featuredTextAlignment: suggestion.featuredTextAlignment || f.featuredTextAlignment,
+        featuredOverlayStrength: suggestion.featuredOverlayStrength || f.featuredOverlayStrength,
+        featuredImageFocusPosition: suggestion.featuredImageFocusPosition || f.featuredImageFocusPosition,
+        featuredBadgeText: suggestion.featuredBadgeText || f.featuredBadgeText,
+        featuredTitle: suggestion.featuredTitle || f.featuredTitle,
+        featuredSubtitle: suggestion.featuredSubtitle || f.featuredSubtitle,
+        featuredDescription: suggestion.featuredDescription || f.featuredDescription,
+        featuredCtaText: suggestion.featuredCtaText || f.featuredCtaText,
+        aiSuggestedStyle: suggestion.aiSuggestedStyle || f.aiSuggestedStyle,
+      }));
+      setAiMessage("AI style suggestion applied — review before publishing.");
+    } catch (err) {
+      setError(err.message || "Could not generate featured style.");
+    } finally {
+      setAiLoading("");
+    }
+  }
+
+  async function applyAiImagePrompt() {
+    if (!editId || editId === "new") return;
+    setAiLoading("prompt");
+    setAiMessage("");
+    setError("");
+    try {
+      const data = await apiFetch(`/api/admin/events/${editId}/ai/featured-image-prompt`, {
+        method: "POST",
+        headers: adminAuthHeaders(),
+      });
+      const prompt = data.prompt || {};
+      setAiMessage(prompt.prompt || "Image prompt generated.");
+      setForm((f) => ({
+        ...f,
+        aiSuggestedStyle: {
+          ...(f.aiSuggestedStyle || {}),
+          imagePrompt: prompt,
+        },
+      }));
+    } catch (err) {
+      setError(err.message || "Could not generate image prompt.");
+    } finally {
+      setAiLoading("");
+    }
   }
 
   function handleHeroUpload(event) {
@@ -466,90 +984,70 @@ export default function AdminEventsPage() {
             <div className="admin-events__event-info">
               <div className="admin-events__event-title-row">
                 <h2 className="admin-events__event-title">{ev.title}</h2>
-                <span className={`admin-events__status-badge admin-events__status-badge--${ev.status}`}>
-                  {ev.status}
-                </span>
-                {ev.featured ? (
-                  <span className="admin-events__source-badge admin-events__source-badge--featured">Featured</span>
-                ) : null}
-                {readOnly ? (
-                  <span className="admin-events__source-badge">TicketTailor</span>
+                {renderEventBadges(ev, { readOnly })}
+              </div>
+              <div className="admin-events__event-meta-group">
+                <p className="admin-events__event-meta">
+                  <IconCalendar size={14} aria-hidden />
+                  <span>
+                    {eventDate
+                      ? eventDate.toLocaleDateString("nl-NL", {
+                          weekday: "short",
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })
+                      : "Date TBD"}
+                    {ev.startTime ? ` · ${ev.startTime}` : ""}
+                  </span>
+                </p>
+                {ev.venueName ? (
+                  <p className="admin-events__event-meta">
+                    <IconMapPin size={14} aria-hidden />
+                    <span>{ev.venueName}</span>
+                  </p>
                 ) : null}
               </div>
-              <p className="admin-events__event-meta">
-                <IconCalendar size={14} aria-hidden />
-                <span>
-                  {eventDate
-                    ? eventDate.toLocaleDateString("nl-NL", {
-                        weekday: "short",
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })
-                    : "Date TBD"}
-                  {ev.startTime ? ` · ${ev.startTime}` : ""}
-                </span>
-              </p>
-              {ev.venueName ? (
-                <p className="admin-events__event-meta">
-                  <IconMapPin size={14} aria-hidden />
-                  <span>{ev.venueName}</span>
-                </p>
-              ) : null}
             </div>
           </div>
-          <div className="admin-events__event-card-actions">
-            {readOnly ? (
-              ev.bookingUrl ? (
-                <a
-                  href={ev.bookingUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="admin-events__action-btn admin-events__action-btn--tt"
-                >
-                  <IconExternalLink size={16} aria-hidden />
-                  <span>View on TicketTailor</span>
-                </a>
-              ) : (
-                <span className="admin-events__tt-note">Synced from TicketTailor</span>
-              )
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className="admin-events__action-btn admin-events__action-btn--primary"
-                  onClick={() => setSearchParams({ id: ev.id })}
-                >
-                  <IconPencil size={16} aria-hidden />
-                  <span>Edit</span>
-                </button>
-                {ev.status === "published" ? (
-                  <Link
-                    to={`/events/${ev.slug || ev.id}/tickets`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="admin-events__action-btn"
-                  >
-                    <IconExternalLink size={16} aria-hidden />
-                    <span>Booking</span>
-                  </Link>
-                ) : null}
-                <button
-                  type="button"
-                  className="admin-events__action-btn admin-events__action-btn--danger"
-                  disabled={deletingId === ev.id}
-                  onClick={() => handleDeleteEvent(ev.id, ev.title)}
-                  aria-label={`Delete ${ev.title}`}
-                >
-                  <IconTrash size={16} aria-hidden />
-                  <span>{deletingId === ev.id ? "Deleting…" : "Delete"}</span>
-                </button>
-              </>
-            )}
-          </div>
+          <AdminEventCardActions
+            ev={ev}
+            readOnly={readOnly}
+            deletingId={deletingId}
+            onEdit={() => setSearchParams({ id: ev.id })}
+            onDelete={() => handleDeleteEvent(ev.id, ev.title)}
+            onPatchFeatured={(flags) => patchFeaturedFlag(ev.id, flags)}
+          />
         </li>
       );
     }
+
+    const searchNeedle = listSearch.trim().toLowerCase();
+    const matchesSearch = (ev) => {
+      if (!searchNeedle) return true;
+      return (
+        ev.title?.toLowerCase().includes(searchNeedle) ||
+        ev.venueName?.toLowerCase().includes(searchNeedle) ||
+        ev.category?.toLowerCase().includes(searchNeedle)
+      );
+    };
+
+    const filteredPlatformEvents = events.filter((ev) => {
+      if (!matchesSearch(ev)) return false;
+      if (listFilter === "all") return true;
+      if (listFilter === "published") return ev.status === "published";
+      if (listFilter === "draft") return ev.status === "draft";
+      if (listFilter === "featured") return ev.featured;
+      return true;
+    });
+
+    const filteredTicketTailorEvents =
+      listFilter === "published" || listFilter === "draft" || listFilter === "featured"
+        ? []
+        : ticketTailorEvents.filter(matchesSearch);
+
+    const showPlatformSection = listFilter !== "tickettailor";
+    const showTicketTailorSection = listFilter === "all" || listFilter === "tickettailor";
 
     return (
       <AdminLayout hideBottomNav>
@@ -567,6 +1065,10 @@ export default function AdminEventsPage() {
               <IconPlus size={18} aria-hidden />
               <span>New Event</span>
             </button>
+            <Link to="/admin/events/highlights" className="admin-events__outline-btn admin-events__highlights-link">
+              <IconVideo size={18} aria-hidden />
+              <span>Event Highlights</span>
+            </Link>
           </header>
 
           {!loading && (events.length > 0 || ticketTailorEvents.length > 0) ? (
@@ -590,11 +1092,44 @@ export default function AdminEventsPage() {
             </div>
           ) : null}
 
-          {loading ? (
-            <div className="admin-events__loading" role="status">
-              <span className="admin-events__spinner" aria-hidden />
-              Loading events…
+          <div className="admin-events__list-toolbar">
+            <label className="admin-events__list-search">
+              <IconSearch size={18} aria-hidden />
+              <input
+                type="search"
+                value={listSearch}
+                onChange={(e) => setListSearch(e.target.value)}
+                placeholder="Search events…"
+                aria-label="Search events"
+              />
+            </label>
+            <div className="admin-events__list-tabs" role="tablist" aria-label="Filter events">
+              {[
+                ["all", "All"],
+                ["published", "Published"],
+                ["featured", "Featured"],
+                ["draft", "Drafts"],
+                ["tickettailor", "TicketTailor"],
+              ].map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  className={`admin-events__list-tab${listFilter === id ? " admin-events__list-tab--active" : ""}`}
+                  aria-selected={listFilter === id}
+                  onClick={() => setListFilter(id)}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
+          </div>
+
+          {loading ? (
+            <>
+              <p className="admin-events__status" role="status">Loading events…</p>
+              <AdminEventListSkeleton />
+            </>
           ) : null}
           {error ? <p className="admin-events__error" role="alert">{error}</p> : null}
           {message ? <p className="admin-events__save-message" role="status">{message}</p> : null}
@@ -603,22 +1138,34 @@ export default function AdminEventsPage() {
             <p className="admin-events__tt-warning" role="status">{ticketTailorMeta.warning}</p>
           ) : null}
 
-          {events.length > 0 ? (
+          {showPlatformSection && filteredPlatformEvents.length > 0 ? (
             <>
               <h2 className="admin-events__section-title">Platform Events</h2>
               <ul className="admin-events__event-list">
-                {events.map((ev) => renderEventCard(ev))}
+                {filteredPlatformEvents.map((ev) => renderEventCard(ev))}
               </ul>
             </>
           ) : null}
 
-          {ticketTailorEvents.length > 0 ? (
+          {showTicketTailorSection && filteredTicketTailorEvents.length > 0 ? (
             <>
               <h2 className="admin-events__section-title admin-events__section-title--tt">TicketTailor Events</h2>
               <ul className="admin-events__event-list">
-                {ticketTailorEvents.map((ev) => renderEventCard(ev, { readOnly: true }))}
+                {filteredTicketTailorEvents.map((ev) => renderEventCard(ev, { readOnly: true }))}
               </ul>
             </>
+          ) : null}
+
+          {!loading &&
+          showPlatformSection &&
+          showTicketTailorSection &&
+          filteredPlatformEvents.length === 0 &&
+          filteredTicketTailorEvents.length === 0 &&
+          (events.length > 0 || ticketTailorEvents.length > 0) ? (
+            <div className="admin-events__empty admin-events__empty--filtered">
+              <h2>No events found</h2>
+              <p>Try a different search or filter.</p>
+            </div>
           ) : null}
 
           {!loading && events.length === 0 && ticketTailorEvents.length === 0 ? (
@@ -817,11 +1364,6 @@ export default function AdminEventsPage() {
               <div className="admin-events__dashboard-settings">
                 <h3 className="admin-events__settings-title">Dashboard &amp; Membership</h3>
                 <label className="admin-events__toggle">
-                  <input type="checkbox" checked={form.featured} onChange={(e) => updateField("featured", e.target.checked)} />
-                  <span className="admin-events__toggle-track" />
-                  <span>Featured Event</span>
-                </label>
-                <label className="admin-events__toggle">
                   <input type="checkbox" checked={form.showOnDashboard} onChange={(e) => updateField("showOnDashboard", e.target.checked)} />
                   <span className="admin-events__toggle-track" />
                   <span>Show on Dashboard</span>
@@ -862,6 +1404,389 @@ export default function AdminEventsPage() {
                     <span>{label}</span>
                   </label>
                 ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="admin-events__card">
+            <header className="admin-events__card-header admin-events__card-header--centered">
+              <div className="admin-events__card-heading admin-events__card-heading--centered">
+                <span className="admin-events__card-icon"><IconStar size={20} /></span>
+                <h2>Home &amp; Events Page Featured Display</h2>
+              </div>
+              <div className="admin-events__featured-ai-actions">
+                <button
+                  type="button"
+                  className="admin-events__outline-btn"
+                  disabled={aiLoading || editId === "new"}
+                  onClick={applyAiFeaturedStyle}
+                >
+                  <IconSparkles size={16} aria-hidden />
+                  {aiLoading === "style" ? "Generating…" : "Generate Featured Display Style"}
+                </button>
+                <button
+                  type="button"
+                  className="admin-events__outline-btn"
+                  disabled={aiLoading || editId === "new"}
+                  onClick={applyAiImagePrompt}
+                >
+                  <IconSparkles size={16} aria-hidden />
+                  {aiLoading === "prompt" ? "Generating…" : "Generate Image Prompt"}
+                </button>
+              </div>
+            </header>
+            <div className="admin-events__card-body">
+              {aiMessage ? <p className="admin-events__ai-message" role="status">{aiMessage}</p> : null}
+              <div className="admin-events__featured-toggles">
+                <label className="admin-events__toggle">
+                  <input
+                    type="checkbox"
+                    checked={form.featured}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setForm((f) => ({
+                        ...f,
+                        featured: checked,
+                        ...(checked && !f.showOnHomePage && !f.showOnEventsPage
+                          ? { showOnHomePage: true, showOnEventsPage: true }
+                          : {}),
+                      }));
+                    }}
+                  />
+                  <span className="admin-events__toggle-track" />
+                  <span>Show this event as featured</span>
+                </label>
+                <label className="admin-events__toggle">
+                  <input
+                    type="checkbox"
+                    checked={form.showOnHomePage}
+                    onChange={(e) => updateField("showOnHomePage", e.target.checked)}
+                  />
+                  <span className="admin-events__toggle-track" />
+                  <span>Show on Home Page</span>
+                </label>
+                <label className="admin-events__toggle">
+                  <input
+                    type="checkbox"
+                    checked={form.showOnEventsPage}
+                    onChange={(e) => updateField("showOnEventsPage", e.target.checked)}
+                  />
+                  <span className="admin-events__toggle-track" />
+                  <span>Show on Events Page</span>
+                </label>
+              </div>
+              <div className="admin-events__field-row">
+                <div className="admin-events__field">
+                  <label className="admin-events__label" htmlFor="featured-priority">Featured Priority</label>
+                  <input
+                    id="featured-priority"
+                    type="number"
+                    min="0"
+                    className="admin-events__input"
+                    value={form.featuredPriority}
+                    onChange={(e) => updateField("featuredPriority", e.target.value)}
+                  />
+                </div>
+                <div className="admin-events__field">
+                  <label className="admin-events__label" htmlFor="featured-display-mode">Display Mode</label>
+                  <select
+                    id="featured-display-mode"
+                    className="admin-events__select"
+                    value={form.featuredDisplayMode}
+                    onChange={(e) => updateField("featuredDisplayMode", e.target.value)}
+                  >
+                    {["Auto", "Light", "Dark", "Cinematic", "Elegant", "Women-focused", "Cultural", "Concert/DJ", "Family/Community"].map((mode) => (
+                      <option key={mode} value={mode}>{mode}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="admin-events__field-row">
+                <div className="admin-events__field">
+                  <label className="admin-events__label" htmlFor="featured-alignment">Text Alignment</label>
+                  <select
+                    id="featured-alignment"
+                    className="admin-events__select"
+                    value={form.featuredTextAlignment}
+                    onChange={(e) => updateField("featuredTextAlignment", e.target.value)}
+                  >
+                    <option value="Left">Left</option>
+                    <option value="Center">Center</option>
+                    <option value="Right">Right</option>
+                  </select>
+                </div>
+                <div className="admin-events__field">
+                  <label className="admin-events__label" htmlFor="featured-overlay">Overlay Strength</label>
+                  <select
+                    id="featured-overlay"
+                    className="admin-events__select"
+                    value={form.featuredOverlayStrength}
+                    onChange={(e) => updateField("featuredOverlayStrength", e.target.value)}
+                  >
+                    <option value="Light">Light</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Strong">Strong</option>
+                  </select>
+                </div>
+                <div className="admin-events__field">
+                  <label className="admin-events__label" htmlFor="featured-focus">Image Focus</label>
+                  <select
+                    id="featured-focus"
+                    className="admin-events__select"
+                    value={form.featuredImageFocusPosition}
+                    onChange={(e) => updateField("featuredImageFocusPosition", e.target.value)}
+                  >
+                    {["Center", "Top", "Bottom", "Left", "Right"].map((pos) => (
+                      <option key={pos} value={pos}>{pos}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="admin-events__field">
+                <label className="admin-events__label" htmlFor="featured-title">Featured Title</label>
+                <input
+                  id="featured-title"
+                  className="admin-events__input"
+                  value={form.featuredTitle}
+                  onChange={(e) => updateField("featuredTitle", e.target.value)}
+                  placeholder={form.title || "Defaults to event title"}
+                />
+              </div>
+              <div className="admin-events__field">
+                <label className="admin-events__label" htmlFor="featured-subtitle">Featured Subtitle</label>
+                <input
+                  id="featured-subtitle"
+                  className="admin-events__input"
+                  value={form.featuredSubtitle}
+                  onChange={(e) => updateField("featuredSubtitle", e.target.value)}
+                />
+              </div>
+              <div className="admin-events__field">
+                <label className="admin-events__label" htmlFor="featured-description">Featured Description</label>
+                <textarea
+                  id="featured-description"
+                  className="admin-events__textarea"
+                  rows={3}
+                  value={form.featuredDescription}
+                  onChange={(e) => updateField("featuredDescription", e.target.value)}
+                  placeholder={form.description || "Defaults to event description"}
+                />
+              </div>
+              <div className="admin-events__field-row">
+                <div className="admin-events__field">
+                  <label className="admin-events__label" htmlFor="featured-badge">Badge Text</label>
+                  <input
+                    id="featured-badge"
+                    className="admin-events__input"
+                    value={form.featuredBadgeText}
+                    onChange={(e) => updateField("featuredBadgeText", e.target.value)}
+                  />
+                </div>
+                <div className="admin-events__field">
+                  <label className="admin-events__label" htmlFor="featured-cta">CTA Text</label>
+                  <input
+                    id="featured-cta"
+                    className="admin-events__input"
+                    value={form.featuredCtaText}
+                    onChange={(e) => updateField("featuredCtaText", e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="admin-events__field">
+                <label className="admin-events__label" htmlFor="featured-image-alt">Image Alt Text</label>
+                <input
+                  id="featured-image-alt"
+                  className="admin-events__input"
+                  value={form.featuredImageAlt}
+                  onChange={(e) => updateField("featuredImageAlt", e.target.value)}
+                />
+              </div>
+              <div className="admin-events__field-row">
+                <div className="admin-events__field">
+                  <label className="admin-events__label">Featured Hero Image</label>
+                  <label className="admin-events__upload-btn">
+                    <IconUpload size={16} /> Upload hero (16:9, min 1280×720)
+                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => handleFeaturedImageUpload("featuredHeroImageUrl", e)} />
+                  </label>
+                  {form.featuredHeroImageUrl ? (
+                    <img src={form.featuredHeroImageUrl} alt="" className="admin-events__hero-preview" />
+                  ) : null}
+                </div>
+                <div className="admin-events__field">
+                  <label className="admin-events__label">Featured Mobile Image</label>
+                  <label className="admin-events__upload-btn">
+                    <IconUpload size={16} /> Upload mobile (optional)
+                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => handleFeaturedImageUpload("featuredMobileImageUrl", e)} />
+                  </label>
+                  {form.featuredMobileImageUrl ? (
+                    <img src={form.featuredMobileImageUrl} alt="" className="admin-events__hero-preview" />
+                  ) : null}
+                </div>
+              </div>
+              {form.aiSuggestedStyle?.imagePrompt?.prompt ? (
+                <div className="admin-events__ai-prompt-box">
+                  <div className="admin-events__ai-prompt-header">
+                    <p className="admin-events__label">Generated Image Prompt (review only)</p>
+                    <button
+                      type="button"
+                      className="admin-events__outline-btn admin-events__outline-btn--compact"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(form.aiSuggestedStyle.imagePrompt.prompt);
+                        setAiMessage("Image prompt copied to clipboard.");
+                      }}
+                    >
+                      <IconCopy size={14} aria-hidden /> Copy
+                    </button>
+                  </div>
+                  <p className="admin-events__ai-prompt-text">{form.aiSuggestedStyle.imagePrompt.prompt}</p>
+                </div>
+              ) : null}
+            </div>
+          </section>
+
+          <section id="post-event-highlights" className="admin-events__card">
+            <header className="admin-events__card-header admin-events__card-header--centered">
+              <div className="admin-events__card-heading admin-events__card-heading--centered">
+                <span className="admin-events__card-icon"><IconVideo size={20} /></span>
+                <h2>Post-Event Highlights</h2>
+              </div>
+            </header>
+            <div className="admin-events__card-body">
+              <p className="admin-events__field-hint">
+                Completed published events appear in Memorable Moments on the Events page.
+              </p>
+              <div className="admin-events__featured-toggles">
+                <label className="admin-events__toggle">
+                  <input
+                    type="checkbox"
+                    checked={form.showInMemorableMoments}
+                    onChange={(e) => updateField("showInMemorableMoments", e.target.checked)}
+                  />
+                  <span className="admin-events__toggle-track" />
+                  <span>Show in Memorable Moments</span>
+                </label>
+                <label className="admin-events__toggle">
+                  <input
+                    type="checkbox"
+                    checked={form.featuredHighlight}
+                    onChange={(e) => updateField("featuredHighlight", e.target.checked)}
+                  />
+                  <span className="admin-events__toggle-track" />
+                  <span>Featured Highlight</span>
+                </label>
+              </div>
+              <div className="admin-events__field-row">
+                <div className="admin-events__field">
+                  <label className="admin-events__label" htmlFor="highlight-status">Highlight Status</label>
+                  <select
+                    id="highlight-status"
+                    className="admin-events__select"
+                    value={form.highlightStatus}
+                    onChange={(e) => updateField("highlightStatus", e.target.value)}
+                  >
+                    <option value="Coming Soon">Coming Soon</option>
+                    <option value="Video Available">Video Available</option>
+                    <option value="Hidden">Hidden</option>
+                  </select>
+                </div>
+                <div className="admin-events__field">
+                  <label className="admin-events__label" htmlFor="highlight-priority">Highlight Priority</label>
+                  <input
+                    id="highlight-priority"
+                    type="number"
+                    min="0"
+                    className="admin-events__input"
+                    value={form.highlightPriority}
+                    onChange={(e) => updateField("highlightPriority", e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="admin-events__field">
+                <label className="admin-events__label" htmlFor="youtube-highlight-url">YouTube Highlight URL</label>
+                <input
+                  id="youtube-highlight-url"
+                  className="admin-events__input"
+                  value={form.youtubeHighlightUrl}
+                  onChange={(e) => updateField("youtubeHighlightUrl", e.target.value)}
+                  onBlur={(e) => previewYoutubeUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                />
+                {youtubePreviewLoading ? (
+                  <p className="admin-events__field-hint" role="status">Validating YouTube link…</p>
+                ) : null}
+                {youtubePreview?.youtubeThumbnailUrl ? (
+                  <img
+                    src={youtubePreview.youtubeThumbnailUrl}
+                    alt="YouTube preview"
+                    className="admin-events__hero-preview"
+                  />
+                ) : null}
+                {form.youtubeVideoId ? (
+                  <p className="admin-events__field-hint">Video ID: {form.youtubeVideoId}</p>
+                ) : null}
+              </div>
+              <div className="admin-events__field">
+                <label className="admin-events__label" htmlFor="highlight-title">Highlight Title</label>
+                <input
+                  id="highlight-title"
+                  className="admin-events__input"
+                  value={form.highlightTitle}
+                  onChange={(e) => updateField("highlightTitle", e.target.value)}
+                  placeholder={form.title || "Defaults to event title"}
+                />
+              </div>
+              <div className="admin-events__field">
+                <label className="admin-events__label" htmlFor="highlight-subtitle">Highlight Subtitle</label>
+                <input
+                  id="highlight-subtitle"
+                  className="admin-events__input"
+                  value={form.highlightSubtitle}
+                  onChange={(e) => updateField("highlightSubtitle", e.target.value)}
+                />
+              </div>
+              <div className="admin-events__field">
+                <label className="admin-events__label" htmlFor="highlight-description">Highlight Description</label>
+                <textarea
+                  id="highlight-description"
+                  className="admin-events__textarea"
+                  rows={3}
+                  value={form.highlightDescription}
+                  onChange={(e) => updateField("highlightDescription", e.target.value)}
+                  placeholder={form.description || "Defaults to event description"}
+                />
+              </div>
+              <div className="admin-events__field">
+                <label className="admin-events__label" htmlFor="impact-text">Impact Text</label>
+                <textarea
+                  id="impact-text"
+                  className="admin-events__textarea"
+                  rows={2}
+                  value={form.impactText}
+                  onChange={(e) => updateField("impactText", e.target.value)}
+                  placeholder="An unforgettable V.O.I.C.E. NL experience filled with culture, connection and shared memories."
+                />
+              </div>
+              <div className="admin-events__field-row">
+                <div className="admin-events__field">
+                  <label className="admin-events__label">Highlight Thumbnail</label>
+                  <label className="admin-events__upload-btn">
+                    <IconUpload size={16} /> Upload thumbnail
+                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={handleHighlightThumbnailUpload} />
+                  </label>
+                  {form.highlightThumbnailImageUrl ? (
+                    <img src={form.highlightThumbnailImageUrl} alt="" className="admin-events__hero-preview" />
+                  ) : null}
+                </div>
+                <div className="admin-events__field">
+                  <label className="admin-events__label" htmlFor="gallery-url">Gallery URL (optional)</label>
+                  <input
+                    id="gallery-url"
+                    className="admin-events__input"
+                    value={form.galleryUrl}
+                    onChange={(e) => updateField("galleryUrl", e.target.value)}
+                    placeholder="https://..."
+                  />
+                </div>
               </div>
             </div>
           </section>
