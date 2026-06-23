@@ -15,6 +15,7 @@ import checkoutRoutes from "./checkoutRoutes.js";
 import eventRoutes from "./eventRoutes.js";
 import ticketPublicRoutes from "./ticketPublicRoutes.js";
 import verifyMembershipRoutes from "./verifyMembershipRoutes.js";
+import webhookRoutes from "./webhookRoutes.js";
 
 const router = Router();
 
@@ -33,6 +34,7 @@ router.use("/discounts", discountRoutes);
 router.use("/checkout", checkoutRoutes);
 router.use("/events", eventRoutes);
 router.use("/tickets", ticketPublicRoutes);
+router.use("/webhooks", webhookRoutes);
 router.use("/admin", adminRoutes);
 
 export default router;

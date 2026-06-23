@@ -4,6 +4,8 @@ import {
   listPublicEventHighlights,
   patchEventHighlight,
   previewYoutubeUrl,
+  trackEventHighlightMetric,
+  getEventHighlightAnalyticsReport,
 } from "../services/eventHighlightService.js";
 
 function handleError(res, error) {
@@ -66,6 +68,25 @@ export async function uploadHighlightThumbnailAdmin(req, res) {
     }
     const data = await patchEventHighlight(req.params.id, { highlightThumbnailImageUrl });
     return res.status(200).json(data);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function trackPublicHighlightMetric(req, res) {
+  try {
+    const { eventId, action, completionRate } = req.body || {};
+    const result = await trackEventHighlightMetric(eventId, action, { completionRate });
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function getHighlightAnalyticsAdmin(req, res) {
+  try {
+    const report = await getEventHighlightAnalyticsReport();
+    return res.status(200).json(report);
   } catch (error) {
     return handleError(res, error);
   }

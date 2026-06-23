@@ -1,0 +1,100 @@
+.admin-access__layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.admin-access__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: sticky;
+  top: 12px;
+}
+
+.admin-access__nav a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.admin-access__nav a.active {
+  background: rgba(42, 189, 193, 0.15);
+  color: var(--color-accent-teal, #2abdc1);
+}
+
+.admin-access__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.admin-access__card {
+  border: 1px solid var(--color-border, #d8dee9);
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--color-bg-elevated, #fff);
+}
+
+.admin-access__card h3 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+}
+
+.admin-access__card p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-text-secondary, #64748b);
+}
+
+.admin-access__sticky-save {
+  position: sticky;
+  bottom: 12px;
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+
+.admin-access__perm-group {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.admin-access__perm-group summary {
+  cursor: pointer;
+  padding: 12px 14px;
+  font-weight: 700;
+  background: rgba(42, 189, 193, 0.06);
+}
+
+.admin-access__perm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  padding: 12px 14px;
+}
+
+@media (max-width: 900px) {
+  .admin-access__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-access__nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: static;
+  }
+}

@@ -195,6 +195,8 @@ export function formatOrder(order) {
     totalSavings: formatMoney(order.totalSavingsMinor || 0),
     selectedSeats: order.selectedSeats || [],
     seatingMode: order.seatingMode || "general_admission",
+    checkoutFormResponseId: order.checkoutFormResponseId || "",
+    checkoutAnswers: order.checkoutAnswers || [],
   };
 }
 

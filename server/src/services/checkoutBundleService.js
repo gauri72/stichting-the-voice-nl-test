@@ -482,6 +482,8 @@ export async function createBundleCheckout(eventId, payload, userId) {
     applyMemberBenefit = true,
     sessionId = null,
     selectedSeatIds = [],
+    checkoutFormAnswers = [],
+    participantCount = null,
   } = payload;
 
   const code = discountCode || voucherCode;
@@ -513,6 +515,15 @@ export async function createBundleCheckout(eventId, payload, userId) {
   });
 
   const totalTicketQty = (items || []).reduce((sum, li) => sum + (li.quantity || 0), 0);
+  const { validateCheckoutFormAnswers, saveCheckoutFormResponse } = await import("./checkoutFormService.js");
+  const validatedCheckoutForm = await validateCheckoutFormAnswers({
+    eventId,
+    items,
+    ticketTypeIds: (items || []).map((i) => String(i.ticketTypeId)),
+    ticketQuantity: totalTicketQty,
+    participantCount: participantCount ?? totalTicketQty,
+    answers: checkoutFormAnswers || [],
+  });
   const { prepareOrderSeats } = await import("./seatService.js");
   const seatData = await prepareOrderSeats({
     eventId,
@@ -633,7 +644,22 @@ export async function createBundleCheckout(eventId, payload, userId) {
     termsAccepted: true,
     selectedSeats: seatData.selectedSeats,
     seatingMode: seatData.seatingMode,
+    checkoutAnswers: validatedCheckoutForm.answers,
   });
+
+  const checkoutFormSaved = await saveCheckoutFormResponse({
+    eventId: preview.event.id,
+    orderId: order._id.toString(),
+    userId: userId || null,
+    ticketTypeId: (items || [])[0]?.ticketTypeId || null,
+    answers: checkoutFormAnswers || [],
+    items,
+    ticketTypeIds: (items || []).map((i) => String(i.ticketTypeId)),
+    ticketQuantity: totalTicketQty,
+    participantCount: participantCount ?? totalTicketQty,
+  });
+  order.checkoutFormResponseId = checkoutFormSaved.response?.responseId || "";
+  await order.save();
 
   const payment = await createTicketPaymentIntent({
     orderId: order._id.toString(),
@@ -734,6 +760,8 @@ export function formatBundleOrder(order) {
     totalSavings: formatMoney(order.totalSavingsMinor || 0),
     orderStatus: order.orderStatus || "PENDING",
     isFreeBooking: order.paymentStatus === "free" || order.totalAmountMinor <= 0,
+    checkoutFormResponseId: order.checkoutFormResponseId || "",
+    checkoutAnswers: order.checkoutAnswers || [],
   };
 }
 
@@ -753,6 +781,8 @@ export async function completeFreeOrder(eventId, payload, userId) {
     applyMemberBenefit = true,
     sessionId = null,
     selectedSeatIds = [],
+    checkoutFormAnswers = [],
+    participantCount = null,
   } = payload;
 
   const code = discountCode || voucherCode;
@@ -834,6 +864,15 @@ export async function completeFreeOrder(eventId, payload, userId) {
   });
 
   const totalTicketQty = (items || []).reduce((sum, li) => sum + (li.quantity || 0), 0);
+  const { validateCheckoutFormAnswers, saveCheckoutFormResponse } = await import("./checkoutFormService.js");
+  const validatedCheckoutForm = await validateCheckoutFormAnswers({
+    eventId,
+    items,
+    ticketTypeIds: (items || []).map((i) => String(i.ticketTypeId)),
+    ticketQuantity: totalTicketQty,
+    participantCount: participantCount ?? totalTicketQty,
+    answers: checkoutFormAnswers || [],
+  });
   const { prepareOrderSeats } = await import("./seatService.js");
   const seatData = await prepareOrderSeats({
     eventId,
@@ -924,7 +963,22 @@ export async function completeFreeOrder(eventId, payload, userId) {
     termsAccepted: true,
     selectedSeats: seatData.selectedSeats,
     seatingMode: seatData.seatingMode,
+    checkoutAnswers: validatedCheckoutForm.answers,
   });
+
+  const checkoutFormSaved = await saveCheckoutFormResponse({
+    eventId: preview.event.id,
+    orderId: order._id.toString(),
+    userId: userId || null,
+    ticketTypeId: (items || [])[0]?.ticketTypeId || null,
+    answers: checkoutFormAnswers || [],
+    items,
+    ticketTypeIds: (items || []).map((i) => String(i.ticketTypeId)),
+    ticketQuantity: totalTicketQty,
+    participantCount: participantCount ?? totalTicketQty,
+  });
+  order.checkoutFormResponseId = checkoutFormSaved.response?.responseId || "";
+  await order.save();
 
   const { fulfillOrder } = await import("./postPaymentFulfillmentService.js");
   const result = await fulfillOrder(order._id.toString(), null, { isFreeOrder: true });

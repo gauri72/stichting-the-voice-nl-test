@@ -192,6 +192,12 @@ export async function checkInTicket(verificationToken, adminId) {
   ticket.checkedInBy = adminId || null;
   await ticket.save();
 
+  const CheckoutFormResponse = (await import("../models/CheckoutFormResponse.js")).default;
+  const response = await CheckoutFormResponse.findOne({ orderId: ticket.orderId }).lean();
+  const checkInAnswers = (response?.answers || [])
+    .filter((a) => a.visibility?.showInCheckIn)
+    .map((a) => ({ label: a.questionLabel, answer: a.answer }));
+
   return {
     success: true,
     ticket: formatTicket(ticket),
@@ -203,6 +209,7 @@ export async function checkInTicket(verificationToken, adminId) {
       venueName: event?.venueName,
       venueAddress: event?.venueAddress,
     },
+    checkInAnswers,
   };
 }
 

@@ -26,8 +26,12 @@ import {
   IconLayoutGrid,
   IconUsersGroup,
   IconCalendarEvent,
+  IconMessage,
+  IconApi,
+  IconShieldLock,
 } from "@tabler/icons-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
+import { canAccessRoute } from "../../utils/rbacAdmin.js";
 import ThemeToggle from "../layout/ThemeToggle.jsx";
 import "../../styles/admin-layout.css";
 import "../../styles/admin-mobile.css";
@@ -42,6 +46,8 @@ const NAV_ITEMS = [
   { to: "/admin/session-bookings", label: "Session Bookings", icon: IconCalendarEvent },
   { to: "/admin/resources", label: "Resources", icon: IconCalendarEvent },
   { to: "/admin/rsvps", label: "RSVPs", icon: IconCalendarEvent },
+  { to: "/admin/checkout-forms", label: "Checkout Forms", icon: IconSettings },
+  { to: "/admin/reviews", label: "Reviews", icon: IconMessage },
   { to: "/admin/tickets", label: "Tickets", icon: IconTicket },
   { to: "/admin/check-in", label: "Check-in", icon: IconTicket },
   { to: "/admin/memberships", label: "Memberships", icon: IconUsers },
@@ -66,6 +72,9 @@ const NAV_ITEMS = [
   { to: "/admin/vouchers", label: "Vouchers", icon: IconDiscount },
   { to: "/admin/communication", label: "Communication", icon: IconMail },
   { to: "/admin/pages", label: "Website Pages", icon: IconWorld },
+  { to: "/admin/api-builder", label: "Smart API Builder", icon: IconApi },
+  { to: "/admin/team-members", label: "Team Members", icon: IconUsersGroup },
+  { to: "/admin/access-management", label: "Access Management", icon: IconShieldLock },
   { to: "/admin/settings", label: "Settings", icon: IconSettings },
   { to: "/admin/reports", label: "Reports", icon: IconChartBar },
 ];
@@ -80,6 +89,16 @@ const MOBILE_NAV_ITEMS = [
 
 export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBottomNav = false }) {
   const { admin, logout } = useAdminAuth();
+  const permissions = admin?.permissions || [];
+  const visibleNavItems = NAV_ITEMS.map((item) => {
+    if (item.children) {
+      const children = item.children.filter((child) => canAccessRoute(permissions, child.to));
+      if (!children.length) return null;
+      return { ...item, children };
+    }
+    if (item.to && !canAccessRoute(permissions, item.to)) return null;
+    return item;
+  }).filter(Boolean);
   const navigate = useNavigate();
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -227,7 +246,7 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
           </button>
         </div>
         <div className="admin-layout__drawer-nav">
-          {NAV_ITEMS.map((item) => renderNavItem(item, closeDrawer))}
+          {visibleNavItems.map((item) => renderNavItem(item, closeDrawer))}
         </div>
         <div className="admin-layout__drawer-footer">
           <button type="button" className="admin-layout__drawer-logout" onClick={handleLogout}>
@@ -285,7 +304,7 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
       ) : null}
 
       <nav className="admin-layout__bottom-nav admin-layout__bottom-nav--desktop" aria-label="Admin sidebar">
-        {NAV_ITEMS.map((item) => renderNavItem(item))}
+        {visibleNavItems.map((item) => renderNavItem(item))}
       </nav>
     </div>
   );

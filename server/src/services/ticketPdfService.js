@@ -82,6 +82,9 @@ export async function renderTicketPdf(values) {
     rows.splice(3, 0, ["Seat", values.seat_display || "—"]);
     if (values.seat_section) rows.splice(3, 0, ["Section", values.seat_section]);
   }
+  if (values.custom_answers) {
+    rows.push(["Checkout Info", values.custom_answers]);
+  }
 
   let rowY = y;
   for (const [label, value] of rows) {
@@ -147,6 +150,12 @@ export function buildTicketPdfValuesFromDocs(ticket, order, event) {
   const seatDisplay = ticket?.seatLabel
     || (ticket?.row && ticket?.seatNumber ? `Row ${ticket.row} · Seat ${ticket.seatNumber}` : "");
 
+  const custom = (order?.checkoutAnswers || [])
+    .filter((a) => a?.visibility?.showInPdf)
+    .slice(0, 6)
+    .map((a) => `${a.questionLabel}: ${Array.isArray(a.answer) ? a.answer.join(", ") : a.answer ?? "—"}`)
+    .join(" | ");
+
   return {
     verification_token: ticket?.verificationToken || "",
     event_name: event?.title || "—",
@@ -161,6 +170,7 @@ export function buildTicketPdfValuesFromDocs(ticket, order, event) {
     seat_row: hasSeat ? ticket?.row || "" : "",
     seat_number: hasSeat ? ticket?.seatNumber || "" : "",
     seat_display: seatDisplay,
+    custom_answers: custom,
   };
 }
 

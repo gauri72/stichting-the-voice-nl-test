@@ -91,6 +91,8 @@ const EMPTY_EVENT = {
   aiSuggestedStyle: null,
   showInMemorableMoments: true,
   highlightStatus: "Coming Soon",
+  highlightVideoType: "youtube_short",
+  highlightVideoUrl: "",
   youtubeHighlightUrl: "",
   youtubeVideoId: "",
   highlightTitle: "",
@@ -182,6 +184,8 @@ function toFormEvent(event) {
     aiSuggestedStyle: event.aiSuggestedStyle || null,
     showInMemorableMoments: event.showInMemorableMoments !== false,
     highlightStatus: event.highlightStatus || "Coming Soon",
+    highlightVideoType: event.highlightVideoType || "youtube_short",
+    highlightVideoUrl: event.highlightVideoUrl || event.youtubeHighlightUrl || "",
     youtubeHighlightUrl: event.youtubeHighlightUrl || "",
     youtubeVideoId: event.youtubeVideoId || "",
     highlightTitle: event.highlightTitle || "",
@@ -249,6 +253,8 @@ function toPayload(form, status) {
     aiSuggestedStyle: form.aiSuggestedStyle,
     showInMemorableMoments: form.showInMemorableMoments,
     highlightStatus: form.highlightStatus,
+    highlightVideoType: form.highlightVideoType,
+    highlightVideoUrl: form.highlightVideoUrl,
     youtubeHighlightUrl: form.youtubeHighlightUrl,
     youtubeVideoId: form.youtubeVideoId,
     highlightTitle: form.highlightTitle,
@@ -1703,26 +1709,48 @@ export default function AdminEventsPage() {
                 </div>
               </div>
               <div className="admin-events__field">
-                <label className="admin-events__label" htmlFor="youtube-highlight-url">YouTube Highlight URL</label>
+                <label className="admin-events__label" htmlFor="highlight-video-type">Highlight Video Type</label>
+                <select
+                  id="highlight-video-type"
+                  className="admin-events__select"
+                  value={form.highlightVideoType || "youtube_short"}
+                  onChange={(e) => updateField("highlightVideoType", e.target.value)}
+                >
+                  <option value="youtube_short">YouTube Short</option>
+                  <option value="youtube_video">YouTube Video</option>
+                  <option value="youtube_playlist">YouTube Playlist</option>
+                  <option value="vimeo">Vimeo</option>
+                  <option value="internal">Internal Video</option>
+                </select>
+              </div>
+              <div className="admin-events__field">
+                <label className="admin-events__label" htmlFor="youtube-highlight-url">Highlight URL</label>
                 <input
                   id="youtube-highlight-url"
                   className="admin-events__input"
-                  value={form.youtubeHighlightUrl}
-                  onChange={(e) => updateField("youtubeHighlightUrl", e.target.value)}
-                  onBlur={(e) => previewYoutubeUrl(e.target.value)}
-                  placeholder="https://www.youtube.com/watch?v=..."
+                  value={form.highlightVideoUrl || form.youtubeHighlightUrl}
+                  onChange={(e) => {
+                    updateField("highlightVideoUrl", e.target.value);
+                    updateField("youtubeHighlightUrl", e.target.value);
+                  }}
+                  onBlur={(e) => {
+                    if (String(form.highlightVideoType || "").startsWith("youtube")) {
+                      previewYoutubeUrl(e.target.value);
+                    }
+                  }}
+                  placeholder="https://youtube.com/shorts/... or Vimeo/Internal URL"
                 />
                 {youtubePreviewLoading ? (
                   <p className="admin-events__field-hint" role="status">Validating YouTube link…</p>
                 ) : null}
-                {youtubePreview?.youtubeThumbnailUrl ? (
+                {String(form.highlightVideoType || "").startsWith("youtube") && youtubePreview?.youtubeThumbnailUrl ? (
                   <img
                     src={youtubePreview.youtubeThumbnailUrl}
                     alt="YouTube preview"
                     className="admin-events__hero-preview"
                   />
                 ) : null}
-                {form.youtubeVideoId ? (
+                {form.youtubeVideoId && String(form.highlightVideoType || "").startsWith("youtube") ? (
                   <p className="admin-events__field-hint">Video ID: {form.youtubeVideoId}</p>
                 ) : null}
               </div>

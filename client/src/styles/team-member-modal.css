@@ -1,0 +1,217 @@
+.tms-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 3vw, 24px);
+  background: rgba(4, 8, 16, 0.86);
+  backdrop-filter: blur(12px);
+}
+
+.tms-modal__panel {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: min(92vh, 900px);
+  overflow-y: auto;
+  border-radius: 18px;
+  background: linear-gradient(165deg, #0d1a2a 0%, #1a1030 100%);
+  border: 1px solid rgba(42, 189, 193, 0.25);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  color: #f4f8ff;
+}
+
+.tms-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+}
+
+.tms-modal__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 4;
+}
+
+.tms-modal__nav--prev { left: 10px; }
+.tms-modal__nav--next { right: 10px; }
+
+.tms-modal__body {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.tms-modal__hero {
+  padding: clamp(20px, 4vw, 28px);
+  padding-bottom: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.tms-modal__photo {
+  width: min(220px, 70vw);
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 2px solid rgba(42, 189, 193, 0.35);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.tms-modal__photo--initials {
+  display: grid;
+  place-items: center;
+  font-size: 3rem;
+  font-weight: 800;
+  color: #0d1a2a;
+  background: linear-gradient(135deg, #2abdc1, #7b2ff7);
+}
+
+.tms-modal__content {
+  padding: clamp(18px, 4vw, 28px);
+}
+
+.tms-modal__chip {
+  display: inline-block;
+  margin: 0 6px 8px 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tms-modal__chip--board {
+  background: linear-gradient(135deg, rgba(42, 189, 193, 0.35), rgba(123, 47, 247, 0.35));
+  border-color: transparent;
+}
+
+.tms-modal__title {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.6vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.tms-modal__role {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tms-modal__category {
+  margin: 4px 0 0;
+  color: rgba(42, 189, 193, 0.9);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.tms-modal__years {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: rgba(255, 200, 87, 0.9);
+}
+
+.tms-modal__bio {
+  margin: 16px 0 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tms-modal__bio--placeholder {
+  color: rgba(255, 255, 255, 0.65);
+  font-style: italic;
+}
+
+.tms-modal__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.tms-modal__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tms-modal__link:hover {
+  background: rgba(42, 189, 193, 0.2);
+}
+
+.tms-modal__footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.tms-modal__footer-btn {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tms-modal__footer-btn--close {
+  margin-left: auto;
+}
+
+@media (min-width: 640px) {
+  .tms-modal__body {
+    grid-template-columns: minmax(200px, 240px) 1fr;
+    align-items: start;
+  }
+
+  .tms-modal__hero {
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .tms-modal {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .tms-modal__panel {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    border: 0;
+  }
+}

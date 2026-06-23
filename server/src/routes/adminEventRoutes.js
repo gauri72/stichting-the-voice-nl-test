@@ -32,6 +32,7 @@ import {
   patchHighlightAdmin,
   previewYoutubeAdmin,
   uploadHighlightThumbnailAdmin,
+  getHighlightAnalyticsAdmin,
 } from "../controllers/eventHighlightController.js";
 import {
   getSeatMap,
@@ -54,6 +55,7 @@ const router = Router();
 router.use(requireAdmin);
 
 router.get("/highlights", listHighlightsAdmin);
+router.get("/highlights/analytics", getHighlightAnalyticsAdmin);
 
 router.get("/stats", ticketStats);
 router.get("/tickets", listTickets);

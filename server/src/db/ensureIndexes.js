@@ -53,6 +53,19 @@ import SessionSlot from "../models/SessionSlot.js";
 import SessionBooking from "../models/SessionBooking.js";
 import Resource from "../models/Resource.js";
 import RSVP from "../models/RSVP.js";
+import CheckoutForm from "../models/CheckoutForm.js";
+import CheckoutFormResponse from "../models/CheckoutFormResponse.js";
+import EventHighlightMetric from "../models/EventHighlightMetric.js";
+import TeamMember from "../models/TeamMember.js";
+import ApiIntegration from "../models/ApiIntegration.js";
+import ApiCredential from "../models/ApiCredential.js";
+import ApiEndpoint from "../models/ApiEndpoint.js";
+import ApiFieldMapping from "../models/ApiFieldMapping.js";
+import ApiExecutionLog from "../models/ApiExecutionLog.js";
+import ApiWebhookEvent from "../models/ApiWebhookEvent.js";
+import Role from "../models/Role.js";
+import Permission from "../models/Permission.js";
+import AdminInvitation from "../models/AdminInvitation.js";
 
 /**
  * Every model maps to exactly one explicitly-named collection in the active
@@ -117,6 +130,19 @@ const MODELS = [
   ["session_bookings", SessionBooking],
   ["resources", Resource],
   ["rsvps", RSVP],
+  ["checkout_forms", CheckoutForm],
+  ["checkout_form_responses", CheckoutFormResponse],
+  ["event_highlight_metrics", EventHighlightMetric],
+  ["team_members", TeamMember],
+  ["api_integrations", ApiIntegration],
+  ["api_credentials", ApiCredential],
+  ["api_endpoints", ApiEndpoint],
+  ["api_field_mappings", ApiFieldMapping],
+  ["api_execution_logs", ApiExecutionLog],
+  ["api_webhook_events", ApiWebhookEvent],
+  ["admin_roles", Role],
+  ["admin_permissions", Permission],
+  ["admin_invitations", AdminInvitation],
 ];
 
 export async function ensureIndexes() {

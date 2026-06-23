@@ -86,6 +86,13 @@ const eventSchema = new mongoose.Schema(
       enum: ["Coming Soon", "Video Available", "Hidden"],
       index: true,
     },
+    highlightVideoType: {
+      type: String,
+      default: "youtube_short",
+      enum: ["youtube_short", "youtube_video", "youtube_playlist", "vimeo", "internal"],
+    },
+    highlightVideoUrl: { type: String, default: "", maxlength: 500 },
+    highlightEmbedUrl: { type: String, default: "", maxlength: 500 },
     youtubeHighlightUrl: { type: String, default: "", maxlength: 500 },
     youtubeVideoId: { type: String, default: "", maxlength: 20 },
     youtubeEmbedUrl: { type: String, default: "", maxlength: 500 },

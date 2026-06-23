@@ -32,6 +32,7 @@ export default function AdminEventHighlightsPage() {
   const [yearFilter, setYearFilter] = useState("");
   const [preview, setPreview] = useState(null);
   const [savingId, setSavingId] = useState("");
+  const [analytics, setAnalytics] = useState(null);
 
   const loadHighlights = useCallback(async () => {
     setLoading(true);
@@ -46,6 +47,10 @@ export default function AdminEventHighlightsPage() {
         headers: adminAuthHeaders(),
       });
       setHighlights(data.highlights || []);
+      const analyticsData = await apiFetch("/api/admin/events/highlights/analytics", {
+        headers: adminAuthHeaders(),
+      });
+      setAnalytics(analyticsData);
     } catch (err) {
       setError(err.message || "Could not load event highlights.");
     } finally {
@@ -157,6 +162,14 @@ export default function AdminEventHighlightsPage() {
         </div>
 
         {loading ? <p className="admin-highlights__status" role="status">Loading highlights…</p> : null}
+        {analytics?.totals ? (
+          <div className="admin-highlights__toolbar">
+            <span>Total Views: {analytics.totals.highlightViews || 0}</span>
+            <span>Modal Opens: {analytics.totals.modalOpens || 0}</span>
+            <span>Video Plays: {analytics.totals.videoPlays || 0}</span>
+            <span>Completion Rate: {analytics.totals.completionRate || 0}%</span>
+          </div>
+        ) : null}
         {error ? <p className="admin-highlights__error" role="alert">{error}</p> : null}
         {message ? <p className="admin-highlights__message" role="status">{message}</p> : null}
 

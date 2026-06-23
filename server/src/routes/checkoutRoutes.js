@@ -24,6 +24,11 @@ import {
   applyTicketTailorMembershipBenefitHandler,
 } from "../controllers/checkoutBundleController.js";
 import {
+  resolvePublicCheckoutForm,
+  validatePublicCheckoutForm,
+  savePublicCheckoutFormResponse,
+} from "../controllers/checkoutFormController.js";
+import {
   holdSeats,
   releaseSeatHold,
   confirmSeats,
@@ -53,6 +58,9 @@ router.post("/seat-hold", optionalAuth, holdSeats);
 router.post("/release-seat-hold", optionalAuth, releaseSeatHold);
 router.post("/confirm-seats", optionalAuth, confirmSeats);
 router.post("/payment-success", optionalAuth, paymentSuccess);
+router.post("/forms/resolve", optionalAuth, resolvePublicCheckoutForm);
+router.post("/forms/validate", optionalAuth, validatePublicCheckoutForm);
+router.post("/forms/save-response", optionalAuth, savePublicCheckoutFormResponse);
 router.get("/membership-plans/:eventId", getMembershipPlansForEvent);
 
 export default router;

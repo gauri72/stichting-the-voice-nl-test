@@ -3,7 +3,7 @@ import AboutUsHeroSection from "./AboutUsHeroSection";
 import AboutUsMissionSection from "./AboutUsMissionSection";
 import AboutUsWhatWeDoSection from "./AboutUsWhatWeDoSection";
 import AboutUsValuesSection from "./AboutUsValuesSection";
-import OurTeamSection from "../home/OurTeamSection";
+import TeamMembersSlider from "./TeamMembersSlider";
 import OurPillarsSection from "../home/OurPillarsSection";
 import CmsAwarePage from "../cms/CmsAwarePage.jsx";
 import "../../styles/about-us-page.css";
@@ -17,7 +17,7 @@ function AboutUsPageFallback() {
       <OurPillarsSection title="Our Core Pillars" sectionClassName="about-us-pillars" />
       <AboutUsWhatWeDoSection />
       <AboutUsValuesSection />
-      <OurTeamSection sectionClassName="about-us-team-section" marquee />
+      <TeamMembersSlider sectionClassName="about-us-team-section" />
     </div>
   );
 }

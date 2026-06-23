@@ -3,6 +3,9 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import env from "../config/env.js";
 import Admin from "../models/Admin.js";
+import { writeAccessAudit } from "./accessManagementService.js";
+import { ACCESS_AUDIT_ACTIONS } from "../config/rbacConfig.js";
+import { getAdminAccessProfile } from "./rbacService.js";
 
 const BCRYPT_ROUNDS = 12;
 
@@ -40,12 +43,10 @@ export function verifyAdminToken(token) {
 
 export async function getAdminById(id) {
   if (!id || !mongoose.isValidObjectId(id)) return null;
-  const admin = await Admin.findById(id);
-  if (!admin || !admin.isActive) return null;
-  return admin.toSafeJSON();
+  return getAdminAccessProfile(id);
 }
 
-export async function loginAdmin({ email, password, rememberMe }) {
+export async function loginAdmin({ email, password, rememberMe }, req = null) {
   if (!isDbReady()) {
     const err = new Error("Database is not available. Please try again later.");
     err.status = 503;
@@ -55,27 +56,60 @@ export async function loginAdmin({ email, password, rememberMe }) {
   const normalizedEmail = normalizeEmail(email);
   const admin = await Admin.findOne({ email: normalizedEmail });
 
-  if (!admin || !admin.isActive) {
+  if (!admin || !admin.isActive || ["disabled", "suspended"].includes(admin.status)) {
+    await writeAccessAudit({
+      adminId: admin?._id,
+      action: ACCESS_AUDIT_ACTIONS.LOGIN_FAILED,
+      targetType: "admin_user",
+      targetId: admin?._id || "",
+      summary: `Failed login for ${normalizedEmail}`,
+      req,
+    });
     const err = new Error("Invalid email or password.");
     err.status = 401;
     throw err;
   }
 
+  if (admin.status === "invited" || !admin.passwordHash) {
+    const err = new Error("Please accept your invitation and set a password first.");
+    err.status = 403;
+    throw err;
+  }
+
   const passwordOk = await bcrypt.compare(password, admin.passwordHash);
   if (!passwordOk) {
+    await writeAccessAudit({
+      adminId: admin._id,
+      action: ACCESS_AUDIT_ACTIONS.LOGIN_FAILED,
+      targetType: "admin_user",
+      targetId: admin._id,
+      summary: `Failed login for ${normalizedEmail}`,
+      req,
+    });
     const err = new Error("Invalid email or password.");
     err.status = 401;
     throw err;
   }
 
   admin.lastLoginAt = new Date();
+  if (admin.status === "invited") admin.status = "active";
   await admin.save();
 
+  await writeAccessAudit({
+    adminId: admin._id,
+    action: ACCESS_AUDIT_ACTIONS.LOGIN_SUCCESS,
+    targetType: "admin_user",
+    targetId: admin._id,
+    summary: `Login success for ${normalizedEmail}`,
+    req,
+  });
+
   const token = signAdminToken(admin, Boolean(rememberMe));
+  const profile = await getAdminAccessProfile(admin._id);
 
   return {
     token,
-    admin: admin.toSafeJSON(),
+    admin: profile,
     message: "Welcome back!",
   };
 }

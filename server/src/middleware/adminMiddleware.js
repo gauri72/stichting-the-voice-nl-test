@@ -1,4 +1,5 @@
-import { verifyAdminToken, getAdminById } from "../services/adminService.js";
+import { verifyAdminToken } from "../services/adminService.js";
+import { getAdminAccessProfile } from "../services/rbacService.js";
 
 export async function requireAdmin(req, res, next) {
   try {
@@ -9,9 +10,13 @@ export async function requireAdmin(req, res, next) {
     }
 
     const payload = verifyAdminToken(match[1]);
-    const admin = await getAdminById(payload.sub);
+    const admin = await getAdminAccessProfile(payload.sub);
     if (!admin) {
       return res.status(401).json({ error: "Invalid or expired admin session." });
+    }
+
+    if (!admin.isActive || ["disabled", "suspended"].includes(admin.status)) {
+      return res.status(403).json({ error: "Your admin account is not active." });
     }
 
     req.admin = admin;

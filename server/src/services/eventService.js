@@ -80,6 +80,9 @@ export function formatEvent(event, ticketTypes = []) {
     slug: event.slug,
     showInMemorableMoments: event.showInMemorableMoments !== false,
     highlightStatus: event.highlightStatus || "Coming Soon",
+    highlightVideoType: event.highlightVideoType || "youtube_short",
+    highlightVideoUrl: event.highlightVideoUrl || "",
+    highlightEmbedUrl: event.highlightEmbedUrl || "",
     youtubeHighlightUrl: event.youtubeHighlightUrl || "",
     youtubeVideoId: event.youtubeVideoId || "",
     youtubeEmbedUrl: event.youtubeEmbedUrl || "",
@@ -333,6 +336,9 @@ export async function updateEvent(eventId, payload) {
     "status",
     "showInMemorableMoments",
     "highlightStatus",
+    "highlightVideoType",
+    "highlightVideoUrl",
+    "highlightEmbedUrl",
     "youtubeHighlightUrl",
     "youtubeVideoId",
     "youtubeEmbedUrl",
@@ -381,25 +387,26 @@ export async function updateEvent(eventId, payload) {
   }
 
   const { syncHighlightFieldsForEvent } = await import("./eventHighlightService.js");
-  const { parseYoutubeHighlightUrl } = await import("../utils/youtubeUrl.js");
 
-  if (payload.youtubeHighlightUrl !== undefined) {
-    const raw = String(payload.youtubeHighlightUrl || "").trim();
-    if (raw) {
-      try {
-        const parsed = parseYoutubeHighlightUrl(raw);
-        event.youtubeHighlightUrl = parsed.youtubeHighlightUrl;
-        event.youtubeVideoId = parsed.youtubeVideoId;
-        event.youtubeEmbedUrl = parsed.youtubeEmbedUrl;
-        event.youtubeThumbnailUrl = parsed.youtubeThumbnailUrl;
-      } catch {
-        /* validation handled by dedicated highlight endpoint */
-      }
-    } else {
-      event.youtubeHighlightUrl = "";
-      event.youtubeVideoId = "";
-      event.youtubeEmbedUrl = "";
-      event.youtubeThumbnailUrl = "";
+  if (
+    payload.youtubeHighlightUrl !== undefined ||
+    payload.highlightVideoUrl !== undefined ||
+    payload.highlightVideoType !== undefined
+  ) {
+    const { resolveHighlightVideo } = await import("../utils/highlightVideoUrl.js");
+    const raw = payload.highlightVideoUrl ?? payload.youtubeHighlightUrl ?? payload.youtubeVideoId ?? "";
+    const type = payload.highlightVideoType || event.highlightVideoType || "youtube_short";
+    try {
+      const parsed = resolveHighlightVideo(type, raw);
+      event.highlightVideoType = parsed.highlightVideoType;
+      event.highlightVideoUrl = parsed.highlightVideoUrl;
+      event.highlightEmbedUrl = parsed.highlightEmbedUrl;
+      event.youtubeHighlightUrl = parsed.youtubeHighlightUrl;
+      event.youtubeVideoId = parsed.youtubeVideoId;
+      event.youtubeEmbedUrl = parsed.youtubeEmbedUrl;
+      event.youtubeThumbnailUrl = parsed.youtubeThumbnailUrl;
+    } catch {
+      /* validation handled by dedicated highlight endpoint */
     }
   }
 

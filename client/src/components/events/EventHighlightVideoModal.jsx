@@ -1,15 +1,27 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { Link } from "react-router-dom";
-import { IconMapPin, IconCalendar, IconX } from "@tabler/icons-react";
+import { IconMapPin, IconCalendar, IconX, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import "../../styles/event-highlight-video-modal.css";
 
-export default function EventHighlightVideoModal({ highlight, onClose }) {
+export default function EventHighlightVideoModal({
+  highlights = [],
+  activeIndex = -1,
+  onClose,
+  onNext,
+  onPrev,
+  onTrack = () => {},
+}) {
+  const highlight = activeIndex >= 0 ? highlights[activeIndex] : null;
+  const touchStart = useRef(null);
+  const touchMove = useRef(null);
+
   useEffect(() => {
     if (!highlight) return undefined;
 
     function onKeyDown(event) {
       if (event.key === "Escape") onClose();
+      if (event.key === "ArrowRight") onNext?.();
+      if (event.key === "ArrowLeft") onPrev?.();
     }
 
     document.body.style.overflow = "hidden";
@@ -19,14 +31,42 @@ export default function EventHighlightVideoModal({ highlight, onClose }) {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [highlight, onClose]);
+  }, [highlight, onClose, onNext, onPrev]);
 
   if (!highlight) return null;
 
-  const hasVideo = Boolean(highlight.youtubeVideoId);
+  const hasVideo = Boolean(highlight.highlightEmbedUrl || highlight.youtubeEmbedUrl);
+  const embedBase = highlight.highlightEmbedUrl || highlight.youtubeEmbedUrl || "";
   const embedUrl = hasVideo
-    ? `${highlight.youtubeEmbedUrl}?autoplay=1&rel=0&modestbranding=1&playsinline=1`
+    ? `${embedBase}${embedBase.includes("?") ? "&" : "?"}autoplay=1&rel=0&modestbranding=1&playsinline=1`
     : "";
+
+  function handleTouchStart(event) {
+    const touch = event.touches?.[0];
+    if (!touch) return;
+    touchStart.current = { x: touch.clientX, y: touch.clientY };
+    touchMove.current = null;
+  }
+
+  function handleTouchMove(event) {
+    const touch = event.touches?.[0];
+    if (!touch || !touchStart.current) return;
+    touchMove.current = { x: touch.clientX, y: touch.clientY };
+  }
+
+  function handleTouchEnd() {
+    if (!touchStart.current || !touchMove.current) return;
+    const dx = touchMove.current.x - touchStart.current.x;
+    const dy = touchMove.current.y - touchStart.current.y;
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) onNext?.();
+      else onPrev?.();
+    } else if (dy > 90) {
+      onClose?.();
+    }
+    touchStart.current = null;
+    touchMove.current = null;
+  }
 
   return createPortal(
     <div
@@ -36,12 +76,21 @@ export default function EventHighlightVideoModal({ highlight, onClose }) {
       aria-labelledby="ehvm-title"
       onClick={onClose}
     >
-      <div className="ehvm__panel" onClick={(event) => event.stopPropagation()}>
+      <div
+        className="ehvm__panel"
+        onClick={(event) => event.stopPropagation()}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <button type="button" className="ehvm__close" onClick={onClose} aria-label="Close">
           <IconX size={22} stroke={2} aria-hidden />
         </button>
 
         <div className="ehvm__media">
+          <button type="button" className="ehvm__nav ehvm__nav--prev" onClick={onPrev} aria-label="Previous highlight">
+            <IconChevronLeft size={18} />
+          </button>
           {hasVideo ? (
             <div className="ehvm__video-wrap">
               <iframe
@@ -51,6 +100,7 @@ export default function EventHighlightVideoModal({ highlight, onClose }) {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 loading="lazy"
+                onLoad={() => onTrack("video_play", highlight)}
               />
             </div>
           ) : (
@@ -66,6 +116,9 @@ export default function EventHighlightVideoModal({ highlight, onClose }) {
               </div>
             </div>
           )}
+          <button type="button" className="ehvm__nav ehvm__nav--next" onClick={onNext} aria-label="Next highlight">
+            <IconChevronRight size={18} />
+          </button>
         </div>
 
         <div className="ehvm__body">
@@ -96,11 +149,11 @@ export default function EventHighlightVideoModal({ highlight, onClose }) {
           <p className="ehvm__description">
             {highlight.highlightDescription || highlight.impactText}
           </p>
-          {highlight.detailsUrl ? (
-            <Link to={highlight.detailsUrl} className="ehvm__details-link" onClick={onClose}>
-              View Event Page
-            </Link>
-          ) : null}
+          <div className="ehvm__footer">
+            <button type="button" className="ehvm__footer-btn" onClick={onPrev}>Previous</button>
+            <button type="button" className="ehvm__footer-btn" onClick={onNext}>Next</button>
+            <button type="button" className="ehvm__footer-btn ehvm__footer-btn--close" onClick={onClose}>Close</button>
+          </div>
         </div>
       </div>
     </div>,

@@ -6,7 +6,7 @@ function normalizeTestimonial(entry) {
   if (!entry || typeof entry !== "object") return null;
 
   const name = String(entry.name || "").trim();
-  const quote = String(entry.quote || "").trim();
+  const quote = String(entry.quote || entry.text || "").trim();
   const rating = Number(entry.rating);
 
   if (!name || !quote || !Number.isInteger(rating) || rating < 1 || rating > 5) {
@@ -14,13 +14,27 @@ function normalizeTestimonial(entry) {
   }
 
   return {
-    id: String(entry.id || crypto.randomUUID()),
+    id: String(entry.reviewId || entry.id || crypto.randomUUID()),
+    reviewId: String(entry.reviewId || entry.id || ""),
     name,
-    role: String(entry.role || "Community Member").trim() || "Community Member",
+    role: String(entry.roleLabel || entry.role || "Community Member").trim() || "Community Member",
+    roleLabel: String(entry.roleLabel || entry.role || "Community Member").trim() || "Community Member",
     quote,
+    text: quote,
     rating,
-    initials: String(entry.initials || name.charAt(0).toUpperCase()).trim().slice(0, 4) || "?"
+    initials: String(entry.initials || name.charAt(0).toUpperCase()).trim().slice(0, 4) || "?",
+    eventName: String(entry.eventName || "").trim(),
+    submittedAt: entry.submittedAt || entry.createdAt || null,
+    createdAt: entry.createdAt || entry.submittedAt || null,
+    featured: Boolean(entry.featured),
   };
+}
+
+export function getInitials(name) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
 }
 
 export function readLocalTestimonials() {
@@ -44,10 +58,12 @@ export function writeLocalTestimonials(testimonials) {
 
 export async function loadEventTestimonials() {
   try {
-    const data = await apiFetch("/api/testimonials");
-    const testimonials = Array.isArray(data?.testimonials)
-      ? data.testimonials.map(normalizeTestimonial).filter(Boolean)
-      : [];
+    const data = await apiFetch("/api/public/reviews");
+    const testimonials = Array.isArray(data?.reviews)
+      ? data.reviews.map(normalizeTestimonial).filter(Boolean)
+      : Array.isArray(data?.testimonials)
+        ? data.testimonials.map(normalizeTestimonial).filter(Boolean)
+        : [];
 
     writeLocalTestimonials(testimonials);
     return testimonials;
@@ -57,39 +73,33 @@ export async function loadEventTestimonials() {
 }
 
 export async function saveEventTestimonial(entry) {
-  const normalized = normalizeTestimonial(entry);
+  const normalized = normalizeTestimonial({
+    ...entry,
+    quote: entry.quote || entry.text,
+    initials: entry.initials || getInitials(entry.name),
+  });
   if (!normalized) {
     throw new Error("Invalid testimonial.");
   }
 
-  try {
-    const data = await apiFetch("/api/testimonials", {
-      method: "POST",
-      body: JSON.stringify({
-        name: normalized.name,
-        role: normalized.role,
-        quote: normalized.quote,
-        rating: normalized.rating,
-        captchaToken: entry.captchaToken
-      })
-    });
+  const data = await apiFetch("/api/testimonials", {
+    method: "POST",
+    body: JSON.stringify({
+      name: normalized.name,
+      role: normalized.role,
+      quote: normalized.quote,
+      rating: normalized.rating,
+      eventName: entry.eventName || "",
+      consentAccepted: Boolean(entry.consentAccepted),
+      captchaToken: entry.captchaToken,
+    }),
+  });
 
-    const saved = normalizeTestimonial(data?.testimonial);
-    if (!saved) {
-      throw new Error("Could not save testimonial.");
-    }
-
-    const next = [saved, ...readLocalTestimonials().filter((item) => item.id !== saved.id)];
-    writeLocalTestimonials(next);
-    return saved;
-  } catch (error) {
-    if (error?.status === 400) {
-      throw error;
-    }
-
-    const saved = { ...normalized, id: normalized.id || crypto.randomUUID() };
-    const next = [saved, ...readLocalTestimonials().filter((item) => item.id !== saved.id)];
-    writeLocalTestimonials(next);
-    return saved;
-  }
+  return {
+    ...normalized,
+    message:
+      data?.message ||
+      "Thank you for sharing your experience. Your review will be visible after moderation.",
+    pending: Boolean(data?.pending),
+  };
 }

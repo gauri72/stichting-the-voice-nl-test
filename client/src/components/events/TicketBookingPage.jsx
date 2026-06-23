@@ -20,6 +20,7 @@ import {
 } from "../../utils/stripePayment.js";
 import { CUSTOMER_MEMBERSHIP_MESSAGES, sanitizeCustomerDiscountLabel } from "../../utils/membershipDisplayLabels.js";
 import SeatMapSelector from "./SeatMapSelector.jsx";
+import DynamicCheckoutForm, { serializeCheckoutAnswers } from "./DynamicCheckoutForm.jsx";
 import "../../styles/sponsorship-payment-block.css";
 import "../../styles/seat-map.css";
 
@@ -80,6 +81,8 @@ export default function TicketBookingPage() {
   const [reservedSeatingEnabled, setReservedSeatingEnabled] = useState(false);
   const [selectedSeatIds, setSelectedSeatIds] = useState([]);
   const [selectedSeatsDetail, setSelectedSeatsDetail] = useState([]);
+  const [checkoutFormFields, setCheckoutFormFields] = useState([]);
+  const [checkoutFormValues, setCheckoutFormValues] = useState({});
   const sessionRestoreRef = useRef(false);
 
   const checkoutSessionIdFromUrl = searchParams.get("checkoutSessionId") || "";
@@ -112,6 +115,10 @@ export default function TicketBookingPage() {
 
   const seatOffset = reservedSeatingEnabled ? 1 : 0;
   const ticketQty = selectedItems.reduce((sum, li) => sum + li.quantity, 0);
+  const checkoutFormAnswers = useMemo(
+    () => serializeCheckoutAnswers(checkoutFormFields, checkoutFormValues),
+    [checkoutFormFields, checkoutFormValues]
+  );
   const DETAILS_STEP = 2 + seatOffset;
   const BENEFITS_STEP = 3 + seatOffset;
   const MEMBERSHIP_STEP = 4 + seatOffset;
@@ -366,6 +373,38 @@ export default function TicketBookingPage() {
     }
   }, [step, refreshPreview, selectedItems.length, includeMembership, selectedPlanId, applyMemberBenefit]);
 
+  useEffect(() => {
+    if (!event?.id || !selectedItems.length) {
+      setCheckoutFormFields([]);
+      setCheckoutFormValues({});
+      return;
+    }
+    let cancelled = false;
+    async function resolveForm() {
+      try {
+        const data = await apiFetch("/api/checkout/forms/resolve", {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            eventId: event.id,
+            eventType: event.category || "",
+            ticketTypeIds: selectedItems.map((i) => i.ticketTypeId),
+            items: selectedItems,
+            ticketQuantity: ticketQty,
+            participantCount: ticketQty,
+          }),
+        });
+        if (!cancelled) setCheckoutFormFields(data.fields || []);
+      } catch {
+        if (!cancelled) setCheckoutFormFields([]);
+      }
+    }
+    resolveForm();
+    return () => {
+      cancelled = true;
+    };
+  }, [event?.id, event?.category, selectedItems, ticketQty]);
+
   const goToConfirmation = useCallback(
     (orderNumber) => {
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
@@ -518,6 +557,8 @@ export default function TicketBookingPage() {
           sessionId,
           membershipCode: membershipCode || undefined,
           selectedSeatIds,
+          checkoutFormAnswers,
+          participantCount: ticketQty,
         }),
       });
 
@@ -574,6 +615,8 @@ export default function TicketBookingPage() {
           sessionId,
           membershipCode: membershipCode || undefined,
           selectedSeatIds,
+          checkoutFormAnswers,
+          participantCount: ticketQty,
         }),
       });
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
@@ -621,6 +664,26 @@ export default function TicketBookingPage() {
     const isActiveGuest = status === "GUEST_EMAIL_ACTIVE_MEMBER";
     const isExpiredGuest =
       status === "GUEST_EMAIL_EXPIRED_MEMBER" && applyMemberBenefit && !includeMembership;
+
+    try {
+      await apiFetch("/api/checkout/forms/validate", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          eventId: event.id,
+          eventType: event.category || "",
+          ticketTypeIds: selectedItems.map((i) => i.ticketTypeId),
+          items: selectedItems,
+          ticketQuantity: ticketQty,
+          participantCount: ticketQty,
+          answers: checkoutFormAnswers,
+        }),
+      });
+    } catch (err) {
+      setError(err.message || "Please complete required checkout questions.");
+      setStep(REVIEW_STEP);
+      return;
+    }
 
     if (isActiveGuest && applyMemberBenefit) {
       setError("Please log in to apply member benefits, or choose Continue Without Benefits.");
@@ -1068,6 +1131,12 @@ export default function TicketBookingPage() {
                 </ul>
               </div>
             ) : null}
+
+            <DynamicCheckoutForm
+              fields={checkoutFormFields}
+              values={checkoutFormValues}
+              onChange={(key, value) => setCheckoutFormValues((prev) => ({ ...prev, [key]: value }))}
+            />
 
             <BookingPricePreview preview={preview} />
 

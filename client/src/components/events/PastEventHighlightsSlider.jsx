@@ -17,7 +17,7 @@ function badgeClass(badgeText) {
 export default function PastEventHighlightsSlider() {
   const [highlights, setHighlights] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeHighlight, setActiveHighlight] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const [activeDot, setActiveDot] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const trackRef = useRef(null);
@@ -41,6 +41,19 @@ export default function PastEventHighlightsSlider() {
     return () => {
       active = false;
     };
+  }, []);
+
+  const track = useCallback(async (action, item) => {
+    if (!item?.eventId || String(item.eventId).startsWith("legacy-")) return;
+    try {
+      await apiFetch("/api/public/event-highlights/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId: item.eventId, action }),
+      });
+    } catch {
+      /* no-op tracking */
+    }
   }, []);
 
   const scrollBy = useCallback((delta) => {
@@ -140,7 +153,12 @@ export default function PastEventHighlightsSlider() {
                   type="button"
                   className={`peh-slider__card${item.featuredHighlight ? " peh-slider__card--featured" : ""}`}
                   role="listitem"
-                  onClick={() => setActiveHighlight(item)}
+                  onClick={() => {
+                    const index = highlights.findIndex((h) => h.eventId === item.eventId);
+                    setActiveIndex(index);
+                    track("modal_open", item);
+                    track("highlight_view", item);
+                  }}
                   aria-label={`${item.ctaText}: ${item.highlightTitle}`}
                 >
                   <div className="peh-slider__card-media">
@@ -208,8 +226,12 @@ export default function PastEventHighlightsSlider() {
       </div>
 
       <EventHighlightVideoModal
-        highlight={activeHighlight}
-        onClose={() => setActiveHighlight(null)}
+        highlights={highlights}
+        activeIndex={activeIndex}
+        onClose={() => setActiveIndex(-1)}
+        onPrev={() => setActiveIndex((idx) => (idx <= 0 ? highlights.length - 1 : idx - 1))}
+        onNext={() => setActiveIndex((idx) => (idx >= highlights.length - 1 ? 0 : idx + 1))}
+        onTrack={track}
       />
     </section>
   );

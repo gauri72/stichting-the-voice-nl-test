@@ -63,7 +63,7 @@
 }
 
 .peh-slider__card {
-  flex: 0 0 clamp(240px, 28vw, 300px);
+  flex: 0 0 clamp(180px, 18vw, 230px);
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
@@ -78,7 +78,7 @@
 }
 
 .peh-slider__card--featured {
-  flex-basis: clamp(280px, 34vw, 360px);
+  flex-basis: clamp(190px, 20vw, 250px);
 }
 
 .peh-slider__card:hover,
@@ -89,7 +89,7 @@
 
 .peh-slider__card-media {
   position: relative;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 9 / 16;
   border-radius: 14px;
   overflow: hidden;
   background: linear-gradient(135deg, #0d1a2a 0%, #1a3a4a 50%, #3d1a4a 100%);
@@ -158,8 +158,8 @@
 }
 
 .peh-slider__card-play-icon {
-  width: 52px;
-  height: 52px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -178,7 +178,7 @@
 }
 
 .peh-slider__card-body {
-  padding: 12px 4px 0;
+  padding: 10px 2px 0;
   min-width: 0;
 }
 
@@ -209,7 +209,7 @@
   line-height: 1.45;
   color: var(--color-text-secondary);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -292,11 +292,11 @@
 
 @media (max-width: 768px) {
   .peh-slider__card {
-    flex-basis: clamp(220px, 78vw, 280px);
+    flex-basis: clamp(175px, 62vw, 220px);
   }
 
   .peh-slider__card--featured {
-    flex-basis: clamp(240px, 82vw, 300px);
+    flex-basis: clamp(185px, 66vw, 230px);
   }
 
   .peh-slider__nav {

@@ -8,6 +8,8 @@ import { logTicketTailorConfiguration } from "./services/ticketTailorService.js"
 import { startPastDataSyncScheduler } from "./services/pastDataSyncScheduler.js";
 import { logMailConfiguration, verifySmtpConnection } from "./services/smtpTransport.js";
 import { cleanupExpiredSeatHolds } from "./services/seatService.js";
+import { ensureDefaultTeamMembers } from "./services/teamMemberService.js";
+import { ensureDefaultRolesAndPermissions } from "./services/rbacService.js";
 
 // Some local resolvers refuse SRV lookups for mongodb+srv://. Outside production
 // (or when DNS_SERVERS is set) fall back to public DNS so we can reach Atlas.
@@ -44,6 +46,12 @@ if (shouldConnectDb) {
       console.log(`MongoDB connected (db: ${env.mongoDbName})`);
       await ensureIndexes().catch((err) =>
         console.warn("[indexes] ensureIndexes failed:", err.message)
+      );
+      await ensureDefaultTeamMembers().catch((err) =>
+        console.warn("[team-members] seed failed:", err.message)
+      );
+      await ensureDefaultRolesAndPermissions().catch((err) =>
+        console.warn("[rbac] seed failed:", err.message)
       );
       await loadStripeSecretsFromSettings().catch(() => {});
       startPastDataSyncScheduler();

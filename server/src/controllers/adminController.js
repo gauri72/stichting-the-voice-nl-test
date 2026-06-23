@@ -19,7 +19,7 @@ export async function adminLogin(req, res) {
       return res.status(400).json({ error: "Email and password are required." });
     }
 
-    const result = await loginAdmin({ email, password, rememberMe });
+    const result = await loginAdmin({ email, password, rememberMe }, req);
     return res.status(200).json(result);
   } catch (error) {
     return handleError(res, error);

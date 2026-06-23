@@ -85,12 +85,22 @@ function detailRow(label, value) {
   </tr>`;
 }
 
+function visibleCheckoutAnswers(order, key) {
+  return (order?.checkoutAnswers || [])
+    .filter((a) => a?.visibility?.[key])
+    .map((a) => ({ label: a.questionLabel, answer: a.answer }));
+}
+
 function buildTicketEmailText({ order, ticket, event }) {
   const eventTitle = event?.title || "Event";
   const viewUrl = `${env.clientUrl}/events/${event?.slug || event?._id || "event"}/tickets/confirmation/${order.orderNumber}`;
   const seatLines = ticket.row || ticket.seatNumber
     ? `\nYour seat:\nSection: ${ticket.section || "—"}\nRow: ${ticket.row || "—"}\nSeat: ${ticket.seatNumber || "—"}\n`
     : "";
+  const extra = visibleCheckoutAnswers(order, "showInEmail")
+    .slice(0, 8)
+    .map((a) => `${a.label}: ${Array.isArray(a.answer) ? a.answer.join(", ") : a.answer ?? "—"}`)
+    .join("\n");
   return `Your ticket for ${eventTitle} is confirmed.
 
 Order: ${order.orderNumber}
@@ -100,6 +110,7 @@ Holder: ${ticket.attendeeName}
 Date: ${formatEventDate(event?.date)}
 Time: ${formatEventTime(event?.startTime, event?.endTime)}
 Venue: ${[event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—"}${seatLines}
+${extra ? `\nCheckout details:\n${extra}\n` : ""}
 Your ticket PDF is attached to this email. Show the QR code at the venue entrance for check-in.
 
 View online: ${viewUrl}
@@ -132,6 +143,10 @@ function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
                 ${detailRow("Row", escapeHtml(ticket.row || "—"))}
                 ${detailRow("Seat", escapeHtml(ticket.seatNumber || ticket.seatLabel || "—"))}`
     : "";
+  const customRows = visibleCheckoutAnswers(order, "showInEmail")
+    .slice(0, 8)
+    .map((a) => detailRow(escapeHtml(a.label), escapeHtml(Array.isArray(a.answer) ? a.answer.join(", ") : a.answer ?? "—")))
+    .join("\n");
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -194,6 +209,7 @@ function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
                 ${detailRow("Ticket Type", escapeHtml(ticket.ticketTypeName))}
                 ${detailRow("Ticket Holder", escapeHtml(ticket.attendeeName))}
                 ${seatDetailRows}
+                ${customRows}
                 ${detailRow("Order ID", escapeHtml(order.orderNumber))}
                 ${detailRow("Purchase Date", escapeHtml(formatPurchaseDate(order.createdAt)))}
               </table>

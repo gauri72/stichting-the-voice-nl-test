@@ -409,15 +409,11 @@
   background: transparent;
 }
 
-.about-us-page-shell .about-us-team-section .our-team-inner {
-  max-width: none;
-}
-
-.about-us-page-shell .about-us-team-section .our-team-title {
+.about-us-page-shell .about-us-team-section .tms-slider__title {
   color: var(--au-text);
 }
 
-.about-us-page-shell .about-us-team-section .our-team-heading-line {
+.about-us-page-shell .about-us-team-section .tms-slider__heading-line {
   background: var(--au-border);
 }
 

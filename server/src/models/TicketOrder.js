@@ -92,6 +92,8 @@ const ticketOrderSchema = new mongoose.Schema(
     discountRuleId: { type: mongoose.Schema.Types.ObjectId, ref: "DiscountRule", default: null },
     memberDiscountRuleId: { type: mongoose.Schema.Types.ObjectId, ref: "DiscountRule", default: null },
     membershipDiscountPercent: { type: Number, default: 0, min: 0, max: 100 },
+    checkoutFormResponseId: { type: String, default: "", trim: true, index: true },
+    checkoutAnswers: { type: [mongoose.Schema.Types.Mixed], default: [] },
     paymentStatus: {
       type: String,
       enum: ["pending", "processing", "paid", "failed", "refunded", "free"],

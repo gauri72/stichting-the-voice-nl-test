@@ -7,6 +7,8 @@ import {
   extractYoutubeVideoId,
   parseYoutubeHighlightUrl,
 } from "../utils/youtubeUrl.js";
+import { resolveHighlightVideo } from "../utils/highlightVideoUrl.js";
+import EventHighlightMetric from "../models/EventHighlightMetric.js";
 
 const DEFAULT_IMPACT_TEXT =
   "An unforgettable V.O.I.C.E. NL experience filled with culture, connection and shared memories.";
@@ -14,6 +16,9 @@ const DEFAULT_IMPACT_TEXT =
 const HIGHLIGHT_FIELDS = [
   "showInMemorableMoments",
   "highlightStatus",
+  "highlightVideoType",
+  "highlightVideoUrl",
+  "highlightEmbedUrl",
   "youtubeHighlightUrl",
   "youtubeVideoId",
   "youtubeEmbedUrl",
@@ -43,7 +48,12 @@ export function isEventCompleted(event) {
 
 export function resolveHighlightStatus(event) {
   if (event.highlightStatus === "Hidden") return "Hidden";
-  if (event.youtubeVideoId || extractYoutubeVideoId(event.youtubeHighlightUrl)) {
+  if (
+    event.highlightEmbedUrl ||
+    event.highlightVideoUrl ||
+    event.youtubeVideoId ||
+    extractYoutubeVideoId(event.youtubeHighlightUrl)
+  ) {
     return "Video Available";
   }
   return event.highlightStatus === "Coming Soon" ? "Coming Soon" : "Coming Soon";
@@ -60,6 +70,7 @@ export function syncHighlightFieldsForEvent(event) {
 
   const videoId =
     event.youtubeVideoId || extractYoutubeVideoId(event.youtubeHighlightUrl) || "";
+  const videoType = event.highlightVideoType || (videoId ? "youtube_short" : "youtube_short");
 
   if (videoId) {
     event.youtubeVideoId = videoId;
@@ -69,15 +80,26 @@ export function syncHighlightFieldsForEvent(event) {
     if (event.highlightStatus !== "Hidden") {
       event.highlightStatus = "Video Available";
     }
+    if (!event.highlightVideoUrl) event.highlightVideoUrl = event.youtubeHighlightUrl;
+    if (!event.highlightEmbedUrl) event.highlightEmbedUrl = event.youtubeEmbedUrl;
+    if (!event.highlightVideoType) event.highlightVideoType = "youtube_short";
   } else if (event.highlightStatus !== "Hidden") {
-    event.highlightStatus = "Coming Soon";
+    if (event.highlightEmbedUrl || event.highlightVideoUrl) {
+      event.highlightStatus = "Video Available";
+    } else {
+      event.highlightStatus = "Coming Soon";
+    }
   }
+  if (!event.highlightVideoType) event.highlightVideoType = videoType;
 
   return event;
 }
 
 function formatHighlightCard(event, { legacy = false } = {}) {
   const videoId = event.youtubeVideoId || extractYoutubeVideoId(event.youtubeHighlightUrl) || "";
+  const highlightVideoType = event.highlightVideoType || (videoId ? "youtube_short" : "youtube_short");
+  const highlightEmbedUrl = event.highlightEmbedUrl || (videoId ? buildYoutubeEmbedUrl(videoId) : "");
+  const highlightVideoUrl = event.highlightVideoUrl || event.youtubeHighlightUrl || "";
   const status = resolveHighlightStatus(event);
   const eventDate = event.date ? new Date(event.date) : null;
 
@@ -127,6 +149,9 @@ function formatHighlightCard(event, { legacy = false } = {}) {
     youtubeUrl: videoId ? buildYoutubeWatchUrl(videoId) : "",
     youtubeVideoId: videoId,
     youtubeEmbedUrl: videoId ? buildYoutubeEmbedUrl(videoId) : "",
+    highlightVideoType,
+    highlightVideoUrl,
+    highlightEmbedUrl,
     thumbnailUrl,
     galleryUrl: event.galleryUrl || "",
     highlightStatus: status,
@@ -254,7 +279,33 @@ export async function listAdminEventHighlights({ search = "", status = "", year 
     items = items.filter((item) => item.category.toLowerCase().includes(cat));
   }
 
-  return sortHighlights(items);
+  const sorted = sortHighlights(items);
+  const metrics = await EventHighlightMetric.find({
+    eventId: { $in: sorted.map((item) => item.eventId) },
+  }).lean();
+  const metricByEventId = new Map(metrics.map((m) => [String(m.eventId), m]));
+  return sorted.map((item) => {
+    const metric = metricByEventId.get(String(item.eventId));
+    return {
+      ...item,
+      analytics: metric
+        ? {
+            highlightViews: metric.highlightViews || 0,
+            modalOpens: metric.modalOpens || 0,
+            videoPlays: metric.videoPlays || 0,
+            completionRate:
+              metric.completionEvents > 0
+                ? Math.round((metric.completionRateTotal / metric.completionEvents) * 100) / 100
+                : 0,
+          }
+        : {
+            highlightViews: 0,
+            modalOpens: 0,
+            videoPlays: 0,
+            completionRate: 0,
+          },
+    };
+  });
 }
 
 export async function getEventHighlightById(eventId) {
@@ -300,25 +351,28 @@ export async function patchEventHighlight(eventId, payload = {}) {
     throw err;
   }
 
-  if (payload.youtubeHighlightUrl !== undefined || payload.youtubeVideoId !== undefined) {
-    const raw = payload.youtubeHighlightUrl ?? payload.youtubeVideoId ?? "";
-    if (String(raw).trim()) {
-      const parsed = parseYoutubeHighlightUrl(raw);
-      event.youtubeHighlightUrl = parsed.youtubeHighlightUrl;
-      event.youtubeVideoId = parsed.youtubeVideoId;
-      event.youtubeEmbedUrl = parsed.youtubeEmbedUrl;
-      event.youtubeThumbnailUrl = parsed.youtubeThumbnailUrl;
-      if (payload.highlightStatus !== "Hidden") {
-        event.highlightStatus = "Video Available";
-      }
-    } else {
-      event.youtubeHighlightUrl = "";
-      event.youtubeVideoId = "";
-      event.youtubeEmbedUrl = "";
-      event.youtubeThumbnailUrl = "";
-      if (payload.highlightStatus !== "Hidden") {
-        event.highlightStatus = "Coming Soon";
-      }
+  if (
+    payload.youtubeHighlightUrl !== undefined ||
+    payload.youtubeVideoId !== undefined ||
+    payload.highlightVideoType !== undefined ||
+    payload.highlightVideoUrl !== undefined
+  ) {
+    const type = payload.highlightVideoType || event.highlightVideoType || "youtube_short";
+    const raw = payload.highlightVideoUrl ?? payload.youtubeHighlightUrl ?? payload.youtubeVideoId ?? "";
+    const resolved = resolveHighlightVideo(type, raw);
+    event.highlightVideoType = resolved.highlightVideoType;
+    event.highlightVideoUrl = resolved.highlightVideoUrl;
+    event.highlightEmbedUrl = resolved.highlightEmbedUrl;
+    event.youtubeHighlightUrl = resolved.youtubeHighlightUrl;
+    event.youtubeVideoId = resolved.youtubeVideoId;
+    event.youtubeEmbedUrl = resolved.youtubeEmbedUrl;
+    event.youtubeThumbnailUrl = resolved.youtubeThumbnailUrl;
+    if (payload.highlightStatus !== "Hidden") {
+      event.highlightStatus =
+        resolved.highlightEmbedUrl || resolved.youtubeVideoId ? "Video Available" : "Coming Soon";
+    }
+    if (!event.highlightThumbnailImageUrl && resolved.youtubeThumbnailUrl) {
+      event.highlightThumbnailImageUrl = resolved.youtubeThumbnailUrl;
     }
   }
 
@@ -346,6 +400,62 @@ export async function patchEventHighlight(eventId, payload = {}) {
 
 export function previewYoutubeUrl(url) {
   return parseYoutubeHighlightUrl(url);
+}
+
+export async function trackEventHighlightMetric(eventId, action, payload = {}) {
+  if (!eventId || !action) return { ok: true };
+  const inc = {};
+  if (action === "highlight_view") inc.highlightViews = 1;
+  if (action === "modal_open") inc.modalOpens = 1;
+  if (action === "video_play") inc.videoPlays = 1;
+  if (action === "completion_rate") {
+    inc.completionEvents = 1;
+    inc.completionRateTotal = Math.max(0, Math.min(100, Number(payload.completionRate) || 0));
+  }
+  await EventHighlightMetric.findOneAndUpdate(
+    { eventId },
+    { $inc: inc },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+  return { ok: true };
+}
+
+export async function getEventHighlightAnalyticsReport() {
+  const metrics = await EventHighlightMetric.find({}).lean();
+  const total = metrics.reduce(
+    (acc, m) => {
+      acc.highlightViews += m.highlightViews || 0;
+      acc.modalOpens += m.modalOpens || 0;
+      acc.videoPlays += m.videoPlays || 0;
+      acc.completionEvents += m.completionEvents || 0;
+      acc.completionRateTotal += m.completionRateTotal || 0;
+      return acc;
+    },
+    { highlightViews: 0, modalOpens: 0, videoPlays: 0, completionEvents: 0, completionRateTotal: 0 }
+  );
+  const mostViewed = [...metrics]
+    .sort((a, b) => (b.highlightViews || 0) - (a.highlightViews || 0))
+    .slice(0, 10)
+    .map((m) => ({
+      eventId: String(m.eventId),
+      highlightViews: m.highlightViews || 0,
+      modalOpens: m.modalOpens || 0,
+      videoPlays: m.videoPlays || 0,
+      completionRate:
+        (m.completionEvents || 0) > 0
+          ? Math.round(((m.completionRateTotal || 0) / m.completionEvents) * 100) / 100
+          : 0,
+    }));
+  return {
+    totals: {
+      ...total,
+      completionRate:
+        total.completionEvents > 0
+          ? Math.round((total.completionRateTotal / total.completionEvents) * 100) / 100
+          : 0,
+    },
+    mostViewed,
+  };
 }
 
 export { HIGHLIGHT_FIELDS, DEFAULT_IMPACT_TEXT };

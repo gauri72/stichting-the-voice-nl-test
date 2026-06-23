@@ -80,6 +80,19 @@ import AdminSessionCalendarPage from "./components/admin/AdminSessionCalendarPag
 import AdminSessionBookingsPage from "./components/admin/AdminSessionBookingsPage.jsx";
 import AdminResourcesPage from "./components/admin/AdminResourcesPage.jsx";
 import AdminRsvpsPage from "./components/admin/AdminRsvpsPage.jsx";
+import AdminCheckoutFormsPage from "./components/admin/AdminCheckoutFormsPage.jsx";
+import AdminReviewsPage from "./components/admin/AdminReviewsPage.jsx";
+import AdminTeamMembersPage from "./components/admin/AdminTeamMembersPage.jsx";
+import AdminApiBuilderPage from "./components/admin/AdminApiBuilderPage.jsx";
+import AdminApiBuilderLogsPage from "./components/admin/AdminApiBuilderLogsPage.jsx";
+import AccessManagementLayout from "./components/admin/access/AccessManagementLayout.jsx";
+import AccessTeamMembersPage from "./components/admin/access/AccessTeamMembersPage.jsx";
+import AccessRolesPage from "./components/admin/access/AccessRolesPage.jsx";
+import AccessPermissionsPage from "./components/admin/access/AccessPermissionsPage.jsx";
+import AccessInvitationsPage from "./components/admin/access/AccessInvitationsPage.jsx";
+import AccessAuditLogsPage from "./components/admin/access/AccessAuditLogsPage.jsx";
+import AccessSettingsPage from "./components/admin/access/AccessSettingsPage.jsx";
+import AdminAcceptInvitePage from "./components/admin/AdminAcceptInvitePage.jsx";
 import AdminSectionPlaceholder from "./components/admin/AdminSectionPlaceholder";
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
 import ManifestRouter from "./components/pwa/ManifestRouter.jsx";
@@ -168,6 +181,7 @@ export default function App() {
           <Route path="/register" element={<AuthAliasRedirect />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin/accept-invite" element={<AdminAcceptInvitePage />} />
           <Route
             path="/admin/dashboard"
             element={
@@ -322,6 +336,70 @@ export default function App() {
               </AdminProtectedRoute>
             }
           />
+          <Route
+            path="/admin/checkout-forms"
+            element={
+              <AdminProtectedRoute>
+                <AdminCheckoutFormsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/checkout-forms/responses"
+            element={
+              <AdminProtectedRoute>
+                <AdminCheckoutFormsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reviews"
+            element={
+              <AdminProtectedRoute>
+                <AdminReviewsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/team-members"
+            element={
+              <AdminProtectedRoute>
+                <AdminTeamMembersPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/api-builder"
+            element={
+              <AdminProtectedRoute>
+                <AdminApiBuilderPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/api-builder/logs"
+            element={
+              <AdminProtectedRoute>
+                <AdminApiBuilderLogsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/access-management"
+            element={
+              <AdminProtectedRoute permission="access_management.view">
+                <AccessManagementLayout />
+              </AdminProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="team" replace />} />
+            <Route path="team" element={<AccessTeamMembersPage />} />
+            <Route path="roles" element={<AccessRolesPage />} />
+            <Route path="permissions" element={<AccessPermissionsPage />} />
+            <Route path="invitations" element={<AccessInvitationsPage />} />
+            <Route path="audit" element={<AccessAuditLogsPage />} />
+            <Route path="settings" element={<AccessSettingsPage />} />
+          </Route>
           <Route
             path="/admin/tickets"
             element={

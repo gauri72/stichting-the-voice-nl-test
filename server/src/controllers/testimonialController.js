@@ -1,88 +1,111 @@
-import mongoose from "mongoose";
-import EventTestimonial from "../models/EventTestimonial.js";
+import {
+  listPublicReviews,
+  createPublicReview,
+  listAdminReviews,
+  getAdminReviewById,
+  updateAdminReview,
+  approveReview,
+  rejectReview,
+  hideReview,
+  featureReview,
+  deleteAdminReview,
+} from "../services/testimonialService.js";
 
-function isDbReady() {
-  return mongoose.connection.readyState === 1;
+function handleError(res, error) {
+  const status = error.status || 500;
+  if (status >= 500) console.error("[reviews]", error);
+  return res.status(status).json({ error: error.message || "Something went wrong." });
 }
 
-function trimField(value, maxLen) {
-  return String(value || "").trim().slice(0, maxLen);
-}
-
-function getInitials(name) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-  return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
-}
-
-function toPublicTestimonial(doc) {
-  return {
-    id: doc._id.toString(),
-    name: doc.name,
-    role: doc.role,
-    quote: doc.quote,
-    rating: doc.rating,
-    initials: doc.initials,
-    createdAt: doc.createdAt
-  };
-}
-
-export async function listTestimonials(_req, res) {
-  if (!isDbReady()) {
-    return res.status(503).json({ error: "Testimonials storage is unavailable." });
-  }
-
+export async function listTestimonials(req, res) {
   try {
-    const rows = await EventTestimonial.find({ approved: true })
-      .sort({ createdAt: -1 })
-      .limit(100)
-      .lean();
-
-    return res.status(200).json({
-      testimonials: rows.map(toPublicTestimonial)
-    });
+    const reviews = await listPublicReviews();
+    return res.status(200).json({ reviews, testimonials: reviews });
   } catch (error) {
-    console.error("[testimonials] List failed:", error.message);
-    return res.status(500).json({ error: "Could not load testimonials." });
+    return handleError(res, error);
   }
 }
 
 export async function createTestimonial(req, res) {
-  if (!isDbReady()) {
-    return res.status(503).json({ error: "Testimonials storage is unavailable." });
-  }
-
-  const name = trimField(req.body?.name, 120);
-  const quote = trimField(req.body?.quote ?? req.body?.testimonial, 2000);
-  const role = trimField(req.body?.role, 80) || "Community Member";
-  const rating = Number(req.body?.rating);
-
-  if (!name) {
-    return res.status(400).json({ error: "Please enter your name." });
-  }
-  if (!quote) {
-    return res.status(400).json({ error: "Please share your testimonial." });
-  }
-  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-    return res.status(400).json({ error: "Please select a star rating." });
-  }
-
   try {
-    const created = await EventTestimonial.create({
-      name,
-      role,
-      quote,
-      rating,
-      initials: getInitials(name),
-      approved: true
-    });
-
+    const result = await createPublicReview(req.body || {});
     return res.status(201).json({
-      testimonial: toPublicTestimonial(created)
+      ...result,
+      testimonial: result.review,
     });
   } catch (error) {
-    console.error("[testimonials] Create failed:", error.message);
-    return res.status(500).json({ error: "Could not save your review. Please try again." });
+    return handleError(res, error);
+  }
+}
+
+export async function listReviewsAdmin(req, res) {
+  try {
+    const reviews = await listAdminReviews(req.query || {});
+    return res.json({ reviews });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function getReviewAdmin(req, res) {
+  try {
+    const review = await getAdminReviewById(req.params.id);
+    return res.json({ review });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function patchReviewAdmin(req, res) {
+  try {
+    const review = await updateAdminReview(req.params.id, req.body || {});
+    return res.json({ review });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function approveReviewAdmin(req, res) {
+  try {
+    const review = await approveReview(req.params.id);
+    return res.json({ review });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function rejectReviewAdmin(req, res) {
+  try {
+    const review = await rejectReview(req.params.id);
+    return res.json({ review });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function hideReviewAdmin(req, res) {
+  try {
+    const review = await hideReview(req.params.id);
+    return res.json({ review });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function featureReviewAdmin(req, res) {
+  try {
+    const review = await featureReview(req.params.id, req.body?.featured !== false);
+    return res.json({ review });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function deleteReviewAdmin(req, res) {
+  try {
+    const result = await deleteAdminReview(req.params.id);
+    return res.json(result);
+  } catch (error) {
+    return handleError(res, error);
   }
 }

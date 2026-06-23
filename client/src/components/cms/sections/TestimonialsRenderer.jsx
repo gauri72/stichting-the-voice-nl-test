@@ -1,6 +1,5 @@
-import EventsTestimonialsSection from "../../events/EventsTestimonialsSection.jsx";
+import CommunityReviewsSlider from "../../events/CommunityReviewsSlider.jsx";
 
-export default function TestimonialsRenderer({ section }) {
-  const variant = section.content?.variant || "community";
-  return <EventsTestimonialsSection variant={variant} />;
+export default function TestimonialsRenderer() {
+  return <CommunityReviewsSlider />;
 }
