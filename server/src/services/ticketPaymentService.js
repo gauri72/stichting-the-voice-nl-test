@@ -70,7 +70,7 @@ export async function confirmTicketPayment(paymentIntentId) {
       return { success: true, mode: "stripe", intent };
     }
     if (intent.status === "processing") {
-      return { success: true, mode: "stripe", intent };
+      return { success: false, error: "Payment is still processing. Please wait a moment and try again." };
     }
     if (intent.status === "requires_payment_method") {
       return { success: false, error: "Payment was not completed." };

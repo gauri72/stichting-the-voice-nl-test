@@ -3,6 +3,7 @@ import CustomerDashboardConfig from "../models/CustomerDashboardConfig.js";
 import { CUSTOMER_DASHBOARD_AUDIT } from "../config/customerDashboardConfig.js";
 import { logAdminAction } from "./adminAuditService.js";
 import { createCustomerDashboardVersion } from "./customerDashboardVersionService.js";
+import { sanitizeHtml } from "./cmsValidationService.js";
 
 function throwError(message, status = 400) {
   const error = new Error(message);
@@ -86,6 +87,24 @@ function normalizeOrders(sections = []) {
   return sortSections(sections).map((s, i) => ({ ...s, order: i }));
 }
 
+function sanitizeCustomerDashboardSection(section) {
+  if (!section || typeof section !== "object") return section;
+  const copy = { ...section };
+  if (copy.sectionType === "custom_rich_text") {
+    if (copy.settings?.richText) {
+      copy.settings = { ...copy.settings, richText: sanitizeHtml(copy.settings.richText) };
+    }
+    if (copy.description) {
+      copy.description = sanitizeHtml(copy.description);
+    }
+  }
+  return copy;
+}
+
+function sanitizeCustomerDashboardSections(sections = []) {
+  return sections.map(sanitizeCustomerDashboardSection);
+}
+
 export async function getBuilderState(version = "draft") {
   const doc = await ensureConfigDoc();
   const isPublished = version === "published";
@@ -114,7 +133,7 @@ export async function getPublishedConfig() {
 export async function saveDraft({ settings, sections, changeNote }, adminId) {
   const doc = await ensureConfigDoc();
   if (settings) doc.draftSettings = { ...doc.draftSettings?.toObject?.() || doc.draftSettings || {}, ...settings };
-  if (sections) doc.draftSections = normalizeOrders(sections);
+  if (sections) doc.draftSections = normalizeOrders(sanitizeCustomerDashboardSections(sections));
   doc.status = "draft";
   doc.updatedBy = adminId;
   await doc.save();
@@ -159,7 +178,7 @@ export async function publishDashboard(adminId, changeNote = "") {
 export async function addSection(payload, adminId) {
   const doc = await ensureConfigDoc();
   const maxOrder = Math.max(-1, ...(doc.draftSections || []).map((s) => s.order ?? 0));
-  const section = {
+  const section = sanitizeCustomerDashboardSection({
     sectionId: generateSectionId(),
     sectionType: payload.sectionType,
     title: payload.title || payload.sectionType,
@@ -174,7 +193,7 @@ export async function addSection(payload, adminId) {
     order: maxOrder + 1,
     isVisible: true,
     isCustom: true,
-  };
+  });
   doc.draftSections.push(section);
   doc.updatedBy = adminId;
   await doc.save();
@@ -194,7 +213,11 @@ export async function updateSection(sectionId, payload, adminId) {
   const doc = await ensureConfigDoc();
   const idx = (doc.draftSections || []).findIndex((s) => s.sectionId === sectionId);
   if (idx === -1) throwError("Section not found.", 404);
-  doc.draftSections[idx] = { ...doc.draftSections[idx].toObject?.() || doc.draftSections[idx], ...payload, sectionId };
+  doc.draftSections[idx] = sanitizeCustomerDashboardSection({
+    ...doc.draftSections[idx].toObject?.() || doc.draftSections[idx],
+    ...payload,
+    sectionId,
+  });
   doc.updatedBy = adminId;
   await doc.save();
 
@@ -285,7 +308,7 @@ export async function restoreVersion(versionId, adminId) {
   const version = await getCustomerDashboardVersion(versionId);
   const doc = await ensureConfigDoc();
   const snapshot = version.snapshot || {};
-  if (snapshot.draftSections) doc.draftSections = normalizeOrders(snapshot.draftSections);
+  if (snapshot.draftSections) doc.draftSections = normalizeOrders(sanitizeCustomerDashboardSections(snapshot.draftSections));
   if (snapshot.draftSettings) doc.draftSettings = snapshot.draftSettings;
   doc.updatedBy = adminId;
   await doc.save();

@@ -42,7 +42,11 @@ function TicketCard({ ticket, eventTitle, orderNumber }) {
   const qrSvg = ticket.verificationToken
     ? `/api/tickets/qr/${ticket.verificationToken}.svg`
     : null;
-  const pdfUrl = ticket.pdfUrl || `/api/tickets/${ticket.ticketNumber}/pdf`;
+  const pdfUrl =
+    ticket.pdfUrl ||
+    (ticket.ticketNumber && ticket.verificationToken
+      ? `/api/tickets/${ticket.ticketNumber}/pdf?token=${encodeURIComponent(ticket.verificationToken)}`
+      : "");
   const baseName = `${slugifyFilename(eventTitle)}-${ticket.ticketNumber}`;
 
   const statusLabel =

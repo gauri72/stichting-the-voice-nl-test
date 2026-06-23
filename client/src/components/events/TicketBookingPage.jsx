@@ -406,9 +406,11 @@ export default function TicketBookingPage() {
   }, [event?.id, event?.category, selectedItems, ticketQty]);
 
   const goToConfirmation = useCallback(
-    (orderNumber) => {
+    (orderNumber, email = "") => {
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
-      navigate(`/events/${eventIdOrSlug}/tickets/confirmation/${orderNumber}`);
+      const normalizedEmail = String(email || "").trim();
+      const query = normalizedEmail ? `?email=${encodeURIComponent(normalizedEmail)}` : "";
+      navigate(`/events/${eventIdOrSlug}/tickets/confirmation/${orderNumber}${query}`);
     },
     [eventIdOrSlug, navigate]
   );
@@ -428,7 +430,7 @@ export default function TicketBookingPage() {
             headers: authHeaders(),
             body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
           });
-          goToConfirmation(confirmed.order.orderNumber);
+          goToConfirmation(confirmed.order.orderNumber, attendee.email);
           return;
         }
 
@@ -437,12 +439,12 @@ export default function TicketBookingPage() {
           headers: authHeaders(),
           body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
         });
-        goToConfirmation(confirmed.order.orderNumber);
+        goToConfirmation(confirmed.order.orderNumber, attendee.email);
       } catch (err) {
         setError(err.message || "Could not confirm your booking.");
       }
     },
-    [goToConfirmation, resolveOrderId]
+    [attendee.email, goToConfirmation, resolveOrderId]
   );
 
   useEffect(() => {
@@ -620,7 +622,7 @@ export default function TicketBookingPage() {
         }),
       });
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
-      goToConfirmation(result.order.orderNumber);
+      goToConfirmation(result.order.orderNumber, attendee.email);
     } catch (err) {
       setError(err.message || "We could not complete your free booking. Please try again.");
     } finally {

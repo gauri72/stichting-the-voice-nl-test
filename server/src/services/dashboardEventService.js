@@ -7,6 +7,7 @@ import { formatEvent } from "./eventService.js";
 import { formatOrder, formatTicket } from "./ticketOrderService.js";
 import { getAutomaticMemberDiscount, getActiveMembership } from "./discountService.js";
 import { resolvePlanId } from "../config/membershipPlans.js";
+import { buildTicketPdfUrl } from "../utils/ticketPdfAccess.js";
 
 const UPCOMING_WINDOW_DAYS = 60;
 
@@ -273,7 +274,7 @@ export async function getDashboardEventsForUser(userId) {
         ticketCount: tickets.filter((t) => t.status !== "cancelled").length,
         ticketNumber: primaryTicket?.ticketNumber || null,
         pdfUrl: primaryTicket?.ticketNumber
-          ? `/api/tickets/${primaryTicket.ticketNumber}/pdf`
+          ? buildTicketPdfUrl(primaryTicket.ticketNumber, primaryTicket.verificationToken)
           : null,
         bookingUrl: `/events/${event.slug || eventId}/tickets`,
         ticketsUrl: `/dashboard/events/${eventId}/tickets`,

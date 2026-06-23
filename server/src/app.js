@@ -10,6 +10,7 @@ import { stripeWebhook } from "./controllers/paymentController.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const walletAssetsDir = path.join(__dirname, "assets", "wallet");
+const publicUploadsDir = path.join(process.cwd(), "public", "uploads");
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/assets/wallet", express.static(walletAssetsDir, { maxAge: "7d" }));
+app.use("/uploads", express.static(publicUploadsDir, { maxAge: "1h" }));
 
 app.use("/api", apiRoutes);
 

@@ -1,6 +1,7 @@
 import dns from "node:dns";
 import app from "./app.js";
 import env from "./config/env.js";
+import { validateProductionEnv } from "./config/validateProductionEnv.js";
 import { connectDb } from "./db/connectDb.js";
 import { ensureIndexes } from "./db/ensureIndexes.js";
 import { logStripeConfiguration, loadStripeSecretsFromSettings } from "./services/stripe.js";
@@ -26,6 +27,7 @@ if (env.dnsServers.length || env.nodeEnv !== "production") {
 const shouldConnectDb = Boolean(process.env.MONGODB_URI?.trim());
 
 function startServer() {
+  validateProductionEnv();
   logStripeConfiguration();
   logTicketTailorConfiguration();
   logMailConfiguration();

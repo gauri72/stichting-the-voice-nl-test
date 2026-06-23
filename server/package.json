@@ -12,7 +12,9 @@
     "fix:legacy-users": "node scripts/fix-legacy-users.js",
     "seed:admin": "node scripts/seed-admin.js",
     "seed:featured-herbeats": "node scripts/seed-featured-herbeats.js",
-    "seed:cms": "node scripts/seed-cms-pages.js"
+    "seed:cms": "node scripts/seed-cms-pages.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -29,9 +31,11 @@
     "passkit-generator": "^3.5.7",
     "pdfkit": "^0.18.0",
     "qrcode": "^1.5.4",
+    "sanitize-html": "^2.17.5",
     "stripe": "^22.1.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "vitest": "^3.0.5"
   }
 }

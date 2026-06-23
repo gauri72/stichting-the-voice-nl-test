@@ -66,6 +66,16 @@ import ApiWebhookEvent from "../models/ApiWebhookEvent.js";
 import Role from "../models/Role.js";
 import Permission from "../models/Permission.js";
 import AdminInvitation from "../models/AdminInvitation.js";
+import EventInventoryItem from "../models/EventInventoryItem.js";
+import GlobalInventoryItem from "../models/GlobalInventoryItem.js";
+import TechnicalRiderItem from "../models/TechnicalRiderItem.js";
+import StagePlan from "../models/StagePlan.js";
+import StagePlanElement from "../models/StagePlanElement.js";
+import EventDocument from "../models/EventDocument.js";
+import DocumentVersion from "../models/DocumentVersion.js";
+import EventChecklistItem from "../models/EventChecklistItem.js";
+import EventVendor from "../models/EventVendor.js";
+import StripeWebhookEvent from "../models/StripeWebhookEvent.js";
 
 /**
  * Every model maps to exactly one explicitly-named collection in the active
@@ -143,6 +153,16 @@ const MODELS = [
   ["admin_roles", Role],
   ["admin_permissions", Permission],
   ["admin_invitations", AdminInvitation],
+  ["event_inventory_items", EventInventoryItem],
+  ["global_inventory_items", GlobalInventoryItem],
+  ["technical_rider_items", TechnicalRiderItem],
+  ["stage_plans", StagePlan],
+  ["stage_plan_elements", StagePlanElement],
+  ["event_documents", EventDocument],
+  ["document_versions", DocumentVersion],
+  ["event_checklist_items", EventChecklistItem],
+  ["event_vendors", EventVendor],
+  ["stripe_webhook_events", StripeWebhookEvent],
 ];
 
 export async function ensureIndexes() {

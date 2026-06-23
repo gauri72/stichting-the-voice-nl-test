@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { adminLogin, adminMe, requireAdmin } from "../controllers/adminController.js";
+import { adminLoginRateLimit } from "../middleware/authRateLimitMiddleware.js";
 import { requireCaptcha } from "../middleware/captchaMiddleware.js";
 import adminBroadcastRoutes from "./adminBroadcastRoutes.js";
 import adminDiscountRoutes from "./adminDiscountRoutes.js";
@@ -23,11 +24,13 @@ import adminReviewRoutes from "./adminReviewRoutes.js";
 import adminTeamMemberRoutes from "./adminTeamMemberRoutes.js";
 import adminApiBuilderRoutes from "./adminApiBuilderRoutes.js";
 import adminAccessRoutes from "./adminAccessRoutes.js";
+import adminGlobalInventoryRoutes from "./adminGlobalInventoryRoutes.js";
+import adminGlobalDocumentsRoutes from "./adminGlobalDocumentsRoutes.js";
 import { syncTicketTailor } from "../controllers/adminMembershipController.js";
 
 const router = Router();
 
-router.post("/login", requireCaptcha(), adminLogin);
+router.post("/login", adminLoginRateLimit(), requireCaptcha(), adminLogin);
 router.get("/me", requireAdmin, adminMe);
 router.use("/dashboard", requireAdmin, adminDashboardRoutes);
 router.use("/broadcasts", adminBroadcastRoutes);
@@ -43,6 +46,8 @@ router.use("/reviews", adminReviewRoutes);
 router.use("/team-members", adminTeamMemberRoutes);
 router.use("/api-builder", adminApiBuilderRoutes);
 router.use("/access", adminAccessRoutes);
+router.use("/inventory", adminGlobalInventoryRoutes);
+router.use("/documents", adminGlobalDocumentsRoutes);
 router.post("/tickettailor/sync", requireAdmin, syncTicketTailor);
 router.use("/memberships", requireAdmin, adminMembershipRoutes);
 router.use("/sponsorships", requireAdmin, adminSponsorshipRoutes);

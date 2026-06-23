@@ -388,10 +388,16 @@ export async function validateBundle({
   purchaseType,
   discountCode,
   applyMemberBenefit,
+  membershipCode = null,
 }) {
   const event = await getPublishedEventBySlugOrId(eventId);
   const membershipSettings = await getMembershipCheckoutSettings();
-  const detection = await detectMemberStatus({ userId, email, isLoggedIn: Boolean(isLoggedIn && userId) });
+  const detection = await detectMemberStatus({
+    userId,
+    email,
+    isLoggedIn: Boolean(isLoggedIn && userId),
+    membershipCode: membershipCode || null,
+  });
 
   if (includeMembership) {
     if (!event.checkoutSettings?.allowMembershipTicketBundle) {
@@ -425,22 +431,23 @@ export async function validateBundle({
       err.status = 400;
       throw err;
     }
-    if (
-      detection.isActive &&
-      purchaseType === "NEW" &&
-      !includeMembership
-    ) {
+    if (detection.isActive && purchaseType === "NEW") {
       const err = new Error("You already have an active membership.");
       err.status = 400;
       throw err;
     }
   }
 
+  const canApplyMemberBenefitWithoutLogin =
+    detection.source === MEMBERSHIP_SOURCE.TICKETTAILOR &&
+    membershipSettings.requireLoginForTicketTailorBenefits === false;
+
   if (
     detection.isActive &&
     !isLoggedIn &&
     applyMemberBenefit &&
-    !includeMembership
+    !includeMembership &&
+    !canApplyMemberBenefitWithoutLogin
   ) {
     const err = new Error(
       "Please log in to apply your member discount, or continue without member benefits."
@@ -484,6 +491,7 @@ export async function createBundleCheckout(eventId, payload, userId) {
     selectedSeatIds = [],
     checkoutFormAnswers = [],
     participantCount = null,
+    membershipCode = null,
   } = payload;
 
   const code = discountCode || voucherCode;
@@ -512,6 +520,7 @@ export async function createBundleCheckout(eventId, payload, userId) {
     purchaseType: includeMembership ? purchaseType : "NEW",
     discountCode: code,
     applyMemberBenefit,
+    membershipCode,
   });
 
   const totalTicketQty = (items || []).reduce((sum, li) => sum + (li.quantity || 0), 0);
@@ -565,6 +574,7 @@ export async function createBundleCheckout(eventId, payload, userId) {
     discountCode: code,
     applyMemberBenefit,
     sessionId,
+    membershipCode,
   });
 
   const orderNumber = await buildOrderNumber();
@@ -783,6 +793,7 @@ export async function completeFreeOrder(eventId, payload, userId) {
     selectedSeatIds = [],
     checkoutFormAnswers = [],
     participantCount = null,
+    membershipCode = null,
   } = payload;
 
   const code = discountCode || voucherCode;
@@ -819,6 +830,7 @@ export async function completeFreeOrder(eventId, payload, userId) {
     purchaseType: includeMembership ? purchaseType : "NEW",
     discountCode: code,
     applyMemberBenefit,
+    membershipCode,
   });
 
   const preview = await calculatePricePreview({
@@ -833,6 +845,7 @@ export async function completeFreeOrder(eventId, payload, userId) {
     discountCode: code,
     applyMemberBenefit,
     sessionId,
+    membershipCode,
   });
 
   if (preview.combined.grandTotalMinor > 0) {

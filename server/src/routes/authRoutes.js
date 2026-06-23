@@ -13,16 +13,18 @@ import {
   requireAuth
 } from "../controllers/authController.js";
 import { requireCaptcha } from "../middleware/captchaMiddleware.js";
+import { authRateLimit } from "../middleware/authRateLimitMiddleware.js";
 
 const router = Router();
+const limit = authRateLimit();
 
-router.post("/register", requireCaptcha(), register);
-router.post("/verify-otp", requireCaptcha(), verifyOtp);
-router.post("/resend-otp", requireCaptcha(), resendOtp);
-router.post("/login", requireCaptcha(), login);
-router.post("/google", requireCaptcha(), googleAuth);
-router.post("/forgot-password", requireCaptcha(), forgotPassword);
-router.post("/reset-password", requireCaptcha(), resetPasswordHandler);
+router.post("/register", limit, requireCaptcha(), register);
+router.post("/verify-otp", limit, requireCaptcha(), verifyOtp);
+router.post("/resend-otp", limit, requireCaptcha(), resendOtp);
+router.post("/login", limit, requireCaptcha(), login);
+router.post("/google", limit, requireCaptcha(), googleAuth);
+router.post("/forgot-password", limit, requireCaptcha(), forgotPassword);
+router.post("/reset-password", limit, requireCaptcha(), resetPasswordHandler);
 router.get("/me", requireAuth, me);
 router.patch("/me", requireAuth, updateProfile);
 router.patch("/password", requireAuth, changePasswordHandler);

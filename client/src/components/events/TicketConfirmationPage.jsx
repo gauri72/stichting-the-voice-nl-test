@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { IconCheck, IconDownload } from "@tabler/icons-react";
 import { apiFetch, authHeaders, apiUrl } from "../../utils/api.js";
 import { resolveTicketQrSrc } from "../dashboard/dashboardUtils.js";
@@ -7,20 +7,23 @@ import "../../styles/ticket-booking-page.css";
 
 export default function TicketConfirmationPage() {
   const { orderNumber } = useParams();
+  const [searchParams] = useSearchParams();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     async function load() {
       try {
-        const result = await apiFetch(`/api/events/orders/${orderNumber}`, { headers: authHeaders() });
+        const email = searchParams.get("email") || "";
+        const query = email ? `?email=${encodeURIComponent(email)}` : "";
+        const result = await apiFetch(`/api/events/orders/${orderNumber}${query}`, { headers: authHeaders() });
         setData(result);
       } catch (err) {
         setError(err.message || "Could not load order.");
       }
     }
     load();
-  }, [orderNumber]);
+  }, [orderNumber, searchParams]);
 
   if (error) {
     return (
@@ -73,7 +76,17 @@ export default function TicketConfirmationPage() {
               {qrSrc ? (
                 <img src={apiUrl(qrSrc)} alt="QR code" width={100} height={100} />
               ) : null}
-              <a href={apiUrl(t.pdfUrl || `/api/tickets/${t.ticketNumber}/pdf`)} className="ticket-booking__pdf-btn" target="_blank" rel="noreferrer">
+              <a
+                href={apiUrl(
+                  t.pdfUrl ||
+                    (t.ticketNumber && t.verificationToken
+                      ? `/api/tickets/${t.ticketNumber}/pdf?token=${encodeURIComponent(t.verificationToken)}`
+                      : "")
+                )}
+                className="ticket-booking__pdf-btn"
+                target="_blank"
+                rel="noreferrer"
+              >
                 <IconDownload size={16} /> PDF
               </a>
             </li>

@@ -49,6 +49,7 @@ import {
   changeTicketSeat,
   releaseTicketSeat,
 } from "../controllers/seatMapAdminController.js";
+import adminEventOperationsRoutes from "./adminEventOperationsRoutes.js";
 
 const router = Router();
 
@@ -89,6 +90,8 @@ router.post("/:eventId/seats/bulk-create", bulkCreateSeats);
 router.post("/:eventId/seats/reposition", repositionSeats);
 router.post("/:eventId/seats/block", blockSeats);
 router.post("/:eventId/seats/unblock", unblockSeats);
+
+router.use("/:eventId", adminEventOperationsRoutes);
 
 router.get("/:id", getEvent);
 router.get("/:id/highlight", getHighlightAdmin);

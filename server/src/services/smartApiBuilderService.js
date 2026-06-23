@@ -606,9 +606,14 @@ export async function handleIncomingWebhook(integrationKey, req) {
 
   const rawBody = typeof req.body === "string" ? req.body : JSON.stringify(req.body || {});
   const signature = req.headers["x-webhook-signature"] || req.headers["x-signature"] || "";
-  let signatureValid = true;
+  let signatureValid = false;
 
-  if (integration.webhookSecret) {
+  if (!integration.webhookSecret) {
+    if (process.env.NODE_ENV === "production") {
+      throwStatus("Webhook secret is required for active integrations in production.", 401);
+    }
+    signatureValid = true;
+  } else {
     const secret = decryptSecret(integration.webhookSecret);
     const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
     signatureValid = signature === expected || signature === `sha256=${expected}`;

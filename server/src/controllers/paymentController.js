@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import env from "../config/env.js";
 import { getDonationTier } from "../config/donationTiers.js";
 import { getPlan } from "../config/membershipPlans.js";
@@ -107,14 +106,9 @@ async function handleSucceededPayment(intent) {
 
   if (meta.payment_kind === "event_ticket" || meta.payment_kind === "ticket_and_membership") {
     const orderId = meta.order_id;
-    if (orderId) {
-      try {
-        const { fulfillOrder } = await import("../services/postPaymentFulfillmentService.js");
-        await fulfillOrder(orderId, intent.id);
-      } catch (error) {
-        console.error("[payments] Ticket bundle fulfillment failed:", error.message);
-      }
-    }
+    if (!orderId) return;
+    const { fulfillOrder } = await import("../services/postPaymentFulfillmentService.js");
+    await fulfillOrder(orderId, intent.id);
     return;
   }
 
@@ -389,11 +383,20 @@ export async function stripeWebhook(req, res) {
 
   const stripe = getStripe();
   const signature = req.headers["stripe-signature"];
+  const webhookSecret = getActiveWebhookSecret();
+
+  if (!webhookSecret) {
+    if (env.nodeEnv === "production") {
+      console.error("[payments] STRIPE_WEBHOOK_SECRET is required in production.");
+      return res.status(503).send("Webhook not configured.");
+    }
+    console.warn("[payments] Webhook signature verification skipped (dev only).");
+  }
 
   let event;
   try {
-    if (getActiveWebhookSecret()) {
-      event = stripe.webhooks.constructEvent(req.body, signature, getActiveWebhookSecret());
+    if (webhookSecret) {
+      event = stripe.webhooks.constructEvent(req.body, signature, webhookSecret);
     } else {
       event = JSON.parse(req.body.toString());
     }
@@ -402,13 +405,23 @@ export async function stripeWebhook(req, res) {
     return res.status(400).send(`Webhook Error: ${error.message}`);
   }
 
+  try {
+    const StripeWebhookEvent = (await import("../models/StripeWebhookEvent.js")).default;
+    const existing = await StripeWebhookEvent.findOne({ eventId: event.id }).lean();
+    if (existing?.processed) {
+      return res.json({ received: true, duplicate: true });
+    }
+  } catch (idempotencyErr) {
+    console.warn("[payments] Webhook idempotency check skipped:", idempotencyErr.message);
+  }
+
   if (event.type === "payment_intent.succeeded") {
     const baseIntent = event.data.object;
 
     let intent = baseIntent;
     try {
       intent = await stripe.paymentIntents.retrieve(baseIntent.id, {
-        expand: ["payment_method", "latest_charge"]
+        expand: ["payment_method", "latest_charge"],
       });
     } catch (err) {
       console.warn(
@@ -417,7 +430,44 @@ export async function stripeWebhook(req, res) {
       );
     }
 
-    await handleSucceededPayment(intent);
+    try {
+      await handleSucceededPayment(intent);
+      try {
+        const StripeWebhookEvent = (await import("../models/StripeWebhookEvent.js")).default;
+        await StripeWebhookEvent.findOneAndUpdate(
+          { eventId: event.id },
+          {
+            eventId: event.id,
+            eventType: event.type,
+            paymentIntentId: intent.id,
+            processed: true,
+            error: "",
+          },
+          { upsert: true }
+        );
+      } catch {
+        /* non-blocking */
+      }
+    } catch (fulfillmentError) {
+      console.error("[payments] Webhook fulfillment failed:", fulfillmentError.message);
+      try {
+        const StripeWebhookEvent = (await import("../models/StripeWebhookEvent.js")).default;
+        await StripeWebhookEvent.findOneAndUpdate(
+          { eventId: event.id },
+          {
+            eventId: event.id,
+            eventType: event.type,
+            paymentIntentId: intent.id,
+            processed: false,
+            error: fulfillmentError.message,
+          },
+          { upsert: true }
+        );
+      } catch {
+        /* non-blocking */
+      }
+      return res.status(500).json({ error: "Fulfillment failed." });
+    }
   }
 
   return res.json({ received: true });

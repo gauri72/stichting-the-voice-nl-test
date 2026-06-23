@@ -67,3 +67,20 @@ body {
   min-height: 260px;
   box-shadow: 0 8px 30px var(--color-shadow);
 }
+
+.route-error-boundary {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  max-width: 32rem;
+  margin: 2rem auto;
+}
+
+.route-error-boundary h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.route-error-boundary p {
+  margin: 0 0 1.25rem;
+  opacity: 0.85;
+}

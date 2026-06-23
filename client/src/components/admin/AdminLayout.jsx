@@ -29,10 +29,13 @@ import {
   IconMessage,
   IconApi,
   IconShieldLock,
+  IconPackage,
+  IconFiles,
 } from "@tabler/icons-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
 import { canAccessRoute } from "../../utils/rbacAdmin.js";
 import ThemeToggle from "../layout/ThemeToggle.jsx";
+import RouteErrorBoundary from "../layout/RouteErrorBoundary.jsx";
 import "../../styles/admin-layout.css";
 import "../../styles/admin-mobile.css";
 
@@ -41,6 +44,15 @@ const NAV_ITEMS = [
   { to: "/admin/dashboard-builder", label: "Dashboard Builder", icon: IconLayoutGrid },
   { to: "/admin/customer-dashboard-builder", label: "Customer Dashboard Builder", icon: IconUsersGroup },
   { to: "/admin/events", label: "Events", icon: IconTicket },
+  {
+    label: "Inventory & Documents",
+    icon: IconPackage,
+    basePath: "/admin/inventory",
+    children: [
+      { to: "/admin/inventory", label: "Inventory Library", icon: IconPackage },
+      { to: "/admin/documents", label: "Document Library", icon: IconFiles },
+    ],
+  },
   { to: "/admin/sessions", label: "Sessions", icon: IconCalendarEvent },
   { to: "/admin/session-calendar", label: "Session Calendar", icon: IconCalendarEvent },
   { to: "/admin/session-bookings", label: "Session Bookings", icon: IconCalendarEvent },
@@ -103,6 +115,9 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [financeOpen, setFinanceOpen] = useState(() => location.pathname.startsWith("/admin/finance"));
+  const [inventoryOpen, setInventoryOpen] = useState(
+    () => location.pathname.startsWith("/admin/inventory") || location.pathname.startsWith("/admin/documents")
+  );
 
   function closeDrawer() {
     setDrawerOpen(false);
@@ -128,20 +143,25 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
 
   function renderNavItem(item, onClick) {
     if (item.children) {
-      const isGroupActive = location.pathname.startsWith(item.basePath);
+      const isInventoryGroup = item.basePath === "/admin/inventory";
+      const isGroupActive = isInventoryGroup
+        ? location.pathname.startsWith("/admin/inventory") || location.pathname.startsWith("/admin/documents")
+        : location.pathname.startsWith(item.basePath);
+      const isOpen = isInventoryGroup ? inventoryOpen : financeOpen;
+      const toggleOpen = isInventoryGroup ? setInventoryOpen : setFinanceOpen;
       return (
         <div key={item.label} className="admin-layout__nav-group">
           <button
             type="button"
             className={`admin-layout__nav-item admin-layout__nav-group-btn${isGroupActive ? " admin-layout__nav-item--active" : ""}`}
-            onClick={() => setFinanceOpen((o) => !o)}
-            aria-expanded={financeOpen}
+            onClick={() => toggleOpen((o) => !o)}
+            aria-expanded={isOpen}
           >
             <item.icon size={20} stroke={1.7} aria-hidden />
             <span>{item.label}</span>
-            <IconChevronDown size={14} className={`admin-layout__nav-chevron${financeOpen ? " admin-layout__nav-chevron--open" : ""}`} />
+            <IconChevronDown size={14} className={`admin-layout__nav-chevron${isOpen ? " admin-layout__nav-chevron--open" : ""}`} />
           </button>
-          {financeOpen ? (
+          {isOpen ? (
             <div className="admin-layout__nav-sub">
               {item.children.map((child) => (
                 <NavLink
@@ -265,7 +285,9 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
             </div>
           </div>
         ) : null}
-        {children}
+        <RouteErrorBoundary name="admin" title="Admin section error">
+          {children}
+        </RouteErrorBoundary>
       </main>
 
       {!hideBottomNav ? (

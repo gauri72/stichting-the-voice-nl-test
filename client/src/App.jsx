@@ -70,6 +70,7 @@ import AdminSettingsAuditPage from "./components/admin/settings/AdminSettingsAud
 import PreviewPage from "./components/preview/PreviewPage.jsx";
 import VerifyMembershipPage from "./components/membership/VerifyMembershipPage.jsx";
 import TicketBookingPage from "./components/events/TicketBookingPage.jsx";
+import RouteErrorBoundary from "./components/layout/RouteErrorBoundary.jsx";
 import TicketConfirmationPage from "./components/events/TicketConfirmationPage.jsx";
 import SessionsPage from "./components/sessions/SessionsPage.jsx";
 import SessionDetailPage from "./components/sessions/SessionDetailPage.jsx";
@@ -93,6 +94,14 @@ import AccessInvitationsPage from "./components/admin/access/AccessInvitationsPa
 import AccessAuditLogsPage from "./components/admin/access/AccessAuditLogsPage.jsx";
 import AccessSettingsPage from "./components/admin/access/AccessSettingsPage.jsx";
 import AdminAcceptInvitePage from "./components/admin/AdminAcceptInvitePage.jsx";
+import EventOperationsLayout from "./components/admin/operations/EventOperationsLayout.jsx";
+import EventOperationsOverviewPage from "./components/admin/operations/EventOperationsOverviewPage.jsx";
+import EventInventoryPage from "./components/admin/operations/EventInventoryPage.jsx";
+import EventTechnicalRiderPage from "./components/admin/operations/EventTechnicalRiderPage.jsx";
+import EventStagePlanPage from "./components/admin/operations/EventStagePlanPage.jsx";
+import EventDocumentsPage from "./components/admin/operations/EventDocumentsPage.jsx";
+import AdminGlobalInventoryPage from "./components/admin/operations/AdminGlobalInventoryPage.jsx";
+import AdminGlobalDocumentsPage from "./components/admin/operations/AdminGlobalDocumentsPage.jsx";
 import AdminSectionPlaceholder from "./components/admin/AdminSectionPlaceholder";
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
 import ManifestRouter from "./components/pwa/ManifestRouter.jsx";
@@ -153,7 +162,14 @@ export default function App() {
           <Route path="/about-us" element={<AboutUsPage />} />
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/events" element={<EventsPage />} />
-          <Route path="/events/:eventIdOrSlug/tickets" element={<TicketBookingPage />} />
+          <Route
+            path="/events/:eventIdOrSlug/tickets"
+            element={
+              <RouteErrorBoundary name="checkout" title="Checkout unavailable">
+                <TicketBookingPage />
+              </RouteErrorBoundary>
+            }
+          />
           <Route path="/events/:eventIdOrSlug/tickets/confirmation/:orderNumber" element={<TicketConfirmationPage />} />
           <Route path="/sessions" element={<SessionsPage />} />
           <Route path="/sessions/:slug" element={<SessionDetailPage />} />
@@ -285,6 +301,37 @@ export default function App() {
             element={
               <AdminProtectedRoute>
                 <AdminSeatMapEditor />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/events/:eventId"
+            element={
+              <AdminProtectedRoute>
+                <EventOperationsLayout />
+              </AdminProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="operations" replace />} />
+            <Route path="operations" element={<EventOperationsOverviewPage />} />
+            <Route path="inventory" element={<EventInventoryPage />} />
+            <Route path="technical-rider" element={<EventTechnicalRiderPage />} />
+            <Route path="stage-plan" element={<EventStagePlanPage />} />
+            <Route path="documents" element={<EventDocumentsPage />} />
+          </Route>
+          <Route
+            path="/admin/inventory"
+            element={
+              <AdminProtectedRoute permission="inventory.view">
+                <AdminGlobalInventoryPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/documents"
+            element={
+              <AdminProtectedRoute permission="documents.view">
+                <AdminGlobalDocumentsPage />
               </AdminProtectedRoute>
             }
           />

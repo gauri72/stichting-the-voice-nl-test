@@ -4,6 +4,7 @@ import TicketType from "../models/TicketType.js";
 import Event from "../models/Event.js";
 import { formatOrder, formatTicket } from "./ticketOrderService.js";
 import { isOrderPaymentSettled } from "../utils/orderPaymentUtils.js";
+import { verifyTicketPdfAccess } from "../utils/ticketPdfAccess.js";
 import { formatMoney } from "./ticketPricingService.js";
 import { sendTicketConfirmationEmail } from "./ticketMailer.js";
 
@@ -248,6 +249,18 @@ export async function getTicketPdfBuffer(ticketNumber) {
 
   const { generateTicketPdfFromDocs } = await import("./ticketPdfService.js");
   return generateTicketPdfFromDocs(ticket, order, event);
+}
+
+/** Public PDF download — requires matching verification token. */
+export async function getTicketPdfBufferPublic(ticketNumber, verificationToken) {
+  const ticket = await Ticket.findOne({ ticketNumber }).lean();
+  if (!ticket) {
+    const err = new Error("Ticket not found.");
+    err.status = 404;
+    throw err;
+  }
+  verifyTicketPdfAccess(ticket, verificationToken);
+  return getTicketPdfBuffer(ticketNumber);
 }
 
 export async function exportTicketsCsv(filters = {}) {

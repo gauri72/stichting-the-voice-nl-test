@@ -5,6 +5,7 @@ import Member from "../models/Member.js";
 import Membership from "../models/Membership.js";
 import User from "../models/User.js";
 import Ticket from "../models/Ticket.js";
+import TicketOrder from "../models/TicketOrder.js";
 import TicketType from "../models/TicketType.js";
 import Event from "../models/Event.js";
 import Voucher from "../models/Voucher.js";
@@ -27,6 +28,7 @@ import {
   isOrderPaymentSettled,
   freeOrderPaymentReference,
 } from "../utils/orderPaymentUtils.js";
+import { buildTicketPdfUrl } from "../utils/ticketPdfAccess.js";
 
 async function buildTicketNumber() {
   const seq = await getNextSequence("ticket");
@@ -194,14 +196,29 @@ export async function generateTicketsForOrder(order) {
   const seatMapId = seatMapDoc?.seatMapId || "";
 
   for (const line of order.lineItems) {
-    const tt = await TicketType.findById(line.ticketTypeId);
-    if (!tt) continue;
-
-    const available = tt.capacity - (tt.soldCount || 0);
-    if (available < line.quantity) {
-      const err = new Error(`Not enough tickets available for ${line.ticketTypeName}.`);
+    const reserved = await TicketType.findOneAndUpdate(
+      {
+        _id: line.ticketTypeId,
+        $expr: {
+          $lte: [
+            { $add: [{ $ifNull: ["$soldCount", 0] }, line.quantity] },
+            "$capacity",
+          ],
+        },
+      },
+      { $inc: { soldCount: line.quantity } },
+      { new: true }
+    );
+    if (!reserved) {
+      const tt = await TicketType.findById(line.ticketTypeId).lean();
+      const err = new Error(
+        `Not enough tickets available for ${line.ticketTypeName || tt?.name || "ticket type"}.`
+      );
       err.status = 400;
       throw err;
+    }
+    if (reserved.soldCount >= reserved.capacity && reserved.status !== "sold_out") {
+      await TicketType.updateOne({ _id: line.ticketTypeId }, { status: "sold_out" });
     }
 
     const lineSeatIds = line.seatIds?.length
@@ -230,7 +247,7 @@ export async function generateTicketsForOrder(order) {
         attendeeEmail: order.attendeeEmail,
         verificationToken,
         qrCodeUrl: buildTicketQrPath(verificationToken),
-        pdfUrl: `/api/tickets/${ticketNumber}/pdf`,
+        pdfUrl: buildTicketPdfUrl(ticketNumber, verificationToken),
         status: "valid",
         seatMapId: seatInfo ? seatMapId : "",
         seatId: seatInfo?.seatId || "",
@@ -252,9 +269,7 @@ export async function generateTicketsForOrder(order) {
       });
     }
 
-    tt.soldCount = (tt.soldCount || 0) + line.quantity;
-    if (tt.soldCount >= tt.capacity) tt.status = "sold_out";
-    await tt.save();
+    // soldCount incremented atomically above
   }
 
   return { tickets, event };
@@ -262,10 +277,20 @@ export async function generateTicketsForOrder(order) {
 
 export async function recordOrderDiscountUsage(order) {
   if (order.voucherCode) {
-    await Voucher.findOneAndUpdate(
-      { code: order.voucherCode.toUpperCase() },
+    const updated = await Voucher.findOneAndUpdate(
+      {
+        code: order.voucherCode.toUpperCase(),
+        $or: [
+          { usageLimit: null },
+          { usageLimit: 0 },
+          { $expr: { $lt: ["$usedCount", "$usageLimit"] } },
+        ],
+      },
       { $inc: { usedCount: 1 } }
     );
+    if (!updated) {
+      console.warn("[fulfillment] Voucher usage limit exceeded for order", order.orderNumber);
+    }
   }
 
   if (order.memberDiscountRuleId && order.membershipDiscountMinor > 0) {
@@ -422,8 +447,30 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
       err.status = 400;
       throw err;
     }
+
+    const intent = confirmed.intent;
+    if (intent) {
+      const intentOrderId = intent.metadata?.order_id;
+      if (intentOrderId && intentOrderId !== order._id.toString()) {
+        order.paymentStatus = "failed";
+        order.orderStatus = "PENDING";
+        await order.save();
+        const err = new Error("Payment does not match this order.");
+        err.status = 400;
+        throw err;
+      }
+      if (typeof intent.amount === "number" && intent.amount !== order.totalAmountMinor) {
+        order.paymentStatus = "failed";
+        order.orderStatus = "PENDING";
+        await order.save();
+        const err = new Error("Payment amount does not match order total.");
+        err.status = 400;
+        throw err;
+      }
+    }
   }
 
+  try {
   const { tickets, event } = await generateTicketsForOrder(order);
   await recordOrderDiscountUsage(order);
 
@@ -474,4 +521,20 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
     tickets: tickets.map(formatTicket),
     membership: membershipResult?.member || null,
   };
+  } catch (fulfillmentError) {
+    await TicketOrder.findByIdAndUpdate(orderId, {
+      $set: { paymentStatus: "failed", orderStatus: "PENDING" },
+    });
+    const seatIds = (order.selectedSeats || []).map((s) => s.seatId).filter(Boolean);
+    if (seatIds.length) {
+      try {
+        const { releaseSeatHolds } = await import("./seatService.js");
+        await releaseSeatHolds({ eventId: order.eventId, seatIds });
+      } catch {
+        /* best effort */
+      }
+    }
+    console.error("[fulfillment] Order fulfillment failed:", fulfillmentError.message);
+    throw fulfillmentError;
+  }
 }

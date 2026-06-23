@@ -8,6 +8,7 @@ import {
 } from "./ticketPricingService.js";
 import { sanitizeCustomerDiscountLabel } from "../utils/membershipDisplayLabels.js";
 import { confirmTicketPayment } from "./ticketPaymentService.js";
+import { buildTicketPdfUrl } from "../utils/ticketPdfAccess.js";
 
 export async function quoteOrder(eventId, { items, voucherCode, discountCode, userId, email }) {
   const event = await getPublishedEventBySlugOrId(eventId);
@@ -210,9 +211,7 @@ function normalizeTicketQrPath(qrCodeUrl, verificationToken) {
 export function formatTicket(ticket) {
   if (!ticket) return null;
   const verificationToken = ticket.verificationToken || "";
-  const pdfFallback = ticket.ticketNumber
-    ? `/api/tickets/${ticket.ticketNumber}/pdf`
-    : "";
+  const pdfFallback = buildTicketPdfUrl(ticket.ticketNumber, verificationToken);
   return {
     id: ticket._id?.toString() || ticket.id,
     ticketNumber: ticket.ticketNumber,
@@ -257,7 +256,7 @@ export async function getUserTickets(userId) {
   return tickets.map(formatTicket);
 }
 
-export async function getOrderForUser(orderNumber, userId) {
+export async function getOrderForUser(orderNumber, userId, requesterEmail = "") {
   const order = await TicketOrder.findOne({ orderNumber }).lean();
   if (!order) {
     const err = new Error("Order not found.");
@@ -268,6 +267,25 @@ export async function getOrderForUser(orderNumber, userId) {
     const err = new Error("Access denied.");
     err.status = 403;
     throw err;
+  }
+  if (order.userId && !userId) {
+    const err = new Error("Access denied.");
+    err.status = 403;
+    throw err;
+  }
+  if (!order.userId) {
+    const normalizedRequesterEmail = String(requesterEmail || "").trim().toLowerCase();
+    if (!normalizedRequesterEmail) {
+      const err = new Error("Email is required to view this order.");
+      err.status = 400;
+      throw err;
+    }
+    const normalizedAttendeeEmail = String(order.attendeeEmail || "").trim().toLowerCase();
+    if (normalizedRequesterEmail !== normalizedAttendeeEmail) {
+      const err = new Error("Access denied.");
+      err.status = 403;
+      throw err;
+    }
   }
   const tickets = await Ticket.find({ orderId: order._id }).lean();
   return { order: formatOrder(order), tickets: tickets.map(formatTicket) };

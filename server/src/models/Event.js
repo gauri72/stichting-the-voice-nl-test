@@ -106,6 +106,28 @@ const eventSchema = new mongoose.Schema(
     featuredHighlight: { type: Boolean, default: false, index: true },
     highlightPriority: { type: Number, default: 100, min: 0 },
     highlightUpdatedAt: { type: Date, default: null },
+    operationsEnabled: { type: Boolean, default: true },
+    inventoryStatus: {
+      type: String,
+      default: "not_started",
+      enum: ["not_started", "in_progress", "complete", "needs_attention"],
+    },
+    technicalRiderStatus: {
+      type: String,
+      default: "not_started",
+      enum: ["not_started", "in_progress", "complete", "needs_attention"],
+    },
+    stagePlanStatus: {
+      type: String,
+      default: "not_started",
+      enum: ["not_started", "in_progress", "complete", "needs_attention"],
+    },
+    documentsStatus: {
+      type: String,
+      default: "not_started",
+      enum: ["not_started", "in_progress", "complete", "needs_attention"],
+    },
+    operationsNotes: { type: String, default: "", trim: true, maxlength: 5000 },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
   },
   { timestamps: true, collection: "events" }

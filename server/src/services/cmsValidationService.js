@@ -35,12 +35,45 @@ export function validateUrl(url, { allowEmpty = true, fieldName = "URL" } = {}) 
   throwError(`Invalid ${fieldName}: "${trimmed}"`);
 }
 
+import sanitizeHtmlLib from "sanitize-html";
+
+const HTML_ALLOWED_TAGS = sanitizeHtmlLib.defaults.allowedTags.concat([
+  "img",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "figure",
+  "figcaption",
+  "video",
+  "source",
+  "iframe",
+]);
+
+const HTML_ALLOWED_ATTRIBUTES = {
+  ...sanitizeHtmlLib.defaults.allowedAttributes,
+  img: ["src", "alt", "title", "width", "height", "loading"],
+  a: ["href", "name", "target", "rel", "title"],
+  iframe: ["src", "title", "width", "height", "allow", "allowfullscreen", "frameborder"],
+  video: ["src", "controls", "width", "height", "poster"],
+  source: ["src", "type"],
+  "*": ["class", "id", "style"],
+};
+
 export function sanitizeHtml(html = "") {
   if (!html || typeof html !== "string") return "";
-  return html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-    .replace(/on\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
-    .replace(/javascript:/gi, "");
+  return sanitizeHtmlLib(html, {
+    allowedTags: HTML_ALLOWED_TAGS,
+    allowedAttributes: HTML_ALLOWED_ATTRIBUTES,
+    allowedSchemes: ["http", "https", "mailto", "tel", "data"],
+    allowedSchemesByTag: {
+      iframe: ["https"],
+    },
+    allowVulnerableTags: false,
+    disallowedTagsMode: "discard",
+  });
 }
 
 export function sanitizeSection(section) {

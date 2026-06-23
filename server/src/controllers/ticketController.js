@@ -91,7 +91,11 @@ export async function confirmPaymentByIntent(req, res) {
 export async function getOrder(req, res) {
   try {
     const { getOrderForUser } = await import("../services/ticketOrderService.js");
-    const result = await getOrderForUser(req.params.orderNumber, req.user?.id || req.user?._id);
+    const result = await getOrderForUser(
+      req.params.orderNumber,
+      req.user?.id || req.user?._id,
+      req.query?.email || req.query?.attendeeEmail || ""
+    );
     return res.status(200).json(result);
   } catch (error) {
     return handleError(res, error);
@@ -174,8 +178,9 @@ export async function ticketQrImage(req, res) {
 
 export async function downloadPublicTicketPdf(req, res) {
   try {
-    const { getTicketPdfBuffer } = await import("../services/ticketAdminService.js");
-    const buffer = await getTicketPdfBuffer(req.params.ticketNumber);
+    const { getTicketPdfBufferPublic } = await import("../services/ticketAdminService.js");
+    const token = req.query.token || req.query.verificationToken || "";
+    const buffer = await getTicketPdfBufferPublic(req.params.ticketNumber, token);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="ticket-${req.params.ticketNumber}.pdf"`);
     return res.send(buffer);

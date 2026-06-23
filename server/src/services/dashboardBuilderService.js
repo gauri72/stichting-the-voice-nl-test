@@ -2,6 +2,7 @@ import crypto from "crypto";
 import AdminDashboardConfig from "../models/AdminDashboardConfig.js";
 import { widgetVisibleForRole } from "../config/dashboardConfig.js";
 import { logAdminAction } from "./adminAuditService.js";
+import { sanitizeHtml } from "./cmsValidationService.js";
 
 function throwError(message, status = 400) {
   const error = new Error(message);
@@ -11,6 +12,20 @@ function throwError(message, status = 400) {
 
 export function generateWidgetId() {
   return `wdg-${crypto.randomUUID()}`;
+}
+
+function sanitizeDashboardWidget(widget) {
+  if (!widget || typeof widget !== "object") return widget;
+  const copy = { ...widget };
+  if (copy.widgetType === "custom_html") {
+    if (copy.content?.html) {
+      copy.content = { ...copy.content, html: sanitizeHtml(copy.content.html) };
+    }
+    if (copy.description) {
+      copy.description = sanitizeHtml(copy.description);
+    }
+  }
+  return copy;
 }
 
 function defaultWidgets() {
@@ -282,7 +297,7 @@ export async function listWidgets(version = "draft") {
 export async function createWidget(payload, adminId) {
   const doc = await ensureConfigDoc();
   const maxOrder = Math.max(-1, ...(doc.draft.widgets || []).map((w) => w.layout?.order ?? 0));
-  const widget = {
+  const widget = sanitizeDashboardWidget({
     widgetId: generateWidgetId(),
     widgetType: payload.widgetType || "stat_card",
     title: payload.title || "New Widget",
@@ -300,7 +315,7 @@ export async function createWidget(payload, adminId) {
     content: payload.content || {},
     isVisible: true,
     isCustom: true,
-  };
+  });
   doc.draft.widgets.push(widget);
   doc.updatedBy = adminId;
   await doc.save();
@@ -312,11 +327,11 @@ export async function updateWidget(widgetId, payload, adminId) {
   const idx = (doc.draft.widgets || []).findIndex((w) => w.widgetId === widgetId);
   if (idx === -1) throwError("Widget not found.", 404);
   const existing = doc.draft.widgets[idx];
-  doc.draft.widgets[idx] = {
+  doc.draft.widgets[idx] = sanitizeDashboardWidget({
     ...existing.toObject?.() || existing,
     ...payload,
     widgetId,
-  };
+  });
   doc.updatedBy = adminId;
   await doc.save();
   return getDashboardBuilderState("draft");

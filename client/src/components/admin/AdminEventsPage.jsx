@@ -9,6 +9,7 @@ import {
   IconExternalLink,
   IconMapPin,
   IconMap,
+  IconPackage,
   IconPencil,
   IconPlus,
   IconTicket,
@@ -1847,6 +1848,25 @@ export default function AdminEventsPage() {
               </div>
             </section>
           )}
+
+          {editId ? (
+            <section className="admin-events__card">
+              <header className="admin-events__card-header admin-events__card-header--centered">
+                <div className="admin-events__card-heading admin-events__card-heading--centered">
+                  <span className="admin-events__card-icon"><IconPackage size={20} /></span>
+                  <h2>Event Operations</h2>
+                </div>
+              </header>
+              <div className="admin-events__card-body">
+                <p className="admin-events__hint">
+                  Manage inventory, technical rider, stage plan, documents, checklists and vendors for this event.
+                </p>
+                <Link to={`/admin/events/${editId}/operations`} className="admin-events__outline-btn">
+                  <IconPackage size={16} /> Open event operations
+                </Link>
+              </div>
+            </section>
+          ) : null}
 
           <section className="admin-events__card">
             <header className="admin-events__card-header admin-events__card-header--centered admin-events__card-header--tickets">

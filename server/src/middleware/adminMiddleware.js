@@ -1,5 +1,7 @@
 import { verifyAdminToken } from "../services/adminService.js";
 import { getAdminAccessProfile } from "../services/rbacService.js";
+import { hasPermission } from "../config/rbacConfig.js";
+import { resolveAdminPermission } from "../config/adminRoutePermissions.js";
 
 export async function requireAdmin(req, res, next) {
   try {
@@ -20,6 +22,12 @@ export async function requireAdmin(req, res, next) {
     }
 
     req.admin = admin;
+
+    const requiredPermission = resolveAdminPermission(req);
+    if (requiredPermission && !hasPermission(admin.permissions, requiredPermission)) {
+      return res.status(403).json({ error: "You do not have permission to perform this action." });
+    }
+
     return next();
   } catch (error) {
     const status = error.status || 401;
