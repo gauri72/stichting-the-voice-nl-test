@@ -55,6 +55,26 @@ export async function deletePageAdmin(req, res) {
   }
 }
 
+export async function archivePageAdmin(req, res) {
+  try {
+    const { archivePage } = await import("../services/pageService.js");
+    const result = await archivePage(req.params.slug, req.admin?.id);
+    return res.json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function restorePageAdmin(req, res) {
+  try {
+    const { restorePage } = await import("../services/pageService.js");
+    const result = await restorePage(req.params.slug, req.admin?.id);
+    return res.json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function saveDraftAdmin(req, res) {
   try {
     const { saveDraft } = await import("../services/pageService.js");

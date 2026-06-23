@@ -416,6 +416,14 @@ export default function App() {
             }
           />
           <Route
+            path="/admin/cms/team-members"
+            element={
+              <AdminProtectedRoute>
+                <AdminTeamMembersPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/api-builder"
             element={
               <AdminProtectedRoute>
@@ -572,7 +580,19 @@ export default function App() {
             element={<AdminProtectedRoute><AdminPagesPage /></AdminProtectedRoute>}
           />
           <Route
+            path="/admin/cms/pages"
+            element={<AdminProtectedRoute><AdminPagesPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/cms/pages/dashboard"
+            element={<Navigate to="/admin/customer-dashboard-builder" replace />}
+          />
+          <Route
             path="/admin/pages/header"
+            element={<AdminProtectedRoute><AdminHeaderEditorPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/cms/navigation"
             element={<AdminProtectedRoute><AdminHeaderEditorPage /></AdminProtectedRoute>}
           />
           <Route

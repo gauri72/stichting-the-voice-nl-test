@@ -39,6 +39,7 @@ function formatPageListItem(page, adminMap = {}) {
     publishedAt: page.publishedAt,
     updatedBy: updatedByName,
     updatedById: page.updatedBy,
+    isSystem: DEFAULT_PAGES.some((p) => p.slug === page.slug),
   };
 }
 
@@ -419,7 +420,25 @@ export async function deletePage(slug, adminId) {
   page.status = "archived";
   page.updatedBy = adminId;
   await page.save();
-  return { success: true };
+  return { success: true, archived: true };
+}
+
+export async function archivePage(slug, adminId) {
+  const page = await Page.findOne({ slug: slug.toLowerCase() });
+  if (!page) throwError("Page not found.", 404);
+  page.status = "archived";
+  page.updatedBy = adminId;
+  await page.save();
+  return { success: true, status: "archived" };
+}
+
+export async function restorePage(slug, adminId) {
+  const page = await Page.findOne({ slug: slug.toLowerCase() });
+  if (!page) throwError("Page not found.", 404);
+  page.status = page.publishedSections?.length ? "published" : "draft";
+  page.updatedBy = adminId;
+  await page.save();
+  return { success: true, status: page.status };
 }
 
 export async function addSection(slug, payload, adminId, adminRole) {

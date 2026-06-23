@@ -42,7 +42,7 @@ import "../../styles/admin-mobile.css";
 const NAV_ITEMS = [
   { to: "/admin/dashboard", label: "Dashboard", icon: IconLayoutDashboard, end: true },
   { to: "/admin/dashboard-builder", label: "Dashboard Builder", icon: IconLayoutGrid },
-  { to: "/admin/customer-dashboard-builder", label: "Customer Dashboard Builder", icon: IconUsersGroup },
+  { to: "/admin/customer-dashboard-builder", label: "Dashboard", icon: IconUsersGroup },
   { to: "/admin/events", label: "Events", icon: IconTicket },
   {
     label: "Inventory & Documents",
@@ -85,7 +85,7 @@ const NAV_ITEMS = [
   { to: "/admin/communication", label: "Communication", icon: IconMail },
   { to: "/admin/pages", label: "Website Pages", icon: IconWorld },
   { to: "/admin/api-builder", label: "Smart API Builder", icon: IconApi },
-  { to: "/admin/team-members", label: "Team Members", icon: IconUsersGroup },
+  { to: "/admin/team-members", label: "Team Members (CMS)", icon: IconUsersGroup },
   { to: "/admin/access-management", label: "Access Management", icon: IconShieldLock },
   { to: "/admin/settings", label: "Settings", icon: IconSettings },
   { to: "/admin/reports", label: "Reports", icon: IconChartBar },

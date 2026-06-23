@@ -24,7 +24,7 @@ function TeamCardPhoto({ member }) {
   );
 }
 
-export default function TeamMembersSlider({ sectionClassName = "" }) {
+export default function TeamMembersSlider({ sectionClassName = "", title = "Our Team", subtitle = "" }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -95,13 +95,17 @@ export default function TeamMembersSlider({ sectionClassName = "" }) {
           <div className="tms-slider__heading">
             <span className="tms-slider__heading-line" aria-hidden="true" />
             <h2 id="tms-slider-title" className="tms-slider__title">
-              Our Team
+              {title}
             </h2>
             <span className="tms-slider__heading-line" aria-hidden="true" />
           </div>
-          <p className="tms-slider__subtitle">
-            Meet the passionate people behind V.O.I.C.E. NL — building community, culture and impact together.
-          </p>
+          {subtitle ? (
+            <p className="tms-slider__subtitle">{subtitle}</p>
+          ) : (
+            <p className="tms-slider__subtitle">
+              Meet the passionate people behind V.O.I.C.E. NL — building community, culture and impact together.
+            </p>
+          )}
         </header>
 
         {loading ? (
@@ -143,8 +147,10 @@ export default function TeamMembersSlider({ sectionClassName = "" }) {
                       }}
                     >
                       <div className="tms-slider__card-glow" aria-hidden />
-                      <div className="tms-slider__photo-wrap">
-                        <TeamCardPhoto member={member} />
+                      <div className="tms-slider__avatar-wrap">
+                        <div className="team-avatar tms-slider__avatar">
+                          <TeamCardPhoto member={member} />
+                        </div>
                         {member.isBoardMember ? (
                           <span className="tms-slider__badge tms-slider__badge--board">Board</span>
                         ) : null}

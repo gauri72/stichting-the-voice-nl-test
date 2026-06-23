@@ -13,6 +13,7 @@ import GalleryRenderer from "./sections/GalleryRenderer.jsx";
 import FaqRenderer from "./sections/FaqRenderer.jsx";
 import SponsorLogosRenderer from "./sections/SponsorLogosRenderer.jsx";
 import CustomHtmlRenderer from "./sections/CustomHtmlRenderer.jsx";
+import TeamMembersSectionRenderer from "./sections/TeamMembersSectionRenderer.jsx";
 import GenericSectionRenderer from "./sections/GenericSectionRenderer.jsx";
 import "../../styles/cms-page.css";
 
@@ -32,6 +33,7 @@ const RENDERERS = {
   faq: FaqRenderer,
   sponsor_logos: SponsorLogosRenderer,
   custom_html: CustomHtmlRenderer,
+  team_members: TeamMembersSectionRenderer,
 };
 
 export default function PageSectionRenderer({ sections = [], preview = false }) {

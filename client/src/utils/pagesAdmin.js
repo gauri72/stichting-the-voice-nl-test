@@ -29,6 +29,7 @@ export const SECTION_TYPE_LABELS = {
   footer_links: "Footer Links",
   header_navigation: "Header Navigation",
   custom_html: "Custom HTML Block",
+  team_members: "Our Team Slider",
 };
 
 export const CTA_STYLES = ["primary", "secondary", "outline", "gradient", "ghost"];
@@ -84,6 +85,74 @@ export function statusBadgeClass(status) {
   if (status === "published") return "admin-cms__badge--published";
   if (status === "archived") return "admin-cms__badge--archived";
   return "admin-cms__badge--draft";
+}
+
+export const SYSTEM_PAGE_SLUGS = new Set([
+  "home",
+  "events",
+  "membership",
+  "stories",
+  "impact",
+  "innovation",
+  "sponsor-us",
+  "donate",
+  "about-us",
+  "contact",
+  "privacy-policy",
+  "terms-and-conditions",
+  "testimonials",
+]);
+
+export function isSystemPageSlug(slug) {
+  return SYSTEM_PAGE_SLUGS.has(String(slug || "").toLowerCase());
+}
+
+export const PAGE_FILTER_OPTIONS = [
+  { id: "all", label: "All pages" },
+  { id: "main", label: "Main pages" },
+  { id: "sub", label: "Sub pages" },
+  { id: "policy", label: "Policy pages" },
+  { id: "system", label: "System pages" },
+  { id: "custom", label: "Custom pages" },
+  { id: "draft", label: "Draft" },
+  { id: "published", label: "Published" },
+  { id: "archived", label: "Archived" },
+];
+
+export function classifyPage(page) {
+  const slug = page.slug || "";
+  const route = page.route || "";
+  const isSystem = isSystemPageSlug(slug);
+  const isPolicy = /policy|terms|privacy|policies/i.test(slug) || /policy|terms/i.test(route);
+  const isSub = route.includes("-copy") || slug.includes("copy") || (route.split("/").filter(Boolean).length > 1 && !isPolicy);
+  return { isSystem, isPolicy, isSub, isCustom: !isSystem && !page.isSystem };
+}
+
+export function filterPages(pages, filterId) {
+  if (!filterId || filterId === "all") return pages;
+  return pages.filter((page) => {
+    const meta = classifyPage(page);
+    switch (filterId) {
+      case "main":
+        return !meta.isSub && !meta.isPolicy && page.status !== "archived";
+      case "sub":
+        return meta.isSub;
+      case "policy":
+        return meta.isPolicy;
+      case "system":
+        return meta.isSystem;
+      case "custom":
+        return meta.isCustom;
+      case "draft":
+        return page.status === "draft";
+      case "published":
+        return page.status === "published";
+      case "archived":
+        return page.status === "archived";
+      default:
+        return true;
+    }
+  });
 }
 
 export function readImageFile(file) {

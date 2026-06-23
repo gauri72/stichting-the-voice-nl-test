@@ -59,17 +59,30 @@ export function computeTicketTypeStatus(tt, now = new Date()) {
   return "AVAILABLE";
 }
 
-export function getTicketTypeDisplayLabel(tt, computedStatus, now = new Date()) {
-  if (tt?.futureDisplayLabel?.trim()) return tt.futureDisplayLabel.trim();
+export function hasAvailableFromStarted(tt, now = new Date()) {
+  const availableFrom = resolveAvailableFrom(tt);
+  if (!availableFrom) return true;
+  return now >= new Date(availableFrom);
+}
 
+export function getTicketTypeDisplayLabel(tt, computedStatus, now = new Date()) {
   const availableFrom = resolveAvailableFrom(tt);
   const availableUntil = resolveAvailableUntil(tt);
+  const fromStarted = hasAvailableFromStarted(tt, now);
+
+  if (fromStarted && availableUntil && computedStatus !== "EXPIRED") {
+    return `Available until ${formatTicketTypeDate(availableUntil)}`;
+  }
+
+  if (!fromStarted && tt?.futureDisplayLabel?.trim()) {
+    return tt.futureDisplayLabel.trim();
+  }
 
   switch (computedStatus) {
     case "FUTURE_AVAILABLE":
       return availableFrom
         ? `Available from ${formatTicketTypeDate(availableFrom)}`
-        : "Coming soon";
+        : "";
     case "SALES_DISABLED":
       return "Sales for this ticket type are currently disabled.";
     case "EXPIRED":
@@ -81,7 +94,7 @@ export function getTicketTypeDisplayLabel(tt, computedStatus, now = new Date()) 
         ? "Sold out — join the waitlist"
         : "Sold out";
     case "AVAILABLE":
-      return "Available now";
+      return "";
     default:
       return "";
   }
@@ -89,8 +102,6 @@ export function getTicketTypeDisplayLabel(tt, computedStatus, now = new Date()) 
 
 export function getTicketTypeBadge(computedStatus) {
   switch (computedStatus) {
-    case "FUTURE_AVAILABLE":
-      return "Coming Soon";
     case "SALES_DISABLED":
       return "Sales Paused";
     case "EXPIRED":

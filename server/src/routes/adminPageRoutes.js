@@ -5,6 +5,8 @@ import {
   createPageAdmin,
   updatePageAdmin,
   deletePageAdmin,
+  archivePageAdmin,
+  restorePageAdmin,
   saveDraftAdmin,
   publishPageAdmin,
   duplicatePageAdmin,
@@ -49,6 +51,8 @@ router.post("/:slug/save-draft", requireCmsWrite, saveDraftAdmin);
 router.post("/:slug/publish", requireCmsPublish, publishPageAdmin);
 router.post("/:slug/restore-version", requireCmsWrite, restoreVersionAdmin);
 router.post("/:slug/duplicate", requireCmsWrite, duplicatePageAdmin);
+router.post("/:slug/archive", requireCmsWrite, archivePageAdmin);
+router.post("/:slug/restore", requireCmsWrite, restorePageAdmin);
 
 router.post("/:slug/sections", requireCmsWrite, addSectionAdmin);
 router.post("/:slug/sections/reorder", requireCmsWrite, reorderSectionsAdmin);

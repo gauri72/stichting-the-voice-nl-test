@@ -25,6 +25,7 @@ export const SECTION_TYPES = [
   "footer_links",
   "header_navigation",
   "custom_html",
+  "team_members",
 ];
 
 export const IMAGE_FOCUS_POSITIONS = ["center", "top", "bottom", "left", "right"];

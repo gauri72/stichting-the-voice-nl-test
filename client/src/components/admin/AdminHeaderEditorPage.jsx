@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { IconArrowLeft, IconDeviceFloppy, IconRocket } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
+import AdminNavigationEditor from "./cms/AdminNavigationEditor.jsx";
 import CmsImageField from "./cms/CmsImageField.jsx";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
@@ -27,21 +28,14 @@ export default function AdminHeaderEditorPage() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const settings = draft?.settings || {};
-  const items = draft?.items || [];
 
   function setSettings(field, value) {
     setDraft((prev) => ({ ...prev, settings: { ...prev.settings, [field]: value } }));
-  }
-
-  function updateItem(index, field, value) {
-    setDraft((prev) => {
-      const nextItems = [...(prev.items || [])];
-      nextItems[index] = { ...nextItems[index], [field]: value };
-      return { ...prev, items: nextItems };
-    });
   }
 
   async function save(publish = false) {
@@ -62,7 +56,7 @@ export default function AdminHeaderEditorPage() {
   }
 
   return (
-    <AdminLayout pageTitle="Header / Navigation" pageSubtitle="Edit logo, navigation items and header CTAs." hideBottomNav>
+    <AdminLayout pageTitle="Header / Navigation" pageSubtitle="Edit logo, menu items, submenus and header CTAs." hideBottomNav>
       <div className="admin-cms admin-cms--editor">
         <div className="admin-cms__editor-topbar">
           <Link to="/admin/pages" className="admin-cms__back"><IconArrowLeft size={18} /> Website Pages</Link>
@@ -101,6 +95,10 @@ export default function AdminHeaderEditorPage() {
               <label className="admin-cms__label">Buy Tickets — URL</label>
               <input className="admin-cms__input" value={settings.buyTicketsButtonUrl || ""} onChange={(e) => setSettings("buyTicketsButtonUrl", e.target.value)} disabled={readOnly} />
             </div>
+            <label className="admin-cms__checkbox">
+              <input type="checkbox" checked={settings.buyTicketsOpenNewTab === true} onChange={(e) => setSettings("buyTicketsOpenNewTab", e.target.checked)} disabled={readOnly} />
+              Open Buy Tickets in new tab
+            </label>
             <div className="admin-cms__field-row">
               <label className="admin-cms__label">Login — text</label>
               <input className="admin-cms__input" value={settings.loginButtonText || ""} onChange={(e) => setSettings("loginButtonText", e.target.value)} disabled={readOnly} />
@@ -126,23 +124,11 @@ export default function AdminHeaderEditorPage() {
               <label className="admin-cms__label">Announcement text</label>
               <input className="admin-cms__input" value={draft.announcementBar?.text || ""} onChange={(e) => setDraft((p) => ({ ...p, announcementBar: { ...p.announcementBar, text: e.target.value } }))} disabled={readOnly} />
             </div>
-            <h3>Navigation items</h3>
-            {items.map((item, index) => (
-              <div key={item.id} className="admin-cms__cta-card">
-                <div className="admin-cms__field-row">
-                  <label className="admin-cms__label">Label</label>
-                  <input className="admin-cms__input" value={item.label || ""} onChange={(e) => updateItem(index, "label", e.target.value)} disabled={readOnly} />
-                </div>
-                <div className="admin-cms__field-row">
-                  <label className="admin-cms__label">URL</label>
-                  <input className="admin-cms__input" value={item.url || ""} onChange={(e) => updateItem(index, "url", e.target.value)} disabled={readOnly} />
-                </div>
-                <label className="admin-cms__checkbox">
-                  <input type="checkbox" checked={item.visible !== false} onChange={(e) => updateItem(index, "visible", e.target.checked)} disabled={readOnly} />
-                  Visible
-                </label>
-              </div>
-            ))}
+            <AdminNavigationEditor
+              items={draft.items || []}
+              readOnly={readOnly}
+              onChange={(items) => setDraft((prev) => ({ ...prev, items }))}
+            />
           </div>
         ) : null}
       </div>

@@ -873,15 +873,10 @@ export default function TicketBookingPage() {
                     </div>
                     <p className="ticket-booking__ticket-desc">{tt.description}</p>
                     <p className="ticket-booking__ticket-price">€{tt.price}</p>
-                    {selectable ? (
-                      <p className="ticket-booking__ticket-avail">{tt.available} available · max {tt.maxPerOrder} per order</p>
-                    ) : (
+                    {tt.displayLabel ? (
                       <p className="ticket-booking__ticket-status-note">{tt.displayLabel}</p>
-                    )}
-                    {tt.computedStatus === "FUTURE_AVAILABLE" ? (
-                      <p className="ticket-booking__ticket-hint">
-                        This ticket type will become available after the current offer ends.
-                      </p>
+                    ) : selectable ? (
+                      <p className="ticket-booking__ticket-avail">{tt.available} available · max {tt.maxPerOrder} per order</p>
                     ) : null}
                   </div>
                   <label className="ticket-booking__qty-label">

@@ -102,6 +102,25 @@ describe("ticketTypeStatus", () => {
     expect(sorted[0].id).toBe("1");
     expect(sorted[1].id).toBe("2");
   });
+
+  it("shows available until when sale window has started", async () => {
+    const { getTicketTypeDisplayLabel } = await import("../src/utils/ticketTypeStatus.js");
+    const now = new Date("2026-06-23T12:00:00");
+    const until = new Date("2026-07-01T23:59:00");
+    const from = new Date("2026-06-21T12:00:00");
+    const label = getTicketTypeDisplayLabel(
+      { availableFrom: from, availableUntil: until, salesEnabled: true, showPublicly: true, capacity: 100, soldCount: 0 },
+      "AVAILABLE",
+      now
+    );
+    expect(label).toContain("Available until");
+    expect(label).not.toContain("Available from");
+  });
+
+  it("does not return coming soon badge", async () => {
+    const { getTicketTypeBadge } = await import("../src/utils/ticketTypeStatus.js");
+    expect(getTicketTypeBadge("FUTURE_AVAILABLE")).toBe("");
+  });
 });
 
 describe("sanitizeHtml", () => {
