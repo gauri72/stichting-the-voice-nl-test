@@ -59,8 +59,27 @@ const EMPTY_TICKET = {
   maxPerOrder: 10,
   saleStartDate: "",
   saleEndDate: "",
+  availableFrom: "",
+  availableUntil: "",
+  salesEnabled: true,
+  visibility: "show_publicly",
+  hideUntilAvailable: false,
+  futureDisplayLabel: "",
+  soldOutDisplayMode: "show",
   status: "active",
 };
+
+function ticketVisibilityFromType(tt) {
+  if (tt.showPublicly === false || tt.status === "hidden" || tt.visibility === "hide_completely") {
+    return "hide_completely";
+  }
+  if (tt.hideUntilAvailable || tt.visibility === "hide_until_available") return "hide_until_available";
+  return "show_publicly";
+}
+
+function ticketStatusLabel(tt) {
+  return tt.computedStatus?.replace(/_/g, " ") || (tt.salesEnabled === false ? "SALES DISABLED" : "ACTIVE");
+}
 
 const EMPTY_EVENT = {
   title: "",
@@ -209,6 +228,9 @@ function toFormEvent(event) {
       showPriceComparisonPreview: event.checkoutSettings?.showPriceComparisonPreview !== false,
     },
     category: event.category || "Experience",
+    id: event.id || "",
+    slug: event.slug || "",
+    status: event.status || "draft",
     ticketTypes: (event.ticketTypes || []).map((tt) => ({
       id: tt.id,
       name: tt.name,
@@ -216,8 +238,17 @@ function toFormEvent(event) {
       price: tt.priceMinor != null ? (tt.priceMinor / 100).toFixed(2) : tt.price || "",
       capacity: tt.capacity,
       maxPerOrder: tt.maxPerOrder || 10,
-      saleStartDate: toLocalDateTimeValue(tt.saleStartDate),
-      saleEndDate: toLocalDateTimeValue(tt.saleEndDate),
+      saleStartDate: toLocalDateTimeValue(tt.availableFrom || tt.saleStartDate),
+      saleEndDate: toLocalDateTimeValue(tt.availableUntil || tt.saleEndDate),
+      availableFrom: toLocalDateTimeValue(tt.availableFrom || tt.saleStartDate),
+      availableUntil: toLocalDateTimeValue(tt.availableUntil || tt.saleEndDate),
+      salesEnabled: tt.salesEnabled !== false,
+      visibility: ticketVisibilityFromType(tt),
+      hideUntilAvailable: Boolean(tt.hideUntilAvailable),
+      futureDisplayLabel: tt.futureDisplayLabel || "",
+      soldOutDisplayMode: tt.soldOutDisplayMode || "show",
+      computedStatus: tt.computedStatus || "",
+      soldCount: tt.soldCount || 0,
       status: tt.status || "active",
     })),
   };
@@ -279,9 +310,17 @@ function toPayload(form, status) {
       priceMinor: Math.round((Number(tt.price) || 0) * 100),
       capacity: Number(tt.capacity) || 0,
       maxPerOrder: Number(tt.maxPerOrder) || 10,
-      saleStartDate: tt.saleStartDate || null,
-      saleEndDate: tt.saleEndDate || null,
-      status: tt.status,
+      availableFrom: tt.availableFrom || tt.saleStartDate || null,
+      availableUntil: tt.availableUntil || tt.saleEndDate || null,
+      saleStartDate: tt.availableFrom || tt.saleStartDate || null,
+      saleEndDate: tt.availableUntil || tt.saleEndDate || null,
+      salesEnabled: tt.salesEnabled !== false,
+      showPublicly: tt.visibility !== "hide_completely",
+      hideUntilAvailable: tt.visibility === "hide_until_available",
+      visibility: tt.visibility,
+      futureDisplayLabel: tt.futureDisplayLabel || "",
+      soldOutDisplayMode: tt.soldOutDisplayMode || "show",
+      status: tt.visibility === "hide_completely" ? "hidden" : tt.status,
       sortOrder: i,
     })),
   };
@@ -730,9 +769,37 @@ export default function AdminEventsPage() {
   function updateTicket(index, key, value) {
     setForm((f) => {
       const ticketTypes = [...f.ticketTypes];
-      ticketTypes[index] = { ...ticketTypes[index], [key]: value };
+      const next = { ...ticketTypes[index], [key]: value };
+      if (key === "saleStartDate" || key === "availableFrom") {
+        next.saleStartDate = value;
+        next.availableFrom = value;
+      }
+      if (key === "saleEndDate" || key === "availableUntil") {
+        next.saleEndDate = value;
+        next.availableUntil = value;
+      }
+      ticketTypes[index] = next;
       return { ...f, ticketTypes };
     });
+  }
+
+  async function toggleTicketSales(ticketType, enabled) {
+    if (!editId || editId === "new" || !ticketType?.id) return;
+    setSaving(true);
+    setError("");
+    try {
+      const path = enabled ? "enable-sales" : "disable-sales";
+      await apiFetch(`/api/admin/events/${editId}/ticket-types/${ticketType.id}/${path}`, {
+        method: "POST",
+        headers: adminAuthHeaders(),
+      });
+      await loadEvent(editId);
+      setMessage(enabled ? "Ticket sales enabled." : "Ticket sales disabled.");
+    } catch (err) {
+      setError(err.message || "Could not update ticket sales status.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   function addTicketType() {
@@ -1879,6 +1946,73 @@ export default function AdminEventsPage() {
               </button>
             </header>
             <div className="admin-events__card-body">
+              {form.ticketTypes.length ? (
+                <div className="admin-events__ticket-summary-wrap">
+                  <table className="admin-events__ticket-summary">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Sales</th>
+                        <th>Status</th>
+                        <th>Available from</th>
+                        <th>Available until</th>
+                        <th>Remaining</th>
+                        <th>Visibility</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {form.ticketTypes.map((tt) => (
+                        <tr key={`summary-${tt.id || tt.name}`}>
+                          <td>{tt.name || "—"}</td>
+                          <td>€{tt.price || "0.00"}</td>
+                          <td>{tt.salesEnabled === false ? "Disabled" : "Enabled"}</td>
+                          <td>{ticketStatusLabel(tt)}</td>
+                          <td>{tt.availableFrom || tt.saleStartDate || "Now"}</td>
+                          <td>{tt.availableUntil || tt.saleEndDate || "—"}</td>
+                          <td>{Math.max(0, (Number(tt.capacity) || 0) - (Number(tt.soldCount) || 0))}</td>
+                          <td>{tt.visibility?.replace(/_/g, " ") || "show publicly"}</td>
+                          <td className="admin-events__ticket-summary-actions">
+                            {editId && editId !== "new" && tt.id ? (
+                              <>
+                                <button
+                                  type="button"
+                                  className="admin-events__outline-btn admin-events__outline-btn--sm"
+                                  disabled={saving || tt.salesEnabled !== false}
+                                  onClick={() => toggleTicketSales(tt, false)}
+                                >
+                                  Disable
+                                </button>
+                                <button
+                                  type="button"
+                                  className="admin-events__outline-btn admin-events__outline-btn--sm"
+                                  disabled={saving || tt.salesEnabled === false}
+                                  onClick={() => toggleTicketSales(tt, true)}
+                                >
+                                  Enable
+                                </button>
+                                {form.status === "published" ? (
+                                  <a
+                                    href={`/events/${form.slug || editId}/tickets`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="admin-events__outline-btn admin-events__outline-btn--sm"
+                                  >
+                                    Preview
+                                  </a>
+                                ) : null}
+                              </>
+                            ) : (
+                              <span className="admin-events__hint">Save event first</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
               <ul className="admin-events__ticket-editor-list">
                 {form.ticketTypes.map((tt, i) => (
                   <li key={tt.id || i} className="admin-events__ticket-editor">
@@ -1887,32 +2021,44 @@ export default function AdminEventsPage() {
                       <input className="admin-events__input" placeholder="Price €" type="number" min="0" step="0.01" value={tt.price} onChange={(e) => updateTicket(i, "price", e.target.value)} />
                       <input className="admin-events__input" placeholder="Capacity" type="number" min="0" value={tt.capacity} onChange={(e) => updateTicket(i, "capacity", e.target.value)} />
                       <input className="admin-events__input" placeholder="Max/order" type="number" min="1" value={tt.maxPerOrder} onChange={(e) => updateTicket(i, "maxPerOrder", e.target.value)} />
-                      <select className="admin-events__select" value={tt.status} onChange={(e) => updateTicket(i, "status", e.target.value)}>
-                        <option value="active">Active</option>
-                        <option value="sold_out">Sold Out</option>
-                        <option value="hidden">Hidden</option>
+                      <select className="admin-events__select" value={tt.salesEnabled === false ? "disabled" : "enabled"} onChange={(e) => updateTicket(i, "salesEnabled", e.target.value === "enabled")}>
+                        <option value="enabled">Sales enabled</option>
+                        <option value="disabled">Sales disabled</option>
                       </select>
                       <button type="button" className="admin-events__icon-danger" onClick={() => removeTicketType(i)} aria-label="Remove">
                         <IconTrash size={16} />
                       </button>
                     </div>
                     <input className="admin-events__input" placeholder="Short description" value={tt.description} onChange={(e) => updateTicket(i, "description", e.target.value)} />
+                    <div className="admin-events__ticket-editor-grid admin-events__ticket-editor-grid--wide">
+                      <select className="admin-events__select" value={tt.visibility || "show_publicly"} onChange={(e) => updateTicket(i, "visibility", e.target.value)}>
+                        <option value="show_publicly">Show publicly</option>
+                        <option value="hide_until_available">Hide until available</option>
+                        <option value="hide_completely">Hide completely</option>
+                      </select>
+                      <select className="admin-events__select" value={tt.soldOutDisplayMode || "show"} onChange={(e) => updateTicket(i, "soldOutDisplayMode", e.target.value)}>
+                        <option value="show">Sold out: show</option>
+                        <option value="hide">Sold out: hide</option>
+                        <option value="waitlist">Sold out: waitlist</option>
+                      </select>
+                      <input className="admin-events__input" placeholder="Future display label (optional)" value={tt.futureDisplayLabel || ""} onChange={(e) => updateTicket(i, "futureDisplayLabel", e.target.value)} />
+                    </div>
                     <div className="admin-events__datetime-row">
                       <PickerField
-                        id={`sale-start-${i}`}
-                        label="Sale start"
+                        id={`available-from-${i}`}
+                        label="Available from"
                         type="datetime-local"
                         icon={IconCalendar}
-                        value={tt.saleStartDate}
-                        onChange={(e) => updateTicket(i, "saleStartDate", e.target.value)}
+                        value={tt.availableFrom || tt.saleStartDate}
+                        onChange={(e) => updateTicket(i, "availableFrom", e.target.value)}
                       />
                       <PickerField
-                        id={`sale-end-${i}`}
-                        label="Sale end"
+                        id={`available-until-${i}`}
+                        label="Available until"
                         type="datetime-local"
                         icon={IconCalendar}
-                        value={tt.saleEndDate}
-                        onChange={(e) => updateTicket(i, "saleEndDate", e.target.value)}
+                        value={tt.availableUntil || tt.saleEndDate}
+                        onChange={(e) => updateTicket(i, "availableUntil", e.target.value)}
                       />
                     </div>
                   </li>

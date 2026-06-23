@@ -157,6 +157,66 @@
   color: #6b7d94;
 }
 
+.ticket-booking__ticket-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ticket-booking__ticket-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.ticket-booking__ticket-badge--future_available {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.ticket-booking__ticket-badge--sales_disabled {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.ticket-booking__ticket-badge--expired {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+}
+
+.ticket-booking__ticket-badge--sold_out {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.ticket-booking__ticket-status-note {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  color: #a8b8cc;
+}
+
+.ticket-booking__ticket-hint {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: #6b7d94;
+  font-style: italic;
+}
+
+.ticket-booking__ticket-row--disabled {
+  opacity: 0.92;
+}
+
+.ticket-booking__ticket-row--disabled select {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .ticket-booking__ticket-row select {
   padding: 10px 14px;
   border-radius: 10px;

@@ -99,6 +99,36 @@ export async function deleteEvent(req, res) {
   }
 }
 
+export async function patchTicketType(req, res) {
+  try {
+    const { patchTicketType } = await import("../services/ticketTypeAdminService.js");
+    const ticketType = await patchTicketType(req.params.eventId, req.params.ticketTypeId, req.body || {});
+    return res.status(200).json({ ticketType });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function enableTicketTypeSales(req, res) {
+  try {
+    const { setTicketTypeSales } = await import("../services/ticketTypeAdminService.js");
+    const ticketType = await setTicketTypeSales(req.params.eventId, req.params.ticketTypeId, true);
+    return res.status(200).json({ ticketType });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function disableTicketTypeSales(req, res) {
+  try {
+    const { setTicketTypeSales } = await import("../services/ticketTypeAdminService.js");
+    const ticketType = await setTicketTypeSales(req.params.eventId, req.params.ticketTypeId, false);
+    return res.status(200).json({ ticketType });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function patchFeaturedFlags(req, res) {
   try {
     const { patchEventFeaturedFlags } = await import("../services/eventService.js");

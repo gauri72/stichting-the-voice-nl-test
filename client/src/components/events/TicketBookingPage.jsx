@@ -855,29 +855,53 @@ export default function TicketBookingPage() {
           <section className="ticket-booking__card">
             <h2><IconTicket size={20} /> Select tickets</h2>
             <ul className="ticket-booking__ticket-list">
-              {(event.ticketTypes || []).map((tt) => (
-                <li key={tt.id} className="ticket-booking__ticket-row">
+              {(event.ticketTypes || []).map((tt) => {
+                const selectable = tt.selectable === true;
+                const statusClass = tt.computedStatus
+                  ? ` ticket-booking__ticket-row--${tt.computedStatus.toLowerCase()}`
+                  : "";
+                return (
+                <li key={tt.id} className={`ticket-booking__ticket-row${statusClass}${selectable ? "" : " ticket-booking__ticket-row--disabled"}`}>
                   <div>
-                    <p className="ticket-booking__ticket-name">{tt.name}</p>
+                    <div className="ticket-booking__ticket-head">
+                      <p className="ticket-booking__ticket-name">{tt.name}</p>
+                      {tt.badge ? (
+                        <span className={`ticket-booking__ticket-badge ticket-booking__ticket-badge--${(tt.computedStatus || "").toLowerCase()}`}>
+                          {tt.badge}
+                        </span>
+                      ) : null}
+                    </div>
                     <p className="ticket-booking__ticket-desc">{tt.description}</p>
                     <p className="ticket-booking__ticket-price">€{tt.price}</p>
-                    <p className="ticket-booking__ticket-avail">{tt.available} available · max {tt.maxPerOrder} per order</p>
+                    {selectable ? (
+                      <p className="ticket-booking__ticket-avail">{tt.available} available · max {tt.maxPerOrder} per order</p>
+                    ) : (
+                      <p className="ticket-booking__ticket-status-note">{tt.displayLabel}</p>
+                    )}
+                    {tt.computedStatus === "FUTURE_AVAILABLE" ? (
+                      <p className="ticket-booking__ticket-hint">
+                        This ticket type will become available after the current offer ends.
+                      </p>
+                    ) : null}
                   </div>
                   <label className="ticket-booking__qty-label">
                     <span className="ticket-booking__qty-text">Qty</span>
                     <select
                       value={quantities[tt.id] || 0}
-                      disabled={tt.status === "sold_out" || tt.available === 0}
+                      disabled={!selectable}
                       onChange={(e) => setQuantities((q) => ({ ...q, [tt.id]: Number(e.target.value) }))}
                       aria-label={`Quantity for ${tt.name}`}
                     >
-                      {Array.from({ length: Math.min(tt.maxPerOrder, tt.available) + 1 }, (_, i) => (
-                        <option key={i} value={i}>{i}</option>
-                      ))}
+                      {selectable
+                        ? Array.from({ length: Math.min(tt.maxPerOrder, tt.available) + 1 }, (_, i) => (
+                            <option key={i} value={i}>{i}</option>
+                          ))
+                        : <option value={0}>0</option>}
                     </select>
                   </label>
                 </li>
-              ))}
+                );
+              })}
             </ul>
             <button
               type="button"

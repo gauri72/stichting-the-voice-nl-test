@@ -1,6 +1,12 @@
 import crypto from "crypto";
 import Event from "../models/Event.js";
 import TicketType from "../models/TicketType.js";
+import {
+  enrichTicketType,
+  resolveAvailableFrom,
+  resolveAvailableUntil,
+  sortTicketTypesForPublic,
+} from "../utils/ticketTypeStatus.js";
 
 function slugify(text) {
   return String(text || "")
@@ -102,10 +108,9 @@ export function formatEvent(event, ticketTypes = []) {
   };
 }
 
-export function formatTicketType(tt) {
+export function formatTicketType(tt, now = new Date()) {
   if (!tt) return null;
-  const available = Math.max(0, (tt.capacity || 0) - (tt.soldCount || 0));
-  return {
+  const base = {
     id: tt._id?.toString() || tt.id,
     eventId: tt.eventId?.toString?.() || tt.eventId,
     name: tt.name,
@@ -114,13 +119,20 @@ export function formatTicketType(tt) {
     price: (tt.priceMinor / 100).toFixed(2),
     capacity: tt.capacity,
     soldCount: tt.soldCount || 0,
-    available,
     maxPerOrder: tt.maxPerOrder,
-    saleStartDate: tt.saleStartDate,
-    saleEndDate: tt.saleEndDate,
+    saleStartDate: resolveAvailableFrom(tt),
+    saleEndDate: resolveAvailableUntil(tt),
+    availableFrom: resolveAvailableFrom(tt),
+    availableUntil: resolveAvailableUntil(tt),
+    salesEnabled: tt.salesEnabled !== false,
+    showPublicly: tt.showPublicly !== false,
+    hideUntilAvailable: Boolean(tt.hideUntilAvailable),
+    futureDisplayLabel: tt.futureDisplayLabel || "",
+    soldOutDisplayMode: tt.soldOutDisplayMode || "show",
     status: tt.status,
     sortOrder: tt.sortOrder || 0,
   };
+  return enrichTicketType(base, now);
 }
 
 export async function listEvents({ status, admin = false } = {}) {
@@ -164,19 +176,14 @@ export async function getPublishedEventBySlugOrId(idOrSlug) {
   }
 
   const now = new Date();
-  const ticketTypes = await TicketType.find({
-    eventId: event._id,
-    status: { $in: ["active", "sold_out"] },
-  })
+  const ticketTypes = await TicketType.find({ eventId: event._id })
     .sort({ sortOrder: 1, createdAt: 1 })
     .lean();
 
-  const visibleTypes = ticketTypes.filter((tt) => {
-    if (tt.status === "hidden") return false;
-    if (tt.saleStartDate && now < new Date(tt.saleStartDate)) return false;
-    if (tt.saleEndDate && now > new Date(tt.saleEndDate)) return false;
-    return true;
-  });
+  const enriched = ticketTypes.map((tt) => formatTicketType(tt, now));
+  const visibleTypes = sortTicketTypesForPublic(
+    enriched.filter((tt) => tt.publiclyVisible)
+  );
 
   return formatEvent(event, visibleTypes);
 }
@@ -461,6 +468,9 @@ export async function upsertTicketTypes(eventId, ticketTypes) {
 
   for (let i = 0; i < ticketTypes.length; i += 1) {
     const tt = ticketTypes[i];
+    const availableFrom = tt.availableFrom || tt.saleStartDate || null;
+    const availableUntil = tt.availableUntil || tt.saleEndDate || null;
+    const showPublicly = tt.showPublicly !== false && (tt.status || "active") !== "hidden";
     const data = {
       eventId,
       name: String(tt.name || "").trim(),
@@ -468,9 +478,20 @@ export async function upsertTicketTypes(eventId, ticketTypes) {
       priceMinor: Math.max(0, Math.round(Number(tt.priceMinor ?? tt.price * 100) || 0)),
       capacity: Math.max(0, Number(tt.capacity ?? tt.qty) || 0),
       maxPerOrder: Math.max(1, Number(tt.maxPerOrder) || 10),
-      saleStartDate: tt.saleStartDate ? new Date(tt.saleStartDate) : null,
-      saleEndDate: tt.saleEndDate ? new Date(tt.saleEndDate) : null,
-      status: tt.status || (tt.enabled === false ? "hidden" : "active"),
+      saleStartDate: availableFrom ? new Date(availableFrom) : null,
+      saleEndDate: availableUntil ? new Date(availableUntil) : null,
+      availableFrom: availableFrom ? new Date(availableFrom) : null,
+      availableUntil: availableUntil ? new Date(availableUntil) : null,
+      salesEnabled: tt.salesEnabled !== false,
+      showPublicly,
+      hideUntilAvailable: Boolean(tt.hideUntilAvailable),
+      futureDisplayLabel: String(tt.futureDisplayLabel || "").trim(),
+      soldOutDisplayMode: tt.soldOutDisplayMode || "show",
+      status:
+        tt.status ||
+        (tt.visibility === "hide_completely" || tt.showPublicly === false || tt.enabled === false
+          ? "hidden"
+          : "active"),
       sortOrder: Number(tt.sortOrder ?? i),
     };
 

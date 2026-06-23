@@ -858,6 +858,40 @@
   flex: 1 1 200px;
 }
 
+.admin-events__ticket-summary-wrap {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.admin-events__ticket-summary {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.admin-events__ticket-summary th,
+.admin-events__ticket-summary td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-events__ticket-summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-events__outline-btn--sm {
+  padding: 6px 10px;
+  font-size: 0.75rem;
+}
+
+.admin-events__ticket-editor-grid--wide {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .admin-events__ticket-editor-list {
   list-style: none;
   margin: 0;

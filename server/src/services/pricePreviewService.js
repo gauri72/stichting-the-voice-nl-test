@@ -15,6 +15,7 @@ import {
   getMembershipDiscountRule,
 } from "./discountService.js";
 import { buildOrderSummary, formatMoney } from "./ticketPricingService.js";
+import { validateTicketLineItems } from "./ticketTypeAdminService.js";
 import { logCheckoutAction, CHECKOUT_AUDIT_ACTIONS } from "./checkoutAuditService.js";
 
 function getEventCheckoutSettings(event) {
@@ -28,52 +29,7 @@ function addDays(date, days) {
 }
 
 async function buildTicketLineItems(event, items) {
-  const lineItems = [];
-  let subtotalMinor = 0;
-
-  for (const item of items || []) {
-    const tt = event.ticketTypes.find((t) => t.id === item.ticketTypeId);
-    if (!tt) {
-      const err = new Error("Invalid ticket type selected.");
-      err.status = 400;
-      throw err;
-    }
-    if (tt.status === "sold_out") {
-      const err = new Error(`${tt.name} is sold out.`);
-      err.status = 400;
-      throw err;
-    }
-
-    const qty = Math.max(1, Number(item.quantity) || 1);
-    if (qty > tt.maxPerOrder) {
-      const err = new Error(`Maximum ${tt.maxPerOrder} tickets per order for ${tt.name}.`);
-      err.status = 400;
-      throw err;
-    }
-    if (qty > tt.available) {
-      const err = new Error(`Only ${tt.available} tickets available for ${tt.name}.`);
-      err.status = 400;
-      throw err;
-    }
-
-    const lineTotal = tt.priceMinor * qty;
-    subtotalMinor += lineTotal;
-    lineItems.push({
-      ticketTypeId: tt.id,
-      ticketTypeName: tt.name,
-      quantity: qty,
-      unitPriceMinor: tt.priceMinor,
-      originalPriceMinor: lineTotal,
-    });
-  }
-
-  if (!lineItems.length) {
-    const err = new Error("Select at least one ticket.");
-    err.status = 400;
-    throw err;
-  }
-
-  return { lineItems, subtotalMinor };
+  return validateTicketLineItems(event, items);
 }
 
 async function resolveMemberBenefitContext({
@@ -241,6 +197,11 @@ export async function calculatePricePreview({
   membershipCode = null,
 }) {
   const event = await getPublishedEventBySlugOrId(eventId);
+  if (!event.salesEnabled) {
+    const err = new Error("Ticket sales are not enabled for this event.");
+    err.status = 400;
+    throw err;
+  }
   const eventSettings = getEventCheckoutSettings(event);
   const membershipSettings = await getMembershipCheckoutSettings();
 

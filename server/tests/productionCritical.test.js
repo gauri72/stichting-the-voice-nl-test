@@ -67,6 +67,43 @@ describe("ticketPdfAccess", () => {
   });
 });
 
+describe("ticketTypeStatus", () => {
+  it("marks future ticket types as not selectable", async () => {
+    const { computeTicketTypeStatus, isTicketTypeSelectable } = await import("../src/utils/ticketTypeStatus.js");
+    const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const status = computeTicketTypeStatus({
+      salesEnabled: true,
+      showPublicly: true,
+      capacity: 100,
+      soldCount: 0,
+      availableFrom: future,
+    });
+    expect(status).toBe("FUTURE_AVAILABLE");
+    expect(isTicketTypeSelectable(status)).toBe(false);
+  });
+
+  it("marks disabled sales as sales_disabled", async () => {
+    const { computeTicketTypeStatus } = await import("../src/utils/ticketTypeStatus.js");
+    const status = computeTicketTypeStatus({
+      salesEnabled: false,
+      showPublicly: true,
+      capacity: 100,
+      soldCount: 0,
+    });
+    expect(status).toBe("SALES_DISABLED");
+  });
+
+  it("sorts available ticket types before future types", async () => {
+    const { sortTicketTypesForPublic } = await import("../src/utils/ticketTypeStatus.js");
+    const sorted = sortTicketTypesForPublic([
+      { id: "2", computedStatus: "FUTURE_AVAILABLE", sortOrder: 1 },
+      { id: "1", computedStatus: "AVAILABLE", sortOrder: 2 },
+    ]);
+    expect(sorted[0].id).toBe("1");
+    expect(sorted[1].id).toBe("2");
+  });
+});
+
 describe("sanitizeHtml", () => {
   it("strips script tags", async () => {
     const { sanitizeHtml } = await import("../src/services/cmsValidationService.js");

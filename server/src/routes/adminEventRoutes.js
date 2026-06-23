@@ -24,6 +24,9 @@ import {
   exportCsv,
   markCheckedIn,
   markRefunded,
+  patchTicketType,
+  enableTicketTypeSales,
+  disableTicketTypeSales,
 } from "../controllers/ticketAdminController.js";
 import { updateEventMembershipSettings } from "../controllers/checkoutBundleController.js";
 import {
@@ -92,6 +95,10 @@ router.post("/:eventId/seats/block", blockSeats);
 router.post("/:eventId/seats/unblock", unblockSeats);
 
 router.use("/:eventId", adminEventOperationsRoutes);
+
+router.patch("/:eventId/ticket-types/:ticketTypeId", patchTicketType);
+router.post("/:eventId/ticket-types/:ticketTypeId/enable-sales", enableTicketTypeSales);
+router.post("/:eventId/ticket-types/:ticketTypeId/disable-sales", disableTicketTypeSales);
 
 router.get("/:id", getEvent);
 router.get("/:id/highlight", getHighlightAdmin);

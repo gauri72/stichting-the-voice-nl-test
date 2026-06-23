@@ -16,6 +16,17 @@ const ticketTypeSchema = new mongoose.Schema(
     maxPerOrder: { type: Number, default: 10, min: 1 },
     saleStartDate: { type: Date, default: null },
     saleEndDate: { type: Date, default: null },
+    availableFrom: { type: Date, default: null },
+    availableUntil: { type: Date, default: null },
+    salesEnabled: { type: Boolean, default: true },
+    showPublicly: { type: Boolean, default: true },
+    hideUntilAvailable: { type: Boolean, default: false },
+    futureDisplayLabel: { type: String, default: "", trim: true, maxlength: 200 },
+    soldOutDisplayMode: {
+      type: String,
+      enum: ["show", "hide", "waitlist"],
+      default: "show",
+    },
     status: {
       type: String,
       enum: ["active", "sold_out", "hidden"],
