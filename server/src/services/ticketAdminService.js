@@ -14,6 +14,9 @@ export async function listAdminTickets(filters = {}) {
     ticketTypeId,
     paymentStatus,
     checkedIn,
+    section,
+    row,
+    seatCategory,
     page = 1,
     limit = 50,
   } = filters;
@@ -35,6 +38,9 @@ export async function listAdminTickets(filters = {}) {
   if (ticketTypeId) ticketFilter.ticketTypeId = ticketTypeId;
   if (checkedIn === "true") ticketFilter.checkedIn = true;
   if (checkedIn === "false") ticketFilter.checkedIn = false;
+  if (section) ticketFilter.section = new RegExp(section.trim(), "i");
+  if (row) ticketFilter.row = new RegExp(`^${row.trim()}$`, "i");
+  if (seatCategory) ticketFilter.seatCategory = seatCategory;
 
   if (search?.trim()) {
     const q = search.trim();
@@ -246,6 +252,10 @@ export async function exportTicketsCsv(filters = {}) {
     "Ticket Type",
     "Attendee",
     "Email",
+    "Section",
+    "Row",
+    "Seat",
+    "Seat Category",
     "Payment Status",
     "Checked In",
     "Created",
@@ -257,6 +267,10 @@ export async function exportTicketsCsv(filters = {}) {
     t.ticketTypeName,
     t.attendeeName,
     t.attendeeEmail,
+    t.section || "",
+    t.row || "",
+    t.seatNumber || t.seatLabel || "",
+    t.seatCategory || "",
     t.order?.paymentStatus || "",
     t.checkedIn ? "Yes" : "No",
     t.createdAt ? new Date(t.createdAt).toISOString() : "",

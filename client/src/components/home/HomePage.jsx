@@ -4,9 +4,10 @@ import FeaturedEventsCarousel from "../events/FeaturedEventsCarousel";
 import GetInvolvedSection from "./GetInvolvedSection";
 import OurPillarsSection from "./OurPillarsSection";
 import SponsorsSection from "./SponsorsSection";
+import CmsAwarePage from "../cms/CmsAwarePage.jsx";
 import "../../styles/home-page.css";
 
-export default function HomePage() {
+function HomePageFallback() {
   return (
     <div className="home-page">
       <Hero />
@@ -17,4 +18,8 @@ export default function HomePage() {
       <SponsorsSection />
     </div>
   );
+}
+
+export default function HomePage() {
+  return <CmsAwarePage slug="home" fallback={<HomePageFallback />} />;
 }

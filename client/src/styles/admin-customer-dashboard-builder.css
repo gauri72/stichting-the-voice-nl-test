@@ -1,0 +1,89 @@
+.admin-cms--customer-dashboard .admin-cms__preview-frame--dashboard {
+  max-height: 70vh;
+  overflow: auto;
+  border-radius: 12px;
+  background: var(--admin-surface, #0f1419);
+}
+
+.member-dashboard--preview {
+  min-height: 400px;
+}
+
+.member-dashboard__top-announcement {
+  padding: 0.75rem 1rem;
+  background: rgba(0, 180, 160, 0.15);
+  border-bottom: 1px solid rgba(0, 180, 160, 0.3);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.member-dashboard__footer-text {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  opacity: 0.75;
+  font-size: 0.875rem;
+}
+
+.member-dashboard__section-title {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.member-dashboard__announcement,
+.member-dashboard__support,
+.member-dashboard__profile-widget,
+.member-dashboard__tickets-widget,
+.member-dashboard__rich-text {
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.member-dashboard__support-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.member-dashboard__support-btn {
+  display: inline-flex;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: rgba(0, 180, 160, 0.2);
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.member-dashboard__profile-list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.member-dashboard__profile-list dt {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.admin-cms__checkbox-grid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.admin-cms--preview-only .member-dashboard-viewport {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .admin-cms--customer-dashboard .admin-cms__layout > aside,
+  .admin-cms--customer-dashboard .admin-cms__layout > main {
+    display: none;
+  }
+
+  .admin-cms--customer-dashboard .admin-cms__layout > aside.is-visible,
+  .admin-cms--customer-dashboard .admin-cms__layout > main.is-visible {
+    display: block;
+  }
+}

@@ -5,9 +5,10 @@ import AboutUsWhatWeDoSection from "./AboutUsWhatWeDoSection";
 import AboutUsValuesSection from "./AboutUsValuesSection";
 import OurTeamSection from "../home/OurTeamSection";
 import OurPillarsSection from "../home/OurPillarsSection";
+import CmsAwarePage from "../cms/CmsAwarePage.jsx";
 import "../../styles/about-us-page.css";
 
-export default function AboutUsPage() {
+function AboutUsPageFallback() {
   return (
     <div id="about-us-navbar-top" className="about-us-page-shell">
       <AboutUsBreadcrumbSection />
@@ -19,4 +20,8 @@ export default function AboutUsPage() {
       <OurTeamSection sectionClassName="about-us-team-section" marquee />
     </div>
   );
+}
+
+export default function AboutUsPage() {
+  return <CmsAwarePage slug="about-us" fallback={<AboutUsPageFallback />} />;
 }

@@ -34,6 +34,25 @@ import FinanceSettings from "../models/FinanceSettings.js";
 import CheckoutSession from "../models/CheckoutSession.js";
 import CheckoutAuditLog from "../models/CheckoutAuditLog.js";
 import MembershipCheckoutSettings from "../models/MembershipCheckoutSettings.js";
+import Page from "../models/Page.js";
+import PageVersion from "../models/PageVersion.js";
+import SiteNavigation from "../models/SiteNavigation.js";
+import SiteFooter from "../models/SiteFooter.js";
+import AdminDashboardConfig from "../models/AdminDashboardConfig.js";
+import CustomerDashboardConfig from "../models/CustomerDashboardConfig.js";
+import CustomerDashboardVersion from "../models/CustomerDashboardVersion.js";
+import AppSetting from "../models/AppSetting.js";
+import SettingsAuditLog from "../models/SettingsAuditLog.js";
+import SystemEmailTemplate from "../models/SystemEmailTemplate.js";
+import DashboardCustomReport from "../models/DashboardCustomReport.js";
+import SeatMap from "../models/SeatMap.js";
+import Seat from "../models/Seat.js";
+import SeatHold from "../models/SeatHold.js";
+import Session from "../models/Session.js";
+import SessionSlot from "../models/SessionSlot.js";
+import SessionBooking from "../models/SessionBooking.js";
+import Resource from "../models/Resource.js";
+import RSVP from "../models/RSVP.js";
 
 /**
  * Every model maps to exactly one explicitly-named collection in the active
@@ -79,6 +98,25 @@ const MODELS = [
   ["checkout_sessions", CheckoutSession],
   ["checkout_audit_logs", CheckoutAuditLog],
   ["membership_checkout_settings", MembershipCheckoutSettings],
+  ["cms_pages", Page],
+  ["cms_page_versions", PageVersion],
+  ["cms_site_navigation", SiteNavigation],
+  ["cms_site_footer", SiteFooter],
+  ["admin_dashboard_configs", AdminDashboardConfig],
+  ["dashboard_custom_reports", DashboardCustomReport],
+  ["customer_dashboard_configs", CustomerDashboardConfig],
+  ["customer_dashboard_versions", CustomerDashboardVersion],
+  ["app_settings", AppSetting],
+  ["settings_audit_logs", SettingsAuditLog],
+  ["system_email_templates", SystemEmailTemplate],
+  ["seat_maps", SeatMap],
+  ["seats", Seat],
+  ["seat_holds", SeatHold],
+  ["sessions", Session],
+  ["session_slots", SessionSlot],
+  ["session_bookings", SessionBooking],
+  ["resources", Resource],
+  ["rsvps", RSVP],
 ];
 
 export async function ensureIndexes() {

@@ -5,29 +5,24 @@ import OurImpactSection from "../home/OurImpactSection";
 import PastEventHighlightsSlider from "./PastEventHighlightsSlider";
 import EventsTestimonialsSection from "./EventsTestimonialsSection";
 import { loadEventTestimonials, saveEventTestimonial } from "../../utils/eventsTestimonials.js";
+import CmsAwarePage from "../cms/CmsAwarePage.jsx";
 import "../../styles/events-page.css";
 
-export default function EventsPage() {
+function EventsPageFallback() {
   const [testimonials, setTestimonials] = useState([]);
 
   useEffect(() => {
     let active = true;
-
     loadEventTestimonials().then((items) => {
       if (active) setTestimonials(items);
     });
-
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, []);
 
   async function handleAddTestimonial(entry) {
     const saved = await saveEventTestimonial(entry);
     setTestimonials((prev) => {
-      if (prev.some((item) => item.id === saved.id)) {
-        return prev;
-      }
+      if (prev.some((item) => item.id === saved.id)) return prev;
       return [saved, ...prev];
     });
     return saved;
@@ -39,12 +34,12 @@ export default function EventsPage() {
       <FeaturedEventsCarousel pageContext="events" variant="compactHero" />
       <PastEventHighlightsSlider />
       <EventsTestimonialsSection variant="community" testimonials={testimonials} />
-      <EventsTestimonialsSection
-        variant="submit"
-        testimonials={testimonials}
-        onAddTestimonial={handleAddTestimonial}
-      />
+      <EventsTestimonialsSection variant="submit" testimonials={testimonials} onAddTestimonial={handleAddTestimonial} />
       <OurImpactSection />
     </div>
   );
+}
+
+export default function EventsPage() {
+  return <CmsAwarePage slug="events" fallback={<EventsPageFallback />} />;
 }

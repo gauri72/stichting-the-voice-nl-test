@@ -78,6 +78,11 @@ export async function renderTicketPdf(values) {
     ["Ticket ID", values.ticket_number || "—"],
   ];
 
+  if (values.seat_row || values.seat_number) {
+    rows.splice(3, 0, ["Seat", values.seat_display || "—"]);
+    if (values.seat_section) rows.splice(3, 0, ["Section", values.seat_section]);
+  }
+
   let rowY = y;
   for (const [label, value] of rows) {
     doc.font("Helvetica").fontSize(9).fillColor(COLORS.muted).text(label.toUpperCase(), PAGE_MARGIN, rowY);
@@ -138,6 +143,10 @@ function formatTicketPdfEventDate(date) {
 
 /** Build PDF field map from persisted ticket / order / event documents. */
 export function buildTicketPdfValuesFromDocs(ticket, order, event) {
+  const hasSeat = Boolean(ticket?.row || ticket?.seatNumber || ticket?.seatLabel);
+  const seatDisplay = ticket?.seatLabel
+    || (ticket?.row && ticket?.seatNumber ? `Row ${ticket.row} · Seat ${ticket.seatNumber}` : "");
+
   return {
     verification_token: ticket?.verificationToken || "",
     event_name: event?.title || "—",
@@ -148,6 +157,10 @@ export function buildTicketPdfValuesFromDocs(ticket, order, event) {
     venue: [event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—",
     order_number: order?.orderNumber || "—",
     ticket_number: ticket?.ticketNumber || "—",
+    seat_section: hasSeat ? ticket?.section || "" : "",
+    seat_row: hasSeat ? ticket?.row || "" : "",
+    seat_number: hasSeat ? ticket?.seatNumber || "" : "",
+    seat_display: seatDisplay,
   };
 }
 

@@ -26,6 +26,7 @@ import {
 } from "@tabler/icons-react";
 import { apiFetch } from "../../utils/api.js";
 import { WHATSAPP_GROUP_URL } from "../../constants/siteLinks.js";
+import { useCmsFooter } from "../../hooks/useCmsPage.js";
 import footerBg from "../../assets/footer-bg.png";
 import voiceNlLogo from "../../assets/logos/V.O.I.C.E. NL Copyright HD Logo.png";
 import voiceVentureStudioLogo from "../../assets/VOICE Venture Studio.png";
@@ -149,27 +150,70 @@ function FooterDesktopContactCard({ label, value, href, accent, Icon }) {
 }
 
 export default function Footer() {
-  const [contactEmail, setContactEmail] = useState(DEFAULT_CONTACT_EMAIL);
+  const { footer: cmsFooter } = useCmsFooter();
+  const cmsContent = cmsFooter?.content || {};
+  const cmsContact = cmsFooter?.contactDetails || {};
+  const cmsQuickLinks = (cmsFooter?.quickLinks || []).filter((l) => l.visible !== false);
+  const cmsSocialLinks = (cmsFooter?.socialLinks || []).filter((l) => l.visible !== false);
+
+  const [contactEmail, setContactEmail] = useState(cmsContact.email || DEFAULT_CONTACT_EMAIL);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
+  const heroHeading = cmsContent.heroHeading || "Together, We Can";
+  const heroSubheading = cmsContent.heroSubheading || "Create a Better Tomorrow.";
+  const missionText = cmsContent.missionText || "We believe in positive change, inclusive communities, and empowering people to build a better future together.";
+  const copyrightText = cmsContent.copyrightText || "© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.";
+  const whatsappText = cmsContent.whatsappButtonText || "Join WhatsApp Group";
+  const whatsappUrl = cmsContent.whatsappButtonUrl || WHATSAPP_GROUP_URL;
+  const footerBgImage = cmsContent.backgroundImage?.url || footerBg;
+  const footerLogo = cmsContent.logo?.url || voiceNlLogo;
+
+  const activeQuickLinks = cmsQuickLinks.length
+    ? cmsQuickLinks
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((link) => {
+          const fallback = footerQuickLinks.find((f) => f.to === link.url);
+          return {
+            label: link.label,
+            to: link.url,
+            Icon: fallback?.Icon || IconHome,
+          };
+        })
+    : footerQuickLinks;
+
+  const activeSocialLinks = cmsSocialLinks.length
+    ? cmsSocialLinks.map((link) => {
+        const fallback = socialLinks.find((s) => s.label === link.platform || s.label === link.label);
+        return {
+          href: link.url,
+          label: link.label || link.platform,
+          Icon: fallback?.Icon || IconBrandFacebook,
+        };
+      })
+    : socialLinks;
+
   useEffect(() => {
+    if (cmsContact.email) {
+      setContactEmail(cmsContact.email);
+      return;
+    }
     apiFetch("/api/public/site")
       .then((data) => {
         if (data?.contactEmail) setContactEmail(data.contactEmail);
       })
       .catch(() => {});
-  }, []);
+  }, [cmsContact.email]);
 
   const contactCards = [
     {
       label: "KVK",
-      value: "92180213",
+      value: cmsContact.kvk || "92180213",
       accent: "blue",
       Icon: IconBuilding,
     },
     {
       label: "Address",
-      value: "Wengehout 30, 2719 KA Zoetermeer, Netherlands",
+      value: cmsContact.address || "Wengehout 30, 2719 KA Zoetermeer, Netherlands",
       accent: "green",
       Icon: IconMapPin,
     },
@@ -182,8 +226,8 @@ export default function Footer() {
     },
     {
       label: "Mobile",
-      value: "+31619032104",
-      href: "tel:+31619032104",
+      value: cmsContact.phone || "+31619032104",
+      href: `tel:${(cmsContact.phone || "+31619032104").replace(/\s/g, "")}`,
       accent: "teal",
       Icon: IconPhone,
     },
@@ -192,17 +236,15 @@ export default function Footer() {
   const desktopContactCards = contactCards;
 
   return (
-    <footer className="site-footer site-footer--with-bg" style={{ "--footer-bg-image": `url(${footerBg})` }}>
+    <footer className="site-footer site-footer--with-bg" style={{ "--footer-bg-image": `url(${footerBgImage})` }}>
       <div className="footer-mobile">
         <div className="footer-mobile-hero">
           <IconHeart className="footer-mobile-hero__heart" aria-hidden stroke={1.75} />
 
-          <h2 className="footer-mobile-hero__title">Together, We Can</h2>
+          <h2 className="footer-mobile-hero__title">{heroHeading}</h2>
           <div className="footer-mobile-hero__subtitle-wrap">
             <p className="footer-mobile-hero__subtitle">
-              <span className="footer-mobile-hero__subtitle-blue">Create a </span>
-              <span className="footer-mobile-hero__subtitle-green">Better</span>
-              <span className="footer-mobile-hero__subtitle-green-light"> Tomorrow.</span>
+              <span className="footer-mobile-hero__subtitle-blue">{heroSubheading}</span>
             </p>
           </div>
 
@@ -211,7 +253,7 @@ export default function Footer() {
           <div className="footer-mobile-hero__brand">
             <img
               className="footer-mobile-hero__logo"
-              src={voiceNlLogo}
+              src={footerLogo}
               alt=""
               loading="lazy"
             />
@@ -222,19 +264,19 @@ export default function Footer() {
 
           <a
             className="footer-mobile-whatsapp-btn"
-            href={WHATSAPP_GROUP_URL}
+            href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
           >
             <IconBrandWhatsapp className="footer-mobile-whatsapp-btn__icon" aria-hidden stroke={1.75} />
-            <span>Join WhatsApp Group</span>
+            <span>{whatsappText}</span>
           </a>
         </div>
 
         <section className="footer-mobile-section" aria-label="Follow us">
           <FooterSectionTitle>Follow Us</FooterSectionTitle>
           <div className="footer-mobile-social">
-            {socialLinks.map(({ href, label, Icon }) => (
+            {activeSocialLinks.map(({ href, label, Icon }) => (
               <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
                 <Icon aria-hidden stroke={1.75} />
               </a>
@@ -245,7 +287,7 @@ export default function Footer() {
         <section className="footer-mobile-section" aria-label="Quick links">
           <FooterSectionTitle>Quick Links</FooterSectionTitle>
           <div className="footer-mobile-quick-grid">
-            {footerQuickLinks.map(({ label, to, Icon }) => (
+            {activeQuickLinks.map(({ label, to, Icon }) => (
               <Link key={to} to={to} className="footer-mobile-quick-link">
                 <span className="footer-mobile-quick-link__icon">
                   <Icon aria-hidden stroke={1.75} />
@@ -320,7 +362,7 @@ export default function Footer() {
 
         <p className="footer-mobile-copyright">
           <IconShield aria-hidden stroke={1.75} />
-          <span>© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.</span>
+          <span>{copyrightText}</span>
         </p>
       </div>
 
@@ -328,17 +370,16 @@ export default function Footer() {
         <div className="footer-desktop-hero">
           <div className="footer-desktop-hero__main">
             <div className="footer-desktop-hero__headline">
-              <h2 className="footer-desktop-hero__title">Together, We Can</h2>
+              <h2 className="footer-desktop-hero__title">{heroHeading}</h2>
               <p className="footer-desktop-hero__subtitle">
-                <span className="footer-desktop-hero__subtitle-blue">Create a </span>
-                <span className="footer-desktop-hero__subtitle-green">Better Tomorrow.</span>
+                <span className="footer-desktop-hero__subtitle-blue">{heroSubheading}</span>
               </p>
             </div>
 
             <div className="footer-desktop-brand">
               <img
                 className="footer-desktop-brand__logo"
-                src={voiceNlLogo}
+                src={footerLogo}
                 alt=""
                 loading="lazy"
               />
@@ -346,28 +387,25 @@ export default function Footer() {
                 <p className="footer-desktop-brand__name">V.O.I.C.E. NL</p>
               </div>
               <span className="footer-desktop-brand__vline" aria-hidden="true" />
-              <p className="footer-desktop-brand__mission">
-                We believe in positive change, inclusive communities, and empowering people to build a
-                better future together.
-              </p>
+              <p className="footer-desktop-brand__mission">{missionText}</p>
             </div>
           </div>
 
           <aside className="footer-desktop-hero__aside">
             <a
               className="footer-desktop-whatsapp-btn"
-              href={WHATSAPP_GROUP_URL}
+              href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
             >
               <IconBrandWhatsapp aria-hidden stroke={1.75} />
-              Join WhatsApp Group
+              {whatsappText}
             </a>
 
             <div className="footer-desktop-follow">
               <p className="footer-desktop-follow__title">Follow Us</p>
               <div className="footer-desktop-social">
-                {socialLinks.map(({ href, label, Icon }) => (
+                {activeSocialLinks.map(({ href, label, Icon }) => (
                   <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
                     <Icon aria-hidden stroke={1.75} />
                   </a>
@@ -381,7 +419,7 @@ export default function Footer() {
           <section className="footer-desktop-nav__quick" aria-label="Quick links">
             <h3 className="footer-desktop-section-title">Quick Links</h3>
             <div className="footer-desktop-quick-grid">
-              {footerQuickLinks.map(({ label, to, Icon }) => (
+              {activeQuickLinks.map(({ label, to, Icon }) => (
                 <FooterDesktopQuickLink key={to} label={label} to={to} Icon={Icon} />
               ))}
             </div>
@@ -436,7 +474,7 @@ export default function Footer() {
           <hr className="footer-desktop-divider footer-desktop-bottom__divider" aria-hidden="true" />
           <p className="footer-desktop-copyright">
             <IconShield aria-hidden stroke={1.75} />
-            <span>© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.</span>
+            <span>{copyrightText}</span>
           </p>
         </div>
       </div>

@@ -21,6 +21,7 @@ import { buildMembershipQrImageUrl } from "./membershipQrService.js";
 import { recordDiscountUsage } from "./discountService.js";
 import { confirmTicketPayment } from "./ticketPaymentService.js";
 import { formatOrder, formatTicket } from "./ticketOrderService.js";
+import { getSeatMapByEventId } from "./seatService.js";
 import { logCheckoutAction, CHECKOUT_AUDIT_ACTIONS } from "./checkoutAuditService.js";
 import {
   isOrderPaymentSettled,
@@ -183,10 +184,14 @@ export async function provisionMembershipFromBundleOrder({
 
 export async function generateTicketsForOrder(order) {
   const existingTickets = await Ticket.find({ orderId: order._id }).sort({ createdAt: 1 }).lean();
-  if (existingTickets.length > 0) return existingTickets;
+  if (existingTickets.length > 0) return { tickets: existingTickets, event: await Event.findById(order.eventId).lean() };
 
   const event = await Event.findById(order.eventId).lean();
   const tickets = [];
+  const selectedSeats = order.selectedSeats || [];
+  let seatIndex = 0;
+  const seatMapDoc = selectedSeats.length ? await getSeatMapByEventId(order.eventId) : null;
+  const seatMapId = seatMapDoc?.seatMapId || "";
 
   for (const line of order.lineItems) {
     const tt = await TicketType.findById(line.ticketTypeId);
@@ -199,10 +204,21 @@ export async function generateTicketsForOrder(order) {
       throw err;
     }
 
+    const lineSeatIds = line.seatIds?.length
+      ? line.seatIds
+      : selectedSeats.slice(seatIndex, seatIndex + line.quantity).map((s) => s.seatId);
+
+    if (selectedSeats.length && lineSeatIds.length) {
+      const { bookSeatsForOrder } = await import("./seatService.js");
+      await bookSeatsForOrder(order, lineSeatIds);
+    }
+
     for (let i = 0; i < line.quantity; i += 1) {
       const verificationToken = generateVerificationToken();
       const ticketNumber = await buildTicketNumber();
       const attendeeName = `${order.attendeeFirstName} ${order.attendeeLastName}`.trim();
+      const seatInfo = selectedSeats[seatIndex] || null;
+      seatIndex += 1;
 
       const ticket = await Ticket.create({
         ticketNumber,
@@ -216,6 +232,13 @@ export async function generateTicketsForOrder(order) {
         qrCodeUrl: buildTicketQrPath(verificationToken),
         pdfUrl: `/api/tickets/${ticketNumber}/pdf`,
         status: "valid",
+        seatMapId: seatInfo ? seatMapId : "",
+        seatId: seatInfo?.seatId || "",
+        section: seatInfo?.section || "",
+        row: seatInfo?.row || "",
+        seatNumber: seatInfo?.seatNumber || "",
+        seatLabel: seatInfo?.seatLabel || "",
+        seatCategory: seatInfo?.category || "",
       });
       tickets.push(ticket);
 
@@ -390,6 +413,11 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
       order.paymentStatus = "failed";
       order.orderStatus = "PENDING";
       await order.save();
+      const seatIds = (order.selectedSeats || []).map((s) => s.seatId).filter(Boolean);
+      if (seatIds.length) {
+        const { releaseSeatHolds } = await import("./seatService.js");
+        await releaseSeatHolds({ eventId: order.eventId, seatIds });
+      }
       const err = new Error(confirmed.error || "Payment failed.");
       err.status = 400;
       throw err;

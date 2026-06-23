@@ -4,9 +4,10 @@ import BreadcrumbPageHeader from "../layout/BreadcrumbPageHeader.jsx";
 import ImpactHerBeatsSection from "./ImpactHerBeatsSection";
 import ImpactHighlightSection from "./ImpactHighlightSection";
 import ImpactAreasSection from "./ImpactAreasSection";
+import CmsAwarePage from "../cms/CmsAwarePage.jsx";
 import "../../styles/impact-page.css";
 
-export default function ImpactPage() {
+function ImpactPageFallback() {
   return (
     <div id="impact-navbar-top" className="impact-page-shell">
       <BreadcrumbPageHeader
@@ -21,4 +22,8 @@ export default function ImpactPage() {
       <ImpactAreasSection />
     </div>
   );
+}
+
+export default function ImpactPage() {
+  return <CmsAwarePage slug="impact" fallback={<ImpactPageFallback />} />;
 }

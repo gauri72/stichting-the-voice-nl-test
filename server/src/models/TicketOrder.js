@@ -30,8 +30,21 @@ const ticketOrderSchema = new mongoose.Schema(
         eventDiscountMinor: { type: Number, default: 0, min: 0 },
         memberDiscountMinor: { type: Number, default: 0, min: 0 },
         finalPriceMinor: { type: Number, default: 0, min: 0 },
+        seatIds: { type: [String], default: [] },
       },
     ],
+    selectedSeats: [
+      {
+        seatId: { type: String, trim: true },
+        section: { type: String, trim: true },
+        row: { type: String, trim: true },
+        seatNumber: { type: String, trim: true },
+        seatLabel: { type: String, trim: true },
+        category: { type: String, trim: true },
+        ticketTypeId: { type: mongoose.Schema.Types.ObjectId, ref: "TicketType", default: null },
+      },
+    ],
+    seatingMode: { type: String, default: "general_admission", trim: true },
     membershipItems: [
       {
         membershipType: { type: String, trim: true },

@@ -11,6 +11,7 @@ import {
   getOrder,
   myOrders,
 } from "../controllers/ticketController.js";
+import { getPublicSeatMap } from "../controllers/seatPublicController.js";
 
 const router = Router();
 
@@ -19,6 +20,9 @@ router.get("/orders/my", requireAuth, myOrders);
 router.get("/orders/:orderNumber", optionalAuth, getOrder);
 router.post("/orders/confirm-intent", optionalAuth, confirmPaymentByIntent);
 router.post("/orders/:orderId/confirm", optionalAuth, confirmPayment);
+
+router.get("/:eventId/seat-map", getPublicSeatMap);
+router.get("/:eventId/seats/availability", getPublicSeatMap);
 
 router.get("/:idOrSlug", getPublishedEvent);
 router.post("/:eventId/validate-voucher", optionalAuth, validateVoucher);

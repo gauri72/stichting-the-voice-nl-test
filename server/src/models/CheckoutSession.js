@@ -50,6 +50,7 @@ const checkoutSessionSchema = new mongoose.Schema(
     membershipDiscountAmount: { type: Number, default: 0, min: 0 },
     membershipDiscountRule: { type: mongoose.Schema.Types.Mixed, default: null },
     returnStep: { type: Number, default: 3, min: 1, max: 6 },
+    selectedSeatIds: { type: [String], default: [] },
     expiresAt: { type: Date, required: true },
   },
   { timestamps: true, collection: "checkout_sessions" }

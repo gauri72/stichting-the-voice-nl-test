@@ -3,9 +3,10 @@ import heroBgDark from "../../assets/Stories/hero-bg-dark.png";
 import BreadcrumbPageHeader from "../layout/BreadcrumbPageHeader.jsx";
 import StoriesPillarSection from "./StoriesPillarSection";
 import { STORIES_PILLARS } from "../../data/storiesDisplay.js";
+import CmsAwarePage from "../cms/CmsAwarePage.jsx";
 import "../../styles/stories-page.css";
 
-export default function StoriesPage() {
+function StoriesPageFallback() {
   return (
     <div id="stories-navbar-top" className="stories-page-shell">
       <BreadcrumbPageHeader
@@ -20,4 +21,8 @@ export default function StoriesPage() {
       ))}
     </div>
   );
+}
+
+export default function StoriesPage() {
+  return <CmsAwarePage slug="stories" fallback={<StoriesPageFallback />} />;
 }

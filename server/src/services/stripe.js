@@ -2,33 +2,70 @@ import Stripe from "stripe";
 import env from "../config/env.js";
 
 let stripeInstance = null;
+let cachedSecretKey = null;
+let runtimeSecretKey = null;
+let runtimeWebhookSecret = null;
 
 /** @returns {"live" | "test" | "unknown"} */
-export function getStripeKeyMode(secretKey = env.stripe.secretKey) {
+export function getStripeKeyMode(secretKey = getActiveSecretKey()) {
   const key = String(secretKey || "");
   if (key.startsWith("sk_live_")) return "live";
   if (key.startsWith("sk_test_")) return "test";
   return "unknown";
 }
 
-export function getStripe() {
-  if (stripeInstance) return stripeInstance;
+function getActiveSecretKey() {
+  return runtimeSecretKey || env.stripe.secretKey;
+}
 
-  if (!env.stripe.secretKey) {
+export function setRuntimeStripeSecrets({ secretKey, webhookSecret } = {}) {
+  if (secretKey !== undefined) {
+    runtimeSecretKey = secretKey || null;
+    stripeInstance = null;
+    cachedSecretKey = null;
+  }
+  if (webhookSecret !== undefined) {
+    runtimeWebhookSecret = webhookSecret || null;
+  }
+}
+
+export function getActiveWebhookSecret() {
+  return runtimeWebhookSecret || env.stripe.webhookSecret;
+}
+
+export async function loadStripeSecretsFromSettings() {
+  try {
+    const { getEffectiveStripeSecretKey, getEffectiveWebhookSecret } = await import(
+      "./stripeSettingsService.js"
+    );
+    const secretKey = await getEffectiveStripeSecretKey();
+    const webhookSecret = await getEffectiveWebhookSecret();
+    if (secretKey) setRuntimeStripeSecrets({ secretKey, webhookSecret });
+  } catch {
+    // Settings DB may be unavailable during startup
+  }
+}
+
+export function getStripe() {
+  const secretKey = getActiveSecretKey();
+  if (!secretKey) {
     throw new Error(
-      "STRIPE_SECRET_KEY is not configured. Add it to server/.env before processing payments."
+      "STRIPE_SECRET_KEY is not configured. Add it to server/.env or admin Stripe settings."
     );
   }
 
-  stripeInstance = new Stripe(env.stripe.secretKey, {
-    apiVersion: "2024-06-20"
+  if (stripeInstance && cachedSecretKey === secretKey) return stripeInstance;
+
+  stripeInstance = new Stripe(secretKey, {
+    apiVersion: "2024-06-20",
   });
+  cachedSecretKey = secretKey;
 
   return stripeInstance;
 }
 
 export function isStripeConfigured() {
-  return Boolean(env.stripe.secretKey);
+  return Boolean(getActiveSecretKey());
 }
 
 export function logStripeConfiguration() {

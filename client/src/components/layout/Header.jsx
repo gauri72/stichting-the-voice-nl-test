@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { IconTicket, IconUser, IconUserPlus } from "@tabler/icons-react";
 import ThemeToggle from "./ThemeToggle.jsx";
+import { useCmsHeader } from "../../hooks/useCmsPage.js";
 
-const BUY_TICKETS_URL =
+const DEFAULT_BUY_TICKETS_URL =
   "https://www.tickettailor.com/events/stichtingthevoicenl/2185529";
 
-const NAV_ITEMS = [
+const DEFAULT_NAV_ITEMS = [
   { label: "Home", to: "/", end: true },
   {
     label: "Our Pillars",
@@ -28,9 +29,40 @@ const NAV_ITEMS = [
   { label: "About Us", to: "/about-us" },
 ];
 
+function cmsItemsToNav(items = []) {
+  if (!items.length) return DEFAULT_NAV_ITEMS;
+  return items
+    .filter((item) => item.visible !== false && item.desktopVisible !== false)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    .map((item) => {
+      if (item.children?.length) {
+        return {
+          label: item.label,
+          children: item.children
+            .filter((c) => c.visible !== false)
+            .map((c) => ({ label: c.label, to: c.url || c.to || "/" })),
+        };
+      }
+      return { label: item.label, to: item.url || item.to || "/", end: item.url === "/" };
+    });
+}
+
 export default function Header() {
+  const { header } = useCmsHeader();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdownLabel, setOpenDropdownLabel] = useState(null);
+
+  const settings = header?.settings || {};
+  const NAV_ITEMS = cmsItemsToNav(header?.items);
+  const buyTicketsUrl = settings.buyTicketsButtonUrl || DEFAULT_BUY_TICKETS_URL;
+  const memberText = settings.memberButtonText || "Become A Member";
+  const memberUrl = settings.memberButtonUrl || "/membership";
+  const buyTicketsText = settings.buyTicketsButtonText || "Buy Tickets";
+  const loginText = settings.loginButtonText || "Log In Or Sign Up";
+  const loginUrl = settings.loginButtonUrl || "/my-account";
+  const showThemeToggle = settings.themeToggleVisible !== false;
+  const stickyClass = settings.stickyHeader !== false ? " site-header--sticky" : "";
+  const announcement = header?.announcementBar;
 
   function closeMenu() {
     setIsMenuOpen(false);
@@ -81,48 +113,53 @@ export default function Header() {
   const memberCta = (
     <Link
       className="donate-button nav-toolbar__cta-member dash-welcome__badge"
-      to="/membership"
+      to={memberUrl}
       onClick={closeMenu}
     >
       <IconUserPlus className="nav-toolbar__cta-icon dash-welcome__badge-icon" aria-hidden stroke={1.75} />
-      <span>Become A Member</span>
+      <span>{memberText}</span>
     </Link>
   );
 
   const buyTicketsCta = (
     <a
       className="donate-button buy-tickets-button dash-welcome__badge"
-      href={BUY_TICKETS_URL}
-      target="_blank"
+      href={buyTicketsUrl}
+      target={settings.buyTicketsOpenNewTab !== false ? "_blank" : "_self"}
       rel="noopener noreferrer"
       onClick={closeMenu}
       aria-label="Buy tickets on Ticket Tailor"
     >
       <IconTicket className="nav-toolbar__cta-icon dash-welcome__badge-icon buy-tickets-icon" aria-hidden stroke={1.75} />
-      <span>Buy Tickets</span>
+      <span>{buyTicketsText}</span>
     </a>
   );
 
   const authCta = (
     <Link
       className="donate-button auth-button nav-toolbar__cta-auth dash-welcome__badge"
-      to="/my-account"
+      to={loginUrl}
       onClick={closeMenu}
     >
       <IconUser className="nav-toolbar__cta-icon dash-welcome__badge-icon auth-button-icon" aria-hidden stroke={1.75} />
-      <span>Log In Or Sign Up</span>
+      <span>{loginText}</span>
     </Link>
   );
 
   return (
-    <header className="site-header">
+    <header className={`site-header${stickyClass}`}>
+      {announcement?.visible && announcement.text ? (
+        <div className="site-header__announcement">
+          {announcement.url ? <a href={announcement.url}>{announcement.text}</a> : announcement.text}
+        </div>
+      ) : null}
       <nav className="site-navbar" aria-label="Main">
         <div className="nav-toolbar">
           <div className="menu-links menu-links--desktop">{navLinks}</div>
           {memberCta}
           {buyTicketsCta}
           {authCta}
-          <ThemeToggle />
+          {showThemeToggle ? <ThemeToggle /> : null}
           <button
             className="menu-toggle"
             type="button"

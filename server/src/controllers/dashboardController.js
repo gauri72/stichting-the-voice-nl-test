@@ -154,3 +154,52 @@ export async function getDashboardEventBookingStatus(req, res) {
     return res.status(status).json({ error: message });
   }
 }
+
+export async function getDashboardSessions(req, res) {
+  try {
+    const SessionBooking = (await import("../models/SessionBooking.js")).default;
+    const bookings = await SessionBooking.find({
+      $or: [{ userId: req.user.id }, { customerEmail: String(req.user.email || "").toLowerCase() }],
+    })
+      .sort({ startsAt: 1 })
+      .lean();
+    const upcoming = bookings.filter((b) => new Date(b.startsAt) >= new Date());
+    const past = bookings.filter((b) => new Date(b.startsAt) < new Date());
+    return res.status(200).json({ upcoming, past });
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || "Sessions unavailable.";
+    if (status >= 500) console.error("[dashboard/sessions]", error);
+    return res.status(status).json({ error: message });
+  }
+}
+
+export async function getDashboardRsvps(req, res) {
+  try {
+    const RSVP = (await import("../models/RSVP.js")).default;
+    const email = String(req.user.email || "").toLowerCase();
+    const events = await RSVP.find({ "responses.email": email }).lean();
+    const responses = [];
+    for (const event of events) {
+      for (const response of event.responses || []) {
+        if (String(response.email || "").toLowerCase() !== email) continue;
+        responses.push({
+          eventSlug: event.eventSlug,
+          eventName: event.eventName,
+          eventDate: event.eventDate,
+          status: response.status,
+          guestCount: response.guestCount || 0,
+          attended: Boolean(response.attended),
+          submittedAt: response.createdAt || null,
+        });
+      }
+    }
+    responses.sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0));
+    return res.status(200).json({ responses });
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || "RSVPs unavailable.";
+    if (status >= 500) console.error("[dashboard/rsvps]", error);
+    return res.status(status).json({ error: message });
+  }
+}

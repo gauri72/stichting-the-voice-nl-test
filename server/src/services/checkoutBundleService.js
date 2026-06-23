@@ -481,6 +481,7 @@ export async function createBundleCheckout(eventId, payload, userId) {
     purchaseType = "NEW",
     applyMemberBenefit = true,
     sessionId = null,
+    selectedSeatIds = [],
   } = payload;
 
   const code = discountCode || voucherCode;
@@ -509,6 +510,18 @@ export async function createBundleCheckout(eventId, payload, userId) {
     purchaseType: includeMembership ? purchaseType : "NEW",
     discountCode: code,
     applyMemberBenefit,
+  });
+
+  const totalTicketQty = (items || []).reduce((sum, li) => sum + (li.quantity || 0), 0);
+  const { prepareOrderSeats } = await import("./seatService.js");
+  const seatData = await prepareOrderSeats({
+    eventId,
+    seatIds: selectedSeatIds,
+    ticketQuantity: totalTicketQty,
+    ticketTypeIds: (items || []).map((i) => String(i.ticketTypeId)),
+    checkoutSessionId: sessionId,
+    email,
+    userId,
   });
 
   console.log("[CHECKOUT_PAYMENT_STARTED]", {
@@ -618,6 +631,8 @@ export async function createBundleCheckout(eventId, payload, userId) {
         : 0,
     paymentStatus: "pending",
     termsAccepted: true,
+    selectedSeats: seatData.selectedSeats,
+    seatingMode: seatData.seatingMode,
   });
 
   const payment = await createTicketPaymentIntent({
@@ -737,6 +752,7 @@ export async function completeFreeOrder(eventId, payload, userId) {
     purchaseType = "NEW",
     applyMemberBenefit = true,
     sessionId = null,
+    selectedSeatIds = [],
   } = payload;
 
   const code = discountCode || voucherCode;
@@ -817,6 +833,18 @@ export async function completeFreeOrder(eventId, payload, userId) {
     details: { grandTotalMinor: 0, appliedDiscounts: preview.appliedDiscounts },
   });
 
+  const totalTicketQty = (items || []).reduce((sum, li) => sum + (li.quantity || 0), 0);
+  const { prepareOrderSeats } = await import("./seatService.js");
+  const seatData = await prepareOrderSeats({
+    eventId,
+    seatIds: selectedSeatIds,
+    ticketQuantity: totalTicketQty,
+    ticketTypeIds: (items || []).map((i) => String(i.ticketTypeId)),
+    checkoutSessionId: sessionId,
+    email,
+    userId,
+  });
+
   const orderNumber = await buildOrderNumber();
   const orderType = includeMembership ? "TICKET_AND_MEMBERSHIP" : "TICKET_ONLY";
 
@@ -894,6 +922,8 @@ export async function completeFreeOrder(eventId, payload, userId) {
     paymentStatus: "pending",
     orderStatus: "PENDING",
     termsAccepted: true,
+    selectedSeats: seatData.selectedSeats,
+    seatingMode: seatData.seatingMode,
   });
 
   const { fulfillOrder } = await import("./postPaymentFulfillmentService.js");

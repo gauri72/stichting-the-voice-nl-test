@@ -13,10 +13,12 @@ import {
   resolveMembershipQrSrc,
 } from "./dashboardUtils.js";
 import { downloadMembershipEcard } from "../../utils/membershipEcard.js";
+import CustomerDashboardRenderer from "./CustomerDashboardRenderer.jsx";
 import DashboardWelcomeBannerSection from "./sections/DashboardWelcomeBannerSection.jsx";
 import DashboardStatCardsSection from "./sections/DashboardStatCardsSection.jsx";
 import DashboardMembershipCardSection from "./sections/DashboardMembershipCardSection.jsx";
 import DashboardMyEventsWidget from "./sections/DashboardMyEventsWidget.jsx";
+import DashboardMySessionsSection from "./sections/DashboardMySessionsSection.jsx";
 import DashboardRecentActivitySection from "./sections/DashboardRecentActivitySection.jsx";
 import DashboardImpactSection from "./sections/DashboardImpactSection.jsx";
 import DashboardDiscountsSection from "./sections/DashboardDiscountsSection.jsx";
@@ -93,10 +95,41 @@ function DashboardShell({ children }) {
   );
 }
 
+function LegacyMemberDashboard({ displayName, overview, activity, membership, hasMembership, planId, planShort, membershipId, memberSince, validUntil, validFrom, qrSrc, wallet, quickActions }) {
+  return (
+    <>
+      <DashboardWelcomeBannerSection displayName={displayName} />
+      <div className="member-dashboard__body">
+        <DashboardDiscountsSection />
+        <DashboardMyEventsWidget />
+        <DashboardMySessionsSection />
+        <DashboardReferralSection />
+        <DashboardStatCardsSection overview={overview} hasMembership={hasMembership} planId={planId} />
+        <DashboardMembershipCardSection
+          planShort={planShort}
+          planId={planId}
+          membershipId={membershipId}
+          memberSince={memberSince}
+          validUntil={validUntil}
+          validFrom={validFrom}
+          hasMembership={hasMembership}
+          qrSrc={qrSrc}
+          wallet={wallet}
+        />
+        <DashboardImpactSection overview={overview} />
+        <DashboardRecentActivitySection activity={activity} quickActions={quickActions} />
+        <DashboardClosingCtaSection />
+      </div>
+    </>
+  );
+}
+
 export default function MemberDashboard() {
   const { user } = useAuth();
   const [dashboard, setDashboard] = useState(null);
   const [membership, setMembership] = useState(null);
+  const [dashboardConfig, setDashboardConfig] = useState(null);
+  const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
 
@@ -104,12 +137,16 @@ export default function MemberDashboard() {
     setLoading(true);
     setLoadError("");
     try {
-      const [dash, mem] = await Promise.all([
+      const [dash, mem, configRes, dataRes] = await Promise.all([
         apiFetch("/api/dashboard", { headers: authHeaders() }),
         apiFetch("/api/dashboard/memberships", { headers: authHeaders() }).catch(() => null),
+        apiFetch("/api/dashboard/config", { headers: authHeaders() }).catch(() => ({ sections: null })),
+        apiFetch("/api/dashboard/data", { headers: authHeaders() }).catch(() => null),
       ]);
       setDashboard(dash);
       setMembership(mem);
+      setDashboardConfig(configRes?.sections ? configRes : null);
+      setDashboardData(dataRes);
     } catch (e) {
       setLoadError(e.message || "Could not load your dashboard.");
     } finally {
@@ -181,6 +218,17 @@ export default function MemberDashboard() {
     },
   ];
 
+  const mergedData = useMemo(
+    () => ({
+      ...dashboardData,
+      profile: dashboardData?.profile || profile,
+      overview: dashboardData?.overview || overview,
+      activity: dashboardData?.activity || activity,
+      membership: dashboardData?.membership || membership,
+    }),
+    [dashboardData, profile, overview, activity, membership]
+  );
+
   if (loading) {
     return (
       <DashboardShell>
@@ -204,38 +252,30 @@ export default function MemberDashboard() {
 
   return (
     <DashboardShell>
-      <DashboardWelcomeBannerSection displayName={displayName} />
-
-      <div className="member-dashboard__body">
-        <DashboardDiscountsSection />
-        <DashboardMyEventsWidget />
-
-        <DashboardReferralSection />
-
-        <DashboardStatCardsSection
+      {dashboardConfig?.sections?.length ? (
+        <CustomerDashboardRenderer
+          config={dashboardConfig}
+          data={mergedData}
+          displayName={displayName}
+        />
+      ) : (
+        <LegacyMemberDashboard
+          displayName={displayName}
           overview={overview}
+          activity={activity}
+          membership={membership}
           hasMembership={hasMembership}
           planId={planId}
-        />
-
-        <DashboardMembershipCardSection
           planShort={planShort}
-          planId={planId}
           membershipId={membershipId}
           memberSince={memberSince}
           validUntil={validUntil}
           validFrom={validFrom}
-          hasMembership={hasMembership}
           qrSrc={qrSrc}
           wallet={wallet}
+          quickActions={quickActions}
         />
-
-        <DashboardImpactSection overview={overview} />
-
-        <DashboardRecentActivitySection activity={activity} quickActions={quickActions} />
-
-        <DashboardClosingCtaSection />
-      </div>
+      )}
     </DashboardShell>
   );
 }

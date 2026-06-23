@@ -3,10 +3,11 @@ import app from "./app.js";
 import env from "./config/env.js";
 import { connectDb } from "./db/connectDb.js";
 import { ensureIndexes } from "./db/ensureIndexes.js";
-import { logStripeConfiguration } from "./services/stripe.js";
+import { logStripeConfiguration, loadStripeSecretsFromSettings } from "./services/stripe.js";
 import { logTicketTailorConfiguration } from "./services/ticketTailorService.js";
 import { startPastDataSyncScheduler } from "./services/pastDataSyncScheduler.js";
 import { logMailConfiguration, verifySmtpConnection } from "./services/smtpTransport.js";
+import { cleanupExpiredSeatHolds } from "./services/seatService.js";
 
 // Some local resolvers refuse SRV lookups for mongodb+srv://. Outside production
 // (or when DNS_SERVERS is set) fall back to public DNS so we can reach Atlas.
@@ -44,7 +45,13 @@ if (shouldConnectDb) {
       await ensureIndexes().catch((err) =>
         console.warn("[indexes] ensureIndexes failed:", err.message)
       );
+      await loadStripeSecretsFromSettings().catch(() => {});
       startPastDataSyncScheduler();
+      setInterval(() => {
+        cleanupExpiredSeatHolds().catch((err) =>
+          console.warn("[seats] hold cleanup failed:", err.message)
+        );
+      }, 60_000);
     })
     .catch((error) => {
       console.warn("MongoDB connection failed, continuing without DB");

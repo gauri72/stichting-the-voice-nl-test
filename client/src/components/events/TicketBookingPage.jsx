@@ -19,7 +19,9 @@ import {
   readCheckoutSession,
 } from "../../utils/stripePayment.js";
 import { CUSTOMER_MEMBERSHIP_MESSAGES, sanitizeCustomerDiscountLabel } from "../../utils/membershipDisplayLabels.js";
+import SeatMapSelector from "./SeatMapSelector.jsx";
 import "../../styles/sponsorship-payment-block.css";
+import "../../styles/seat-map.css";
 
 const TICKET_CHECKOUT_SESSION_KEY = "voice_nl_ticket_checkout";
 
@@ -75,6 +77,9 @@ export default function TicketBookingPage() {
   const [membershipCode, setMembershipCode] = useState("");
   const [membershipCodeMessage, setMembershipCodeMessage] = useState("");
   const [membershipCodeApplied, setMembershipCodeApplied] = useState(false);
+  const [reservedSeatingEnabled, setReservedSeatingEnabled] = useState(false);
+  const [selectedSeatIds, setSelectedSeatIds] = useState([]);
+  const [selectedSeatsDetail, setSelectedSeatsDetail] = useState([]);
   const sessionRestoreRef = useRef(false);
 
   const checkoutSessionIdFromUrl = searchParams.get("checkoutSessionId") || "";
@@ -104,6 +109,14 @@ export default function TicketBookingPage() {
   const showMembershipStep =
     checkoutSettings.enableMembershipUpsell !== false &&
     checkoutSettings.allowMembershipTicketBundle !== false;
+
+  const seatOffset = reservedSeatingEnabled ? 1 : 0;
+  const ticketQty = selectedItems.reduce((sum, li) => sum + li.quantity, 0);
+  const DETAILS_STEP = 2 + seatOffset;
+  const BENEFITS_STEP = 3 + seatOffset;
+  const MEMBERSHIP_STEP = 4 + seatOffset;
+  const REVIEW_STEP = (showMembershipStep ? 5 : 4) + seatOffset;
+  const PAYMENT_STEP = REVIEW_STEP + 1;
 
   useEffect(() => {
     if (user) {
@@ -137,10 +150,14 @@ export default function TicketBookingPage() {
 
           if (eventData.event?.id) {
             try {
-              const plansData = await apiFetch(
-                `/api/checkout/membership-plans/${eventData.event.id}`
-              );
-              if (!cancelled) setMembershipPlans(plansData.plans || []);
+              const [plansData, seatData] = await Promise.all([
+                apiFetch(`/api/checkout/membership-plans/${eventData.event.id}`),
+                apiFetch(`/api/events/${eventData.event.id}/seat-map?checkoutSessionId=${sessionData.sessionId}`).catch(() => ({ reservedSeatingEnabled: false })),
+              ]);
+              if (!cancelled) {
+                setMembershipPlans(plansData.plans || []);
+                setReservedSeatingEnabled(Boolean(seatData.reservedSeatingEnabled));
+              }
             } catch {
               /* plans optional */
             }
@@ -400,7 +417,7 @@ export default function TicketBookingPage() {
         onSuccess: finalizeTicketPayment,
         onError: (msg) => {
           setError(msg);
-          setStep(6);
+          setStep(PAYMENT_STEP);
         },
       });
       setHandlingReturn(false);
@@ -500,6 +517,7 @@ export default function TicketBookingPage() {
           applyMemberBenefit,
           sessionId,
           membershipCode: membershipCode || undefined,
+          selectedSeatIds,
         }),
       });
 
@@ -526,7 +544,7 @@ export default function TicketBookingPage() {
     } catch (err) {
       setError(err.message || "Could not start checkout.");
       checkoutInitRef.current = false;
-      setStep(5);
+      setStep(REVIEW_STEP);
     } finally {
       setCheckoutLoading(false);
     }
@@ -555,6 +573,7 @@ export default function TicketBookingPage() {
           applyMemberBenefit,
           sessionId,
           membershipCode: membershipCode || undefined,
+          selectedSeatIds,
         }),
       });
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
@@ -605,24 +624,24 @@ export default function TicketBookingPage() {
 
     if (isActiveGuest && applyMemberBenefit) {
       setError("Please log in to apply member benefits, or choose Continue Without Benefits.");
-      setStep(3);
+      setStep(BENEFITS_STEP);
       return;
     }
 
     if (isExpiredGuest) {
       setError("Renew your membership to apply benefits, or choose Tickets Only.");
-      setStep(3);
+      setStep(BENEFITS_STEP);
       return;
     }
 
     checkoutInitRef.current = false;
     setClientSecret("");
     setCheckoutOrder(null);
-    setStep(6);
+    setStep(PAYMENT_STEP);
   }
 
   useEffect(() => {
-    if (isFreeCheckout || step !== 6 || clientSecret || checkoutLoading || handlingReturn || checkoutOrder) return;
+    if (isFreeCheckout || step !== PAYMENT_STEP || clientSecret || checkoutLoading || handlingReturn || checkoutOrder) return;
     if (checkoutInitRef.current) return;
     checkoutInitRef.current = true;
     initCheckout();
@@ -652,14 +671,14 @@ export default function TicketBookingPage() {
     ) {
       setPurchaseType("RENEWAL");
     }
-    setStep(4);
+    setStep(MEMBERSHIP_STEP);
   }
 
   function handleTicketsOnly() {
     setIncludeMembership(false);
     setSelectedPlanId(null);
     setApplyMemberBenefit(false);
-    setStep(5);
+    setStep(REVIEW_STEP);
   }
 
   function handleContinueWithoutDiscount() {
@@ -670,7 +689,7 @@ export default function TicketBookingPage() {
 
   function nextFromDetails() {
     if (!attendee.firstName || !attendee.lastName || !attendee.email) return;
-    setStep(3);
+    setStep(BENEFITS_STEP);
   }
 
   function nextFromBenefits() {
@@ -682,9 +701,9 @@ export default function TicketBookingPage() {
       return;
     }
     if (includeMembership || showMembershipStep) {
-      setStep(4);
+      setStep(MEMBERSHIP_STEP);
     } else {
-      setStep(5);
+      setStep(REVIEW_STEP);
     }
   }
 
@@ -695,7 +714,7 @@ export default function TicketBookingPage() {
     }
     setError("");
     refreshPreview();
-    setStep(5);
+    setStep(REVIEW_STEP);
   }
 
   if (loading) {
@@ -722,12 +741,18 @@ export default function TicketBookingPage() {
     day: "numeric",
   });
 
-  const visibleSteps = showMembershipStep ? STEPS : STEPS.filter((s) => s !== "Membership");
-  const displayStep = showMembershipStep
-    ? step
-    : step > 4
-      ? step - 1
-      : step;
+  const visibleSteps = (() => {
+    const base = showMembershipStep ? STEPS : STEPS.filter((s) => s !== "Membership");
+    if (reservedSeatingEnabled) {
+      return ["Select tickets", "Select seats", ...base.slice(1)];
+    }
+    return base;
+  })();
+  const displayStep = (() => {
+    let s = step;
+    if (!showMembershipStep && s > MEMBERSHIP_STEP) s -= 1;
+    return s;
+  })();
 
   return (
     <div className="ticket-booking">
@@ -793,14 +818,46 @@ export default function TicketBookingPage() {
               type="button"
               className="ticket-booking__cta"
               disabled={!selectedItems.length}
-              onClick={() => setStep(2)}
+              onClick={() => setStep(reservedSeatingEnabled ? 2 : DETAILS_STEP)}
             >
               Continue
             </button>
           </section>
         ) : null}
 
-        {step === 2 ? (
+        {step === 2 && reservedSeatingEnabled ? (
+          <section className="ticket-booking__card">
+            <h2>Select your seats</h2>
+            <p className="ticket-booking__hint">
+              Choose {ticketQty} seat{ticketQty !== 1 ? "s" : ""} for your tickets.
+            </p>
+            <SeatMapSelector
+              eventId={event.id}
+              checkoutSessionId={sessionId}
+              ticketQuantity={ticketQty}
+              ticketTypeIds={selectedItems.map((i) => i.ticketTypeId)}
+              selectedSeatIds={selectedSeatIds}
+              onSelectionChange={(ids, seats) => {
+                setSelectedSeatIds(ids);
+                setSelectedSeatsDetail(seats || []);
+              }}
+              onError={setError}
+            />
+            <div className="ticket-booking__nav">
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(1)}>Back</button>
+              <button
+                type="button"
+                className="ticket-booking__cta"
+                disabled={selectedSeatIds.length !== ticketQty}
+                onClick={() => setStep(DETAILS_STEP)}
+              >
+                Continue
+              </button>
+            </div>
+          </section>
+        ) : null}
+
+        {step === DETAILS_STEP ? (
           <section className="ticket-booking__card">
             <h2>Your details</h2>
             <p className="ticket-booking__hint">
@@ -867,7 +924,7 @@ export default function TicketBookingPage() {
               </p>
             ) : null}
             <div className="ticket-booking__nav">
-              <button type="button" className="ticket-booking__back" onClick={() => setStep(1)}>Back</button>
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(reservedSeatingEnabled ? 2 : 1)}>Back</button>
               <button
                 type="button"
                 className="ticket-booking__cta"
@@ -880,7 +937,7 @@ export default function TicketBookingPage() {
           </section>
         ) : null}
 
-        {step === 3 ? (
+        {step === BENEFITS_STEP ? (
           <section className="ticket-booking__card">
             <h2>Membership benefit check</h2>
             <MembershipBenefitBanner
@@ -903,7 +960,7 @@ export default function TicketBookingPage() {
               </p>
             ) : null}
             <div className="ticket-booking__nav">
-              <button type="button" className="ticket-booking__back" onClick={() => setStep(2)}>Back</button>
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(DETAILS_STEP)}>Back</button>
               <button type="button" className="ticket-booking__cta" onClick={nextFromBenefits}>
                 Continue
               </button>
@@ -911,7 +968,7 @@ export default function TicketBookingPage() {
           </section>
         ) : null}
 
-        {step === 4 && showMembershipStep ? (
+        {step === MEMBERSHIP_STEP && showMembershipStep ? (
           <section className="ticket-booking__card">
             <h2>Membership add-on</h2>
             <label className="ticket-booking__toggle">
@@ -935,7 +992,7 @@ export default function TicketBookingPage() {
               />
             ) : null}
             <div className="ticket-booking__nav">
-              <button type="button" className="ticket-booking__back" onClick={() => setStep(3)}>Back</button>
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(BENEFITS_STEP)}>Back</button>
               <button type="button" className="ticket-booking__cta" onClick={nextFromMembership}>
                 Continue to review
               </button>
@@ -943,7 +1000,7 @@ export default function TicketBookingPage() {
           </section>
         ) : null}
 
-        {step === 5 ? (
+        {step === REVIEW_STEP ? (
           <section className="ticket-booking__card">
             <h2>Review your booking</h2>
 
@@ -998,6 +1055,20 @@ export default function TicketBookingPage() {
               </p>
             ) : null}
 
+            {reservedSeatingEnabled && selectedSeatsDetail.length ? (
+              <div className="seat-map-summary" style={{ position: "static", marginBottom: 16 }}>
+                <h3>Selected seats</h3>
+                <ul>
+                  {selectedSeatsDetail.map((s) => (
+                    <li key={s.seatId}>
+                      {s.section ? `${s.section} · ` : ""}Row {s.row}, Seat {s.seatNumber}
+                      {s.category && s.category !== "regular" ? ` (${s.category})` : ""}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             <BookingPricePreview preview={preview} />
 
             <label className="ticket-booking__terms">
@@ -1011,7 +1082,7 @@ export default function TicketBookingPage() {
               </p>
             ) : null}
             <div className="ticket-booking__nav">
-              <button type="button" className="ticket-booking__back" onClick={() => setStep(showMembershipStep ? 4 : 3)}>Back</button>
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(showMembershipStep ? MEMBERSHIP_STEP : BENEFITS_STEP)}>Back</button>
               <button
                 type="button"
                 className="ticket-booking__cta"
@@ -1028,7 +1099,7 @@ export default function TicketBookingPage() {
           </section>
         ) : null}
 
-        {step === 6 ? (
+        {step === PAYMENT_STEP ? (
           <section className="ticket-booking__card ticket-booking__card--payment">
             {isFreeCheckout ? (
               <>
@@ -1116,7 +1187,7 @@ export default function TicketBookingPage() {
                   setClientSecret("");
                   setCheckoutOrder(null);
                   checkoutInitRef.current = false;
-                  setStep(5);
+                  setStep(REVIEW_STEP);
                 }}
               >
                 Back

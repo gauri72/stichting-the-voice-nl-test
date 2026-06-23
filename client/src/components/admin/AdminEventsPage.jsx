@@ -8,6 +8,7 @@ import {
   IconDeviceFloppy,
   IconExternalLink,
   IconMapPin,
+  IconMap,
   IconPencil,
   IconPlus,
   IconTicket,
@@ -1790,6 +1791,34 @@ export default function AdminEventsPage() {
               </div>
             </div>
           </section>
+
+          {editId ? (
+            <section className="admin-events__card">
+              <header className="admin-events__card-header admin-events__card-header--centered">
+                <div className="admin-events__card-heading admin-events__card-heading--centered">
+                  <span className="admin-events__card-icon"><IconMap size={20} /></span>
+                  <h2>Seating &amp; Seat Map</h2>
+                </div>
+              </header>
+              <div className="admin-events__card-body">
+                <p className="admin-events__hint">
+                  Upload a venue seat map, place seats, and enable reserved seating for ticket buyers.
+                </p>
+                <Link to={`/admin/events/${editId}/seat-map`} className="admin-events__outline-btn">
+                  <IconMap size={16} /> Open seat map editor
+                </Link>
+              </div>
+            </section>
+          ) : (
+            <section className="admin-events__card">
+              <header className="admin-events__card-header">
+                <h2>Seating &amp; Seat Map</h2>
+              </header>
+              <div className="admin-events__card-body">
+                <p className="admin-events__hint">Save the event first, then configure reserved seating and seat maps.</p>
+              </div>
+            </section>
+          )}
 
           <section className="admin-events__card">
             <header className="admin-events__card-header admin-events__card-header--centered admin-events__card-header--tickets">

@@ -4,6 +4,7 @@ import SponsorshipWhySection from "./SponsorshipWhySection";
 import SponsorshipPlansCardsSection from "./SponsorshipPlansCardsSection";
 import SponsorshipPaymentBlock, { SPONSOR_CHECKOUT_SESSION_KEY } from "./SponsorshipPaymentBlock";
 import { getCheckoutPageState } from "../../utils/stripePayment";
+import CmsAwarePage from "../cms/CmsAwarePage.jsx";
 import "../../styles/sponsorship-page.css";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
@@ -36,6 +37,10 @@ async function warmUpApi(signal) {
 }
 
 export default function SponsorshipPage() {
+  return <CmsAwarePage slug="sponsor-us" fallback={<SponsorshipPageFallback />} />;
+}
+
+function SponsorshipPageFallback() {
   const initialCheckout = getCheckoutPageState(SPONSOR_CHECKOUT_SESSION_KEY);
   const [selectedTier, setSelectedTier] = useState(initialCheckout.tier);
   const [showPaymentBlock, setShowPaymentBlock] = useState(initialCheckout.showPaymentBlock);

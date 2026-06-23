@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { adminLogin, adminMe, adminDashboard, requireAdmin } from "../controllers/adminController.js";
+import { adminLogin, adminMe, requireAdmin } from "../controllers/adminController.js";
 import { requireCaptcha } from "../middleware/captchaMiddleware.js";
 import adminBroadcastRoutes from "./adminBroadcastRoutes.js";
 import adminDiscountRoutes from "./adminDiscountRoutes.js";
@@ -10,22 +10,37 @@ import adminSponsorshipRoutes from "./adminSponsorshipRoutes.js";
 import adminDonationRoutes from "./adminDonationRoutes.js";
 import adminFinanceRoutes from "./adminFinanceRoutes.js";
 import adminReportRoutes from "./adminReportRoutes.js";
+import adminPageRoutes from "./adminPageRoutes.js";
+import adminDashboardRoutes from "./adminDashboardRoutes.js";
+import adminCustomerDashboardRoutes from "./adminCustomerDashboardRoutes.js";
+import adminSettingsRoutes from "./adminSettingsRoutes.js";
+import adminSessionRoutes from "./adminSessionRoutes.js";
+import adminSessionBookingRoutes from "./adminSessionBookingRoutes.js";
+import adminResourceRoutes from "./adminResourceRoutes.js";
+import adminRsvpRoutes from "./adminRsvpRoutes.js";
 import { syncTicketTailor } from "../controllers/adminMembershipController.js";
 
 const router = Router();
 
 router.post("/login", requireCaptcha(), adminLogin);
 router.get("/me", requireAdmin, adminMe);
-router.get("/dashboard", requireAdmin, adminDashboard);
+router.use("/dashboard", requireAdmin, adminDashboardRoutes);
 router.use("/broadcasts", adminBroadcastRoutes);
 router.use("/discounts", requireAdmin, adminDiscountRoutes);
 router.use("/users", requireAdmin, adminUserRoutes);
 router.use("/events", adminEventRoutes);
+router.use("/sessions", adminSessionRoutes);
+router.use("/session-bookings", adminSessionBookingRoutes);
+router.use("/resources", adminResourceRoutes);
+router.use("/rsvps", adminRsvpRoutes);
 router.post("/tickettailor/sync", requireAdmin, syncTicketTailor);
 router.use("/memberships", requireAdmin, adminMembershipRoutes);
 router.use("/sponsorships", requireAdmin, adminSponsorshipRoutes);
 router.use("/donations", requireAdmin, adminDonationRoutes);
 router.use("/finance", requireAdmin, adminFinanceRoutes);
 router.use("/reports", requireAdmin, adminReportRoutes);
+router.use("/pages", requireAdmin, adminPageRoutes);
+router.use("/customer-dashboard", requireAdmin, adminCustomerDashboardRoutes);
+router.use("/settings", requireAdmin, adminSettingsRoutes);
 
 export default router;

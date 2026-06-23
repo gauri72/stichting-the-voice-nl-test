@@ -207,6 +207,13 @@ export default function CheckInApp({ variant = "admin" }) {
             <div><dt>Attendee</dt><dd>{result.ticket?.attendeeName}</dd></div>
             <div><dt>Event</dt><dd>{result.event?.title}</dd></div>
             <div><dt>Ticket type</dt><dd>{result.ticket?.ticketTypeName}</dd></div>
+            {result.ticket?.row || result.ticket?.seatNumber ? (
+              <>
+                <div><dt>Section</dt><dd>{result.ticket?.section || "—"}</dd></div>
+                <div><dt>Row</dt><dd>{result.ticket?.row || "—"}</dd></div>
+                <div><dt>Seat</dt><dd>{result.ticket?.seatNumber || result.ticket?.seatLabel || "—"}</dd></div>
+              </>
+            ) : null}
             <div><dt>Ticket ID</dt><dd>{result.ticket?.ticketNumber}</dd></div>
             <div><dt>Venue</dt><dd>{result.event?.venueName || "—"}</dd></div>
           </dl>

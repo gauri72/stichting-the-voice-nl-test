@@ -107,9 +107,31 @@ export async function sendModuleEmail({ templateKey, to, payload, attachments })
   if (!to || !String(to).includes("@")) {
     throw Object.assign(new Error("Valid recipient email is required."), { status: 400 });
   }
-  const htmlTemplate = loadTemplate(templateKey);
+
+  let htmlTemplate = loadTemplate(templateKey);
+  let subjectTemplate = SUBJECTS[templateKey] || `${ORG_NAME} Notification`;
+
+  try {
+    const { getTemplateByType, renderTemplateContent } = await import("./emailTemplateService.js");
+    const { getOrgBranding } = await import("./emailProviderSettingsService.js");
+    const dbTpl = await getTemplateByType(templateKey);
+    const branding = await getOrgBranding();
+    if (dbTpl?.htmlBody) {
+      const vars = {
+        ...buildVars({ ...payload, supportEmail: branding.supportEmail }),
+        organization_name: branding.organizationName,
+        website_url: branding.websiteUrl,
+        support_email: branding.supportEmail,
+      };
+      const rendered = renderTemplateContent(dbTpl, vars);
+      await sendEmail({ to, subject: rendered.subject, html: rendered.html, attachments });
+      return { subject: rendered.subject, sent: true };
+    }
+  } catch (err) {
+    console.warn("[sponsorship-donation-mailer] DB template fallback:", err.message);
+  }
+
   const vars = buildVars(payload);
-  const subjectTemplate = SUBJECTS[templateKey] || `${ORG_NAME} Notification`;
   const subject = renderTemplate(subjectTemplate, vars).replace(/&quot;/g, '"');
   const html = htmlTemplate
     ? renderTemplate(htmlTemplate, vars)

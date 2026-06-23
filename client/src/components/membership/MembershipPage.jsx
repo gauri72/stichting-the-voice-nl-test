@@ -6,9 +6,10 @@ import MembershipPaymentBlock, {
   MEMBERSHIP_CHECKOUT_SESSION_KEY,
 } from "./MembershipPaymentBlock";
 import { getCheckoutPageState } from "../../utils/stripePayment";
+import CmsAwarePage from "../cms/CmsAwarePage.jsx";
 import "../../styles/membership-page.css";
 
-export default function MembershipPage() {
+function MembershipPageFallback() {
   const initialCheckout = getCheckoutPageState(MEMBERSHIP_CHECKOUT_SESSION_KEY);
   const [selectedTier, setSelectedTier] = useState(initialCheckout.tier);
   const [showPaymentBlock, setShowPaymentBlock] = useState(initialCheckout.showPaymentBlock);
@@ -55,4 +56,8 @@ export default function MembershipPage() {
       <MembershipComparisonTableSection />
     </div>
   );
+}
+
+export default function MembershipPage() {
+  return <CmsAwarePage slug="membership" fallback={<MembershipPageFallback />} />;
 }

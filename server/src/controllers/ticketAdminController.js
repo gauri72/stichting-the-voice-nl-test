@@ -235,13 +235,21 @@ export async function updateTicket(req, res) {
 
 export async function checkIn(req, res) {
   try {
-    const { checkInTicket } = await import("../services/ticketAdminService.js");
     const token = req.body?.token || req.body?.verificationToken;
     if (!token?.trim()) {
       return res.status(400).json({ error: "QR verification token is required." });
     }
-    const result = await checkInTicket(token.trim(), req.admin?.id);
-    return res.status(200).json(result);
+    const cleanToken = token.trim();
+    try {
+      const { checkInTicket } = await import("../services/ticketAdminService.js");
+      const result = await checkInTicket(cleanToken, req.admin?.id);
+      return res.status(200).json(result);
+    } catch (primaryError) {
+      if ((primaryError.status || 500) !== 404) throw primaryError;
+      const { resolveSessionOrRsvpCheckIn } = await import("../services/sessionPlatformService.js");
+      const fallback = await resolveSessionOrRsvpCheckIn(cleanToken, req.admin?.id);
+      return res.status(200).json(fallback);
+    }
   } catch (error) {
     return handleError(res, error);
   }

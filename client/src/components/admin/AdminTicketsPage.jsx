@@ -26,6 +26,9 @@ export default function AdminTicketsPage() {
     eventId: "",
     paymentStatus: "",
     checkedIn: "",
+    section: "",
+    row: "",
+    seatCategory: "",
   });
 
   const loadData = useCallback(async () => {
@@ -37,6 +40,9 @@ export default function AdminTicketsPage() {
       if (filters.eventId) params.set("eventId", filters.eventId);
       if (filters.paymentStatus) params.set("paymentStatus", filters.paymentStatus);
       if (filters.checkedIn) params.set("checkedIn", filters.checkedIn);
+      if (filters.section) params.set("section", filters.section);
+      if (filters.row) params.set("row", filters.row);
+      if (filters.seatCategory) params.set("seatCategory", filters.seatCategory);
 
       const [ticketsData, eventsData, statsData] = await Promise.all([
         apiFetch(`/api/admin/events/tickets?${params}`, { headers: adminAuthHeaders() }),
@@ -149,6 +155,17 @@ export default function AdminTicketsPage() {
         </td>
         <td>{t.eventTitle}</td>
         <td>{t.ticketTypeName}</td>
+        <td>
+          {t.section || t.row || t.seatNumber ? (
+            <>
+              {t.section ? <span className="admin-tickets__sub">{t.section}</span> : null}
+              Row {t.row || "—"} · Seat {t.seatNumber || t.seatLabel || "—"}
+              {t.seatCategory ? <span className="admin-tickets__sub">{t.seatCategory}</span> : null}
+            </>
+          ) : (
+            "—"
+          )}
+        </td>
         <td>
           <span className={`admin-tickets__badge admin-tickets__badge--${t.order?.paymentStatus}`}>
             {t.order?.paymentStatus === "free" ? "Free Booking" : (t.order?.paymentStatus || "—")}
@@ -270,6 +287,24 @@ export default function AdminTicketsPage() {
             <option value="true">Checked in</option>
             <option value="false">Not checked in</option>
           </select>
+          <input
+            type="text"
+            placeholder="Section"
+            value={filters.section}
+            onChange={(e) => setFilters((f) => ({ ...f, section: e.target.value }))}
+          />
+          <input
+            type="text"
+            placeholder="Row"
+            value={filters.row}
+            onChange={(e) => setFilters((f) => ({ ...f, row: e.target.value }))}
+          />
+          <select value={filters.seatCategory} onChange={(e) => setFilters((f) => ({ ...f, seatCategory: e.target.value }))}>
+            <option value="">All seat categories</option>
+            {["regular", "premium", "vip", "wheelchair", "companion", "staff", "blocked"].map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
           <button type="button" className="admin-tickets__btn" onClick={loadData}>
             <IconRefresh size={16} /> Refresh
           </button>
@@ -299,6 +334,7 @@ export default function AdminTicketsPage() {
                     <th>Attendee</th>
                     <th>Event</th>
                     <th>Type</th>
+                    <th>Seat</th>
                     <th>Payment</th>
                     <th>Check-in</th>
                     <th>Actions</th>

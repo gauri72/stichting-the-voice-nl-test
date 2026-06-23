@@ -23,6 +23,11 @@ import {
   applyMemberBenefitsAfterLoginHandler,
   applyTicketTailorMembershipBenefitHandler,
 } from "../controllers/checkoutBundleController.js";
+import {
+  holdSeats,
+  releaseSeatHold,
+  confirmSeats,
+} from "../controllers/seatPublicController.js";
 
 const router = Router();
 
@@ -44,6 +49,9 @@ router.post("/add-membership-to-cart", optionalAuth, addMembershipToCart);
 router.post("/remove-membership-from-cart", optionalAuth, removeMembershipFromCart);
 router.post("/create-payment-session", optionalAuth, createPaymentSession);
 router.post("/complete-free-order", optionalAuth, completeFreeOrderHandler);
+router.post("/seat-hold", optionalAuth, holdSeats);
+router.post("/release-seat-hold", optionalAuth, releaseSeatHold);
+router.post("/confirm-seats", optionalAuth, confirmSeats);
 router.post("/payment-success", optionalAuth, paymentSuccess);
 router.get("/membership-plans/:eventId", getMembershipPlansForEvent);
 

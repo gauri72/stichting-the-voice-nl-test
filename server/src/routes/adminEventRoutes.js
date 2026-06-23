@@ -33,6 +33,21 @@ import {
   previewYoutubeAdmin,
   uploadHighlightThumbnailAdmin,
 } from "../controllers/eventHighlightController.js";
+import {
+  getSeatMap,
+  patchSeatMap,
+  uploadSeatMapImage,
+  listSeats,
+  createSeat,
+  patchSeat,
+  deleteSeat,
+  bulkCreateSeats,
+  repositionSeats,
+  blockSeats,
+  unblockSeats,
+  changeTicketSeat,
+  releaseTicketSeat,
+} from "../controllers/seatMapAdminController.js";
 
 const router = Router();
 
@@ -43,6 +58,8 @@ router.get("/highlights", listHighlightsAdmin);
 router.get("/stats", ticketStats);
 router.get("/tickets", listTickets);
 router.get("/tickets/export", exportCsv);
+router.post("/tickets/:ticketId/change-seat", changeTicketSeat);
+router.post("/tickets/:ticketId/release-seat", releaseTicketSeat);
 router.patch("/tickets/:id", updateTicket);
 router.post("/tickets/:id/check-in", markCheckedIn);
 router.post("/tickets/:id/refund", markRefunded);
@@ -57,6 +74,20 @@ router.delete("/vouchers/:id", deleteVoucher);
 
 router.get("/", listEvents);
 router.post("/", createEvent);
+
+router.get("/:eventId/seat-map", getSeatMap);
+router.patch("/:eventId/seat-map", patchSeatMap);
+router.post("/:eventId/seat-map", patchSeatMap);
+router.post("/:eventId/seat-map/upload-image", uploadSeatMapImage);
+router.get("/:eventId/seats", listSeats);
+router.post("/:eventId/seats", createSeat);
+router.patch("/:eventId/seats/:seatId", patchSeat);
+router.delete("/:eventId/seats/:seatId", deleteSeat);
+router.post("/:eventId/seats/bulk-create", bulkCreateSeats);
+router.post("/:eventId/seats/reposition", repositionSeats);
+router.post("/:eventId/seats/block", blockSeats);
+router.post("/:eventId/seats/unblock", unblockSeats);
+
 router.get("/:id", getEvent);
 router.get("/:id/highlight", getHighlightAdmin);
 router.patch("/:id/highlight", patchHighlightAdmin);

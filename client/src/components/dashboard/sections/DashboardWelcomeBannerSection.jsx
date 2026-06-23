@@ -7,7 +7,7 @@ import { useAuth } from "../../../contexts/AuthContext.jsx";
 import { DASHBOARD_ROUTES } from "../dashboardUtils.js";
 import "../../../styles/dashboard-welcome-banner-section.css";
 
-export default function DashboardWelcomeBannerSection({ displayName }) {
+export default function DashboardWelcomeBannerSection({ displayName, greeting = "Welcome,", title }) {
   const { isDark } = useTheme();
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ export default function DashboardWelcomeBannerSection({ displayName }) {
       </div>
 
       <div className="dash-welcome__content">
-        <p className="dash-welcome__greeting">Welcome,</p>
+        <p className="dash-welcome__greeting">{greeting}</p>
         <h1
           id="dash-welcome-name"
           className={`dash-welcome__name${isDark ? "" : " dash-grad-text"}`}

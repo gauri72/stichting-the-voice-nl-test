@@ -88,6 +88,9 @@ function detailRow(label, value) {
 function buildTicketEmailText({ order, ticket, event }) {
   const eventTitle = event?.title || "Event";
   const viewUrl = `${env.clientUrl}/events/${event?.slug || event?._id || "event"}/tickets/confirmation/${order.orderNumber}`;
+  const seatLines = ticket.row || ticket.seatNumber
+    ? `\nYour seat:\nSection: ${ticket.section || "—"}\nRow: ${ticket.row || "—"}\nSeat: ${ticket.seatNumber || "—"}\n`
+    : "";
   return `Your ticket for ${eventTitle} is confirmed.
 
 Order: ${order.orderNumber}
@@ -96,8 +99,7 @@ Ticket type: ${ticket.ticketTypeName}
 Holder: ${ticket.attendeeName}
 Date: ${formatEventDate(event?.date)}
 Time: ${formatEventTime(event?.startTime, event?.endTime)}
-Venue: ${[event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—"}
-
+Venue: ${[event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—"}${seatLines}
 Your ticket PDF is attached to this email. Show the QR code at the venue entrance for check-in.
 
 View online: ${viewUrl}
@@ -125,6 +127,11 @@ function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
   const supportEmail = escapeHtml(env.org.contactEmail || "info@stichtingthevoice.nl");
   const tagline = escapeHtml(eventTagline(event));
   const websiteLabel = escapeHtml(WEBSITE_URL.replace(/^https?:\/\//, ""));
+  const seatDetailRows = ticket.row || ticket.seatNumber
+    ? `${detailRow("Section", escapeHtml(ticket.section || "—"))}
+                ${detailRow("Row", escapeHtml(ticket.row || "—"))}
+                ${detailRow("Seat", escapeHtml(ticket.seatNumber || ticket.seatLabel || "—"))}`
+    : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -186,6 +193,7 @@ function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
                 ${detailRow("Venue", venueValue)}
                 ${detailRow("Ticket Type", escapeHtml(ticket.ticketTypeName))}
                 ${detailRow("Ticket Holder", escapeHtml(ticket.attendeeName))}
+                ${seatDetailRows}
                 ${detailRow("Order ID", escapeHtml(order.orderNumber))}
                 ${detailRow("Purchase Date", escapeHtml(formatPurchaseDate(order.createdAt)))}
               </table>

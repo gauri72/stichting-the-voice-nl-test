@@ -22,6 +22,10 @@ import {
   IconArrowsExchange,
   IconShieldCheck,
   IconSettings,
+  IconWorld,
+  IconLayoutGrid,
+  IconUsersGroup,
+  IconCalendarEvent,
 } from "@tabler/icons-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
 import ThemeToggle from "../layout/ThemeToggle.jsx";
@@ -30,7 +34,14 @@ import "../../styles/admin-mobile.css";
 
 const NAV_ITEMS = [
   { to: "/admin/dashboard", label: "Dashboard", icon: IconLayoutDashboard, end: true },
+  { to: "/admin/dashboard-builder", label: "Dashboard Builder", icon: IconLayoutGrid },
+  { to: "/admin/customer-dashboard-builder", label: "Customer Dashboard Builder", icon: IconUsersGroup },
   { to: "/admin/events", label: "Events", icon: IconTicket },
+  { to: "/admin/sessions", label: "Sessions", icon: IconCalendarEvent },
+  { to: "/admin/session-calendar", label: "Session Calendar", icon: IconCalendarEvent },
+  { to: "/admin/session-bookings", label: "Session Bookings", icon: IconCalendarEvent },
+  { to: "/admin/resources", label: "Resources", icon: IconCalendarEvent },
+  { to: "/admin/rsvps", label: "RSVPs", icon: IconCalendarEvent },
   { to: "/admin/tickets", label: "Tickets", icon: IconTicket },
   { to: "/admin/check-in", label: "Check-in", icon: IconTicket },
   { to: "/admin/memberships", label: "Memberships", icon: IconUsers },
@@ -54,6 +65,8 @@ const NAV_ITEMS = [
   },
   { to: "/admin/vouchers", label: "Vouchers", icon: IconDiscount },
   { to: "/admin/communication", label: "Communication", icon: IconMail },
+  { to: "/admin/pages", label: "Website Pages", icon: IconWorld },
+  { to: "/admin/settings", label: "Settings", icon: IconSettings },
   { to: "/admin/reports", label: "Reports", icon: IconChartBar },
 ];
 

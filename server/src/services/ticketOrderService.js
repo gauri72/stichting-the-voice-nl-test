@@ -193,6 +193,8 @@ export function formatOrder(order) {
     vat: formatMoney(order.vatAmountMinor),
     total: formatMoney(order.totalAmountMinor),
     totalSavings: formatMoney(order.totalSavingsMinor || 0),
+    selectedSeats: order.selectedSeats || [],
+    seatingMode: order.seatingMode || "general_admission",
   };
 }
 
@@ -227,6 +229,13 @@ export function formatTicket(ticket) {
     checkedIn: ticket.checkedIn,
     checkedInAt: ticket.checkedInAt,
     createdAt: ticket.createdAt,
+    seatMapId: ticket.seatMapId || "",
+    seatId: ticket.seatId || "",
+    section: ticket.section || "",
+    row: ticket.row || "",
+    seatNumber: ticket.seatNumber || "",
+    seatLabel: ticket.seatLabel || "",
+    seatCategory: ticket.seatCategory || "",
   };
 }
 

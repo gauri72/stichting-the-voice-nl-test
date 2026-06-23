@@ -25,11 +25,15 @@ import PlaceholderPage from "./components/pages/PlaceholderPage";
 import PoliciesPage from "./components/policies/PoliciesPage";
 import AdminLoginPage from "./components/admin/AdminLoginPage";
 import AdminDashboardPage from "./components/admin/AdminDashboardPage";
+import AdminDashboardBuilderPage from "./components/admin/AdminDashboardBuilderPage.jsx";
+import AdminCustomerDashboardBuilderPage from "./components/admin/AdminCustomerDashboardBuilderPage.jsx";
+import AdminCustomerDashboardPreviewPage from "./components/admin/AdminCustomerDashboardPreviewPage.jsx";
 import AdminBroadcastPage from "./components/admin/AdminBroadcastPage";
 import AdminTemplateUploadPage from "./components/admin/AdminTemplateUploadPage";
 import AdminDiscountsPage from "./components/admin/AdminDiscountsPage";
 import AdminUsersPage from "./components/admin/AdminUsersPage";
 import AdminEventsPage from "./components/admin/AdminEventsPage.jsx";
+import AdminSeatMapEditor from "./components/admin/AdminSeatMapEditor.jsx";
 import AdminEventHighlightsPage from "./components/admin/AdminEventHighlightsPage.jsx";
 import AdminTicketsPage from "./components/admin/AdminTicketsPage.jsx";
 import AdminCheckInPage from "./components/admin/AdminCheckInPage.jsx";
@@ -50,9 +54,32 @@ import AdminFinanceReportsPage from "./components/admin/AdminFinanceReportsPage.
 import AdminFinanceSettingsPage from "./components/admin/AdminFinanceSettingsPage.jsx";
 import AdminReportsPage from "./components/admin/AdminReportsPage.jsx";
 import AdminCustomReportsPage from "./components/admin/AdminCustomReportsPage.jsx";
+import AdminPagesPage from "./components/admin/AdminPagesPage.jsx";
+import AdminPageEditorPage from "./components/admin/AdminPageEditorPage.jsx";
+import AdminHeaderEditorPage from "./components/admin/AdminHeaderEditorPage.jsx";
+import AdminFooterEditorPage from "./components/admin/AdminFooterEditorPage.jsx";
+import AdminSettingsLayout from "./components/admin/settings/AdminSettingsLayout.jsx";
+import AdminSettingsCategoryPage from "./components/admin/settings/AdminSettingsCategoryPage.jsx";
+import AdminStripeSettingsPage from "./components/admin/settings/AdminStripeSettingsPage.jsx";
+import AdminBankSettingsPage from "./components/admin/settings/AdminBankSettingsPage.jsx";
+import AdminEmailProviderSettingsPage from "./components/admin/settings/AdminEmailProviderSettingsPage.jsx";
+import AdminEmailTemplatesPage from "./components/admin/settings/AdminEmailTemplatesPage.jsx";
+import AdminEmailTemplateEditorPage from "./components/admin/settings/AdminEmailTemplateEditorPage.jsx";
+import AdminPdfTemplatesPage from "./components/admin/settings/AdminPdfTemplatesPage.jsx";
+import AdminSettingsAuditPage from "./components/admin/settings/AdminSettingsAuditPage.jsx";
+import PreviewPage from "./components/preview/PreviewPage.jsx";
 import VerifyMembershipPage from "./components/membership/VerifyMembershipPage.jsx";
 import TicketBookingPage from "./components/events/TicketBookingPage.jsx";
 import TicketConfirmationPage from "./components/events/TicketConfirmationPage.jsx";
+import SessionsPage from "./components/sessions/SessionsPage.jsx";
+import SessionDetailPage from "./components/sessions/SessionDetailPage.jsx";
+import SessionBookingPage from "./components/sessions/SessionBookingPage.jsx";
+import RsvpPage from "./components/rsvp/RsvpPage.jsx";
+import AdminSessionsPage from "./components/admin/AdminSessionsPage.jsx";
+import AdminSessionCalendarPage from "./components/admin/AdminSessionCalendarPage.jsx";
+import AdminSessionBookingsPage from "./components/admin/AdminSessionBookingsPage.jsx";
+import AdminResourcesPage from "./components/admin/AdminResourcesPage.jsx";
+import AdminRsvpsPage from "./components/admin/AdminRsvpsPage.jsx";
 import AdminSectionPlaceholder from "./components/admin/AdminSectionPlaceholder";
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
 import ManifestRouter from "./components/pwa/ManifestRouter.jsx";
@@ -107,6 +134,7 @@ export default function App() {
       {!hideSiteChrome && <Header />}
       <main className={`app-main${isStandalonePage ? " app-main--standalone" : ""}`}>
         <Routes>
+          <Route path="/preview/:pageSlug" element={<PreviewPage />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/our-pillars" element={<PlaceholderPage title="Our Pillars" />} />
           <Route path="/about-us" element={<AboutUsPage />} />
@@ -114,6 +142,10 @@ export default function App() {
           <Route path="/events" element={<EventsPage />} />
           <Route path="/events/:eventIdOrSlug/tickets" element={<TicketBookingPage />} />
           <Route path="/events/:eventIdOrSlug/tickets/confirmation/:orderNumber" element={<TicketConfirmationPage />} />
+          <Route path="/sessions" element={<SessionsPage />} />
+          <Route path="/sessions/:slug" element={<SessionDetailPage />} />
+          <Route path="/sessions/:slug/book" element={<SessionBookingPage />} />
+          <Route path="/rsvp/:eventSlug" element={<RsvpPage />} />
           <Route path="/stories" element={<StoriesPage />} />
           <Route path="/impact" element={<ImpactPage />} />
           <Route path="/sponsorship" element={<SponsorshipPage />} />
@@ -144,6 +176,56 @@ export default function App() {
               </AdminProtectedRoute>
             }
           />
+          <Route
+            path="/admin/dashboard-builder"
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboardBuilderPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/customer-dashboard-builder"
+            element={
+              <AdminProtectedRoute>
+                <AdminCustomerDashboardBuilderPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/customer-dashboard-builder/preview"
+            element={
+              <AdminProtectedRoute>
+                <AdminCustomerDashboardPreviewPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <AdminProtectedRoute>
+                <AdminSettingsLayout />
+              </AdminProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="general" replace />} />
+            <Route path="general" element={<AdminSettingsCategoryPage />} />
+            <Route path="payment" element={<AdminSettingsCategoryPage />} />
+            <Route path="ticketing" element={<AdminSettingsCategoryPage />} />
+            <Route path="membership" element={<AdminSettingsCategoryPage />} />
+            <Route path="sponsorship" element={<AdminSettingsCategoryPage />} />
+            <Route path="donation" element={<AdminSettingsCategoryPage />} />
+            <Route path="invoice" element={<AdminSettingsCategoryPage />} />
+            <Route path="security" element={<AdminSettingsCategoryPage />} />
+            <Route path="integrations" element={<AdminSettingsCategoryPage />} />
+            <Route path="stripe" element={<AdminStripeSettingsPage />} />
+            <Route path="bank" element={<AdminBankSettingsPage />} />
+            <Route path="email-provider" element={<AdminEmailProviderSettingsPage />} />
+            <Route path="email-templates" element={<AdminEmailTemplatesPage />} />
+            <Route path="email-templates/:id" element={<AdminEmailTemplateEditorPage />} />
+            <Route path="pdf-templates" element={<AdminPdfTemplatesPage />} />
+            <Route path="audit-logs" element={<AdminSettingsAuditPage />} />
+          </Route>
           <Route
             path="/admin/templates"
             element={
@@ -185,10 +267,58 @@ export default function App() {
             }
           />
           <Route
+            path="/admin/events/:eventId/seat-map"
+            element={
+              <AdminProtectedRoute>
+                <AdminSeatMapEditor />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/events"
             element={
               <AdminProtectedRoute>
                 <AdminEventsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/sessions"
+            element={
+              <AdminProtectedRoute>
+                <AdminSessionsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/session-bookings"
+            element={
+              <AdminProtectedRoute>
+                <AdminSessionBookingsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/session-calendar"
+            element={
+              <AdminProtectedRoute>
+                <AdminSessionCalendarPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/resources"
+            element={
+              <AdminProtectedRoute>
+                <AdminResourcesPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/rsvps"
+            element={
+              <AdminProtectedRoute>
+                <AdminRsvpsPage />
               </AdminProtectedRoute>
             }
           />
@@ -311,6 +441,22 @@ export default function App() {
           <Route
             path="/admin/reports/custom"
             element={<AdminProtectedRoute><AdminCustomReportsPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/pages"
+            element={<AdminProtectedRoute><AdminPagesPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/pages/header"
+            element={<AdminProtectedRoute><AdminHeaderEditorPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/pages/footer"
+            element={<AdminProtectedRoute><AdminFooterEditorPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/pages/:pageSlug"
+            element={<AdminProtectedRoute><AdminPageEditorPage /></AdminProtectedRoute>}
           />
           <Route
             path="/dashboard"

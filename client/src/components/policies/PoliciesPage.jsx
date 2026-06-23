@@ -8,9 +8,10 @@ import PoliciesTermsBannerSection from "./PoliciesTermsBannerSection";
 import PoliciesHelpSection from "./PoliciesHelpSection";
 import PoliciesDisclaimerSection from "./PoliciesDisclaimerSection";
 import PoliciesDetailSection from "./PoliciesDetailSection";
+import CmsAwarePage from "../cms/CmsAwarePage.jsx";
 import "../../styles/policies-page.css";
 
-export default function PoliciesPage() {
+function PoliciesPageFallback() {
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -38,4 +39,13 @@ export default function PoliciesPage() {
       <PoliciesDetailSection />
     </div>
   );
+}
+
+export default function PoliciesPage() {
+  const { pathname } = useLocation();
+  const slug = pathname.includes("terms-and-conditions")
+    ? "terms-and-conditions"
+    : "privacy-policy";
+
+  return <CmsAwarePage slug={slug} fallback={<PoliciesPageFallback />} />;
 }

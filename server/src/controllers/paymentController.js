@@ -3,7 +3,7 @@ import env from "../config/env.js";
 import { getDonationTier } from "../config/donationTiers.js";
 import { getPlan } from "../config/membershipPlans.js";
 import { getTier } from "../config/sponsorshipTiers.js";
-import { getStripe, isStripeConfigured } from "../services/stripe.js";
+import { getStripe, isStripeConfigured, getActiveWebhookSecret } from "../services/stripe.js";
 import { sendDonationEmails, sendSponsorshipEmails } from "../services/mailer.js";
 import { sendMembershipEmails } from "../services/membershipMailer.js";
 import { provisionMembershipFromPayment } from "../services/membershipProvisioningService.js";
@@ -392,8 +392,8 @@ export async function stripeWebhook(req, res) {
 
   let event;
   try {
-    if (env.stripe.webhookSecret) {
-      event = stripe.webhooks.constructEvent(req.body, signature, env.stripe.webhookSecret);
+    if (getActiveWebhookSecret()) {
+      event = stripe.webhooks.constructEvent(req.body, signature, getActiveWebhookSecret());
     } else {
       event = JSON.parse(req.body.toString());
     }

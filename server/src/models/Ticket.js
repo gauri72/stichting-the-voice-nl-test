@@ -36,6 +36,13 @@ const ticketSchema = new mongoose.Schema(
     checkedIn: { type: Boolean, default: false, index: true },
     checkedInAt: { type: Date, default: null },
     checkedInBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
+    seatMapId: { type: String, default: "", trim: true, index: true },
+    seatId: { type: String, default: "", trim: true, index: true },
+    section: { type: String, default: "", trim: true },
+    row: { type: String, default: "", trim: true, index: true },
+    seatNumber: { type: String, default: "", trim: true },
+    seatLabel: { type: String, default: "", trim: true },
+    seatCategory: { type: String, default: "", trim: true },
   },
   { timestamps: true, collection: "tickets" }
 );
