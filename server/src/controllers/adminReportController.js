@@ -140,6 +140,16 @@ export async function reportFinance(req, res) {
   }
 }
 
+export async function reportBookings(req, res) {
+  try {
+    const { getBookingEngineAnalytics } = await import("../services/booking/bookingReportingService.js");
+    const data = await getBookingEngineAnalytics(req.query);
+    return res.json(data);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function customReportPreview(req, res) {
   try {
     console.log("[CUSTOM_REPORT_PREVIEW_STARTED]", req.body?.dataSource);

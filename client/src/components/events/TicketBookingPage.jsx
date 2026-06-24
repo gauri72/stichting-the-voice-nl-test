@@ -21,6 +21,7 @@ import {
 import { CUSTOMER_MEMBERSHIP_MESSAGES, sanitizeCustomerDiscountLabel } from "../../utils/membershipDisplayLabels.js";
 import SeatMapSelector from "./SeatMapSelector.jsx";
 import DynamicCheckoutForm, { serializeCheckoutAnswers } from "./DynamicCheckoutForm.jsx";
+import useBookingFlow from "../../hooks/useBookingFlow.js";
 import "../../styles/sponsorship-payment-block.css";
 import "../../styles/seat-map.css";
 
@@ -119,6 +120,27 @@ export default function TicketBookingPage() {
     () => serializeCheckoutAnswers(checkoutFormFields, checkoutFormValues),
     [checkoutFormFields, checkoutFormValues]
   );
+  const knownCheckoutAnswers = useMemo(
+    () => ({
+      first_name: attendee.firstName,
+      last_name: attendee.lastName,
+      email: attendee.email,
+      phone: attendee.phone,
+      full_name: `${attendee.firstName || ""} ${attendee.lastName || ""}`.trim(),
+    }),
+    [attendee]
+  );
+
+  const booking = useBookingFlow({
+    flowType: "event_ticket",
+    eventId: event?.id || null,
+    items: selectedItems,
+    attendee,
+    email: attendee.email,
+    reservedSeatingEnabled,
+    enabled: Boolean(event?.id && selectedItems.length),
+    sessionId,
+  });
   const DETAILS_STEP = 2 + seatOffset;
   const BENEFITS_STEP = 3 + seatOffset;
   const MEMBERSHIP_STEP = 4 + seatOffset;
@@ -144,7 +166,7 @@ export default function TicketBookingPage() {
       try {
         const [eventData, sessionData] = await Promise.all([
           apiFetch(`/api/events/${eventIdOrSlug}`),
-          apiFetch("/api/checkout/session", { method: "POST" }),
+          apiFetch("/api/booking/event_ticket/start", { method: "POST", headers: authHeaders(), body: JSON.stringify({}) }),
         ]);
         if (!cancelled) {
           setEvent(eventData.event);
@@ -158,7 +180,7 @@ export default function TicketBookingPage() {
           if (eventData.event?.id) {
             try {
               const [plansData, seatData] = await Promise.all([
-                apiFetch(`/api/checkout/membership-plans/${eventData.event.id}`),
+                apiFetch(`/api/booking/membership-plans/${eventData.event.id}`, { headers: authHeaders() }),
                 apiFetch(`/api/events/${eventData.event.id}/seat-map?checkoutSessionId=${sessionData.sessionId}`).catch(() => ({ reservedSeatingEnabled: false })),
               ]);
               if (!cancelled) {
@@ -186,22 +208,14 @@ export default function TicketBookingPage() {
       return;
     }
     try {
-      const data = await apiFetch("/api/checkout/calculate-preview", {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({
-          eventId: event.id,
-          items: selectedItems,
-          email: attendee.email || undefined,
+      const data = await booking.fetchPreview({
           includeMembership: overrides.includeMembership ?? includeMembership,
           selectedPlanId: overrides.selectedPlanId ?? selectedPlanId,
           purchaseType: overrides.purchaseType ?? purchaseType,
           discountCode: voucherCode || undefined,
           applyMemberBenefit: overrides.applyMemberBenefit ?? applyMemberBenefit,
           membershipCode: membershipCode || undefined,
-          sessionId: sessionId || undefined,
-        }),
-      });
+        });
       setPreview(data.preview);
       setError("");
     } catch (err) {
@@ -218,21 +232,14 @@ export default function TicketBookingPage() {
     applyMemberBenefit,
     sessionId,
     membershipCode,
+    booking,
   ]);
 
   const detectMember = useCallback(async (email, codeOverride = null) => {
     if (!email?.trim() && !codeOverride) return;
     setDetectingMember(true);
     try {
-      const data = await apiFetch("/api/checkout/detect-member-status", {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({
-          email,
-          sessionId,
-          membershipCode: codeOverride ?? (membershipCode || undefined),
-        }),
-      });
+      const data = await booking.detectMembership(codeOverride ?? (membershipCode || ""));
       setMemberDetection(data);
       setDetectionMessages(data.messages);
 
@@ -248,16 +255,11 @@ export default function TicketBookingPage() {
     } finally {
       setDetectingMember(false);
     }
-  }, [sessionId, membershipCode]);
+  }, [sessionId, membershipCode, booking]);
 
   const saveCheckoutBeforeLogin = useCallback(async () => {
     if (!event?.id) return { returnPath };
-    const data = await apiFetch("/api/checkout/save-before-login", {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify({
-        sessionId,
-        eventId: event.id,
+    const data = await booking.saveBeforeLogin({
         eventSlug: event.slug || eventIdOrSlug,
         email: attendee.email,
         items: selectedItems,
@@ -270,8 +272,7 @@ export default function TicketBookingPage() {
         selectedPlanId,
         purchaseType,
         applyMemberBenefit: true,
-      }),
-    });
+      });
     if (data.sessionId) setSessionId(data.sessionId);
     return data;
   }, [
@@ -288,12 +289,11 @@ export default function TicketBookingPage() {
     selectedPlanId,
     purchaseType,
     returnPath,
+    booking,
   ]);
 
   const restoreCheckoutFromSession = useCallback(async (checkoutSessionId) => {
-    const data = await apiFetch(`/api/checkout/session/${checkoutSessionId}`, {
-      headers: authHeaders(),
-    });
+    const data = await booking.restoreSession(checkoutSessionId);
     const restored = data.session;
     if (!restored) return;
 
@@ -337,14 +337,10 @@ export default function TicketBookingPage() {
       try {
         await restoreCheckoutFromSession(checkoutSessionIdFromUrl);
         if (user) {
-          const result = await apiFetch("/api/checkout/apply-member-benefits-after-login", {
-            method: "POST",
-            headers: authHeaders(),
-            body: JSON.stringify({
+          const result = await booking.applyBenefitsAfterLogin({
               sessionId: checkoutSessionIdFromUrl,
               email: user.email,
-            }),
-          });
+            });
           if (result.detection) {
             setMemberDetection(result.detection);
             setDetectionMessages(result.messages);
@@ -358,7 +354,7 @@ export default function TicketBookingPage() {
     }
 
     restore();
-  }, [checkoutSessionIdFromUrl, event?.id, user, restoreCheckoutFromSession]);
+  }, [checkoutSessionIdFromUrl, event?.id, user, restoreCheckoutFromSession, booking]);
 
   useEffect(() => {
     if (step >= 2 && attendee.email?.includes("@")) {
@@ -382,19 +378,16 @@ export default function TicketBookingPage() {
     let cancelled = false;
     async function resolveForm() {
       try {
-        const data = await apiFetch("/api/checkout/forms/resolve", {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify({
-            eventId: event.id,
+        const data = await booking.resolveForms({
             eventType: event.category || "",
-            ticketTypeIds: selectedItems.map((i) => i.ticketTypeId),
-            items: selectedItems,
-            ticketQuantity: ticketQty,
             participantCount: ticketQty,
-          }),
-        });
-        if (!cancelled) setCheckoutFormFields(data.fields || []);
+          });
+        if (!cancelled) {
+          setCheckoutFormFields(data.fields || []);
+          setCheckoutFormValues((prev) =>
+            booking.populateFormValues(data.fields || [], prev)
+          );
+        }
       } catch {
         if (!cancelled) setCheckoutFormFields([]);
       }
@@ -403,7 +396,7 @@ export default function TicketBookingPage() {
     return () => {
       cancelled = true;
     };
-  }, [event?.id, event?.category, selectedItems, ticketQty]);
+  }, [event?.id, event?.category, selectedItems, ticketQty, attendee.firstName, attendee.lastName, attendee.email, attendee.phone, booking]);
 
   const goToConfirmation = useCallback(
     (orderNumber, email = "") => {
@@ -470,15 +463,7 @@ export default function TicketBookingPage() {
     setMembershipCodeMessage("");
     setDetectingMember(true);
     try {
-      const data = await apiFetch("/api/checkout/validate-membership-code", {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({
-          code: membershipCode.trim(),
-          email: attendee.email,
-          sessionId,
-        }),
-      });
+      const data = await booking.validateMembershipCode(membershipCode.trim());
       if (data.valid) {
         setMembershipCodeApplied(true);
         const typeLabel = data.detection?.membershipType || "Membership";
@@ -507,17 +492,10 @@ export default function TicketBookingPage() {
     if (!voucherCode.trim()) return;
     setVoucherMessage("");
     try {
-      await apiFetch("/api/checkout/validate-code", {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({
-          code: voucherCode,
-          eventId: event.id,
+      await booking.validateDiscountCode(voucherCode, {
           orderType: "tickets",
           subtotalMinor: preview?.ticketPricing?.subtotalMinor || 0,
-          email: attendee.email,
-        }),
-      });
+        });
       setVoucherMessage("Discount code applied successfully.");
       refreshPreview();
     } catch (err) {
@@ -540,11 +518,7 @@ export default function TicketBookingPage() {
     setCheckoutOrder(null);
 
     try {
-      const checkout = await apiFetch(`/api/events/${event.id}/checkout`, {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({
-          items: selectedItems,
+      const checkout = await booking.checkout({
           attendeeFirstName: attendee.firstName,
           attendeeLastName: attendee.lastName,
           attendeeEmail: attendee.email,
@@ -556,13 +530,11 @@ export default function TicketBookingPage() {
           selectedPlanId: includeMembership ? selectedPlanId : undefined,
           purchaseType: includeMembership ? purchaseType : undefined,
           applyMemberBenefit,
-          sessionId,
           membershipCode: membershipCode || undefined,
           selectedSeatIds,
           checkoutFormAnswers,
           participantCount: ticketQty,
-        }),
-      });
+        });
 
       setCheckoutOrder(checkout.order);
 
@@ -597,12 +569,9 @@ export default function TicketBookingPage() {
     setCheckoutLoading(true);
     setError("");
     try {
-      const result = await apiFetch("/api/checkout/complete-free-order", {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({
-          eventId: event.id,
-          items: selectedItems,
+      const result = await booking.confirm({
+          skipPayment: true,
+          isFreeOrder: true,
           attendeeFirstName: attendee.firstName,
           attendeeLastName: attendee.lastName,
           attendeeEmail: attendee.email,
@@ -614,13 +583,11 @@ export default function TicketBookingPage() {
           selectedPlanId: includeMembership ? selectedPlanId : undefined,
           purchaseType: includeMembership ? purchaseType : undefined,
           applyMemberBenefit,
-          sessionId,
           membershipCode: membershipCode || undefined,
           selectedSeatIds,
           checkoutFormAnswers,
           participantCount: ticketQty,
-        }),
-      });
+        });
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
       goToConfirmation(result.order.orderNumber, attendee.email);
     } catch (err) {
@@ -645,15 +612,7 @@ export default function TicketBookingPage() {
 
     let detection = memberDetection;
     try {
-      detection = await apiFetch("/api/checkout/detect-member-status", {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({
-          email: attendee.email,
-          sessionId,
-          membershipCode: membershipCode || undefined,
-        }),
-      });
+      detection = await booking.detectMembership(membershipCode || "");
       setMemberDetection(detection);
       setDetectionMessages(detection.messages);
     } catch (err) {
@@ -668,10 +627,7 @@ export default function TicketBookingPage() {
       status === "GUEST_EMAIL_EXPIRED_MEMBER" && applyMemberBenefit && !includeMembership;
 
     try {
-      await apiFetch("/api/checkout/forms/validate", {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({
+      await booking.validateForms({
           eventId: event.id,
           eventType: event.category || "",
           ticketTypeIds: selectedItems.map((i) => i.ticketTypeId),
@@ -679,8 +635,8 @@ export default function TicketBookingPage() {
           ticketQuantity: ticketQty,
           participantCount: ticketQty,
           answers: checkoutFormAnswers,
-        }),
-      });
+          knownAnswers: knownCheckoutAnswers,
+        });
     } catch (err) {
       setError(err.message || "Please complete required checkout questions.");
       setStep(REVIEW_STEP);
@@ -1157,6 +1113,8 @@ export default function TicketBookingPage() {
               fields={checkoutFormFields}
               values={checkoutFormValues}
               onChange={(key, value) => setCheckoutFormValues((prev) => ({ ...prev, [key]: value }))}
+              hideCollected
+              knownAnswers={knownCheckoutAnswers}
             />
 
             <BookingPricePreview preview={preview} />

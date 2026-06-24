@@ -492,6 +492,27 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
 
   await sendTicketEmailsForOrder(order, tickets, event);
 
+  try {
+    const { notifyAdminTicketBooking } = await import("./booking/AdminNotificationService.js");
+    const { logUserBookingActivity } = await import("./booking/ActivityLogService.js");
+    await notifyAdminTicketBooking({
+      order,
+      event,
+      tickets,
+      paymentStatus: isFreeOrder ? "free" : "paid",
+    });
+    if (order.userId) {
+      await logUserBookingActivity({
+        userId: order.userId,
+        kind: "ticket_purchased",
+        summary: `Purchased tickets for ${event?.title || "event"}`,
+        detail: order.orderNumber,
+      });
+    }
+  } catch (notifyErr) {
+    console.warn("[fulfillment] Admin/activity notification failed:", notifyErr.message);
+  }
+
   if (membershipResult) {
     await sendMembershipEmailForOrder(
       order,

@@ -55,6 +55,10 @@ if (shouldConnectDb) {
       await ensureDefaultRolesAndPermissions().catch((err) =>
         console.warn("[rbac] seed failed:", err.message)
       );
+      const { ensureStandardCheckoutForms } = await import("./services/checkoutFormService.js");
+      await ensureStandardCheckoutForms().catch((err) =>
+        console.warn("[checkout-forms] seed failed:", err.message)
+      );
       await loadStripeSecretsFromSettings().catch(() => {});
       startPastDataSyncScheduler();
       setInterval(() => {

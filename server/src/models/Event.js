@@ -128,6 +128,22 @@ const eventSchema = new mongoose.Schema(
       enum: ["not_started", "in_progress", "complete", "needs_attention"],
     },
     operationsNotes: { type: String, default: "", trim: true, maxlength: 5000 },
+    assignedCheckoutFormId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CheckoutForm",
+      default: null,
+      index: true,
+    },
+    checkoutFormSource: {
+      type: String,
+      enum: ["global", "standard", "event_specific", "ticket_type", "event_type"],
+      default: "global",
+    },
+    checkoutFormMode: {
+      type: String,
+      enum: ["linked_standard", "event_specific_copy", "global_fallback"],
+      default: "global_fallback",
+    },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
   },
   { timestamps: true, collection: "events" }

@@ -27,6 +27,7 @@ import {
   IconSearch,
 } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
+import EventCheckoutFormSection from "./EventCheckoutFormSection.jsx";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
 import "../../styles/admin-events-page.css";
 
@@ -126,14 +127,17 @@ const EMPTY_EVENT = {
   showOnDashboard: true,
   membershipIncluded: false,
   membershipDiscountEligible: true,
-  checkoutSettings: {
-    enableMemberDiscount: true,
-    enableMembershipUpsell: true,
-    allowInstantMembershipBenefit: true,
-    allowMembershipTicketBundle: true,
-    allowDiscountStacking: true,
-    showPriceComparisonPreview: true,
-  },
+    checkoutSettings: {
+      enableMemberDiscount: true,
+      enableMembershipUpsell: true,
+      allowInstantMembershipBenefit: true,
+      allowMembershipTicketBundle: true,
+      allowDiscountStacking: true,
+      showPriceComparisonPreview: true,
+    },
+    assignedCheckoutFormId: null,
+    checkoutFormSource: "global",
+    checkoutFormMode: "global_fallback",
   category: "Experience",
   ticketTypes: [
     { ...EMPTY_TICKET, name: "Early Bird", description: "Limited early access pricing", price: "29" },
@@ -227,6 +231,9 @@ function toFormEvent(event) {
       allowDiscountStacking: event.checkoutSettings?.allowDiscountStacking !== false,
       showPriceComparisonPreview: event.checkoutSettings?.showPriceComparisonPreview !== false,
     },
+    assignedCheckoutFormId: event.assignedCheckoutFormId || null,
+    checkoutFormSource: event.checkoutFormSource || "global",
+    checkoutFormMode: event.checkoutFormMode || "global_fallback",
     category: event.category || "Experience",
     id: event.id || "",
     slug: event.slug || "",
@@ -1482,6 +1489,14 @@ export default function AdminEventsPage() {
               </div>
             </div>
           </section>
+
+          <EventCheckoutFormSection
+            eventId={editId}
+            eventTitle={form.title}
+            assignedCheckoutFormId={form.assignedCheckoutFormId}
+            checkoutFormSource={form.checkoutFormSource}
+            checkoutFormMode={form.checkoutFormMode}
+          />
 
           <section className="admin-events__card">
             <header className="admin-events__card-header admin-events__card-header--centered">

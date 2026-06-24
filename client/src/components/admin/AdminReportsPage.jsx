@@ -41,6 +41,7 @@ const TAB_ENDPOINTS = {
   discounts: "/api/admin/reports/discounts",
   users: "/api/admin/reports/users",
   checkins: "/api/admin/reports/checkins",
+  bookings: "/api/admin/reports/bookings",
   finance: "/api/admin/reports/finance",
 };
 
@@ -295,6 +296,78 @@ function TabContent({ tab, data }) {
               <ReportBarChart data={data.eventChart} />
             </div>
           </div>
+        </div>
+      );
+
+    case "bookings":
+      return (
+        <div className="admin-reports__section">
+          <SummaryGrid summary={data.summary} />
+          <div className="admin-reports__grid-2">
+            <div>
+              <h3 className="admin-reports__section-title">Checkout Funnel</h3>
+              <ReportBarChart
+                data={Object.entries(data.funnel || {}).map(([name, value]) => ({
+                  name: name.replace(/([A-Z])/g, " $1"),
+                  value,
+                }))}
+              />
+            </div>
+            <div>
+              <h3 className="admin-reports__section-title">Waitlist by Status</h3>
+              <ReportPieChart
+                data={Object.entries(data.waitlistByStatus || {}).map(([name, value]) => ({
+                  name,
+                  value,
+                }))}
+              />
+            </div>
+          </div>
+          <div className="admin-reports__grid-2">
+            <div>
+              <h3 className="admin-reports__section-title">Activity by Kind</h3>
+              <ReportBarChart
+                data={Object.entries(data.activityByKind || {}).map(([name, value]) => ({
+                  name: name.replace(/_/g, " "),
+                  value,
+                }))}
+              />
+            </div>
+            <div>
+              <h3 className="admin-reports__section-title">Orders by Booking Mode</h3>
+              <ReportPieChart
+                data={(data.ordersByMode || []).map((row) => ({
+                  name: row.mode,
+                  value: row.count,
+                }))}
+              />
+            </div>
+          </div>
+          <ReportDataTable
+            columns={[
+              { key: "createdAt", label: "Time" },
+              { key: "action", label: "Action" },
+              { key: "email", label: "Email" },
+              { key: "orderId", label: "Order" },
+            ]}
+            rows={(data.recentAudit || []).map((row) => ({
+              ...row,
+              createdAt: row.createdAt ? new Date(row.createdAt).toLocaleString("nl-NL") : "—",
+            }))}
+            emptyMessage="No checkout audit events in this period."
+          />
+          <h3 className="admin-reports__section-title">Recent booking activity</h3>
+          <ReportDataTable
+            columns={[
+              { key: "createdAt", label: "Time" },
+              { key: "kind", label: "Kind" },
+              { key: "summary", label: "Summary" },
+            ]}
+            rows={(data.recentActivity || []).map((row) => ({
+              ...row,
+              createdAt: row.createdAt ? new Date(row.createdAt).toLocaleString("nl-NL") : "—",
+            }))}
+          />
         </div>
       );
 

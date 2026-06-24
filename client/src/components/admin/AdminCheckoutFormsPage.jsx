@@ -1,213 +1,302 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams, useLocation } from "react-router-dom";
 import AdminLayout from "./AdminLayout.jsx";
+import CheckoutFormBuilder from "./checkout/CheckoutFormBuilder.jsx";
+import CheckoutFormPreview from "./checkout/CheckoutFormPreview.jsx";
+import ApplyFormToEventsModal from "./checkout/ApplyFormToEventsModal.jsx";
 import { apiFetch, authHeaders } from "../../utils/api.js";
+import { formatFormTypeLabel, formatScopeLabel } from "../../utils/checkoutFormUtils.js";
+import "../../styles/admin-events-page.css";
+import "../../styles/admin-cms-page.css";
 
-const SCOPES = [
-  { value: "global", label: "Global Checkout Form" },
-  { value: "event_type", label: "Event Type Forms" },
-  { value: "event", label: "Event Specific Forms" },
-  { value: "ticket_type", label: "Ticket Type Forms" },
+const TABS = [
+  { id: "standard", label: "Standard Forms" },
+  { id: "global", label: "Global Form" },
+  { id: "event", label: "Event Forms" },
+  { id: "ticket_type", label: "Ticket Type Forms" },
+  { id: "responses", label: "Form Responses" },
+  { id: "templates", label: "Templates" },
 ];
 
-function emptyField(i = 1) {
-  return {
-    fieldId: `field_${Date.now()}_${i}`,
-    label: "",
-    type: "text",
-    required: false,
-    repeatMode: "order",
-    options: [],
-    order: i,
-    visibility: true,
-    showInAdmin: true,
-  };
+function formatDate(d) {
+  if (!d) return "—";
+  return new Date(d).toLocaleString();
 }
 
 export default function AdminCheckoutFormsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const initialTab = location.pathname.endsWith("/responses")
+    ? "responses"
+    : searchParams.get("tab") || "standard";
+  const editId = searchParams.get("edit");
+
+  const [tab, setTab] = useState(initialTab);
   const [forms, setForms] = useState([]);
   const [responses, setResponses] = useState([]);
+  const [editingForm, setEditingForm] = useState(null);
+  const [applyForm, setApplyForm] = useState(null);
+  const [previewForm, setPreviewForm] = useState(null);
   const [status, setStatus] = useState("");
-  const [scopeFilter, setScopeFilter] = useState("");
-  const [form, setForm] = useState({
-    name: "",
-    scope: "global",
-    eventType: "",
-    eventId: "",
-    ticketTypeId: "",
-    status: "published",
-    fields: [emptyField(1)],
-  });
+  const [saving, setSaving] = useState(false);
 
-  async function load() {
+  const load = useCallback(async () => {
+    const scopeMap = {
+      standard: "standard",
+      global: "global",
+      event: "event",
+      ticket_type: "ticket_type",
+      templates: "",
+    };
+    const scope = scopeMap[tab];
+    const formsUrl = tab === "standard"
+      ? "/api/admin/checkout-forms/standard"
+      : `/api/admin/checkout-forms${scope ? `?scope=${scope}` : ""}`;
     const [f, r] = await Promise.all([
-      apiFetch(`/api/admin/checkout-forms${scopeFilter ? `?scope=${scopeFilter}` : ""}`, { headers: authHeaders() }),
-      apiFetch("/api/admin/checkout-forms/responses", { headers: authHeaders() }),
+      apiFetch(formsUrl, { headers: authHeaders() }),
+      tab === "responses" || tab === "standard"
+        ? apiFetch("/api/admin/checkout-forms/responses", { headers: authHeaders() })
+        : Promise.resolve({ responses: [] }),
     ]);
     setForms(f.forms || []);
     setResponses(r.responses || []);
-  }
+  }, [tab]);
 
   useEffect(() => {
     load().catch((e) => setStatus(e.message || "Failed to load checkout forms."));
-  }, [scopeFilter]);
+  }, [load]);
 
-  const grouped = useMemo(
-    () => forms.reduce((acc, f) => {
-      (acc[f.scope] ||= []).push(f);
-      return acc;
-    }, {}),
-    [forms]
-  );
+  useEffect(() => {
+    if (editId) {
+      apiFetch(`/api/admin/checkout-forms/${editId}`, { headers: authHeaders() })
+        .then((data) => setEditingForm(data.form))
+        .catch(() => setStatus("Could not load form for editing."));
+    }
+  }, [editId]);
 
-  function addField() {
-    setForm((prev) => ({
-      ...prev,
-      fields: [...prev.fields, emptyField(prev.fields.length + 1)],
-    }));
+  function switchTab(next) {
+    setTab(next);
+    setEditingForm(null);
+    setSearchParams(next === "standard" ? {} : { tab: next });
   }
 
-  function updateField(idx, key, value) {
-    setForm((prev) => {
-      const fields = [...prev.fields];
-      fields[idx] = { ...fields[idx], [key]: value };
-      return { ...prev, fields };
-    });
-  }
+  const displayForms = useMemo(() => {
+    if (tab === "templates") {
+      return forms.filter((f) => f.scope === "event_type" || f.formType !== "custom");
+    }
+    return forms;
+  }, [forms, tab]);
 
-  async function saveForm(e) {
-    e.preventDefault();
-    setStatus("");
+  async function saveForm(draft) {
+    setSaving(true);
     try {
-      await apiFetch("/api/admin/checkout-forms", {
+      const result = await apiFetch(`/api/admin/checkout-forms/${draft.id}`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({ name: draft.name, description: draft.description, fields: draft.fields }),
+      });
+      setEditingForm(result.form);
+      await load();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function publishForm(draft) {
+    setSaving(true);
+    try {
+      await apiFetch(`/api/admin/checkout-forms/${draft.id}`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({ fields: draft.fields }),
+      });
+      await apiFetch(`/api/admin/checkout-forms/${draft.id}/publish`, {
         method: "POST",
         headers: authHeaders(),
-        body: JSON.stringify(form),
       });
-      setStatus("Checkout form saved.");
-      setForm({
-        name: "",
-        scope: "global",
-        eventType: "",
-        eventId: "",
-        ticketTypeId: "",
-        status: "published",
-        fields: [emptyField(1)],
-      });
+      setEditingForm(null);
+      setSearchParams({});
+      await load();
+      setStatus("Form published.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDuplicate(form) {
+    try {
+      await apiFetch(`/api/admin/checkout-forms/${form.id}/duplicate`, { method: "POST", headers: authHeaders() });
+      setStatus(`Duplicated "${form.name}".`);
       await load();
     } catch (err) {
-      setStatus(err.message || "Failed to save form.");
+      setStatus(err.message);
+    }
+  }
+
+  async function handleRestore(form) {
+    if (!window.confirm(`Restore "${form.name}" to its default version?`)) return;
+    try {
+      await apiFetch(`/api/admin/checkout-forms/${form.id}/restore-default`, { method: "POST", headers: authHeaders() });
+      setStatus(`Restored "${form.name}" to default.`);
+      await load();
+    } catch (err) {
+      setStatus(err.message);
+    }
+  }
+
+  async function handleArchive(form) {
+    if (!window.confirm(`Archive "${form.name}"?`)) return;
+    try {
+      await apiFetch(`/api/admin/checkout-forms/${form.id}/archive`, { method: "POST", headers: authHeaders() });
+      setStatus(`Archived "${form.name}".`);
+      await load();
+    } catch (err) {
+      setStatus(err.message);
     }
   }
 
   return (
     <AdminLayout
       pageTitle="Checkout Forms"
-      pageSubtitle="Global, event type, event specific, ticket type, templates and responses"
+      pageSubtitle="Create, edit and apply checkout forms across events and ticketing flows."
     >
-      <section className="admin-events__card">
-        <h2>Create Checkout Form</h2>
-        <form className="admin-events__form-grid" onSubmit={saveForm}>
-          <label>
-            Name
-            <input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} required />
-          </label>
-          <label>
-            Scope
-            <select value={form.scope} onChange={(e) => setForm((p) => ({ ...p, scope: e.target.value }))}>
-              {SCOPES.map((s) => (
-                <option key={s.value} value={s.value}>{s.label}</option>
-              ))}
-            </select>
-          </label>
-          {form.scope === "event_type" ? (
-            <label>
-              Event Type
-              <input value={form.eventType} onChange={(e) => setForm((p) => ({ ...p, eventType: e.target.value }))} />
-            </label>
-          ) : null}
-          {form.scope === "event" ? (
-            <label>
-              Event ID
-              <input value={form.eventId} onChange={(e) => setForm((p) => ({ ...p, eventId: e.target.value }))} />
-            </label>
-          ) : null}
-          {form.scope === "ticket_type" ? (
-            <label>
-              Ticket Type ID
-              <input value={form.ticketTypeId} onChange={(e) => setForm((p) => ({ ...p, ticketTypeId: e.target.value }))} />
-            </label>
-          ) : null}
-          <label>
-            Status
-            <select value={form.status} onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}>
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-            </select>
-          </label>
-          <div className="admin-events__form-actions">
-            <button type="button" className="admin-events__secondary-btn" onClick={addField}>Add Field</button>
-            <button type="submit" className="admin-events__primary-btn">Publish Form</button>
-          </div>
-          {form.fields.map((field, idx) => (
-            <div key={field.fieldId} className="admin-events__card" style={{ marginTop: 8 }}>
-              <label>Field Label<input value={field.label} onChange={(e) => updateField(idx, "label", e.target.value)} required /></label>
-              <label>
-                Type
-                <select value={field.type} onChange={(e) => updateField(idx, "type", e.target.value)}>
-                  {["text", "email", "phone", "number", "textarea", "dropdown", "multi_select", "radio", "checkbox", "date", "time", "file", "image", "url", "consent", "section_heading", "description_text"].map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Repeat Mode
-                <select value={field.repeatMode} onChange={(e) => updateField(idx, "repeatMode", e.target.value)}>
-                  {["order", "ticket_quantity", "participant_count", "ticket_type", "none"].map((m) => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
-                </select>
-              </label>
-              <label><input type="checkbox" checked={field.required} onChange={(e) => updateField(idx, "required", e.target.checked)} /> Required</label>
-              <label><input type="checkbox" checked={Boolean(field.showInEmail)} onChange={(e) => updateField(idx, "showInEmail", e.target.checked)} /> Show in email</label>
-              <label><input type="checkbox" checked={Boolean(field.showInPdf)} onChange={(e) => updateField(idx, "showInPdf", e.target.checked)} /> Show in PDF</label>
-              <label><input type="checkbox" checked={field.showInAdmin !== false} onChange={(e) => updateField(idx, "showInAdmin", e.target.checked)} /> Show in admin</label>
-              <label><input type="checkbox" checked={Boolean(field.showInCheckIn)} onChange={(e) => updateField(idx, "showInCheckIn", e.target.checked)} /> Show in check-in</label>
-            </div>
-          ))}
-        </form>
-        {status ? <p className="admin-events__hint">{status}</p> : null}
-      </section>
-
-      <section className="admin-events__card">
-        <h2>Form Templates & Published Forms</h2>
-        <label>
-          Filter Scope
-          <select value={scopeFilter} onChange={(e) => setScopeFilter(e.target.value)}>
-            <option value="">All</option>
-            {SCOPES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-          </select>
-        </label>
-        {Object.entries(grouped).map(([scope, list]) => (
-          <div key={scope}>
-            <h3>{scope}</h3>
-            <ul>
-              {list.map((f) => <li key={f.id}>{f.name} ({f.status}) - {f.fields?.length || 0} fields</li>)}
-            </ul>
-          </div>
+      <div className="admin-events__list-tabs" role="tablist" aria-label="Checkout form sections">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            className={`admin-events__list-tab${tab === t.id ? " admin-events__list-tab--active" : ""}`}
+            onClick={() => switchTab(t.id)}
+          >
+            {t.label}
+          </button>
         ))}
-      </section>
+      </div>
 
-      <section className="admin-events__card">
-        <h2>Form Responses</h2>
-        <p className="admin-events__hint">Use /admin/checkout-forms/responses filters via query params for event/ticketType export.</p>
-        <ul>
-          {responses.slice(0, 25).map((r) => (
-            <li key={r.id}>
-              {r.responseId} - {r.orderId || "No order"} - {r.answers?.length || 0} answers
-            </li>
-          ))}
-        </ul>
-      </section>
+      {status ? <p className="admin-events__hint" role="status">{status}</p> : null}
+
+      {editingForm ? (
+        <section className="admin-events__card">
+          <header className="admin-events__card-header">
+            <h2>Edit: {editingForm.name}</h2>
+            <button type="button" className="admin-events__secondary-btn" onClick={() => { setEditingForm(null); setSearchParams({}); }}>Close editor</button>
+          </header>
+          <CheckoutFormBuilder
+            form={editingForm}
+            onSave={saveForm}
+            onPublish={publishForm}
+            saving={saving}
+          />
+        </section>
+      ) : null}
+
+      {tab === "responses" ? (
+        <section className="admin-events__card">
+          <h2>Form Responses</h2>
+          <div className="admin-cms__table-wrap">
+            <table className="admin-cms__table">
+              <thead>
+                <tr>
+                  <th>Response ID</th>
+                  <th>Form</th>
+                  <th>Version</th>
+                  <th>Event</th>
+                  <th>Order</th>
+                  <th>Answers</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                {responses.map((r) => (
+                  <tr key={r.id}>
+                    <td>{r.responseId}</td>
+                    <td>{r.formId}</td>
+                    <td>{r.formVersion || 1}</td>
+                    <td>{r.eventId || "—"}</td>
+                    <td>{r.orderId || "—"}</td>
+                    <td>{r.answers?.length || 0}</td>
+                    <td>{formatDate(r.createdAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : (
+        <section className="admin-events__card">
+          <h2>{TABS.find((t) => t.id === tab)?.label || "Forms"}</h2>
+          <div className="admin-cms__table-wrap">
+            <table className="admin-cms__table">
+              <thead>
+                <tr>
+                  <th>Form Name</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Fields</th>
+                  <th>Assigned Events</th>
+                  <th>Last Updated</th>
+                  <th>Version</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {displayForms.map((f) => (
+                  <tr key={f.id}>
+                    <td>{f.name}</td>
+                    <td>{formatFormTypeLabel(f.formType)} / {formatScopeLabel(f.scope)}</td>
+                    <td><span className={`checkout-form-status checkout-form-status--${f.status}`}>{f.status}</span></td>
+                    <td>{f.fields?.length || 0}</td>
+                    <td>{f.assignedEventsCount ?? 0}</td>
+                    <td>{formatDate(f.updatedAt)}</td>
+                    <td>v{f.version || 1}</td>
+                    <td className="checkout-forms__actions">
+                      <button type="button" className="admin-events__outline-btn admin-events__outline-btn--sm" onClick={() => setEditingForm(f)}>Edit</button>
+                      <button type="button" className="admin-events__outline-btn admin-events__outline-btn--sm" onClick={() => setPreviewForm(f)}>Preview</button>
+                      <button type="button" className="admin-events__outline-btn admin-events__outline-btn--sm" onClick={() => handleDuplicate(f)}>Duplicate</button>
+                      {f.scope === "standard" ? (
+                        <>
+                          <button type="button" className="admin-events__primary-btn admin-events__primary-btn--sm" onClick={() => setApplyForm(f)}>Apply to Events</button>
+                          {f.isSystemDefault ? (
+                            <button type="button" className="admin-events__secondary-btn admin-events__secondary-btn--sm" onClick={() => handleRestore(f)}>Restore Default</button>
+                          ) : null}
+                        </>
+                      ) : null}
+                      {f.scope !== "global" ? (
+                        <button type="button" className="admin-events__danger-btn admin-events__danger-btn--sm" onClick={() => handleArchive(f)}>Archive</button>
+                      ) : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {!displayForms.length ? <p className="admin-events__hint">No forms in this category yet.</p> : null}
+        </section>
+      )}
+
+      {applyForm ? (
+        <ApplyFormToEventsModal
+          form={applyForm}
+          onClose={() => setApplyForm(null)}
+          onApplied={(result) => setStatus(`Applied form to ${result.updated} event(s).`)}
+        />
+      ) : null}
+
+      {previewForm ? (
+        <div className="admin-modal-overlay" role="dialog" aria-modal="true">
+          <div className="admin-modal admin-modal--wide">
+            <header className="admin-modal__header">
+              <h2>Preview: {previewForm.name}</h2>
+              <button type="button" className="admin-modal__close" onClick={() => setPreviewForm(null)} aria-label="Close">×</button>
+            </header>
+            <div className="admin-modal__body">
+              <CheckoutFormPreview fields={previewForm.fields || []} />
+            </div>
+          </div>
+        </div>
+      ) : null}
     </AdminLayout>
   );
 }

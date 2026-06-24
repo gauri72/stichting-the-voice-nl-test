@@ -22,6 +22,7 @@ const checkoutFormResponseSchema = new mongoose.Schema(
   {
     responseId: { type: String, required: true, unique: true, index: true, trim: true },
     formId: { type: String, required: true, trim: true, index: true },
+    formVersion: { type: Number, default: 1 },
     eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true, index: true },
     orderId: { type: mongoose.Schema.Types.ObjectId, ref: "TicketOrder", default: null, index: true },
     ticketTypeId: { type: mongoose.Schema.Types.ObjectId, ref: "TicketType", default: null, index: true },

@@ -96,12 +96,16 @@ const ticketOrderSchema = new mongoose.Schema(
     checkoutAnswers: { type: [mongoose.Schema.Types.Mixed], default: [] },
     paymentStatus: {
       type: String,
-      enum: ["pending", "processing", "paid", "failed", "refunded", "free"],
+      enum: ["pending", "processing", "paid", "failed", "refunded", "free", "complimentary"],
       default: "pending",
       index: true,
     },
     paymentIntentId: { type: String, default: "", trim: true, index: true },
     termsAccepted: { type: Boolean, default: false },
+    bookingMode: { type: String, default: "", trim: true, index: true },
+    adminIssued: { type: Boolean, default: false },
+    adminIssuedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
+    adminNote: { type: String, default: "", trim: true, maxlength: 500 },
   },
   { timestamps: true, collection: "ticket_orders" }
 );

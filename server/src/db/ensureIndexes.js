@@ -55,6 +55,7 @@ import Resource from "../models/Resource.js";
 import RSVP from "../models/RSVP.js";
 import CheckoutForm from "../models/CheckoutForm.js";
 import CheckoutFormResponse from "../models/CheckoutFormResponse.js";
+import WaitlistEntry from "../models/WaitlistEntry.js";
 import EventHighlightMetric from "../models/EventHighlightMetric.js";
 import TeamMember from "../models/TeamMember.js";
 import ApiIntegration from "../models/ApiIntegration.js";
@@ -142,6 +143,7 @@ const MODELS = [
   ["rsvps", RSVP],
   ["checkout_forms", CheckoutForm],
   ["checkout_form_responses", CheckoutFormResponse],
+  ["waitlist_entries", WaitlistEntry],
   ["event_highlight_metrics", EventHighlightMetric],
   ["team_members", TeamMember],
   ["api_integrations", ApiIntegration],

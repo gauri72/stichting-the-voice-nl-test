@@ -10,6 +10,7 @@ import {
 import { Link } from "react-router-dom";
 import AdminLayout from "./AdminLayout.jsx";
 import { adminAuthHeaders, apiFetch, apiUrl } from "../../utils/api.js";
+import AdminComplimentaryTicketPanel from "./AdminComplimentaryTicketPanel.jsx";
 import "../../styles/admin-tickets-page.css";
 
 export default function AdminTicketsPage() {
@@ -249,6 +250,8 @@ export default function AdminTicketsPage() {
             ) : null}
           </section>
         ) : null}
+
+        <AdminComplimentaryTicketPanel events={events} />
 
         <div className="admin-tickets__toolbar">
           <div className="admin-tickets__search">

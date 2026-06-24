@@ -11,6 +11,7 @@ import {
   reportUsers,
   reportCheckins,
   reportFinance,
+  reportBookings,
   customReportPreview,
   listReportTemplates,
   saveReportTemplate,
@@ -35,6 +36,7 @@ router.get("/discounts", requireReportSection("discounts"), reportDiscounts);
 router.get("/users", requireReportSection("users"), reportUsers);
 router.get("/checkins", requireReportSection("checkins"), reportCheckins);
 router.get("/finance", requireReportSection("finance"), reportFinance);
+router.get("/bookings", requireReportSection("bookings"), reportBookings);
 
 router.post("/custom/preview", requireReportSection("custom"), customReportPreview);
 router.get("/custom/templates", requireReportSection("custom"), listReportTemplates);

@@ -28,6 +28,7 @@ import {
   enableTicketTypeSales,
   disableTicketTypeSales,
 } from "../controllers/ticketAdminController.js";
+import { patchEventCheckoutForm } from "../controllers/checkoutFormController.js";
 import { updateEventMembershipSettings } from "../controllers/checkoutBundleController.js";
 import {
   getHighlightAdmin,
@@ -108,6 +109,7 @@ router.post("/:id/highlight/upload-thumbnail", uploadHighlightThumbnailAdmin);
 router.patch("/:id/featured-flags", patchFeaturedFlags);
 router.post("/:id/ai/featured-style", generateFeaturedStyle);
 router.post("/:id/ai/featured-image-prompt", generateFeaturedImagePrompt);
+router.patch("/:eventId/checkout-form", patchEventCheckoutForm);
 router.patch("/:id/membership-discount-settings", updateEventMembershipSettings);
 router.put("/:id", updateEvent);
 router.post("/:id/publish", publishEvent);

@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { apiFetch } from "../../utils/api.js";
+import useBookingFlow from "../../hooks/useBookingFlow.js";
 
 const EMPTY = {
   name: "",
@@ -18,21 +18,38 @@ export default function RsvpPage() {
   const [form, setForm] = useState(EMPTY);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const { fetchPreview, checkout } = useBookingFlow({
+    flowType: "rsvp",
+    slug: eventSlug,
+    email: form.email,
+    enabled: Boolean(eventSlug),
+  });
+
+  const loadEvent = useCallback(async () => {
+    if (!eventSlug) return;
+    setLoading(true);
+    setError("");
+    try {
+      const data = await fetchPreview({ slug: eventSlug });
+      setEvent(data.event);
+    } catch (err) {
+      setError(err.message || "Could not load RSVP event.");
+    } finally {
+      setLoading(false);
+    }
+  }, [eventSlug, fetchPreview]);
 
   useEffect(() => {
-    apiFetch(`/api/public/rsvp/${eventSlug}`)
-      .then((data) => setEvent(data.event))
-      .catch((err) => setError(err.message || "Could not load RSVP event."));
-  }, [eventSlug]);
+    loadEvent();
+  }, [loadEvent]);
 
   async function submit(e) {
     e.preventDefault();
     setError("");
     try {
-      const data = await apiFetch(`/api/public/rsvp/${eventSlug}`, {
-        method: "POST",
-        body: JSON.stringify(form),
-      });
+      const data = await checkout({ slug: eventSlug, ...form });
       setSuccess(data.response);
       setForm(EMPTY);
     } catch (err) {
@@ -40,7 +57,21 @@ export default function RsvpPage() {
     }
   }
 
-  if (!event) return <main className="events-page"><p>{error || "Loading RSVP event..."}</p></main>;
+  if (loading && !event) {
+    return (
+      <main className="events-page">
+        <p>{error || "Loading RSVP event…"}</p>
+      </main>
+    );
+  }
+
+  if (!event) {
+    return (
+      <main className="events-page">
+        <p>{error || "RSVP event not found."}</p>
+      </main>
+    );
+  }
 
   const full = event.capacityRemaining === 0 && event.capacity > 0;
 
@@ -52,34 +83,85 @@ export default function RsvpPage() {
       </section>
       <section className="events-page__grid">
         <article className="event-card">
-          <p><strong>Date:</strong> {new Date(event.eventDate).toLocaleDateString()}</p>
-          <p><strong>Time:</strong> {event.startTime || "—"} {event.endTime ? `- ${event.endTime}` : ""}</p>
-          <p><strong>Venue:</strong> {event.venue || "—"}</p>
-          <p><strong>Capacity:</strong> {event.capacity || "Unlimited"}</p>
-          <p><strong>Remaining:</strong> {event.capacityRemaining ?? "Unlimited"}</p>
+          <p>
+            <strong>Date:</strong> {new Date(event.eventDate).toLocaleDateString()}
+          </p>
+          <p>
+            <strong>Time:</strong> {event.startTime || "—"}{" "}
+            {event.endTime ? `- ${event.endTime}` : ""}
+          </p>
+          <p>
+            <strong>Venue:</strong> {event.venue || "—"}
+          </p>
+          <p>
+            <strong>Capacity:</strong> {event.capacity || "Unlimited"}
+          </p>
+          <p>
+            <strong>Remaining:</strong> {event.capacityRemaining ?? "Unlimited"}
+          </p>
           {full ? <p className="events-page__error">This event is fully booked.</p> : null}
         </article>
         <form className="event-card" onSubmit={submit}>
           <h3>RSVP</h3>
-          <label>Name<input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required /></label>
-          <label>Email<input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required /></label>
-          <label>Status
-            <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}>
+          <label>
+            Name
+            <input
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              required
+            />
+          </label>
+          <label>
+            Email
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              required
+            />
+          </label>
+          <label>
+            Status
+            <select
+              value={form.status}
+              onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+            >
               <option value="yes">Yes, I will attend</option>
               <option value="maybe">Maybe</option>
               <option value="no">No, I cannot attend</option>
             </select>
           </label>
           {event.allowGuests ? (
-            <label>Guest count
-              <input type="number" min="0" max={event.maxGuests || 0} value={form.guestCount} onChange={(e) => setForm((f) => ({ ...f, guestCount: Number(e.target.value) }))} />
+            <label>
+              Guest count
+              <input
+                type="number"
+                min="0"
+                max={event.maxGuests || 0}
+                value={form.guestCount}
+                onChange={(e) => setForm((f) => ({ ...f, guestCount: Number(e.target.value) }))}
+              />
             </label>
           ) : null}
-          <label>Food preference<input value={form.foodPreference} onChange={(e) => setForm((f) => ({ ...f, foodPreference: e.target.value }))} /></label>
-          <label>Message to host<textarea value={form.messageToHost} onChange={(e) => setForm((f) => ({ ...f, messageToHost: e.target.value }))} /></label>
-          <button type="submit" disabled={full}>Submit RSVP</button>
+          <label>
+            Food preference
+            <input
+              value={form.foodPreference}
+              onChange={(e) => setForm((f) => ({ ...f, foodPreference: e.target.value }))}
+            />
+          </label>
+          <label>
+            Message to host
+            <textarea
+              value={form.messageToHost}
+              onChange={(e) => setForm((f) => ({ ...f, messageToHost: e.target.value }))}
+            />
+          </label>
+          <button type="submit" disabled={full}>
+            Submit RSVP
+          </button>
           {error ? <p className="events-page__error">{error}</p> : null}
-          {success ? <p>Thank you! RSVP submitted as "{success.status}".</p> : null}
+          {success ? <p>Thank you! RSVP submitted as &quot;{success.status}&quot;.</p> : null}
         </form>
       </section>
     </main>

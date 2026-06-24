@@ -11,6 +11,7 @@ const REPORT_SECTION_ACCESS = {
   users: ["superadmin", "viewer", "admin"],
   checkins: ["superadmin", "event_manager", "viewer", "admin"],
   finance: ["superadmin", "finance", "viewer", "admin"],
+  bookings: ["superadmin", "finance", "event_manager", "viewer", "admin"],
   custom: ["superadmin", "finance", "event_manager", "admin"],
   export: ["superadmin", "finance", "admin"],
   schedule: ["superadmin", "finance", "admin"],
@@ -38,6 +39,7 @@ export const REPORT_TABS = [
   { id: "discounts", label: "Discounts" },
   { id: "users", label: "User Growth" },
   { id: "checkins", label: "Check-ins" },
+  { id: "bookings", label: "Booking Engine" },
   { id: "finance", label: "Finance & Audit" },
 ];
 

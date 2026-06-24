@@ -14,6 +14,16 @@ export async function listAdminCheckoutForms(req, res) {
   }
 }
 
+export async function listAdminStandardCheckoutForms(req, res) {
+  try {
+    const { listStandardCheckoutForms } = await import("../services/checkoutFormService.js");
+    const forms = await listStandardCheckoutForms();
+    return res.json({ forms });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function createAdminCheckoutForm(req, res) {
   try {
     const { createCheckoutForm } = await import("../services/checkoutFormService.js");
@@ -37,7 +47,7 @@ export async function getAdminCheckoutForm(req, res) {
 export async function patchAdminCheckoutForm(req, res) {
   try {
     const { updateCheckoutForm } = await import("../services/checkoutFormService.js");
-    const form = await updateCheckoutForm(req.params.id, req.body || {});
+    const form = await updateCheckoutForm(req.params.id, req.body || {}, req.admin?.id || null);
     return res.json({ form });
   } catch (error) {
     return handleError(res, error);
@@ -48,6 +58,66 @@ export async function deleteAdminCheckoutForm(req, res) {
   try {
     const { deleteCheckoutForm } = await import("../services/checkoutFormService.js");
     const result = await deleteCheckoutForm(req.params.id);
+    return res.json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function publishAdminCheckoutForm(req, res) {
+  try {
+    const { publishCheckoutForm } = await import("../services/checkoutFormService.js");
+    const form = await publishCheckoutForm(req.params.id, req.admin?.id || null);
+    return res.json({ form });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function duplicateAdminCheckoutForm(req, res) {
+  try {
+    const { duplicateCheckoutForm } = await import("../services/checkoutFormService.js");
+    const form = await duplicateCheckoutForm(req.params.id, req.admin?.id || null);
+    return res.status(201).json({ form });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function restoreDefaultAdminCheckoutForm(req, res) {
+  try {
+    const { restoreDefaultCheckoutForm } = await import("../services/checkoutFormService.js");
+    const form = await restoreDefaultCheckoutForm(req.params.id, req.admin?.id || null);
+    return res.json({ form });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function archiveAdminCheckoutForm(req, res) {
+  try {
+    const { archiveCheckoutForm } = await import("../services/checkoutFormService.js");
+    const form = await archiveCheckoutForm(req.params.id, req.admin?.id || null);
+    return res.json({ form });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function applyAdminCheckoutFormToEvents(req, res) {
+  try {
+    const { applyCheckoutFormToEvents } = await import("../services/checkoutFormService.js");
+    const result = await applyCheckoutFormToEvents(req.params.id, req.body || {}, req.admin?.id || null);
+    return res.json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function patchEventCheckoutForm(req, res) {
+  try {
+    const { updateEventCheckoutForm } = await import("../services/checkoutFormService.js");
+    const result = await updateEventCheckoutForm(req.params.eventId, req.body || {}, req.admin?.id || null);
     return res.json(result);
   } catch (error) {
     return handleError(res, error);

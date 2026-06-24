@@ -9,10 +9,12 @@ const conditionalRuleSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const checkoutFieldSchema = new mongoose.Schema(
+export const checkoutFieldSchema = new mongoose.Schema(
   {
     fieldId: { type: String, required: true, trim: true },
     label: { type: String, required: true, trim: true },
+    isCore: { type: Boolean, default: false },
+    isProtected: { type: Boolean, default: false },
     type: {
       type: String,
       enum: [
@@ -60,9 +62,16 @@ const checkoutFormSchema = new mongoose.Schema(
   {
     formId: { type: String, required: true, unique: true, index: true, trim: true },
     name: { type: String, required: true, trim: true, maxlength: 160 },
+    description: { type: String, default: "", trim: true, maxlength: 500 },
+    formType: {
+      type: String,
+      enum: ["basic_ticket", "attendee", "group_family", "membership_aware", "rsvp", "session", "custom"],
+      default: "custom",
+      index: true,
+    },
     scope: {
       type: String,
-      enum: ["global", "event_type", "event", "ticket_type"],
+      enum: ["global", "standard", "event_type", "event", "ticket_type"],
       required: true,
       index: true,
     },
@@ -70,8 +79,14 @@ const checkoutFormSchema = new mongoose.Schema(
     eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event", default: null, index: true },
     ticketTypeId: { type: mongoose.Schema.Types.ObjectId, ref: "TicketType", default: null, index: true },
     fields: { type: [checkoutFieldSchema], default: [] },
-    status: { type: String, enum: ["draft", "published"], default: "draft", index: true },
+    defaultFieldsSnapshot: { type: [checkoutFieldSchema], default: [] },
+    status: { type: String, enum: ["draft", "published", "archived"], default: "draft", index: true },
+    version: { type: Number, default: 1 },
+    isStandard: { type: Boolean, default: false, index: true },
+    isSystemDefault: { type: Boolean, default: false },
+    publishedAt: { type: Date, default: null },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
   },
   { timestamps: true, collection: "checkout_forms" }
 );
