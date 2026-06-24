@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { apiFetch, authHeaders } from "../../utils/api.js";
+import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
 import CheckoutFormPreview from "./checkout/CheckoutFormPreview.jsx";
 
 const SOURCE_LABELS = {
@@ -21,9 +21,9 @@ export default function EventCheckoutFormSection({ eventId, eventTitle, checkout
   const loadForms = useCallback(async () => {
     try {
       const [standard, global, all] = await Promise.all([
-        apiFetch("/api/admin/checkout-forms/standard", { headers: authHeaders() }),
-        apiFetch("/api/admin/checkout-forms?scope=global", { headers: authHeaders() }),
-        apiFetch("/api/admin/checkout-forms", { headers: authHeaders() }),
+        apiFetch("/api/admin/checkout-forms/standard", { headers: adminAuthHeaders() }),
+        apiFetch("/api/admin/checkout-forms?scope=global", { headers: adminAuthHeaders() }),
+        apiFetch("/api/admin/checkout-forms", { headers: adminAuthHeaders() }),
       ]);
       const combined = [
         ...(global.forms || []),
@@ -35,7 +35,7 @@ export default function EventCheckoutFormSection({ eventId, eventTitle, checkout
         const found = combined.find((f) => f.id === assignedCheckoutFormId);
         if (found) setAssignedForm(found);
         else {
-          const single = await apiFetch(`/api/admin/checkout-forms/${assignedCheckoutFormId}`, { headers: authHeaders() }).catch(() => null);
+          const single = await apiFetch(`/api/admin/checkout-forms/${assignedCheckoutFormId}`, { headers: adminAuthHeaders() }).catch(() => null);
           if (single?.form) setAssignedForm(single.form);
         }
       }
@@ -68,7 +68,7 @@ export default function EventCheckoutFormSection({ eventId, eventTitle, checkout
             };
       const result = await apiFetch(`/api/admin/events/${eventId}/checkout-form`, {
         method: "PATCH",
-        headers: authHeaders(),
+        headers: adminAuthHeaders(),
         body: JSON.stringify(body),
       });
       if (result.form) setAssignedForm(result.form);

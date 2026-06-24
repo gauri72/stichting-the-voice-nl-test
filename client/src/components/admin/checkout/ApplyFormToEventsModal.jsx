@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiFetch, authHeaders } from "../../../utils/api.js";
+import { adminAuthHeaders, apiFetch } from "../../../utils/api.js";
 
 const APPLY_OPTIONS = [
   { value: "draft", label: "All Draft Events" },
@@ -23,7 +23,7 @@ export default function ApplyFormToEventsModal({ form, onClose, onApplied }) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    apiFetch("/api/admin/events", { headers: authHeaders() })
+    apiFetch("/api/admin/events", { headers: adminAuthHeaders() })
       .then((data) => setEvents(data.events || []))
       .catch(() => setEvents([]));
   }, []);
@@ -47,7 +47,7 @@ export default function ApplyFormToEventsModal({ form, onClose, onApplied }) {
       if (applyTo === "selected" && selectedEventIds.length) body.eventIds = selectedEventIds;
       const result = await apiFetch(`/api/admin/checkout-forms/${form.id}/apply-to-events`, {
         method: "POST",
-        headers: authHeaders(),
+        headers: adminAuthHeaders(),
         body: JSON.stringify(body),
       });
       onApplied?.(result);

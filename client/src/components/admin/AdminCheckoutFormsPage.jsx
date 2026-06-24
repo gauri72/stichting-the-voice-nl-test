@@ -4,7 +4,7 @@ import AdminLayout from "./AdminLayout.jsx";
 import CheckoutFormBuilder from "./checkout/CheckoutFormBuilder.jsx";
 import CheckoutFormPreview from "./checkout/CheckoutFormPreview.jsx";
 import ApplyFormToEventsModal from "./checkout/ApplyFormToEventsModal.jsx";
-import { apiFetch, authHeaders } from "../../utils/api.js";
+import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
 import { formatFormTypeLabel, formatScopeLabel } from "../../utils/checkoutFormUtils.js";
 import "../../styles/admin-events-page.css";
 import "../../styles/admin-cms-page.css";
@@ -53,9 +53,9 @@ export default function AdminCheckoutFormsPage() {
       ? "/api/admin/checkout-forms/standard"
       : `/api/admin/checkout-forms${scope ? `?scope=${scope}` : ""}`;
     const [f, r] = await Promise.all([
-      apiFetch(formsUrl, { headers: authHeaders() }),
+      apiFetch(formsUrl, { headers: adminAuthHeaders() }),
       tab === "responses" || tab === "standard"
-        ? apiFetch("/api/admin/checkout-forms/responses", { headers: authHeaders() })
+        ? apiFetch("/api/admin/checkout-forms/responses", { headers: adminAuthHeaders() })
         : Promise.resolve({ responses: [] }),
     ]);
     setForms(f.forms || []);
@@ -68,7 +68,7 @@ export default function AdminCheckoutFormsPage() {
 
   useEffect(() => {
     if (editId) {
-      apiFetch(`/api/admin/checkout-forms/${editId}`, { headers: authHeaders() })
+      apiFetch(`/api/admin/checkout-forms/${editId}`, { headers: adminAuthHeaders() })
         .then((data) => setEditingForm(data.form))
         .catch(() => setStatus("Could not load form for editing."));
     }
@@ -92,7 +92,7 @@ export default function AdminCheckoutFormsPage() {
     try {
       const result = await apiFetch(`/api/admin/checkout-forms/${draft.id}`, {
         method: "PATCH",
-        headers: authHeaders(),
+        headers: adminAuthHeaders(),
         body: JSON.stringify({ name: draft.name, description: draft.description, fields: draft.fields }),
       });
       setEditingForm(result.form);
@@ -107,12 +107,12 @@ export default function AdminCheckoutFormsPage() {
     try {
       await apiFetch(`/api/admin/checkout-forms/${draft.id}`, {
         method: "PATCH",
-        headers: authHeaders(),
+        headers: adminAuthHeaders(),
         body: JSON.stringify({ fields: draft.fields }),
       });
       await apiFetch(`/api/admin/checkout-forms/${draft.id}/publish`, {
         method: "POST",
-        headers: authHeaders(),
+        headers: adminAuthHeaders(),
       });
       setEditingForm(null);
       setSearchParams({});
@@ -125,7 +125,7 @@ export default function AdminCheckoutFormsPage() {
 
   async function handleDuplicate(form) {
     try {
-      await apiFetch(`/api/admin/checkout-forms/${form.id}/duplicate`, { method: "POST", headers: authHeaders() });
+      await apiFetch(`/api/admin/checkout-forms/${form.id}/duplicate`, { method: "POST", headers: adminAuthHeaders() });
       setStatus(`Duplicated "${form.name}".`);
       await load();
     } catch (err) {
@@ -136,7 +136,7 @@ export default function AdminCheckoutFormsPage() {
   async function handleRestore(form) {
     if (!window.confirm(`Restore "${form.name}" to its default version?`)) return;
     try {
-      await apiFetch(`/api/admin/checkout-forms/${form.id}/restore-default`, { method: "POST", headers: authHeaders() });
+      await apiFetch(`/api/admin/checkout-forms/${form.id}/restore-default`, { method: "POST", headers: adminAuthHeaders() });
       setStatus(`Restored "${form.name}" to default.`);
       await load();
     } catch (err) {
@@ -147,7 +147,7 @@ export default function AdminCheckoutFormsPage() {
   async function handleArchive(form) {
     if (!window.confirm(`Archive "${form.name}"?`)) return;
     try {
-      await apiFetch(`/api/admin/checkout-forms/${form.id}/archive`, { method: "POST", headers: authHeaders() });
+      await apiFetch(`/api/admin/checkout-forms/${form.id}/archive`, { method: "POST", headers: adminAuthHeaders() });
       setStatus(`Archived "${form.name}".`);
       await load();
     } catch (err) {

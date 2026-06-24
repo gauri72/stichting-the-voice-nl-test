@@ -166,6 +166,11 @@ export async function startBooking(flowType, payload, userId = null) {
   if (flowType === BOOKING_FLOW_TYPES.EVENT_TICKET) {
     const { generateSessionId } = await import("../pricePreviewService.js");
     const sessionId = payload.sessionId || generateSessionId();
+    // Ticket page initializes a booking session before event data resolves.
+    // In that case we only need a stable session id; preview can be computed later.
+    if (!payload.eventId) {
+      return { sessionId, preview: null };
+    }
     const result = await createOrUpdateSession({
       sessionId,
       eventId: payload.eventId,
