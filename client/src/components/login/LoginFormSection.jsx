@@ -57,9 +57,23 @@ function ensureCaptchaToken(captcha, setError) {
   return true;
 }
 
-export default function LoginFormSection({ mode = "login", onModeChange, returnTo = "/dashboard", prefillEmail = "" }) {
+export default function LoginFormSection({
+  mode = "login",
+  onModeChange,
+  returnTo = "/dashboard",
+  prefillEmail = "",
+  onAuthenticated,
+}) {
   const navigate = useNavigate();
   const { loginWithToken } = useAuth();
+
+  function finishAuth(user) {
+    if (onAuthenticated) {
+      onAuthenticated(user);
+      return;
+    }
+    navigate(returnTo, { replace: true });
+  }
   const isSignUp = mode === "signup";
   const isForgotPassword = mode === "forgot-password";
   const skipNextSignUpSubmitRef = useRef(false);
@@ -162,7 +176,7 @@ export default function LoginFormSection({ mode = "login", onModeChange, returnT
         })
       });
       await loginWithToken(data.token, data.user, true);
-      navigate(returnTo, { replace: true });
+      finishAuth(data.user);
     } catch (error) {
       setOtpError(error.message || "Verification failed. Please try again.");
     } finally {
@@ -235,7 +249,7 @@ export default function LoginFormSection({ mode = "login", onModeChange, returnT
         setRememberedEmail(data.user.email, useRememberMe);
       }
       await loginWithToken(data.token, data.user, useRememberMe);
-      navigate(returnTo, { replace: true });
+      finishAuth(data.user);
     } catch (error) {
       const message = error.message || "Google sign-in failed. Please try again.";
       if (isSignUp) {
@@ -310,7 +324,7 @@ export default function LoginFormSection({ mode = "login", onModeChange, returnT
       });
       setRememberedEmail(email.trim(), rememberMe);
       await loginWithToken(data.token, data.user, rememberMe);
-      navigate(returnTo, { replace: true });
+      finishAuth(data.user);
     } catch (error) {
       setLoginError(error.message || "Log in failed. Please try again.");
     } finally {

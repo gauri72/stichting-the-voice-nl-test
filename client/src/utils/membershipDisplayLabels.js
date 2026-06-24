@@ -38,3 +38,39 @@ export function formatMemberDiscountLineLabel(membershipType, discountType, disc
   }
   return typeLabel;
 }
+
+/**
+ * Mirrors MembershipBenefitBanner's own render branches so callers can decide
+ * whether to show that step at all without duplicating its logic.
+ */
+export function membershipBannerHasContent(
+  detection,
+  { memberDiscountApplied = false, discountWarning = "", messages = null } = {}
+) {
+  if (!detection?.status || detection.status === "GUEST_UNKNOWN") {
+    return Boolean(detection?.verificationWarning);
+  }
+
+  if (detection.status === "LOGGED_IN_ACTIVE_MEMBER") {
+    const hasDiscount = memberDiscountApplied || (detection.discountValue > 0 && !discountWarning);
+    return Boolean(discountWarning && !memberDiscountApplied) || hasDiscount;
+  }
+
+  if (detection.status === "GUEST_EMAIL_ACTIVE_MEMBER") return true;
+
+  if (
+    detection.status === "GUEST_EMAIL_EXPIRED_MEMBER" ||
+    detection.status === "LOGGED_IN_EXPIRED_MEMBER"
+  ) {
+    return true;
+  }
+
+  if (
+    (detection.status === "GUEST_EMAIL_NON_MEMBER" || detection.status === "LOGGED_IN_NON_MEMBER") &&
+    messages?.showUpsell
+  ) {
+    return true;
+  }
+
+  return false;
+}

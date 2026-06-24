@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { Elements } from "@stripe/react-stripe-js";
 import { IconCalendar, IconMapPin, IconTicket, IconCheck } from "@tabler/icons-react";
 import StripeCheckoutForm from "../payments/StripeCheckoutForm.jsx";
+import LoginModal from "../common/LoginModal.jsx";
 import MembershipBenefitBanner from "./MembershipBenefitBanner.jsx";
 import MembershipPlanCards from "./MembershipPlanCards.jsx";
 import BookingPricePreview from "./BookingPricePreview.jsx";
@@ -18,8 +19,13 @@ import {
   persistCheckoutSession,
   readCheckoutSession,
 } from "../../utils/stripePayment.js";
-import { CUSTOMER_MEMBERSHIP_MESSAGES, sanitizeCustomerDiscountLabel } from "../../utils/membershipDisplayLabels.js";
+import {
+  CUSTOMER_MEMBERSHIP_MESSAGES,
+  membershipBannerHasContent,
+  sanitizeCustomerDiscountLabel,
+} from "../../utils/membershipDisplayLabels.js";
 import SeatMapSelector from "./SeatMapSelector.jsx";
+import WaitlistJoinForm from "./WaitlistJoinForm.jsx";
 import DynamicCheckoutForm, { serializeCheckoutAnswers } from "./DynamicCheckoutForm.jsx";
 import useBookingFlow from "../../hooks/useBookingFlow.js";
 import "../../styles/sponsorship-payment-block.css";
@@ -84,6 +90,7 @@ export default function TicketBookingPage() {
   const [selectedSeatsDetail, setSelectedSeatsDetail] = useState([]);
   const [checkoutFormFields, setCheckoutFormFields] = useState([]);
   const [checkoutFormValues, setCheckoutFormValues] = useState({});
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const sessionRestoreRef = useRef(false);
 
   const checkoutSessionIdFromUrl = searchParams.get("checkoutSessionId") || "";
@@ -105,20 +112,39 @@ export default function TicketBookingPage() {
 
   const isFreeCheckout = (preview?.combined?.grandTotalMinor ?? 1) <= 0;
 
-  const selectedItems = (event?.ticketTypes || [])
-    .filter((tt) => (quantities[tt.id] || 0) > 0)
-    .map((tt) => ({ ticketTypeId: tt.id, quantity: quantities[tt.id] }));
+  const selectedItems = useMemo(
+    () =>
+      (event?.ticketTypes || [])
+        .filter((tt) => (quantities[tt.id] || 0) > 0)
+        .map((tt) => ({ ticketTypeId: tt.id, quantity: quantities[tt.id] })),
+    [event?.ticketTypes, quantities]
+  );
 
   const checkoutSettings = event?.checkoutSettings || {};
   const showMembershipStep =
     checkoutSettings.enableMembershipUpsell !== false &&
     checkoutSettings.allowMembershipTicketBundle !== false;
+  const benefitsHaveContent = membershipBannerHasContent(memberDetection, {
+    memberDiscountApplied: preview?.ticketPricing?.memberDiscountMinor > 0,
+    discountWarning: preview?.membershipDiscountWarning || "",
+    messages: detectionMessages,
+  });
 
   const seatOffset = reservedSeatingEnabled ? 1 : 0;
   const ticketQty = selectedItems.reduce((sum, li) => sum + li.quantity, 0);
-  const checkoutFormAnswers = useMemo(
-    () => serializeCheckoutAnswers(checkoutFormFields, checkoutFormValues),
-    [checkoutFormFields, checkoutFormValues]
+  const checkoutFormAnswers = useMemo(() => {
+    const serialized = serializeCheckoutAnswers(checkoutFormFields, checkoutFormValues);
+    // The standard checkout form's own "terms" question duplicates this page's
+    // dedicated terms checkbox below — it's hidden from display (see
+    // visibleCheckoutFormFields), so mirror its value here instead of asking
+    // the customer to accept terms twice.
+    return serialized.map((a) =>
+      a.questionId === "terms" ? { ...a, answer: termsAccepted } : a
+    );
+  }, [checkoutFormFields, checkoutFormValues, termsAccepted]);
+  const visibleCheckoutFormFields = useMemo(
+    () => checkoutFormFields.filter((f) => f.fieldId !== "terms"),
+    [checkoutFormFields]
   );
   const knownCheckoutAnswers = useMemo(
     () => ({
@@ -154,6 +180,7 @@ export default function TicketBookingPage() {
     checkout: checkoutBookingFlow,
     confirm: confirmBookingFlow,
     validateForms,
+    joinWaitlist,
   } = booking;
   const DETAILS_STEP = 2 + seatOffset;
   const BENEFITS_STEP = 3 + seatOffset;
@@ -249,8 +276,18 @@ export default function TicketBookingPage() {
     fetchPreview,
   ]);
 
+  const lastDetectedRef = useRef("");
+
   const detectMember = useCallback(async (email, codeOverride = null) => {
-    if (!email?.trim() && !codeOverride) return;
+    const trimmedEmail = email?.trim() || "";
+    if (!trimmedEmail && !codeOverride) return;
+    // Email blur (on losing focus, e.g. when clicking "Continue") and the
+    // step-entry effect both call this for the same email — skip the repeat
+    // so it can't flip the Continue button to disabled mid-click.
+    const dedupeKey = `${trimmedEmail}|${codeOverride || ""}`;
+    if (lastDetectedRef.current === dedupeKey) return;
+    lastDetectedRef.current = dedupeKey;
+
     setDetectingMember(true);
     try {
       const data = await detectMembership(codeOverride ?? (membershipCode || ""));
@@ -266,6 +303,7 @@ export default function TicketBookingPage() {
       }
     } catch (err) {
       console.warn("Member detection failed:", err.message);
+      lastDetectedRef.current = "";
     } finally {
       setDetectingMember(false);
     }
@@ -305,6 +343,21 @@ export default function TicketBookingPage() {
     returnPath,
     saveBeforeLoginApi,
   ]);
+
+  const handleLoginModalAuthenticated = useCallback(async () => {
+    setIsLoginModalOpen(false);
+    setApplyMemberBenefit(true);
+    try {
+      const result = await applyBenefitsAfterLogin({ sessionId, email: attendee.email });
+      if (result.detection) {
+        setMemberDetection(result.detection);
+        setDetectionMessages(result.messages);
+      }
+      if (result.preview) setPreview(result.preview);
+    } catch (err) {
+      console.warn("Could not apply member benefits after login:", err.message);
+    }
+  }, [applyBenefitsAfterLogin, sessionId, attendee.email]);
 
   const restoreCheckoutFromSession = useCallback(async (checkoutSessionId) => {
     const data = await restoreSessionApi(checkoutSessionId);
@@ -588,6 +641,7 @@ export default function TicketBookingPage() {
       const result = await confirmBookingFlow({
           skipPayment: true,
           isFreeOrder: true,
+          items: selectedItems,
           attendeeFirstName: attendee.firstName,
           attendeeLastName: attendee.lastName,
           attendeeEmail: attendee.email,
@@ -659,7 +713,7 @@ export default function TicketBookingPage() {
       return;
     }
 
-    if (isActiveGuest && applyMemberBenefit) {
+    if (isActiveGuest && applyMemberBenefit && !membershipCodeApplied) {
       setError("Please log in to apply member benefits, or choose Continue Without Benefits.");
       setStep(BENEFITS_STEP);
       return;
@@ -731,22 +785,23 @@ export default function TicketBookingPage() {
 
   function nextFromDetails() {
     if (!attendee.firstName || !attendee.lastName || !attendee.email) return;
-    setStep(BENEFITS_STEP);
+    if (benefitsHaveContent) {
+      setStep(BENEFITS_STEP);
+    } else {
+      setStep(includeMembership ? MEMBERSHIP_STEP : REVIEW_STEP);
+    }
   }
 
   function nextFromBenefits() {
     if (
       memberDetection?.status === "GUEST_EMAIL_ACTIVE_MEMBER" &&
-      applyMemberBenefit
+      applyMemberBenefit &&
+      !membershipCodeApplied
     ) {
       setError("Please log in to apply member benefits, or choose Continue Without Benefits.");
       return;
     }
-    if (includeMembership || showMembershipStep) {
-      setStep(MEMBERSHIP_STEP);
-    } else {
-      setStep(REVIEW_STEP);
-    }
+    setStep(includeMembership ? MEMBERSHIP_STEP : REVIEW_STEP);
   }
 
   function nextFromMembership() {
@@ -798,6 +853,13 @@ export default function TicketBookingPage() {
 
   return (
     <div className="ticket-booking">
+      <LoginModal
+        open={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onAuthenticated={handleLoginModalAuthenticated}
+        returnTo={returnPath}
+        prefillEmail={attendee.email}
+      />
       {event.heroImage ? (
         <div className="ticket-booking__hero" style={{ backgroundImage: `url(${event.heroImage})` }} />
       ) : (
@@ -854,6 +916,16 @@ export default function TicketBookingPage() {
                       <p className="ticket-booking__ticket-status-note">{tt.displayLabel}</p>
                     ) : selectable ? (
                       <p className="ticket-booking__ticket-avail">{tt.available} available · max {tt.maxPerOrder} per order</p>
+                    ) : null}
+                    {tt.computedStatus === "SOLD_OUT" && tt.soldOutDisplayMode === "waitlist" ? (
+                      <WaitlistJoinForm
+                        eventId={event.id}
+                        ticketTypeId={tt.id}
+                        ticketTypeName={tt.name}
+                        maxQuantity={tt.maxPerOrder || 4}
+                        defaultAttendee={attendee}
+                        onJoinWaitlist={joinWaitlist}
+                      />
                     ) : null}
                   </div>
                   <label className="ticket-booking__qty-label">
@@ -1006,8 +1078,7 @@ export default function TicketBookingPage() {
               messages={detectionMessages}
               includeMembership={includeMembership}
               returnPath={returnPath}
-              onSaveBeforeLogin={saveCheckoutBeforeLogin}
-              onLogin={() => setApplyMemberBenefit(true)}
+              onRequestLogin={() => setIsLoginModalOpen(true)}
               onContinueWithoutDiscount={handleContinueWithoutDiscount}
               onAddMembership={handleAddMembership}
               onTicketsOnly={handleTicketsOnly}
@@ -1053,7 +1124,7 @@ export default function TicketBookingPage() {
               />
             ) : null}
             <div className="ticket-booking__nav">
-              <button type="button" className="ticket-booking__back" onClick={() => setStep(BENEFITS_STEP)}>Back</button>
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(benefitsHaveContent ? BENEFITS_STEP : DETAILS_STEP)}>Back</button>
               <button type="button" className="ticket-booking__cta" onClick={nextFromMembership}>
                 Continue to review
               </button>
@@ -1131,7 +1202,7 @@ export default function TicketBookingPage() {
             ) : null}
 
             <DynamicCheckoutForm
-              fields={checkoutFormFields}
+              fields={visibleCheckoutFormFields}
               values={checkoutFormValues}
               onChange={(key, value) => setCheckoutFormValues((prev) => ({ ...prev, [key]: value }))}
               hideCollected
@@ -1151,7 +1222,21 @@ export default function TicketBookingPage() {
               </p>
             ) : null}
             <div className="ticket-booking__nav">
-              <button type="button" className="ticket-booking__back" onClick={() => setStep(showMembershipStep ? MEMBERSHIP_STEP : BENEFITS_STEP)}>Back</button>
+              <button
+                type="button"
+                className="ticket-booking__back"
+                onClick={() =>
+                  setStep(
+                    includeMembership
+                      ? MEMBERSHIP_STEP
+                      : benefitsHaveContent
+                        ? BENEFITS_STEP
+                        : DETAILS_STEP
+                  )
+                }
+              >
+                Back
+              </button>
               <button
                 type="button"
                 className="ticket-booking__cta"

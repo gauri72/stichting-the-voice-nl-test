@@ -1,6 +1,7 @@
 node_modules/
 dist/
 build/
+client/dev-dist/
 .DS_Store
 Thumbs.db
 .env

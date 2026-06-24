@@ -1,18 +1,17 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { IconLogin, IconUserCheck, IconAlertCircle, IconSparkles, IconUserPlus } from "@tabler/icons-react";
-import { buildLoginUrl, buildRegisterUrl } from "../../utils/authRedirect.js";
+import { buildRegisterUrl } from "../../utils/authRedirect.js";
 import {
   CUSTOMER_MEMBERSHIP_MESSAGES,
   formatMemberDiscountLineLabel,
+  membershipBannerHasContent,
   sanitizeCustomerDiscountLabel,
 } from "../../utils/membershipDisplayLabels.js";
 
 export default function MembershipBenefitBanner({
   detection,
   messages,
-  onLogin,
-  onSaveBeforeLogin,
+  onRequestLogin,
   onContinueWithoutDiscount,
   onAddMembership,
   onTicketsOnly,
@@ -22,18 +21,17 @@ export default function MembershipBenefitBanner({
   discountWarning = "",
   memberDiscountLabel = "",
 }) {
-  const [loginSaving, setLoginSaving] = useState(false);
+  if (!membershipBannerHasContent(detection, { memberDiscountApplied, discountWarning, messages })) {
+    return null;
+  }
 
   if (!detection?.status || detection.status === "GUEST_UNKNOWN") {
-    if (detection?.verificationWarning) {
-      return (
-        <div className="ticket-booking__member-banner ticket-booking__member-banner--warning">
-          <IconAlertCircle size={22} />
-          <p className="ticket-booking__member-banner-body">{detection.verificationWarning}</p>
-        </div>
-      );
-    }
-    return null;
+    return (
+      <div className="ticket-booking__member-banner ticket-booking__member-banner--warning">
+        <IconAlertCircle size={22} />
+        <p className="ticket-booking__member-banner-body">{detection.verificationWarning}</p>
+      </div>
+    );
   }
 
   const membershipType =
@@ -50,22 +48,9 @@ export default function MembershipBenefitBanner({
     detection.status === "GUEST_EMAIL_NON_MEMBER" ||
     detection.status === "LOGGED_IN_NON_MEMBER";
 
-  async function handleLoginClick(event) {
+  function handleLoginClick(event) {
     event.preventDefault();
-    onLogin?.();
-    setLoginSaving(true);
-    try {
-      let targetPath = returnPath || "/dashboard";
-      if (onSaveBeforeLogin) {
-        const saved = await onSaveBeforeLogin();
-        if (saved?.returnPath) targetPath = saved.returnPath;
-      }
-      window.location.href = buildLoginUrl(targetPath);
-    } catch {
-      window.location.href = buildLoginUrl(returnPath || "/dashboard");
-    } finally {
-      setLoginSaving(false);
-    }
+    onRequestLogin?.();
   }
 
   if (isActiveLoggedIn) {
@@ -153,10 +138,9 @@ export default function MembershipBenefitBanner({
                 type="button"
                 className="ticket-booking__cta ticket-booking__cta--small"
                 onClick={handleLoginClick}
-                disabled={loginSaving}
               >
                 <IconLogin size={16} />
-                {loginSaving ? "Saving checkout…" : "Login & Apply Benefits"}
+                Login &amp; Apply Benefits
               </button>
             )}
             <button
