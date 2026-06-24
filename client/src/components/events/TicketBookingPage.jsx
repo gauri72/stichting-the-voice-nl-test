@@ -671,6 +671,11 @@ export default function TicketBookingPage() {
       return;
     }
 
+    if (isFreeCheckout) {
+      await completeFreeBooking();
+      return;
+    }
+
     checkoutInitRef.current = false;
     setClientSecret("");
     setCheckoutOrder(null);
