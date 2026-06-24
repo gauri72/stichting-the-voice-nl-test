@@ -141,6 +141,20 @@ export default function TicketBookingPage() {
     enabled: Boolean(event?.id && selectedItems.length),
     sessionId,
   });
+  const {
+    fetchPreview,
+    detectMembership,
+    saveBeforeLogin: saveBeforeLoginApi,
+    restoreSession: restoreSessionApi,
+    applyBenefitsAfterLogin,
+    resolveForms,
+    populateFormValues,
+    validateMembershipCode,
+    validateDiscountCode,
+    checkout: checkoutBookingFlow,
+    confirm: confirmBookingFlow,
+    validateForms,
+  } = booking;
   const DETAILS_STEP = 2 + seatOffset;
   const BENEFITS_STEP = 3 + seatOffset;
   const MEMBERSHIP_STEP = 4 + seatOffset;
@@ -208,7 +222,7 @@ export default function TicketBookingPage() {
       return;
     }
     try {
-      const data = await booking.fetchPreview({
+      const data = await fetchPreview({
           includeMembership: overrides.includeMembership ?? includeMembership,
           selectedPlanId: overrides.selectedPlanId ?? selectedPlanId,
           purchaseType: overrides.purchaseType ?? purchaseType,
@@ -232,14 +246,14 @@ export default function TicketBookingPage() {
     applyMemberBenefit,
     sessionId,
     membershipCode,
-    booking,
+    fetchPreview,
   ]);
 
   const detectMember = useCallback(async (email, codeOverride = null) => {
     if (!email?.trim() && !codeOverride) return;
     setDetectingMember(true);
     try {
-      const data = await booking.detectMembership(codeOverride ?? (membershipCode || ""));
+      const data = await detectMembership(codeOverride ?? (membershipCode || ""));
       setMemberDetection(data);
       setDetectionMessages(data.messages);
 
@@ -255,11 +269,11 @@ export default function TicketBookingPage() {
     } finally {
       setDetectingMember(false);
     }
-  }, [sessionId, membershipCode, booking]);
+  }, [membershipCode, detectMembership]);
 
   const saveCheckoutBeforeLogin = useCallback(async () => {
     if (!event?.id) return { returnPath };
-    const data = await booking.saveBeforeLogin({
+    const data = await saveBeforeLoginApi({
         eventSlug: event.slug || eventIdOrSlug,
         email: attendee.email,
         items: selectedItems,
@@ -289,11 +303,11 @@ export default function TicketBookingPage() {
     selectedPlanId,
     purchaseType,
     returnPath,
-    booking,
+    saveBeforeLoginApi,
   ]);
 
   const restoreCheckoutFromSession = useCallback(async (checkoutSessionId) => {
-    const data = await booking.restoreSession(checkoutSessionId);
+    const data = await restoreSessionApi(checkoutSessionId);
     const restored = data.session;
     if (!restored) return;
 
@@ -327,7 +341,7 @@ export default function TicketBookingPage() {
       setMemberDetection(restored.memberDetection);
     }
     setStep(restored.returnStep || 3);
-  }, [event?.ticketTypes]);
+  }, [event?.ticketTypes, restoreSessionApi]);
 
   useEffect(() => {
     if (!checkoutSessionIdFromUrl || !event?.id || sessionRestoreRef.current) return;
@@ -337,7 +351,7 @@ export default function TicketBookingPage() {
       try {
         await restoreCheckoutFromSession(checkoutSessionIdFromUrl);
         if (user) {
-          const result = await booking.applyBenefitsAfterLogin({
+          const result = await applyBenefitsAfterLogin({
               sessionId: checkoutSessionIdFromUrl,
               email: user.email,
             });
@@ -354,13 +368,14 @@ export default function TicketBookingPage() {
     }
 
     restore();
-  }, [checkoutSessionIdFromUrl, event?.id, user, restoreCheckoutFromSession, booking]);
+  }, [checkoutSessionIdFromUrl, event?.id, user, restoreCheckoutFromSession, applyBenefitsAfterLogin]);
 
   useEffect(() => {
-    if (step >= 2 && attendee.email?.includes("@")) {
+    const shouldAutoDetect = step === DETAILS_STEP || step === BENEFITS_STEP;
+    if (shouldAutoDetect && attendee.email?.includes("@")) {
       detectMember(attendee.email);
     }
-  }, [step, attendee.email, user, detectMember]);
+  }, [step, attendee.email, DETAILS_STEP, BENEFITS_STEP, detectMember]);
 
   useEffect(() => {
     if (step >= 4 && selectedItems.length) {
@@ -378,14 +393,14 @@ export default function TicketBookingPage() {
     let cancelled = false;
     async function resolveForm() {
       try {
-        const data = await booking.resolveForms({
+        const data = await resolveForms({
             eventType: event.category || "",
             participantCount: ticketQty,
           });
         if (!cancelled) {
           setCheckoutFormFields(data.fields || []);
           setCheckoutFormValues((prev) =>
-            booking.populateFormValues(data.fields || [], prev)
+            populateFormValues(data.fields || [], prev)
           );
         }
       } catch {
@@ -396,7 +411,7 @@ export default function TicketBookingPage() {
     return () => {
       cancelled = true;
     };
-  }, [event?.id, event?.category, selectedItems, ticketQty, attendee.firstName, attendee.lastName, attendee.email, attendee.phone, booking]);
+  }, [event?.id, event?.category, selectedItems, ticketQty, attendee.firstName, attendee.lastName, attendee.email, attendee.phone, resolveForms, populateFormValues]);
 
   const goToConfirmation = useCallback(
     (orderNumber, email = "") => {
@@ -463,7 +478,7 @@ export default function TicketBookingPage() {
     setMembershipCodeMessage("");
     setDetectingMember(true);
     try {
-      const data = await booking.validateMembershipCode(membershipCode.trim());
+      const data = await validateMembershipCode(membershipCode.trim());
       if (data.valid) {
         setMembershipCodeApplied(true);
         const typeLabel = data.detection?.membershipType || "Membership";
@@ -492,7 +507,7 @@ export default function TicketBookingPage() {
     if (!voucherCode.trim()) return;
     setVoucherMessage("");
     try {
-      await booking.validateDiscountCode(voucherCode, {
+      await validateDiscountCode(voucherCode, {
           orderType: "tickets",
           subtotalMinor: preview?.ticketPricing?.subtotalMinor || 0,
         });
@@ -518,7 +533,7 @@ export default function TicketBookingPage() {
     setCheckoutOrder(null);
 
     try {
-      const checkout = await booking.checkout({
+      const checkout = await checkoutBookingFlow({
           attendeeFirstName: attendee.firstName,
           attendeeLastName: attendee.lastName,
           attendeeEmail: attendee.email,
@@ -566,10 +581,11 @@ export default function TicketBookingPage() {
   }
 
   async function completeFreeBooking() {
+    setDetectingMember(false);
     setCheckoutLoading(true);
     setError("");
     try {
-      const result = await booking.confirm({
+      const result = await confirmBookingFlow({
           skipPayment: true,
           isFreeOrder: true,
           attendeeFirstName: attendee.firstName,
@@ -612,7 +628,7 @@ export default function TicketBookingPage() {
 
     let detection = memberDetection;
     try {
-      detection = await booking.detectMembership(membershipCode || "");
+      detection = await detectMembership(membershipCode || "");
       setMemberDetection(detection);
       setDetectionMessages(detection.messages);
     } catch (err) {
@@ -627,7 +643,7 @@ export default function TicketBookingPage() {
       status === "GUEST_EMAIL_EXPIRED_MEMBER" && applyMemberBenefit && !includeMembership;
 
     try {
-      await booking.validateForms({
+      await validateForms({
           eventId: event.id,
           eventType: event.category || "",
           ticketTypeIds: selectedItems.map((i) => i.ticketTypeId),

@@ -106,16 +106,30 @@ export default function useBookingFlow({
   }, [flowType, eventId, slug, sessionId]);
 
   const detectMembership = useCallback(async (membershipCode = "") => {
-    return apiFetch(`${FLOW_API}/membership/detect`, {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify({
-        email: email || attendee.email,
-        membershipCode,
-        eventId,
-        sessionId,
-      }),
-    });
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), 10000);
+    try {
+      return await apiFetch(`${FLOW_API}/membership/detect`, {
+        method: "POST",
+        headers: authHeaders(),
+        signal: controller.signal,
+        body: JSON.stringify({
+          email: email || attendee.email,
+          membershipCode,
+          eventId,
+          sessionId,
+        }),
+      });
+    } catch (err) {
+      if (err?.name === "AbortError") {
+        const timeoutError = new Error("Membership check timed out. Please try again.");
+        timeoutError.status = 408;
+        throw timeoutError;
+      }
+      throw err;
+    } finally {
+      window.clearTimeout(timer);
+    }
   }, [email, attendee.email, eventId, sessionId]);
 
   const resolveForms = useCallback(async (payload = {}) => {
