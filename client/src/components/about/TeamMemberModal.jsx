@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import {
   IconBrandLinkedin,
   IconChevronLeft,
@@ -27,6 +28,7 @@ function ModalPhoto({ member }) {
 }
 
 export default function TeamMemberModal({ members = [], activeIndex = -1, onClose, onNext, onPrev }) {
+  const { t } = useTranslation(["about"]);
   const member = activeIndex >= 0 ? members[activeIndex] : null;
   const touchStart = useRef(null);
   const touchMove = useRef(null);
@@ -105,7 +107,7 @@ export default function TeamMemberModal({ members = [], activeIndex = -1, onClos
             <ModalPhoto member={member} />
           </div>
           <div className="tms-modal__content">
-            {member.isBoardMember ? <span className="tms-modal__chip tms-modal__chip--board">Board Member</span> : null}
+            {member.isBoardMember ? <span className="tms-modal__chip tms-modal__chip--board">{t("about:team.boardMember")}</span> : null}
             {member.designation ? <span className="tms-modal__chip">{member.designation}</span> : null}
             <h2 id="tms-modal-title" className="tms-modal__title">{name}</h2>
             <p className="tms-modal__role">{role}</p>
@@ -115,14 +117,14 @@ export default function TeamMemberModal({ members = [], activeIndex = -1, onClos
             ) : null}
             {bio ? <p className="tms-modal__bio">{bio}</p> : (
               <p className="tms-modal__bio tms-modal__bio--placeholder">
-                A dedicated member of the V.O.I.C.E. NL community helping shape events, culture and impact.
+                {t("about:team.bioPlaceholder")}
               </p>
             )}
             <div className="tms-modal__links">
               {member.linkedinUrl ? (
                 <a href={member.linkedinUrl} target="_blank" rel="noopener noreferrer" className="tms-modal__link">
                   <IconBrandLinkedin size={18} stroke={1.75} aria-hidden />
-                  LinkedIn
+                  {t("about:team.linkedin")}
                 </a>
               ) : null}
               {member.email ? (
@@ -133,9 +135,9 @@ export default function TeamMemberModal({ members = [], activeIndex = -1, onClos
               ) : null}
             </div>
             <div className="tms-modal__footer">
-              <button type="button" className="tms-modal__footer-btn" onClick={onPrev}>Previous</button>
-              <button type="button" className="tms-modal__footer-btn" onClick={onNext}>Next</button>
-              <button type="button" className="tms-modal__footer-btn tms-modal__footer-btn--close" onClick={onClose}>Close</button>
+              <button type="button" className="tms-modal__footer-btn" onClick={onPrev}>{t("about:team.previous")}</button>
+              <button type="button" className="tms-modal__footer-btn" onClick={onNext}>{t("about:team.next")}</button>
+              <button type="button" className="tms-modal__footer-btn tms-modal__footer-btn--close" onClick={onClose}>{t("about:team.close")}</button>
             </div>
           </div>
         </div>

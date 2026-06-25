@@ -140,20 +140,6 @@ export async function createCustomReport(payload, adminId) {
   return report.toObject();
 }
 
-export async function updateCustomReport(reportId, payload, adminId) {
-  const report = await DashboardCustomReport.findOne({ reportId });
-  if (!report) throwError("Report not found.", 404);
-  Object.assign(report, payload, { updatedBy: adminId });
-  await report.save();
-  return report.toObject();
-}
-
-export async function deleteCustomReport(reportId) {
-  const result = await DashboardCustomReport.deleteOne({ reportId });
-  if (!result.deletedCount) throwError("Report not found.", 404);
-  return { success: true };
-}
-
 export async function runCustomReport(reportOrId, filters = {}) {
   const report =
     typeof reportOrId === "string"
@@ -173,17 +159,4 @@ export async function runCustomReport(reportOrId, filters = {}) {
     summary: data.summary,
     generatedAt: new Date().toISOString(),
   };
-}
-
-export async function exportCustomReport(reportId, format, filters = {}) {
-  const result = await runCustomReport(reportId, filters);
-  if (format === "csv") {
-    const headers = Object.keys(result.rows[0] || { name: "", value: "" });
-    const lines = [headers.join(",")];
-    for (const row of result.rows) {
-      lines.push(headers.map((h) => JSON.stringify(row[h] ?? "")).join(","));
-    }
-    return { contentType: "text/csv", body: lines.join("\n"), filename: `${reportId}.csv` };
-  }
-  return { contentType: "application/json", body: JSON.stringify(result, null, 2), filename: `${reportId}.json` };
 }

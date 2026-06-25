@@ -128,14 +128,4 @@ export async function listFeaturedEvents(page) {
   return events.map(formatFeaturedEvent);
 }
 
-export function pickFeaturedFields(payload = {}) {
-  const picked = {};
-  for (const key of FEATURED_FIELDS) {
-    if (payload[key] !== undefined) {
-      picked[key] = payload[key];
-    }
-  }
-  return picked;
-}
-
 export { FEATURED_FIELDS };

@@ -1,5 +1,35 @@
 /** Shared Stripe Payment Element + redirect return handling (iDEAL, Revolut Pay, etc.). */
 
+// Free-tier hosts (e.g. Render) can take 30-50s to wake from sleep. Keep the
+// timeout comfortably above that so a cold start does not get aborted.
+export const REQUEST_TIMEOUT_MS = 75000;
+export const WAKING_HINT_DELAY_MS = 4000;
+
+export async function fetchWithTimeout(url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Formats a Stripe PaymentIntent's amount/currency, falling back to a tier's pre-formatted label. */
+export function formatStripeAmountLabel(intentMeta, fallbackLabel = "") {
+  if (intentMeta?.amount) {
+    try {
+      return new Intl.NumberFormat("en-IE", {
+        style: "currency",
+        currency: (intentMeta.currency || "eur").toUpperCase()
+      }).format(intentMeta.amount / 100);
+    } catch (_err) {
+      return `${(intentMeta.currency || "EUR").toUpperCase()} ${(intentMeta.amount / 100).toFixed(2)}`;
+    }
+  }
+  return fallbackLabel;
+}
+
 const STRIPE_APPEARANCE_BASE = {
   variables: {
     colorPrimary: "#1f9f78",
@@ -114,8 +144,13 @@ export function buildPaymentReturnUrl(checkoutPath) {
   return url.toString();
 }
 
+// Checkout sessions hold donor/sponsor/member name, email, and phone in
+// plaintext (needed to survive the redirect-based iDEAL/Revolut Pay return
+// flow). This caps how long an abandoned checkout's PII lingers in storage.
+const CHECKOUT_SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
 export function persistCheckoutSession(storageKey, payload) {
-  const json = JSON.stringify(payload);
+  const json = JSON.stringify({ ...payload, _persistedAt: Date.now() });
   try {
     sessionStorage.setItem(storageKey, json);
   } catch (_err) {
@@ -138,7 +173,13 @@ export function readCheckoutSession(storageKey) {
   try {
     const raw =
       sessionStorage.getItem(storageKey) || localStorage.getItem(storageKey);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed._persistedAt && Date.now() - parsed._persistedAt > CHECKOUT_SESSION_MAX_AGE_MS) {
+      clearCheckoutSession(storageKey);
+      return null;
+    }
+    return parsed;
   } catch (_err) {
     return null;
   }

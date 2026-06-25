@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   IconArrowLeft,
@@ -535,13 +535,22 @@ function AdminEventCardActions({
         {menuOpen ? (
           <div className="admin-events__action-menu" role="menu" onClick={(e) => e.stopPropagation()}>
             <Link
-              to={`/admin/events?id=${ev.id}#post-event-highlights`}
+              to={`/admin/events/highlights?eventId=${ev.id}`}
               className="admin-events__action-menu-item"
               role="menuitem"
               onClick={() => setMenuOpen(false)}
             >
               <IconVideo size={16} aria-hidden />
               <span>Highlights</span>
+            </Link>
+            <Link
+              to={`/admin/events/${ev.id}/operations`}
+              className="admin-events__action-menu-item"
+              role="menuitem"
+              onClick={() => setMenuOpen(false)}
+            >
+              <IconPackage size={16} aria-hidden />
+              <span>Operations</span>
             </Link>
             <button
               type="button"
@@ -614,11 +623,15 @@ function AdminEventCardActions({
 
       <div className="admin-events__event-card-actions-desktop">
         <Link
-          to={`/admin/events?id=${ev.id}#post-event-highlights`}
+          to={`/admin/events/highlights?eventId=${ev.id}`}
           className="admin-events__action-btn"
         >
           <IconVideo size={16} aria-hidden />
           <span>Highlights</span>
+        </Link>
+        <Link to={`/admin/events/${ev.id}/operations`} className="admin-events__action-btn">
+          <IconPackage size={16} aria-hidden />
+          <span>Operations</span>
         </Link>
         <button
           type="button"
@@ -711,10 +724,15 @@ export default function AdminEventsPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const messageTimerRef = useRef(null);
+  const showTransientMessage = useCallback((text, ms) => {
+    window.clearTimeout(messageTimerRef.current);
+    setMessage(text);
+    messageTimerRef.current = window.setTimeout(() => setMessage(""), ms);
+  }, []);
+  useEffect(() => () => window.clearTimeout(messageTimerRef.current), []);
   const [aiLoading, setAiLoading] = useState("");
   const [aiMessage, setAiMessage] = useState("");
-  const [youtubePreview, setYoutubePreview] = useState(null);
-  const [youtubePreviewLoading, setYoutubePreviewLoading] = useState(false);
   const [listSearch, setListSearch] = useState("");
   const [listFilter, setListFilter] = useState("all");
 
@@ -820,39 +838,6 @@ export default function AdminEventsPage() {
     }));
   }
 
-  function handleHighlightThumbnailUpload(event) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => updateField("highlightThumbnailImageUrl", reader.result);
-    reader.readAsDataURL(file);
-    event.target.value = "";
-  }
-
-  async function previewYoutubeUrl(url) {
-    if (!editId || editId === "new" || !url?.trim()) {
-      setYoutubePreview(null);
-      return;
-    }
-    setYoutubePreviewLoading(true);
-    setError("");
-    try {
-      const data = await apiFetch(`/api/admin/events/${editId}/highlight/preview-youtube`, {
-        method: "POST",
-        headers: adminAuthHeaders(),
-        body: JSON.stringify({ url }),
-      });
-      setYoutubePreview(data.preview);
-      updateField("youtubeVideoId", data.preview.youtubeVideoId);
-      setMessage("YouTube link validated.");
-    } catch (err) {
-      setYoutubePreview(null);
-      setError(err.message || "Please enter a valid YouTube video link.");
-    } finally {
-      setYoutubePreviewLoading(false);
-    }
-  }
-
   function handleFeaturedImageUpload(key, event) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -896,8 +881,7 @@ export default function AdminEventsPage() {
         body: JSON.stringify(flags),
       });
       setEvents((prev) => prev.map((ev) => (ev.id === eventId ? { ...ev, ...data.event } : ev)));
-      setMessage("Featured settings updated.");
-      window.setTimeout(() => setMessage(""), 3000);
+      showTransientMessage("Featured settings updated.", 3000);
     } catch (err) {
       setError(err.message || "Could not update featured settings.");
     }
@@ -984,8 +968,7 @@ export default function AdminEventsPage() {
         headers: adminAuthHeaders(),
       });
       setEvents((prev) => prev.filter((ev) => ev.id !== eventId));
-      setMessage("Event deleted.");
-      window.setTimeout(() => setMessage(""), 4000);
+      showTransientMessage("Event deleted.", 4000);
     } catch (err) {
       setError(err.message || "Could not delete event.");
     } finally {
@@ -1026,8 +1009,7 @@ export default function AdminEventsPage() {
         setSearchParams({ id: saved.id });
       }
       setForm(toFormEvent(saved));
-      setMessage(status === "published" ? "Event published successfully." : "Event saved as draft.");
-      window.setTimeout(() => setMessage(""), 4000);
+      showTransientMessage(status === "published" ? "Event published successfully." : "Event saved as draft.", 4000);
     } catch (err) {
       setError(err.message || "Could not save event.");
     } finally {
@@ -1734,175 +1716,6 @@ export default function AdminEventsPage() {
             </div>
           </section>
 
-          <section id="post-event-highlights" className="admin-events__card">
-            <header className="admin-events__card-header admin-events__card-header--centered">
-              <div className="admin-events__card-heading admin-events__card-heading--centered">
-                <span className="admin-events__card-icon"><IconVideo size={20} /></span>
-                <h2>Post-Event Highlights</h2>
-              </div>
-            </header>
-            <div className="admin-events__card-body">
-              <p className="admin-events__field-hint">
-                Completed published events appear in Memorable Moments on the Events page.
-              </p>
-              <div className="admin-events__featured-toggles">
-                <label className="admin-events__toggle">
-                  <input
-                    type="checkbox"
-                    checked={form.showInMemorableMoments}
-                    onChange={(e) => updateField("showInMemorableMoments", e.target.checked)}
-                  />
-                  <span className="admin-events__toggle-track" />
-                  <span>Show in Memorable Moments</span>
-                </label>
-                <label className="admin-events__toggle">
-                  <input
-                    type="checkbox"
-                    checked={form.featuredHighlight}
-                    onChange={(e) => updateField("featuredHighlight", e.target.checked)}
-                  />
-                  <span className="admin-events__toggle-track" />
-                  <span>Featured Highlight</span>
-                </label>
-              </div>
-              <div className="admin-events__field-row">
-                <div className="admin-events__field">
-                  <label className="admin-events__label" htmlFor="highlight-status">Highlight Status</label>
-                  <select
-                    id="highlight-status"
-                    className="admin-events__select"
-                    value={form.highlightStatus}
-                    onChange={(e) => updateField("highlightStatus", e.target.value)}
-                  >
-                    <option value="Coming Soon">Coming Soon</option>
-                    <option value="Video Available">Video Available</option>
-                    <option value="Hidden">Hidden</option>
-                  </select>
-                </div>
-                <div className="admin-events__field">
-                  <label className="admin-events__label" htmlFor="highlight-priority">Highlight Priority</label>
-                  <input
-                    id="highlight-priority"
-                    type="number"
-                    min="0"
-                    className="admin-events__input"
-                    value={form.highlightPriority}
-                    onChange={(e) => updateField("highlightPriority", e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="admin-events__field">
-                <label className="admin-events__label" htmlFor="highlight-video-type">Highlight Video Type</label>
-                <select
-                  id="highlight-video-type"
-                  className="admin-events__select"
-                  value={form.highlightVideoType || "youtube_short"}
-                  onChange={(e) => updateField("highlightVideoType", e.target.value)}
-                >
-                  <option value="youtube_short">YouTube Short</option>
-                  <option value="youtube_video">YouTube Video</option>
-                  <option value="youtube_playlist">YouTube Playlist</option>
-                  <option value="vimeo">Vimeo</option>
-                  <option value="internal">Internal Video</option>
-                </select>
-              </div>
-              <div className="admin-events__field">
-                <label className="admin-events__label" htmlFor="youtube-highlight-url">Highlight URL</label>
-                <input
-                  id="youtube-highlight-url"
-                  className="admin-events__input"
-                  value={form.highlightVideoUrl || form.youtubeHighlightUrl}
-                  onChange={(e) => {
-                    updateField("highlightVideoUrl", e.target.value);
-                    updateField("youtubeHighlightUrl", e.target.value);
-                  }}
-                  onBlur={(e) => {
-                    if (String(form.highlightVideoType || "").startsWith("youtube")) {
-                      previewYoutubeUrl(e.target.value);
-                    }
-                  }}
-                  placeholder="https://youtube.com/shorts/... or Vimeo/Internal URL"
-                />
-                {youtubePreviewLoading ? (
-                  <p className="admin-events__field-hint" role="status">Validating YouTube link…</p>
-                ) : null}
-                {String(form.highlightVideoType || "").startsWith("youtube") && youtubePreview?.youtubeThumbnailUrl ? (
-                  <img
-                    src={youtubePreview.youtubeThumbnailUrl}
-                    alt="YouTube preview"
-                    className="admin-events__hero-preview"
-                  />
-                ) : null}
-                {form.youtubeVideoId && String(form.highlightVideoType || "").startsWith("youtube") ? (
-                  <p className="admin-events__field-hint">Video ID: {form.youtubeVideoId}</p>
-                ) : null}
-              </div>
-              <div className="admin-events__field">
-                <label className="admin-events__label" htmlFor="highlight-title">Highlight Title</label>
-                <input
-                  id="highlight-title"
-                  className="admin-events__input"
-                  value={form.highlightTitle}
-                  onChange={(e) => updateField("highlightTitle", e.target.value)}
-                  placeholder={form.title || "Defaults to event title"}
-                />
-              </div>
-              <div className="admin-events__field">
-                <label className="admin-events__label" htmlFor="highlight-subtitle">Highlight Subtitle</label>
-                <input
-                  id="highlight-subtitle"
-                  className="admin-events__input"
-                  value={form.highlightSubtitle}
-                  onChange={(e) => updateField("highlightSubtitle", e.target.value)}
-                />
-              </div>
-              <div className="admin-events__field">
-                <label className="admin-events__label" htmlFor="highlight-description">Highlight Description</label>
-                <textarea
-                  id="highlight-description"
-                  className="admin-events__textarea"
-                  rows={3}
-                  value={form.highlightDescription}
-                  onChange={(e) => updateField("highlightDescription", e.target.value)}
-                  placeholder={form.description || "Defaults to event description"}
-                />
-              </div>
-              <div className="admin-events__field">
-                <label className="admin-events__label" htmlFor="impact-text">Impact Text</label>
-                <textarea
-                  id="impact-text"
-                  className="admin-events__textarea"
-                  rows={2}
-                  value={form.impactText}
-                  onChange={(e) => updateField("impactText", e.target.value)}
-                  placeholder="An unforgettable V.O.I.C.E. NL experience filled with culture, connection and shared memories."
-                />
-              </div>
-              <div className="admin-events__field-row">
-                <div className="admin-events__field">
-                  <label className="admin-events__label">Highlight Thumbnail</label>
-                  <label className="admin-events__upload-btn">
-                    <IconUpload size={16} /> Upload thumbnail
-                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={handleHighlightThumbnailUpload} />
-                  </label>
-                  {form.highlightThumbnailImageUrl ? (
-                    <img src={form.highlightThumbnailImageUrl} alt="" className="admin-events__hero-preview" />
-                  ) : null}
-                </div>
-                <div className="admin-events__field">
-                  <label className="admin-events__label" htmlFor="gallery-url">Gallery URL (optional)</label>
-                  <input
-                    id="gallery-url"
-                    className="admin-events__input"
-                    value={form.galleryUrl}
-                    onChange={(e) => updateField("galleryUrl", e.target.value)}
-                    placeholder="https://..."
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
           {editId ? (
             <section className="admin-events__card">
               <header className="admin-events__card-header admin-events__card-header--centered">
@@ -1930,25 +1743,6 @@ export default function AdminEventsPage() {
               </div>
             </section>
           )}
-
-          {editId ? (
-            <section className="admin-events__card">
-              <header className="admin-events__card-header admin-events__card-header--centered">
-                <div className="admin-events__card-heading admin-events__card-heading--centered">
-                  <span className="admin-events__card-icon"><IconPackage size={20} /></span>
-                  <h2>Event Operations</h2>
-                </div>
-              </header>
-              <div className="admin-events__card-body">
-                <p className="admin-events__hint">
-                  Manage inventory, technical rider, stage plan, documents, checklists and vendors for this event.
-                </p>
-                <Link to={`/admin/events/${editId}/operations`} className="admin-events__outline-btn">
-                  <IconPackage size={16} /> Open event operations
-                </Link>
-              </div>
-            </section>
-          ) : null}
 
           <section className="admin-events__card">
             <header className="admin-events__card-header admin-events__card-header--centered admin-events__card-header--tickets">

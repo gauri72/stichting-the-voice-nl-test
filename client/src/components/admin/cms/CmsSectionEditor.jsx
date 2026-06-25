@@ -1,10 +1,16 @@
 import CmsImageField from "./CmsImageField.jsx";
 import CmsCtaEditor from "./CmsCtaEditor.jsx";
+import AiAssistantButton from "./AiAssistantButton.jsx";
+import CmsOverrideSectionEditor, { isOverrideBackedSection } from "./CmsOverrideSectionEditor.jsx";
 import { formatSectionType } from "../../../utils/pagesAdmin.js";
 
-export default function CmsSectionEditor({ section, onChange, config, readOnly = false }) {
+export default function CmsSectionEditor({ section, onChange, config, readOnly = false, pageSlug }) {
   if (!section) {
     return <p className="admin-cms__empty">Select a section to edit.</p>;
+  }
+
+  if (isOverrideBackedSection(pageSlug, section.sectionKey)) {
+    return <CmsOverrideSectionEditor pageSlug={pageSlug} sectionKey={section.sectionKey} />;
   }
 
   const content = section.content || {};
@@ -47,7 +53,10 @@ export default function CmsSectionEditor({ section, onChange, config, readOnly =
             <input className="admin-cms__input" value={content.subheading || ""} onChange={(e) => setContent("subheading", e.target.value)} disabled={readOnly} />
           </div>
           <div className="admin-cms__field-row">
-            <label className="admin-cms__label">Short description</label>
+            <label className="admin-cms__label">
+              Short description
+              <AiAssistantButton text={content.description} actions={["rewrite", "shorten", "expand"]} onApply={(v) => setContent("description", v)} disabled={readOnly} />
+            </label>
             <textarea className="admin-cms__textarea" rows={3} value={content.description || ""} onChange={(e) => setContent("description", e.target.value)} disabled={readOnly} />
           </div>
           <div className="admin-cms__field-row">
@@ -55,7 +64,10 @@ export default function CmsSectionEditor({ section, onChange, config, readOnly =
             <textarea className="admin-cms__textarea" rows={5} value={content.longContent || ""} onChange={(e) => setContent("longContent", e.target.value)} disabled={readOnly} />
           </div>
           <div className="admin-cms__field-row">
-            <label className="admin-cms__label">Rich text / HTML</label>
+            <label className="admin-cms__label">
+              Rich text / HTML
+              <AiAssistantButton text={content.richText || content.customHtml} actions={["rewrite", "shorten", "make_mobile_friendly"]} onApply={(v) => setContent(section.sectionType === "custom_html" ? "customHtml" : "richText", v)} disabled={readOnly} />
+            </label>
             <textarea className="admin-cms__textarea admin-cms__textarea--code" rows={6} value={content.richText || content.customHtml || ""} onChange={(e) => setContent(section.sectionType === "custom_html" ? "customHtml" : "richText", e.target.value)} disabled={readOnly} />
           </div>
           {(content.bullets || section.sectionType === "faq") && (
@@ -143,6 +155,10 @@ export default function CmsSectionEditor({ section, onChange, config, readOnly =
           <label className="admin-cms__checkbox">
             <input type="checkbox" checked={section.isVisible !== false} onChange={(e) => onChange({ ...section, isVisible: e.target.checked })} disabled={readOnly} />
             Section visible on page
+          </label>
+          <label className="admin-cms__checkbox">
+            <input type="checkbox" checked={settings.mobileVisible !== false} onChange={(e) => setSetting("mobileVisible", e.target.checked)} disabled={readOnly} />
+            Visible on mobile
           </label>
         </div>
       </details>

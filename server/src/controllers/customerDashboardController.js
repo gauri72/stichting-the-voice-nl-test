@@ -3,10 +3,10 @@ import {
   getCustomerDashboardDataForUser,
 } from "../services/customerDashboardDataService.js";
 
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  if (status >= 500) console.error("[customer-dashboard]", error);
-  return res.status(status).json({ error: error.message || "Something went wrong." });
+  return handleErrorBase(res, error, { logTag: "[customer-dashboard]" });
 }
 
 export async function getDashboardConfig(req, res) {

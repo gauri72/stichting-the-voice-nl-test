@@ -5,15 +5,18 @@ import ImpactHerBeatsSection from "./ImpactHerBeatsSection";
 import ImpactHighlightSection from "./ImpactHighlightSection";
 import ImpactAreasSection from "./ImpactAreasSection";
 import CmsAwarePage from "../cms/CmsAwarePage.jsx";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
 import "../../styles/impact-page.css";
 
 function ImpactPageFallback() {
+  const overrides = useContentOverrides();
+
   return (
     <div id="impact-navbar-top" className="impact-page-shell">
       <BreadcrumbPageHeader
         ariaLabel="Impact"
-        lightSrc={breadcrumbBgLight}
-        darkSrc={breadcrumbBgDark}
+        lightSrc={overrides.impactPageBreadcrumbImageLight?.url || breadcrumbBgLight}
+        darkSrc={overrides.impactPageBreadcrumbImageDark?.url || breadcrumbBgDark}
         heroClassName="impact-hero"
         fetchPriority="high"
       />

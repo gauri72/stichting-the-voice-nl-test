@@ -97,7 +97,7 @@ export async function registerUser({ firstName, lastName, email, password }) {
   }
 
   const normalizedEmail = normalizeEmail(email);
-  const existing = await User.findOne({ email: normalizedEmail });
+  const existing = await User.findOne({ email: normalizedEmail }).select("+passwordHash");
 
   if (existing?.isVerified) {
     const message = !hasPasswordHash(existing)
@@ -185,7 +185,7 @@ export async function verifyEmailOtp({ email, otp }) {
     throw err;
   }
 
-  const user = await User.findOne({ email: normalizedEmail });
+  const user = await User.findOne({ email: normalizedEmail }).select("+verificationOtpHash");
 
   if (!user) {
     const err = new Error("No account found for this email. Please sign up first.");
@@ -236,7 +236,7 @@ export async function loginUser({ email, password, rememberMe }) {
   }
 
   const normalizedEmail = normalizeEmail(email);
-  const user = await User.findOne({ email: normalizedEmail });
+  const user = await User.findOne({ email: normalizedEmail }).select("+passwordHash");
 
   if (!user) {
     const err = new Error("Invalid email or password.");
@@ -295,7 +295,7 @@ export async function updateUserProfile(userId, { firstName, lastName, phone }) 
     throw err;
   }
 
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select("+passwordHash");
   if (!user || !user.isVerified) {
     const err = new Error("User not found.");
     err.status = 404;
@@ -355,7 +355,7 @@ export async function changePassword(userId, { currentPassword, newPassword }) {
     throw err;
   }
 
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select("+passwordHash");
   if (!user || !user.isVerified) {
     const err = new Error("User not found.");
     err.status = 404;
@@ -496,7 +496,7 @@ export async function loginWithGoogle({ credential, rememberMe }) {
 
   const { firstName, lastName } = splitGoogleName(payload);
 
-  let user = await User.findOne({ $or: [{ googleId }, { email }] });
+  let user = await User.findOne({ $or: [{ googleId }, { email }] }).select("+passwordHash");
 
   if (user) {
     if (user.googleId && user.googleId !== googleId) {

@@ -817,20 +817,4 @@ export async function listCheckoutFormResponses(filters = {}) {
   );
 }
 
-export function buildAnswerVisibilitySlices(answers = []) {
-  const by = (predicate) =>
-    (answers || []).filter((a) => predicate(a.visibility || {})).map((a) => ({
-      questionLabel: a.questionLabel,
-      answer: a.answer,
-      repeatIndex: a.repeatIndex,
-      ticketTypeId: a.ticketTypeId || null,
-    }));
-  return {
-    email: by((v) => v.showInEmail),
-    pdf: by((v) => v.showInPdf),
-    admin: by((v) => v.showInAdmin !== false),
-    checkIn: by((v) => v.showInCheckIn),
-  };
-}
-
 export { PROTECTED_CORE_FIELD_IDS, CORE_CUSTOMER_FIELD_IDS };

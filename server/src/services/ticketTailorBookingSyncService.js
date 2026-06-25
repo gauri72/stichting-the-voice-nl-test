@@ -3,6 +3,7 @@ import Member from "../models/Member.js";
 import TicketTailorBooking from "../models/TicketTailorBooking.js";
 import { collectTicketTailorPastData } from "./pastDataSyncService.js";
 import { logAdminAction } from "./adminAuditService.js";
+import { syncFinanceTransaction } from "./financeTransactionSyncService.js";
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -80,18 +81,36 @@ export async function syncTicketTailorBookings({ adminId = null } = {}) {
   let skipped = 0;
 
   for (const order of orders) {
+    const email = pickEmail(order);
+    const orderId = String(order?.id || order?.order_id || "");
+
     if (isMembershipOrder(order)) {
+      // Membership product orders aren't tracked as TicketTailorBooking rows
+      // (those are ticket-specific) but they do carry a real paid amount, so
+      // still record the revenue — just skip the booking-row upsert below.
+      if (orderId && mapBookingStatus(order) === "confirmed") {
+        const amountMinor = parseAmountMinor(order);
+        if (amountMinor > 0) {
+          await syncFinanceTransaction({
+            category: "membership_revenue",
+            description: `TicketTailor membership — ${getLineItems(order)[0]?.description || order?.event_name || "Membership"}`,
+            relatedModule: "tickettailor",
+            relatedRecordId: `${orderId}:membership`,
+            amount: amountMinor,
+            paymentMethod: "TicketTailor",
+            transactionDate: order?.created_at ? new Date(order.created_at) : new Date(),
+          });
+        }
+      }
       skipped += 1;
       continue;
     }
 
-    const email = pickEmail(order);
     if (!email) {
       skipped += 1;
       continue;
     }
 
-    const orderId = String(order?.id || order?.order_id || "");
     if (!orderId) {
       skipped += 1;
       continue;
@@ -114,6 +133,8 @@ export async function syncTicketTailorBookings({ adminId = null } = {}) {
       const quantity = Number(line?.quantity || 1) || 1;
       const ticketId = String(line?.id || line?.ticket_id || `${orderId}-${i}`);
 
+      const lineAmountMinor = Math.round(amountPaidMinor / lines.length);
+
       await TicketTailorBooking.findOneAndUpdate(
         { ticketTailorOrderId: orderId, ticketTailorTicketId: ticketId, ticketType },
         {
@@ -123,7 +144,7 @@ export async function syncTicketTailorBookings({ adminId = null } = {}) {
           eventDate,
           ticketType,
           quantity,
-          amountPaidMinor: Math.round(amountPaidMinor / lines.length),
+          amountPaidMinor: lineAmountMinor,
           currency: String(order?.currency || "eur").toLowerCase(),
           bookingStatus,
           checkedIn,
@@ -135,6 +156,18 @@ export async function syncTicketTailorBookings({ adminId = null } = {}) {
         { upsert: true, setDefaultsOnInsert: true }
       );
       upserted += 1;
+
+      if (bookingStatus === "confirmed" && lineAmountMinor > 0) {
+        await syncFinanceTransaction({
+          category: "ticket_sales",
+          description: `TicketTailor — ${eventName} (${ticketType})`,
+          relatedModule: "tickettailor",
+          relatedRecordId: `${orderId}:${ticketId}:${ticketType}`,
+          amount: lineAmountMinor,
+          paymentMethod: "TicketTailor",
+          transactionDate: bookingDate,
+        });
+      }
     }
   }
 

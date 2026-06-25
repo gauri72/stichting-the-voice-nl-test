@@ -2,13 +2,10 @@ import { loginAdmin, getAdminById } from "../services/adminService.js";
 import { getAdminDashboardPayload } from "../services/adminDashboardService.js";
 import { requireAdmin } from "../middleware/adminMiddleware.js";
 
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  const message = error.message || "Something went wrong.";
-  if (status >= 500) {
-    console.error("[admin]", error);
-  }
-  return res.status(status).json({ error: message });
+  return handleErrorBase(res, error, { logTag: "[admin]" });
 }
 
 export async function adminLogin(req, res) {

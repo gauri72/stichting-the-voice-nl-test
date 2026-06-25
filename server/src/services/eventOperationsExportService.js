@@ -7,17 +7,14 @@ import {
   listChecklists,
   listEventDocuments,
 } from "./eventOperationsService.js";
+import { collectPdfBuffer as collectDocBuffer } from "../utils/pdfBuffer.js";
 
 const FOOTER_TEXT = "© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.";
 
 function collectPdfBuffer(doc) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    doc.on("data", (c) => chunks.push(c));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", reject);
-    doc.end();
-  });
+  const result = collectDocBuffer(doc);
+  doc.end();
+  return result;
 }
 
 function drawFooter(doc) {

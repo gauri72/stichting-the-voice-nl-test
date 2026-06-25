@@ -1,0 +1,48 @@
+/* Classes here are only ever applied when PageSectionRenderer's `editable` prop
+   is true, which only happens in the admin visual editor — public pages never
+   render this markup, so these rules have no visible effect for visitors. */
+
+.cms-editable-overlay {
+  position: relative;
+  cursor: pointer;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: outline-color 0.12s ease;
+}
+
+.cms-editable-overlay:hover {
+  outline-color: rgba(124, 58, 237, 0.55);
+}
+
+.cms-editable-overlay--selected {
+  outline: 2px solid #7c3aed;
+  outline-offset: -2px;
+}
+
+.cms-editable-overlay__chrome {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.cms-editable-overlay:hover .cms-editable-overlay__chrome,
+.cms-editable-overlay--selected .cms-editable-overlay__chrome {
+  opacity: 1;
+}
+
+.cms-editable-overlay__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #7c3aed;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}

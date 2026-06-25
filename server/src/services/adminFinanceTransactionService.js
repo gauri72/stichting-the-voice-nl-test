@@ -8,6 +8,7 @@ import {
   csvEscape,
 } from "../utils/financeUtils.js";
 import { logFinanceAction } from "./financeAuditService.js";
+import { escapeRegex } from "../utils/regexUtils.js";
 
 function formatTransaction(doc) {
   if (!doc) return null;
@@ -57,7 +58,7 @@ function buildTransactionFilter(params) {
     }
   }
   if (params.search) {
-    const q = params.search.trim();
+    const q = escapeRegex(params.search.trim());
     filter.$or = [
       { description: new RegExp(q, "i") },
       { paymentReference: new RegExp(q, "i") },

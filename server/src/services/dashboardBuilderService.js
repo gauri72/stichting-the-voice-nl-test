@@ -16,7 +16,12 @@ export function generateWidgetId() {
 
 function sanitizeDashboardWidget(widget) {
   if (!widget || typeof widget !== "object") return widget;
-  const copy = { ...widget };
+  // Defensive: a Mongoose subdocument's schema fields live behind getters,
+  // not as own-enumerable properties, so spreading one directly silently
+  // drops everything except internal bookkeeping fields. Every current
+  // caller already passes a plain object, but normalize anyway so this
+  // can't silently break if that ever changes.
+  const copy = { ...(widget.toObject?.() || widget) };
   if (copy.widgetType === "custom_html") {
     if (copy.content?.html) {
       copy.content = { ...copy.content, html: sanitizeHtml(copy.content.html) };
@@ -322,14 +327,36 @@ export async function createWidget(payload, adminId) {
   return getDashboardBuilderState("draft");
 }
 
+const UPDATABLE_WIDGET_FIELDS = [
+  "widgetType",
+  "title",
+  "subtitle",
+  "description",
+  "icon",
+  "dataSource",
+  "dataKey",
+  "displayType",
+  "settings",
+  "ctas",
+  "permissions",
+  "allowedRoles",
+  "content",
+  "isVisible",
+];
+
 export async function updateWidget(widgetId, payload, adminId) {
   const doc = await ensureConfigDoc();
   const idx = (doc.draft.widgets || []).findIndex((w) => w.widgetId === widgetId);
   if (idx === -1) throwError("Widget not found.", 404);
-  const existing = doc.draft.widgets[idx];
+  const existing = doc.draft.widgets[idx].toObject?.() || doc.draft.widgets[idx];
+  const updates = {};
+  for (const field of UPDATABLE_WIDGET_FIELDS) {
+    if (payload[field] !== undefined) updates[field] = payload[field];
+  }
+  if (payload.layout) updates.layout = { ...existing.layout, ...payload.layout };
   doc.draft.widgets[idx] = sanitizeDashboardWidget({
-    ...existing.toObject?.() || existing,
-    ...payload,
+    ...existing,
+    ...updates,
     widgetId,
   });
   doc.updatedBy = adminId;

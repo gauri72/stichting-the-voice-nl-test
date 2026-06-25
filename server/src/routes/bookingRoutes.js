@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { optionalAuth } from "../middleware/authMiddleware.js";
+import { requireAdmin } from "../middleware/adminMiddleware.js";
+import { publicRateLimit } from "../middleware/publicRateLimitMiddleware.js";
 import {
   resolveBookingFlow,
   startBooking,
@@ -33,8 +35,15 @@ router.post("/session/save-before-login", saveBeforeLogin);
 router.post("/session/apply-benefits-after-login", applyBenefitsAfterLogin);
 router.get("/session/:sessionId", restoreSession);
 router.get("/membership-plans/:eventId", getMembershipPlans);
-router.post("/waitlist", joinWaitlist);
-router.get("/waitlist", listWaitlist);
+router.post(
+  "/waitlist",
+  publicRateLimit({ maxAttempts: 5, windowMs: 60_000, keyPrefix: "waitlist-join" }),
+  joinWaitlist
+);
+// listWaitlist returns full PII (name, email, phone) for everyone on a
+// waitlist and isn't called from any of this app's own public UI — restrict
+// it to admins rather than leaving it openly readable.
+router.get("/waitlist", requireAdmin, listWaitlist);
 
 router.post("/:flowType/start", startBooking);
 router.post("/:flowType/preview", previewBooking);

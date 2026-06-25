@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { PAGE_STATUSES } from "../config/cmsConfig.js";
+import ctaSchema from "./shared/ctaSchema.js";
 
 const imageFieldSchema = new mongoose.Schema(
   {
@@ -8,19 +9,6 @@ const imageFieldSchema = new mongoose.Schema(
     focusPosition: { type: String, default: "center" },
     originalUrl: { type: String, default: "" },
     optimizedUrl: { type: String, default: "" },
-  },
-  { _id: false }
-);
-
-const ctaSchema = new mongoose.Schema(
-  {
-    id: { type: String, required: true },
-    text: { type: String, default: "", maxlength: 200 },
-    url: { type: String, default: "" },
-    target: { type: String, enum: ["_self", "_blank"], default: "_self" },
-    style: { type: String, default: "primary" },
-    visible: { type: Boolean, default: true },
-    trackingLabel: { type: String, default: "", maxlength: 100 },
   },
   { _id: false }
 );
@@ -38,6 +26,9 @@ const sectionSchema = new mongoose.Schema(
     order: { type: Number, default: 0 },
     isVisible: { type: Boolean, default: true },
     isCustom: { type: Boolean, default: false },
+    // Optional — when set, this section's content/images/ctas are resolved
+    // from a ReusableBlock at read time instead of from the fields above.
+    linkedBlockId: { type: String, default: null },
   },
   { _id: false }
 );

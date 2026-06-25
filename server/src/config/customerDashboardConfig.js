@@ -5,6 +5,7 @@ export const CUSTOMER_SECTION_TYPES = [
   "digital_membership_card",
   "my_events",
   "my_tickets",
+  "my_sessions",
   "upcoming_events",
   "featured_events",
   "available_discounts",

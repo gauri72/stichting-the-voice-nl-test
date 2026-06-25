@@ -1,0 +1,48 @@
+{
+  "hero": {
+    "titleLead": "Over",
+    "titleAccent": "Ons",
+    "taglineLead": "Culturen Verbinden. Stemmen Versterken. Blijvende",
+    "taglineAccent": "Impact Creëren.",
+    "description": "Stichting The V.O.I.C.E. NL is een non-profitorganisatie die zich inzet voor een inclusieve wereld waarin cultuur, creativiteit en samenwerking mensen samenbrengen. We versterken stemmen, vieren diversiteit en creëren betekenisvolle ervaringen die gemeenschappen in Nederland en daarbuiten inspireren."
+  },
+  "mission": {
+    "label": "Onze Missie",
+    "textBefore": "Door ",
+    "highlight1": "artistieke expressie",
+    "highlight2": "kennisdeling",
+    "highlight3": "maatschappelijke impact",
+    "textMiddle": " versterken we individuen, geven we stemmen meer kracht en bouwen we aan gemeenschappen voor een inclusievere en betekenisvollere toekomst. We blijven toegewijd aan ",
+    "cultureHighlight": "cultuur, creativiteit en samenwerking",
+    "textAfter": " die mensen verbindt over culturen en generaties heen."
+  },
+  "whatWeDo": {
+    "heading": "Wat Wij Doen",
+    "exploreMore": "Ontdek Meer",
+    "experience": { "title": "V.O.I.C.E. Ervaringen", "description": "Het creëren van onvergetelijke culturele ervaringen door evenementen, festivals en live optredens." },
+    "visionaries": { "title": "Voice of Visionaries", "description": "Het delen van leiderschapsverhalen en ideeën die aanzetten tot actie en betekenisvolle dialoog." },
+    "impact": { "title": "V.O.I.C.E. Impact", "description": "Gemeenschappen versterken door inclusie, onderwijs, vrijwilligerswerk en maatschappelijk werk." },
+    "innovation": { "title": "V.O.I.C.E. Innovatie", "description": "De toekomst bouwen via digitale platforms, apps en de V.O.I.C.E. Venture Studio." }
+  },
+  "values": {
+    "heading": "Onze Waarden - 5 I's",
+    "inclusion": { "title": "Inclusie", "description": "Ruimtes creëren waar iedereen erbij hoort." },
+    "integrity": { "title": "Integriteit", "description": "Handelen met eerlijkheid, transparantie en respect." },
+    "innovation": { "title": "Innovatie", "description": "Nieuwe ideeën omarmen om betekenisvolle verandering te stimuleren." },
+    "integration": { "title": "Integratie", "description": "Een gevoel van verbondenheid creëren door cultuur, connectie en gemeenschap." },
+    "impact": { "title": "Impact", "description": "Levens transformeren door cultuur en gemeenschap." }
+  },
+  "team": {
+    "title": "Ons Team",
+    "subtitle": "Maak kennis met de gedreven mensen achter V.O.I.C.E. NL — die samen bouwen aan gemeenschap, cultuur en impact.",
+    "loading": "Teamleden laden…",
+    "board": "Bestuur",
+    "boardMember": "Bestuurslid",
+    "viewProfile": "Bekijk Profiel",
+    "bioPlaceholder": "Een toegewijd lid van de V.O.I.C.E. NL-gemeenschap die helpt evenementen, cultuur en impact vorm te geven.",
+    "linkedin": "LinkedIn",
+    "previous": "Vorige",
+    "next": "Volgende",
+    "close": "Sluiten"
+  }
+}

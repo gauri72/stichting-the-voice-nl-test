@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import PDFDocument from "pdfkit";
+import { collectPdfBuffer } from "../utils/pdfBuffer.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HEADER_LOGO_PATH = path.join(__dirname, "..", "..", "..", "client", "src", "assets", "header-logo.png");
@@ -64,24 +65,13 @@ function drawTableRow(doc, cols, y, widths, bold = false) {
 }
 
 function pdfBuffer(buildFn) {
-  return new Promise((resolve, reject) => {
-    try {
-      const doc = new PDFDocument({
-        size: "A4",
-        margins: { top: 36, bottom: 48, left: 48, right: 48 },
-        bufferPages: true,
-        info: { Author: "Stichting The V.O.I.C.E. NL" },
-      });
-      const chunks = [];
-      doc.on("data", (c) => chunks.push(c));
-      doc.on("end", () => resolve(Buffer.concat(chunks)));
-      doc.on("error", reject);
-      buildFn(doc);
-      doc.end();
-    } catch (e) {
-      reject(e);
-    }
+  const doc = new PDFDocument({
+    size: "A4",
+    margins: { top: 36, bottom: 48, left: 48, right: 48 },
+    bufferPages: true,
+    info: { Author: "Stichting The V.O.I.C.E. NL" },
   });
+  return collectPdfBuffer(doc, buildFn);
 }
 
 export function renderInvoicePdf(payload) {

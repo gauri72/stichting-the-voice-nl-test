@@ -1,0 +1,67 @@
+{
+  "carousel": {
+    "liveNow": "Jetzt live",
+    "buyTickets": "Tickets Kaufen",
+    "membershipIncluded": "Inklusive Premium-Mitgliedschaft",
+    "memberDiscounts": "Mitgliederrabatte verfügbar"
+  },
+  "highlightsSlider": {
+    "titleLead": "Unvergessliche Momente,",
+    "titleEmphasis": "Bleibende Wirkung",
+    "subtitle": "Erleben Sie noch einmal die Erlebnisse, Geschichten und Feiern, die unsere Gemeinschaft zusammengebracht haben.",
+    "emptyState": "Höhepunkte vergangener Veranstaltungen werden hier angezeigt, sobald Veranstaltungen abgeschlossen sind.",
+    "defaultImpactText": "Ein unvergessliches V.O.I.C.E. NL-Erlebnis voller Kultur, Verbindung und gemeinsamer Erinnerungen.",
+    "badge": {
+      "pastEvent": "Vergangene Veranstaltung",
+      "watchHighlights": "Höhepunkte Ansehen",
+      "highlightsComingSoon": "Höhepunkte Folgen Bald",
+      "videoAvailable": "Video Verfügbar"
+    },
+    "cta": {
+      "viewMemories": "Erinnerungen Ansehen",
+      "watchHighlights": "Höhepunkte Ansehen"
+    }
+  },
+  "videoModal": {
+    "comingSoonText": "Wir bereiten den Höhepunkte-Clip für dieses unvergessliche Event vor.",
+    "previous": "Zurück"
+  },
+  "reviewsSlider": {
+    "title": "Das Sagt Unsere Community",
+    "subtitle": "Echte Geschichten von Mitgliedern, Gästen und Partnern, die V.O.I.C.E. NL-Veranstaltungen erlebt haben.",
+    "loading": "Community-Bewertungen werden geladen…",
+    "emptyState": "Seien Sie der Erste, der sein V.O.I.C.E. NL-Erlebnis teilt.",
+    "shareExperience": "Teilen Sie Ihre Erfahrung",
+    "closeForm": "Bewertungsformular Schließen"
+  },
+  "reviewForm": {
+    "eyebrow": "Teilen Sie Ihre Erfahrung",
+    "title": "Bewerten Sie V.O.I.C.E. NL",
+    "lead": "Ihr Feedback hilft uns, bessere kulturelle Erlebnisse zu schaffen.",
+    "yourName": "Ihr Name",
+    "namePlaceholder": "Geben Sie Ihren Namen ein",
+    "yourRating": "Ihre Bewertung",
+    "yourReview": "Ihre Bewertung",
+    "reviewPlaceholder": "Teilen Sie Ihre Erfahrung mit V.O.I.C.E. NL...",
+    "eventAttended": "Besuchte Veranstaltung (optional)",
+    "eventPlaceholder": "z. B. Couples Night, HerBeats HerNight",
+    "consent": "Ich stimme zu, dass meine Bewertung nach Moderation veröffentlicht wird.",
+    "submitting": "Wird gesendet…",
+    "submitReview": "Bewertung Absenden",
+    "errors": {
+      "name": "Bitte geben Sie Ihren Namen ein.",
+      "rating": "Bitte wählen Sie eine Sternebewertung.",
+      "review": "Bitte teilen Sie Ihre Bewertung.",
+      "consent": "Bitte akzeptieren Sie das Zustimmungsfeld.",
+      "submitFailed": "Ihre Bewertung konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
+    },
+    "communityMember": "Community-Mitglied",
+    "thankYou": "Vielen Dank, dass Sie Ihre Erfahrung teilen. Ihre Bewertung wird nach der Moderation sichtbar."
+  },
+  "reviewModal": {
+    "communityMember": "Community-Mitglied",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "close": "Schließen"
+  }
+}

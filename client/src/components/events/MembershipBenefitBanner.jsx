@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconLogin, IconUserCheck, IconAlertCircle, IconSparkles, IconUserPlus } from "@tabler/icons-react";
 import { buildRegisterUrl } from "../../utils/authRedirect.js";
 import {
-  CUSTOMER_MEMBERSHIP_MESSAGES,
+  getMembershipMessages,
   formatMemberDiscountLineLabel,
   membershipBannerHasContent,
   sanitizeCustomerDiscountLabel,
@@ -21,6 +22,9 @@ export default function MembershipBenefitBanner({
   discountWarning = "",
   memberDiscountLabel = "",
 }) {
+  const { t } = useTranslation(["checkout"]);
+  const messagesCopy = getMembershipMessages(t);
+
   if (!membershipBannerHasContent(detection, { memberDiscountApplied, discountWarning, messages })) {
     return null;
   }
@@ -35,7 +39,7 @@ export default function MembershipBenefitBanner({
   }
 
   const membershipType =
-    detection.membershipType || detection.membership?.planName || "Membership";
+    detection.membershipType || detection.membership?.planName || t("checkout:membershipMessages.defaultType");
   const memberUntil =
     detection.memberUntil || detection.membership?.memberUntilFormatted || "";
 
@@ -62,7 +66,7 @@ export default function MembershipBenefitBanner({
           <IconAlertCircle size={22} />
           <div>
             <p className="ticket-booking__member-banner-title">
-              {CUSTOMER_MEMBERSHIP_MESSAGES.activeFound}
+              {messagesCopy.activeFound}
             </p>
             <p className="ticket-booking__member-banner-body">{discountWarning}</p>
           </div>
@@ -73,7 +77,8 @@ export default function MembershipBenefitBanner({
     if (!hasDiscount) return null;
 
     const discountTitle = sanitizeCustomerDiscountLabel(
-      memberDiscountLabel || CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied
+      memberDiscountLabel || messagesCopy.discountApplied,
+      t
     );
 
     return (
@@ -83,15 +88,16 @@ export default function MembershipBenefitBanner({
           <p className="ticket-booking__member-banner-title">{discountTitle}</p>
           <p className="ticket-booking__member-banner-body">
             {messages?.body ||
-              `Your active ${membershipType} membership discount is applied to this booking.`}
-            {memberUntil ? ` Valid until ${memberUntil}.` : ""}
+              t("checkout:membershipBanner.activeFoundBody", { type: membershipType })}
+            {memberUntil ? ` ${t("checkout:membershipBanner.validUntilSuffix", { date: memberUntil })}` : ""}
           </p>
           {detection.discountValue > 0 ? (
             <p className="ticket-booking__member-detail-line">
               {formatMemberDiscountLineLabel(
                 membershipType,
                 detection.discountType,
-                detection.discountValue
+                detection.discountValue,
+                t
               )}
             </p>
           ) : null}
@@ -109,19 +115,18 @@ export default function MembershipBenefitBanner({
         <IconLogin size={22} />
         <div>
           <p className="ticket-booking__member-banner-title">
-            {messages?.title || CUSTOMER_MEMBERSHIP_MESSAGES.activeDetected}
+            {messages?.title || messagesCopy.activeDetected}
           </p>
           <p className="ticket-booking__member-banner-body">
-            {messages?.body ||
-              "We found an active V.O.I.C.E. NL membership associated with this email."}
+            {messages?.body || t("checkout:membershipBanner.guestActiveBody")}
           </p>
           <ul className="ticket-booking__member-details">
             <li>
-              <strong>Membership Type:</strong> {membershipType}
+              <strong>{t("checkout:membershipBanner.membershipType")}:</strong> {membershipType}
             </li>
             {memberUntil ? (
               <li>
-                <strong>Valid Until:</strong> {memberUntil}
+                <strong>{t("checkout:membershipBanner.validUntil")}:</strong> {memberUntil}
               </li>
             ) : null}
           </ul>
@@ -131,7 +136,7 @@ export default function MembershipBenefitBanner({
                 to={registerHref}
                 className="ticket-booking__cta ticket-booking__cta--small"
               >
-                <IconUserPlus size={16} /> Create Account &amp; Apply Benefits
+                <IconUserPlus size={16} /> {t("checkout:membershipBanner.createAccountApply")}
               </Link>
             ) : (
               <button
@@ -140,7 +145,7 @@ export default function MembershipBenefitBanner({
                 onClick={handleLoginClick}
               >
                 <IconLogin size={16} />
-                Login &amp; Apply Benefits
+                {t("checkout:membershipBanner.loginApply")}
               </button>
             )}
             <button
@@ -148,7 +153,7 @@ export default function MembershipBenefitBanner({
               className="ticket-booking__back"
               onClick={onContinueWithoutDiscount}
             >
-              Continue Without Benefits
+              {t("checkout:membershipBanner.continueWithoutBenefits")}
             </button>
           </div>
         </div>
@@ -162,15 +167,14 @@ export default function MembershipBenefitBanner({
         <IconAlertCircle size={22} />
         <div>
           <p className="ticket-booking__member-banner-title">
-            {messages?.title || "Membership Expired"}
+            {messages?.title || t("checkout:membershipBanner.membershipExpiredTitle")}
           </p>
           <p className="ticket-booking__member-banner-body">
-            {messages?.body ||
-              "Your V.O.I.C.E. NL membership has expired. Renew your membership with this booking and enjoy member benefits immediately."}
+            {messages?.body || t("checkout:membershipBanner.membershipExpiredBody")}
           </p>
           {memberUntil ? (
             <p className="ticket-booking__member-detail-line">
-              Expired on: <strong>{memberUntil}</strong>
+              {t("checkout:membershipBanner.expiredOn")}: <strong>{memberUntil}</strong>
             </p>
           ) : null}
           {!includeMembership ? (
@@ -180,10 +184,10 @@ export default function MembershipBenefitBanner({
                 className="ticket-booking__cta ticket-booking__cta--small"
                 onClick={onAddMembership}
               >
-                Renew Membership + Tickets
+                {t("checkout:membershipBanner.renewPlusTickets")}
               </button>
               <button type="button" className="ticket-booking__back" onClick={onTicketsOnly}>
-                Tickets Only
+                {t("checkout:membershipBanner.ticketsOnly")}
               </button>
             </div>
           ) : null}
@@ -198,11 +202,10 @@ export default function MembershipBenefitBanner({
         <IconSparkles size={22} />
         <div>
           <p className="ticket-booking__member-banner-title">
-            {messages?.title || "Become a member"}
+            {messages?.title || t("checkout:membershipBanner.becomeMemberTitle")}
           </p>
           <p className="ticket-booking__member-banner-body">
-            {messages?.body ||
-              "Become a V.O.I.C.E. NL member and unlock exclusive discounts, priority access and member benefits."}
+            {messages?.body || t("checkout:membershipBanner.becomeMemberBody")}
           </p>
           {!includeMembership ? (
             <div className="ticket-booking__member-banner-actions">
@@ -211,10 +214,10 @@ export default function MembershipBenefitBanner({
                 className="ticket-booking__cta ticket-booking__cta--small"
                 onClick={onAddMembership}
               >
-                Add Membership + Buy Tickets
+                {t("checkout:membershipBanner.addMembershipPlusTickets")}
               </button>
               <button type="button" className="ticket-booking__back" onClick={onTicketsOnly}>
-                Continue With Tickets Only
+                {t("checkout:membershipBanner.continueTicketsOnly")}
               </button>
             </div>
           ) : null}

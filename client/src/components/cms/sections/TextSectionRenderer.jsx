@@ -1,4 +1,5 @@
 import CmsCtaButtons from "../CmsCtaButtons.jsx";
+import { sanitizeHtml } from "../../../utils/sanitizeHtml.js";
 
 export default function TextSectionRenderer({ section }) {
   const { content = {}, settings = {} } = section;
@@ -11,7 +12,7 @@ export default function TextSectionRenderer({ section }) {
         {content.subheading ? <h3>{content.subheading}</h3> : null}
         {content.description ? <p>{content.description}</p> : null}
         {content.longContent ? <div className="cms-text-section__long">{content.longContent}</div> : null}
-        {content.richText ? <div className="cms-text-section__rich" dangerouslySetInnerHTML={{ __html: content.richText }} /> : null}
+        {content.richText ? <div className="cms-text-section__rich" dangerouslySetInnerHTML={{ __html: sanitizeHtml(content.richText) }} /> : null}
         {content.bullets?.length ? (
           <ul>{content.bullets.map((b, i) => <li key={i}>{b}</li>)}</ul>
         ) : null}

@@ -7,7 +7,8 @@ import { ensureIndexes } from "./db/ensureIndexes.js";
 import { logStripeConfiguration, loadStripeSecretsFromSettings } from "./services/stripe.js";
 import { logTicketTailorConfiguration } from "./services/ticketTailorService.js";
 import { startPastDataSyncScheduler } from "./services/pastDataSyncScheduler.js";
-import { logMailConfiguration, verifySmtpConnection } from "./services/smtpTransport.js";
+import { startDiscountExpiryReminderScheduler } from "./services/discountExpiryReminderScheduler.js";
+import { logMailConfiguration, verifySmtpConnection, loadEmailSecretsFromSettings } from "./services/smtpTransport.js";
 import { cleanupExpiredSeatHolds } from "./services/seatService.js";
 import { ensureDefaultTeamMembers } from "./services/teamMemberService.js";
 import { ensureDefaultRolesAndPermissions } from "./services/rbacService.js";
@@ -60,7 +61,9 @@ if (shouldConnectDb) {
         console.warn("[checkout-forms] seed failed:", err.message)
       );
       await loadStripeSecretsFromSettings().catch(() => {});
+      await loadEmailSecretsFromSettings().catch(() => {});
       startPastDataSyncScheduler();
+      startDiscountExpiryReminderScheduler();
       setInterval(() => {
         cleanupExpiredSeatHolds().catch((err) =>
           console.warn("[seats] hold cleanup failed:", err.message)

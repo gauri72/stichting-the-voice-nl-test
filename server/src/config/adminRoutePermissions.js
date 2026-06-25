@@ -142,5 +142,40 @@ export function resolveAdminPermission(req) {
   }
   if (url.includes("/admin/tickettailor")) return "memberships.edit";
 
-  return "dashboard.view";
+  // These all carry their own route-level CMS permission middleware
+  // (requireCmsPermission/requireCmsWrite/requireCmsPublish from
+  // cmsMiddleware.js), which independently checks cms.view/cms.edit/
+  // cms.publish/templates.upload. Mapped here too so the outer requireAdmin
+  // gate doesn't block them before that inner check ever runs.
+  if (url.includes("/admin/component-registry")) {
+    return url.includes("/refresh") ? "cms.edit" : "cms.view";
+  }
+  if (url.includes("/admin/media-library")) {
+    if (method === "POST" && !url.includes("/archive")) return "templates.upload";
+    return method === "GET" ? "cms.view" : "cms.edit";
+  }
+  if (url.includes("/admin/design-system")) {
+    if (url.includes("/publish")) return "cms.publish";
+    return method === "GET" ? "cms.view" : "cms.edit";
+  }
+  if (url.includes("/admin/component-library")) {
+    if (url.includes("/publish")) return "cms.publish";
+    return method === "GET" ? "cms.view" : "cms.edit";
+  }
+  if (url.includes("/admin/page-templates")) {
+    return method === "GET" ? "cms.view" : "cms.edit";
+  }
+  if (url.includes("/admin/ai-assistant")) {
+    return method === "GET" ? "cms.view" : "cms.edit";
+  }
+  if (url.includes("/admin/booking")) return "tickets.edit";
+
+  // Fail closed: any admin route not explicitly mapped above requires a
+  // permission no real role is ever granted, so only superadmins (who hold
+  // the "*" wildcard) can reach it. Previously this fell back to
+  // "dashboard.view", which most admin roles hold — meaning a newly added
+  // route would silently be reachable by almost any admin until someone
+  // remembered to add a mapping here.
+  console.warn(`[rbac] No permission mapping for admin route: ${method} ${url} — denying non-superadmins.`);
+  return "system.unmapped_admin_route";
 }

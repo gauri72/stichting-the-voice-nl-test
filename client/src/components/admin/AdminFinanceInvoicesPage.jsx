@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   IconPlus, IconSearch, IconDownload, IconEye, IconEdit, IconTrash, IconX,
-  IconMail, IconReceipt, IconCheck, IconCopy, IconFileInvoice, IconSettings,
+  IconMail, IconCheck, IconCopy, IconFileInvoice, IconSettings,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import AdminLayout from "./AdminLayout.jsx";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
-import { formatMoney, formatDate, badgeClass, downloadBlob, hasFinancePermission, canDeleteFinance } from "../../utils/financeAdmin.js";
+import { formatDate, badgeClass, downloadBlob, hasFinancePermission, canDeleteFinance } from "../../utils/financeAdmin.js";
 import "../../styles/admin-sponsorships-donations-page.css";
 
 const PAYMENT_STATUSES = [

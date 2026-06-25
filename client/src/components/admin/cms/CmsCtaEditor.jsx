@@ -1,4 +1,5 @@
 import { IconPlus, IconTrash } from "@tabler/icons-react";
+import AiAssistantButton from "./AiAssistantButton.jsx";
 import { CTA_STYLES } from "../../../utils/pagesAdmin.js";
 
 function emptyCta() {
@@ -42,7 +43,10 @@ export default function CmsCtaEditor({ ctas = [], onChange, disabled = false }) 
             ) : null}
           </div>
           <div className="admin-cms__field-row">
-            <label className="admin-cms__label">Button text</label>
+            <label className="admin-cms__label">
+              Button text
+              <AiAssistantButton text={cta.url || cta.text} actions={["generate_cta"]} onApply={(v) => update(index, "text", v)} disabled={disabled} />
+            </label>
             <input className="admin-cms__input" value={cta.text || ""} onChange={(e) => update(index, "text", e.target.value)} disabled={disabled} />
           </div>
           <div className="admin-cms__field-row">

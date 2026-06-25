@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { IconCheck } from "@tabler/icons-react";
 import {
   MEMBERSHIP_COMPARISON_ROWS,
@@ -22,7 +23,12 @@ const STANDARD_VALUE_TIERS = new Set([
   "premiumFamily",
 ]);
 
-function ComparisonCell({ cell, tierId }) {
+const ROW_VALUE_TRANSLATIONS = {
+  "All Events": "membership:comparison.allEvents",
+  "1 Year": "membership:comparison.oneYear",
+};
+
+function ComparisonCell({ cell, tierId, t }) {
   const useStandardTone = STANDARD_VALUE_TIERS.has(tierId);
   const useGoldTone = tierId === MEMBERSHIP_HIGHLIGHT_TIER_ID;
 
@@ -52,14 +58,17 @@ function ComparisonCell({ cell, tierId }) {
   }
 
   const tone = useGoldTone ? "gold" : "standard";
+  const translationKey = ROW_VALUE_TRANSLATIONS[cell.value];
   return (
     <span className={`membership-comparison-table__value membership-comparison-table__value--${tone}`}>
-      {cell.value}
+      {translationKey ? t(translationKey) : cell.value}
     </span>
   );
 }
 
 export default function MembershipComparisonTableSection() {
+  const { t } = useTranslation(["membership"]);
+
   return (
     <section
       id="membership-comparison"
@@ -68,7 +77,7 @@ export default function MembershipComparisonTableSection() {
     >
       <div className="membership-comparison-table-section__inner">
         <h2 id="membership-comparison-title" className="visually-hidden">
-          Membership benefits comparison
+          {t("membership:comparison.heading")}
         </h2>
 
         <div className="membership-comparison-table__wrap">
@@ -76,38 +85,41 @@ export default function MembershipComparisonTableSection() {
             <thead>
               <tr>
                 <th scope="col" className="membership-comparison-table__benefits-head">
-                  Benefits
+                  {t("membership:comparison.benefitsHead")}
                 </th>
-                {MEMBERSHIP_TIERS.map((tier) => (
-                  <th
-                    key={tier.id}
-                    scope="col"
-                    className={`membership-comparison-table__tier-head membership-comparison-table__tier-head--${tier.theme}${
-                      tier.id === MEMBERSHIP_HIGHLIGHT_TIER_ID
-                        ? " membership-comparison-table__tier-head--highlight"
-                        : ""
-                    }`}
-                  >
-                    <span className="membership-comparison-table__tier-name">
-                      {(tier.tableNameLines || [tier.name]).map((line) => (
-                        <span key={line} className="membership-comparison-table__tier-name-line">
-                          {line}
-                        </span>
-                      ))}
-                    </span>
-                    <span className="membership-comparison-table__tier-price">
-                      {tier.price}
-                      <span className="membership-comparison-table__tier-period">/year</span>
-                    </span>
-                  </th>
-                ))}
+                {MEMBERSHIP_TIERS.map((tier) => {
+                  const tableNameLines = t(`membership:plans.${tier.id}.tableNameLines`, { returnObjects: true });
+                  return (
+                    <th
+                      key={tier.id}
+                      scope="col"
+                      className={`membership-comparison-table__tier-head membership-comparison-table__tier-head--${tier.theme}${
+                        tier.id === MEMBERSHIP_HIGHLIGHT_TIER_ID
+                          ? " membership-comparison-table__tier-head--highlight"
+                          : ""
+                      }`}
+                    >
+                      <span className="membership-comparison-table__tier-name">
+                        {(Array.isArray(tableNameLines) ? tableNameLines : [tier.name]).map((line) => (
+                          <span key={line} className="membership-comparison-table__tier-name-line">
+                            {line}
+                          </span>
+                        ))}
+                      </span>
+                      <span className="membership-comparison-table__tier-price">
+                        {tier.price}
+                        <span className="membership-comparison-table__tier-period">{t("membership:plans.perYear")}</span>
+                      </span>
+                    </th>
+                  );
+                })}
               </tr>
             </thead>
             <tbody>
-              {MEMBERSHIP_COMPARISON_ROWS.map((row) => (
+              {MEMBERSHIP_COMPARISON_ROWS.map((row, index) => (
                 <tr key={row.benefit}>
                   <th scope="row" className="membership-comparison-table__benefit">
-                    {row.benefit}
+                    {t(`membership:comparison.row${index + 1}`)}
                   </th>
                   {TIER_KEYS.map((tierId) => (
                     <td
@@ -118,7 +130,7 @@ export default function MembershipComparisonTableSection() {
                           : ""
                       }`}
                     >
-                      <ComparisonCell cell={row[tierId]} tierId={tierId} />
+                      <ComparisonCell cell={row[tierId]} tierId={tierId} t={t} />
                     </td>
                   ))}
                 </tr>

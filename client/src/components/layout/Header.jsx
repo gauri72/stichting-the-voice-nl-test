@@ -1,64 +1,73 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconTicket, IconUser, IconUserPlus } from "@tabler/icons-react";
 import ThemeToggle from "./ThemeToggle.jsx";
 import { useCmsHeader } from "../../hooks/useCmsPage.js";
+import { translateKnownLabel, translateKnownNavLabel } from "../../i18n/navLabels.js";
 
 const DEFAULT_BUY_TICKETS_URL =
   "https://www.tickettailor.com/events/stichtingthevoicenl/2185529";
 
-const DEFAULT_NAV_ITEMS = [
-  { label: "Home", to: "/", end: true },
-  {
-    label: "Our Pillars",
-    children: [
-      { label: "Experience", to: "/events" },
-      { label: "Stories", to: "/stories" },
-      { label: "Impact", to: "/impact" },
-      { label: "Innovation", to: "/voice-venture-studio" },
-    ],
-  },
-  {
-    label: "Partner With Us",
-    children: [
-      { label: "Become A Member", to: "/membership" },
-      { label: "Sponsor Us", to: "/sponsorship" },
-      { label: "Donate", to: "/donate" },
-    ],
-  },
-  { label: "About Us", to: "/about-us" },
-];
+function buildDefaultNavItems(t) {
+  return [
+    { label: t("common:nav.home"), to: "/", end: true },
+    {
+      label: t("common:nav.ourPillars"),
+      children: [
+        { label: t("common:nav.experience"), to: "/events" },
+        { label: t("common:nav.stories"), to: "/stories" },
+        { label: t("common:nav.impact"), to: "/impact" },
+        { label: t("common:nav.innovation"), to: "/voice-venture-studio" },
+      ],
+    },
+    {
+      label: t("common:nav.partnerWithUs"),
+      children: [
+        { label: t("common:nav.becomeMember"), to: "/membership" },
+        { label: t("common:nav.sponsorUs"), to: "/sponsorship" },
+        { label: t("common:nav.donate"), to: "/donate" },
+      ],
+    },
+    { label: t("common:nav.aboutUs"), to: "/about-us" },
+  ];
+}
 
-function cmsItemsToNav(items = []) {
-  if (!items.length) return DEFAULT_NAV_ITEMS;
+function cmsItemsToNav(items = [], defaultNavItems, t) {
+  if (!items.length) return defaultNavItems;
   return items
     .filter((item) => item.visible !== false && item.desktopVisible !== false)
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
     .map((item) => {
       if (item.children?.length) {
         return {
-          label: item.label,
+          label: translateKnownLabel(item.label, t),
           children: item.children
             .filter((c) => c.visible !== false)
-            .map((c) => ({ label: c.label, to: c.url || c.to || "/" })),
+            .map((c) => {
+              const to = c.url || c.to || "/";
+              return { label: translateKnownNavLabel(to, c.label, t), to };
+            }),
         };
       }
-      return { label: item.label, to: item.url || item.to || "/", end: item.url === "/" };
+      const to = item.url || item.to || "/";
+      return { label: translateKnownNavLabel(to, item.label, t), to, end: to === "/" };
     });
 }
 
 export default function Header() {
+  const { t } = useTranslation(["common"]);
   const { header } = useCmsHeader();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdownLabel, setOpenDropdownLabel] = useState(null);
 
   const settings = header?.settings || {};
-  const NAV_ITEMS = cmsItemsToNav(header?.items);
+  const NAV_ITEMS = cmsItemsToNav(header?.items, buildDefaultNavItems(t), t);
   const buyTicketsUrl = settings.buyTicketsButtonUrl || DEFAULT_BUY_TICKETS_URL;
-  const memberText = settings.memberButtonText || "Become A Member";
+  const memberText = translateKnownLabel(settings.memberButtonText, t) || t("common:nav.becomeMember");
   const memberUrl = settings.memberButtonUrl || "/membership";
-  const buyTicketsText = settings.buyTicketsButtonText || "Buy Tickets";
-  const loginText = settings.loginButtonText || "Log In Or Sign Up";
+  const buyTicketsText = translateKnownLabel(settings.buyTicketsButtonText, t) || t("common:header.buyTickets");
+  const loginText = translateKnownLabel(settings.loginButtonText, t) || t("common:header.logInSignUp");
   const loginUrl = settings.loginButtonUrl || "/my-account";
   const showThemeToggle = settings.themeToggleVisible !== false;
   const stickyClass = settings.stickyHeader !== false ? " site-header--sticky" : "";

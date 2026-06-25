@@ -6,14 +6,14 @@ const userSchema = new mongoose.Schema(
     lastName: { type: String, required: true, trim: true, maxlength: 80 },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     phone: { type: String, default: "", trim: true, maxlength: 40 },
-    passwordHash: { type: String, required: true },
+    passwordHash: { type: String, required: true, select: false },
     /** Omit for email/password users — do not store null (breaks sparse unique index). */
     googleId: { type: String },
     authProvider: { type: String, enum: ["local", "google"], default: "local" },
     isVerified: { type: Boolean, default: false },
-    verificationOtpHash: { type: String, default: null },
+    verificationOtpHash: { type: String, default: null, select: false },
     verificationOtpExpires: { type: Date, default: null },
-    passwordResetTokenHash: { type: String, default: null },
+    passwordResetTokenHash: { type: String, default: null, select: false },
     passwordResetExpires: { type: Date, default: null },
     /** Stripe Customer used to store this user's reusable payment methods. */
     stripeCustomerId: { type: String, default: "", trim: true }

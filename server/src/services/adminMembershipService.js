@@ -18,6 +18,7 @@ import {
   buildMembershipEmailPayload,
 } from "./membershipProvisioningService.js";
 import { sendMembershipEmails } from "./membershipMailer.js";
+import { escapeRegex } from "../utils/regexUtils.js";
 import { renderMembershipReceiptPdf } from "./membershipReceiptPdf.js";
 import { formatMoney } from "./ticketPricingService.js";
 import { logAdminAction, getAuditLogsForTarget } from "./adminAuditService.js";
@@ -89,7 +90,7 @@ function buildMemberQuery(filters = {}) {
     }
   }
   if (filters.paymentStatus) query.paymentStatus = filters.paymentStatus;
-  if (filters.country) query.country = new RegExp(filters.country, "i");
+  if (filters.country) query.country = new RegExp(escapeRegex(filters.country), "i");
   if (filters.autoRenewal === "true") query.autoRenewal = true;
   if (filters.autoRenewal === "false") query.autoRenewal = false;
   if (filters.createdFrom || filters.createdTo) {
@@ -104,7 +105,7 @@ function buildMemberQuery(filters = {}) {
   }
   if (filters.search) {
     const s = filters.search.trim();
-    const rx = new RegExp(s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+    const rx = new RegExp(escapeRegex(s), "i");
     query.$or = [
       { membershipId: rx },
       { firstName: rx },

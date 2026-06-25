@@ -1,0 +1,67 @@
+{
+  "pillars": {
+    "title": "Four Pillars. One Mission.",
+    "learnMore": "Learn more",
+    "experience": {
+      "mobileTitle": "Experience",
+      "desktopTitle": "V.O.I.C.E. Experience",
+      "lead": "Creating unforgettable cultural experiences.",
+      "tags": "Events • Festivals • Music • Dance • Sports"
+    },
+    "stories": {
+      "mobileTitle": "Stories",
+      "desktopTitle": "V.O.I.C.E. Stories",
+      "lead": "Sharing voices through Vision Of Sounds.",
+      "tags": "Podcast • Voice Of Visionaries • Media • Photography • Interviews"
+    },
+    "impact": {
+      "mobileTitle": "Impact",
+      "desktopTitle": "V.O.I.C.E. Impact",
+      "lead": "VOWNL • Social Work • Empowering communities through action.",
+      "tags": "Youth • Inclusion • Education • Volunteering"
+    },
+    "innovation": {
+      "mobileTitle": "Innovation",
+      "desktopTitle": "V.O.I.C.E. Innovation",
+      "lead": "Building the future through technology.",
+      "tags": "V.O.I.C.E. Digital • Apps • Websites • V.O.I.C.E. Venture Studio"
+    }
+  },
+  "getInvolved": {
+    "sponsorUs": { "title": "Sponsor Us", "description": "Partner with us and create lasting impact together." },
+    "donateNow": { "title": "Donate Now", "description": "Your support helps us create meaningful change." },
+    "volunteer": { "title": "Volunteer", "description": "Give your time and make a real difference." },
+    "volunteerFormTitle": "Fill This Form to Volunteer"
+  },
+  "impactStats": {
+    "stat1": "High Production Events",
+    "stat2": "Lives Impacted",
+    "stat3": "Artists Amplified",
+    "stat4": "Global Community"
+  },
+  "sponsors": {
+    "title": "Our Network",
+    "subtitle": "Proudly supported by our sponsors"
+  },
+  "ourImpact": {
+    "title": "Our Impact",
+    "joinUs": {
+      "label": "Join Us",
+      "heading": "Be Part of the Change",
+      "description": "Become a member or sponsor and help us continue creating meaningful impact through art and community.",
+      "ctaText": "Become a Member"
+    },
+    "sponsorUs": {
+      "label": "Sponsor Us",
+      "heading": "Support. Empower. Transform.",
+      "description": "Your sponsorship helps us deliver cultural programs, elevate artists, and create wider community engagement.",
+      "ctaText": "Become a Sponsor"
+    },
+    "donate": {
+      "label": "Donate",
+      "heading": "Give Hope Through Culture.",
+      "description": "Every contribution powers inclusive events, nurtures young talent, and keeps community-led creativity thriving.",
+      "ctaText": "Donate Now"
+    }
+  }
+}

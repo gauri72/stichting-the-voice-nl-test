@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import "../../styles/sponsors-section.css";
 import { sponsorLogos } from "../../data/sponsorLogos.js";
 
 export default function SponsorsSection() {
+  const { t } = useTranslation(["home"]);
   const loopedLogos = [...sponsorLogos, ...sponsorLogos];
 
   return (
@@ -10,11 +12,11 @@ export default function SponsorsSection() {
         <div className="network-section__heading">
           <span className="network-section__heading-line" aria-hidden="true" />
           <h2 id="network-section-title" className="network-section__title">
-            Our Network
+            {t("home:sponsors.title")}
           </h2>
           <span className="network-section__heading-line" aria-hidden="true" />
         </div>
-        <p className="network-section__subtitle">Proudly supported by our sponsors</p>
+        <p className="network-section__subtitle">{t("home:sponsors.subtitle")}</p>
 
         <div className="network-marquee" aria-label="Partner and sponsor logos">
           <div className="network-marquee__track">

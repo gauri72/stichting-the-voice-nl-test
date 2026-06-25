@@ -18,6 +18,7 @@ import {
 import { Link } from "react-router-dom";
 import { ReportBarChart, ReportLineChart, ReportPieChart } from "../reports/ReportCharts.jsx";
 import { formatWidgetGridStyle } from "../../../utils/dashboardAdmin.js";
+import { sanitizeHtml } from "../../../utils/sanitizeHtml.js";
 
 const ICON_MAP = {
   IconUsers,
@@ -239,7 +240,7 @@ const RENDERERS = {
   ai_insight: AiInsights,
   section_header: ({ widget }) => <h2 className="admin-dashboard-section-title">{widget.title}</h2>,
   custom_html: ({ widget }) => (
-    <div className="admin-dashboard-custom-html" dangerouslySetInnerHTML={{ __html: widget.data?.html || "" }} />
+    <div className="admin-dashboard-custom-html" dangerouslySetInnerHTML={{ __html: sanitizeHtml(widget.data?.html) }} />
   ),
   embedded_report: EmbeddedReport,
   bar_chart: ChartWidget,

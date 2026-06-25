@@ -11,6 +11,7 @@ import { createTicketPaymentIntent, confirmTicketPayment } from "./ticketPayment
 import { getMailFromAddress, getSmtpTransporter, isMailerConfigured } from "./smtpTransport.js";
 import { validateDiscountCode, calculateDiscountAmount } from "./discountService.js";
 import { generateSessionBookingPdf, generateRsvpPdf } from "./sessionPdfService.js";
+import { notifyAdminSessionBooking } from "./booking/AdminNotificationService.js";
 
 function slugify(value) {
   return String(value || "")
@@ -453,7 +454,7 @@ export async function createPublicSessionBooking(payload, userId) {
     membershipDiscountApplied: discountMinor > 0,
     checkInToken,
     qrCodeUrl,
-    pdfUrl: `/api/public/session-bookings/${bookingId}/pdf`,
+    pdfUrl: `/api/public/session-bookings/${bookingId}/pdf?token=${checkInToken}`,
     startsAt: slot.startsAt,
     endsAt: slot.endsAt,
     notes: payload.notes || "",
@@ -521,6 +522,10 @@ export async function confirmSessionBookingPayment(bookingId, paymentIntentId) {
       <p><a href="${booking.pdfUrl}">Download Booking PDF</a></p>
     </div>`,
   });
+  await notifyAdminSessionBooking({
+    session,
+    booking: { email: booking.customerEmail, slotLabel: slot.slotId, totalMinor: booking.totalMinor },
+  }).catch((err) => console.error("[sessions] admin notification failed:", err.message));
   return { booking: formatSessionBooking(booking.toObject()) };
 }
 
@@ -677,9 +682,11 @@ export async function submitRsvpResponse(slug, payload) {
     foodPreference: payload.foodPreference || "",
     messageToHost: payload.messageToHost || "",
     attended: false,
-    checkInToken: event.qrEnabled ? checkInToken : "",
+    checkInToken,
     qrCodeUrl: event.qrEnabled ? buildTicketQrPath(checkInToken) : "",
-    pdfUrl: event.pdfEnabled ? `/api/public/rsvp/${slug}/responses/${responseId}/pdf` : "",
+    pdfUrl: event.pdfEnabled
+      ? `/api/public/rsvp/${slug}/responses/${responseId}/pdf?token=${checkInToken}`
+      : "",
   };
   event.responses.push(response);
   await event.save();
@@ -739,20 +746,35 @@ export async function listAdminRsvpResponses(query = {}) {
   return rows;
 }
 
-export async function getSessionBookingPdfBuffer(bookingId) {
+function verifyCheckInTokenAccess(record, token, notFoundMessage) {
+  if (!record?.checkInToken) {
+    const err = new Error(notFoundMessage || "Verification is not available for this record.");
+    err.status = 403;
+    throw err;
+  }
+  if (!token || token !== record.checkInToken) {
+    const err = new Error("Invalid or missing verification token.");
+    err.status = 403;
+    throw err;
+  }
+}
+
+export async function getSessionBookingPdfBuffer(bookingId, token) {
   const booking = await SessionBooking.findOne({ bookingId }).lean();
   if (!booking) throwError("Session booking not found.", 404);
+  verifyCheckInTokenAccess(booking, token);
   const session = await Session.findOne({ sessionId: booking.sessionId }).lean();
   return generateSessionBookingPdf({ booking, session });
 }
 
-export async function getRsvpResponsePdfBuffer(eventSlug, responseId) {
+export async function getRsvpResponsePdfBuffer(eventSlug, responseId, token) {
   const event = await RSVP.findOne({ eventSlug }).lean();
   if (!event) throwError("RSVP event not found.", 404);
   const response = (event.responses || []).find(
     (r) => r.responseId === responseId || r._id?.toString?.() === responseId
   );
   if (!response) throwError("RSVP response not found.", 404);
+  verifyCheckInTokenAccess(response, token);
   return generateRsvpPdf({ event, response });
 }
 

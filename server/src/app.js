@@ -34,8 +34,16 @@ app.post(
   stripeWebhook
 );
 
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+// Admin routes embed base64 file/image uploads (media library, event
+// documents, design system, etc.) in the JSON body — the largest real
+// upload is a 10MB operations document, ~13.3MB once base64-encoded.
+// Public routes (contact forms, checkout, RSVP, etc.) never need anywhere
+// near that, so they get a much smaller default to limit DoS exposure.
+app.use("/api/admin", express.json({ limit: "15mb" }));
+app.use("/api/admin", express.urlencoded({ extended: true, limit: "15mb" }));
+
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
 app.get("/", (_req, res) => {
   res.status(200).json({ message: "Stichting The V.O.I.C.E. NL API" });

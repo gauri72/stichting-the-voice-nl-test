@@ -7,14 +7,7 @@ import {
   isMailerConfigured as isVolunteerMailerConfigured,
   sendVolunteerApplicationEmail
 } from "../services/volunteerContactMailer.js";
-
-function isValidEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
-}
-
-function trimField(value, maxLen) {
-  return String(value || "").trim().slice(0, maxLen);
-}
+import { isValidEmail, trimField } from "../utils/validation.js";
 
 export async function submitVentureStudioMessage(req, res) {
   const name = trimField(req.body?.name, 120);

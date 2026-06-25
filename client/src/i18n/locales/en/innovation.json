@@ -1,0 +1,75 @@
+{
+  "hero": {
+    "titleLead": "V.O.I.C.E.",
+    "titleAccent": "Innovation.",
+    "description": "Innovating for impact. Building solutions that empower communities and accelerate growth in a digital world."
+  },
+  "digital": {
+    "title": "V.O.I.C.E. Digital",
+    "description": "The main driver of innovation at V.O.I.C.E. NL. We leverage technology, data and creativity to build digital experiences, platforms and solutions that create real impact.",
+    "pillar1": "Digital Transformation",
+    "pillar2": "Data Driven Decisions",
+    "pillar3": "Community Centric",
+    "pillar4": "Innovation For Impact"
+  },
+  "initiatives": {
+    "heading": "Our Key Initiatives",
+    "item1": {
+      "title": "V.O.I.C.E. Venture Studio",
+      "tagline": "Empowering ideas. Building the future.",
+      "description": "Empowering changemakers with mentorship, innovation, and resources to turn bold ideas into meaningful ventures.",
+      "items": ["Entrepreneurship & Innovation", "Mentorship & Skills Development", "Funding & Resources", "Leadership Opportunities"]
+    },
+    "item2": {
+      "title": "Consultancy Solutions",
+      "tagline": "Expert guidance. Measurable results.",
+      "description": "Strategic consultancy that helps organizations plan, optimize, and deliver measurable outcomes with clarity and confidence.",
+      "items": ["Strategy & Business Planning", "Operational Excellence", "Digital Transformation", "Growth Strategy"]
+    },
+    "item3": {
+      "title": "Digital Growth",
+      "tagline": "Scale your brand. Grow your impact.",
+      "description": "Building digital presence and performance through marketing, content, and analytics that drive sustainable growth.",
+      "items": ["Digital Marketing", "Brand & Content Strategy", "Performance Analytics", "Scalable Solutions"],
+      "buttonLabel": "Explore Services"
+    }
+  },
+  "deliver": {
+    "heading": "What We Deliver",
+    "item1": { "title": "Purpose Driven Innovation", "description": "Solutions that create meaningful impact." },
+    "item2": { "title": "Empowered Communities", "description": "Tools and platforms that uplift and connect." },
+    "item3": { "title": "Sustainable Growth", "description": "Building long term value and impact." },
+    "item4": { "title": "Technology With Integrity", "description": "Responsible innovation for a better tomorrow." }
+  },
+  "cta": {
+    "titleLead": "Innovate. Transform. ",
+    "titleAccent": "Impact.",
+    "description": "Through technology, creativity and collaboration, we build the future with purpose.",
+    "buttonLabel": "Partner With Us"
+  },
+  "contact": {
+    "heading": "Contact & service requests",
+    "infoTitle": "Contact Information",
+    "email": "Email",
+    "officePhone": "Office Phone",
+    "address": "Address",
+    "kvk": "KVK",
+    "messageFormTitle": "Send Us a Message",
+    "fullName": "Full Name *",
+    "emailAddress": "Email Address *",
+    "subject": "Subject *",
+    "yourMessage": "Your Message / Question *",
+    "sending": "Sending…",
+    "sendMessage": "Send Message",
+    "quoteFormTitle": "Request Our Services",
+    "quoteLead": "Tell us about your project and our team will get back to you with the best solution.",
+    "iNeedHelpWith": "I need help with *",
+    "serviceOptions": ["Website Development", "Marketing Strategies", "Onboarding & Support", "Branding & Digital Growth", "Consultancy & Strategy", "Coaching & Mentorship", "Other"],
+    "projectType": "Project Type / Industry",
+    "timeline": "Timeline (Optional)",
+    "projectDetails": "Tell us more about your project...",
+    "requestQuote": "Request a Quote",
+    "messageError": "Could not send your message. Please try again.",
+    "quoteError": "Could not send your quote request. Please try again."
+  }
+}

@@ -1,8 +1,13 @@
+import { useTranslation } from "react-i18next";
 import { IconArrowRight, IconBrandWhatsapp } from "@tabler/icons-react";
 import { POLICIES_HELP } from "../../data/policiesDisplay.js";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
+import { resolveOverrideText } from "../../i18n/overrideText.js";
 
 export default function PoliciesHelpSection() {
-  const { image, title, description, buttonLabel, buttonHref } = POLICIES_HELP;
+  const { t } = useTranslation(["policies"]);
+  const overrides = useContentOverrides();
+  const { image } = POLICIES_HELP;
 
   return (
     <section className="policies-help" aria-labelledby="policies-help-title">
@@ -12,17 +17,19 @@ export default function PoliciesHelpSection() {
 
         <div className="policies-help__content">
           <h2 id="policies-help-title" className="policies-help__title">
-            {title}
+            {resolveOverrideText(overrides.policiesHelpTitle, POLICIES_HELP.title, t("policies:help.title"))}
           </h2>
-          <p className="policies-help__description">{description}</p>
+          <p className="policies-help__description">
+            {resolveOverrideText(overrides.policiesHelpDescription, POLICIES_HELP.description, t("policies:help.description"))}
+          </p>
           <a
             className="policies-help__button"
-            href={buttonHref}
+            href={overrides.policiesHelpButtonLink || POLICIES_HELP.buttonHref}
             target="_blank"
             rel="noopener noreferrer"
           >
             <IconBrandWhatsapp size={20} stroke={1.6} aria-hidden />
-            {buttonLabel}
+            {resolveOverrideText(overrides.policiesHelpButtonText, POLICIES_HELP.buttonLabel, t("policies:help.buttonLabel"))}
             <IconArrowRight size={16} stroke={2} aria-hidden />
           </a>
         </div>

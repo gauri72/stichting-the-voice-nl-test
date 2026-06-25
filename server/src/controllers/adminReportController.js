@@ -22,11 +22,10 @@ import {
   exportReportCsv,
 } from "../services/reportExportService.js";
 
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  const message = error.message || "Something went wrong.";
-  if (status >= 500) console.error("[admin/reports]", error);
-  return res.status(status).json({ error: message });
+  return handleErrorBase(res, error, { logTag: "[admin/reports]" });
 }
 
 function adminName(admin) {

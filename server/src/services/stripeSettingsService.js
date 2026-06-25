@@ -16,11 +16,6 @@ export async function getEffectiveWebhookSecret() {
   return dbSecret || env.stripe.webhookSecret || "";
 }
 
-export async function getEffectivePublishableKey() {
-  const settings = await getStripeSettings();
-  return settings.publishableKey || process.env.STRIPE_PUBLISHABLE_KEY || "";
-}
-
 export async function testStripeConnection() {
   const secretKey = await getEffectiveStripeSecretKey();
   if (!secretKey) {

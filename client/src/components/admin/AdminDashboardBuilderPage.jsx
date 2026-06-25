@@ -91,14 +91,18 @@ export default function AdminDashboardBuilderPage() {
   }
 
   async function saveWidget(widget) {
-    const updated = await apiFetch(`/api/admin/dashboard/widgets/${widget.widgetId}`, {
-      method: "PATCH",
-      headers: adminAuthHeaders(),
-      body: JSON.stringify(widget),
-    });
-    setState(updated);
-    const preview = await apiFetch("/api/admin/dashboard?version=draft", { headers: adminAuthHeaders() });
-    setPreviewData(preview.dashboard);
+    try {
+      const updated = await apiFetch(`/api/admin/dashboard/widgets/${widget.widgetId}`, {
+        method: "PATCH",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify(widget),
+      });
+      setState(updated);
+      const preview = await apiFetch("/api/admin/dashboard?version=draft", { headers: adminAuthHeaders() });
+      setPreviewData(preview.dashboard);
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   async function publish() {
@@ -116,28 +120,40 @@ export default function AdminDashboardBuilderPage() {
   }
 
   async function addWidget() {
-    const updated = await apiFetch("/api/admin/dashboard/widgets", {
-      method: "POST",
-      headers: adminAuthHeaders(),
-      body: JSON.stringify({ widgetType: newWidgetType, title: widgetTypeLabel(newWidgetType) }),
-    });
-    setState(updated);
-    setShowAddWidget(false);
-    load();
+    try {
+      const updated = await apiFetch("/api/admin/dashboard/widgets", {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify({ widgetType: newWidgetType, title: widgetTypeLabel(newWidgetType) }),
+      });
+      setState(updated);
+      setShowAddWidget(false);
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   async function duplicateWidget(id) {
-    const updated = await apiFetch(`/api/admin/dashboard/widgets/${id}/duplicate`, { method: "POST", headers: adminAuthHeaders() });
-    setState(updated);
-    load();
+    try {
+      const updated = await apiFetch(`/api/admin/dashboard/widgets/${id}/duplicate`, { method: "POST", headers: adminAuthHeaders() });
+      setState(updated);
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   async function deleteWidget(id) {
     if (!confirm("Delete this widget?")) return;
-    const updated = await apiFetch(`/api/admin/dashboard/widgets/${id}`, { method: "DELETE", headers: adminAuthHeaders() });
-    setState(updated);
-    if (selectedId === id) setSelectedId(null);
-    load();
+    try {
+      const updated = await apiFetch(`/api/admin/dashboard/widgets/${id}`, { method: "DELETE", headers: adminAuthHeaders() });
+      setState(updated);
+      if (selectedId === id) setSelectedId(null);
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   async function toggleVisibility(id) {
@@ -148,13 +164,17 @@ export default function AdminDashboardBuilderPage() {
   }
 
   async function reorder(widgetOrder) {
-    const updated = await apiFetch("/api/admin/dashboard/widgets/reorder", {
-      method: "POST",
-      headers: adminAuthHeaders(),
-      body: JSON.stringify({ widgetOrder }),
-    });
-    setState(updated);
-    load();
+    try {
+      const updated = await apiFetch("/api/admin/dashboard/widgets/reorder", {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify({ widgetOrder }),
+      });
+      setState(updated);
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   function handleDrop(targetId) {
@@ -171,13 +191,17 @@ export default function AdminDashboardBuilderPage() {
   }
 
   async function createReport() {
-    await apiFetch("/api/admin/dashboard/reports", {
-      method: "POST",
-      headers: adminAuthHeaders(),
-      body: JSON.stringify(reportForm),
-    });
-    setShowAddReport(false);
-    load();
+    try {
+      await apiFetch("/api/admin/dashboard/reports", {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify(reportForm),
+      });
+      setShowAddReport(false);
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   function updateSelected(field, value) {

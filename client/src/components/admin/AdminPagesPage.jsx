@@ -218,7 +218,7 @@ export default function AdminPagesPage() {
                   <td>{formatDate(page.updatedAt)}</td>
                   <td>
                     <div className="admin-cms__actions">
-                      <Link to={`/admin/pages/${page.slug}`} className="admin-cms__btn admin-cms__btn--sm admin-cms__btn--primary">
+                      <Link to={`/admin/cms/pages/${page.slug}/visual-editor`} className="admin-cms__btn admin-cms__btn--sm admin-cms__btn--primary">
                         <IconEdit size={14} /> Edit
                       </Link>
                       <a href={`/preview/${page.slug}?version=draft`} target="_blank" rel="noopener noreferrer" className="admin-cms__btn admin-cms__btn--sm">

@@ -1,0 +1,45 @@
+{
+  "herbeats": {
+    "brandName": "VOWNL",
+    "brandTagline": "Voice Of Women In The Netherlands",
+    "brandMotto": "We vow for women's welfare",
+    "title": "VOWNL - HerBeats",
+    "description": "A safe space where women uplift, support, and advocate for one another. Through the rhythm of shared experiences and collective strength, HerBeats celebrates the resilience of women, fosters connection, and champions equal opportunities for all.",
+    "quote": "Here's to stronger voices, shared purpose, and a future led with compassion and courage.",
+    "ctaTitle": "Join the VOWNL - HerBeats Movement",
+    "ctaSubtitle": "Connect. Support. Empower."
+  },
+  "highlight": {
+    "label": "VOWNL Highlight",
+    "title": "HerBeats Her Night",
+    "description": "An unforgettable evening celebrating women through music, connection, and shared stories — where every beat amplifies empowerment.",
+    "linkLabel": "View Highlights",
+    "feature1": { "title": "Empower", "description": "Building confidence and leadership among women." },
+    "feature2": { "title": "Support", "description": "Creating networks of care and solidarity." },
+    "feature3": { "title": "Advocate", "description": "Amplifying women's voices for lasting change." }
+  },
+  "areas": {
+    "heading": "Our Areas Of Impact",
+    "area1": {
+      "titleLead": "Social Impact through ",
+      "titleAccent": "VOWNL",
+      "description": "Driving community support and women's welfare through inclusive programs that uplift, educate, and empower.",
+      "items": ["Community Support Programs", "Education & Awareness", "Health & Wellbeing Initiatives", "Women Empowerment"],
+      "buttonLabel": "Learn More"
+    },
+    "area2": {
+      "titleLead": "Youth Empowerment through ",
+      "titleAccent": "V.O.I.C.E. Venture Studio",
+      "description": "Empowering young changemakers with mentorship, innovation, and resources to turn bold ideas into meaningful ventures.",
+      "items": ["Entrepreneurship & Innovation", "Mentorship & Skills Development", "Funding & Resources", "Leadership Opportunities"],
+      "buttonLabel": "Join Venture Studio WhatsApp Group"
+    },
+    "area3": {
+      "titleLead": "Helping Other ",
+      "titleAccent": "NGOs",
+      "description": "Collaborating with NGOs worldwide to amplify impact through shared resources, visibility, and cross-sector partnerships.",
+      "items": ["Capacity Building & Resources", "Campaign Support & Visibility", "Cross-Sector Partnerships", "Global NGO Network"],
+      "buttonLabel": "Donate Now"
+    }
+  }
+}

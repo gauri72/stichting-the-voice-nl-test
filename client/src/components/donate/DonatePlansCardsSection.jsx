@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   IconCheck,
   IconDiamond,
@@ -20,6 +21,8 @@ const TIER_ICONS = {
 };
 
 export default function DonatePlansCardsSection({ selectedTierId, onSelectTier }) {
+  const { t } = useTranslation(["donate"]);
+
   return (
     <section
       id="donate-plans"
@@ -28,13 +31,14 @@ export default function DonatePlansCardsSection({ selectedTierId, onSelectTier }
     >
       <div className="donate-plans-cards-section__inner">
         <h2 id="donate-plans-title" className="visually-hidden">
-          Choose your impact
+          {t("donate:plans.heading")}
         </h2>
 
         <div className="donate-plans-cards" role="list">
-          {DONATION_TIERS.map((tier) => {
+          {DONATION_TIERS.map((tier, index) => {
             const Icon = TIER_ICONS[tier.icon] || IconHeart;
             const isCustomPrice = tier.price === "Custom";
+            const tierKey = `tier${index + 1}`;
 
             return (
               <article
@@ -49,7 +53,7 @@ export default function DonatePlansCardsSection({ selectedTierId, onSelectTier }
                     className="donate-plans-card__badge donate-plans-card__badge--desktop"
                     aria-label="Most popular amount"
                   >
-                    <span aria-hidden="true">★</span> MOST POPULAR <span aria-hidden="true">★</span>
+                    <span aria-hidden="true">★</span> {t("donate:plans.mostPopular")} <span aria-hidden="true">★</span>
                   </p>
                 ) : null}
 
@@ -67,7 +71,7 @@ export default function DonatePlansCardsSection({ selectedTierId, onSelectTier }
                           className="donate-plans-card__badge donate-plans-card__badge--mobile"
                           aria-hidden="true"
                         >
-                          <span aria-hidden="true">★</span> MOST POPULAR <span aria-hidden="true">★</span>
+                          <span aria-hidden="true">★</span> {t("donate:plans.mostPopular")} <span aria-hidden="true">★</span>
                         </p>
                       ) : null}
                       <p
@@ -77,8 +81,8 @@ export default function DonatePlansCardsSection({ selectedTierId, onSelectTier }
                       >
                         {tier.price}
                       </p>
-                      <h3 className="donate-plans-card__title">{tier.name}</h3>
-                      <p className="donate-plans-card__description">{tier.description}</p>
+                      <h3 className="donate-plans-card__title">{t(`donate:plans.${tierKey}.name`)}</h3>
+                      <p className="donate-plans-card__description">{t(`donate:plans.${tierKey}.description`)}</p>
                     </div>
                   </div>
 
@@ -89,7 +93,7 @@ export default function DonatePlansCardsSection({ selectedTierId, onSelectTier }
                     aria-controls="donate-payment"
                     aria-expanded={selectedTierId === tier.id}
                   >
-                    {selectedTierId === tier.id ? "Selected — scroll down" : "Donate Now"}
+                    {selectedTierId === tier.id ? t("donate:plans.selected") : t("donate:plans.donateNow")}
                   </button>
                 </div>
               </article>
@@ -99,9 +103,9 @@ export default function DonatePlansCardsSection({ selectedTierId, onSelectTier }
 
         <p className="donate-plans-cards-section__secure">
           <IconCheck className="donate-plans-cards-section__secure-icon" size={18} stroke={2.5} aria-hidden />
-          <span className="donate-plans-cards-section__secure-headline">100% Secure Donations.</span>
+          <span className="donate-plans-cards-section__secure-headline">{t("donate:plans.secureHeadline")}</span>
           <span className="donate-plans-cards-section__secure-subtext">
-            Your contribution is safe with us.
+            {t("donate:plans.secureSubtext")}
           </span>
         </p>
       </div>

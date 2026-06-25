@@ -1,0 +1,104 @@
+{
+  "breadcrumb": {
+    "home": "Home",
+    "current": "Beleid, Voorwaarden & Condities"
+  },
+  "hero": {
+    "titleLead": "BELEID,",
+    "titleAccent": "VOORWAARDEN & CONDITIES",
+    "tagline": "Transparantie. Verantwoordelijkheid. Vertrouwen.",
+    "description": "Bij Stichting The V.O.I.C.E. NL zetten we ons in voor integriteit, het beschermen van je privacy en het waarborgen van een veilige en respectvolle omgeving voor iedereen in onze gemeenschap."
+  },
+  "commitment": {
+    "title": "ONZE TOEZEGGING AAN JOU",
+    "description": "Wij geloven in ethische praktijken, duidelijke communicatie en verantwoord gebruik van technologie om onze gemeenschap met zorg en verantwoording te dienen.",
+    "pillar1": "Integriteit",
+    "pillar2": "Privacy",
+    "pillar3": "Respect",
+    "pillar4": "Rechtvaardigheid"
+  },
+  "grid": {
+    "heading": "ONS BELEID",
+    "readPolicy": "Lees Beleid",
+    "item1": { "title": "Privacybeleid", "description": "Hoe wij je persoonlijke gegevens verzamelen, gebruiken en beschermen wanneer je met onze website en diensten interacteert." },
+    "item2": { "title": "Gegevensbeschermingsbeleid", "description": "Onze aanpak voor het beveiligen van gegevens, het waarborgen van naleving en het handhaven van de hoogste beveiligingsstandaarden." },
+    "item3": { "title": "Cookiebeleid", "description": "Informatie over hoe wij cookies en vergelijkbare technologieën gebruiken om je surfervaring te verbeteren." },
+    "item4": { "title": "Communityrichtlijnen", "description": "Normen voor respectvolle betrokkenheid, samenwerking en positieve deelname in onze gemeenschap." },
+    "item5": { "title": "Algemene Voorwaarden voor Evenementen", "description": "Voorwaarden voor deelname aan onze evenementen, inclusief registratie, gedrag en annuleringsbeleid." },
+    "item6": { "title": "Aankoop- & Restitutiebeleid", "description": "Details over betalingen, terugbetalingen en financiële transacties met betrekking tot lidmaatschappen, donaties en diensten." },
+    "item7": { "title": "Gedragscode", "description": "Onze verwachtingen voor ethisch gedrag, professionaliteit en verantwoording bij alle activiteiten." },
+    "item8": { "title": "Contentbeleid", "description": "Richtlijnen voor het creëren, delen en gebruiken van content op onze platforms en communitykanalen." }
+  },
+  "termsBanner": {
+    "title": "ALGEMENE VOORWAARDEN",
+    "description": "Deze voorwaarden zijn van toepassing op je gebruik van onze website, diensten en deelname aan onze programma's. Lees ze aandachtig door voordat je gebruikmaakt van ons platform.",
+    "buttonLabel": "Bekijk Algemene Voorwaarden"
+  },
+  "help": {
+    "title": "HULP NODIG?",
+    "description": "Als je vragen hebt over ons beleid of verduidelijking nodig hebt over bepaalde voorwaarden, staat ons team voor je klaar.",
+    "buttonLabel": "Neem Contact Op via WhatsApp"
+  },
+  "disclaimer": "Door gebruik te maken van onze website en diensten, erken je dat je ons beleid en onze voorwaarden hebt gelezen, begrepen en ermee instemt.",
+  "details": {
+    "privacy": {
+      "title": "Privacybeleid",
+      "p1": "Stichting The V.O.I.C.E. NL respecteert je privacy en zet zich in voor de bescherming van je persoonsgegevens. Dit beleid legt uit hoe wij informatie verzamelen, gebruiken, opslaan en beschermen wanneer je onze website bezoekt, je registreert voor evenementen, lid wordt of gebruikmaakt van onze diensten.",
+      "p2": "Wij verzamelen informatie die je direct verstrekt, zoals je naam, e-mailadres, telefoonnummer en betalingsgegevens wanneer je je registreert, doneert of contact met ons opneemt. We kunnen ook technische gegevens verzamelen, zoals IP-adres, browsertype en gebruikspatronen, om onze diensten te verbeteren.",
+      "p3": "Je gegevens worden gebruikt om onze diensten te leveren, transacties te verwerken, met je te communiceren en ons platform te verbeteren. Wij verkopen je persoonlijke gegevens niet aan derden. Je kunt toegang tot, correctie of verwijdering van je gegevens aanvragen door contact met ons op te nemen via info@stichtingthevoice.nl."
+    },
+    "dataProtection": {
+      "title": "Gegevensbeschermingsbeleid",
+      "p1": "Wij implementeren passende technische en organisatorische maatregelen om persoonsgegevens te beschermen tegen ongeoorloofde toegang, wijziging, openbaarmaking of vernietiging. Onze gegevensbeschermingspraktijken zijn afgestemd op de toepasselijke regelgeving, waaronder de AVG.",
+      "p2": "Toegang tot persoonsgegevens is beperkt tot bevoegd personeel dat deze nodig heeft om hun taken uit te voeren. We evalueren onze beveiligingsmaatregelen regelmatig en passen onze praktijken aan om opkomende dreigingen aan te pakken.",
+      "p3": "In geval van een datalek dat een risico vormt voor je rechten, zullen wij betrokken personen en relevante autoriteiten informeren zoals wettelijk vereist."
+    },
+    "cookie": {
+      "title": "Cookiebeleid",
+      "p1": "Onze website gebruikt cookies en vergelijkbare technologieën om je ervaring te verbeteren, sitebezoek te analyseren en content te personaliseren. Cookies zijn kleine tekstbestanden die op je apparaat worden opgeslagen wanneer je onze site bezoekt.",
+      "p2": "Wij gebruiken essentiële cookies die nodig zijn voor de werking van de website, analytische cookies om te begrijpen hoe bezoekers onze site gebruiken, en voorkeurscookies om je instellingen zoals thema en taal te onthouden.",
+      "p3": "Je kunt je cookievoorkeuren beheren via je browserinstellingen of onze cookiebanner. Het uitschakelen van bepaalde cookies kan invloed hebben op de functionaliteit van onze website."
+    },
+    "community": {
+      "title": "Communityrichtlijnen",
+      "p1": "Onze gemeenschap floreert dankzij respect, inclusie en samenwerking. Van alle leden, deelnemers en bezoekers wordt verwacht dat ze anderen met waardigheid behandelen en zich onthouden van intimidatie, discriminatie of schadelijk gedrag.",
+      "p2": "Wij moedigen open dialoog en diverse perspectieven aan, terwijl we een veilige omgeving handhaven. Content die geweld, haatzaaiende uitlatingen of illegale activiteiten promoot, is niet toegestaan op onze platforms of bij onze evenementen.",
+      "p3": "Schendingen van deze richtlijnen kunnen leiden tot verwijdering uit communityruimtes, opzegging van het lidmaatschap of andere passende maatregelen naar ons eigen oordeel."
+    },
+    "eventTerms": {
+      "title": "Algemene Voorwaarden voor Evenementen",
+      "p1": "Registratie voor V.O.I.C.E. NL-evenementen houdt aanvaarding van deze voorwaarden in. Evenementdetails, schema's en locaties kunnen veranderen; we informeren geregistreerde deelnemers over belangrijke wijzigingen.",
+      "p2": "Tickets en registraties zijn persoonlijk en mogen niet worden overgedragen zonder voorafgaande goedkeuring. Annulerings- en restitutiebeleid verschilt per evenement en wordt gecommuniceerd bij registratie.",
+      "p3": "Deelnemers zijn verantwoordelijk voor hun eigen gedrag tijdens evenementen. Fotografie en opnames kunnen plaatsvinden; door deel te nemen, stem je ermee in dat je wordt opgenomen in evenementdocumentatie, tenzij je organisatoren vooraf op de hoogte stelt."
+    },
+    "purchaseRefund": {
+      "title": "Aankoop- & Restitutiebeleid",
+      "p1": "Alle prijzen worden weergegeven in euro's, tenzij anders vermeld. Betalingen worden veilig verwerkt via onze geautoriseerde betalingsproviders. Lidmaatschapskosten, donaties en servicekosten worden bevestigd na een succesvolle transactie.",
+      "p2": "Recht op restitutie is afhankelijk van het type aankoop. Restituties van lidmaatschappen worden per geval beoordeeld binnen 14 dagen na aankoop, mits er geen diensten zijn afgenomen. Restituties van evenemententickets volgen het specifieke beleid dat bij registratie is vermeld.",
+      "p3": "Voor vragen over facturering of restitutieverzoeken kun je contact opnemen met info@stichtingthevoice.nl onder vermelding van je transactiereferentie."
+    },
+    "codeOfConduct": {
+      "title": "Gedragscode",
+      "p1": "Van iedereen die verbonden is aan Stichting The V.O.I.C.E. NL — inclusief medewerkers, vrijwilligers, partners en deelnemers — wordt verwacht dat zij de hoogste normen van integriteit en professionaliteit hanteren.",
+      "p2": "Belangenconflicten moeten onmiddellijk worden gemeld. Beslissingen moeten de missie van de organisatie en het welzijn van onze gemeenschap boven persoonlijk gewin stellen.",
+      "p3": "Meldingen van misstanden kunnen vertrouwelijk worden ingediend via info@stichtingthevoice.nl. Wij nemen alle meldingen serieus en onderzoeken ze snel en eerlijk."
+    },
+    "content": {
+      "title": "Contentbeleid",
+      "p1": "Content die op onze platforms wordt gedeeld, moet aansluiten bij onze missie en waarden. Gebruikers behouden het eigendom van hun content, maar verlenen ons een licentie om deze weer te geven en te promoten in verband met onze activiteiten.",
+      "p2": "Wij behouden ons het recht voor om content te verwijderen die onze communityrichtlijnen schendt, intellectuele-eigendomsrechten schendt of anderszins ongepast is, zonder voorafgaande kennisgeving.",
+      "p3": "Als je denkt dat content op ons platform je rechten schendt, neem dan contact met ons op met details en ondersteunend bewijs."
+    }
+  },
+  "terms": {
+    "title": "Algemene Voorwaarden",
+    "section1": { "heading": "1. Aanvaarding van de Voorwaarden", "body": "Door toegang te krijgen tot of gebruik te maken van de website en diensten van Stichting The V.O.I.C.E. NL, ga je akkoord met deze Algemene Voorwaarden en alle toepasselijke beleidsregels waarnaar op deze pagina wordt verwezen." },
+    "section2": { "heading": "2. Gebruik van Diensten", "body": "Je gaat ermee akkoord onze website en diensten alleen te gebruiken voor wettige doeleinden en in overeenstemming met deze voorwaarden. Je mag ons platform niet misbruiken, geen ongeoorloofde toegang proberen te verkrijgen en de goede werking van onze diensten niet verstoren." },
+    "section3": { "heading": "3. Intellectueel Eigendom", "body": "Alle content op deze website, waaronder tekst, afbeeldingen, logo's, foto's en software, is eigendom van Stichting The V.O.I.C.E. NL of haar licentiegevers en wordt beschermd door auteursrecht en andere intellectuele-eigendomswetten." },
+    "section4": { "heading": "4. Lidmaatschap & Accounts", "body": "Als je een account aanmaakt of een lidmaatschap aanschaft, ben je verantwoordelijk voor het vertrouwelijk houden van je inloggegevens en voor alle activiteiten onder je account. Je moet nauwkeurige en volledige informatie verstrekken." },
+    "section5": { "heading": "5. Beperking van Aansprakelijkheid", "body": "Voor zover wettelijk toegestaan, is Stichting The V.O.I.C.E. NL niet aansprakelijk voor enige indirecte, incidentele of gevolgschade die voortvloeit uit je gebruik van onze website of diensten." },
+    "section6": { "heading": "6. Wijzigingen in de Voorwaarden", "body": "Wij kunnen deze Algemene Voorwaarden van tijd tot tijd bijwerken. Voortgezet gebruik van onze diensten na het plaatsen van wijzigingen houdt aanvaarding van de herziene voorwaarden in. We raden je aan deze pagina periodiek te bekijken." },
+    "section7": { "heading": "7. Toepasselijk Recht", "body": "Deze voorwaarden worden beheerst door het recht van Nederland. Eventuele geschillen zijn onderworpen aan de exclusieve jurisdictie van de Nederlandse rechtbanken." },
+    "section8": { "heading": "8. Contact", "body": "Voor vragen over deze Algemene Voorwaarden kun je contact met ons opnemen via info@stichtingthevoice.nl of via onze WhatsApp-communitykanaal." }
+  }
+}

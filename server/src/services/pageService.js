@@ -16,6 +16,21 @@ import {
   validateUrl,
 } from "./cmsValidationService.js";
 import { createPageVersion, listPageVersions } from "./pageVersionService.js";
+import { syncPageImageUsage } from "./mediaStorageService.js";
+import { hydrateSections, incrementBlockUsage, getReusableBlock } from "./reusableBlockService.js";
+
+const UPDATABLE_PAGE_SECTION_FIELDS = [
+  "sectionKey",
+  "sectionType",
+  "title",
+  "content",
+  "images",
+  "ctas",
+  "settings",
+  "order",
+  "isVisible",
+  "linkedBlockId",
+];
 
 async function nextPageId() {
   const seq = await getNextSequence("cms_page");
@@ -23,11 +38,11 @@ async function nextPageId() {
   return `PAGE-${year}-${String(seq).padStart(6, "0")}`;
 }
 
-function formatPageListItem(page, adminMap = {}) {
+function formatPageListItem(page, adminMap = {}, { includeSeo = false } = {}) {
   const updatedByName = page.updatedBy
     ? adminMap[page.updatedBy.toString()] || "Admin"
     : "—";
-  return {
+  const item = {
     pageId: page.pageId,
     slug: page.slug,
     title: page.title,
@@ -41,6 +56,8 @@ function formatPageListItem(page, adminMap = {}) {
     updatedById: page.updatedBy,
     isSystem: DEFAULT_PAGES.some((p) => p.slug === page.slug),
   };
+  if (includeSeo) item.seo = page.seo || {};
+  return item;
 }
 
 function defaultSectionsForPage(slug) {
@@ -248,10 +265,10 @@ export async function ensureDefaultPages() {
   return created;
 }
 
-export async function listPages() {
+export async function listPages({ includeSeo = false } = {}) {
   await ensureDefaultPages();
   const pages = await Page.find().sort({ title: 1 }).lean();
-  return pages.map((p) => formatPageListItem(p));
+  return pages.map((p) => formatPageListItem(p, {}, { includeSeo }));
 }
 
 export async function getPageBySlug(slug, { draft = false } = {}) {
@@ -262,7 +279,7 @@ export async function getPageBySlug(slug, { draft = false } = {}) {
   const sections = draft ? page.draftSections : page.publishedSections;
   return {
     ...page,
-    sections: normalizeSectionOrders(sections || []),
+    sections: await hydrateSections(normalizeSectionOrders(sections || []), { draft }),
     versions: await listPageVersions(page.slug, 10),
   };
 }
@@ -276,7 +293,7 @@ export async function getPublicPage(slug) {
     title: page.title,
     route: page.route,
     seo: page.seo,
-    sections: getVisibleSections(page.publishedSections),
+    sections: await hydrateSections(getVisibleSections(page.publishedSections), { draft: false }),
     publishedAt: page.publishedAt,
   };
 }
@@ -355,6 +372,10 @@ export async function saveDraft(slug, payload, adminId) {
     status: "draft",
     adminId,
   });
+
+  await syncPageImageUsage(page.slug, page.draftSections, page.seo).catch((err) =>
+    console.warn("[media-usage] sync failed:", err.message)
+  );
 
   return getPageBySlug(page.slug, { draft: true });
 }
@@ -482,6 +503,48 @@ export async function addSection(slug, payload, adminId, adminRole) {
   return getPageBySlug(page.slug, { draft: true });
 }
 
+export async function addLinkedSection(slug, blockId, adminId, adminRole) {
+  const page = await Page.findOne({ slug: slug.toLowerCase() });
+  if (!page) throwError("Page not found.", 404);
+
+  const block = await getReusableBlock(blockId);
+  if (!canEditSectionType(adminRole, block.sectionType)) {
+    throwError("You do not have permission to add this section type.", 403);
+  }
+
+  const maxOrder = Math.max(-1, ...(page.draftSections || []).map((s) => s.order ?? 0));
+  const section = {
+    sectionId: generateId("sec"),
+    sectionKey: block.name,
+    sectionType: block.sectionType,
+    title: block.name,
+    content: {},
+    images: {},
+    ctas: [],
+    settings: {},
+    order: maxOrder + 1,
+    isVisible: true,
+    isCustom: true,
+    linkedBlockId: block.blockId,
+  };
+
+  page.draftSections.push(section);
+  page.draftSections = normalizeSectionOrders(page.draftSections);
+  page.updatedBy = adminId;
+  await page.save();
+  await incrementBlockUsage(block.blockId, 1);
+
+  await logAdminAction({
+    adminId,
+    action: CMS_AUDIT_ACTIONS.SECTION_UPDATED,
+    targetType: "cms_section",
+    targetId: section.sectionId,
+    summary: `Inserted library block "${block.name}" into ${page.title}`,
+  });
+
+  return getPageBySlug(page.slug, { draft: true });
+}
+
 export async function updateSection(slug, sectionId, payload, adminId, adminRole) {
   const page = await Page.findOne({ slug: slug.toLowerCase() });
   if (!page) throwError("Page not found.", 404);
@@ -494,14 +557,26 @@ export async function updateSection(slug, sectionId, payload, adminId, adminRole
     throwError("You do not have permission to edit this section.", 403);
   }
 
+  const previousLinkedBlockId = existing.linkedBlockId || null;
+  const existingPlain = existing.toObject?.() || existing;
+  const updates = {};
+  for (const field of UPDATABLE_PAGE_SECTION_FIELDS) {
+    if (payload[field] !== undefined) updates[field] = payload[field];
+  }
   const updated = sanitizeSection({
-    ...existing.toObject?.() || existing,
-    ...payload,
+    ...existingPlain,
+    ...updates,
     sectionId,
   });
   page.draftSections[idx] = updated;
   page.updatedBy = adminId;
   await page.save();
+
+  const nextLinkedBlockId = updated.linkedBlockId || null;
+  if (previousLinkedBlockId !== nextLinkedBlockId) {
+    if (previousLinkedBlockId) await incrementBlockUsage(previousLinkedBlockId, -1);
+    if (nextLinkedBlockId) await incrementBlockUsage(nextLinkedBlockId, 1);
+  }
 
   await logAdminAction({
     adminId,
@@ -527,6 +602,7 @@ export async function deleteSection(slug, sectionId, adminId) {
   );
   page.updatedBy = adminId;
   await page.save();
+  if (section.linkedBlockId) await incrementBlockUsage(section.linkedBlockId, -1);
 
   return getPageBySlug(page.slug, { draft: true });
 }
@@ -563,11 +639,30 @@ export async function duplicateSection(slug, sectionId, adminId) {
   const source = (page.draftSections || []).find((s) => s.sectionId === sectionId);
   if (!source) throwError("Section not found.", 404);
 
+  // Duplicating always produces a fully independent section — if the source
+  // is a linked library block, snapshot its current content rather than
+  // copying the (empty) stub fields the page itself stores for linked sections.
+  let sourceObject = JSON.parse(JSON.stringify(source.toObject?.() || source));
+  if (sourceObject.linkedBlockId) {
+    const block = await getReusableBlock(sourceObject.linkedBlockId).catch(() => null);
+    if (block) {
+      sourceObject = {
+        ...sourceObject,
+        sectionType: block.sectionType,
+        content: block.draft?.content || {},
+        images: block.draft?.images || {},
+        ctas: block.draft?.ctas || [],
+        settings: block.draft?.settings || {},
+      };
+    }
+  }
+
   const copy = sanitizeSection({
-    ...JSON.parse(JSON.stringify(source.toObject?.() || source)),
+    ...sourceObject,
     sectionId: generateId("sec"),
     title: `${source.title} (Copy)`,
     isCustom: true,
+    linkedBlockId: null,
   });
   page.draftSections.push(copy);
   page.draftSections = normalizeSectionOrders(page.draftSections);

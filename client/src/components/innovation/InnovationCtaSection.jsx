@@ -1,10 +1,14 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconArrowRight } from "@tabler/icons-react";
 import { INNOVATION_CTA } from "../../data/innovationDisplay.js";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
+import { resolveOverrideText } from "../../i18n/overrideText.js";
 
 export default function InnovationCtaSection() {
-  const { image, titleLead, titleAccent, description, buttonLabel, buttonTo } =
-    INNOVATION_CTA;
+  const { t } = useTranslation(["innovation"]);
+  const overrides = useContentOverrides();
+  const { image } = INNOVATION_CTA;
 
   return (
     <section className="innovation-cta" aria-labelledby="innovation-cta-title">
@@ -15,12 +19,16 @@ export default function InnovationCtaSection() {
 
         <div className="innovation-cta__body">
           <h2 id="innovation-cta-title" className="innovation-cta__title">
-            {titleLead}
-            <span className="innovation-accent--cyan">{titleAccent}</span>
+            {resolveOverrideText(overrides.ventureCtaTitleLead, INNOVATION_CTA.titleLead, t("innovation:cta.titleLead"))}
+            <span className="innovation-accent--cyan">
+              {resolveOverrideText(overrides.ventureCtaTitleAccent, INNOVATION_CTA.titleAccent, t("innovation:cta.titleAccent"))}
+            </span>
           </h2>
-          <p className="innovation-cta__description">{description}</p>
-          <Link to={buttonTo} className="innovation-cta__button">
-            {buttonLabel}
+          <p className="innovation-cta__description">
+            {resolveOverrideText(overrides.ventureCtaDescription, INNOVATION_CTA.description, t("innovation:cta.description"))}
+          </p>
+          <Link to={overrides.ventureCtaButtonLink || INNOVATION_CTA.buttonTo} className="innovation-cta__button">
+            {resolveOverrideText(overrides.ventureCtaButtonText, INNOVATION_CTA.buttonLabel, t("innovation:cta.buttonLabel"))}
             <IconArrowRight size={18} stroke={2} aria-hidden />
           </Link>
         </div>

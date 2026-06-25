@@ -62,8 +62,12 @@ export default function AdminVouchersPage() {
 
   async function handleDelete(id) {
     if (!window.confirm("Delete this voucher?")) return;
-    await apiFetch(`/api/admin/events/vouchers/${id}`, { method: "DELETE", headers: adminAuthHeaders() });
-    load();
+    try {
+      await apiFetch(`/api/admin/events/vouchers/${id}`, { method: "DELETE", headers: adminAuthHeaders() });
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   return (

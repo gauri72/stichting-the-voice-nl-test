@@ -1,0 +1,41 @@
+{
+  "plans": {
+    "heading": "Choose your impact",
+    "mostPopular": "MOST POPULAR",
+    "selected": "Selected — scroll down",
+    "donateNow": "Donate Now",
+    "secureHeadline": "100% Secure Donations.",
+    "secureSubtext": "Your contribution is safe with us.",
+    "tier1": { "name": "Supporter", "description": "Help us keep cultural programs accessible to everyone." },
+    "tier2": { "name": "Friend", "description": "Strengthen workshops, screenings, and community gatherings." },
+    "tier3": { "name": "Champion", "description": "Become a core supporter of our flagship events and outreach." },
+    "tier4": { "name": "Patron", "description": "Support larger initiatives and help expand our reach worldwide." },
+    "tier5": { "name": "Visionary", "description": "Make a transformative impact and help shape a better future." },
+    "tier6": { "name": "Pay As You Wish", "description": "Give any amount you wish — every contribution helps our mission." }
+  },
+  "allocation": {
+    "heading": "Where Your Donation Goes",
+    "item1": { "title": "Arts & Culture", "description": "Live performances, festivals, and creative showcases that celebrate diverse voices." },
+    "item2": { "title": "Community Programs", "description": "Neighbourhood events and gatherings that build trust, joy, and belonging." },
+    "item3": { "title": "Education & Youth", "description": "Workshops, mentorship, and learning paths that open doors for the next generation." },
+    "item4": { "title": "Health & Wellness", "description": "Initiatives that support wellbeing through culture, movement, and mindful connection." },
+    "item5": { "title": "Cultural Exchange", "description": "International collaborations that widen perspectives and deepen mutual respect." },
+    "item6": { "title": "Sustainability", "description": "Greener events and responsible operations that care for people and planet." }
+  },
+  "impact": {
+    "titleLine": "Real Impact.",
+    "titleAccent": "Real Change.",
+    "stat1": "High-Production Events",
+    "stat2": "Premier Venues",
+    "stat3": "Artists Amplified",
+    "stat4": "Expert Members",
+    "stat5": "Joyful Hours of Happiness"
+  },
+  "otherWays": {
+    "heading": "Other Ways to Give",
+    "learnMore": "Learn More",
+    "item1": { "title": "Corporate Partnerships", "description": "Partner with us to create meaningful impact together." },
+    "item2": { "title": "In-Kind Donations", "description": "Support our cause by donating goods, services or resources." },
+    "item3": { "title": "Volunteer With Us", "description": "Give your time and skills to help our community thrive." }
+  }
+}

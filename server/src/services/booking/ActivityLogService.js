@@ -37,7 +37,3 @@ export async function logBookingAudit({ sessionId, action, metadata = {}, userId
     details: metadata,
   });
 }
-
-export async function listUserBookingActivity(userId, limit = 50) {
-  return ActivityLog.find({ userId }).sort({ createdAt: -1 }).limit(limit).lean();
-}

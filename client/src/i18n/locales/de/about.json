@@ -1,0 +1,48 @@
+{
+  "hero": {
+    "titleLead": "Über",
+    "titleAccent": "Uns",
+    "taglineLead": "Kulturen Vereinen. Stimmen Verstärken. Bleibende",
+    "taglineAccent": "Wirkung Schaffen.",
+    "description": "Stichting The V.O.I.C.E. NL ist eine gemeinnützige Organisation, die sich dem Aufbau einer inklusiven Welt verschrieben hat, in der Kultur, Kreativität und Zusammenarbeit Menschen zusammenbringen. Wir verstärken Stimmen, feiern Vielfalt und schaffen bedeutungsvolle Erlebnisse, die Gemeinschaften in den Niederlanden und darüber hinaus inspirieren."
+  },
+  "mission": {
+    "label": "Unsere Mission",
+    "textBefore": "Durch ",
+    "highlight1": "künstlerischen Ausdruck",
+    "highlight2": "Wissensaustausch",
+    "highlight3": "soziale Wirkung",
+    "textMiddle": " befähigen wir Einzelpersonen, verstärken wir Stimmen und stärken wir Gemeinschaften, um eine inklusivere und bedeutungsvollere Zukunft zu schaffen. Wir bleiben verpflichtet zu ",
+    "cultureHighlight": "Kultur, Kreativität und Zusammenarbeit",
+    "textAfter": ", die Menschen über Kulturen und Generationen hinweg verbindet."
+  },
+  "whatWeDo": {
+    "heading": "Was Wir Tun",
+    "exploreMore": "Mehr Entdecken",
+    "experience": { "title": "V.O.I.C.E. Erlebnisse", "description": "Unvergessliche kulturelle Erlebnisse durch Veranstaltungen, Festivals und Live-Auftritte schaffen." },
+    "visionaries": { "title": "Voice of Visionaries", "description": "Führungsgeschichten und Ideen teilen, die zu Handeln und bedeutungsvollem Dialog anregen." },
+    "impact": { "title": "V.O.I.C.E. Wirkung", "description": "Gemeinschaften durch Inklusion, Bildung, Ehrenamt und soziale Arbeit stärken." },
+    "innovation": { "title": "V.O.I.C.E. Innovation", "description": "Die Zukunft durch digitale Plattformen, Apps und das V.O.I.C.E. Venture Studio gestalten." }
+  },
+  "values": {
+    "heading": "Unsere Werte - 5 I's",
+    "inclusion": { "title": "Inklusion", "description": "Räume schaffen, in denen jeder dazugehört." },
+    "integrity": { "title": "Integrität", "description": "Mit Ehrlichkeit, Transparenz und Respekt handeln." },
+    "innovation": { "title": "Innovation", "description": "Neue Ideen aufgreifen, um bedeutsamen Wandel voranzutreiben." },
+    "integration": { "title": "Integration", "description": "Ein Zugehörigkeitsgefühl durch Kultur, Verbindung und Gemeinschaft schaffen." },
+    "impact": { "title": "Wirkung", "description": "Leben durch Kultur und Gemeinschaft verändern." }
+  },
+  "team": {
+    "title": "Unser Team",
+    "subtitle": "Lernen Sie die engagierten Menschen hinter V.O.I.C.E. NL kennen — die gemeinsam Gemeinschaft, Kultur und Wirkung aufbauen.",
+    "loading": "Teammitglieder werden geladen…",
+    "board": "Vorstand",
+    "boardMember": "Vorstandsmitglied",
+    "viewProfile": "Profil Ansehen",
+    "bioPlaceholder": "Ein engagiertes Mitglied der V.O.I.C.E. NL-Community, das hilft, Veranstaltungen, Kultur und Wirkung zu gestalten.",
+    "linkedin": "LinkedIn",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "close": "Schließen"
+  }
+}

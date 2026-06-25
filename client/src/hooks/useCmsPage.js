@@ -69,6 +69,36 @@ export function useCmsFooter() {
   return { footer, loading };
 }
 
+export function useContentOverrides() {
+  const [overrides, setOverrides] = useState({});
+
+  useEffect(() => {
+    let cancelled = false;
+    apiFetch("/api/public/content-overrides")
+      .then((data) => { if (!cancelled) setOverrides(data || {}); })
+      .catch(() => { if (!cancelled) setOverrides({}); });
+    return () => { cancelled = true; };
+  }, []);
+
+  return overrides;
+}
+
+export function useCmsDesignSystem() {
+  const [designSystem, setDesignSystem] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiFetch("/api/public/site/design-system")
+      .then((data) => { if (!cancelled) setDesignSystem(data); })
+      .catch(() => { if (!cancelled) setDesignSystem(null); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  return { designSystem, loading };
+}
+
 export function useCmsSeo(pageData) {
   useEffect(() => {
     if (!pageData?.seo) return;

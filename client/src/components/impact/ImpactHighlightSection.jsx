@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   IconArrowRight,
   IconHeartHandshake,
@@ -7,6 +8,8 @@ import {
   IconUsersGroup,
 } from "@tabler/icons-react";
 import { IMPACT_HIGHLIGHT } from "../../data/impactDisplay.js";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
+import { resolveOverrideText } from "../../i18n/overrideText.js";
 
 const FEATURE_ICONS = {
   empower: IconUsersGroup,
@@ -15,7 +18,14 @@ const FEATURE_ICONS = {
 };
 
 export default function ImpactHighlightSection() {
-  const { label, title, description, image, linkLabel, linkTo, features } = IMPACT_HIGHLIGHT;
+  const { t } = useTranslation(["impact"]);
+  const overrides = useContentOverrides();
+  const { image, features } = IMPACT_HIGHLIGHT;
+  const label = resolveOverrideText(overrides.impactPageHighlightLabel, IMPACT_HIGHLIGHT.label, t("impact:highlight.label"));
+  const title = resolveOverrideText(overrides.impactPageHighlightTitle, IMPACT_HIGHLIGHT.title, t("impact:highlight.title"));
+  const description = resolveOverrideText(overrides.impactPageHighlightDescription, IMPACT_HIGHLIGHT.description, t("impact:highlight.description"));
+  const linkLabel = resolveOverrideText(overrides.impactPageHighlightLinkLabel, IMPACT_HIGHLIGHT.linkLabel, t("impact:highlight.linkLabel"));
+  const linkTo = overrides.impactPageHighlightLink || IMPACT_HIGHLIGHT.linkTo;
 
   return (
     <section className="impact-highlight" aria-labelledby="impact-highlight-title">
@@ -42,8 +52,10 @@ export default function ImpactHighlightSection() {
         </article>
 
         <div className="impact-highlight__features" role="list">
-          {features.map(({ key, title: featureTitle, description: featureText }) => {
+          {features.map(({ key, title: featureTitle, description: featureText }, index) => {
             const Icon = FEATURE_ICONS[key] || IconUsersGroup;
+            const overrideKey = `impactPageHighlightFeature${index + 1}`;
+            const featureKey = `feature${index + 1}`;
 
             return (
               <div key={key} className="impact-highlight__feature" role="listitem">
@@ -51,8 +63,12 @@ export default function ImpactHighlightSection() {
                   <Icon size={24} stroke={1.6} />
                 </span>
                 <div>
-                  <h3 className="impact-highlight__feature-title">{featureTitle}</h3>
-                  <p className="impact-highlight__feature-text">{featureText}</p>
+                  <h3 className="impact-highlight__feature-title">
+                    {resolveOverrideText(overrides[`${overrideKey}Title`], featureTitle, t(`impact:highlight.${featureKey}.title`))}
+                  </h3>
+                  <p className="impact-highlight__feature-text">
+                    {resolveOverrideText(overrides[`${overrideKey}Description`], featureText, t(`impact:highlight.${featureKey}.description`))}
+                  </p>
                 </div>
               </div>
             );

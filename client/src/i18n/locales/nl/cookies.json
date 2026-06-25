@@ -1,0 +1,45 @@
+{
+  "banner": {
+    "title": "Wij hechten waarde aan je privacy",
+    "text": "Wij gebruiken cookies om de site te laten werken, je voorkeuren te onthouden en te begrijpen hoe bezoekers onze site gebruiken. Je kunt alle cookies accepteren, optionele cookies weigeren, of je voorkeuren in detail beheren.",
+    "policyLinkText": "Cookiebeleid",
+    "acceptAll": "Alles Accepteren",
+    "rejectAll": "Alles Weigeren",
+    "managePreferences": "Voorkeuren Beheren"
+  },
+  "modal": {
+    "title": "Cookievoorkeuren",
+    "intro": "Kies welke categorieën cookies wij mogen gebruiken. Strikt noodzakelijke cookies zijn altijd actief omdat de site zonder deze niet goed kan functioneren. Je kunt je voorkeuren op elk moment wijzigen via de link \"Cookie-instellingen\" in de footer.",
+    "alwaysActive": "Altijd Actief",
+    "on": "Aan",
+    "off": "Uit",
+    "categories": {
+      "necessary": {
+        "title": "Strikt Noodzakelijke Cookies",
+        "description": "Vereist voor de basisfunctionaliteit van de site, zoals beveiliging, netwerkbeheer en toegankelijkheid. Deze kunnen niet worden uitgeschakeld."
+      },
+      "functional": {
+        "title": "Functionele Cookies",
+        "description": "Onthouden je voorkeuren — zoals taal en weergave-instellingen — voor een meer gepersonaliseerde ervaring."
+      },
+      "analytics": {
+        "title": "Analytische Cookies",
+        "description": "Helpen ons begrijpen hoe bezoekers met onze site omgaan (bijv. Google Analytics, Hotjar), zodat we prestaties en content kunnen verbeteren."
+      },
+      "marketing": {
+        "title": "Marketingcookies",
+        "description": "Worden gebruikt om relevante advertenties te tonen, campagneprestaties te meten en retargeting- en trackingpixels op andere sites aan te drijven."
+      }
+    },
+    "doNotSell": {
+      "title": "Verkoop of Deel Mijn Persoonsgegevens Niet",
+      "description": "Inwoners van Californië kunnen zich afmelden voor de verkoop of het delen van persoonsgegevens voor cross-context behavioral advertising. Het inschakelen hiervan schakelt marketingcookies uit."
+    },
+    "save": "Voorkeuren Opslaan",
+    "cancel": "Annuleren",
+    "close": "Cookievoorkeuren sluiten"
+  },
+  "footer": {
+    "cookieSettings": "Cookie-instellingen"
+  }
+}

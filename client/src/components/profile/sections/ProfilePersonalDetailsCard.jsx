@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaEnvelope, FaIdCard, FaPhone } from "react-icons/fa";
 import { IconPencil, IconUser } from "@tabler/icons-react";
 import { formatProfilePhone } from "../profileUtils.js";
@@ -10,6 +11,7 @@ export default function ProfilePersonalDetailsCard({
   email,
   onSave,
 }) {
+  const { t } = useTranslation(["misc"]);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ firstName: "", lastName: "", phone: "" });
   const [saving, setSaving] = useState(false);
@@ -26,7 +28,7 @@ export default function ProfilePersonalDetailsCard({
     }
   }, [editing, firstName, lastName, phone]);
 
-  const fullName = [firstName, lastName].filter(Boolean).join(" ") || "—";
+  const fullName = [firstName, lastName].filter(Boolean).join(" ") || t("misc:profile.personalDetails.noValue");
   const phoneDisplay = formatProfilePhone(phone);
 
   function startEdit() {
@@ -52,7 +54,7 @@ export default function ProfilePersonalDetailsCard({
   async function handleSubmit(event) {
     event.preventDefault();
     if (!form.firstName.trim() || !form.lastName.trim()) {
-      setError("First and last name are required.");
+      setError(t("misc:profile.personalDetails.namesRequired"));
       return;
     }
     setSaving(true);
@@ -64,10 +66,10 @@ export default function ProfilePersonalDetailsCard({
         lastName: form.lastName.trim(),
         phone: form.phone.trim(),
       });
-      setSuccess("Your details have been updated.");
+      setSuccess(t("misc:profile.personalDetails.updateSuccess"));
       setEditing(false);
     } catch (e) {
-      setError(e.message || "Could not save your details. Please try again.");
+      setError(e.message || t("misc:profile.personalDetails.updateError"));
     } finally {
       setSaving(false);
     }
@@ -80,8 +82,8 @@ export default function ProfilePersonalDetailsCard({
           <IconUser size={20} stroke={1.75} />
         </span>
         <span className="profile-card__head-copy">
-          <strong className="profile-card__title">Personal Details</strong>
-          <span className="profile-card__subtitle">View and update your personal information.</span>
+          <strong className="profile-card__title">{t("misc:profile.personalDetails.title")}</strong>
+          <span className="profile-card__subtitle">{t("misc:profile.personalDetails.subtitle")}</span>
         </span>
         {!editing ? (
           <button
@@ -89,7 +91,7 @@ export default function ProfilePersonalDetailsCard({
             className="profile-btn profile-btn--compact"
             onClick={startEdit}
           >
-            <IconPencil size={14} stroke={2} aria-hidden /> Edit
+            <IconPencil size={14} stroke={2} aria-hidden /> {t("misc:profile.personalDetails.edit")}
           </button>
         ) : null}
       </div>
@@ -104,7 +106,7 @@ export default function ProfilePersonalDetailsCard({
             <span className="profile-personal__divider" aria-hidden />
             <div className="profile-personal__item">
               <FaEnvelope aria-hidden />
-              <span>{email || "—"}</span>
+              <span>{email || t("misc:profile.personalDetails.noValue")}</span>
             </div>
             <span className="profile-personal__divider" aria-hidden />
             <div className="profile-personal__item">
@@ -122,7 +124,7 @@ export default function ProfilePersonalDetailsCard({
         <form className="profile-card__body profile-form" onSubmit={handleSubmit}>
           <div className="profile-form__grid">
             <label className="profile-form__field">
-              <span>First name</span>
+              <span>{t("misc:profile.personalDetails.firstName")}</span>
               <input
                 type="text"
                 value={form.firstName}
@@ -133,7 +135,7 @@ export default function ProfilePersonalDetailsCard({
               />
             </label>
             <label className="profile-form__field">
-              <span>Last name</span>
+              <span>{t("misc:profile.personalDetails.lastName")}</span>
               <input
                 type="text"
                 value={form.lastName}
@@ -144,18 +146,18 @@ export default function ProfilePersonalDetailsCard({
               />
             </label>
             <label className="profile-form__field">
-              <span>Phone</span>
+              <span>{t("misc:profile.personalDetails.phone")}</span>
               <input
                 type="tel"
                 value={form.phone}
                 onChange={(e) => updateField("phone", e.target.value)}
                 autoComplete="tel"
                 maxLength={40}
-                placeholder="+31 6 1234 5678"
+                placeholder={t("misc:profile.personalDetails.phonePlaceholder")}
               />
             </label>
             <label className="profile-form__field profile-form__field--readonly">
-              <span>Email (cannot be changed)</span>
+              <span>{t("misc:profile.personalDetails.emailReadonly")}</span>
               <input type="email" value={email || ""} readOnly disabled />
             </label>
           </div>
@@ -173,10 +175,10 @@ export default function ProfilePersonalDetailsCard({
               onClick={cancelEdit}
               disabled={saving}
             >
-              Cancel
+              {t("misc:profile.personalDetails.cancel")}
             </button>
             <button type="submit" className="profile-btn profile-btn--solid" disabled={saving}>
-              {saving ? "Saving…" : "Save changes"}
+              {saving ? t("misc:profile.personalDetails.saving") : t("misc:profile.personalDetails.save")}
             </button>
           </div>
         </form>

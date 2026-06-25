@@ -256,6 +256,7 @@
 
 .admin-events__event-title-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
@@ -735,6 +736,7 @@
     padding-top: 0;
     border-top: 0;
     flex-shrink: 0;
+    max-width: 56%;
   }
 
   .admin-events__action-btn--mobile-primary,
@@ -1607,6 +1609,55 @@
 
 .admin-events__outline-btn:hover {
   background: var(--ae-purple-soft);
+}
+
+/* Primary / secondary / danger buttons (filled, same pill shape as outline) */
+.admin-events__primary-btn,
+.admin-events__secondary-btn,
+.admin-events__danger-btn {
+  flex-shrink: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: var(--font-small);
+  font-weight: 700;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+.admin-events__primary-btn {
+  background: var(--ae-purple, #6338c2);
+  color: #fff;
+}
+
+.admin-events__primary-btn:hover {
+  background: var(--ae-purple, #6338c2);
+  opacity: 0.9;
+}
+
+.admin-events__secondary-btn {
+  background: var(--ae-purple-soft, rgba(99, 56, 194, 0.14));
+  color: var(--ae-purple, #6338c2);
+}
+
+.admin-events__secondary-btn:hover {
+  background: var(--ae-purple-soft, rgba(99, 56, 194, 0.14));
+  opacity: 0.85;
+}
+
+.admin-events__danger-btn {
+  background: var(--ae-danger, #ef4444);
+  color: #fff;
+}
+
+.admin-events__danger-btn:hover {
+  background: var(--ae-danger, #ef4444);
+  opacity: 0.9;
 }
 
 /* Ticket list */

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaPaperPlane } from "react-icons/fa6";
 import { apiFetch } from "../../utils/api.js";
 import { useCaptcha } from "../../hooks/useCaptcha.js";
@@ -18,6 +19,7 @@ function FormNotice({ message, variant = "success" }) {
 }
 
 export default function VolunteerForm() {
+  const { t } = useTranslation(["misc"]);
   const [status, setStatus] = useState({ text: "", variant: "success" });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -46,7 +48,7 @@ export default function VolunteerForm() {
       setSubmitted(true);
     } catch (error) {
       setStatus({
-        text: error.message || "Could not send your application. Please try again.",
+        text: error.message || t("misc:volunteer.errorGeneric"),
         variant: "error"
       });
     } finally {
@@ -59,7 +61,7 @@ export default function VolunteerForm() {
     return (
       <div className="volunteer-form__success" role="status">
         <p className="volunteer-form__success-message">
-          Thank you! We have received your volunteer application and will be in touch soon.
+          {t("misc:volunteer.successMessage")}
         </p>
       </div>
     );
@@ -69,22 +71,22 @@ export default function VolunteerForm() {
     <form className="volunteer-form" onSubmit={handleSubmit} noValidate>
       <div className="volunteer-form__row volunteer-form__row--split">
         <label className="volunteer-form__field">
-          <span className="visually-hidden">Full name</span>
+          <span className="visually-hidden">{t("misc:volunteer.fullName")}</span>
           <input
             type="text"
             name="name"
-            placeholder="Full Name *"
+            placeholder={t("misc:volunteer.fullNamePlaceholder")}
             required
             autoComplete="name"
             disabled={submitting}
           />
         </label>
         <label className="volunteer-form__field">
-          <span className="visually-hidden">Email address</span>
+          <span className="visually-hidden">{t("misc:volunteer.email")}</span>
           <input
             type="email"
             name="email"
-            placeholder="Email Address *"
+            placeholder={t("misc:volunteer.emailPlaceholder")}
             required
             autoComplete="email"
             disabled={submitting}
@@ -93,22 +95,22 @@ export default function VolunteerForm() {
       </div>
 
       <label className="volunteer-form__field">
-        <span className="visually-hidden">Phone number</span>
+        <span className="visually-hidden">{t("misc:volunteer.phone")}</span>
         <input
           type="tel"
           name="phone"
-          placeholder="Phone Number (optional)"
+          placeholder={t("misc:volunteer.phonePlaceholder")}
           autoComplete="tel"
           disabled={submitting}
         />
       </label>
 
       <label className="volunteer-form__field">
-        <span className="visually-hidden">Your message</span>
+        <span className="visually-hidden">{t("misc:volunteer.message")}</span>
         <textarea
           name="message"
           rows={6}
-          placeholder="Tell us how you would like to help *"
+          placeholder={t("misc:volunteer.messagePlaceholder")}
           required
           disabled={submitting}
         />
@@ -118,7 +120,7 @@ export default function VolunteerForm() {
 
       <button type="submit" className="volunteer-form__submit" disabled={submitting}>
         <FaPaperPlane aria-hidden />
-        {submitting ? "Sending…" : "Submit Application"}
+        {submitting ? t("misc:volunteer.sending") : t("misc:volunteer.submit")}
       </button>
 
       <FormNotice message={status.text} variant={status.variant} />

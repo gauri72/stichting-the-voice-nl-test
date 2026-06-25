@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconChevronRight, IconHome } from "@tabler/icons-react";
 
 export default function PoliciesBreadcrumbSection() {
+  const { t } = useTranslation(["policies"]);
+
   return (
     <nav className="policies-breadcrumb" aria-label="Breadcrumb">
       <Link to="/" className="policies-breadcrumb__home" aria-label="Home">
@@ -9,11 +12,11 @@ export default function PoliciesBreadcrumbSection() {
       </Link>
       <IconChevronRight className="policies-breadcrumb__sep" size={14} stroke={2} aria-hidden />
       <Link to="/" className="policies-breadcrumb__link">
-        Home
+        {t("policies:breadcrumb.home")}
       </Link>
       <IconChevronRight className="policies-breadcrumb__sep" size={14} stroke={2} aria-hidden />
       <span className="policies-breadcrumb__current" aria-current="page">
-        Policies, Terms &amp; Conditions
+        {t("policies:breadcrumb.current")}
       </span>
     </nav>
   );

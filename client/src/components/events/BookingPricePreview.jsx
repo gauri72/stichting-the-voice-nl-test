@@ -1,11 +1,14 @@
+import { useTranslation } from "react-i18next";
 import {
-  CUSTOMER_MEMBERSHIP_MESSAGES,
+  getMembershipMessages,
   sanitizeCustomerDiscountLabel,
 } from "../../utils/membershipDisplayLabels.js";
 
 export default function BookingPricePreview({ preview }) {
+  const { t } = useTranslation(["checkout"]);
   if (!preview) return null;
 
+  const messagesCopy = getMembershipMessages(t);
   const { ticketPricing, membershipPricing, combined, comparison, appliedDiscounts } = preview;
 
   const memberDiscount = appliedDiscounts?.find(
@@ -15,18 +18,18 @@ export default function BookingPricePreview({ preview }) {
     appliedDiscounts?.filter((d) => d.type !== "tickettailor_member" && d.type !== "member") || [];
 
   const memberDiscountLineLabel = memberDiscount
-    ? sanitizeCustomerDiscountLabel(memberDiscount.label)
-    : CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied;
+    ? sanitizeCustomerDiscountLabel(memberDiscount.label, t)
+    : messagesCopy.discountApplied;
 
   const memberBenefitTitle =
     memberDiscountLineLabel.includes("Premium") ||
     memberDiscountLineLabel.includes("100%")
-      ? CUSTOMER_MEMBERSHIP_MESSAGES.premiumBenefitApplied
-      : CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied;
+      ? messagesCopy.premiumBenefitApplied
+      : messagesCopy.discountApplied;
 
   return (
     <div className="ticket-booking__price-preview">
-      <h3>Price preview</h3>
+      <h3>{t("checkout:pricePreview.title")}</h3>
 
       {memberDiscount ? (
         <div className="ticket-booking__tt-benefit-banner">
@@ -36,12 +39,12 @@ export default function BookingPricePreview({ preview }) {
       ) : null}
 
       <div className="ticket-booking__preview-section">
-        <p className="ticket-booking__preview-label">Ticket pricing</p>
+        <p className="ticket-booking__preview-label">{t("checkout:pricePreview.ticketPricing")}</p>
         <div className="ticket-booking__summary">
-          <div><span>Subtotal</span><span>{ticketPricing.subtotal}</span></div>
+          <div><span>{t("checkout:pricePreview.subtotal")}</span><span>{ticketPricing.subtotal}</span></div>
           {ticketPricing.eventDiscountMinor > 0 ? (
             <div className="ticket-booking__summary-discount">
-              <span>Event-specific discount</span>
+              <span>{t("checkout:pricePreview.eventDiscount")}</span>
               <span>-€{(ticketPricing.eventDiscountMinor / 100).toFixed(2)}</span>
             </div>
           ) : null}
@@ -53,37 +56,37 @@ export default function BookingPricePreview({ preview }) {
           ) : null}
           {!memberDiscount && ticketPricing.memberDiscountMinor > 0 ? (
             <div className="ticket-booking__summary-discount">
-              <span>{CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied}</span>
+              <span>{messagesCopy.discountApplied}</span>
               <span>-{ticketPricing.memberDiscount}</span>
             </div>
           ) : null}
           {otherDiscounts.map((d) => (
             <div key={`${d.type}-${d.label}`} className="ticket-booking__summary-discount">
-              <span>{sanitizeCustomerDiscountLabel(d.label)}</span>
+              <span>{sanitizeCustomerDiscountLabel(d.label, t)}</span>
               <span>-€{(d.amountMinor / 100).toFixed(2)}</span>
             </div>
           ))}
-          <div><span>Booking fee</span><span>{ticketPricing.bookingFee}</span></div>
-          <div><span>VAT (incl.)</span><span>{ticketPricing.vat}</span></div>
+          <div><span>{t("checkout:pricePreview.bookingFee")}</span><span>{ticketPricing.bookingFee}</span></div>
+          <div><span>{t("checkout:pricePreview.vat")}</span><span>{ticketPricing.vat}</span></div>
           <div className="ticket-booking__summary-subtotal">
-            <span>Ticket total</span><span>{ticketPricing.total}</span>
+            <span>{t("checkout:pricePreview.ticketTotal")}</span><span>{ticketPricing.total}</span>
           </div>
         </div>
       </div>
 
       {membershipPricing ? (
         <div className="ticket-booking__preview-section">
-          <p className="ticket-booking__preview-label">Membership pricing</p>
+          <p className="ticket-booking__preview-label">{t("checkout:pricePreview.membershipPricing")}</p>
           <div className="ticket-booking__summary">
             <div><span>{membershipPricing.membershipType}</span><span>{membershipPricing.regularPrice}</span></div>
             {membershipPricing.membershipDiscountMinor > 0 ? (
               <div className="ticket-booking__summary-discount">
-                <span>Membership discount</span>
+                <span>{t("checkout:pricePreview.membershipDiscount")}</span>
                 <span>-€{(membershipPricing.membershipDiscountMinor / 100).toFixed(2)}</span>
               </div>
             ) : null}
             <div className="ticket-booking__summary-subtotal">
-              <span>Membership total</span><span>{membershipPricing.discountedPrice}</span>
+              <span>{t("checkout:pricePreview.membershipTotal")}</span><span>{membershipPricing.discountedPrice}</span>
             </div>
           </div>
         </div>
@@ -91,12 +94,12 @@ export default function BookingPricePreview({ preview }) {
 
       <div className="ticket-booking__preview-section ticket-booking__preview-section--combined">
         <div className="ticket-booking__summary">
-          <div><span>Ticket total</span><span>{combined.ticketTotal}</span></div>
+          <div><span>{t("checkout:pricePreview.ticketTotal")}</span><span>{combined.ticketTotal}</span></div>
           {membershipPricing ? (
-            <div><span>Membership total</span><span>{combined.membershipTotal}</span></div>
+            <div><span>{t("checkout:pricePreview.membershipTotal")}</span><span>{combined.membershipTotal}</span></div>
           ) : null}
           <div className="ticket-booking__summary-total">
-            <span>Total</span><span>{combined.grandTotal}</span>
+            <span>{t("checkout:pricePreview.total")}</span><span>{combined.grandTotal}</span>
           </div>
           {combined.totalSavingsMinor > 0 ? (
             <p className="ticket-booking__savings">{combined.savingsMessage}</p>
@@ -106,18 +109,18 @@ export default function BookingPricePreview({ preview }) {
 
       {comparison?.withMembership ? (
         <div className="ticket-booking__comparison">
-          <p className="ticket-booking__preview-label">Savings comparison</p>
+          <p className="ticket-booking__preview-label">{t("checkout:pricePreview.savingsComparison")}</p>
           <div className="ticket-booking__comparison-grid">
             <div className="ticket-booking__comparison-col">
-              <p className="ticket-booking__comparison-title">Without membership</p>
+              <p className="ticket-booking__comparison-title">{t("checkout:pricePreview.withoutMembership")}</p>
               <p>{comparison.withoutMembership.grandTotal}</p>
             </div>
             <div className="ticket-booking__comparison-col ticket-booking__comparison-col--highlight">
-              <p className="ticket-booking__comparison-title">With membership</p>
+              <p className="ticket-booking__comparison-title">{t("checkout:pricePreview.withMembership")}</p>
               <p>{comparison.withMembership.grandTotal}</p>
               {comparison.withMembership.savingsMinor > 0 ? (
                 <p className="ticket-booking__savings">
-                  Save {comparison.withMembership.savings}
+                  {t("checkout:pricePreview.save", { amount: comparison.withMembership.savings })}
                 </p>
               ) : null}
             </div>
@@ -126,8 +129,9 @@ export default function BookingPricePreview({ preview }) {
       ) : null}
 
       <p className="ticket-booking__email-note">
-        After payment you will receive separate confirmation emails for tickets
-        {membershipPricing ? " and membership" : ""}, each with its own PDF download.
+        {t("checkout:pricePreview.emailNote", {
+          membershipSuffix: membershipPricing ? t("checkout:pricePreview.andMembership") : "",
+        })}
       </p>
     </div>
   );

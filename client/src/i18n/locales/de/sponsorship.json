@@ -1,0 +1,76 @@
+{
+  "plans": {
+    "heading": "Sponsoring-Stufen",
+    "mostPopular": "BELIEBT",
+    "selected": "Ausgewählt — nach unten scrollen",
+    "becomeASponsor": "Sponsor Werden",
+    "associate": {
+      "name": "Associate Sponsor",
+      "description": "Unterstützen Sie Kultur und Gemeinschaft mit Markenbekanntheit auf Einstiegsniveau.",
+      "features": [
+        "Logo/Name im Sponsorenbereich der Website",
+        "Dankeserwähnung in sozialen Medien",
+        "Erwähnung in ausgewählten Veranstaltungsmaterialien",
+        "Sponsoren-Dankesfolie bei der Veranstaltung",
+        "1 kostenloser Veranstaltungspass"
+      ]
+    },
+    "silver": {
+      "name": "Silver Sponsor",
+      "description": "Steigern Sie Ihre Sichtbarkeit und unterstützen Sie zugleich unsere kulturellen Veranstaltungen.",
+      "features": [
+        "Alle Associate-Vorteile",
+        "Logo auf ausgewählten Postern oder digitalen Veranstaltungskreationen",
+        "Sponsorenerwähnung im Veranstaltungsprogramm/auf der Seite",
+        "1 dedizierter Social-Media-Shoutout",
+        "Öffentliche Anerkennung während der Veranstaltung",
+        "4 kostenlose Veranstaltungspässe"
+      ]
+    },
+    "gold": {
+      "name": "Gold Sponsor",
+      "description": "Präsentieren Sie Ihre Marke als wichtigen Unterstützer kultureller Exzellenz.",
+      "features": [
+        "Alle Silver-Vorteile",
+        "Premium-Logoplatzierung auf Website und Veranstaltungsbildschirm",
+        "Logo auf Bannern/Postern, soweit zutreffend",
+        "Halbseitiges Sponsoren-Feature im Veranstaltungsprogramm/auf der Seite",
+        "2 dedizierte Social-Media-Beiträge/Reels/Stories",
+        "Möglichkeit, einen Preis zu überreichen oder kurz das Publikum anzusprechen, falls das Veranstaltungsformat dies zulässt",
+        "4 kostenlose Veranstaltungspässe"
+      ]
+    },
+    "platinum": {
+      "name": "Platinum Sponsor",
+      "description": "Maximale Sichtbarkeit. Werden Sie ein führender Partner unserer kulturellen Mission.",
+      "features": [
+        "Alle Gold-Vorteile",
+        "Anerkennung als Hauptpartner / Presenting Sponsor, soweit zutreffend",
+        "Ganzseitiges Sponsoren-Feature im Veranstaltungsprogramm/auf der Seite",
+        "Premium-Logoplatzierung auf der Hauptbühne/Leinwand und in Kampagnenkreationen",
+        "Markenerwähnung in Presse-/Medienkommunikation, soweit zutreffend",
+        "Meet & Greet oder Networking-Möglichkeit, soweit zutreffend",
+        "Kategorie-Exklusivität nach Vereinbarung",
+        "6 kostenlose Veranstaltungspässe"
+      ]
+    },
+    "custom": {
+      "name": "Maßgeschneidertes Sponsoring",
+      "description": "Wählen Sie jeden Betrag, der zu Ihrem Budget und Ihren Partnerschaftszielen passt.",
+      "features": [
+        "Jeder Beitragsbetrag Ihrer Wahl",
+        "Auf Ihre Unterstützung zugeschnittene Anerkennung",
+        "Dankeserwähnung in sozialen Medien",
+        "Persönliche Bestätigung von unserem Team"
+      ]
+    }
+  },
+  "why": {
+    "heading": "Warum Stichting The V.O.I.C.E. NL Sponsern?",
+    "reason1": { "title": "Gemeinschaftswirkung", "description": "Stärken Sie vielfältige Gemeinschaften durch Kunst, Kultur, Sport und Bildung." },
+    "reason2": { "title": "Globale Reichweite", "description": "Erreichen Sie ein breites und engagiertes Publikum bei internationalen Veranstaltungen und Festivals." },
+    "reason3": { "title": "Markensichtbarkeit", "description": "Präsentieren Sie Ihre Marke über mehrere Plattformen, Veranstaltungen und Marketingkanäle." },
+    "reason4": { "title": "Positive Assoziation", "description": "Verbinden Sie Ihre Marke mit den Werten Einheit, Vielfalt, Kreativität und sozialem Engagement." },
+    "reason5": { "title": "Langfristiger Wert", "description": "Bauen Sie dauerhafte Beziehungen auf und schaffen Sie gemeinsam messbare Wirkung." }
+  }
+}

@@ -1,71 +1,67 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { impactStats } from "../../data/impactStats.js";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
+import { resolveOverrideText } from "../../i18n/overrideText.js";
 import "../../styles/our-impact.css";
 
+const ACTION_CARDS = [
+  { overrideKey: "impact1", i18nKey: "joinUs", labelEn: "Join Us", headingEn: "Be Part of the Change", descriptionEn: "Become a member or sponsor and help us continue creating meaningful impact through art and community.", ctaTextEn: "Become a Member", to: "/membership" },
+  { overrideKey: "impact2", i18nKey: "sponsorUs", labelEn: "Sponsor Us", headingEn: "Support. Empower. Transform.", descriptionEn: "Your sponsorship helps us deliver cultural programs, elevate artists, and create wider community engagement.", ctaTextEn: "Become a Sponsor", to: "/sponsorship" },
+  { overrideKey: "impact3", i18nKey: "donate", labelEn: "Donate", headingEn: "Give Hope Through Culture.", descriptionEn: "Every contribution powers inclusive events, nurtures young talent, and keeps community-led creativity thriving.", ctaTextEn: "Donate Now", to: "/donate" },
+];
+
+const STAT_I18N_KEYS = ["stat1", "stat2", "stat3", "stat4"];
+
 export default function OurImpactSection() {
+  const { t } = useTranslation(["home"]);
+  const overrides = useContentOverrides();
+
   return (
     <section className="our-impact-section" aria-labelledby="our-impact-title">
       <div className="our-impact-top">
         <div className="our-impact-heading-row">
           <span className="our-impact-heading-line" aria-hidden="true" />
           <h2 id="our-impact-title" className="our-impact-heading">
-            Our Impact
+            {t("home:ourImpact.title")}
           </h2>
           <span className="our-impact-heading-line" aria-hidden="true" />
         </div>
 
         <div className="our-impact-stats" role="list" aria-label="Impact highlights">
-          {impactStats.map(({ icon: Icon, value, title, detail }) => (
-            <article key={title} className="our-impact-stat" role="listitem">
-              <span className="our-impact-icon" aria-hidden="true">
-                <Icon />
-              </span>
-              <div>
-                <p className="our-impact-value">{value}</p>
-                <p className="our-impact-title">{title}</p>
-                <p className="our-impact-detail">{detail}</p>
-              </div>
-            </article>
-          ))}
+          {impactStats.map(({ icon: Icon, value, title, detail }, index) => {
+            const overrideKey = `stat${index + 1}`;
+            return (
+              <article key={index} className="our-impact-stat" role="listitem">
+                <span className="our-impact-icon" aria-hidden="true">
+                  <Icon />
+                </span>
+                <div>
+                  <p className="our-impact-value">{overrides[`${overrideKey}Value`] || value}</p>
+                  <p className="our-impact-title">
+                    {resolveOverrideText(overrides[`${overrideKey}Label`], title, t(`home:impactStats.${STAT_I18N_KEYS[index]}`))}
+                  </p>
+                  <p className="our-impact-detail">{detail}</p>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
 
       <div className="our-impact-actions">
-        <article className="our-impact-action-card">
-          <p className="our-impact-action-label">Join Us</p>
-          <h3>Be Part of the Change</h3>
-          <p>
-            Become a member or sponsor and help us continue creating meaningful impact through art
-            and community.
-          </p>
-          <Link className="our-impact-action-button" to="/membership">
-            Become a Member
-          </Link>
-        </article>
-
-        <article className="our-impact-action-card">
-          <p className="our-impact-action-label">Sponsor Us</p>
-          <h3>Support. Empower. Transform.</h3>
-          <p>
-            Your sponsorship helps us deliver cultural programs, elevate artists, and create wider
-            community engagement.
-          </p>
-          <Link className="our-impact-action-button" to="/sponsorship">
-            Become a Sponsor
-          </Link>
-        </article>
-
-        <article className="our-impact-action-card">
-          <p className="our-impact-action-label">Donate</p>
-          <h3>Give Hope Through Culture.</h3>
-          <p>
-            Every contribution powers inclusive events, nurtures young talent, and keeps community-led
-            creativity thriving.
-          </p>
-          <Link className="our-impact-action-button" to="/donate">
-            Donate Now
-          </Link>
-        </article>
+        {ACTION_CARDS.map(({ overrideKey, i18nKey, labelEn, headingEn, descriptionEn, ctaTextEn, to }) => (
+          <article key={overrideKey} className="our-impact-action-card">
+            <p className="our-impact-action-label">
+              {resolveOverrideText(overrides[`${overrideKey}Label`], labelEn, t(`home:ourImpact.${i18nKey}.label`))}
+            </p>
+            <h3>{resolveOverrideText(overrides[`${overrideKey}Heading`], headingEn, t(`home:ourImpact.${i18nKey}.heading`))}</h3>
+            <p>{resolveOverrideText(overrides[`${overrideKey}Description`], descriptionEn, t(`home:ourImpact.${i18nKey}.description`))}</p>
+            <Link className="our-impact-action-button" to={overrides[`${overrideKey}CtaLink`] || to}>
+              {resolveOverrideText(overrides[`${overrideKey}CtaText`], ctaTextEn, t(`home:ourImpact.${i18nKey}.ctaText`))}
+            </Link>
+          </article>
+        ))}
       </div>
     </section>
   );

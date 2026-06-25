@@ -1,7 +1,7 @@
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  if (status >= 500) console.error("[session-platform]", error);
-  return res.status(status).json({ error: error.message || "Something went wrong." });
+  return handleErrorBase(res, error, { logTag: "[session-platform]" });
 }
 
 export async function listPublicSessions(req, res) {
@@ -227,7 +227,8 @@ export async function deleteAdminRsvp(req, res) {
 export async function getSessionBookingPdf(req, res) {
   try {
     const { getSessionBookingPdfBuffer } = await import("../services/sessionPlatformService.js");
-    const buffer = await getSessionBookingPdfBuffer(req.params.bookingId);
+    const token = req.query.token || req.query.verificationToken || "";
+    const buffer = await getSessionBookingPdfBuffer(req.params.bookingId, token);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `inline; filename="session-booking-${req.params.bookingId}.pdf"`);
     return res.send(buffer);
@@ -239,7 +240,8 @@ export async function getSessionBookingPdf(req, res) {
 export async function getRsvpResponsePdf(req, res) {
   try {
     const { getRsvpResponsePdfBuffer } = await import("../services/sessionPlatformService.js");
-    const buffer = await getRsvpResponsePdfBuffer(req.params.slug, req.params.responseId);
+    const token = req.query.token || req.query.verificationToken || "";
+    const buffer = await getRsvpResponsePdfBuffer(req.params.slug, req.params.responseId, token);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `inline; filename="rsvp-${req.params.responseId}.pdf"`);
     return res.send(buffer);

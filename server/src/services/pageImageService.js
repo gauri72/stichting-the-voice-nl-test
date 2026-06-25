@@ -5,6 +5,7 @@ import {
 } from "../config/cmsConfig.js";
 import { throwError } from "./cmsValidationService.js";
 import { logAdminAction } from "./adminAuditService.js";
+import { uploadAsset, isMediaStorageConfigured } from "./mediaStorageService.js";
 
 function parseDataUrl(dataUrl) {
   if (!dataUrl || typeof dataUrl !== "string") return null;
@@ -32,16 +33,43 @@ export async function processPageImageUpload({ imageData, imageType, alt, focusP
     throwError(`Image exceeds maximum size of ${MAX_IMAGE_SIZE_BYTES / (1024 * 1024)}MB.`);
   }
 
-  const result = {
-    url: imageData,
-    originalUrl: imageData,
-    optimizedUrl: imageData,
-    alt: alt || "",
-    focusPosition: focusPosition || "center",
-    imageType: imageType || "section",
-    mimeType: parsed.mimeType,
-    sizeBytes: size,
-  };
+  let result;
+  if (isMediaStorageConfigured()) {
+    const buffer = Buffer.from(parsed.base64, "base64");
+    const asset = await uploadAsset(buffer, {
+      category: "cms",
+      visibility: "public",
+      alt: alt || "",
+      mimeType: parsed.mimeType,
+      uploadedBy: adminId || null,
+    });
+    result = {
+      url: asset.originalUrl,
+      originalUrl: asset.originalUrl,
+      optimizedUrl: asset.webpUrl || asset.originalUrl,
+      mobileUrl: asset.mobileUrl || "",
+      thumbnailUrl: asset.thumbnailUrl || "",
+      assetId: asset.assetId,
+      alt: alt || "",
+      focusPosition: focusPosition || "center",
+      imageType: imageType || "section",
+      mimeType: parsed.mimeType,
+      sizeBytes: size,
+    };
+  } else {
+    // AWS not configured yet — fall back to the original behavior (base64
+    // stored directly) so uploads keep working in environments without S3.
+    result = {
+      url: imageData,
+      originalUrl: imageData,
+      optimizedUrl: imageData,
+      alt: alt || "",
+      focusPosition: focusPosition || "center",
+      imageType: imageType || "section",
+      mimeType: parsed.mimeType,
+      sizeBytes: size,
+    };
+  }
 
   await logAdminAction({
     adminId,

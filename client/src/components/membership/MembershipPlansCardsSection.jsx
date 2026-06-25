@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   IconCheck,
   IconCrown,
@@ -18,6 +19,8 @@ const TIER_ICONS = {
 };
 
 export default function MembershipPlansCardsSection({ selectedTierId, onSelectTier }) {
+  const { t } = useTranslation(["membership"]);
+
   return (
     <section
       id="membership-plans"
@@ -26,12 +29,14 @@ export default function MembershipPlansCardsSection({ selectedTierId, onSelectTi
     >
       <div className="membership-plans-cards-section__inner">
         <h2 id="membership-plans-title" className="visually-hidden">
-          Membership plans
+          {t("membership:plans.heading")}
         </h2>
 
         <div className="membership-plans-cards" role="list">
           {MEMBERSHIP_TIERS.map((tier) => {
             const Icon = TIER_ICONS[tier.icon] || IconUser;
+            const tierKey = tier.id;
+            const features = t(`membership:plans.${tierKey}.features`, { returnObjects: true });
 
             return (
               <article
@@ -46,7 +51,7 @@ export default function MembershipPlansCardsSection({ selectedTierId, onSelectTi
                     className="membership-plans-card__badge membership-plans-card__badge--desktop"
                     aria-label="Most popular plan"
                   >
-                    <span aria-hidden="true">★</span> MOST POPULAR <span aria-hidden="true">★</span>
+                    <span aria-hidden="true">★</span> {t("membership:plans.mostPopular")} <span aria-hidden="true">★</span>
                   </p>
                 ) : null}
 
@@ -64,31 +69,35 @@ export default function MembershipPlansCardsSection({ selectedTierId, onSelectTi
                           className="membership-plans-card__badge membership-plans-card__badge--mobile"
                           aria-hidden="true"
                         >
-                          <span aria-hidden="true">★</span> MOST POPULAR <span aria-hidden="true">★</span>
+                          <span aria-hidden="true">★</span> {t("membership:plans.mostPopular")} <span aria-hidden="true">★</span>
                         </p>
                       ) : null}
-                      <h3 className="membership-plans-card__title">{tier.name}</h3>
+                      <h3 className="membership-plans-card__title">{t(`membership:plans.${tierKey}.name`)}</h3>
                       <p className="membership-plans-card__price">
                         {tier.price}
-                        <span className="membership-plans-card__price-period">/year</span>
+                        <span className="membership-plans-card__price-period">{t("membership:plans.perYear")}</span>
                       </p>
-                      <p className="membership-plans-card__description">{tier.description}</p>
+                      <p className="membership-plans-card__description">{t(`membership:plans.${tierKey}.description`)}</p>
                     </div>
 
                     <ul className="membership-plans-card__features">
-                      {tier.cardFeatures.map((feature) => (
-                        <li key={feature}>
-                          <IconCheck
-                            className="membership-plans-card__feature-icon"
-                            size={16}
-                            stroke={2.5}
-                            aria-hidden
-                          />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
+                      {Array.isArray(features)
+                        ? features.map((feature) => (
+                            <li key={feature}>
+                              <IconCheck
+                                className="membership-plans-card__feature-icon"
+                                size={16}
+                                stroke={2.5}
+                                aria-hidden
+                              />
+                              <span>{feature}</span>
+                            </li>
+                          ))
+                        : null}
                       {tier.moreBenefitsNote ? (
-                        <li className="membership-plans-card__features-more">{tier.moreBenefitsNote}</li>
+                        <li className="membership-plans-card__features-more">
+                          {t(`membership:plans.${tierKey}.moreBenefits`)}
+                        </li>
                       ) : null}
                     </ul>
                   </div>
@@ -100,7 +109,7 @@ export default function MembershipPlansCardsSection({ selectedTierId, onSelectTi
                     aria-controls="membership-payment"
                     aria-expanded={selectedTierId === tier.id}
                   >
-                    {selectedTierId === tier.id ? "Selected — scroll down" : "Become a Member"}
+                    {selectedTierId === tier.id ? t("membership:plans.selected") : t("membership:plans.becomeMember")}
                   </button>
                 </div>
               </article>

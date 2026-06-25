@@ -15,6 +15,9 @@ import SponsorLogosRenderer from "./sections/SponsorLogosRenderer.jsx";
 import CustomHtmlRenderer from "./sections/CustomHtmlRenderer.jsx";
 import TeamMembersSectionRenderer from "./sections/TeamMembersSectionRenderer.jsx";
 import GenericSectionRenderer from "./sections/GenericSectionRenderer.jsx";
+import EditableSectionOverlay from "./EditableSectionOverlay.jsx";
+import { SECTION_TYPE_LABELS } from "../../utils/pagesAdmin.js";
+import useIsMobileViewport from "../../hooks/useIsMobileViewport.js";
 import "../../styles/cms-page.css";
 
 const RENDERERS = {
@@ -36,15 +39,39 @@ const RENDERERS = {
   team_members: TeamMembersSectionRenderer,
 };
 
-export default function PageSectionRenderer({ sections = [], preview = false }) {
+export default function PageSectionRenderer({
+  sections = [],
+  preview = false,
+  editable = false,
+  selectedSectionId = null,
+  onSelectSection,
+  forceMobile = null,
+}) {
+  const viewportIsMobile = useIsMobileViewport();
+  const isMobile = forceMobile === null ? viewportIsMobile : forceMobile;
+
   if (!sections.length) return null;
+
+  const visibleSections = sections.filter((s) => !(isMobile && s.settings?.mobileVisible === false));
 
   return (
     <div className={`cms-page${preview ? " cms-page--preview" : ""}`}>
-      {sections.map((section) => {
+      {visibleSections.map((section) => {
         const Renderer = RENDERERS[section.sectionType] || GenericSectionRenderer;
+        const rendered = <Renderer key={section.sectionId} section={section} preview={preview} />;
+
+        if (!editable) return rendered;
+
         return (
-          <Renderer key={section.sectionId} section={section} preview={preview} />
+          <EditableSectionOverlay
+            key={section.sectionId}
+            section={section}
+            label={section.title || SECTION_TYPE_LABELS[section.sectionType] || section.sectionType}
+            selected={selectedSectionId === section.sectionId}
+            onSelect={onSelectSection}
+          >
+            {rendered}
+          </EditableSectionOverlay>
         );
       })}
     </div>

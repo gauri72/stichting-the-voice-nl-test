@@ -626,9 +626,10 @@ export async function listAccessAuditLogs(query = {}) {
   const filter = {};
   if (query.action) filter.action = query.action;
   if (query.adminId) filter.adminId = query.adminId;
+  if (query.cmsOnly) filter.action = { $regex: "^cms_" };
 
   const rows = await AdminAuditLog.find(filter).sort({ createdAt: -1 }).limit(300).lean();
-  const adminIds = [...new Set(rows.map((r) => String(r.adminId)).filter(Boolean))];
+  const adminIds = [...new Set(rows.filter((r) => r.adminId).map((r) => String(r.adminId)))];
   const admins = await Admin.find({ _id: { $in: adminIds } }).select("firstName lastName email").lean();
   const adminMap = Object.fromEntries(admins.map((a) => [a._id.toString(), a]));
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { IconCheck, IconCopy, IconShare, IconGift } from "@tabler/icons-react";
 import { apiFetch, authHeaders } from "../../../utils/api.js";
 import "../../../styles/dashboard-referral-section.css";
+import { devWarn } from "../../../utils/devLog.js";
 
 export default function DashboardReferralSection() {
   const [data, setData] = useState(null);
@@ -14,7 +15,7 @@ export default function DashboardReferralSection() {
         const result = await apiFetch("/api/dashboard/referrals", { headers: authHeaders() });
         if (result.enabled) setData(result.referral);
       } catch (err) {
-        console.warn("[referrals] Failed to load:", err.message);
+        devWarn("[referrals] Failed to load:", err.message);
       } finally {
         setLoading(false);
       }

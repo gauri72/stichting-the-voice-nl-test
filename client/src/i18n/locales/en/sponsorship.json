@@ -1,0 +1,76 @@
+{
+  "plans": {
+    "heading": "Sponsorship tiers",
+    "mostPopular": "MOST POPULAR",
+    "selected": "Selected — scroll down",
+    "becomeASponsor": "Become A Sponsor",
+    "associate": {
+      "name": "Associate Sponsor",
+      "description": "Support culture and community with entry-level brand recognition.",
+      "features": [
+        "Logo/name on sponsor section of website",
+        "Social media thank-you mention",
+        "Recognition in selected event materials",
+        "Sponsor appreciation slide at event",
+        "1 complimentary event pass"
+      ]
+    },
+    "silver": {
+      "name": "Silver Sponsor",
+      "description": "Increase your visibility while supporting our cultural events.",
+      "features": [
+        "All Associate benefits",
+        "Logo on selected posters or digital event creatives",
+        "Sponsor mention in event program/page",
+        "1 dedicated social media shout-out",
+        "Public acknowledgement during event",
+        "4 complimentary event passes"
+      ]
+    },
+    "gold": {
+      "name": "Gold Sponsor",
+      "description": "Showcase your brand as a key supporter of cultural excellence.",
+      "features": [
+        "All Silver benefits",
+        "Premium logo placement on website and event screen",
+        "Logo on banners/posters where applicable",
+        "Half-page sponsor feature in event program/page",
+        "2 dedicated social media posts/reels/stories",
+        "Opportunity to present an award or address audience briefly, if event format allows",
+        "4 complimentary event passes"
+      ]
+    },
+    "platinum": {
+      "name": "Platinum Sponsor",
+      "description": "Maximum visibility. Become a leading partner in our cultural mission.",
+      "features": [
+        "All Gold benefits",
+        "Recognition as Main Partner / Presenting Sponsor where applicable",
+        "Full-page sponsor feature in event program/page",
+        "Premium logo placement on main stage/screen and campaign creatives",
+        "Brand mention in press/media communication where applicable",
+        "Meet & greet or networking opportunity where applicable",
+        "Category exclusivity subject to agreement",
+        "6 complimentary event passes"
+      ]
+    },
+    "custom": {
+      "name": "Tailored Sponsorship",
+      "description": "Choose any amount that fits your budget and partnership goals.",
+      "features": [
+        "Any contribution amount you choose",
+        "Recognition tailored to your support",
+        "Social media thank-you mention",
+        "Personal confirmation from our team"
+      ]
+    }
+  },
+  "why": {
+    "heading": "Why Sponsor Stichting The V.O.I.C.E. NL?",
+    "reason1": { "title": "Community Impact", "description": "Empower diverse communities through the arts, culture, sports, and education." },
+    "reason2": { "title": "Global Exposure", "description": "Reach a wide and engaged audience at international events and festivals." },
+    "reason3": { "title": "Brand Visibility", "description": "Showcase your brand across multiple platforms, events, and marketing channels." },
+    "reason4": { "title": "Positive Association", "description": "Align your brand with values of unity, diversity, creativity, and social good." },
+    "reason5": { "title": "Long-term Value", "description": "Build lasting relationships and create measurable impact together." }
+  }
+}

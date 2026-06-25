@@ -13,9 +13,10 @@ import {
   GLOBAL_INVENTORY_STATUSES,
 } from "../config/eventOperationsConfig.js";
 
-function handleError(res, err) {
-  const status = err.status || 500;
-  return res.status(status).json({ error: err.message || "Request failed." });
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
+function handleError(res, error) {
+  return handleErrorBase(res, error, { logTag: "[event-operations]" });
 }
 
 export function getConfig(_req, res) {

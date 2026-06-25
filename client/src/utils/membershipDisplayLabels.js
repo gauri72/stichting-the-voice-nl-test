@@ -1,8 +1,10 @@
 /**
  * Customer-facing membership copy. Never expose internal provider names.
+ * These are plain JS helpers (no hooks), so callers must pass the `t`
+ * function from their own useTranslation(["checkout"]) call.
  */
 
-export const CUSTOMER_MEMBERSHIP_MESSAGES = {
+const FALLBACK_MESSAGES_EN = {
   activeFound: "Active Membership Found",
   activeDetected: "Active Membership Detected",
   discountApplied: "Membership Discount Applied",
@@ -12,8 +14,25 @@ export const CUSTOMER_MEMBERSHIP_MESSAGES = {
   validated: "Membership Validated",
 };
 
-export function sanitizeCustomerDiscountLabel(label) {
-  if (!label) return CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied;
+// Kept for any caller that hasn't been migrated to pass `t` yet — English-only.
+export const CUSTOMER_MEMBERSHIP_MESSAGES = FALLBACK_MESSAGES_EN;
+
+export function getMembershipMessages(t) {
+  if (!t) return FALLBACK_MESSAGES_EN;
+  return {
+    activeFound: t("checkout:membershipMessages.activeFound"),
+    activeDetected: t("checkout:membershipMessages.activeDetected"),
+    discountApplied: t("checkout:membershipMessages.discountApplied"),
+    benefitApplied: t("checkout:membershipMessages.benefitApplied"),
+    premiumBenefitApplied: t("checkout:membershipMessages.premiumBenefitApplied"),
+    verified: t("checkout:membershipMessages.verified"),
+    validated: t("checkout:membershipMessages.validated"),
+  };
+}
+
+export function sanitizeCustomerDiscountLabel(label, t) {
+  const messages = getMembershipMessages(t);
+  if (!label) return messages.discountApplied;
 
   let cleaned = String(label)
     .replace(/TicketTailor\s*/gi, "")
@@ -21,20 +40,24 @@ export function sanitizeCustomerDiscountLabel(label) {
     .replace(/\s{2,}/g, " ")
     .trim();
 
-  if (!cleaned) return CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied;
+  if (!cleaned) return messages.discountApplied;
 
   return cleaned
-    .replace(/^Member Discount Applied$/i, CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied)
+    .replace(/^Member Discount Applied$/i, messages.discountApplied)
     .replace(/^Member Discount \(/i, "Membership Discount (");
 }
 
-export function formatMemberDiscountLineLabel(membershipType, discountType, discountValue) {
-  const typeLabel = membershipType || "Membership";
+export function formatMemberDiscountLineLabel(membershipType, discountType, discountValue, t) {
+  const typeLabel = membershipType || (t ? t("checkout:membershipMessages.defaultType") : "Membership");
   if (discountType === "percentage" && discountValue > 0) {
-    return `${typeLabel} — ${discountValue}% discount`;
+    return t
+      ? t("checkout:membershipMessages.discountLinePercentage", { type: typeLabel, value: discountValue })
+      : `${typeLabel} — ${discountValue}% discount`;
   }
   if (discountType === "fixed_amount" && discountValue > 0) {
-    return `${typeLabel} — €${discountValue} off`;
+    return t
+      ? t("checkout:membershipMessages.discountLineFixed", { type: typeLabel, value: discountValue })
+      : `${typeLabel} — €${discountValue} off`;
   }
   return typeLabel;
 }

@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import useBookingFlow from "../../hooks/useBookingFlow.js";
 
 export default function SessionBookingPage() {
+  const { t } = useTranslation(["misc"]);
   const { slug } = useParams();
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
@@ -36,11 +38,11 @@ export default function SessionBookingPage() {
       setSession(data.session);
       setSlots(data.slots || []);
     } catch (err) {
-      setError(err.message || "Could not load session.");
+      setError(err.message || t("misc:sessionBooking.errorLoad"));
     } finally {
       setLoading(false);
     }
-  }, [slug, fetchPreview]);
+  }, [slug, fetchPreview, t]);
 
   useEffect(() => {
     loadSession();
@@ -57,17 +59,17 @@ export default function SessionBookingPage() {
       });
       setSummary(result.booking);
       if (result.payment?.clientSecret) {
-        setError("Stripe payment intent created. Continue with existing payment flow integration.");
+        setError(t("misc:sessionBooking.paymentIntentNotice"));
       }
     } catch (err) {
-      setError(err.message || "Could not complete booking.");
+      setError(err.message || t("misc:sessionBooking.errorSubmit"));
     }
   }
 
   if (loading && !session) {
     return (
       <main className="events-page">
-        <p>Loading session…</p>
+        <p>{t("misc:sessionBooking.loading")}</p>
       </main>
     );
   }
@@ -75,29 +77,29 @@ export default function SessionBookingPage() {
   return (
     <main className="events-page">
       <section className="events-page__hero">
-        <h1>Book Session</h1>
+        <h1>{t("misc:sessionBooking.pageTitle")}</h1>
         <p>{session?.name || slug}</p>
       </section>
       {error ? <p className="events-page__error">{error}</p> : null}
       <section className="events-page__grid">
         <form className="event-card" onSubmit={submit}>
           <label>
-            Slot
+            {t("misc:sessionBooking.slot")}
             <select
               value={form.slotId}
               onChange={(e) => setForm((f) => ({ ...f, slotId: e.target.value }))}
               required
             >
-              <option value="">Select slot</option>
+              <option value="">{t("misc:sessionBooking.selectSlot")}</option>
               {slots.map((slot) => (
                 <option key={slot.slotId} value={slot.slotId}>
-                  {new Date(slot.startsAt).toLocaleString()} ({slot.remainingCapacity} left)
+                  {new Date(slot.startsAt).toLocaleString()} ({slot.remainingCapacity} {t("misc:sessionBooking.left")})
                 </option>
               ))}
             </select>
           </label>
           <label>
-            Name
+            {t("misc:sessionBooking.name")}
             <input
               value={form.customerName}
               onChange={(e) => setForm((f) => ({ ...f, customerName: e.target.value }))}
@@ -105,7 +107,7 @@ export default function SessionBookingPage() {
             />
           </label>
           <label>
-            Email
+            {t("misc:sessionBooking.email")}
             <input
               type="email"
               value={form.customerEmail}
@@ -114,14 +116,14 @@ export default function SessionBookingPage() {
             />
           </label>
           <label>
-            Phone
+            {t("misc:sessionBooking.phone")}
             <input
               value={form.customerPhone}
               onChange={(e) => setForm((f) => ({ ...f, customerPhone: e.target.value }))}
             />
           </label>
           <label>
-            Participants
+            {t("misc:sessionBooking.participants")}
             <input
               type="number"
               min="1"
@@ -130,7 +132,7 @@ export default function SessionBookingPage() {
             />
           </label>
           <label>
-            Discount code
+            {t("misc:sessionBooking.discountCode")}
             <input
               value={form.discountCode}
               onChange={(e) => setForm((f) => ({ ...f, discountCode: e.target.value.toUpperCase() }))}
@@ -142,38 +144,38 @@ export default function SessionBookingPage() {
               checked={form.payLater}
               onChange={(e) => setForm((f) => ({ ...f, payLater: e.target.checked }))}
             />{" "}
-            Pay later
+            {t("misc:sessionBooking.payLater")}
           </label>
-          <button type="submit">Confirm Booking</button>
+          <button type="submit">{t("misc:sessionBooking.confirmBooking")}</button>
           <button type="button" onClick={() => navigate(`/sessions/${slug}`)}>
-            Back
+            {t("misc:sessionBooking.back")}
           </button>
         </form>
         <article className="event-card">
-          <h3>Booking Summary</h3>
+          <h3>{t("misc:sessionBooking.summaryTitle")}</h3>
           {summary ? (
             <>
-              <p>Booking ID: {summary.bookingId}</p>
-              <p>Status: {summary.bookingStatus}</p>
-              <p>Payment: {summary.paymentStatus}</p>
-              <p>Total: {summary.total}</p>
+              <p>{t("misc:sessionBooking.bookingId")}: {summary.bookingId}</p>
+              <p>{t("misc:sessionBooking.status")}: {summary.bookingStatus}</p>
+              <p>{t("misc:sessionBooking.payment")}: {summary.paymentStatus}</p>
+              <p>{t("misc:sessionBooking.total")}: {summary.total}</p>
               {summary.pdfUrl ? (
                 <p>
                   <a href={summary.pdfUrl} target="_blank" rel="noreferrer">
-                    Download PDF
+                    {t("misc:sessionBooking.downloadPdf")}
                   </a>
                 </p>
               ) : null}
               {summary.qrCodeUrl ? (
                 <p>
                   <a href={summary.qrCodeUrl} target="_blank" rel="noreferrer">
-                    Open QR
+                    {t("misc:sessionBooking.openQr")}
                   </a>
                 </p>
               ) : null}
             </>
           ) : (
-            <p>Select a slot and confirm booking.</p>
+            <p>{t("misc:sessionBooking.summaryEmpty")}</p>
           )}
         </article>
       </section>

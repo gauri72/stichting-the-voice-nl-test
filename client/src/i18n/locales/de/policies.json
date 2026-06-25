@@ -1,0 +1,104 @@
+{
+  "breadcrumb": {
+    "home": "Startseite",
+    "current": "Richtlinien, Geschäftsbedingungen"
+  },
+  "hero": {
+    "titleLead": "RICHTLINIEN,",
+    "titleAccent": "GESCHÄFTSBEDINGUNGEN",
+    "tagline": "Transparenz. Verantwortung. Vertrauen.",
+    "description": "Bei Stichting The V.O.I.C.E. NL setzen wir uns für Integrität, den Schutz Ihrer Privatsphäre und eine sichere, respektvolle Umgebung für jeden in unserer Community ein."
+  },
+  "commitment": {
+    "title": "UNSERE VERPFLICHTUNG IHNEN GEGENÜBER",
+    "description": "Wir glauben an ethische Praktiken, klare Kommunikation und verantwortungsvollen Einsatz von Technologie, um unserer Community mit Sorgfalt und Verantwortung zu dienen.",
+    "pillar1": "Integrität",
+    "pillar2": "Privatsphäre",
+    "pillar3": "Respekt",
+    "pillar4": "Fairness"
+  },
+  "grid": {
+    "heading": "UNSERE RICHTLINIEN",
+    "readPolicy": "Richtlinie Lesen",
+    "item1": { "title": "Datenschutzrichtlinie", "description": "Wie wir Ihre personenbezogenen Daten erfassen, nutzen und schützen, wenn Sie mit unserer Website und unseren Diensten interagieren." },
+    "item2": { "title": "Datenschutz-Richtlinie", "description": "Unser Ansatz zum Schutz von Daten, zur Sicherstellung der Compliance und zur Aufrechterhaltung höchster Sicherheitsstandards." },
+    "item3": { "title": "Cookie-Richtlinie", "description": "Informationen darüber, wie wir Cookies und ähnliche Technologien einsetzen, um Ihr Browsing-Erlebnis zu verbessern." },
+    "item4": { "title": "Community-Richtlinien", "description": "Standards für respektvolles Engagement, Zusammenarbeit und positive Teilnahme in unserer Community." },
+    "item5": { "title": "Veranstaltungsbedingungen", "description": "Bedingungen für die Teilnahme an unseren Veranstaltungen, einschließlich Anmeldung, Verhalten und Stornierungsrichtlinien." },
+    "item6": { "title": "Kauf- & Rückerstattungsrichtlinie", "description": "Details zu Zahlungen, Rückerstattungen und Finanztransaktionen im Zusammenhang mit Mitgliedschaften, Spenden und Dienstleistungen." },
+    "item7": { "title": "Verhaltenskodex", "description": "Unsere Erwartungen an ethisches Verhalten, Professionalität und Verantwortlichkeit bei allen Aktivitäten." },
+    "item8": { "title": "Inhaltsrichtlinie", "description": "Richtlinien für die Erstellung, Weitergabe und Nutzung von Inhalten auf unseren Plattformen und Community-Kanälen." }
+  },
+  "termsBanner": {
+    "title": "GESCHÄFTSBEDINGUNGEN",
+    "description": "Diese Bedingungen regeln Ihre Nutzung unserer Website, Dienste und Ihre Teilnahme an unseren Programmen. Bitte lesen Sie sie sorgfältig durch, bevor Sie unsere Plattform nutzen.",
+    "buttonLabel": "Geschäftsbedingungen Ansehen"
+  },
+  "help": {
+    "title": "BRAUCHEN SIE HILFE?",
+    "description": "Wenn Sie Fragen zu unseren Richtlinien haben oder eine Klärung zu bestimmten Bedingungen benötigen, steht unser Team Ihnen zur Verfügung.",
+    "buttonLabel": "Kontaktieren Sie Uns Über WhatsApp"
+  },
+  "disclaimer": "Durch die Nutzung unserer Website und Dienste bestätigen Sie, dass Sie unsere Richtlinien und Bedingungen gelesen, verstanden und ihnen zugestimmt haben.",
+  "details": {
+    "privacy": {
+      "title": "Datenschutzrichtlinie",
+      "p1": "Stichting The V.O.I.C.E. NL respektiert Ihre Privatsphäre und setzt sich für den Schutz Ihrer personenbezogenen Daten ein. Diese Richtlinie erklärt, wie wir Informationen erfassen, nutzen, speichern und schützen, wenn Sie unsere Website besuchen, sich für Veranstaltungen anmelden, Mitglied werden oder unsere Dienste nutzen.",
+      "p2": "Wir erfassen Informationen, die Sie direkt bereitstellen, wie Ihren Namen, Ihre E-Mail-Adresse, Telefonnummer und Zahlungsdetails, wenn Sie sich anmelden, spenden oder uns kontaktieren. Wir können auch technische Daten wie IP-Adresse, Browsertyp und Nutzungsmuster erfassen, um unsere Dienste zu verbessern.",
+      "p3": "Ihre Daten werden verwendet, um unsere Dienste zu erbringen, Transaktionen zu verarbeiten, mit Ihnen zu kommunizieren und unsere Plattform zu verbessern. Wir verkaufen Ihre personenbezogenen Daten nicht an Dritte. Sie können Zugang, Korrektur oder Löschung Ihrer Daten beantragen, indem Sie uns unter info@stichtingthevoice.nl kontaktieren."
+    },
+    "dataProtection": {
+      "title": "Datenschutz-Richtlinie",
+      "p1": "Wir implementieren angemessene technische und organisatorische Maßnahmen, um personenbezogene Daten vor unbefugtem Zugriff, Änderung, Offenlegung oder Zerstörung zu schützen. Unsere Datenschutzpraktiken entsprechen den geltenden Vorschriften, einschließlich der DSGVO.",
+      "p2": "Der Zugang zu personenbezogenen Daten ist auf befugtes Personal beschränkt, das diese zur Erfüllung seiner Aufgaben benötigt. Wir überprüfen unsere Sicherheitsmaßnahmen regelmäßig und passen unsere Praktiken an, um neuen Bedrohungen zu begegnen.",
+      "p3": "Im Falle einer Datenschutzverletzung, die ein Risiko für Ihre Rechte darstellt, werden wir betroffene Personen und die zuständigen Behörden wie gesetzlich vorgeschrieben benachrichtigen."
+    },
+    "cookie": {
+      "title": "Cookie-Richtlinie",
+      "p1": "Unsere Website verwendet Cookies und ähnliche Technologien, um Ihr Erlebnis zu verbessern, den Website-Traffic zu analysieren und Inhalte zu personalisieren. Cookies sind kleine Textdateien, die auf Ihrem Gerät gespeichert werden, wenn Sie unsere Website besuchen.",
+      "p2": "Wir verwenden essenzielle Cookies, die für die Funktion der Website erforderlich sind, Analyse-Cookies, um zu verstehen, wie Besucher unsere Website nutzen, und Präferenz-Cookies, um Ihre Einstellungen wie Theme und Sprache zu speichern.",
+      "p3": "Sie können Cookie-Einstellungen über Ihre Browsereinstellungen oder unseren Cookie-Consent-Banner verwalten. Das Deaktivieren bestimmter Cookies kann die Funktionalität unserer Website beeinträchtigen."
+    },
+    "community": {
+      "title": "Community-Richtlinien",
+      "p1": "Unsere Community lebt von Respekt, Inklusion und Zusammenarbeit. Von allen Mitgliedern, Teilnehmern und Besuchern wird erwartet, dass sie andere mit Würde behandeln und auf Belästigung, Diskriminierung oder schädliches Verhalten verzichten.",
+      "p2": "Wir fördern offenen Dialog und vielfältige Perspektiven und wahren dabei ein sicheres Umfeld. Inhalte, die Gewalt, Hassrede oder illegale Aktivitäten fördern, sind auf unseren Plattformen oder bei unseren Veranstaltungen nicht erlaubt.",
+      "p3": "Verstöße gegen diese Richtlinien können zum Ausschluss aus Community-Räumen, zur Kündigung der Mitgliedschaft oder zu anderen angemessenen Maßnahmen nach unserem Ermessen führen."
+    },
+    "eventTerms": {
+      "title": "Veranstaltungsbedingungen",
+      "p1": "Die Anmeldung zu V.O.I.C.E. NL-Veranstaltungen stellt die Annahme dieser Bedingungen dar. Veranstaltungsdetails, Zeitpläne und Veranstaltungsorte können sich ändern; wir werden angemeldete Teilnehmer über wesentliche Änderungen informieren.",
+      "p2": "Tickets und Anmeldungen sind persönlich und dürfen ohne vorherige Genehmigung nicht übertragen werden. Stornierungs- und Rückerstattungsrichtlinien variieren je nach Veranstaltung und werden zum Zeitpunkt der Anmeldung mitgeteilt.",
+      "p3": "Teilnehmer sind für ihr eigenes Verhalten bei Veranstaltungen verantwortlich. Fotografie und Aufnahmen können vorkommen; durch die Teilnahme stimmen Sie zu, in der Veranstaltungsdokumentation enthalten zu sein, sofern Sie die Organisatoren nicht im Voraus benachrichtigen."
+    },
+    "purchaseRefund": {
+      "title": "Kauf- & Rückerstattungsrichtlinie",
+      "p1": "Alle Preise werden in Euro angezeigt, sofern nicht anders angegeben. Zahlungen werden sicher über unsere autorisierten Zahlungsanbieter verarbeitet. Mitgliedsbeiträge, Spenden und Servicegebühren werden nach erfolgreicher Transaktion bestätigt.",
+      "p2": "Die Berechtigung zur Rückerstattung hängt von der Art des Kaufs ab. Mitgliedschaftsrückerstattungen werden von Fall zu Fall innerhalb von 14 Tagen nach dem Kauf bearbeitet, sofern keine Dienste in Anspruch genommen wurden. Rückerstattungen für Veranstaltungstickets folgen der spezifischen Richtlinie, die bei der Anmeldung angegeben wurde.",
+      "p3": "Bei Fragen zur Abrechnung oder Rückerstattungsanträgen wenden Sie sich bitte unter Angabe Ihrer Transaktionsreferenz an info@stichtingthevoice.nl."
+    },
+    "codeOfConduct": {
+      "title": "Verhaltenskodex",
+      "p1": "Von allen mit Stichting The V.O.I.C.E. NL verbundenen Personen — einschließlich Mitarbeitern, Freiwilligen, Partnern und Teilnehmern — wird erwartet, dass sie höchste Standards an Integrität und Professionalität einhalten.",
+      "p2": "Interessenkonflikte müssen umgehend offengelegt werden. Entscheidungen sollten die Mission der Organisation und das Wohlergehen unserer Community über persönlichen Gewinn stellen.",
+      "p3": "Meldungen über Fehlverhalten können vertraulich an info@stichtingthevoice.nl übermittelt werden. Wir nehmen alle Meldungen ernst und werden sie umgehend und fair untersuchen."
+    },
+    "content": {
+      "title": "Inhaltsrichtlinie",
+      "p1": "Auf unseren Plattformen geteilte Inhalte müssen mit unserer Mission und unseren Werten übereinstimmen. Nutzer behalten das Eigentum an ihren Inhalten, gewähren uns jedoch eine Lizenz, diese im Zusammenhang mit unseren Aktivitäten anzuzeigen und zu bewerben.",
+      "p2": "Wir behalten uns das Recht vor, Inhalte ohne vorherige Ankündigung zu entfernen, die gegen unsere Community-Richtlinien verstoßen, geistige Eigentumsrechte verletzen oder anderweitig unangemessen sind.",
+      "p3": "Wenn Sie glauben, dass Inhalte auf unserer Plattform Ihre Rechte verletzen, kontaktieren Sie uns bitte mit Details und unterstützenden Nachweisen."
+    }
+  },
+  "terms": {
+    "title": "Geschäftsbedingungen",
+    "section1": { "heading": "1. Annahme der Bedingungen", "body": "Durch den Zugriff auf oder die Nutzung der Website und Dienste von Stichting The V.O.I.C.E. NL erklären Sie sich mit diesen Geschäftsbedingungen und allen auf dieser Seite genannten geltenden Richtlinien einverstanden." },
+    "section2": { "heading": "2. Nutzung der Dienste", "body": "Sie verpflichten sich, unsere Website und Dienste nur für rechtmäßige Zwecke und gemäß diesen Bedingungen zu nutzen. Sie dürfen unsere Plattform nicht missbrauchen, keinen unbefugten Zugriff versuchen und das ordnungsgemäße Funktionieren unserer Dienste nicht beeinträchtigen." },
+    "section3": { "heading": "3. Geistiges Eigentum", "body": "Alle Inhalte auf dieser Website, einschließlich Text, Grafiken, Logos, Bilder und Software, sind Eigentum von Stichting The V.O.I.C.E. NL oder seinen Lizenzgebern und durch Urheberrecht und andere Gesetze zum geistigen Eigentum geschützt." },
+    "section4": { "heading": "4. Mitgliedschaft & Konten", "body": "Wenn Sie ein Konto erstellen oder eine Mitgliedschaft erwerben, sind Sie für die Vertraulichkeit Ihrer Zugangsdaten und für alle Aktivitäten unter Ihrem Konto verantwortlich. Sie müssen genaue und vollständige Informationen bereitstellen." },
+    "section5": { "heading": "5. Haftungsbeschränkung", "body": "Im gesetzlich maximal zulässigen Umfang haftet Stichting The V.O.I.C.E. NL nicht für indirekte, beiläufige oder Folgeschäden, die aus Ihrer Nutzung unserer Website oder Dienste entstehen." },
+    "section6": { "heading": "6. Änderungen der Bedingungen", "body": "Wir können diese Geschäftsbedingungen von Zeit zu Zeit aktualisieren. Die fortgesetzte Nutzung unserer Dienste nach Veröffentlichung von Änderungen stellt die Annahme der überarbeiteten Bedingungen dar. Wir empfehlen Ihnen, diese Seite regelmäßig zu überprüfen." },
+    "section7": { "heading": "7. Geltendes Recht", "body": "Diese Bedingungen unterliegen dem Recht der Niederlande. Etwaige Streitigkeiten unterliegen der ausschließlichen Zuständigkeit der Gerichte der Niederlande." },
+    "section8": { "heading": "8. Kontakt", "body": "Bei Fragen zu diesen Geschäftsbedingungen kontaktieren Sie uns bitte unter info@stichtingthevoice.nl oder über unseren WhatsApp-Community-Kanal." }
+  }
+}

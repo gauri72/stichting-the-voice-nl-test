@@ -41,22 +41,30 @@ export default function AdminRsvpsPage() {
 
   async function createEvent(e) {
     e.preventDefault();
-    await apiFetch("/api/admin/rsvps/events", {
-      method: "POST",
-      headers: adminAuthHeaders(),
-      body: JSON.stringify(form),
-    });
-    setForm(EMPTY_EVENT);
-    load();
+    try {
+      await apiFetch("/api/admin/rsvps/events", {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify(form),
+      });
+      setForm(EMPTY_EVENT);
+      load();
+    } catch (err) {
+      setError(err.message || "Could not create RSVP event.");
+    }
   }
 
   async function markAttended(r) {
-    await apiFetch(`/api/admin/rsvps/${r.eventSlug}/${r.responseId}`, {
-      method: "PATCH",
-      headers: adminAuthHeaders(),
-      body: JSON.stringify({ attended: true }),
-    });
-    load();
+    try {
+      await apiFetch(`/api/admin/rsvps/${r.eventSlug}/${r.responseId}`, {
+        method: "PATCH",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify({ attended: true }),
+      });
+      load();
+    } catch (err) {
+      setError(err.message || "Could not update attendance.");
+    }
   }
 
   return (

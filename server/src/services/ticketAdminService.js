@@ -7,6 +7,7 @@ import { isOrderPaymentSettled } from "../utils/orderPaymentUtils.js";
 import { verifyTicketPdfAccess } from "../utils/ticketPdfAccess.js";
 import { formatMoney } from "./ticketPricingService.js";
 import { sendTicketConfirmationEmail } from "./ticketMailer.js";
+import { escapeRegex } from "../utils/regexUtils.js";
 
 export async function listAdminTickets(filters = {}) {
   const {
@@ -39,12 +40,12 @@ export async function listAdminTickets(filters = {}) {
   if (ticketTypeId) ticketFilter.ticketTypeId = ticketTypeId;
   if (checkedIn === "true") ticketFilter.checkedIn = true;
   if (checkedIn === "false") ticketFilter.checkedIn = false;
-  if (section) ticketFilter.section = new RegExp(section.trim(), "i");
-  if (row) ticketFilter.row = new RegExp(`^${row.trim()}$`, "i");
+  if (section) ticketFilter.section = new RegExp(escapeRegex(section.trim()), "i");
+  if (row) ticketFilter.row = new RegExp(`^${escapeRegex(row.trim())}$`, "i");
   if (seatCategory) ticketFilter.seatCategory = seatCategory;
 
   if (search?.trim()) {
-    const q = search.trim();
+    const q = escapeRegex(search.trim());
     const matchingOrders = await TicketOrder.find({
       $or: [
         { orderNumber: new RegExp(q, "i") },

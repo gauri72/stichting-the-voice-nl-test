@@ -1,0 +1,67 @@
+{
+  "pillars": {
+    "title": "Vier Säulen. Eine Mission.",
+    "learnMore": "Mehr erfahren",
+    "experience": {
+      "mobileTitle": "Erlebnis",
+      "desktopTitle": "V.O.I.C.E. Erlebnis",
+      "lead": "Unvergessliche kulturelle Erlebnisse schaffen.",
+      "tags": "Veranstaltungen • Festivals • Musik • Tanz • Sport"
+    },
+    "stories": {
+      "mobileTitle": "Geschichten",
+      "desktopTitle": "V.O.I.C.E. Geschichten",
+      "lead": "Stimmen teilen durch Vision Of Sounds.",
+      "tags": "Podcast • Voice Of Visionaries • Medien • Fotografie • Interviews"
+    },
+    "impact": {
+      "mobileTitle": "Wirkung",
+      "desktopTitle": "V.O.I.C.E. Wirkung",
+      "lead": "VOWNL • Soziale Arbeit • Gemeinschaften durch Handeln stärken.",
+      "tags": "Jugend • Inklusion • Bildung • Ehrenamt"
+    },
+    "innovation": {
+      "mobileTitle": "Innovation",
+      "desktopTitle": "V.O.I.C.E. Innovation",
+      "lead": "Die Zukunft durch Technologie gestalten.",
+      "tags": "V.O.I.C.E. Digital • Apps • Websites • V.O.I.C.E. Venture Studio"
+    }
+  },
+  "getInvolved": {
+    "sponsorUs": { "title": "Sponsern Sie Uns", "description": "Arbeiten Sie mit uns zusammen und schaffen Sie gemeinsam nachhaltige Wirkung." },
+    "donateNow": { "title": "Jetzt Spenden", "description": "Ihre Unterstützung hilft uns, einen bedeutsamen Wandel zu schaffen." },
+    "volunteer": { "title": "Ehrenamt", "description": "Schenken Sie Ihre Zeit und machen Sie einen echten Unterschied." },
+    "volunteerFormTitle": "Füllen Sie Dieses Formular Aus, Um Sich Freiwillig Zu Engagieren"
+  },
+  "impactStats": {
+    "stat1": "Hochwertige Veranstaltungen",
+    "stat2": "Beeinflusste Leben",
+    "stat3": "Geförderte Künstler",
+    "stat4": "Globale Gemeinschaft"
+  },
+  "sponsors": {
+    "title": "Unser Netzwerk",
+    "subtitle": "Mit Stolz unterstützt von unseren Sponsoren"
+  },
+  "ourImpact": {
+    "title": "Unsere Wirkung",
+    "joinUs": {
+      "label": "Machen Sie Mit",
+      "heading": "Werden Sie Teil Des Wandels",
+      "description": "Werden Sie Mitglied oder Sponsor und helfen Sie uns, durch Kunst und Gemeinschaft weiterhin bedeutsame Wirkung zu erzielen.",
+      "ctaText": "Mitglied Werden"
+    },
+    "sponsorUs": {
+      "label": "Sponsern Sie Uns",
+      "heading": "Unterstützen. Stärken. Verändern.",
+      "description": "Ihr Sponsoring hilft uns, kulturelle Programme umzusetzen, Künstler zu fördern und ein breiteres gesellschaftliches Engagement zu schaffen.",
+      "ctaText": "Sponsor Werden"
+    },
+    "donate": {
+      "label": "Spenden",
+      "heading": "Geben Sie Hoffnung Durch Kultur.",
+      "description": "Jeder Beitrag ermöglicht inklusive Veranstaltungen, fördert junge Talente und erhält von der Gemeinschaft getragene Kreativität.",
+      "ctaText": "Jetzt Spenden"
+    }
+  }
+}

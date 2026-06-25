@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
 import CaptchaField from "../common/CaptchaField.jsx";
 import { useCaptcha } from "../../hooks/useCaptcha.js";
@@ -21,6 +22,7 @@ function PasswordField({
   showPassword,
   onToggle
 }) {
+  const { t } = useTranslation(["auth"]);
   return (
     <div className="login-form-section__field">
       <label htmlFor={id}>{label}</label>
@@ -40,7 +42,7 @@ function PasswordField({
           type="button"
           className="login-form-section__toggle-password"
           onClick={onToggle}
-          aria-label={showPassword ? "Hide password" : "Show password"}
+          aria-label={showPassword ? t("auth:form.fields.hidePassword") : t("auth:form.fields.showPassword")}
         >
           {showPassword ? <FaEyeSlash aria-hidden /> : <FaEye aria-hidden />}
         </button>
@@ -50,6 +52,7 @@ function PasswordField({
 }
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation(["auth"]);
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") || "";
 
@@ -67,7 +70,7 @@ export default function ResetPasswordPage() {
     setError("");
 
     if (!token) {
-      setError("Invalid reset link. Please request a new password reset.");
+      setError(t("auth:resetPassword.errors.invalidToken"));
       return;
     }
 
@@ -75,12 +78,12 @@ export default function ResetPasswordPage() {
     const trimmedConfirm = confirmPassword.trim();
 
     if (trimmedPassword.length < 8) {
-      setError("Password must be at least 8 characters long.");
+      setError(t("auth:resetPassword.errors.tooShort"));
       return;
     }
 
     if (trimmedPassword !== trimmedConfirm) {
-      setError("Passwords do not match. Please check and try again.");
+      setError(t("auth:resetPassword.errors.mismatch"));
       return;
     }
 
@@ -102,7 +105,7 @@ export default function ResetPasswordPage() {
       });
       setSuccess({ message: data.message });
     } catch (err) {
-      setError(err.message || "Could not reset password. Please try again.");
+      setError(err.message || t("auth:resetPassword.errors.failed"));
     } finally {
       captcha.reset();
       setIsSubmitting(false);
@@ -116,26 +119,26 @@ export default function ResetPasswordPage() {
         <div className="login-form-section__card">
           <header className="login-form-section__header">
             <h2 id="reset-password-title" className="login-form-section__title">
-              Reset Password
+              {t("auth:resetPassword.title")}
             </h2>
-            <p className="login-form-section__intro">Choose a new password for your account.</p>
+            <p className="login-form-section__intro">{t("auth:resetPassword.intro")}</p>
           </header>
 
           {!token ? (
             <p className="login-form-section__error" role="alert">
-              This reset link is invalid or has expired.{" "}
+              {t("auth:resetPassword.invalidLink")}{" "}
               <Link to="/my-account" state={{ authMode: "forgot-password" }}>
-                Request a new link
+                {t("auth:resetPassword.requestNewLink")}
               </Link>
               .
             </p>
           ) : success ? (
             <div className="login-form-section__success" role="status">
-              <h3>Password updated</h3>
+              <h3>{t("auth:resetPassword.updated")}</h3>
               <p>{success.message}</p>
               <Link className="login-form-section__switch-mode" to="/my-account">
                 <FaLock aria-hidden />
-                Log In
+                {t("auth:form.buttons.logIn")}
               </Link>
             </div>
           ) : (
@@ -143,10 +146,10 @@ export default function ResetPasswordPage() {
               <PasswordField
                 id="reset-password"
                 name="password"
-                label="New Password"
+                label={t("auth:resetPassword.newPassword")}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                placeholder="Enter new password"
+                placeholder={t("auth:resetPassword.newPasswordPlaceholder")}
                 autoComplete="new-password"
                 showPassword={showPassword}
                 onToggle={() => setShowPassword((visible) => !visible)}
@@ -155,10 +158,10 @@ export default function ResetPasswordPage() {
               <PasswordField
                 id="reset-confirm-password"
                 name="confirmPassword"
-                label="Confirm Password"
+                label={t("auth:form.fields.confirmPassword")}
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
-                placeholder="Confirm new password"
+                placeholder={t("auth:resetPassword.confirmNewPasswordPlaceholder")}
                 autoComplete="new-password"
                 showPassword={showConfirmPassword}
                 onToggle={() => setShowConfirmPassword((visible) => !visible)}
@@ -174,7 +177,7 @@ export default function ResetPasswordPage() {
 
               <button type="submit" className="login-form-section__submit" disabled={isSubmitting}>
                 <FaLock aria-hidden />
-                {isSubmitting ? "Updating…" : "Update Password"}
+                {isSubmitting ? t("auth:resetPassword.updating") : t("auth:resetPassword.updatePassword")}
               </button>
 
               <Link
@@ -182,7 +185,7 @@ export default function ResetPasswordPage() {
                 to="/my-account"
                 state={{ authMode: "forgot-password" }}
               >
-                Request a new reset link
+                {t("auth:resetPassword.requestNewResetLink")}
               </Link>
             </form>
           )}

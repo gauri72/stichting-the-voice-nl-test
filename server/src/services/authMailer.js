@@ -22,7 +22,11 @@ function baseMailOptions() {
 
 export async function sendVerificationOtpEmail({ to, firstName, otp }) {
   if (!isMailerConfigured()) {
-    console.warn("[authMailer] SMTP not configured — verification OTP:", otp);
+    if (env.nodeEnv !== "production") {
+      console.warn("[authMailer] SMTP not configured — verification OTP:", otp);
+    } else {
+      console.warn("[authMailer] SMTP not configured — verification OTP email not sent.");
+    }
     return { sent: false, devOtp: otp };
   }
 
@@ -53,7 +57,11 @@ export async function sendVerificationOtpEmail({ to, firstName, otp }) {
 
 export async function sendPasswordResetEmail({ to, firstName, resetUrl }) {
   if (!isMailerConfigured()) {
-    console.warn("[authMailer] SMTP not configured — password reset URL:", resetUrl);
+    if (env.nodeEnv !== "production") {
+      console.warn("[authMailer] SMTP not configured — password reset URL:", resetUrl);
+    } else {
+      console.warn("[authMailer] SMTP not configured — password reset email not sent.");
+    }
     return { sent: false, devResetUrl: resetUrl };
   }
 

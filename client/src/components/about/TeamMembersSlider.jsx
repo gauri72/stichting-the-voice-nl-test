@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IconArrowLeft, IconArrowRight, IconBrandLinkedin } from "@tabler/icons-react";
 import { apiFetch } from "../../utils/api.js";
+import { useAutoAdvance } from "../../hooks/useAutoAdvance.js";
 import { getFallbackTeamMembers, getInitials, resolveTeamMemberImage } from "../../data/teamMembers.js";
 import TeamMemberModal from "./TeamMemberModal.jsx";
 import "../../styles/team-members-slider.css";
@@ -24,7 +26,9 @@ function TeamCardPhoto({ member }) {
   );
 }
 
-export default function TeamMembersSlider({ sectionClassName = "", title = "Our Team", subtitle = "" }) {
+export default function TeamMembersSlider({ sectionClassName = "", title = "", subtitle = "" }) {
+  const { t } = useTranslation(["about"]);
+  const resolvedTitle = title || t("about:team.title");
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -59,12 +63,7 @@ export default function TeamMembersSlider({ sectionClassName = "", title = "Our 
   const scrollNext = useCallback(() => scrollBy(SCROLL_STEP), [scrollBy]);
   const scrollPrev = useCallback(() => scrollBy(-SCROLL_STEP), [scrollBy]);
 
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track || members.length <= 1 || isPaused) return undefined;
-    const timer = window.setInterval(scrollNext, AUTO_SCROLL_MS);
-    return () => window.clearInterval(timer);
-  }, [members.length, isPaused, scrollNext]);
+  useAutoAdvance(scrollNext, { enabled: members.length > 1 && !isPaused, intervalMs: AUTO_SCROLL_MS });
 
   useEffect(() => {
     const track = trackRef.current;
@@ -95,7 +94,7 @@ export default function TeamMembersSlider({ sectionClassName = "", title = "Our 
           <div className="tms-slider__heading">
             <span className="tms-slider__heading-line" aria-hidden="true" />
             <h2 id="tms-slider-title" className="tms-slider__title">
-              {title}
+              {resolvedTitle}
             </h2>
             <span className="tms-slider__heading-line" aria-hidden="true" />
           </div>
@@ -103,13 +102,13 @@ export default function TeamMembersSlider({ sectionClassName = "", title = "Our 
             <p className="tms-slider__subtitle">{subtitle}</p>
           ) : (
             <p className="tms-slider__subtitle">
-              Meet the passionate people behind V.O.I.C.E. NL — building community, culture and impact together.
+              {t("about:team.subtitle")}
             </p>
           )}
         </header>
 
         {loading ? (
-          <p className="tms-slider__status" role="status">Loading team members…</p>
+          <p className="tms-slider__status" role="status">{t("about:team.loading")}</p>
         ) : null}
 
         {!loading && members.length > 0 ? (
@@ -152,7 +151,7 @@ export default function TeamMembersSlider({ sectionClassName = "", title = "Our 
                           <TeamCardPhoto member={member} />
                         </div>
                         {member.isBoardMember ? (
-                          <span className="tms-slider__badge tms-slider__badge--board">Board</span>
+                          <span className="tms-slider__badge tms-slider__badge--board">{t("about:team.board")}</span>
                         ) : null}
                         {designation ? (
                           <span className="tms-slider__badge">{designation}</span>
@@ -179,7 +178,7 @@ export default function TeamMembersSlider({ sectionClassName = "", title = "Our 
                             className="tms-slider__view-btn"
                             onClick={() => setActiveIndex(index)}
                           >
-                            View Profile
+                            {t("about:team.viewProfile")}
                           </button>
                         </div>
                       </div>

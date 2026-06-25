@@ -1,0 +1,57 @@
+{
+  "plans": {
+    "heading": "Mitgliedschaftspläne",
+    "mostPopular": "BELIEBT",
+    "selected": "Ausgewählt — nach unten scrollen",
+    "becomeMember": "Mitglied Werden",
+    "perYear": "/Jahr",
+    "student": {
+      "name": "Student",
+      "tableNameLines": ["Student"],
+      "description": "Perfekt für Studierende, die die Community erkunden, lernen und mit ihr verbunden bleiben möchten.",
+      "features": ["Einladungen zu exklusiven Veranstaltungen", "Monatlicher Newsletter", "Gültig für 1 Jahr"]
+    },
+    "privilegedSingle": {
+      "name": "Privileged Single",
+      "tableNameLines": ["Privileged", "Single"],
+      "description": "Konzipiert für Einzelpersonen, die mehr Wert, Priorität und Einsparungen möchten.",
+      "features": ["10% Rabatt auf Tickets", "Einladungen zu exklusiven Veranstaltungen", "Monatlicher Newsletter", "Gültig für 1 Jahr"]
+    },
+    "privilegedFamily": {
+      "name": "Privileged Family",
+      "tableNameLines": ["Privileged", "Family"],
+      "description": "Ideal für Familien, die gemeinsam mehr genießen und mehr sparen möchten.",
+      "features": ["20% Rabatt auf Tickets", "Einladungen zu exklusiven Veranstaltungen", "Monatlicher Newsletter", "Gültig für 1 Jahr"]
+    },
+    "premiumSingle": {
+      "name": "Premium Single",
+      "tableNameLines": ["Premium", "Single"],
+      "description": "Das ultimative Erlebnis für Einzelpersonen, die das Beste von allem möchten.",
+      "features": ["KOSTENLOSER Eintritt zu allen Veranstaltungen", "100% Rabatt auf Tickets", "Vorrangige Anmeldung"],
+      "moreBenefits": "+ 6 weitere Vorteile"
+    },
+    "premiumFamily": {
+      "name": "Premium Family",
+      "tableNameLines": ["Premium", "Family"],
+      "description": "Das vollständige Familienerlebnis mit Premium-Vorteilen für alle.",
+      "features": ["KOSTENLOSER Eintritt zu allen Veranstaltungen", "100% Rabatt auf Tickets", "Vorrangige Anmeldung"],
+      "moreBenefits": "+ 6 weitere Vorteile"
+    }
+  },
+  "comparison": {
+    "heading": "Vergleich der Mitgliedschaftsvorteile",
+    "benefitsHead": "Vorteile",
+    "row1": "Rabatt auf V.O.I.C.E. NL Tickets",
+    "row2": "Vorrangige Anmeldung",
+    "row3": "Kostenloser Eintritt zu Veranstaltungen",
+    "row4": "Einladungen zu Exklusiven Veranstaltungen",
+    "row5": "Exklusiver Zugang",
+    "row6": "Meet & Greet mit Künstlern",
+    "row7": "Rabatt auf Merchandise",
+    "row8": "Rabatt auf Partnerveranstaltungen",
+    "row9": "Monatlicher Newsletter",
+    "row10": "Gültig Für",
+    "allEvents": "Alle Veranstaltungen",
+    "oneYear": "1 Jahr"
+  }
+}

@@ -17,11 +17,13 @@ import eventRoutes from "./eventRoutes.js";
 import ticketPublicRoutes from "./ticketPublicRoutes.js";
 import verifyMembershipRoutes from "./verifyMembershipRoutes.js";
 import webhookRoutes from "./webhookRoutes.js";
+import consentRoutes from "./consentRoutes.js";
 
 const router = Router();
 
 router.get("/health", getHealth);
 router.use("/verify-membership", verifyMembershipRoutes);
+router.use("/consent", consentRoutes);
 router.use("/public", publicRoutes);
 router.use("/contact", contactRoutes);
 router.use("/newsletter", newsletterRoutes);

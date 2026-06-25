@@ -1,4 +1,4 @@
-/** Shared membership matrix data — keep in sync with MembershipMatrixSection cards. */
+/** Shared membership matrix data, used by the member dashboard's benefits display. */
 
 export const MATRIX_FEATURE_ROWS = [
   {

@@ -11,6 +11,7 @@ import {
   publishPageAdmin,
   duplicatePageAdmin,
   addSectionAdmin,
+  addLinkedSectionAdmin,
   updateSectionAdmin,
   deleteSectionAdmin,
   reorderSectionsAdmin,
@@ -25,6 +26,7 @@ import {
   getFooterAdmin,
   updateFooterAdmin,
   getCmsConfig,
+  getCmsAuditLogAdmin,
 } from "../controllers/adminPageController.js";
 import {
   requireCmsPermission,
@@ -35,6 +37,7 @@ import {
 const router = Router();
 
 router.get("/config", requireCmsPermission("pages.read"), getCmsConfig);
+router.get("/cms-audit-log", requireCmsPermission("pages.read"), getCmsAuditLogAdmin);
 router.get("/", requireCmsPermission("pages.read"), listPagesAdmin);
 router.post("/", requireCmsWrite, createPageAdmin);
 
@@ -55,6 +58,7 @@ router.post("/:slug/archive", requireCmsWrite, archivePageAdmin);
 router.post("/:slug/restore", requireCmsWrite, restorePageAdmin);
 
 router.post("/:slug/sections", requireCmsWrite, addSectionAdmin);
+router.post("/:slug/sections/from-library", requireCmsWrite, addLinkedSectionAdmin);
 router.post("/:slug/sections/reorder", requireCmsWrite, reorderSectionsAdmin);
 router.patch("/:slug/sections/:sectionId", requireCmsWrite, updateSectionAdmin);
 router.delete("/:slug/sections/:sectionId", requireCmsWrite, deleteSectionAdmin);

@@ -1,7 +1,7 @@
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  if (status >= 500) console.error("[public-cms]", error);
-  return res.status(status).json({ error: error.message || "Something went wrong." });
+  return handleErrorBase(res, error, { logTag: "[public-cms]" });
 }
 
 export async function getPublicPageContent(req, res) {
@@ -32,6 +32,26 @@ export async function getPublicFooter(req, res) {
     const { getPublicFooter } = await import("../services/siteFooterService.js");
     const footer = await getPublicFooter();
     return res.json(footer);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function getPublicContentOverrides(req, res) {
+  try {
+    const { getCategorySettings } = await import("../services/settingsService.js");
+    const overrides = await getCategorySettings("content_overrides");
+    return res.json(overrides);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function getPublicDesignSystem(req, res) {
+  try {
+    const { getPublicDesignSystem } = await import("../services/designSystemService.js");
+    const designSystem = await getPublicDesignSystem();
+    return res.json(designSystem);
   } catch (error) {
     return handleError(res, error);
   }

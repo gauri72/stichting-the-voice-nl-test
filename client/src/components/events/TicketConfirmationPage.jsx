@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconCheck, IconDownload } from "@tabler/icons-react";
 import { apiFetch, authHeaders, apiUrl } from "../../utils/api.js";
 import { resolveTicketQrSrc } from "../dashboard/dashboardUtils.js";
 import "../../styles/ticket-booking-page.css";
 
 export default function TicketConfirmationPage() {
+  const { t: tr } = useTranslation(["checkout"]);
   const { orderNumber } = useParams();
   const [searchParams] = useSearchParams();
   const [data, setData] = useState(null);
@@ -29,13 +31,13 @@ export default function TicketConfirmationPage() {
     return (
       <div className="ticket-booking">
         <p className="ticket-booking__error">{error}</p>
-        <Link to="/events">Back to events</Link>
+        <Link to="/events">{tr("checkout:confirmation.backToEvents")}</Link>
       </div>
     );
   }
 
   if (!data) {
-    return <div className="ticket-booking"><p className="ticket-booking__status">Loading confirmation…</p></div>;
+    return <div className="ticket-booking"><p className="ticket-booking__status">{tr("checkout:confirmation.loading")}</p></div>;
   }
 
   const { order, tickets } = data;
@@ -44,11 +46,11 @@ export default function TicketConfirmationPage() {
     <div className="ticket-booking ticket-booking--confirmation">
       <div className="ticket-booking__container">
         <div className="ticket-booking__success-icon"><IconCheck size={48} /></div>
-        <h1>Booking confirmed!</h1>
+        <h1>{tr("checkout:confirmation.title")}</h1>
         {order.isFreeBooking || order.paymentStatus === "free" ? (
-          <p className="ticket-booking__free-badge">Free booking — no payment required</p>
+          <p className="ticket-booking__free-badge">{tr("checkout:confirmation.freeBadge")}</p>
         ) : null}
-        <p>Order <strong>{order.orderNumber}</strong> · {order.total}</p>
+        <p>{tr("checkout:confirmation.order")} <strong>{order.orderNumber}</strong> · {order.total}</p>
         {order.lineItems?.length ? (
           <ul className="ticket-booking__confirm-lines">
             {order.lineItems.map((line) => (
@@ -59,28 +61,28 @@ export default function TicketConfirmationPage() {
           </ul>
         ) : null}
         <p className="ticket-booking__confirm-note">
-          A confirmation email with your QR tickets has been sent to {order.attendeeEmail}.
+          {tr("checkout:confirmation.emailNote", { email: order.attendeeEmail })}
         </p>
 
         <ul className="ticket-booking__confirm-tickets">
-          {tickets.map((t) => {
-            const qrSrc = t.verificationToken
-              ? `/api/tickets/qr/${t.verificationToken}.png`
-              : resolveTicketQrSrc(t.qrCodeUrl);
+          {tickets.map((ticket) => {
+            const qrSrc = ticket.verificationToken
+              ? `/api/tickets/qr/${ticket.verificationToken}.png`
+              : resolveTicketQrSrc(ticket.qrCodeUrl);
             return (
-            <li key={t.id} className="ticket-booking__confirm-ticket">
+            <li key={ticket.id} className="ticket-booking__confirm-ticket">
               <div>
-                <p className="ticket-booking__ticket-name">{t.ticketTypeName}</p>
-                <p className="ticket-booking__mono">{t.ticketNumber}</p>
+                <p className="ticket-booking__ticket-name">{ticket.ticketTypeName}</p>
+                <p className="ticket-booking__mono">{ticket.ticketNumber}</p>
               </div>
               {qrSrc ? (
                 <img src={apiUrl(qrSrc)} alt="QR code" width={100} height={100} />
               ) : null}
               <a
                 href={apiUrl(
-                  t.pdfUrl ||
-                    (t.ticketNumber && t.verificationToken
-                      ? `/api/tickets/${t.ticketNumber}/pdf?token=${encodeURIComponent(t.verificationToken)}`
+                  ticket.pdfUrl ||
+                    (ticket.ticketNumber && ticket.verificationToken
+                      ? `/api/tickets/${ticket.ticketNumber}/pdf?token=${encodeURIComponent(ticket.verificationToken)}`
                       : "")
                 )}
                 className="ticket-booking__pdf-btn"
@@ -94,7 +96,7 @@ export default function TicketConfirmationPage() {
           })}
         </ul>
 
-        <Link to="/events" className="ticket-booking__cta">Back to events</Link>
+        <Link to="/events" className="ticket-booking__cta">{tr("checkout:confirmation.backToEvents")}</Link>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import "../../styles/venture-studio-contact-section.css";
 import {
   FaBuilding,
@@ -9,6 +10,7 @@ import {
   FaPhone
 } from "react-icons/fa6";
 import { apiFetch } from "../../utils/api.js";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
 import { useCaptcha } from "../../hooks/useCaptcha.js";
 import { CAPTCHA_REQUIRED_MESSAGE } from "../../utils/captcha.js";
 import CaptchaField from "../common/CaptchaField.jsx";
@@ -21,16 +23,6 @@ const CONTACT = {
   addressLines: ["Wengehout 30,", "2719 KA Zoetermeer,", "The Netherlands"],
   kvk: "92180213"
 };
-
-const SERVICE_OPTIONS = [
-  "Website Development",
-  "Marketing Strategies",
-  "Onboarding & Support",
-  "Branding & Digital Growth",
-  "Consultancy & Strategy",
-  "Coaching & Mentorship",
-  "Other"
-];
 
 function FormNotice({ message, variant = "success" }) {
   if (!message) return null;
@@ -49,6 +41,15 @@ function formDataFromForm(form) {
 }
 
 export default function VentureStudioContactSection() {
+  const { t } = useTranslation(["innovation"]);
+  const SERVICE_OPTIONS = t("innovation:contact.serviceOptions", { returnObjects: true });
+  const overrides = useContentOverrides();
+  const phone = overrides.ventureContactPhone || CONTACT.phone;
+  const phoneHref = overrides.ventureContactPhoneHref || CONTACT.phoneHref;
+  const addressLines = overrides.ventureContactAddress
+    ? overrides.ventureContactAddress.split("\n").filter(Boolean)
+    : CONTACT.addressLines;
+  const kvk = overrides.ventureContactKvk || CONTACT.kvk;
   const [contactEmail, setContactEmail] = useState(DEFAULT_CONTACT_EMAIL);
   const [messageStatus, setMessageStatus] = useState({ text: "", variant: "success" });
   const [quoteStatus, setQuoteStatus] = useState({ text: "", variant: "success" });
@@ -89,7 +90,7 @@ export default function VentureStudioContactSection() {
       e.target.reset();
     } catch (error) {
       setMessageStatus({
-        text: error.message || "Could not send your message. Please try again.",
+        text: error.message || t("innovation:contact.messageError"),
         variant: "error"
       });
     } finally {
@@ -122,7 +123,7 @@ export default function VentureStudioContactSection() {
       e.target.reset();
     } catch (error) {
       setQuoteStatus({
-        text: error.message || "Could not send your quote request. Please try again.",
+        text: error.message || t("innovation:contact.quoteError"),
         variant: "error"
       });
     } finally {
@@ -135,19 +136,19 @@ export default function VentureStudioContactSection() {
     <section id="vvs-contact" className="vvs-contact" aria-labelledby="vvs-contact-heading">
       <div className="vvs-contact__inner">
         <h2 id="vvs-contact-heading" className="vvs-visually-hidden">
-          Contact &amp; service requests
+          {t("innovation:contact.heading")}
         </h2>
 
         <div className="vvs-contact__grid">
           <div className="vvs-contact__card vvs-contact__card--info">
-            <h3 className="vvs-contact__card-title">Contact Information</h3>
+            <h3 className="vvs-contact__card-title">{t("innovation:contact.infoTitle")}</h3>
             <ul className="vvs-contact__info-list">
               <li className="vvs-contact__info-item">
                 <span className="vvs-contact__info-icon" aria-hidden>
                   <FaEnvelope />
                 </span>
                 <div className="vvs-contact__info-body">
-                  <strong>Email</strong>
+                  <strong>{t("innovation:contact.email")}</strong>
                   <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
                 </div>
               </li>
@@ -156,8 +157,8 @@ export default function VentureStudioContactSection() {
                   <FaPhone />
                 </span>
                 <div className="vvs-contact__info-body">
-                  <strong>Office Phone</strong>
-                  <a href={CONTACT.phoneHref}>{CONTACT.phone}</a>
+                  <strong>{t("innovation:contact.officePhone")}</strong>
+                  <a href={phoneHref}>{phone}</a>
                 </div>
               </li>
               <li className="vvs-contact__info-item">
@@ -165,8 +166,8 @@ export default function VentureStudioContactSection() {
                   <FaLocationDot />
                 </span>
                 <div className="vvs-contact__info-body">
-                  <strong>Address</strong>
-                  {CONTACT.addressLines.map((line) => (
+                  <strong>{t("innovation:contact.address")}</strong>
+                  {addressLines.map((line) => (
                     <span key={line}>{line}</span>
                   ))}
                 </div>
@@ -176,8 +177,8 @@ export default function VentureStudioContactSection() {
                   <FaBuilding />
                 </span>
                 <div className="vvs-contact__info-body">
-                  <strong>KVK</strong>
-                  <span>{CONTACT.kvk}</span>
+                  <strong>{t("innovation:contact.kvk")}</strong>
+                  <span>{kvk}</span>
                 </div>
               </li>
             </ul>
@@ -188,25 +189,25 @@ export default function VentureStudioContactSection() {
             onSubmit={handleMessageSubmit}
             noValidate
           >
-            <h3 className="vvs-contact__card-title">Send Us a Message</h3>
+            <h3 className="vvs-contact__card-title">{t("innovation:contact.messageFormTitle")}</h3>
             <div className="vvs-contact__row vvs-contact__row--split">
               <label className="vvs-contact__field">
-                <span className="vvs-visually-hidden">Full Name</span>
+                <span className="vvs-visually-hidden">{t("innovation:contact.fullName")}</span>
                 <input
                   type="text"
                   name="name"
-                  placeholder="Full Name *"
+                  placeholder={t("innovation:contact.fullName")}
                   required
                   autoComplete="name"
                   disabled={messageSubmitting}
                 />
               </label>
               <label className="vvs-contact__field">
-                <span className="vvs-visually-hidden">Email Address</span>
+                <span className="vvs-visually-hidden">{t("innovation:contact.emailAddress")}</span>
                 <input
                   type="email"
                   name="email"
-                  placeholder="Email Address *"
+                  placeholder={t("innovation:contact.emailAddress")}
                   required
                   autoComplete="email"
                   disabled={messageSubmitting}
@@ -214,21 +215,21 @@ export default function VentureStudioContactSection() {
               </label>
             </div>
             <label className="vvs-contact__field">
-              <span className="vvs-visually-hidden">Subject</span>
+              <span className="vvs-visually-hidden">{t("innovation:contact.subject")}</span>
               <input
                 type="text"
                 name="subject"
-                placeholder="Subject *"
+                placeholder={t("innovation:contact.subject")}
                 required
                 disabled={messageSubmitting}
               />
             </label>
             <label className="vvs-contact__field">
-              <span className="vvs-visually-hidden">Your Message / Question</span>
+              <span className="vvs-visually-hidden">{t("innovation:contact.yourMessage")}</span>
               <textarea
                 name="message"
                 rows={5}
-                placeholder="Your Message / Question *"
+                placeholder={t("innovation:contact.yourMessage")}
                 required
                 disabled={messageSubmitting}
               />
@@ -236,7 +237,7 @@ export default function VentureStudioContactSection() {
             <CaptchaField captcha={messageCaptcha} className="vvs-contact__captcha" />
             <button type="submit" className="vvs-contact__btn" disabled={messageSubmitting}>
               <FaPaperPlane aria-hidden />
-              {messageSubmitting ? "Sending…" : "Send Message"}
+              {messageSubmitting ? t("innovation:contact.sending") : t("innovation:contact.sendMessage")}
             </button>
             <FormNotice message={messageStatus.text} variant={messageStatus.variant} />
           </form>
@@ -246,55 +247,56 @@ export default function VentureStudioContactSection() {
             onSubmit={handleQuoteSubmit}
             noValidate
           >
-            <h3 className="vvs-contact__card-title">Request Our Services</h3>
+            <h3 className="vvs-contact__card-title">{t("innovation:contact.quoteFormTitle")}</h3>
             <p className="vvs-contact__card-lead">
-              Tell us about your project and our team will get back to you with the best
-              solution.
+              {t("innovation:contact.quoteLead")}
             </p>
             <label className="vvs-contact__field vvs-contact__field--select">
-              <span className="vvs-visually-hidden">I need help with</span>
+              <span className="vvs-visually-hidden">{t("innovation:contact.iNeedHelpWith")}</span>
               <select name="service" required defaultValue="" disabled={quoteSubmitting}>
                 <option value="" disabled>
-                  I need help with *
+                  {t("innovation:contact.iNeedHelpWith")}
                 </option>
-                {SERVICE_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
+                {Array.isArray(SERVICE_OPTIONS)
+                  ? SERVICE_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))
+                  : null}
               </select>
             </label>
             <label className="vvs-contact__field">
-              <span className="vvs-visually-hidden">Project Type / Industry</span>
+              <span className="vvs-visually-hidden">{t("innovation:contact.projectType")}</span>
               <input
                 type="text"
                 name="projectType"
-                placeholder="Project Type / Industry"
+                placeholder={t("innovation:contact.projectType")}
                 disabled={quoteSubmitting}
               />
             </label>
             <label className="vvs-contact__field">
-              <span className="vvs-visually-hidden">Timeline</span>
+              <span className="vvs-visually-hidden">{t("innovation:contact.timeline")}</span>
               <input
                 type="text"
                 name="timeline"
-                placeholder="Timeline (Optional)"
+                placeholder={t("innovation:contact.timeline")}
                 disabled={quoteSubmitting}
               />
             </label>
             <label className="vvs-contact__field">
-              <span className="vvs-visually-hidden">Project details</span>
+              <span className="vvs-visually-hidden">{t("innovation:contact.projectDetails")}</span>
               <textarea
                 name="details"
                 rows={5}
-                placeholder="Tell us more about your project..."
+                placeholder={t("innovation:contact.projectDetails")}
                 required
                 disabled={quoteSubmitting}
               />
             </label>
             <CaptchaField captcha={quoteCaptcha} className="vvs-contact__captcha" />
             <button type="submit" className="vvs-contact__btn" disabled={quoteSubmitting}>
-              {quoteSubmitting ? "Sending…" : "Request a Quote"}
+              {quoteSubmitting ? t("innovation:contact.sending") : t("innovation:contact.requestQuote")}
               {!quoteSubmitting && <FaChevronRight aria-hidden />}
             </button>
             <FormNotice message={quoteStatus.text} variant={quoteStatus.variant} />

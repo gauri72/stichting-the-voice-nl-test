@@ -1,0 +1,36 @@
+{
+  "visionOfSounds": {
+    "label": "Vision Of Sounds",
+    "titleLineOne": "Verhalen Achter",
+    "titleLineTwo": "De Ervaring",
+    "description": "Volg de reizen van artiesten, performers en makers die V.O.I.C.E. NL-ervaringen tot leven brengen.",
+    "featured": {
+      "badge": "Uitgelicht Verhaal",
+      "title": "Ontmoet De Artiest",
+      "description": "Het verhaal achter het optreden.",
+      "ctaLabel": "Bekijk Verhaal"
+    },
+    "card1": { "title": "Artiestenverhalen", "description": "Reizen van passie, talent en doorzettingsvermogen." },
+    "card2": { "title": "Achter De Schermen", "description": "Momenten die je niet op het podium ziet." },
+    "card3": { "title": "Filmfestivalverhalen", "description": "Korte films. Grote verhalen. Wereldwijde impact." },
+    "card4": { "title": "Gemeenschapsverhalen", "description": "Echte mensen. Echte verhalen. Echte verandering." },
+    "viewAllLabel": "Bekijk Alle Verhalen"
+  },
+  "voiceOfVisionaries": {
+    "label": "Voice Of Visionaries",
+    "titleLineOne": "Ideeën Die",
+    "titleLineTwo": "De Toekomst Vormgeven",
+    "description": "Gesprekken met leiders, innovators en changemakers die impact creëren.",
+    "featured": {
+      "badge": "Uitgelichte Aflevering",
+      "title": "Voice Of Visionaries Podcast",
+      "description": "Diepgaande gesprekken. Gedurfde ideeën. Echte impact.",
+      "ctaLabel": "Bekijk Aflevering"
+    },
+    "card1": { "title": "TED-Stijl Talks", "description": "Ideeën die het verspreiden waard zijn. Inspiratie voor iedereen." },
+    "card2": { "title": "Podcasts", "description": "Gesprekken die uitdagen en inspireren." },
+    "card3": { "title": "Leiderschapsverhalen", "description": "Lessen van leiders die met een doel leiden." },
+    "card4": { "title": "Innovatieforums", "description": "Discussies die verandering en vooruitgang stimuleren." },
+    "viewAllLabel": "Bekijk Alle Afleveringen"
+  }
+}

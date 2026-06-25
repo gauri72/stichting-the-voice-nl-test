@@ -17,6 +17,9 @@ import {
   sanitizeCustomerDiscountLabel,
 } from "../utils/membershipDisplayLabels.js";
 import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
+import { sendReferralRewardEarnedEmail, sendDiscountExpiringEmail } from "./discountMailer.js";
+import User from "../models/User.js";
+import Event from "../models/Event.js";
 import {
   normalizeMembershipType,
   resolveMembershipPlanId,
@@ -485,6 +488,14 @@ export async function recordDiscountUsage({
     });
     usage.rewardAmount = rewardValue;
     await usage.save();
+
+    if (discountRule.referrerEmail) {
+      await sendReferralRewardEarnedEmail({
+        email: discountRule.referrerEmail,
+        firstName: discountRule.referrerName?.split(" ")[0] || "",
+        rewardValue: `€${(rewardValue / 100).toFixed(2)}`,
+      }).catch((err) => console.error("[discounts] referral reward email failed:", err.message));
+    }
   }
 
   return usage;
@@ -532,4 +543,44 @@ export async function applyDiscountsToOrder({
     codeRule,
     orderType,
   });
+}
+
+/**
+ * Emails the assigned recipient of any active, personally-assigned discount
+ * code expiring within `windowDays`, once per code (tracked via
+ * expiryReminderSentAt so re-running this never double-sends).
+ */
+export async function sendExpiringDiscountReminders(windowDays = 3) {
+  const now = new Date();
+  const windowEnd = new Date(now.getTime() + windowDays * 24 * 60 * 60 * 1000);
+
+  const rules = await DiscountRule.find({
+    status: "active",
+    assignedEmail: { $ne: "" },
+    expiryDate: { $gte: now, $lte: windowEnd },
+    expiryReminderSentAt: null,
+  }).lean();
+
+  let sent = 0;
+  for (const rule of rules) {
+    try {
+      const user = rule.assignedUserId ? await User.findById(rule.assignedUserId).select("firstName").lean() : null;
+      const event = rule.eligibleEventIds?.length
+        ? await Event.findById(rule.eligibleEventIds[0]).select("title").lean()
+        : null;
+
+      await sendDiscountExpiringEmail({
+        email: rule.assignedEmail,
+        firstName: user?.firstName || "",
+        discountCode: rule.code,
+        expiryDate: rule.expiryDate.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
+        eventName: event?.title || "",
+      });
+      await DiscountRule.updateOne({ _id: rule._id }, { expiryReminderSentAt: new Date() });
+      sent += 1;
+    } catch (err) {
+      console.error(`[discounts] expiry reminder failed for rule ${rule._id}:`, err.message);
+    }
+  }
+  return { checked: rules.length, sent };
 }

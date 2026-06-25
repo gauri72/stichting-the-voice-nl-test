@@ -1,12 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IconArrowLeft, IconArrowRight, IconPlayerPlay } from "@tabler/icons-react";
 import { apiFetch } from "../../utils/api.js";
+import { useAutoAdvance } from "../../hooks/useAutoAdvance.js";
 import defaultThumb from "../../assets/Home/featured events-light.png";
 import EventHighlightVideoModal from "./EventHighlightVideoModal.jsx";
 import "../../styles/past-event-highlights-slider.css";
 
 const AUTO_SCROLL_MS = 7000;
 const SCROLL_STEP = 320;
+
+const DEFAULT_IMPACT_TEXT_EN =
+  "An unforgettable V.O.I.C.E. NL experience filled with culture, connection and shared memories.";
+
+const BADGE_KEYS_EN = {
+  "Past Event": "pastEvent",
+  "Watch Highlights": "watchHighlights",
+  "Highlights Coming Soon": "highlightsComingSoon",
+  "Video Available": "videoAvailable",
+};
+
+const CTA_KEYS_EN = {
+  "View Memories": "viewMemories",
+  "Watch Highlights": "watchHighlights",
+};
 
 function badgeClass(badgeText) {
   if (badgeText === "Highlights Coming Soon") return "peh-slider__card-badge--soon";
@@ -15,6 +32,7 @@ function badgeClass(badgeText) {
 }
 
 export default function PastEventHighlightsSlider() {
+  const { t } = useTranslation(["events"]);
   const [highlights, setHighlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -65,13 +83,7 @@ export default function PastEventHighlightsSlider() {
   const scrollNext = useCallback(() => scrollBy(SCROLL_STEP), [scrollBy]);
   const scrollPrev = useCallback(() => scrollBy(-SCROLL_STEP), [scrollBy]);
 
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track || highlights.length <= 1 || isPaused) return undefined;
-
-    const timer = window.setInterval(scrollNext, AUTO_SCROLL_MS);
-    return () => window.clearInterval(timer);
-  }, [highlights.length, isPaused, scrollNext]);
+  useAutoAdvance(scrollNext, { enabled: highlights.length > 1 && !isPaused, intervalMs: AUTO_SCROLL_MS });
 
   useEffect(() => {
     const track = trackRef.current;
@@ -97,15 +109,15 @@ export default function PastEventHighlightsSlider() {
         <div className="peh-slider__inner">
           <header className="peh-slider__header">
             <h2 id="peh-slider-title" className="peh-slider__title">
-              Memorable Moments,
-              <span className="peh-slider__title-emphasis">Lasting Impact</span>
+              {t("events:highlightsSlider.titleLead")}
+              <span className="peh-slider__title-emphasis">{t("events:highlightsSlider.titleEmphasis")}</span>
             </h2>
             <p className="peh-slider__subtitle">
-              Relive the experiences, stories and celebrations that brought our community together.
+              {t("events:highlightsSlider.subtitle")}
             </p>
           </header>
           <p className="peh-slider__empty" role="status">
-            Past event highlights will appear here once events are completed.
+            {t("events:highlightsSlider.emptyState")}
           </p>
         </div>
       </section>
@@ -127,11 +139,11 @@ export default function PastEventHighlightsSlider() {
       <div className="peh-slider__inner">
         <header className="peh-slider__header">
           <h2 id="peh-slider-title" className="peh-slider__title">
-            Memorable Moments,
-            <span className="peh-slider__title-emphasis">Lasting Impact</span>
+            {t("events:highlightsSlider.titleLead")}
+            <span className="peh-slider__title-emphasis">{t("events:highlightsSlider.titleEmphasis")}</span>
           </h2>
           <p className="peh-slider__subtitle">
-            Relive the experiences, stories and celebrations that brought our community together.
+            {t("events:highlightsSlider.subtitle")}
           </p>
         </header>
 
@@ -147,50 +159,60 @@ export default function PastEventHighlightsSlider() {
 
           <div className="peh-slider__track-wrap">
             <div className="peh-slider__track" ref={trackRef} role="list">
-              {highlights.map((item) => (
-                <button
-                  key={item.eventId}
-                  type="button"
-                  className={`peh-slider__card${item.featuredHighlight ? " peh-slider__card--featured" : ""}`}
-                  role="listitem"
-                  onClick={() => {
-                    const index = highlights.findIndex((h) => h.eventId === item.eventId);
-                    setActiveIndex(index);
-                    track("modal_open", item);
-                    track("highlight_view", item);
-                  }}
-                  aria-label={`${item.ctaText}: ${item.highlightTitle}`}
-                >
-                  <div className="peh-slider__card-media">
-                    <img
-                      className="peh-slider__card-image"
-                      src={item.thumbnailUrl || defaultThumb}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <div className="peh-slider__card-overlay" aria-hidden />
-                    <p className={`peh-slider__card-badge ${badgeClass(item.badgeText)}`}>{item.badgeText}</p>
-                    {item.youtubeVideoId ? (
-                      <span className="peh-slider__card-play" aria-hidden>
-                        <span className="peh-slider__card-play-icon">
-                          <IconPlayerPlay size={22} fill="currentColor" />
+              {highlights.map((item) => {
+                const badgeKey = BADGE_KEYS_EN[item.badgeText];
+                const resolvedBadgeText = badgeKey ? t(`events:highlightsSlider.badge.${badgeKey}`) : item.badgeText;
+                const ctaKey = CTA_KEYS_EN[item.ctaText];
+                const resolvedCtaText = ctaKey ? t(`events:highlightsSlider.cta.${ctaKey}`) : item.ctaText;
+                const resolvedImpactText =
+                  item.impactText && item.impactText !== DEFAULT_IMPACT_TEXT_EN
+                    ? item.impactText
+                    : t("events:highlightsSlider.defaultImpactText");
+                return (
+                  <button
+                    key={item.eventId}
+                    type="button"
+                    className={`peh-slider__card${item.featuredHighlight ? " peh-slider__card--featured" : ""}`}
+                    role="listitem"
+                    onClick={() => {
+                      const index = highlights.findIndex((h) => h.eventId === item.eventId);
+                      setActiveIndex(index);
+                      track("modal_open", item);
+                      track("highlight_view", item);
+                    }}
+                    aria-label={`${resolvedCtaText}: ${item.highlightTitle}`}
+                  >
+                    <div className="peh-slider__card-media">
+                      <img
+                        className="peh-slider__card-image"
+                        src={item.thumbnailUrl || defaultThumb}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <div className="peh-slider__card-overlay" aria-hidden />
+                      <p className={`peh-slider__card-badge ${badgeClass(item.badgeText)}`}>{resolvedBadgeText}</p>
+                      {item.youtubeVideoId ? (
+                        <span className="peh-slider__card-play" aria-hidden>
+                          <span className="peh-slider__card-play-icon">
+                            <IconPlayerPlay size={22} fill="currentColor" />
+                          </span>
                         </span>
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="peh-slider__card-body">
-                    <h3 className="peh-slider__card-title">{item.highlightTitle}</h3>
-                    <div className="peh-slider__card-meta">
-                      {item.formattedDate ? <span>{item.formattedDate}</span> : null}
-                      {item.category ? <span>{item.category}</span> : null}
-                      {item.location ? <span>{item.location}</span> : null}
+                      ) : null}
                     </div>
-                    <p className="peh-slider__card-impact">{item.impactText}</p>
-                    <p className="peh-slider__card-cta">{item.ctaText}</p>
-                  </div>
-                </button>
-              ))}
+                    <div className="peh-slider__card-body">
+                      <h3 className="peh-slider__card-title">{item.highlightTitle}</h3>
+                      <div className="peh-slider__card-meta">
+                        {item.formattedDate ? <span>{item.formattedDate}</span> : null}
+                        {item.category ? <span>{item.category}</span> : null}
+                        {item.location ? <span>{item.location}</span> : null}
+                      </div>
+                      <p className="peh-slider__card-impact">{resolvedImpactText}</p>
+                      <p className="peh-slider__card-cta">{resolvedCtaText}</p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

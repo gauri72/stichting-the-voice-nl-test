@@ -62,11 +62,34 @@ const HTML_ALLOWED_ATTRIBUTES = {
   "*": ["class", "id", "style"],
 };
 
+// Admins hand-write this HTML, so `style` stays allowed, but values are
+// restricted to a safe set of layout/typography properties (no url(), no
+// expression(), no behavior:) rather than arbitrary CSS.
+const SAFE_CSS_VALUE = /^(?!.*(url\(|expression\(|javascript:|behavior:))[\w\s.,%#()-]+$/i;
+const HTML_ALLOWED_STYLES = {
+  "*": {
+    color: [SAFE_CSS_VALUE],
+    "background-color": [SAFE_CSS_VALUE],
+    "text-align": [/^(left|right|center|justify)$/],
+    "font-weight": [/^(normal|bold|bolder|lighter|[1-9]00)$/],
+    "font-style": [/^(normal|italic|oblique)$/],
+    "font-size": [/^[\d.]+(px|em|rem|%)$/],
+    "text-decoration": [SAFE_CSS_VALUE],
+    margin: [SAFE_CSS_VALUE],
+    padding: [SAFE_CSS_VALUE],
+    width: [/^[\d.]+(px|em|rem|%)$/],
+    height: [/^[\d.]+(px|em|rem|%)$/],
+    "max-width": [/^[\d.]+(px|em|rem|%)$/],
+    display: [/^(block|inline|inline-block|flex|none)$/],
+  },
+};
+
 export function sanitizeHtml(html = "") {
   if (!html || typeof html !== "string") return "";
   return sanitizeHtmlLib(html, {
     allowedTags: HTML_ALLOWED_TAGS,
     allowedAttributes: HTML_ALLOWED_ATTRIBUTES,
+    allowedStyles: HTML_ALLOWED_STYLES,
     allowedSchemes: ["http", "https", "mailto", "tel", "data"],
     allowedSchemesByTag: {
       iframe: ["https"],

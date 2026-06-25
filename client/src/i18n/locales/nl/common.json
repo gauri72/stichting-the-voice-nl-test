@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "home": "Home",
+    "ourPillars": "Onze Pijlers",
+    "experience": "Ervaring",
+    "stories": "Verhalen",
+    "impact": "Impact",
+    "innovation": "Innovatie",
+    "partnerWithUs": "Werk Met Ons Samen",
+    "becomeMember": "Word Lid",
+    "sponsorUs": "Sponsor Ons",
+    "donate": "Doneer",
+    "aboutUs": "Over Ons",
+    "contactUs": "Neem Contact Op"
+  },
+  "header": {
+    "buyTickets": "Tickets Kopen",
+    "logInSignUp": "Inloggen Of Registreren"
+  },
+  "buttons": {
+    "learnMore": "Meer Informatie",
+    "readMore": "Lees Meer",
+    "viewAll": "Bekijk Alles",
+    "viewMore": "Bekijk Meer",
+    "getStarted": "Aan De Slag",
+    "submit": "Versturen",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "close": "Sluiten",
+    "back": "Terug",
+    "next": "Volgende",
+    "continue": "Doorgaan",
+    "loading": "Laden…"
+  },
+  "brandReveal": {
+    "tagline": "De Visie Van Internationale Culturele Uitwisseling In Nederland",
+    "pillar1": "Culturen Verbinden.",
+    "pillar2": "Gemeenschappen Versterken.",
+    "pillar3": "Ervaringen Creëren.",
+    "pillar4": "Innovatie Stimuleren."
+  },
+  "footer": {
+    "quickLinks": {
+      "home": "Home",
+      "experience": "Ervaring",
+      "becomeMember": "Word lid",
+      "sponsorUs": "Sponsor ons",
+      "donate": "Doneer",
+      "stories": "Verhalen",
+      "impact": "Impact",
+      "innovation": "Innovatie",
+      "aboutUs": "Over ons",
+      "policies": "Beleid, voorwaarden & condities"
+    },
+    "heroHeading": "Samen Kunnen We",
+    "heroSubheading": "Een Betere Toekomst Creëren.",
+    "missionText": "Wij geloven in positieve verandering, inclusieve gemeenschappen en het samen opbouwen van een betere toekomst.",
+    "copyrightText": "© 2026 Stichting The V.O.I.C.E. NL. Alle rechten voorbehouden.",
+    "whatsappButton": "Word Lid Van WhatsApp Groep",
+    "followUs": "Volg Ons",
+    "quickLinksTitle": "Snelle Links",
+    "contactUs": "Neem Contact Op",
+    "contact": {
+      "kvk": "KVK",
+      "address": "Adres",
+      "addressValue": "Wengehout 30, 2719 KA Zoetermeer, Nederland",
+      "email": "E-mail",
+      "mobile": "Mobiel"
+    },
+    "designedBy": "Met Trots Ontworpen & Ontwikkeld Door",
+    "studioTagline": "Digitaal • Design • Innovatie",
+    "studioBlurbLine1": "V.O.I.C.E. Venture Studio is een digitale oplossingspartner die merken versterkt met design,",
+    "studioBlurbLine2": "ontwikkeling en innovatie.",
+    "whatsappWidget": {
+      "title": "WhatsApp",
+      "greeting": "Hallo",
+      "helpQuestion": "Kunnen we je helpen?",
+      "openChat": "Open chat"
+    }
+  }
+}

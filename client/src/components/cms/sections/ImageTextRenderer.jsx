@@ -1,4 +1,5 @@
 import CmsCtaButtons from "../CmsCtaButtons.jsx";
+import { sanitizeHtml } from "../../../utils/sanitizeHtml.js";
 
 export default function ImageTextRenderer({ section }) {
   const { content = {}, images = {}, settings = {} } = section;
@@ -17,7 +18,7 @@ export default function ImageTextRenderer({ section }) {
         <div className="cms-image-text__content" style={{ order: 1 }}>
           {content.heading ? <h2>{content.heading}</h2> : null}
           {content.description ? <p>{content.description}</p> : null}
-          {content.richText ? <div dangerouslySetInnerHTML={{ __html: content.richText }} /> : null}
+          {content.richText ? <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(content.richText) }} /> : null}
           <CmsCtaButtons ctas={section.ctas} />
         </div>
       </div>

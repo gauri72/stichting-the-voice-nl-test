@@ -14,10 +14,10 @@ import {
   resolveExecutionLog,
 } from "../services/smartApiBuilderService.js";
 
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  if (status >= 500) console.error("[api-builder]", error);
-  return res.status(status).json({ error: error.message || "Something went wrong." });
+  return handleErrorBase(res, error, { logTag: "[api-builder]" });
 }
 
 export async function getConfig(req, res) {

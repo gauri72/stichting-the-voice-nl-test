@@ -11,12 +11,19 @@
     "sync:past-data": "node scripts/sync-ticket-tailor-past-data.js",
     "fix:legacy-users": "node scripts/fix-legacy-users.js",
     "seed:admin": "node scripts/seed-admin.js",
+    "seed:component-registry": "node scripts/seed-component-registry.js",
+    "migrate:cms-images": "node scripts/migrate-cms-images-to-s3.js",
     "seed:featured-herbeats": "node scripts/seed-featured-herbeats.js",
     "seed:cms": "node scripts/seed-cms-pages.js",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.106.0",
+    "@aws-sdk/client-cloudfront": "^3.1075.0",
+    "@aws-sdk/client-s3": "^3.1075.0",
+    "@aws-sdk/client-sts": "^3.1075.0",
+    "@aws-sdk/s3-request-presigner": "^3.1075.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -32,6 +39,7 @@
     "pdfkit": "^0.18.0",
     "qrcode": "^1.5.4",
     "sanitize-html": "^2.17.5",
+    "sharp": "^0.35.2",
     "stripe": "^22.1.1"
   },
   "devDependencies": {

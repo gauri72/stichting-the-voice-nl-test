@@ -1,8 +1,14 @@
+import { useTranslation } from "react-i18next";
 import { IconTarget } from "@tabler/icons-react";
 import { ABOUT_MISSION } from "../../data/aboutUsDisplay.js";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
+import { resolveOverrideText } from "../../i18n/overrideText.js";
 
 export default function AboutUsMissionSection() {
-  const { label, textBefore, highlights, textMiddle, textAfter } = ABOUT_MISSION;
+  const { t } = useTranslation(["about"]);
+  const overrides = useContentOverrides();
+  const label = resolveOverrideText(overrides.aboutMissionLabel, ABOUT_MISSION.label, t("about:mission.label"));
+  const overrideText = overrides.aboutMissionText;
 
   return (
     <section className="about-us-mission" aria-labelledby="about-us-mission-title">
@@ -16,15 +22,19 @@ export default function AboutUsMissionSection() {
           </h2>
         </div>
 
-        <p className="about-us-mission__text">
-          {textBefore}
-          <span className="about-us-accent">{highlights[0]}</span>,{" "}
-          <span className="about-us-accent">{highlights[1]}</span>, and{" "}
-          <span className="about-us-accent">{highlights[2]}</span>
-          {textMiddle}
-          <span className="about-us-accent">culture, creativity and collaboration</span>
-          {textAfter}
-        </p>
+        {overrideText ? (
+          <p className="about-us-mission__text">{overrideText}</p>
+        ) : (
+          <p className="about-us-mission__text">
+            {t("about:mission.textBefore")}
+            <span className="about-us-accent">{t("about:mission.highlight1")}</span>,{" "}
+            <span className="about-us-accent">{t("about:mission.highlight2")}</span>, and{" "}
+            <span className="about-us-accent">{t("about:mission.highlight3")}</span>
+            {t("about:mission.textMiddle")}
+            <span className="about-us-accent">{t("about:mission.cultureHighlight")}</span>
+            {t("about:mission.textAfter")}
+          </p>
+        )}
       </div>
     </section>
   );

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { apiFetch } from "../../utils/api.js";
 import "../../styles/seat-map.css";
 
@@ -28,6 +29,7 @@ export default function SeatMapSelector({
   onSelectionChange,
   onError,
 }) {
+  const { t } = useTranslation(["checkout"]);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [zoom, setZoom] = useState(1);
@@ -45,7 +47,7 @@ export default function SeatMapSelector({
       const result = await apiFetch(`/api/events/${eventId}/seat-map${params}`);
       setData(result);
     } catch (err) {
-      onError?.(err.message || "Could not load seat map.");
+      onError?.(err.message || t("checkout:seatMap.couldNotLoad"));
     } finally {
       setLoading(false);
     }
@@ -76,7 +78,7 @@ export default function SeatMapSelector({
       });
       await loadAvailability();
     } catch (err) {
-      onError?.(err.message || "Could not hold seats.");
+      onError?.(err.message || t("checkout:seatMap.couldNotHold"));
     } finally {
       setHolding(false);
     }
@@ -92,7 +94,7 @@ export default function SeatMapSelector({
     if (isSelected) {
       next = selectedSeatIds.filter((id) => id !== seat.seatId);
     } else if (selectedSeatIds.length >= ticketQuantity) {
-      onError?.(`Please select exactly ${ticketQuantity} seat(s). Deselect a seat first.`);
+      onError?.(t("checkout:seatMap.selectExactSeats", { count: ticketQuantity }));
       return;
     } else {
       next = [...selectedSeatIds, seat.seatId];
@@ -123,11 +125,11 @@ export default function SeatMapSelector({
     setZoom((z) => Math.min(3, Math.max(0.5, z + delta)));
   }
 
-  if (loading) return <p className="ticket-booking__status">Loading seat map…</p>;
+  if (loading) return <p className="ticket-booking__status">{t("checkout:seatMap.loading")}</p>;
   if (!data?.reservedSeatingEnabled) return null;
 
   const { seatMap, seats = [] } = data;
-  const stageLabel = seatMap?.stageLabel || seatMap?.settings?.stageLabel || "Screen / Stage";
+  const stageLabel = seatMap?.stageLabel || seatMap?.settings?.stageLabel || t("checkout:seatMap.screenStage");
 
   return (
     <div className={`seat-map-wrap${fullscreen ? " seat-map-wrap--fullscreen" : ""}`}>
@@ -151,9 +153,9 @@ export default function SeatMapSelector({
           style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
         >
           {seatMap?.imageUrl ? (
-            <img src={seatMap.imageUrl} alt={seatMap.name || "Venue seat map"} className="seat-map-image" draggable={false} />
+            <img src={seatMap.imageUrl} alt={seatMap.name || t("checkout:seatMap.venueSeatMap")} className="seat-map-image" draggable={false} />
           ) : (
-            <div className="seat-map-image seat-map-image--placeholder">Seat map image not configured</div>
+            <div className="seat-map-image seat-map-image--placeholder">{t("checkout:seatMap.imageNotConfigured")}</div>
           )}
           <span className="seat-map-stage-label">{stageLabel}</span>
           {seats.map((seat) => {
@@ -170,7 +172,7 @@ export default function SeatMapSelector({
                   width: `${w}%`,
                   height: `${h}%`,
                 }}
-                title={`${seat.section ? `${seat.section} · ` : ""}Row ${seat.row} Seat ${seat.seatNumber}`}
+                title={`${seat.section ? `${seat.section} · ` : ""}${t("checkout:seatMap.row")} ${seat.row} ${t("checkout:seatMap.seat")} ${seat.seatNumber}`}
                 disabled={holding || (!selectedSeatIds.includes(seat.seatId) && (seat.effectiveStatus || seat.status) !== "available" && !seat.heldBySelf)}
                 onClick={() => toggleSeat(seat)}
               >
@@ -182,45 +184,47 @@ export default function SeatMapSelector({
       </div>
 
       <div className="seat-map-controls">
-        <button type="button" onClick={() => setZoom((z) => Math.min(3, z + 0.2))}>Zoom in</button>
-        <button type="button" onClick={() => setZoom((z) => Math.max(0.5, z - 0.2))}>Zoom out</button>
-        <button type="button" onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}>Reset view</button>
-        <button type="button" onClick={() => setFullscreen((f) => !f)}>{fullscreen ? "Exit full screen" : "Full screen"}</button>
+        <button type="button" onClick={() => setZoom((z) => Math.min(3, z + 0.2))}>{t("checkout:seatMap.zoomIn")}</button>
+        <button type="button" onClick={() => setZoom((z) => Math.max(0.5, z - 0.2))}>{t("checkout:seatMap.zoomOut")}</button>
+        <button type="button" onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}>{t("checkout:seatMap.resetView")}</button>
+        <button type="button" onClick={() => setFullscreen((f) => !f)}>{fullscreen ? t("checkout:seatMap.exitFullScreen") : t("checkout:seatMap.fullScreen")}</button>
         <span style={{ marginLeft: "auto", fontSize: 13, color: "#8a9bb5" }}>
-          {selectedSeatIds.length} / {ticketQuantity} selected
-          {holding ? " · holding…" : ""}
+          {selectedSeatIds.length} / {ticketQuantity} {t("checkout:seatMap.selected")}
+          {holding ? ` · ${t("checkout:seatMap.holding")}` : ""}
         </span>
       </div>
 
-      <div className="seat-map-legend" aria-label="Seat legend">
-        <span><i style={{ background: "#1a7f5a" }} /> Available</span>
-        <span><i style={{ background: "#3ec6d4" }} /> Selected</span>
-        <span><i style={{ background: "#c9a227" }} /> Held</span>
-        <span><i style={{ background: "#6b7280" }} /> Booked</span>
-        <span><i style={{ background: "#991b1b" }} /> Blocked</span>
-        <span><i style={{ background: "#7c3aed" }} /> VIP</span>
-        <span><i style={{ background: "#2563eb" }} /> Premium</span>
+      <div className="seat-map-legend" aria-label={t("checkout:seatMap.seatLegend")}>
+        <span><i style={{ background: "#1a7f5a" }} /> {t("checkout:seatMap.available")}</span>
+        <span><i style={{ background: "#3ec6d4" }} /> {t("checkout:seatMap.selectedLegend")}</span>
+        <span><i style={{ background: "#c9a227" }} /> {t("checkout:seatMap.held")}</span>
+        <span><i style={{ background: "#6b7280" }} /> {t("checkout:seatMap.booked")}</span>
+        <span><i style={{ background: "#991b1b" }} /> {t("checkout:seatMap.blocked")}</span>
+        <span><i style={{ background: "#7c3aed" }} /> {t("checkout:seatMap.vip")}</span>
+        <span><i style={{ background: "#2563eb" }} /> {t("checkout:seatMap.premium")}</span>
       </div>
 
       <div className="seat-map-summary">
-        <h3>Selected seats</h3>
+        <h3>{t("checkout:seatMap.selectedSeats")}</h3>
         {selectedSeats.length ? (
           <ul>
             {selectedSeats.map((s) => (
               <li key={s.seatId}>
-                {s.section ? `${s.section} · ` : ""}Row {s.row}, Seat {s.seatNumber}
+                {s.section ? `${s.section} · ` : ""}{t("checkout:seatMap.row")} {s.row}, {t("checkout:seatMap.seat")} {s.seatNumber}
                 {s.category && s.category !== "regular" ? ` (${s.category})` : ""}
               </li>
             ))}
           </ul>
         ) : (
           <p style={{ margin: 0, color: "#8a9bb5", fontSize: 13 }}>
-            Select {ticketQuantity} seat{ticketQuantity !== 1 ? "s" : ""} on the map.
+            {ticketQuantity === 1
+              ? t("checkout:seatMap.selectSeatsHint", { count: ticketQuantity })
+              : t("checkout:seatMap.selectSeatsHintPlural", { count: ticketQuantity })}
           </p>
         )}
       </div>
 
-      <div className="seat-map-list" aria-label="Seat list">
+      <div className="seat-map-list" aria-label={t("checkout:seatMap.seatList")}>
         {seats
           .filter((s) => (s.effectiveStatus || s.status) === "available" || selectedSeatIds.includes(s.seatId))
           .slice(0, 40)
@@ -232,7 +236,7 @@ export default function SeatMapSelector({
               style={{ textAlign: "left" }}
               onClick={() => toggleSeat(seat)}
             >
-              Row {seat.row} · Seat {seat.seatNumber}
+              {t("checkout:seatMap.row")} {seat.row} · {t("checkout:seatMap.seat")} {seat.seatNumber}
               {selectedSeatIds.includes(seat.seatId) ? " ✓" : ""}
             </button>
           ))}

@@ -44,6 +44,7 @@ export const SETTINGS_NAV = [
   { to: "/admin/settings/invoice", label: "Invoice Settings", category: "invoice", finance: true },
   { to: "/admin/settings/security", label: "Security Settings", category: "security" },
   { to: "/admin/settings/integrations", label: "Integrations", category: "integrations" },
+  { to: "/admin/settings/content-overrides", label: "Page Content (Pillars, Get Involved, Stats)", category: "content_overrides" },
   { to: "/admin/settings/audit-logs", label: "System Logs", audit: true },
 ];
 
@@ -56,7 +57,7 @@ export function hasSettingsPermission(role, permission) {
 export function canReadSettingsCategory(role, category) {
   if (hasSettingsPermission(role, "*") || hasSettingsPermission(role, "settings.write")) return true;
   if (FINANCE_CATEGORIES.includes(category)) return hasSettingsPermission(role, "settings.finance.read");
-  if (category === "pdf_templates" || category === "email_provider") {
+  if (category === "pdf_templates" || category === "email_provider" || category === "content_overrides") {
     return hasSettingsPermission(role, "settings.content.read") || hasSettingsPermission(role, "settings.templates.read");
   }
   return hasSettingsPermission(role, "settings.read");
@@ -68,7 +69,9 @@ export function canWriteSettingsCategory(role, category) {
   if (category === "pdf_templates") {
     return hasSettingsPermission(role, "settings.content.write") || hasSettingsPermission(role, "settings.templates.write");
   }
-  if (category === "email_provider") return hasSettingsPermission(role, "settings.content.write") || hasSettingsPermission(role, "settings.write");
+  if (category === "email_provider" || category === "content_overrides") {
+    return hasSettingsPermission(role, "settings.content.write") || hasSettingsPermission(role, "settings.write");
+  }
   return hasSettingsPermission(role, "settings.write");
 }
 

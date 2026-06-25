@@ -1,6 +1,7 @@
 import FinanceAuditLog from "../models/FinanceAuditLog.js";
 import { nextFinanceId } from "../utils/financeUtils.js";
 import { logAdminAction } from "./adminAuditService.js";
+import { escapeRegex } from "../utils/regexUtils.js";
 
 export async function logFinanceAction({
   admin,
@@ -61,7 +62,7 @@ export async function listFinanceAuditLogs(params = {}) {
     }
   }
   if (params.search) {
-    const q = params.search.trim();
+    const q = escapeRegex(params.search.trim());
     filter.$or = [
       { entityId: new RegExp(q, "i") },
       { notes: new RegExp(q, "i") },

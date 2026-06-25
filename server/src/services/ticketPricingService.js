@@ -1,20 +1,11 @@
 import Voucher from "../models/Voucher.js";
 import {
-  getAutomaticMemberDiscount,
   applyDiscountsToOrder,
   calculateDiscountAmount,
 } from "./discountService.js";
 
 /** Netherlands standard VAT rate for cultural events */
 export const VAT_RATE = 0.21;
-
-export async function getMembershipDiscountPercent(userId, eventId) {
-  const rule = await getAutomaticMemberDiscount(userId, eventId, "tickets");
-  if (!rule) return 0;
-  if (rule.discountType === "free_ticket" || rule.discountValue >= 100) return 100;
-  if (rule.discountType === "percentage") return rule.discountValue;
-  return 0;
-}
 
 export async function validateVoucher(code, eventId) {
   if (!code?.trim()) {
@@ -65,11 +56,6 @@ export function applyVoucherDiscount(subtotalMinor, voucher) {
     return Math.min(subtotalMinor, Math.round(subtotalMinor * (voucher.discountValue / 100)));
   }
   return Math.min(subtotalMinor, Math.round(voucher.discountValue * 100));
-}
-
-export function applyMembershipDiscount(subtotalMinor, percent) {
-  if (!percent || percent <= 0) return 0;
-  return Math.min(subtotalMinor, Math.round(subtotalMinor * (percent / 100)));
 }
 
 export function calculateVat(amountMinor, vatRate = VAT_RATE) {

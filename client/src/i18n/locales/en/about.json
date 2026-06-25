@@ -1,0 +1,48 @@
+{
+  "hero": {
+    "titleLead": "About",
+    "titleAccent": "Us",
+    "taglineLead": "Uniting Cultures. Amplifying Voices. Creating Lasting",
+    "taglineAccent": "Impact.",
+    "description": "Stichting The V.O.I.C.E. NL is a non-profit organization dedicated to building an inclusive world where culture, creativity, and collaboration bring people together. We amplify voices, celebrate diversity, and create meaningful experiences that inspire communities across the Netherlands and beyond."
+  },
+  "mission": {
+    "label": "Our Mission",
+    "textBefore": "Through ",
+    "highlight1": "artistic expression",
+    "highlight2": "knowledge sharing",
+    "highlight3": "social impact",
+    "textMiddle": ", we empower individuals, amplify voices and strengthen communities to create a more inclusive and meaningful future. We remain committed to ",
+    "cultureHighlight": "culture, creativity and collaboration",
+    "textAfter": " that connects people across cultures and generations."
+  },
+  "whatWeDo": {
+    "heading": "What We Do",
+    "exploreMore": "Explore More",
+    "experience": { "title": "V.O.I.C.E. Experiences", "description": "Creating unforgettable cultural experiences through events, festivals, and live performances." },
+    "visionaries": { "title": "Voice of Visionaries", "description": "Sharing leadership stories and ideas that inspire action and meaningful dialogue." },
+    "impact": { "title": "V.O.I.C.E. Impact", "description": "Empowering communities through inclusion, education, volunteering, and social work." },
+    "innovation": { "title": "V.O.I.C.E. Innovation", "description": "Building the future through digital platforms, apps, and the V.O.I.C.E. Venture Studio." }
+  },
+  "values": {
+    "heading": "Our Values - 5Is",
+    "inclusion": { "title": "Inclusion", "description": "Creating spaces where everyone belongs." },
+    "integrity": { "title": "Integrity", "description": "Acting with honesty, transparency, and respect." },
+    "innovation": { "title": "Innovation", "description": "Embracing new ideas to drive meaningful change." },
+    "integration": { "title": "Integration", "description": "Creating a sense of belonging through culture, connection, and community." },
+    "impact": { "title": "Impact", "description": "Transforming lives through culture and community." }
+  },
+  "team": {
+    "title": "Our Team",
+    "subtitle": "Meet the passionate people behind V.O.I.C.E. NL — building community, culture and impact together.",
+    "loading": "Loading team members…",
+    "board": "Board",
+    "boardMember": "Board Member",
+    "viewProfile": "View Profile",
+    "bioPlaceholder": "A dedicated member of the V.O.I.C.E. NL community helping shape events, culture and impact.",
+    "linkedin": "LinkedIn",
+    "previous": "Previous",
+    "next": "Next",
+    "close": "Close"
+  }
+}

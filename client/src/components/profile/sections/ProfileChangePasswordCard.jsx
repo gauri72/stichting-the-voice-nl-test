@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconEye, IconEyeOff, IconLock } from "@tabler/icons-react";
 import { apiFetch, authHeaders } from "../../../utils/api.js";
 import { PROFILE_ROUTES } from "../profileUtils.js";
@@ -7,6 +8,7 @@ import { PROFILE_ROUTES } from "../profileUtils.js";
 const EMPTY = { currentPassword: "", newPassword: "", confirmPassword: "" };
 
 export default function ProfileChangePasswordCard() {
+  const { t } = useTranslation(["misc"]);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [show, setShow] = useState({ current: false, next: false, confirm: false });
@@ -41,19 +43,19 @@ export default function ProfileChangePasswordCard() {
     setError("");
 
     if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
-      setError("Please fill in all password fields.");
+      setError(t("misc:profile.changePassword.errorAllFields"));
       return;
     }
     if (form.newPassword.length < 8) {
-      setError("Your new password must be at least 8 characters long.");
+      setError(t("misc:profile.changePassword.errorTooShort"));
       return;
     }
     if (form.newPassword !== form.confirmPassword) {
-      setError("New password and confirmation do not match.");
+      setError(t("misc:profile.changePassword.errorMismatch"));
       return;
     }
     if (form.newPassword === form.currentPassword) {
-      setError("Your new password must be different from your current password.");
+      setError(t("misc:profile.changePassword.errorSameAsCurrent"));
       return;
     }
 
@@ -67,14 +69,11 @@ export default function ProfileChangePasswordCard() {
           newPassword: form.newPassword,
         }),
       });
-      setSuccess(
-        result?.message ||
-          "Your password has been updated. A confirmation email has been sent to you."
-      );
+      setSuccess(result?.message || t("misc:profile.changePassword.updateSuccessDefault"));
       setForm(EMPTY);
       setEditing(false);
     } catch (e) {
-      setError(e.message || "Could not update your password. Please try again.");
+      setError(e.message || t("misc:profile.changePassword.updateError"));
     } finally {
       setSaving(false);
     }
@@ -87,12 +86,12 @@ export default function ProfileChangePasswordCard() {
           <IconLock size={20} stroke={1.75} />
         </span>
         <span className="profile-card__head-copy">
-          <strong className="profile-card__title">Change Password</strong>
-          <span className="profile-card__subtitle">Update your password to keep your account secure.</span>
+          <strong className="profile-card__title">{t("misc:profile.changePassword.title")}</strong>
+          <span className="profile-card__subtitle">{t("misc:profile.changePassword.subtitle")}</span>
         </span>
         {!editing ? (
           <button type="button" className="profile-btn profile-btn--compact" onClick={startEdit}>
-            Change
+            {t("misc:profile.changePassword.change")}
           </button>
         ) : null}
       </div>
@@ -100,20 +99,20 @@ export default function ProfileChangePasswordCard() {
       {!editing ? (
         <div className="profile-card__body profile-password__row">
           <IconLock className="profile-password__icon" size={16} aria-hidden />
-          <span className="profile-password__label">Password</span>
+          <span className="profile-password__label">{t("misc:profile.changePassword.password")}</span>
           <span className="profile-password__divider" aria-hidden />
-          <span className="profile-password__dots" aria-label="Password hidden">
+          <span className="profile-password__dots" aria-label={t("misc:profile.changePassword.hidden")}>
             ••••••••
           </span>
           <Link to={PROFILE_ROUTES.resetPassword} className="profile-btn profile-btn--outline">
-            Forgot?
+            {t("misc:profile.changePassword.forgot")}
           </Link>
         </div>
       ) : (
         <form className="profile-card__body profile-form" onSubmit={handleSubmit}>
           <div className="profile-form__grid profile-form__grid--single">
             <PasswordField
-              label="Current password"
+              label={t("misc:profile.changePassword.currentPassword")}
               name="currentPassword"
               value={form.currentPassword}
               visible={show.current}
@@ -122,17 +121,17 @@ export default function ProfileChangePasswordCard() {
               autoComplete="current-password"
             />
             <PasswordField
-              label="New password"
+              label={t("misc:profile.changePassword.newPassword")}
               name="newPassword"
               value={form.newPassword}
               visible={show.next}
               onToggle={() => toggleShow("next")}
               onChange={(v) => updateField("newPassword", v)}
               autoComplete="new-password"
-              hint="At least 8 characters."
+              hint={t("misc:profile.changePassword.newPasswordHint")}
             />
             <PasswordField
-              label="Confirm new password"
+              label={t("misc:profile.changePassword.confirmNewPassword")}
               name="confirmPassword"
               value={form.confirmPassword}
               visible={show.confirm}
@@ -155,10 +154,10 @@ export default function ProfileChangePasswordCard() {
               onClick={cancelEdit}
               disabled={saving}
             >
-              Cancel
+              {t("misc:profile.changePassword.cancel")}
             </button>
             <button type="submit" className="profile-btn profile-btn--solid" disabled={saving}>
-              {saving ? "Updating…" : "Update password"}
+              {saving ? t("misc:profile.changePassword.updating") : t("misc:profile.changePassword.update")}
             </button>
           </div>
         </form>
@@ -174,6 +173,7 @@ export default function ProfileChangePasswordCard() {
 }
 
 function PasswordField({ label, name, value, visible, onToggle, onChange, autoComplete, hint }) {
+  const { t } = useTranslation(["misc"]);
   return (
     <label className="profile-form__field">
       <span>{label}</span>
@@ -191,7 +191,7 @@ function PasswordField({ label, name, value, visible, onToggle, onChange, autoCo
           type="button"
           className="profile-form__password-toggle"
           onClick={onToggle}
-          aria-label={visible ? "Hide password" : "Show password"}
+          aria-label={visible ? t("misc:profile.changePassword.hidePassword") : t("misc:profile.changePassword.showPassword")}
         >
           {visible ? <IconEyeOff size={16} stroke={1.75} /> : <IconEye size={16} stroke={1.75} />}
         </button>

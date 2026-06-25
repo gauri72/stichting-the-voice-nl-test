@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import ReportExportLog from "../models/ReportExportLog.js";
 import { nextReportPublicId } from "./reportAnalyticsService.js";
+import { collectPdfBuffer } from "../utils/pdfBuffer.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HEADER_LOGO_PATH = path.join(__dirname, "..", "..", "..", "client", "src", "assets", "header-logo.png");
@@ -15,15 +16,8 @@ function logoPath() {
 }
 
 function pdfBuffer(buildFn) {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: "A4", margins: { top: 40, bottom: 50, left: 48, right: 48 }, bufferPages: true });
-    const chunks = [];
-    doc.on("data", (c) => chunks.push(c));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", reject);
-    buildFn(doc);
-    doc.end();
-  });
+  const doc = new PDFDocument({ size: "A4", margins: { top: 40, bottom: 50, left: 48, right: 48 }, bufferPages: true });
+  return collectPdfBuffer(doc, buildFn);
 }
 
 function drawPdfHeader(doc, title, subtitle, generatedBy) {

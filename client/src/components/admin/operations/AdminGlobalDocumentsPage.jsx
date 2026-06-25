@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import AdminLayout from "../AdminLayout.jsx";
 import { fetchGlobalDocuments, formatEventDate } from "../../../utils/eventOperationsAdmin.js";
+import "../../../styles/admin-events-page.css";
 import "../../../styles/event-operations.css";
 
 export default function AdminGlobalDocumentsPage() {

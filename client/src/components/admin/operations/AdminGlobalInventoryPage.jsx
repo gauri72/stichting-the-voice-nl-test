@@ -6,6 +6,7 @@ import {
   saveGlobalInventoryItem,
 } from "../../../utils/eventOperationsAdmin.js";
 import { adminAuthHeaders, apiFetch } from "../../../utils/api.js";
+import "../../../styles/admin-events-page.css";
 import "../../../styles/event-operations.css";
 
 const EMPTY = {

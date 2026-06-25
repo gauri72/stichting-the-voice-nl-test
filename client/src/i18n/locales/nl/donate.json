@@ -1,0 +1,41 @@
+{
+  "plans": {
+    "heading": "Kies je impact",
+    "mostPopular": "MEEST GEKOZEN",
+    "selected": "Geselecteerd — scroll naar beneden",
+    "donateNow": "Doneer Nu",
+    "secureHeadline": "100% Veilige Donaties.",
+    "secureSubtext": "Je bijdrage is veilig bij ons.",
+    "tier1": { "name": "Supporter", "description": "Help ons culturele programma's voor iedereen toegankelijk te houden." },
+    "tier2": { "name": "Vriend", "description": "Versterk workshops, vertoningen en gemeenschapsbijeenkomsten." },
+    "tier3": { "name": "Kampioen", "description": "Word een kernsteunpilaar van onze vlaggenschipevenementen en outreach." },
+    "tier4": { "name": "Beschermheer", "description": "Steun grotere initiatieven en help ons bereik wereldwijd uit te breiden." },
+    "tier5": { "name": "Visionair", "description": "Maak een transformerende impact en help een betere toekomst vormgeven." },
+    "tier6": { "name": "Betaal Wat Je Wilt", "description": "Geef elk bedrag dat je wilt — elke bijdrage helpt onze missie." }
+  },
+  "allocation": {
+    "heading": "Waar Je Donatie Naartoe Gaat",
+    "item1": { "title": "Kunst & Cultuur", "description": "Live optredens, festivals en creatieve presentaties die diverse stemmen vieren." },
+    "item2": { "title": "Gemeenschapsprogramma's", "description": "Buurtevenementen en bijeenkomsten die vertrouwen, vreugde en verbondenheid opbouwen." },
+    "item3": { "title": "Onderwijs & Jeugd", "description": "Workshops, mentorschap en leertrajecten die deuren openen voor de volgende generatie." },
+    "item4": { "title": "Gezondheid & Welzijn", "description": "Initiatieven die welzijn ondersteunen door cultuur, beweging en bewuste verbinding." },
+    "item5": { "title": "Culturele Uitwisseling", "description": "Internationale samenwerkingen die perspectieven verbreden en wederzijds respect verdiepen." },
+    "item6": { "title": "Duurzaamheid", "description": "Groenere evenementen en verantwoorde bedrijfsvoering die zorgen voor mens en planeet." }
+  },
+  "impact": {
+    "titleLine": "Echte Impact.",
+    "titleAccent": "Echte Verandering.",
+    "stat1": "High-Production Evenementen",
+    "stat2": "Toonaangevende Locaties",
+    "stat3": "Versterkte Artiesten",
+    "stat4": "Deskundige Leden",
+    "stat5": "Vreugdevolle Uren van Geluk"
+  },
+  "otherWays": {
+    "heading": "Andere Manieren om te Geven",
+    "learnMore": "Ontdek Meer",
+    "item1": { "title": "Bedrijfspartnerschappen", "description": "Werk met ons samen om betekenisvolle impact te creëren." },
+    "item2": { "title": "Schenkingen in Natura", "description": "Steun onze missie door goederen, diensten of middelen te doneren." },
+    "item3": { "title": "Word Vrijwilliger", "description": "Geef je tijd en vaardigheden om onze gemeenschap te helpen groeien." }
+  }
+}

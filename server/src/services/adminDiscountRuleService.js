@@ -134,45 +134,6 @@ export async function getDashboardStats() {
   };
 }
 
-export async function listDiscountRules(params = {}) {
-  const query = buildFilterQuery(params);
-  const rules = await DiscountRule.find(query).sort({ createdAt: -1 }).lean();
-
-  const enriched = await Promise.all(
-    rules.map(async (rule) => {
-      const usageAgg = await DiscountUsage.aggregate([
-        { $match: { discountId: rule._id } },
-        {
-          $group: {
-            _id: null,
-            totalUses: { $sum: 1 },
-            totalDiscount: { $sum: "$discountAmount" },
-            uniqueUsers: { $addToSet: "$userEmail" },
-          },
-        },
-      ]);
-
-      const stats = usageAgg[0] || { totalUses: 0, totalDiscount: 0, uniqueUsers: [] };
-      let assignedUser = null;
-      if (rule.assignedUserId) {
-        const u = await User.findById(rule.assignedUserId).select("firstName lastName email").lean();
-        if (u) assignedUser = { id: u._id.toString(), firstName: u.firstName, lastName: u.lastName, email: u.email };
-      }
-
-      return {
-        ...formatRule(rule),
-        discountLabel: formatDiscountLabel(rule),
-        usage: stats.totalUses,
-        revenueImpact: stats.totalDiscount,
-        uniqueUsers: stats.uniqueUsers?.filter(Boolean).length || 0,
-        assignedUser,
-      };
-    })
-  );
-
-  return enriched;
-}
-
 export async function getDiscountRuleById(id) {
   const rule = await DiscountRule.findById(id).lean();
   if (!rule) throwError("Discount not found.", 404);

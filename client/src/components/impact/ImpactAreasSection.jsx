@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   IconArrowRight,
   IconBrandWhatsapp,
@@ -8,6 +9,8 @@ import {
   IconUsersGroup,
 } from "@tabler/icons-react";
 import { IMPACT_AREAS } from "../../data/impactDisplay.js";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
+import { resolveOverrideText } from "../../i18n/overrideText.js";
 
 const AREA_ICONS = {
   "heart-hands": IconHeartHandshake,
@@ -16,30 +19,49 @@ const AREA_ICONS = {
 };
 
 export default function ImpactAreasSection() {
+  const { t } = useTranslation(["impact"]);
+  const overrides = useContentOverrides();
+
   return (
     <section className="impact-areas" aria-labelledby="impact-areas-title">
       <h2 id="impact-areas-title" className="impact-section-title">
-        Our Areas Of Impact
+        {resolveOverrideText(overrides.impactPageAreasHeading, "Our Areas Of Impact", t("impact:areas.heading"))}
       </h2>
 
       <div className="impact-areas__grid">
         {IMPACT_AREAS.map(
-          ({
-            key,
-            accent,
-            icon,
-            titleLead,
-            titleAccent,
-            logo,
-            description,
-            background,
-            items,
-            buttonLabel,
-            buttonTo,
-            buttonHref,
-            buttonStyle,
-          }) => {
+          (
+            {
+              key,
+              accent,
+              icon,
+              titleLead,
+              titleAccent,
+              logo,
+              description,
+              background,
+              items,
+              buttonLabel,
+              buttonTo,
+              buttonHref,
+              buttonStyle,
+            },
+            index
+          ) => {
             const Icon = AREA_ICONS[icon] || IconUsersGroup;
+            const overrideKey = `impactPageArea${index + 1}`;
+            const areaKey = `area${index + 1}`;
+            const displayTitleLead = resolveOverrideText(overrides[`${overrideKey}TitleLead`], titleLead, t(`impact:areas.${areaKey}.titleLead`));
+            const displayTitleAccent = resolveOverrideText(overrides[`${overrideKey}TitleAccent`], titleAccent, t(`impact:areas.${areaKey}.titleAccent`));
+            const displayDescription = resolveOverrideText(overrides[`${overrideKey}Description`], description, t(`impact:areas.${areaKey}.description`));
+            const displayButtonLabel = resolveOverrideText(overrides[`${overrideKey}ButtonLabel`], buttonLabel, t(`impact:areas.${areaKey}.buttonLabel`));
+            const displayButtonLink = overrides[`${overrideKey}ButtonLink`] || (buttonStyle === "whatsapp" ? buttonHref : buttonTo);
+            const translatedItems = t(`impact:areas.${areaKey}.items`, { returnObjects: true });
+            const displayItems = overrides[`${overrideKey}Bullets`]
+              ? overrides[`${overrideKey}Bullets`].split("\n").filter(Boolean)
+              : Array.isArray(translatedItems)
+                ? translatedItems
+                : items;
 
             return (
               <article
@@ -61,8 +83,8 @@ export default function ImpactAreasSection() {
                   </span>
 
                   <h3 className="impact-area-card__title">
-                    {titleLead}
-                    <span className="impact-area-card__title-accent">{titleAccent}</span>
+                    {displayTitleLead}
+                    <span className="impact-area-card__title-accent">{displayTitleAccent}</span>
                   </h3>
 
                   {logo ? (
@@ -75,10 +97,10 @@ export default function ImpactAreasSection() {
                     />
                   ) : null}
 
-                  <p className="impact-area-card__description">{description}</p>
+                  <p className="impact-area-card__description">{displayDescription}</p>
 
                   <ul className="impact-area-card__list">
-                    {items.map((item) => (
+                    {displayItems.map((item) => (
                       <li key={item}>
                         <IconCheck size={16} stroke={2.2} aria-hidden />
                         {item}
@@ -89,7 +111,7 @@ export default function ImpactAreasSection() {
                   {buttonStyle === "whatsapp" ? (
                     <a
                       className="impact-area-card__button impact-area-card__button--whatsapp"
-                      href={buttonHref}
+                      href={displayButtonLink}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -98,14 +120,14 @@ export default function ImpactAreasSection() {
                         aria-hidden
                         stroke={1.75}
                       />
-                      <span>{buttonLabel}</span>
+                      <span>{displayButtonLabel}</span>
                     </a>
                   ) : (
                     <Link
-                      to={buttonTo}
+                      to={displayButtonLink}
                       className="impact-area-card__button impact-area-card__button--outline"
                     >
-                      {buttonLabel}
+                      {displayButtonLabel}
                       <IconArrowRight size={16} stroke={2} aria-hidden />
                     </Link>
                   )}

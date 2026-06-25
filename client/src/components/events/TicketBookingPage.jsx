@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Elements } from "@stripe/react-stripe-js";
 import { IconCalendar, IconMapPin, IconTicket, IconCheck } from "@tabler/icons-react";
 import StripeCheckoutForm from "../payments/StripeCheckoutForm.jsx";
@@ -20,7 +21,7 @@ import {
   readCheckoutSession,
 } from "../../utils/stripePayment.js";
 import {
-  CUSTOMER_MEMBERSHIP_MESSAGES,
+  getMembershipMessages,
   membershipBannerHasContent,
   sanitizeCustomerDiscountLabel,
 } from "../../utils/membershipDisplayLabels.js";
@@ -30,6 +31,7 @@ import DynamicCheckoutForm, { serializeCheckoutAnswers } from "./DynamicCheckout
 import useBookingFlow from "../../hooks/useBookingFlow.js";
 import "../../styles/sponsorship-payment-block.css";
 import "../../styles/seat-map.css";
+import { devWarn } from "../../utils/devLog.js";
 
 const TICKET_CHECKOUT_SESSION_KEY = "voice_nl_ticket_checkout";
 
@@ -40,16 +42,21 @@ const EMPTY_ATTENDEE = {
   phone: "",
 };
 
-const STEPS = [
-  "Select tickets",
-  "Your details",
-  "Member benefits",
-  "Membership",
-  "Review",
-  "Payment",
-];
+function buildSteps(t) {
+  return [
+    t("checkout:steps.selectTickets"),
+    t("checkout:steps.yourDetails"),
+    t("checkout:steps.memberBenefits"),
+    t("checkout:steps.membership"),
+    t("checkout:steps.review"),
+    t("checkout:steps.payment"),
+  ];
+}
 
 export default function TicketBookingPage() {
+  const { t } = useTranslation(["checkout"]);
+  const STEPS = useMemo(() => buildSteps(t), [t]);
+  const messagesCopy = useMemo(() => getMembershipMessages(t), [t]);
   const { eventIdOrSlug } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -234,7 +241,7 @@ export default function TicketBookingPage() {
           }
         }
       } catch (err) {
-        if (!cancelled) setError(err.message || "Event not found.");
+        if (!cancelled) setError(err.message || t("checkout:errors.eventNotFound"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -260,7 +267,7 @@ export default function TicketBookingPage() {
       setPreview(data.preview);
       setError("");
     } catch (err) {
-      setError(err.message || "Could not calculate total.");
+      setError(err.message || t("checkout:errors.couldNotCalculateTotal"));
     }
   }, [
     event?.id,
@@ -302,7 +309,7 @@ export default function TicketBookingPage() {
         if (data.membership?.planId) setSelectedPlanId(data.membership.planId);
       }
     } catch (err) {
-      console.warn("Member detection failed:", err.message);
+      devWarn("Member detection failed:", err.message);
       lastDetectedRef.current = "";
     } finally {
       setDetectingMember(false);
@@ -355,7 +362,7 @@ export default function TicketBookingPage() {
       }
       if (result.preview) setPreview(result.preview);
     } catch (err) {
-      console.warn("Could not apply member benefits after login:", err.message);
+      devWarn("Could not apply member benefits after login:", err.message);
     }
   }, [applyBenefitsAfterLogin, sessionId, attendee.email]);
 
@@ -416,7 +423,7 @@ export default function TicketBookingPage() {
           if (result.preview) setPreview(result.preview);
         }
       } catch (err) {
-        console.warn("Could not restore checkout session:", err.message);
+        devWarn("Could not restore checkout session:", err.message);
       }
     }
 
@@ -502,7 +509,7 @@ export default function TicketBookingPage() {
         });
         goToConfirmation(confirmed.order.orderNumber, attendee.email);
       } catch (err) {
-        setError(err.message || "Could not confirm your booking.");
+        setError(err.message || t("checkout:errors.couldNotConfirmBooking"));
       }
     },
     [attendee.email, goToConfirmation, resolveOrderId]
@@ -534,23 +541,23 @@ export default function TicketBookingPage() {
       const data = await validateMembershipCode(membershipCode.trim());
       if (data.valid) {
         setMembershipCodeApplied(true);
-        const typeLabel = data.detection?.membershipType || "Membership";
-        const until = data.detection?.memberUntil ? ` · Valid until ${data.detection.memberUntil}` : "";
+        const typeLabel = data.detection?.membershipType || t("checkout:membershipMessages.defaultType");
+        const until = data.detection?.memberUntil ? ` · ${t("checkout:membershipBanner.validUntilSuffix", { date: data.detection.memberUntil })}` : "";
         setMembershipCodeMessage(
           data.message
             ? `${data.message} — ${typeLabel}${until}`
-            : `${CUSTOMER_MEMBERSHIP_MESSAGES.verified} — ${typeLabel}${until}`
+            : `${messagesCopy.verified} — ${typeLabel}${until}`
         );
         setApplyMemberBenefit(true);
         if (attendee.email) await detectMember(attendee.email, membershipCode.trim());
         refreshPreview({ applyMemberBenefit: true });
       } else {
         setMembershipCodeApplied(false);
-        setMembershipCodeMessage(data.message || "This membership code is invalid or expired.");
+        setMembershipCodeMessage(data.message || t("checkout:errors.membershipCodeInvalid"));
       }
     } catch (err) {
       setMembershipCodeApplied(false);
-      setMembershipCodeMessage(err.message || "This membership code is invalid or expired.");
+      setMembershipCodeMessage(err.message || t("checkout:errors.membershipCodeInvalid"));
     } finally {
       setDetectingMember(false);
     }
@@ -564,19 +571,17 @@ export default function TicketBookingPage() {
           orderType: "tickets",
           subtotalMinor: preview?.ticketPricing?.subtotalMinor || 0,
         });
-      setVoucherMessage("Discount code applied successfully.");
+      setVoucherMessage(t("checkout:errors.discountApplied"));
       refreshPreview();
     } catch (err) {
-      setVoucherMessage(err.message || "Invalid discount code.");
+      setVoucherMessage(err.message || t("checkout:errors.discountInvalid"));
     }
   }
 
   async function initCheckout() {
     const totalMinor = preview?.combined?.grandTotalMinor ?? 1;
     if (!STRIPE_PUBLISHABLE_KEY && totalMinor > 0) {
-      setError(
-        "Stripe is not configured. Add VITE_STRIPE_PUBLISHABLE_KEY to client/.env and STRIPE_SECRET_KEY to server/.env."
-      );
+      setError(t("checkout:errors.stripeNotConfigured"));
       return;
     }
 
@@ -623,9 +628,9 @@ export default function TicketBookingPage() {
         return;
       }
 
-      throw new Error(checkout.payment?.message || "Could not start secure checkout.");
+      throw new Error(checkout.payment?.message || t("checkout:errors.couldNotStartSecureCheckout"));
     } catch (err) {
-      setError(err.message || "Could not start checkout.");
+      setError(err.message || t("checkout:errors.couldNotStartCheckout"));
       checkoutInitRef.current = false;
       setStep(REVIEW_STEP);
     } finally {
@@ -661,7 +666,7 @@ export default function TicketBookingPage() {
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
       goToConfirmation(result.order.orderNumber, attendee.email);
     } catch (err) {
-      setError(err.message || "We could not complete your free booking. Please try again.");
+      setError(err.message || t("checkout:errors.freeBookingFailed"));
     } finally {
       setCheckoutLoading(false);
     }
@@ -669,7 +674,7 @@ export default function TicketBookingPage() {
 
   function goToPaymentStep() {
     if (!attendee.email?.includes("@")) {
-      setError("Please enter a valid email address.");
+      setError(t("checkout:errors.invalidEmail"));
       return;
     }
 
@@ -686,7 +691,7 @@ export default function TicketBookingPage() {
       setMemberDetection(detection);
       setDetectionMessages(detection.messages);
     } catch (err) {
-      console.warn("Member detection failed:", err.message);
+      devWarn("Member detection failed:", err.message);
     } finally {
       setDetectingMember(false);
     }
@@ -708,19 +713,19 @@ export default function TicketBookingPage() {
           knownAnswers: knownCheckoutAnswers,
         });
     } catch (err) {
-      setError(err.message || "Please complete required checkout questions.");
+      setError(err.message || t("checkout:errors.completeRequiredQuestions"));
       setStep(REVIEW_STEP);
       return;
     }
 
     if (isActiveGuest && applyMemberBenefit && !membershipCodeApplied) {
-      setError("Please log in to apply member benefits, or choose Continue Without Benefits.");
+      setError(t("checkout:errors.loginToApplyBenefits"));
       setStep(BENEFITS_STEP);
       return;
     }
 
     if (isExpiredGuest) {
-      setError("Renew your membership to apply benefits, or choose Tickets Only.");
+      setError(t("checkout:errors.renewToApplyBenefits"));
       setStep(BENEFITS_STEP);
       return;
     }
@@ -746,13 +751,13 @@ export default function TicketBookingPage() {
   async function handleStripeSuccess(paymentIntent) {
     const orderId = checkoutOrder?.id || resolveOrderId(paymentIntent);
     if (!orderId && !paymentIntent?.id) {
-      setError("Order reference missing. Please contact support.");
+      setError(t("checkout:errors.orderReferenceMissing"));
       return;
     }
     try {
       await finalizeTicketPayment(paymentIntent);
     } catch (err) {
-      setError(err.message || "Payment succeeded but booking confirmation failed.");
+      setError(err.message || t("checkout:errors.paymentSucceededConfirmationFailed"));
     }
   }
 
@@ -798,7 +803,7 @@ export default function TicketBookingPage() {
       applyMemberBenefit &&
       !membershipCodeApplied
     ) {
-      setError("Please log in to apply member benefits, or choose Continue Without Benefits.");
+      setError(t("checkout:errors.loginToApplyBenefits"));
       return;
     }
     setStep(includeMembership ? MEMBERSHIP_STEP : REVIEW_STEP);
@@ -806,7 +811,7 @@ export default function TicketBookingPage() {
 
   function nextFromMembership() {
     if (includeMembership && !selectedPlanId) {
-      setError("Please select a membership plan.");
+      setError(t("checkout:errors.selectMembershipPlan"));
       return;
     }
     setError("");
@@ -817,7 +822,7 @@ export default function TicketBookingPage() {
   if (loading) {
     return (
       <div className="ticket-booking">
-        <p className="ticket-booking__status">Loading event…</p>
+        <p className="ticket-booking__status">{t("checkout:errors.loadingEvent")}</p>
       </div>
     );
   }
@@ -825,8 +830,8 @@ export default function TicketBookingPage() {
   if (!event) {
     return (
       <div className="ticket-booking">
-        <p className="ticket-booking__error" role="alert">{error || "Event not found."}</p>
-        <Link to="/events">← Back to events</Link>
+        <p className="ticket-booking__error" role="alert">{error || t("checkout:errors.eventNotFound")}</p>
+        <Link to="/events">{t("checkout:common.backToEvents")}</Link>
       </div>
     );
   }
@@ -839,9 +844,11 @@ export default function TicketBookingPage() {
   });
 
   const visibleSteps = (() => {
-    const base = showMembershipStep ? STEPS : STEPS.filter((s) => s !== "Membership");
+    // STEPS index 3 is "Membership" — filter by position, not by translated
+    // text, since the membership step label is no longer a stable literal.
+    const base = showMembershipStep ? STEPS : STEPS.filter((_, i) => i !== 3);
     if (reservedSeatingEnabled) {
-      return ["Select tickets", "Select seats", ...base.slice(1)];
+      return [STEPS[0], t("checkout:steps.selectSeats"), ...base.slice(1)];
     }
     return base;
   })();
@@ -868,7 +875,7 @@ export default function TicketBookingPage() {
 
       <div className="ticket-booking__container">
         <header className="ticket-booking__header">
-          <p className="ticket-booking__eyebrow">Book tickets</p>
+          <p className="ticket-booking__eyebrow">{t("checkout:common.bookTickets")}</p>
           <h1>{event.title}</h1>
           <div className="ticket-booking__meta">
             <span><IconCalendar size={16} /> {eventDate} · {event.startTime}</span>
@@ -892,7 +899,7 @@ export default function TicketBookingPage() {
 
         {step === 1 ? (
           <section className="ticket-booking__card">
-            <h2><IconTicket size={20} /> Select tickets</h2>
+            <h2><IconTicket size={20} /> {t("checkout:selectTickets.title")}</h2>
             <ul className="ticket-booking__ticket-list">
               {(event.ticketTypes || []).map((tt) => {
                 const selectable = tt.selectable === true;
@@ -915,7 +922,9 @@ export default function TicketBookingPage() {
                     {tt.displayLabel ? (
                       <p className="ticket-booking__ticket-status-note">{tt.displayLabel}</p>
                     ) : selectable ? (
-                      <p className="ticket-booking__ticket-avail">{tt.available} available · max {tt.maxPerOrder} per order</p>
+                      <p className="ticket-booking__ticket-avail">
+                        {tt.available} {t("checkout:selectTickets.available")} · {t("checkout:selectTickets.maxPerOrder", { count: tt.maxPerOrder })}
+                      </p>
                     ) : null}
                     {tt.computedStatus === "SOLD_OUT" && tt.soldOutDisplayMode === "waitlist" ? (
                       <WaitlistJoinForm
@@ -929,7 +938,7 @@ export default function TicketBookingPage() {
                     ) : null}
                   </div>
                   <label className="ticket-booking__qty-label">
-                    <span className="ticket-booking__qty-text">Qty</span>
+                    <span className="ticket-booking__qty-text">{t("checkout:selectTickets.qty")}</span>
                     <select
                       value={quantities[tt.id] || 0}
                       disabled={!selectable}
@@ -953,16 +962,18 @@ export default function TicketBookingPage() {
               disabled={!selectedItems.length}
               onClick={() => setStep(reservedSeatingEnabled ? 2 : DETAILS_STEP)}
             >
-              Continue
+              {t("checkout:selectTickets.continue")}
             </button>
           </section>
         ) : null}
 
         {step === 2 && reservedSeatingEnabled ? (
           <section className="ticket-booking__card">
-            <h2>Select your seats</h2>
+            <h2>{t("checkout:selectSeats.title")}</h2>
             <p className="ticket-booking__hint">
-              Choose {ticketQty} seat{ticketQty !== 1 ? "s" : ""} for your tickets.
+              {ticketQty === 1
+                ? t("checkout:selectSeats.hint", { count: ticketQty })
+                : t("checkout:selectSeats.hintPlural", { count: ticketQty })}
             </p>
             <SeatMapSelector
               eventId={event.id}
@@ -977,14 +988,14 @@ export default function TicketBookingPage() {
               onError={setError}
             />
             <div className="ticket-booking__nav">
-              <button type="button" className="ticket-booking__back" onClick={() => setStep(1)}>Back</button>
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(1)}>{t("checkout:nav.back")}</button>
               <button
                 type="button"
                 className="ticket-booking__cta"
                 disabled={selectedSeatIds.length !== ticketQty}
                 onClick={() => setStep(DETAILS_STEP)}
               >
-                Continue
+                {t("checkout:nav.continue")}
               </button>
             </div>
           </section>
@@ -992,21 +1003,21 @@ export default function TicketBookingPage() {
 
         {step === DETAILS_STEP ? (
           <section className="ticket-booking__card">
-            <h2>Your details</h2>
+            <h2>{t("checkout:yourDetails.title")}</h2>
             <p className="ticket-booking__hint">
-              Enter your email so we can check for membership benefits.
+              {t("checkout:yourDetails.hint")}
             </p>
             <div className="ticket-booking__form-grid">
               <label>
-                First name *
+                {t("checkout:yourDetails.firstName")} *
                 <input value={attendee.firstName} onChange={(e) => setAttendee((a) => ({ ...a, firstName: e.target.value }))} />
               </label>
               <label>
-                Last name *
+                {t("checkout:yourDetails.lastName")} *
                 <input value={attendee.lastName} onChange={(e) => setAttendee((a) => ({ ...a, lastName: e.target.value }))} />
               </label>
               <label>
-                Email *
+                {t("checkout:yourDetails.email")} *
                 <input
                   type="email"
                   value={attendee.email}
@@ -1015,15 +1026,15 @@ export default function TicketBookingPage() {
                 />
               </label>
               <label>
-                Phone
+                {t("checkout:yourDetails.phone")}
                 <input type="tel" value={attendee.phone} onChange={(e) => setAttendee((a) => ({ ...a, phone: e.target.value }))} />
               </label>
             </div>
             <div className="ticket-booking__membership-code">
               <label>
-                Membership Code
+                {t("checkout:yourDetails.membershipCode")}
                 <input
-                  placeholder="Enter Membership Code"
+                  placeholder={t("checkout:yourDetails.membershipCodePlaceholder")}
                   value={membershipCode}
                   onChange={(e) => {
                     setMembershipCode(e.target.value.toUpperCase());
@@ -1038,7 +1049,7 @@ export default function TicketBookingPage() {
                 disabled={!membershipCode.trim() || detectingMember}
                 onClick={applyMembershipCode}
               >
-                Apply Membership Code
+                {t("checkout:yourDetails.applyMembershipCode")}
               </button>
             </div>
             {membershipCodeMessage ? (
@@ -1053,18 +1064,18 @@ export default function TicketBookingPage() {
             ) : null}
             {detectingMember ? (
               <p className="ticket-booking__status" role="status">
-                Checking membership benefits…
+                {t("checkout:yourDetails.checkingMembershipBenefits")}
               </p>
             ) : null}
             <div className="ticket-booking__nav">
-              <button type="button" className="ticket-booking__back" onClick={() => setStep(reservedSeatingEnabled ? 2 : 1)}>Back</button>
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(reservedSeatingEnabled ? 2 : 1)}>{t("checkout:nav.back")}</button>
               <button
                 type="button"
                 className="ticket-booking__cta"
                 disabled={!attendee.firstName || !attendee.lastName || !attendee.email || detectingMember}
                 onClick={nextFromDetails}
               >
-                {detectingMember ? "Checking membership benefits…" : "Continue"}
+                {detectingMember ? t("checkout:yourDetails.checkingMembershipBenefits") : t("checkout:nav.continue")}
               </button>
             </div>
           </section>
@@ -1072,7 +1083,7 @@ export default function TicketBookingPage() {
 
         {step === BENEFITS_STEP ? (
           <section className="ticket-booking__card">
-            <h2>Membership benefit check</h2>
+            <h2>{t("checkout:memberBenefits.title")}</h2>
             <MembershipBenefitBanner
               detection={memberDetection}
               messages={detectionMessages}
@@ -1088,13 +1099,13 @@ export default function TicketBookingPage() {
             />
             {!memberDetection?.isActive && !includeMembership ? (
               <p className="ticket-booking__hint">
-                You can continue without membership or add a plan in the next step.
+                {t("checkout:memberBenefits.continueHint")}
               </p>
             ) : null}
             <div className="ticket-booking__nav">
-              <button type="button" className="ticket-booking__back" onClick={() => setStep(DETAILS_STEP)}>Back</button>
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(DETAILS_STEP)}>{t("checkout:nav.back")}</button>
               <button type="button" className="ticket-booking__cta" onClick={nextFromBenefits}>
-                Continue
+                {t("checkout:nav.continue")}
               </button>
             </div>
           </section>
@@ -1102,7 +1113,7 @@ export default function TicketBookingPage() {
 
         {step === MEMBERSHIP_STEP && showMembershipStep ? (
           <section className="ticket-booking__card">
-            <h2>Membership add-on</h2>
+            <h2>{t("checkout:membership.title")}</h2>
             <label className="ticket-booking__toggle">
               <input
                 type="checkbox"
@@ -1113,7 +1124,7 @@ export default function TicketBookingPage() {
                   else if (!selectedPlanId && membershipPlans[0]) setSelectedPlanId(membershipPlans[0].id);
                 }}
               />
-              Include membership with this booking
+              {t("checkout:membership.includeWithBooking")}
             </label>
             {includeMembership ? (
               <MembershipPlanCards
@@ -1124,9 +1135,9 @@ export default function TicketBookingPage() {
               />
             ) : null}
             <div className="ticket-booking__nav">
-              <button type="button" className="ticket-booking__back" onClick={() => setStep(benefitsHaveContent ? BENEFITS_STEP : DETAILS_STEP)}>Back</button>
+              <button type="button" className="ticket-booking__back" onClick={() => setStep(benefitsHaveContent ? BENEFITS_STEP : DETAILS_STEP)}>{t("checkout:nav.back")}</button>
               <button type="button" className="ticket-booking__cta" onClick={nextFromMembership}>
-                Continue to review
+                {t("checkout:membership.continueToReview")}
               </button>
             </div>
           </section>
@@ -1134,21 +1145,21 @@ export default function TicketBookingPage() {
 
         {step === REVIEW_STEP ? (
           <section className="ticket-booking__card">
-            <h2>Review your booking</h2>
+            <h2>{t("checkout:review.title")}</h2>
 
             <div className="ticket-booking__voucher">
               <input
-                placeholder="Discount or referral code"
+                placeholder={t("checkout:review.voucherPlaceholder")}
                 value={voucherCode}
                 onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
               />
-              <button type="button" onClick={applyVoucher}>Apply</button>
+              <button type="button" onClick={applyVoucher}>{t("checkout:review.apply")}</button>
             </div>
             {voucherMessage ? <p className="ticket-booking__voucher-msg">{voucherMessage}</p> : null}
 
             <div className="ticket-booking__membership-code">
               <input
-                placeholder="Enter Membership Code"
+                placeholder={t("checkout:yourDetails.membershipCodePlaceholder")}
                 value={membershipCode}
                 onChange={(e) => {
                   setMembershipCode(e.target.value.toUpperCase());
@@ -1161,7 +1172,7 @@ export default function TicketBookingPage() {
                 onClick={applyMembershipCode}
                 disabled={!membershipCode.trim() || detectingMember}
               >
-                Apply Membership Code
+                {t("checkout:yourDetails.applyMembershipCode")}
               </button>
             </div>
             {membershipCodeMessage ? (
@@ -1178,7 +1189,8 @@ export default function TicketBookingPage() {
             {preview?.membershipBenefitApplied && preview?.ticketPricing?.memberDiscountMinor > 0 ? (
               <p className="ticket-booking__discount-note ticket-booking__discount-note--success">
                 {sanitizeCustomerDiscountLabel(
-                  preview.memberDiscountLabel || CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied
+                  preview.memberDiscountLabel || messagesCopy.discountApplied,
+                  t
                 )}
               </p>
             ) : preview?.membershipDiscountWarning ? (
@@ -1189,11 +1201,11 @@ export default function TicketBookingPage() {
 
             {reservedSeatingEnabled && selectedSeatsDetail.length ? (
               <div className="seat-map-summary" style={{ position: "static", marginBottom: 16 }}>
-                <h3>Selected seats</h3>
+                <h3>{t("checkout:review.selectedSeats")}</h3>
                 <ul>
                   {selectedSeatsDetail.map((s) => (
                     <li key={s.seatId}>
-                      {s.section ? `${s.section} · ` : ""}Row {s.row}, Seat {s.seatNumber}
+                      {s.section ? `${s.section} · ` : ""}{t("checkout:seatMap.row")} {s.row}, {t("checkout:seatMap.seat")} {s.seatNumber}
                       {s.category && s.category !== "regular" ? ` (${s.category})` : ""}
                     </li>
                   ))}
@@ -1213,12 +1225,12 @@ export default function TicketBookingPage() {
 
             <label className="ticket-booking__terms">
               <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
-              I accept the <Link to="/terms-and-conditions" target="_blank">terms and conditions</Link>
+              {t("checkout:review.acceptTerms")} <Link to="/terms-and-conditions" target="_blank">{t("checkout:review.termsAndConditions")}</Link>
             </label>
 
             {detectingMember ? (
               <p className="ticket-booking__status" role="status">
-                Checking membership benefits…
+                {t("checkout:yourDetails.checkingMembershipBenefits")}
               </p>
             ) : null}
             <div className="ticket-booking__nav">
@@ -1235,7 +1247,7 @@ export default function TicketBookingPage() {
                   )
                 }
               >
-                Back
+                {t("checkout:nav.back")}
               </button>
               <button
                 type="button"
@@ -1244,10 +1256,10 @@ export default function TicketBookingPage() {
                 onClick={goToPaymentStep}
               >
                 {detectingMember
-                  ? "Checking membership benefits…"
+                  ? t("checkout:yourDetails.checkingMembershipBenefits")
                   : isFreeCheckout
-                    ? "Complete free booking"
-                    : "Continue to payment"}
+                    ? t("checkout:review.completeFreeBooking")
+                    : t("checkout:review.continueToPayment")}
               </button>
             </div>
           </section>
@@ -1257,19 +1269,19 @@ export default function TicketBookingPage() {
           <section className="ticket-booking__card ticket-booking__card--payment">
             {isFreeCheckout ? (
               <>
-                <h2>Secure booking</h2>
+                <h2>{t("checkout:payment.secureBooking")}</h2>
                 <p className="ticket-booking__free-note">
-                  Your discount covers the full amount. No payment is required.
+                  {t("checkout:payment.freeNote")}
                 </p>
                 {preview?.combined ? (
                   <div className="ticket-booking__summary ticket-booking__summary--large">
                     <div className="ticket-booking__summary-total">
-                      <span>Total due</span><span>{preview.combined.grandTotal}</span>
+                      <span>{t("checkout:payment.totalDue")}</span><span>{preview.combined.grandTotal}</span>
                     </div>
                     {preview.combined.totalSavingsMinor > 0 ? (
                       <p className="ticket-booking__savings">{preview.combined.savingsMessage}</p>
                     ) : (
-                      <p className="ticket-booking__discount-note">Discount applied</p>
+                      <p className="ticket-booking__discount-note">{t("checkout:payment.discountApplied")}</p>
                     )}
                   </div>
                 ) : null}
@@ -1280,29 +1292,29 @@ export default function TicketBookingPage() {
                   disabled={checkoutLoading || !termsAccepted}
                   onClick={completeFreeBooking}
                 >
-                  {checkoutLoading ? "Completing booking…" : "Complete Free Booking"}
+                  {checkoutLoading ? t("checkout:payment.completingBooking") : t("checkout:payment.completeFreeBooking")}
                 </button>
               </>
             ) : (
               <>
-                <h2>Secure payment</h2>
+                <h2>{t("checkout:payment.securePayment")}</h2>
                 {preview?.combined ? (
                   <div className="ticket-booking__summary ticket-booking__summary--large">
                     <div className="ticket-booking__summary-total">
-                      <span>Total due</span><span>{preview.combined.grandTotal}</span>
+                      <span>{t("checkout:payment.totalDue")}</span><span>{preview.combined.grandTotal}</span>
                     </div>
                   </div>
                 ) : null}
 
                 {handlingReturn || checkoutLoading ? (
                   <p className="ticket-booking__status" role="status">
-                    {handlingReturn ? "Confirming your payment…" : "Preparing secure checkout…"}
+                    {handlingReturn ? t("checkout:payment.confirmingPayment") : t("checkout:payment.preparingCheckout")}
                   </p>
                 ) : null}
 
                 {!STRIPE_PUBLISHABLE_KEY && (preview?.combined?.grandTotalMinor ?? 0) > 0 ? (
                   <p className="ticket-booking__error">
-                    Stripe is not configured. Add <code>VITE_STRIPE_PUBLISHABLE_KEY</code> to client/.env and restart.
+                    {t("checkout:errors.stripeNotConfigured")}
                   </p>
                 ) : null}
 
@@ -1344,7 +1356,7 @@ export default function TicketBookingPage() {
                   setStep(REVIEW_STEP);
                 }}
               >
-                Back
+                {t("checkout:nav.back")}
               </button>
             </div>
           </section>

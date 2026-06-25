@@ -78,6 +78,23 @@
   grid-column: 1 / -1;
 }
 
+.admin-settings__field-heading {
+  margin: 0.75rem 0 0;
+  font-size: 0.95rem;
+  opacity: 0.85;
+  border-top: 1px solid var(--admin-border, rgba(255, 255, 255, 0.12));
+  padding-top: 0.75rem;
+}
+
+.admin-settings__hint {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 8px;
+  border: 1px dashed var(--admin-border, rgba(255, 255, 255, 0.12));
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
 .admin-settings__field input,
 .admin-settings__field select,
 .admin-settings__field textarea {

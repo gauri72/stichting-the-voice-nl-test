@@ -8,6 +8,7 @@ import ApiWebhookEvent from "../models/ApiWebhookEvent.js";
 import {
   INTEGRATION_TEMPLATES,
   API_TRIGGERS,
+  WIRED_API_TRIGGERS,
   API_BUILDER_CATEGORIES,
   API_AUTH_TYPES,
   API_CONNECTION_TYPES,
@@ -58,6 +59,14 @@ function formatCredentialForAdmin(doc) {
   };
 }
 
+/** Constant-time comparison so an invalid signature guess can't be narrowed via timing. */
+function timingSafeEqualHex(a, b) {
+  const bufA = Buffer.from(String(a || ""), "utf8");
+  const bufB = Buffer.from(String(b || ""), "utf8");
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
 function formatEndpoint(doc) {
   return {
     id: doc._id.toString(),
@@ -82,7 +91,7 @@ function formatMapping(doc) {
 }
 
 async function loadIntegrationBundle(integrationId) {
-  const integration = await ApiIntegration.findById(integrationId).lean();
+  const integration = await ApiIntegration.findById(integrationId).select("+webhookSecret").lean();
   if (!integration) throwStatus("Integration not found.", 404);
 
   const [credentials, endpoints, fieldMappings] = await Promise.all([
@@ -182,6 +191,7 @@ export function getApiBuilderConfig() {
     environments: API_ENVIRONMENTS,
     statuses: API_INTEGRATION_STATUSES,
     triggers: API_TRIGGERS,
+    wiredTriggers: WIRED_API_TRIGGERS,
     templates: Object.values(INTEGRATION_TEMPLATES),
   };
 }
@@ -191,7 +201,7 @@ export function getTemplateById(templateId) {
 }
 
 export async function listIntegrations() {
-  const rows = await ApiIntegration.find().sort({ updatedAt: -1 }).lean();
+  const rows = await ApiIntegration.find().select("+webhookSecret").sort({ updatedAt: -1 }).lean();
   const result = [];
   for (const integration of rows) {
     const [credentials, endpoints, fieldMappings] = await Promise.all([
@@ -227,7 +237,9 @@ export async function createIntegration(payload, admin) {
     connectionType: payload.connectionType || template?.connectionType || "rest",
     authType: payload.authType || template?.authType || "none",
     templateId: payload.templateId || template?.id || "",
-    triggers: Array.isArray(payload.triggers) ? payload.triggers : [],
+    triggers: Array.isArray(payload.triggers)
+      ? payload.triggers.filter((t) => WIRED_API_TRIGGERS.includes(t))
+      : [],
     oauthConfig: payload.oauthConfig || {},
     createdBy: admin?.id || null,
     updatedBy: admin?.id || null,
@@ -264,7 +276,9 @@ export async function updateIntegration(id, payload, admin) {
   }
   if (payload.environment !== undefined) integration.environment = payload.environment === "live" ? "live" : "test";
   if (payload.status !== undefined) integration.status = payload.status;
-  if (Array.isArray(payload.triggers)) integration.triggers = payload.triggers;
+  if (Array.isArray(payload.triggers)) {
+    integration.triggers = payload.triggers.filter((t) => WIRED_API_TRIGGERS.includes(t));
+  }
   if (payload.oauthConfig) integration.oauthConfig = payload.oauthConfig;
   if (payload.sampleResponse !== undefined) integration.sampleResponse = payload.sampleResponse;
 
@@ -601,7 +615,9 @@ export async function resolveExecutionLog(id, admin) {
 }
 
 export async function handleIncomingWebhook(integrationKey, req) {
-  const integration = await ApiIntegration.findOne({ integrationKey, status: "active" }).lean();
+  const integration = await ApiIntegration.findOne({ integrationKey, status: "active" })
+    .select("+webhookSecret")
+    .lean();
   if (!integration) throwStatus("Webhook integration not found or inactive.", 404);
 
   const rawBody = typeof req.body === "string" ? req.body : JSON.stringify(req.body || {});
@@ -616,7 +632,7 @@ export async function handleIncomingWebhook(integrationKey, req) {
   } else {
     const secret = decryptSecret(integration.webhookSecret);
     const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
-    signatureValid = signature === expected || signature === `sha256=${expected}`;
+    signatureValid = timingSafeEqualHex(signature, expected) || timingSafeEqualHex(signature, `sha256=${expected}`);
   }
 
   const event = await ApiWebhookEvent.create({

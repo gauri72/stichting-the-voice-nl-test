@@ -1,0 +1,36 @@
+{
+  "visionOfSounds": {
+    "label": "Vision Of Sounds",
+    "titleLineOne": "Stories Behind",
+    "titleLineTwo": "The Experience",
+    "description": "Follow the journeys of artists, performers and creators who bring V.O.I.C.E. NL experiences to life.",
+    "featured": {
+      "badge": "Featured Story",
+      "title": "Meet The Artist",
+      "description": "The story behind the performance.",
+      "ctaLabel": "Watch Story"
+    },
+    "card1": { "title": "Artist Stories", "description": "Journeys of passion, talent and perseverance." },
+    "card2": { "title": "Behind The Scenes", "description": "Moments you don't see on stage." },
+    "card3": { "title": "Film Festival Stories", "description": "Short films. Big stories. Global impact." },
+    "card4": { "title": "Community Stories", "description": "Real people. Real stories. Real change." },
+    "viewAllLabel": "View All Stories"
+  },
+  "voiceOfVisionaries": {
+    "label": "Voice Of Visionaries",
+    "titleLineOne": "Ideas That",
+    "titleLineTwo": "Shape Tomorrow",
+    "description": "Conversations with leaders, innovators and changemakers creating impact.",
+    "featured": {
+      "badge": "Featured Episode",
+      "title": "Voice Of Visionaries Podcast",
+      "description": "Deep conversations. Bold ideas. Real impact.",
+      "ctaLabel": "Watch Episode"
+    },
+    "card1": { "title": "TED Style Talks", "description": "Ideas worth spreading. Inspiration for all." },
+    "card2": { "title": "Podcasts", "description": "Conversations that challenge and inspire." },
+    "card3": { "title": "Leadership Stories", "description": "Lessons from leaders who lead with purpose." },
+    "card4": { "title": "Innovation Forums", "description": "Discussions that spark change and progress." },
+    "viewAllLabel": "View All Episodes"
+  }
+}

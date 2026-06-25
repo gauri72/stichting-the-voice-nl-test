@@ -1,16 +1,5 @@
 import mongoose from "mongoose";
-
-const ctaSchema = new mongoose.Schema(
-  {
-    id: { type: String, required: true },
-    text: { type: String, default: "" },
-    url: { type: String, default: "" },
-    target: { type: String, default: "_self" },
-    style: { type: String, default: "primary" },
-    visible: { type: Boolean, default: true },
-  },
-  { _id: false }
-);
+import ctaSchema from "./shared/ctaSchema.js";
 
 const widgetSchema = new mongoose.Schema(
   {

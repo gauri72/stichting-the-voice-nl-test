@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { fieldKey, filterFieldsForDisplay } from "../../utils/checkoutFormUtils.js";
 
 export function serializeCheckoutAnswers(fields, answerMap) {
@@ -17,6 +18,7 @@ export default function DynamicCheckoutForm({
   hideCollected = false,
   knownAnswers = {},
 }) {
+  const { t } = useTranslation(["checkout"]);
   const visible = useMemo(
     () => filterFieldsForDisplay(fields, { hideCollected, knownAnswers }),
     [fields, hideCollected, knownAnswers]
@@ -26,7 +28,7 @@ export default function DynamicCheckoutForm({
 
   return (
     <section className="ticket-booking__card">
-      <h2>Checkout questions</h2>
+      <h2>{t("checkout:dynamicForm.title")}</h2>
       <div className="ticket-booking__form-grid">
         {visible.map((field) => {
           const key = fieldKey(field);
@@ -48,7 +50,7 @@ export default function DynamicCheckoutForm({
               ) : null}
               {field.type === "dropdown" ? (
                 <select {...common}>
-                  <option value="">Select...</option>
+                  <option value="">{t("checkout:dynamicForm.selectPlaceholder")}</option>
                   {(field.options || []).map((o) => <option key={o} value={o}>{o}</option>)}
                 </select>
               ) : null}

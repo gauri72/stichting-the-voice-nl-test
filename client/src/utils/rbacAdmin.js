@@ -27,8 +27,11 @@ export const NAV_ROUTE_PERMISSIONS = {
   "/admin/vouchers": "vouchers.view",
   "/admin/communication": "communication.view",
   "/admin/pages": "cms.view",
+  "/admin/cms": "cms.view",
+  "/admin/cms/team-members": "team_public.view",
   "/admin/api-builder": "api_builder.view",
   "/admin/team-members": "team_public.view",
+  "/admin/members": "memberships.view",
   "/admin/settings": "settings.view",
   "/admin/reports": "reports.view",
   "/admin/access-management": "access_management.view",
@@ -51,8 +54,28 @@ export function hasAnyPermission(permissions, list = []) {
 }
 
 export function canAccessRoute(permissions, path) {
-  const required = NAV_ROUTE_PERMISSIONS[path];
-  if (!required) return true;
+  // Match the longest registered prefix so nested/dynamic sub-routes (e.g.
+  // /admin/events/:id/operations) inherit their parent section's permission
+  // instead of silently falling through as "allowed" just because the exact
+  // path was never registered.
+  let bestMatch = "";
+  let required = null;
+  let matched = false;
+  for (const [registeredPath, permission] of Object.entries(NAV_ROUTE_PERMISSIONS)) {
+    if (
+      (path === registeredPath || path.startsWith(`${registeredPath}/`)) &&
+      registeredPath.length > bestMatch.length
+    ) {
+      bestMatch = registeredPath;
+      required = permission;
+      matched = true;
+    }
+  }
+  if (!matched) {
+    // Fail closed: an admin route with no registered permission mapping
+    // requires superadmin rather than letting any admin through.
+    return Boolean(permissions?.includes("*"));
+  }
   return hasPermission(permissions, required);
 }
 

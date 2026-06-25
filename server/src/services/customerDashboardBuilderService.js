@@ -84,12 +84,16 @@ function sortSections(sections = []) {
 }
 
 function normalizeOrders(sections = []) {
-  return sortSections(sections).map((s, i) => ({ ...s, order: i }));
+  // Sections fresh off a Mongoose document are subdocuments — their schema
+  // fields live behind getters, not as own-enumerable properties, so
+  // spreading them directly silently drops everything except Mongoose's
+  // internal bookkeeping fields. Normalize to a plain object first.
+  return sortSections(sections).map((s, i) => ({ ...(s.toObject?.() || s), order: i }));
 }
 
 function sanitizeCustomerDashboardSection(section) {
   if (!section || typeof section !== "object") return section;
-  const copy = { ...section };
+  const copy = { ...(section.toObject?.() || section) };
   if (copy.sectionType === "custom_rich_text") {
     if (copy.settings?.richText) {
       copy.settings = { ...copy.settings, richText: sanitizeHtml(copy.settings.richText) };
@@ -209,13 +213,32 @@ export async function addSection(payload, adminId) {
   return getBuilderState("draft");
 }
 
+const UPDATABLE_SECTION_FIELDS = [
+  "sectionType",
+  "title",
+  "subtitle",
+  "description",
+  "icon",
+  "imageUrl",
+  "image",
+  "ctas",
+  "settings",
+  "visibilityRules",
+  "isVisible",
+];
+
 export async function updateSection(sectionId, payload, adminId) {
   const doc = await ensureConfigDoc();
   const idx = (doc.draftSections || []).findIndex((s) => s.sectionId === sectionId);
   if (idx === -1) throwError("Section not found.", 404);
+  const existing = doc.draftSections[idx].toObject?.() || doc.draftSections[idx];
+  const updates = {};
+  for (const field of UPDATABLE_SECTION_FIELDS) {
+    if (payload[field] !== undefined) updates[field] = payload[field];
+  }
   doc.draftSections[idx] = sanitizeCustomerDashboardSection({
-    ...doc.draftSections[idx].toObject?.() || doc.draftSections[idx],
-    ...payload,
+    ...existing,
+    ...updates,
     sectionId,
   });
   doc.updatedBy = adminId;

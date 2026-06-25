@@ -31,6 +31,7 @@ import {
   IconShieldLock,
   IconPackage,
   IconFiles,
+  IconVideo,
 } from "@tabler/icons-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
 import { canAccessRoute } from "../../utils/rbacAdmin.js";
@@ -40,38 +41,39 @@ import "../../styles/admin-layout.css";
 import "../../styles/admin-mobile.css";
 
 const NAV_ITEMS = [
-  { to: "/admin/dashboard", label: "Dashboard", icon: IconLayoutDashboard, end: true },
-  { to: "/admin/dashboard-builder", label: "Dashboard Builder", icon: IconLayoutGrid },
-  { to: "/admin/customer-dashboard-builder", label: "Dashboard", icon: IconUsersGroup },
-  { to: "/admin/events", label: "Events", icon: IconTicket },
   {
-    label: "Inventory & Documents",
-    icon: IconPackage,
-    basePath: "/admin/inventory",
+    label: "Dashboard",
+    icon: IconLayoutDashboard,
     children: [
-      { to: "/admin/inventory", label: "Inventory Library", icon: IconPackage },
-      { to: "/admin/documents", label: "Document Library", icon: IconFiles },
+      { to: "/admin/dashboard", label: "Dashboard", icon: IconLayoutDashboard, end: true },
+      { to: "/admin/dashboard-builder", label: "Dashboard Builder", icon: IconLayoutGrid },
+      { to: "/admin/customer-dashboard-builder", label: "Customer Dashboard Builder", icon: IconUsersGroup },
     ],
   },
-  { to: "/admin/sessions", label: "Sessions", icon: IconCalendarEvent },
-  { to: "/admin/session-calendar", label: "Session Calendar", icon: IconCalendarEvent },
-  { to: "/admin/session-bookings", label: "Session Bookings", icon: IconCalendarEvent },
-  { to: "/admin/resources", label: "Resources", icon: IconCalendarEvent },
-  { to: "/admin/rsvps", label: "RSVPs", icon: IconCalendarEvent },
-  { to: "/admin/checkout-forms", label: "Checkout Forms", icon: IconSettings },
-  { to: "/admin/reviews", label: "Reviews", icon: IconMessage },
-  { to: "/admin/tickets", label: "Tickets", icon: IconTicket },
-  { to: "/admin/check-in", label: "Check-in", icon: IconTicket },
-  { to: "/admin/memberships", label: "Memberships", icon: IconUsers },
+  { to: "/admin/events", label: "Events", icon: IconTicket },
+  {
+    label: "Bookings & Check-in",
+    icon: IconCalendarEvent,
+    children: [
+      { to: "/admin/tickets", label: "Tickets", icon: IconTicket },
+      { to: "/admin/check-in", label: "Check-in", icon: IconTicket },
+      { to: "/admin/sessions", label: "Sessions", icon: IconCalendarEvent },
+      { to: "/admin/session-calendar", label: "Session Calendar", icon: IconCalendarEvent },
+      { to: "/admin/session-bookings", label: "Session Bookings", icon: IconCalendarEvent },
+      { to: "/admin/rsvps", label: "RSVPs", icon: IconCalendarEvent },
+      { to: "/admin/resources", label: "Resources", icon: IconCalendarEvent },
+      { to: "/admin/checkout-forms", label: "Checkout Forms", icon: IconSettings },
+    ],
+  },
   { to: "/admin/users", label: "Users", icon: IconUser },
-  { to: "/admin/templates", label: "Templates", icon: IconUpload },
-  { to: "/admin/discounts", label: "Discounts", icon: IconDiscount },
+  { to: "/admin/memberships", label: "Memberships", icon: IconUsers },
   { to: "/admin/sponsorships", label: "Sponsorships", icon: IconHeartHandshake },
   { to: "/admin/donations", label: "Donations", icon: IconHeart },
+  { to: "/admin/discounts", label: "Discounts", icon: IconDiscount },
+  { to: "/admin/vouchers", label: "Vouchers", icon: IconDiscount },
   {
     label: "Finance & Audit",
     icon: IconReportMoney,
-    basePath: "/admin/finance",
     children: [
       { to: "/admin/finance/invoices", label: "Invoices", icon: IconFileInvoice },
       { to: "/admin/finance/event-budgets", label: "Event Budgets", icon: IconChartBar },
@@ -81,14 +83,37 @@ const NAV_ITEMS = [
       { to: "/admin/finance/settings", label: "Settings", icon: IconSettings },
     ],
   },
-  { to: "/admin/vouchers", label: "Vouchers", icon: IconDiscount },
-  { to: "/admin/communication", label: "Communication", icon: IconMail },
-  { to: "/admin/pages", label: "Website Pages", icon: IconWorld },
-  { to: "/admin/api-builder", label: "Smart API Builder", icon: IconApi },
-  { to: "/admin/team-members", label: "Team Members (CMS)", icon: IconUsersGroup },
-  { to: "/admin/access-management", label: "Access Management", icon: IconShieldLock },
-  { to: "/admin/settings", label: "Settings", icon: IconSettings },
+  {
+    label: "Content & Marketing",
+    icon: IconWorld,
+    children: [
+      { to: "/admin/pages", label: "Website Pages", icon: IconWorld },
+      { to: "/admin/events/highlights", label: "Post-Event Highlights", icon: IconVideo },
+      { to: "/admin/team-members", label: "Team Members (CMS)", icon: IconUsersGroup },
+      { to: "/admin/communication", label: "Communication", icon: IconMail },
+      { to: "/admin/reviews", label: "Reviews", icon: IconMessage },
+      { to: "/admin/templates", label: "Templates", icon: IconUpload },
+    ],
+  },
+  {
+    label: "Operations",
+    icon: IconPackage,
+    children: [
+      { to: "/admin/events", label: "Event Operations", icon: IconPackage },
+      { to: "/admin/inventory", label: "Inventory Library", icon: IconPackage },
+      { to: "/admin/documents", label: "Document Library", icon: IconFiles },
+    ],
+  },
   { to: "/admin/reports", label: "Reports", icon: IconChartBar },
+  { to: "/admin/api-builder", label: "Smart API Builder", icon: IconApi },
+  {
+    label: "Administration",
+    icon: IconShieldLock,
+    children: [
+      { to: "/admin/access-management", label: "Access Management", icon: IconShieldLock },
+      { to: "/admin/settings", label: "Settings", icon: IconSettings },
+    ],
+  },
 ];
 
 const MOBILE_NAV_ITEMS = [
@@ -114,10 +139,24 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
   const navigate = useNavigate();
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [financeOpen, setFinanceOpen] = useState(() => location.pathname.startsWith("/admin/finance"));
-  const [inventoryOpen, setInventoryOpen] = useState(
-    () => location.pathname.startsWith("/admin/inventory") || location.pathname.startsWith("/admin/documents")
-  );
+
+  function isGroupActive(item) {
+    return (item.children || []).some((child) =>
+      child.end ? location.pathname === child.to : location.pathname.startsWith(child.to)
+    );
+  }
+
+  const [openGroups, setOpenGroups] = useState(() => {
+    const initial = {};
+    NAV_ITEMS.forEach((item) => {
+      if (item.children) initial[item.label] = isGroupActive(item);
+    });
+    return initial;
+  });
+
+  function toggleGroup(label) {
+    setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
+  }
 
   function closeDrawer() {
     setDrawerOpen(false);
@@ -143,18 +182,14 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
 
   function renderNavItem(item, onClick) {
     if (item.children) {
-      const isInventoryGroup = item.basePath === "/admin/inventory";
-      const isGroupActive = isInventoryGroup
-        ? location.pathname.startsWith("/admin/inventory") || location.pathname.startsWith("/admin/documents")
-        : location.pathname.startsWith(item.basePath);
-      const isOpen = isInventoryGroup ? inventoryOpen : financeOpen;
-      const toggleOpen = isInventoryGroup ? setInventoryOpen : setFinanceOpen;
+      const groupActive = isGroupActive(item);
+      const isOpen = Boolean(openGroups[item.label]);
       return (
         <div key={item.label} className="admin-layout__nav-group">
           <button
             type="button"
-            className={`admin-layout__nav-item admin-layout__nav-group-btn${isGroupActive ? " admin-layout__nav-item--active" : ""}`}
-            onClick={() => toggleOpen((o) => !o)}
+            className={`admin-layout__nav-item admin-layout__nav-group-btn${groupActive ? " admin-layout__nav-item--active" : ""}`}
+            onClick={() => toggleGroup(item.label)}
             aria-expanded={isOpen}
           >
             <item.icon size={20} stroke={1.7} aria-hidden />
@@ -167,6 +202,7 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
                 <NavLink
                   key={child.to}
                   to={child.to}
+                  end={child.end}
                   onClick={onClick}
                   className={({ isActive }) =>
                     `admin-layout__nav-subitem${isActive ? " admin-layout__nav-subitem--active" : ""}`

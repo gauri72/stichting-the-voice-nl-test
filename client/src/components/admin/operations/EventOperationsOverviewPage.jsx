@@ -45,24 +45,36 @@ export default function EventOperationsOverviewPage() {
 
   async function toggleChecklist(item) {
     const next = item.status === "Done" ? "Open" : "Done";
-    await saveChecklistItem(eventId, { status: next }, item.id);
-    const cl = await fetchChecklists(eventId);
-    setChecklists(cl.items || []);
-    reloadOverview?.();
+    try {
+      await saveChecklistItem(eventId, { status: next }, item.id);
+      const cl = await fetchChecklists(eventId);
+      setChecklists(cl.items || []);
+      reloadOverview?.();
+    } catch (err) {
+      setMessage(err.message || "Could not update checklist item.");
+    }
   }
 
   async function saveNotes() {
-    await apiFetch(`/api/admin/events/${eventId}/operations`, {
-      method: "PATCH",
-      headers: adminAuthHeaders(),
-      body: JSON.stringify({ operationsNotes: notes }),
-    });
-    setMessage("Notes saved.");
-    reloadOverview?.();
+    try {
+      await apiFetch(`/api/admin/events/${eventId}/operations`, {
+        method: "PATCH",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify({ operationsNotes: notes }),
+      });
+      setMessage("Notes saved.");
+      reloadOverview?.();
+    } catch (err) {
+      setMessage(err.message || "Could not save notes.");
+    }
   }
 
   async function handleExport(type) {
-    await exportOperations(eventId, type);
+    try {
+      await exportOperations(eventId, type);
+    } catch (err) {
+      setMessage(err.message || "Export failed.");
+    }
   }
 
   const sections = [

@@ -7,11 +7,10 @@ import {
   sendReferralCodeCreatedEmail,
 } from "../services/discountMailer.js";
 
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  const message = error.message || "Something went wrong.";
-  if (status >= 500) console.error("[admin-discounts]", error);
-  return res.status(status).json({ error: message });
+  return handleErrorBase(res, error, { logTag: "[admin-discounts]" });
 }
 
 export async function getDashboard(req, res) {

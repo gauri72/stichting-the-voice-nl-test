@@ -1,0 +1,67 @@
+{
+  "pillars": {
+    "title": "Vier Pijlers. Één Missie.",
+    "learnMore": "Meer informatie",
+    "experience": {
+      "mobileTitle": "Ervaring",
+      "desktopTitle": "V.O.I.C.E. Ervaring",
+      "lead": "Het creëren van onvergetelijke culturele ervaringen.",
+      "tags": "Evenementen • Festivals • Muziek • Dans • Sport"
+    },
+    "stories": {
+      "mobileTitle": "Verhalen",
+      "desktopTitle": "V.O.I.C.E. Verhalen",
+      "lead": "Stemmen delen via Vision Of Sounds.",
+      "tags": "Podcast • Voice Of Visionaries • Media • Fotografie • Interviews"
+    },
+    "impact": {
+      "mobileTitle": "Impact",
+      "desktopTitle": "V.O.I.C.E. Impact",
+      "lead": "VOWNL • Maatschappelijk werk • Gemeenschappen versterken door actie.",
+      "tags": "Jeugd • Inclusie • Onderwijs • Vrijwilligerswerk"
+    },
+    "innovation": {
+      "mobileTitle": "Innovatie",
+      "desktopTitle": "V.O.I.C.E. Innovatie",
+      "lead": "De toekomst bouwen door technologie.",
+      "tags": "V.O.I.C.E. Digital • Apps • Websites • V.O.I.C.E. Venture Studio"
+    }
+  },
+  "getInvolved": {
+    "sponsorUs": { "title": "Sponsor Ons", "description": "Werk met ons samen en creëer samen blijvende impact." },
+    "donateNow": { "title": "Doneer Nu", "description": "Jouw steun helpt ons betekenisvolle verandering te creëren." },
+    "volunteer": { "title": "Vrijwilligerswerk", "description": "Geef je tijd en maak een echt verschil." },
+    "volunteerFormTitle": "Vul Dit Formulier In Om Vrijwilliger Te Worden"
+  },
+  "impactStats": {
+    "stat1": "Grootschalige Evenementen",
+    "stat2": "Levens Beïnvloed",
+    "stat3": "Artiesten Versterkt",
+    "stat4": "Wereldwijde Gemeenschap"
+  },
+  "sponsors": {
+    "title": "Ons Netwerk",
+    "subtitle": "Met trots ondersteund door onze sponsors"
+  },
+  "ourImpact": {
+    "title": "Onze Impact",
+    "joinUs": {
+      "label": "Doe Mee",
+      "heading": "Word Onderdeel Van De Verandering",
+      "description": "Word lid of sponsor en help ons betekenisvolle impact te blijven creëren door middel van kunst en gemeenschap.",
+      "ctaText": "Word Lid"
+    },
+    "sponsorUs": {
+      "label": "Sponsor Ons",
+      "heading": "Ondersteunen. Versterken. Transformeren.",
+      "description": "Jouw sponsoring helpt ons culturele programma's te realiseren, artiesten te versterken en bredere maatschappelijke betrokkenheid te creëren.",
+      "ctaText": "Word Sponsor"
+    },
+    "donate": {
+      "label": "Doneer",
+      "heading": "Geef Hoop Door Cultuur.",
+      "description": "Elke bijdrage maakt inclusieve evenementen mogelijk, voedt jong talent en houdt door de gemeenschap geleide creativiteit levend.",
+      "ctaText": "Doneer Nu"
+    }
+  }
+}

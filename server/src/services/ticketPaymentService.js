@@ -1,4 +1,5 @@
 import { getStripe, isStripeConfigured } from "./stripe.js";
+import { getActivePaymentProvider } from "./stripeSettingsService.js";
 import env from "../config/env.js";
 
 /**
@@ -25,6 +26,11 @@ export async function createTicketPaymentIntent({
 
   if (!isStripeConfigured()) {
     const err = new Error("Payment provider is not configured. Contact the event organiser.");
+    err.status = 503;
+    throw err;
+  }
+  if (!(await getActivePaymentProvider())) {
+    const err = new Error("Online payments are currently disabled. Please try again later.");
     err.status = 503;
     throw err;
   }

@@ -3,7 +3,6 @@ import {
   IconPlus,
   IconSearch,
   IconEdit,
-  IconUser,
   IconMail,
   IconPhone,
   IconAlertCircle,

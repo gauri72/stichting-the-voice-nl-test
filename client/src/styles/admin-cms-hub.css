@@ -1,0 +1,45 @@
+.admin-cms-hub__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.admin-cms-hub__tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--ad-border, #2a2f3a);
+  border-radius: 12px;
+  background: var(--ad-surface, #161b22);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.admin-cms-hub__tile:not(.admin-cms-hub__tile--disabled):hover {
+  border-color: #7c3aed;
+  transform: translateY(-2px);
+}
+
+.admin-cms-hub__tile h3 { margin: 0; font-size: 1rem; }
+.admin-cms-hub__tile p { margin: 0; font-size: 0.82rem; color: var(--ad-muted, #94a3b8); }
+
+.admin-cms-hub__tile--disabled { opacity: 0.55; cursor: not-allowed; }
+
+.admin-cms-hub__badge {
+  align-self: flex-start;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--ad-muted, #94a3b8);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.admin-cms-hub__note {
+  font-size: 0.72rem;
+  color: #7c3aed;
+}

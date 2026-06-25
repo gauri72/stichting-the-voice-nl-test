@@ -1,6 +1,7 @@
 import EventTestimonial from "../models/EventTestimonial.js";
 import Event from "../models/Event.js";
 import { getNextSequence } from "../utils/sequence.js";
+import { escapeRegex } from "../utils/regexUtils.js";
 
 function trimField(value, maxLen) {
   return String(value || "").trim().slice(0, maxLen);
@@ -133,7 +134,7 @@ export async function listAdminReviews(filters = {}) {
   const query = {};
   if (filters.status && filters.status !== "all") query.status = filters.status;
   if (filters.search) {
-    const needle = String(filters.search).trim();
+    const needle = escapeRegex(String(filters.search).trim());
     query.$or = [
       { name: new RegExp(needle, "i") },
       { quote: new RegExp(needle, "i") },

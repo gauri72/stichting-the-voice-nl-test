@@ -75,8 +75,3 @@ export async function saveStagePlanImage(dataUrl) {
 export async function saveGlobalInventoryImage(dataUrl) {
   return saveOperationsFile({ dataUrl, subfolder: "inventory-images", maxSize: MAX_STAGE_IMAGE_SIZE });
 }
-
-export function resolveUploadPath(fileUrl) {
-  if (!fileUrl || !fileUrl.startsWith("/uploads/event-operations/")) return null;
-  return path.join(process.cwd(), "public", fileUrl.replace(/^\//, ""));
-}

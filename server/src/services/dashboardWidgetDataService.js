@@ -103,11 +103,17 @@ export async function resolveDashboardWidgets(widgets, admin, dataBundle = null)
   const resolved = [];
 
   for (const widget of widgets) {
+    // Widgets coming straight off a Mongoose document are subdocuments —
+    // their schema fields (title, layout, widgetType...) live behind
+    // getters, not as own-enumerable properties, so spreading them directly
+    // silently drops everything except Mongoose's internal bookkeeping
+    // fields. Normalize to a plain object first.
+    const plainWidget = typeof widget.toObject === "function" ? widget.toObject() : widget;
     try {
-      const data = await resolveWidgetData(widget, bundle);
-      resolved.push({ ...widget, data });
+      const data = await resolveWidgetData(plainWidget, bundle);
+      resolved.push({ ...plainWidget, data });
     } catch (error) {
-      resolved.push({ ...widget, data: { error: error.message } });
+      resolved.push({ ...plainWidget, data: { error: error.message } });
     }
   }
 

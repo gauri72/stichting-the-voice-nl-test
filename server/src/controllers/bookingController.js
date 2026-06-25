@@ -1,7 +1,7 @@
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  if (status >= 500) console.error("[booking-engine]", error);
-  return res.status(status).json({ error: error.message || "Something went wrong." });
+  return handleErrorBase(res, error, { logTag: "[booking-engine]" });
 }
 
 export async function resolveBookingFlow(req, res) {

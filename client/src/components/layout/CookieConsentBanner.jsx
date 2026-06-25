@@ -1,33 +1,49 @@
-import { useMemo, useState } from "react";
-import { applyCookieConsent, readCookieConsent } from "../../utils/cookieConsent.js";
+import { useTranslation } from "react-i18next";
+import { useCookieConsent } from "../../contexts/CookieConsentContext.jsx";
 
 export default function CookieConsentBanner() {
-  const [consent, setConsent] = useState(() => readCookieConsent());
+  const { t } = useTranslation(["cookies"]);
+  const { showBanner, acceptAll, rejectAll, openPreferences } = useCookieConsent();
 
-  const isVisible = useMemo(() => consent !== "accepted" && consent !== "rejected", [consent]);
-
-  if (!isVisible) return null;
-
-  function handleChoice(nextConsent) {
-    applyCookieConsent(nextConsent);
-    setConsent(nextConsent);
-  }
+  if (!showBanner) return null;
 
   return (
-    <aside className="cookie-consent" role="dialog" aria-live="polite" aria-label="Cookie preferences">
+    <aside
+      className="cookie-consent"
+      role="dialog"
+      aria-live="polite"
+      aria-label={t("cookies:modal.title")}
+    >
       <div className="cookie-consent__content">
-        <p className="cookie-consent__title">Cookies on this website</p>
+        <p className="cookie-consent__title">{t("cookies:banner.title")}</p>
         <p className="cookie-consent__text">
-          We use essential cookies to keep the site working and optional cookies to understand usage and improve
-          your experience.
+          {t("cookies:banner.text")}{" "}
+          <a href="/privacy-policy#policy-cookie" className="cookie-consent__link">
+            {t("cookies:banner.policyLinkText")}
+          </a>
         </p>
       </div>
       <div className="cookie-consent__actions">
-        <button type="button" className="cookie-consent__btn cookie-consent__btn--secondary" onClick={() => handleChoice("rejected")}>
-          Reject Optional
+        <button
+          type="button"
+          className="cookie-consent__btn cookie-consent__btn--tertiary"
+          onClick={openPreferences}
+        >
+          {t("cookies:banner.managePreferences")}
         </button>
-        <button type="button" className="cookie-consent__btn cookie-consent__btn--primary" onClick={() => handleChoice("accepted")}>
-          Accept All
+        <button
+          type="button"
+          className="cookie-consent__btn cookie-consent__btn--secondary"
+          onClick={rejectAll}
+        >
+          {t("cookies:banner.rejectAll")}
+        </button>
+        <button
+          type="button"
+          className="cookie-consent__btn cookie-consent__btn--primary"
+          onClick={acceptAll}
+        >
+          {t("cookies:banner.acceptAll")}
         </button>
       </div>
     </aside>

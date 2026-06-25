@@ -5,7 +5,6 @@ import Membership from "../models/Membership.js";
 import PastData from "../models/PastData.js";
 import EventTestimonial from "../models/EventTestimonial.js";
 import ActivityLog from "../models/ActivityLog.js";
-import EventRegistration from "../models/EventRegistration.js";
 import SequenceCounter from "../models/SequenceCounter.js";
 import Admin from "../models/Admin.js";
 import EmailTemplate from "../models/EmailTemplate.js";
@@ -93,7 +92,6 @@ const MODELS = [
   ["past_data", PastData],
   ["reviews", EventTestimonial],
   ["activitylogs", ActivityLog],
-  ["eventregistrations", EventRegistration],
   ["sequencecounters", SequenceCounter],
   ["admins", Admin],
   ["email_templates", EmailTemplate],

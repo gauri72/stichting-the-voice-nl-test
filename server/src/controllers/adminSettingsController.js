@@ -1,7 +1,7 @@
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  if (status >= 500) console.error("[admin-settings]", error);
-  return res.status(status).json({ error: error.message || "Something went wrong." });
+  return handleErrorBase(res, error, { logTag: "[admin-settings]" });
 }
 
 function clientIp(req) {
@@ -28,33 +28,36 @@ export async function getCategorySettings(req, res) {
   }
 }
 
-export async function patchCategorySettings(req, res) {
+async function applyCategorySettingsPatch(req, res, category) {
   try {
     const { updateCategorySettings } = await import("../services/settingsService.js");
     const { loadStripeSecretsFromSettings } = await import("../services/stripe.js");
+    const { loadEmailSecretsFromSettings } = await import("../services/smtpTransport.js");
 
-    if (["stripe", "bank", "payment"].includes(req.params.category) && req.body?.confirm !== true) {
+    if (["stripe", "bank", "payment"].includes(category) && req.body?.confirm !== true) {
       return res.status(400).json({
         error: "Confirmation required for financial settings changes.",
         requireConfirm: true,
       });
     }
 
-    const settings = await updateCategorySettings(
-      req.params.category,
-      req.body,
-      req.admin?.id,
-      clientIp(req)
-    );
+    const settings = await updateCategorySettings(category, req.body, req.admin?.id, clientIp(req));
 
-    if (req.params.category === "stripe") {
+    if (category === "stripe") {
       await loadStripeSecretsFromSettings();
     }
+    if (category === "email_provider") {
+      await loadEmailSecretsFromSettings();
+    }
 
-    return res.json({ category: req.params.category, settings });
+    return res.json({ category, settings });
   } catch (error) {
     return handleError(res, error);
   }
+}
+
+export async function patchCategorySettings(req, res) {
+  return applyCategorySettingsPatch(req, res, req.params.category);
 }
 
 export async function getStripeSettings(req, res) {
@@ -68,11 +71,10 @@ export async function getStripeSettings(req, res) {
 }
 
 export async function patchStripeSettings(req, res) {
-  req.params.category = "stripe";
   if (req.body?.confirm !== true) {
     return res.status(400).json({ error: "Confirmation required.", requireConfirm: true });
   }
-  return patchCategorySettings(req, res);
+  return applyCategorySettingsPatch(req, res, "stripe");
 }
 
 export async function testStripeConnection(req, res) {
@@ -116,11 +118,10 @@ export async function getBankSettings(req, res) {
 }
 
 export async function patchBankSettings(req, res) {
-  req.params.category = "bank";
   if (req.body?.confirm !== true) {
     return res.status(400).json({ error: "Confirmation required.", requireConfirm: true });
   }
-  return patchCategorySettings(req, res);
+  return applyCategorySettingsPatch(req, res, "bank");
 }
 
 export async function getEmailProviderSettings(req, res) {
@@ -134,8 +135,7 @@ export async function getEmailProviderSettings(req, res) {
 }
 
 export async function patchEmailProviderSettings(req, res) {
-  req.params.category = "email_provider";
-  return patchCategorySettings(req, res);
+  return applyCategorySettingsPatch(req, res, "email_provider");
 }
 
 export async function testEmailProvider(req, res) {

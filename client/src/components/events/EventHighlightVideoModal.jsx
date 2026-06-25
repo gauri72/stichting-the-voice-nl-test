@@ -1,7 +1,15 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { IconMapPin, IconCalendar, IconX, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import "../../styles/event-highlight-video-modal.css";
+
+const BADGE_KEYS_EN = {
+  "Past Event": "pastEvent",
+  "Watch Highlights": "watchHighlights",
+  "Highlights Coming Soon": "highlightsComingSoon",
+  "Video Available": "videoAvailable",
+};
 
 export default function EventHighlightVideoModal({
   highlights = [],
@@ -11,6 +19,7 @@ export default function EventHighlightVideoModal({
   onPrev,
   onTrack = () => {},
 }) {
+  const { t } = useTranslation(["events", "common"]);
   const highlight = activeIndex >= 0 ? highlights[activeIndex] : null;
   const touchStart = useRef(null);
   const touchMove = useRef(null);
@@ -109,9 +118,9 @@ export default function EventHighlightVideoModal({
                 <img src={highlight.thumbnailUrl} alt="" className="ehvm__placeholder-image" />
               ) : null}
               <div className="ehvm__coming-soon-overlay">
-                <p className="ehvm__coming-soon-badge">Highlights Coming Soon</p>
+                <p className="ehvm__coming-soon-badge">{t("events:highlightsSlider.badge.highlightsComingSoon")}</p>
                 <p className="ehvm__coming-soon-text">
-                  We are preparing the highlight reel for this unforgettable event.
+                  {t("events:videoModal.comingSoonText")}
                 </p>
               </div>
             </div>
@@ -122,7 +131,11 @@ export default function EventHighlightVideoModal({
         </div>
 
         <div className="ehvm__body">
-          <p className="ehvm__eyebrow">{highlight.badgeText}</p>
+          <p className="ehvm__eyebrow">
+            {BADGE_KEYS_EN[highlight.badgeText]
+              ? t(`events:highlightsSlider.badge.${BADGE_KEYS_EN[highlight.badgeText]}`)
+              : highlight.badgeText}
+          </p>
           <h2 id="ehvm-title" className="ehvm__title">
             {highlight.highlightTitle}
           </h2>
@@ -150,9 +163,9 @@ export default function EventHighlightVideoModal({
             {highlight.highlightDescription || highlight.impactText}
           </p>
           <div className="ehvm__footer">
-            <button type="button" className="ehvm__footer-btn" onClick={onPrev}>Previous</button>
-            <button type="button" className="ehvm__footer-btn" onClick={onNext}>Next</button>
-            <button type="button" className="ehvm__footer-btn ehvm__footer-btn--close" onClick={onClose}>Close</button>
+            <button type="button" className="ehvm__footer-btn" onClick={onPrev}>{t("events:videoModal.previous")}</button>
+            <button type="button" className="ehvm__footer-btn" onClick={onNext}>{t("common:buttons.next")}</button>
+            <button type="button" className="ehvm__footer-btn ehvm__footer-btn--close" onClick={onClose}>{t("common:buttons.close")}</button>
           </div>
         </div>
       </div>

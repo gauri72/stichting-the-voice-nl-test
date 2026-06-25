@@ -8,6 +8,7 @@ import DonateOtherWaysSection from "./DonateOtherWaysSection";
 import { getCheckoutPageState } from "../../utils/stripePayment";
 import CmsAwarePage from "../cms/CmsAwarePage.jsx";
 import "../../styles/donate-page.css";
+import { devWarn, devInfo } from "../../utils/devLog.js";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
@@ -28,14 +29,14 @@ async function warmUpApi(signal) {
         cache: "no-store",
       });
       if (res.ok) {
-        console.info("[warm-up] API is awake");
+        devInfo("[warm-up] API is awake");
         return;
       }
     } catch (_err) {
       // retry
     }
   }
-  console.warn("[warm-up] API did not respond after retries");
+  devWarn("[warm-up] API did not respond after retries");
 }
 
 export default function DonatePage() {

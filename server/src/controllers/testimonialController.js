@@ -11,10 +11,10 @@ import {
   deleteAdminReview,
 } from "../services/testimonialService.js";
 
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  if (status >= 500) console.error("[reviews]", error);
-  return res.status(status).json({ error: error.message || "Something went wrong." });
+  return handleErrorBase(res, error, { logTag: "[reviews]" });
 }
 
 export async function listTestimonials(req, res) {

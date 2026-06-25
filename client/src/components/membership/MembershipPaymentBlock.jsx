@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Elements } from "@stripe/react-stripe-js";
 import StripeCheckoutForm from "../payments/StripeCheckoutForm";
-import { loadStripe } from "@stripe/stripe-js";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import {
   getStripeElementsAppearance,
@@ -10,45 +10,27 @@ import {
   isPaymentReturnUrl,
   persistCheckoutSession,
   readCheckoutPayer,
-  readCheckoutSession
+  readCheckoutSession,
+  fetchWithTimeout,
+  formatStripeAmountLabel,
+  WAKING_HINT_DELAY_MS
 } from "../../utils/stripePayment";
 import { useResolvedCheckoutTier } from "../../hooks/useResolvedCheckoutTier.js";
+import { useApiWarmup } from "../../hooks/useApiWarmup.js";
 import { useTheme } from "../../contexts/ThemeContext.jsx";
-import { authHeaders } from "../../utils/api.js";
+import { authHeaders, apiUrl } from "../../utils/api.js";
+import { getStripePromise, STRIPE_PUBLISHABLE_KEY } from "../../utils/stripeClient.js";
 import "../../styles/sponsorship-payment-block.css";
 
 export const MEMBERSHIP_CHECKOUT_SESSION_KEY = "voice_nl_membership_checkout";
 const MEMBERSHIP_RETURN_PATH = "/membership";
-
-const PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
-const apiUrl = (path) => `${API_BASE}${path}`;
-
-const REQUEST_TIMEOUT_MS = 75000;
-const WAKING_HINT_DELAY_MS = 4000;
-
-async function fetchWithTimeout(url, options = {}, timeoutMs = REQUEST_TIMEOUT_MS) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-let stripePromise = null;
-function getStripePromise() {
-  if (stripePromise) return stripePromise;
-  if (!PUBLISHABLE_KEY) return null;
-  stripePromise = loadStripe(PUBLISHABLE_KEY);
-  return stripePromise;
-}
+const PUBLISHABLE_KEY = STRIPE_PUBLISHABLE_KEY;
 
 const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
   { tier, onClose },
   ref
 ) {
+  const { t } = useTranslation(["checkout"]);
   const { isDark } = useTheme();
   const activeTier = useResolvedCheckoutTier(MEMBERSHIP_CHECKOUT_SESSION_KEY, tier);
   const stripeAppearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
@@ -121,19 +103,12 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
     });
   }, []);
 
-  const amountLabel = useMemo(() => {
-    if (intentMeta?.amount) {
-      try {
-        return new Intl.NumberFormat("en-IE", {
-          style: "currency",
-          currency: (intentMeta.currency || "eur").toUpperCase()
-        }).format(intentMeta.amount / 100);
-      } catch (_err) {
-        return `${(intentMeta.currency || "EUR").toUpperCase()} ${(intentMeta.amount / 100).toFixed(2)}`;
-      }
-    }
-    return activeTier?.amountLabel || "";
-  }, [intentMeta, activeTier]);
+  useApiWarmup();
+
+  const amountLabel = useMemo(
+    () => formatStripeAmountLabel(intentMeta, activeTier?.amountLabel || ""),
+    [intentMeta, activeTier]
+  );
 
   function updateField(name, value) {
     setMember((prev) => ({ ...prev, [name]: value }));
@@ -142,13 +117,11 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
   async function handleDetailsSubmit(event) {
     event.preventDefault();
     if (!PUBLISHABLE_KEY) {
-      setSubmitError(
-        "Stripe publishable key is missing. Add VITE_STRIPE_PUBLISHABLE_KEY to client/.env and restart the dev server."
-      );
+      setSubmitError(t("checkout:paymentBlock.errors.stripeKeyMissing"));
       return;
     }
     if (!activeTier?.id) {
-      setSubmitError("Membership tier is missing. Please refresh and select a plan.");
+      setSubmitError(t("checkout:paymentBlock.membership.tierMissing"));
       return;
     }
     setLoading(true);
@@ -185,7 +158,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data?.error || "Could not start the payment. Please try again.");
+        throw new Error(data?.error || t("checkout:paymentBlock.errors.couldNotStart"));
       }
 
       const meta = {
@@ -205,15 +178,11 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
       setStep("payment");
     } catch (error) {
       if (error?.name === "AbortError") {
-        setSubmitError(
-          "The payment server took too long to respond. It may be waking up from sleep. Please wait a moment and try again."
-        );
+        setSubmitError(t("checkout:paymentBlock.errors.tooLong"));
       } else if (error instanceof TypeError) {
-        setSubmitError(
-          "Could not reach the payment server. Please check your connection and try again."
-        );
+        setSubmitError(t("checkout:paymentBlock.errors.couldNotReach"));
       } else {
-        setSubmitError(error.message || "Could not start the payment.");
+        setSubmitError(error.message || t("checkout:paymentBlock.errors.couldNotStartGeneric"));
       }
     } finally {
       clearTimeout(wakingTimer);
@@ -249,16 +218,18 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
       <div className="sponsorship-payment__container">
         <div className="sponsorship-payment__header">
           <div>
-            <p className="sponsorship-payment__eyebrow">Secure Checkout</p>
+            <p className="sponsorship-payment__eyebrow">{t("checkout:paymentBlock.secureCheckout")}</p>
             <h3 id="membership-payment-title" className="sponsorship-payment__title">
               {step === "done"
-                ? "Welcome to the V.O.I.C.E. NL family!"
-                : `Become a Member${activeTier?.name ? ` — ${activeTier.name}` : ""}`}
+                ? t("checkout:paymentBlock.membership.thankYouTitle")
+                : activeTier?.name
+                  ? t("checkout:paymentBlock.membership.titleWithTier", { tier: activeTier.name })
+                  : t("checkout:paymentBlock.membership.titleBase")}
             </h3>
             {step !== "done" && activeTier ? (
               <p className="sponsorship-payment__subtitle">
                 {activeTier.amountLabel}
-                <span> / year</span>
+                <span>{t("checkout:paymentBlock.membership.perYear")}</span>
               </p>
             ) : null}
           </div>
@@ -267,7 +238,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
               type="button"
               className="sponsorship-payment__close"
               onClick={onClose}
-              aria-label="Close payment block"
+              aria-label={t("checkout:paymentBlock.closeBlock")}
             >
               <FaTimes aria-hidden />
             </button>
@@ -276,15 +247,14 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
 
         {stripeMissingKey ? (
           <div className="sponsorship-payment__notice">
-            <strong>Stripe is not configured yet.</strong> Add{" "}
-            <code>VITE_STRIPE_PUBLISHABLE_KEY</code> to <code>client/.env</code> and{" "}
-            <code>STRIPE_SECRET_KEY</code> to <code>server/.env</code>, then restart the dev server.
+            <strong>{t("checkout:paymentBlock.stripeNotConfiguredTitle")}</strong>{" "}
+            {t("checkout:paymentBlock.stripeNotConfiguredBody")}
           </div>
         ) : null}
 
         {handlingReturn && step !== "done" ? (
           <p className="sponsorship-payment__waking-hint" role="status" aria-live="polite">
-            Confirming your payment…
+            {t("checkout:paymentBlock.confirmingPayment")}
           </p>
         ) : null}
 
@@ -292,57 +262,57 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
           <form className="sponsorship-payment__details" onSubmit={handleDetailsSubmit}>
             <div className="sponsorship-payment__grid">
               <label className="sponsorship-payment__field sponsorship-payment__field--full">
-                <span>Full name *</span>
+                <span>{t("checkout:paymentBlock.fullName")}</span>
                 <input
                   type="text"
                   required
                   autoComplete="name"
                   value={member.name}
                   onChange={(event) => updateField("name", event.target.value)}
-                  placeholder="Jane Doe"
+                  placeholder={t("checkout:paymentBlock.namePlaceholder")}
                 />
               </label>
               <label className="sponsorship-payment__field">
-                <span>Email *</span>
+                <span>{t("checkout:paymentBlock.email")}</span>
                 <input
                   type="email"
                   required
                   autoComplete="email"
                   value={member.email}
                   onChange={(event) => updateField("email", event.target.value)}
-                  placeholder="you@example.com"
+                  placeholder={t("checkout:paymentBlock.emailPlaceholder")}
                 />
               </label>
               <label className="sponsorship-payment__field">
-                <span>Phone</span>
+                <span>{t("checkout:paymentBlock.phone")}</span>
                 <input
                   type="tel"
                   autoComplete="tel"
                   value={member.phone}
                   onChange={(event) => updateField("phone", event.target.value)}
-                  placeholder="+31 6 1234 5678"
+                  placeholder={t("checkout:paymentBlock.phonePlaceholder")}
                 />
               </label>
               <label className="sponsorship-payment__field sponsorship-payment__field--full">
-                <span>Country</span>
+                <span>{t("checkout:paymentBlock.country")}</span>
                 <input
                   type="text"
                   autoComplete="country-name"
                   value={member.country}
                   onChange={(event) => updateField("country", event.target.value)}
-                  placeholder="The Netherlands"
+                  placeholder={t("checkout:paymentBlock.countryPlaceholder")}
                 />
               </label>
               <label className="sponsorship-payment__field sponsorship-payment__field--full">
-                <span>Discount code</span>
+                <span>{t("checkout:paymentBlock.discountCode")}</span>
                 <input
                   type="text"
                   value={discountCode}
                   onChange={(event) => setDiscountCode(event.target.value)}
-                  placeholder="e.g. SAVE20"
+                  placeholder={t("checkout:paymentBlock.discountCodePlaceholder")}
                 />
                 <span className="sponsorship-payment__field-hint">
-                  Please note: discount codes are case-sensitive.
+                  {t("checkout:paymentBlock.discountCaseSensitive")}
                 </span>
               </label>
             </div>
@@ -360,14 +330,13 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
             >
               {loading
                 ? wakingUp
-                  ? "Waking up secure checkout, please wait..."
-                  : "Preparing secure checkout..."
-                : "Continue to payment"}
+                  ? t("checkout:paymentBlock.wakingUp")
+                  : t("checkout:paymentBlock.preparing")
+                : t("checkout:paymentBlock.continueToPayment")}
             </button>
             {loading && wakingUp ? (
               <p className="sponsorship-payment__waking-hint" aria-live="polite">
-                Our payment service is starting up. The first request can take up
-                to a minute. Subsequent requests will be instant.
+                {t("checkout:paymentBlock.wakingHint")}
               </p>
             ) : null}
           </form>
@@ -379,7 +348,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
               <div className="sponsorship-payment__discount-applied">
                 <FaCheckCircle aria-hidden />
                 <span>
-                  Discount code <strong>{discountInfo.code}</strong> applied! ({discountInfo.discountValue}% discount)
+                  {t("checkout:paymentBlock.discountApplied", { code: discountInfo.code, value: discountInfo.discountValue })}
                 </span>
               </div>
             ) : null}
@@ -410,13 +379,12 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
             <span className="sponsorship-payment__success-icon" aria-hidden>
               <FaCheckCircle />
             </span>
-            <h4>Your membership is confirmed.</h4>
+            <h4>{t("checkout:paymentBlock.membership.receivedTitle")}</h4>
             <p>
-              A confirmation email with your membership ID, QR code, and receipt is on its way to{" "}
-              <strong>{member.email || "your email address"}</strong>.
+              {t("checkout:paymentBlock.membership.receivedBody", { email: member.email || t("checkout:paymentBlock.emailPlaceholder") })}
             </p>
             <p className="sponsorship-payment__success-ref">
-              Payment reference: <code>{success.id}</code>
+              {t("checkout:paymentBlock.paymentReference")}: <code>{success.id}</code>
             </p>
             {onClose ? (
               <button
@@ -424,7 +392,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
                 className="sponsorship-payment__continue-btn"
                 onClick={onClose}
               >
-                Back to membership plans
+                {t("checkout:paymentBlock.membership.backButton")}
               </button>
             ) : null}
           </div>

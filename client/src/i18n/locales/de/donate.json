@@ -1,0 +1,41 @@
+{
+  "plans": {
+    "heading": "Wählen Sie Ihre Wirkung",
+    "mostPopular": "BELIEBT",
+    "selected": "Ausgewählt — nach unten scrollen",
+    "donateNow": "Jetzt Spenden",
+    "secureHeadline": "100% Sichere Spenden.",
+    "secureSubtext": "Ihr Beitrag ist bei uns sicher.",
+    "tier1": { "name": "Unterstützer", "description": "Helfen Sie uns, Kulturprogramme für alle zugänglich zu halten." },
+    "tier2": { "name": "Freund", "description": "Stärken Sie Workshops, Vorführungen und Gemeinschaftstreffen." },
+    "tier3": { "name": "Champion", "description": "Werden Sie ein Kernunterstützer unserer Flaggschiff-Events und Outreach-Arbeit." },
+    "tier4": { "name": "Förderer", "description": "Unterstützen Sie größere Initiativen und helfen Sie, unsere Reichweite weltweit auszubauen." },
+    "tier5": { "name": "Visionär", "description": "Schaffen Sie eine transformative Wirkung und helfen Sie, eine bessere Zukunft zu gestalten." },
+    "tier6": { "name": "Zahlen Sie, Was Sie Möchten", "description": "Geben Sie jeden beliebigen Betrag — jeder Beitrag hilft unserer Mission." }
+  },
+  "allocation": {
+    "heading": "Wohin Ihre Spende Fließt",
+    "item1": { "title": "Kunst & Kultur", "description": "Live-Auftritte, Festivals und kreative Präsentationen, die vielfältige Stimmen feiern." },
+    "item2": { "title": "Gemeinschaftsprogramme", "description": "Nachbarschaftsveranstaltungen und Treffen, die Vertrauen, Freude und Zugehörigkeit aufbauen." },
+    "item3": { "title": "Bildung & Jugend", "description": "Workshops, Mentoring und Lernwege, die Türen für die nächste Generation öffnen." },
+    "item4": { "title": "Gesundheit & Wohlbefinden", "description": "Initiativen, die das Wohlbefinden durch Kultur, Bewegung und achtsame Verbindung fördern." },
+    "item5": { "title": "Kultureller Austausch", "description": "Internationale Zusammenarbeit, die Perspektiven erweitert und gegenseitigen Respekt vertieft." },
+    "item6": { "title": "Nachhaltigkeit", "description": "Grünere Veranstaltungen und verantwortungsbewusster Betrieb, die sich um Mensch und Planet kümmern." }
+  },
+  "impact": {
+    "titleLine": "Echte Wirkung.",
+    "titleAccent": "Echter Wandel.",
+    "stat1": "Hochwertige Veranstaltungen",
+    "stat2": "Erstklassige Veranstaltungsorte",
+    "stat3": "Geförderte Künstler",
+    "stat4": "Fachkundige Mitglieder",
+    "stat5": "Freudvolle Stunden des Glücks"
+  },
+  "otherWays": {
+    "heading": "Andere Wege zu Spenden",
+    "learnMore": "Mehr Erfahren",
+    "item1": { "title": "Unternehmenspartnerschaften", "description": "Arbeiten Sie mit uns zusammen, um gemeinsam eine bedeutungsvolle Wirkung zu erzielen." },
+    "item2": { "title": "Sachspenden", "description": "Unterstützen Sie unsere Mission durch die Spende von Gütern, Dienstleistungen oder Ressourcen." },
+    "item3": { "title": "Werden Sie Freiwilliger", "description": "Geben Sie Ihre Zeit und Fähigkeiten, um unserer Gemeinschaft zu helfen, erfolgreich zu sein." }
+  }
+}

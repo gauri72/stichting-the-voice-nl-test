@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { getReturnTo } from "../../utils/authRedirect.js";
 import LoginBreadcrumbSection from "./LoginBreadcrumbSection";
@@ -8,6 +9,7 @@ import LoginCtaSection from "./LoginCtaSection";
 import "../../styles/login-page.css";
 
 export default function LoginPage() {
+  const { t } = useTranslation(["auth"]);
   const { user, loading } = useAuth();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -38,7 +40,7 @@ export default function LoginPage() {
       <LoginBreadcrumbSection mode={authMode} />
       {sessionExpired ? (
         <p className="login-page-session-notice" role="status">
-          Your session expired after 10 minutes of inactivity. Please sign in again.
+          {t("auth:sessionExpired")}
         </p>
       ) : null}
       <LoginFormSection

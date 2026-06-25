@@ -6,6 +6,8 @@ import { logAdminAction, getAuditLogsForTarget } from "./adminAuditService.js";
 import { renderDonationReceiptPdf } from "./receiptPdf.js";
 import { sendModuleEmail } from "./sponsorshipDonationMailer.js";
 import { resolveDonationPublicContactEmail } from "../config/donationPublicContact.js";
+import { escapeRegex } from "../utils/regexUtils.js";
+import { syncFinanceTransaction } from "./financeTransactionSyncService.js";
 
 function throwError(message, status = 400) {
   const err = new Error(message);
@@ -95,7 +97,7 @@ function buildDonationFilter(params) {
     }
   }
   if (params.search) {
-    const q = params.search.trim();
+    const q = escapeRegex(params.search.trim());
     filter.$or = [
       { donorName: new RegExp(q, "i") },
       { email: new RegExp(q, "i") },
@@ -474,6 +476,17 @@ export async function markDonationPaid(id, adminId, body = {}) {
     targetType: "donation",
     targetId: id,
     summary: "Donation Marked Paid",
+  });
+
+  await syncFinanceTransaction({
+    category: "donation_revenue",
+    description: `Donation — ${doc.donorName || doc.donationId}`,
+    relatedModule: "donations",
+    relatedRecordId: doc.donationId,
+    amount: doc.amount,
+    paymentMethod: doc.paymentMethod,
+    paymentReference: doc.paymentReference,
+    transactionDate: doc.paymentDate,
   });
 
   if (body.sendReceiptEmail && doc.email) {

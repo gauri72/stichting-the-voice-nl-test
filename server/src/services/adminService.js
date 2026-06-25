@@ -54,7 +54,7 @@ export async function loginAdmin({ email, password, rememberMe }, req = null) {
   }
 
   const normalizedEmail = normalizeEmail(email);
-  const admin = await Admin.findOne({ email: normalizedEmail });
+  const admin = await Admin.findOne({ email: normalizedEmail }).select("+passwordHash");
 
   if (!admin || !admin.isActive || ["disabled", "suspended"].includes(admin.status)) {
     await writeAccessAudit({

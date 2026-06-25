@@ -1,4 +1,5 @@
 const buckets = new Map();
+const SWEEP_INTERVAL_MS = 5 * 60_000;
 
 /**
  * Simple in-memory sliding-window rate limiter.
@@ -17,3 +18,15 @@ export function checkRateLimit(key, { maxAttempts = 10, windowMs = 60_000 } = {}
   buckets.set(key, bucket);
   return { allowed: true };
 }
+
+// Keys are derived from request data (IP, email, session id, etc.), so the
+// map grows without bound over the process lifetime unless swept. Buckets
+// whose attempts have all expired are removed periodically.
+const sweepTimer = setInterval(() => {
+  const now = Date.now();
+  for (const [key, bucket] of buckets) {
+    const stillActive = bucket.attempts.some((ts) => now - ts < bucket.windowMs);
+    if (!stillActive) buckets.delete(key);
+  }
+}, SWEEP_INTERVAL_MS);
+sweepTimer.unref?.();

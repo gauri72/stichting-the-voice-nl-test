@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaCcAmex, FaCcMastercard, FaCcVisa, FaLock } from "react-icons/fa";
 import { IconCreditCard, IconTrash } from "@tabler/icons-react";
 import { apiFetch, authHeaders } from "../../../utils/api.js";
@@ -59,14 +60,16 @@ function walletLabel(wallet) {
   return "";
 }
 
-function describeMethod(method) {
+function describeMethod(method, t) {
   if (method.type === "card") {
     const wallet = walletLabel(method.wallet);
     return {
       primary: `${brandTitle(method.brand)} •••• ${method.last4}`,
       secondary: [
         method.expMonth && method.expYear
-          ? `Expires ${String(method.expMonth).padStart(2, "0")}/${String(method.expYear).slice(-2)}`
+          ? t("misc:profile.paymentMethods.expires", {
+              date: `${String(method.expMonth).padStart(2, "0")}/${String(method.expYear).slice(-2)}`,
+            })
           : "",
         wallet,
       ]
@@ -75,10 +78,13 @@ function describeMethod(method) {
     };
   }
   if (method.type === "sepa_debit") {
-    return { primary: `SEPA Direct Debit •••• ${method.last4}`, secondary: "From iDEAL / bank account" };
+    return {
+      primary: t("misc:profile.paymentMethods.sepaPrimary", { last4: method.last4 }),
+      secondary: t("misc:profile.paymentMethods.sepaSecondary"),
+    };
   }
   if (method.type === "ideal") {
-    return { primary: "iDEAL", secondary: method.bank ? method.bank.toUpperCase() : "Dutch bank" };
+    return { primary: "iDEAL", secondary: method.bank ? method.bank.toUpperCase() : t("misc:profile.paymentMethods.idealSecondary") };
   }
   if (method.type === "paypal") {
     return { primary: "PayPal", secondary: method.email || "" };
@@ -87,6 +93,7 @@ function describeMethod(method) {
 }
 
 export default function ProfilePaymentMethodsCard() {
+  const { t } = useTranslation(["misc"]);
   const [methods, setMethods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -101,11 +108,11 @@ export default function ProfilePaymentMethodsCard() {
       const data = await apiFetch("/api/payment-methods", { headers: authHeaders() });
       setMethods(data?.methods || []);
     } catch (e) {
-      setError(e.message || "Could not load your payment methods.");
+      setError(e.message || t("misc:profile.paymentMethods.errorLoad"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     load();
@@ -129,13 +136,13 @@ export default function ProfilePaymentMethodsCard() {
           } catch {
             // Listing still reflects the attached method.
           }
-          setStatus("Your payment method has been saved.");
+          setStatus(t("misc:profile.paymentMethods.savedSuccess"));
           await load();
         },
         onError: (msg) => setError(msg),
       });
     });
-  }, [load]);
+  }, [load, t]);
 
   async function handleSetDefault(id) {
     setBusyId(id);
@@ -147,16 +154,16 @@ export default function ProfilePaymentMethodsCard() {
         headers: authHeaders(),
       });
       setMethods(data?.methods || []);
-      setStatus("Default payment method updated.");
+      setStatus(t("misc:profile.paymentMethods.defaultUpdated"));
     } catch (e) {
-      setError(e.message || "Could not update your default payment method.");
+      setError(e.message || t("misc:profile.paymentMethods.errorSetDefault"));
     } finally {
       setBusyId("");
     }
   }
 
   async function handleDelete(id) {
-    if (!window.confirm("Remove this payment method?")) return;
+    if (!window.confirm(t("misc:profile.paymentMethods.removeConfirm"))) return;
     setBusyId(id);
     setError("");
     setStatus("");
@@ -166,9 +173,9 @@ export default function ProfilePaymentMethodsCard() {
         headers: authHeaders(),
       });
       setMethods(data?.methods || []);
-      setStatus("Payment method removed.");
+      setStatus(t("misc:profile.paymentMethods.removed"));
     } catch (e) {
-      setError(e.message || "Could not remove this payment method.");
+      setError(e.message || t("misc:profile.paymentMethods.errorRemove"));
     } finally {
       setBusyId("");
     }
@@ -176,7 +183,7 @@ export default function ProfilePaymentMethodsCard() {
 
   async function handleSaved() {
     setAdding(false);
-    setStatus("Your payment method has been saved.");
+    setStatus(t("misc:profile.paymentMethods.savedSuccess"));
     await load();
   }
 
@@ -187,9 +194,9 @@ export default function ProfilePaymentMethodsCard() {
           <IconCreditCard size={20} stroke={1.75} />
         </span>
         <span className="profile-card__head-copy">
-          <strong className="profile-card__title">Payment Methods</strong>
+          <strong className="profile-card__title">{t("misc:profile.paymentMethods.title")}</strong>
           <span className="profile-card__subtitle">
-            iDEAL, cards, Apple Pay &amp; Google Pay — saved securely with Stripe.
+            {t("misc:profile.paymentMethods.subtitle")}
           </span>
         </span>
         {!adding ? (
@@ -202,7 +209,7 @@ export default function ProfilePaymentMethodsCard() {
               setAdding(true);
             }}
           >
-            + Add
+            {t("misc:profile.paymentMethods.add")}
           </button>
         ) : null}
       </div>
@@ -224,19 +231,19 @@ export default function ProfilePaymentMethodsCard() {
         ) : null}
 
         {loading ? (
-          <p className="profile-pay__hint">Loading your payment methods…</p>
+          <p className="profile-pay__hint">{t("misc:profile.paymentMethods.loading")}</p>
         ) : null}
 
         {!loading && !adding && methods.length === 0 ? (
           <p className="profile-pay__hint">
-            You have no saved payment methods yet. Add one to check out faster next time.
+            {t("misc:profile.paymentMethods.empty")}
           </p>
         ) : null}
 
         {methods.length > 0 ? (
           <ul className="profile-pay__list">
             {methods.map((method) => {
-              const info = describeMethod(method);
+              const info = describeMethod(method, t);
               return (
                 <li key={method.id} className="profile-pay__item">
                   <BrandMark method={method} />
@@ -245,7 +252,7 @@ export default function ProfilePaymentMethodsCard() {
                     {info.secondary ? <span>{info.secondary}</span> : null}
                   </div>
                   {method.isDefault ? (
-                    <span className="profile-pay__badge">Default</span>
+                    <span className="profile-pay__badge">{t("misc:profile.paymentMethods.default")}</span>
                   ) : (
                     <button
                       type="button"
@@ -253,13 +260,13 @@ export default function ProfilePaymentMethodsCard() {
                       onClick={() => handleSetDefault(method.id)}
                       disabled={busyId === method.id}
                     >
-                      {busyId === method.id ? "…" : "Set Default"}
+                      {busyId === method.id ? "…" : t("misc:profile.paymentMethods.setDefault")}
                     </button>
                   )}
                   <button
                     type="button"
                     className="profile-pay__menu"
-                    aria-label={`Remove ${info.primary}`}
+                    aria-label={t("misc:profile.paymentMethods.remove", { label: info.primary })}
                     onClick={() => handleDelete(method.id)}
                     disabled={busyId === method.id}
                   >
@@ -273,7 +280,7 @@ export default function ProfilePaymentMethodsCard() {
 
         <p className="profile-pay__secure">
           <FaLock aria-hidden />
-          Your payment information is encrypted and stored securely by Stripe
+          {t("misc:profile.paymentMethods.secure")}
         </p>
       </div>
     </article>

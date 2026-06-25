@@ -20,10 +20,6 @@ export function buildTicketQrImageUrl(verificationToken) {
   return `${env.publicApiUrl}${buildTicketQrPath(verificationToken)}`;
 }
 
-export async function generateTicketQrDataUrl(verificationToken) {
-  return QRCode.toDataURL(buildTicketVerifyUrl(verificationToken), QR_OPTIONS);
-}
-
 export async function generateTicketQrPngBuffer(verificationToken) {
   return QRCode.toBuffer(buildTicketVerifyUrl(verificationToken), {
     ...QR_OPTIONS,

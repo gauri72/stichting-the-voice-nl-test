@@ -73,6 +73,14 @@ export const CMS_AUDIT_ACTIONS = {
   IMAGE_UPLOADED: "cms_image_uploaded",
   CTA_CHANGED: "cms_cta_changed",
   VERSION_RESTORED: "cms_version_restored",
+  DESIGN_SYSTEM_UPDATED: "cms_design_system_updated",
+  DESIGN_SYSTEM_PUBLISHED: "cms_design_system_published",
+  BLOCK_CREATED: "cms_block_created",
+  BLOCK_UPDATED: "cms_block_updated",
+  BLOCK_PUBLISHED: "cms_block_published",
+  BLOCK_DELETED: "cms_block_deleted",
+  TEMPLATE_CREATED: "cms_template_created",
+  TEMPLATE_USED: "cms_template_used",
 };
 
 export const DEFAULT_PAGES = [

@@ -88,6 +88,46 @@ const FIELD_SCHEMAS = {
     { key: "youtubeUrl", label: "YouTube link", type: "url" },
     { key: "pwaEnabled", label: "PWA enabled", type: "checkbox" },
   ],
+  content_overrides: [
+    { key: "pillars-heading", label: "Home page — \"Four Pillars\" cards", type: "heading" },
+    { key: "pillar1-heading", label: "Pillar 1", type: "heading" },
+    { key: "pillar1Title", label: "Title", type: "text" },
+    { key: "pillar1Description", label: "Description", type: "textarea" },
+    { key: "pillar1Link", label: "Link URL", type: "text" },
+    { key: "pillar2-heading", label: "Pillar 2", type: "heading" },
+    { key: "pillar2Title", label: "Title", type: "text" },
+    { key: "pillar2Description", label: "Description", type: "textarea" },
+    { key: "pillar2Link", label: "Link URL", type: "text" },
+    { key: "pillar3-heading", label: "Pillar 3", type: "heading" },
+    { key: "pillar3Title", label: "Title", type: "text" },
+    { key: "pillar3Description", label: "Description", type: "textarea" },
+    { key: "pillar3Link", label: "Link URL", type: "text" },
+    { key: "pillar4-heading", label: "Pillar 4", type: "heading" },
+    { key: "pillar4Title", label: "Title", type: "text" },
+    { key: "pillar4Description", label: "Description", type: "textarea" },
+    { key: "pillar4Link", label: "Link URL", type: "text" },
+    { key: "involved-heading", label: "Home page — \"Get Involved\" cards", type: "heading" },
+    { key: "involved1-heading", label: "Card 1", type: "heading" },
+    { key: "involved1Title", label: "Title", type: "text" },
+    { key: "involved1Description", label: "Description", type: "textarea" },
+    { key: "involved1Link", label: "Link URL", type: "text" },
+    { key: "involved2-heading", label: "Card 2", type: "heading" },
+    { key: "involved2Title", label: "Title", type: "text" },
+    { key: "involved2Description", label: "Description", type: "textarea" },
+    { key: "involved2Link", label: "Link URL", type: "text" },
+    { key: "involved3-heading", label: "Card 3 (opens the volunteer form — no link)", type: "heading" },
+    { key: "involved3Title", label: "Title", type: "text" },
+    { key: "involved3Description", label: "Description", type: "textarea" },
+    { key: "stats-heading", label: "Home page — Impact stats", type: "heading" },
+    { key: "stat1Value", label: "Stat 1 — Value", type: "text" },
+    { key: "stat1Label", label: "Stat 1 — Label", type: "text" },
+    { key: "stat2Value", label: "Stat 2 — Value", type: "text" },
+    { key: "stat2Label", label: "Stat 2 — Label", type: "text" },
+    { key: "stat3Value", label: "Stat 3 — Value", type: "text" },
+    { key: "stat3Label", label: "Stat 3 — Label", type: "text" },
+    { key: "stat4Value", label: "Stat 4 — Value", type: "text" },
+    { key: "stat4Label", label: "Stat 4 — Label", type: "text" },
+  ],
 };
 
 const TITLES = {
@@ -100,6 +140,7 @@ const TITLES = {
   invoice: "Invoice Settings",
   security: "Security Settings",
   integrations: "Integrations",
+  content_overrides: "Page Content",
 };
 
 export default function AdminSettingsCategoryPage() {
@@ -151,6 +192,13 @@ export default function AdminSettingsCategoryPage() {
 
   function renderField(field) {
     const value = form[field.key];
+    if (field.type === "heading") {
+      return (
+        <h3 key={field.key} className="admin-settings__field admin-settings__field--full admin-settings__field-heading">
+          {field.label}
+        </h3>
+      );
+    }
     if (field.type === "checkbox") {
       return (
         <label key={field.key} className="admin-settings__checkbox">
@@ -216,6 +264,13 @@ export default function AdminSettingsCategoryPage() {
       <header className="admin-settings__panel-header">
         <h1>{TITLES[category] || category}</h1>
       </header>
+
+      {category === "content_overrides" ? (
+        <p className="admin-settings__hint">
+          Changes here apply instantly to the live site. Only text and links change — the page's design,
+          layout, and icons stay exactly as built.
+        </p>
+      ) : null}
 
       {loading ? <p>Loading…</p> : null}
       {message ? <p className="admin-settings__message">{message}</p> : null}

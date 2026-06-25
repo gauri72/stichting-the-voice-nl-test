@@ -1,0 +1,75 @@
+{
+  "hero": {
+    "titleLead": "V.O.I.C.E.",
+    "titleAccent": "Innovatie.",
+    "description": "Innoveren voor impact. We bouwen oplossingen die gemeenschappen versterken en groei in een digitale wereld versnellen."
+  },
+  "digital": {
+    "title": "V.O.I.C.E. Digital",
+    "description": "De belangrijkste drijfveer van innovatie bij V.O.I.C.E. NL. We benutten technologie, data en creativiteit om digitale ervaringen, platforms en oplossingen te bouwen die echte impact creëren.",
+    "pillar1": "Digitale Transformatie",
+    "pillar2": "Datagedreven Beslissingen",
+    "pillar3": "Gemeenschapsgericht",
+    "pillar4": "Innovatie Voor Impact"
+  },
+  "initiatives": {
+    "heading": "Onze Belangrijkste Initiatieven",
+    "item1": {
+      "title": "V.O.I.C.E. Venture Studio",
+      "tagline": "Ideeën versterken. De toekomst bouwen.",
+      "description": "We versterken changemakers met mentorschap, innovatie en middelen om gedurfde ideeën om te zetten in betekenisvolle ondernemingen.",
+      "items": ["Ondernemerschap & Innovatie", "Mentorschap & Vaardigheidsontwikkeling", "Financiering & Middelen", "Leiderschapskansen"]
+    },
+    "item2": {
+      "title": "Consultancy Oplossingen",
+      "tagline": "Deskundige begeleiding. Meetbare resultaten.",
+      "description": "Strategische consultancy die organisaties helpt plannen, optimaliseren en meetbare resultaten leveren met duidelijkheid en vertrouwen.",
+      "items": ["Strategie & Bedrijfsplanning", "Operationele Excellentie", "Digitale Transformatie", "Groeistrategie"]
+    },
+    "item3": {
+      "title": "Digitale Groei",
+      "tagline": "Schaal je merk. Vergroot je impact.",
+      "description": "We bouwen digitale aanwezigheid en prestaties op via marketing, content en analyses die duurzame groei stimuleren.",
+      "items": ["Digitale Marketing", "Merk- & Contentstrategie", "Prestatieanalyses", "Schaalbare Oplossingen"],
+      "buttonLabel": "Ontdek Diensten"
+    }
+  },
+  "deliver": {
+    "heading": "Wat Wij Leveren",
+    "item1": { "title": "Doelgerichte Innovatie", "description": "Oplossingen die betekenisvolle impact creëren." },
+    "item2": { "title": "Versterkte Gemeenschappen", "description": "Tools en platforms die mensen verheffen en verbinden." },
+    "item3": { "title": "Duurzame Groei", "description": "Het opbouwen van langetermijnwaarde en impact." },
+    "item4": { "title": "Technologie Met Integriteit", "description": "Verantwoorde innovatie voor een betere toekomst." }
+  },
+  "cta": {
+    "titleLead": "Innoveren. Transformeren. ",
+    "titleAccent": "Impact.",
+    "description": "Door technologie, creativiteit en samenwerking bouwen we doelgericht aan de toekomst.",
+    "buttonLabel": "Werk Met Ons Samen"
+  },
+  "contact": {
+    "heading": "Contact & serviceaanvragen",
+    "infoTitle": "Contactgegevens",
+    "email": "E-mail",
+    "officePhone": "Kantoortelefoon",
+    "address": "Adres",
+    "kvk": "KVK",
+    "messageFormTitle": "Stuur Ons Een Bericht",
+    "fullName": "Volledige Naam *",
+    "emailAddress": "E-mailadres *",
+    "subject": "Onderwerp *",
+    "yourMessage": "Je Bericht / Vraag *",
+    "sending": "Verzenden…",
+    "sendMessage": "Bericht Versturen",
+    "quoteFormTitle": "Vraag Onze Diensten Aan",
+    "quoteLead": "Vertel ons over je project en ons team neemt contact met je op met de beste oplossing.",
+    "iNeedHelpWith": "Ik heb hulp nodig bij *",
+    "serviceOptions": ["Websiteontwikkeling", "Marketingstrategieën", "Onboarding & Ondersteuning", "Branding & Digitale Groei", "Consultancy & Strategie", "Coaching & Mentorschap", "Anders"],
+    "projectType": "Projecttype / Sector",
+    "timeline": "Tijdlijn (Optioneel)",
+    "projectDetails": "Vertel ons meer over je project...",
+    "requestQuote": "Offerte Aanvragen",
+    "messageError": "Kon je bericht niet versturen. Probeer het opnieuw.",
+    "quoteError": "Kon je offerteaanvraag niet versturen. Probeer het opnieuw."
+  }
+}

@@ -4,15 +4,18 @@ import BreadcrumbPageHeader from "../layout/BreadcrumbPageHeader.jsx";
 import StoriesPillarSection from "./StoriesPillarSection";
 import { STORIES_PILLARS } from "../../data/storiesDisplay.js";
 import CmsAwarePage from "../cms/CmsAwarePage.jsx";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
 import "../../styles/stories-page.css";
 
 function StoriesPageFallback() {
+  const overrides = useContentOverrides();
+
   return (
     <div id="stories-navbar-top" className="stories-page-shell">
       <BreadcrumbPageHeader
         ariaLabel="Stories"
-        lightSrc={heroBgLight}
-        darkSrc={heroBgDark}
+        lightSrc={overrides.storiesBreadcrumbImageLight?.url || heroBgLight}
+        darkSrc={overrides.storiesBreadcrumbImageDark?.url || heroBgDark}
         heroClassName="stories-hero"
         fetchPriority="high"
       />

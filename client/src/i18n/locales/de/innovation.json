@@ -1,0 +1,75 @@
+{
+  "hero": {
+    "titleLead": "V.O.I.C.E.",
+    "titleAccent": "Innovation.",
+    "description": "Innovation für Wirkung. Wir bauen Lösungen, die Gemeinschaften stärken und Wachstum in einer digitalen Welt beschleunigen."
+  },
+  "digital": {
+    "title": "V.O.I.C.E. Digital",
+    "description": "Der wichtigste Treiber der Innovation bei V.O.I.C.E. NL. Wir nutzen Technologie, Daten und Kreativität, um digitale Erlebnisse, Plattformen und Lösungen zu schaffen, die echte Wirkung erzielen.",
+    "pillar1": "Digitale Transformation",
+    "pillar2": "Datengetriebene Entscheidungen",
+    "pillar3": "Gemeinschaftsorientiert",
+    "pillar4": "Innovation Für Wirkung"
+  },
+  "initiatives": {
+    "heading": "Unsere Wichtigsten Initiativen",
+    "item1": {
+      "title": "V.O.I.C.E. Venture Studio",
+      "tagline": "Ideen stärken. Die Zukunft bauen.",
+      "description": "Wir stärken Changemaker mit Mentoring, Innovation und Ressourcen, um kühne Ideen in bedeutungsvolle Unternehmungen zu verwandeln.",
+      "items": ["Unternehmertum & Innovation", "Mentoring & Kompetenzentwicklung", "Finanzierung & Ressourcen", "Führungsmöglichkeiten"]
+    },
+    "item2": {
+      "title": "Beratungslösungen",
+      "tagline": "Expertenberatung. Messbare Ergebnisse.",
+      "description": "Strategische Beratung, die Organisationen hilft, mit Klarheit und Zuversicht zu planen, zu optimieren und messbare Ergebnisse zu liefern.",
+      "items": ["Strategie & Geschäftsplanung", "Operative Exzellenz", "Digitale Transformation", "Wachstumsstrategie"]
+    },
+    "item3": {
+      "title": "Digitales Wachstum",
+      "tagline": "Skalieren Sie Ihre Marke. Vergrößern Sie Ihre Wirkung.",
+      "description": "Wir bauen digitale Präsenz und Leistung durch Marketing, Inhalte und Analysen auf, die nachhaltiges Wachstum fördern.",
+      "items": ["Digitales Marketing", "Marken- & Content-Strategie", "Leistungsanalysen", "Skalierbare Lösungen"],
+      "buttonLabel": "Dienstleistungen Entdecken"
+    }
+  },
+  "deliver": {
+    "heading": "Was Wir Liefern",
+    "item1": { "title": "Zielgerichtete Innovation", "description": "Lösungen, die bedeutungsvolle Wirkung erzielen." },
+    "item2": { "title": "Gestärkte Gemeinschaften", "description": "Tools und Plattformen, die stärken und verbinden." },
+    "item3": { "title": "Nachhaltiges Wachstum", "description": "Aufbau von langfristigem Wert und Wirkung." },
+    "item4": { "title": "Technologie Mit Integrität", "description": "Verantwortungsvolle Innovation für eine bessere Zukunft." }
+  },
+  "cta": {
+    "titleLead": "Innovieren. Transformieren. ",
+    "titleAccent": "Wirkung.",
+    "description": "Durch Technologie, Kreativität und Zusammenarbeit gestalten wir die Zukunft mit Zielsetzung.",
+    "buttonLabel": "Partner Werden"
+  },
+  "contact": {
+    "heading": "Kontakt & Serviceanfragen",
+    "infoTitle": "Kontaktinformationen",
+    "email": "E-Mail",
+    "officePhone": "Bürotelefon",
+    "address": "Adresse",
+    "kvk": "Handelsregister (KVK)",
+    "messageFormTitle": "Senden Sie Uns Eine Nachricht",
+    "fullName": "Vollständiger Name *",
+    "emailAddress": "E-Mail-Adresse *",
+    "subject": "Betreff *",
+    "yourMessage": "Ihre Nachricht / Frage *",
+    "sending": "Wird gesendet…",
+    "sendMessage": "Nachricht Senden",
+    "quoteFormTitle": "Fordern Sie Unsere Dienstleistungen An",
+    "quoteLead": "Erzählen Sie uns von Ihrem Projekt und unser Team meldet sich mit der besten Lösung zurück.",
+    "iNeedHelpWith": "Ich brauche Hilfe bei *",
+    "serviceOptions": ["Webentwicklung", "Marketingstrategien", "Onboarding & Support", "Branding & Digitales Wachstum", "Beratung & Strategie", "Coaching & Mentoring", "Sonstiges"],
+    "projectType": "Projekttyp / Branche",
+    "timeline": "Zeitrahmen (Optional)",
+    "projectDetails": "Erzählen Sie uns mehr über Ihr Projekt...",
+    "requestQuote": "Angebot Anfordern",
+    "messageError": "Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+    "quoteError": "Ihre Angebotsanfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
+  }
+}

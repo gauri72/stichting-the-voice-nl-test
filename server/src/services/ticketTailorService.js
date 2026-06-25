@@ -581,22 +581,3 @@ export async function loadTicketTailorAccountData(email) {
   return { orders, issuedMemberships };
 }
 
-/**
- * Orders for the given account email (Ticket Tailor buyer email must match).
- * @param {string} email
- * @returns {Promise<TicketTailorOrderSummary[]>}
- */
-export async function getOrdersForEmail(email) {
-  const { orders } = await loadTicketTailorAccountData(email);
-  return orders;
-}
-
-/**
- * Issued memberships for the given account email (valid_from / valid_to / code from Ticket Tailor).
- * @param {string} email
- * @returns {Promise<IssuedMembershipSummary[]>}
- */
-export async function getIssuedMembershipsForEmail(email) {
-  const { issuedMemberships } = await loadTicketTailorAccountData(email);
-  return issuedMemberships;
-}

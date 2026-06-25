@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { IconX } from "@tabler/icons-react";
 import LoginFormSection from "../login/LoginFormSection.jsx";
 import "../../styles/login-modal.css";
 
 export default function LoginModal({ open, onClose, onAuthenticated, returnTo, prefillEmail }) {
+  const { t } = useTranslation(["auth"]);
   const [mode, setMode] = useState("login");
 
   useEffect(() => {
@@ -27,9 +29,9 @@ export default function LoginModal({ open, onClose, onAuthenticated, returnTo, p
   if (!open) return null;
 
   return createPortal(
-    <div className="login-modal" role="dialog" aria-modal="true" aria-label="Log in" onClick={onClose}>
+    <div className="login-modal" role="dialog" aria-modal="true" aria-label={t("auth:modal.ariaLabel")} onClick={onClose}>
       <div className="login-modal__panel" onClick={(event) => event.stopPropagation()}>
-        <button type="button" className="login-modal__close" onClick={onClose} aria-label="Close">
+        <button type="button" className="login-modal__close" onClick={onClose} aria-label={t("auth:modal.close")}>
           <IconX size={20} stroke={2} aria-hidden />
         </button>
         <LoginFormSection

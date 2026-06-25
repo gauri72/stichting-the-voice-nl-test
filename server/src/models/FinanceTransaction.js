@@ -33,6 +33,14 @@ const financeTransactionSchema = new mongoose.Schema(
 
 financeTransactionSchema.index({ description: "text", paymentReference: "text", category: "text" });
 
+// Enforce idempotency for auto-synced transactions: one income record per
+// (relatedModule, relatedRecordId). The partial filter excludes manual
+// entries (relatedRecordId defaults to "") so it never conflicts with them.
+financeTransactionSchema.index(
+  { relatedModule: 1, relatedRecordId: 1 },
+  { unique: true, partialFilterExpression: { relatedRecordId: { $gt: "" } } }
+);
+
 const FinanceTransaction =
   mongoose.models.FinanceTransaction || mongoose.model("FinanceTransaction", financeTransactionSchema);
 

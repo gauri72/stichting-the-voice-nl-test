@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   IconAlertCircle,
@@ -23,7 +23,12 @@ export default function AdminTemplateUploadPage() {
   const [error, setError] = useState("");
   
   const fileInputRef = useRef(null);
+  const navigateTimerRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    return () => window.clearTimeout(navigateTimerRef.current);
+  }, []);
 
   const processFile = async (selectedFile) => {
     if (!selectedFile) return;
@@ -126,7 +131,7 @@ export default function AdminTemplateUploadPage() {
       });
 
       setSuccess(true);
-      setTimeout(() => {
+      navigateTimerRef.current = window.setTimeout(() => {
         navigate("/admin/communication");
       }, 2000);
     } catch (err) {

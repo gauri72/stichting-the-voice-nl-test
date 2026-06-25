@@ -1,0 +1,106 @@
+.admin-media__warning {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  font-size: 0.85rem;
+}
+
+.admin-media__toolbar {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-media__search {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--ad-border, #2a2f3a);
+  border-radius: 8px;
+  background: var(--ad-surface, #161b22);
+  flex: 1;
+  min-width: 200px;
+}
+.admin-media__search input {
+  background: transparent;
+  border: none;
+  color: inherit;
+  outline: none;
+  width: 100%;
+}
+
+.admin-media__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.admin-media__card {
+  border: 1px solid var(--ad-border, #2a2f3a);
+  border-radius: 10px;
+  background: var(--ad-surface, #161b22);
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.admin-media__card--pickable {
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+}
+.admin-media__card--pickable:hover { border-color: #7c3aed; }
+
+.admin-media__thumb {
+  aspect-ratio: 4 / 3;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0a0a0f;
+}
+.admin-media__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.admin-media__meta { margin: 0; font-size: 0.72rem; color: var(--ad-muted, #94a3b8); }
+.admin-media__usage { margin: 0; font-size: 0.72rem; color: #7c3aed; }
+
+.admin-media__actions { display: flex; gap: 0.4rem; }
+
+.admin-media-picker {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 3vw, 24px);
+  background: rgba(4, 8, 16, 0.86);
+  backdrop-filter: blur(8px);
+}
+
+.admin-media-picker__panel {
+  width: min(720px, 100%);
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  background: var(--ad-surface, #161b22);
+  border: 1px solid var(--ad-border, #2a2f3a);
+  padding: 1.25rem;
+}
+
+.admin-media-picker__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.admin-media-picker__header button {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+}

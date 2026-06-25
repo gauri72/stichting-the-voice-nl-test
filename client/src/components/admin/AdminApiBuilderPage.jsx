@@ -454,26 +454,40 @@ export default function AdminApiBuilderPage() {
       );
     }
 
+    const wiredTriggers = config?.wiredTriggers || ["manual_admin"];
     return (
       <div>
         <p className="admin-events__hint">Choose platform triggers and publish the integration.</p>
+        <p className="admin-events__hint">
+          Automatic event triggers (ticket purchases, payments, donations, etc.) are not active yet —
+          only "Manual admin trigger" runs today, via the Test button below. The others are shown for
+          visibility but can't be selected until they're wired up.
+        </p>
         <div className="admin-api-builder__triggers admin-api-builder__full">
-          {(config?.triggers || []).map((trigger) => (
-            <label key={trigger} className="admin-api-builder__trigger">
-              <input
-                type="checkbox"
-                checked={(draft.triggers || []).includes(trigger)}
-                onChange={(e) => {
-                  const next = new Set(draft.triggers || []);
-                  if (e.target.checked) next.add(trigger);
-                  else next.delete(trigger);
-                  updateDraft({ triggers: [...next] });
-                }}
-                disabled={!canWrite}
-              />
-              {TRIGGER_LABELS[trigger] || trigger}
-            </label>
-          ))}
+          {(config?.triggers || []).map((trigger) => {
+            const isWired = wiredTriggers.includes(trigger);
+            return (
+              <label
+                key={trigger}
+                className="admin-api-builder__trigger"
+                title={isWired ? undefined : "Not wired up yet — coming soon"}
+              >
+                <input
+                  type="checkbox"
+                  checked={(draft.triggers || []).includes(trigger)}
+                  onChange={(e) => {
+                    const next = new Set(draft.triggers || []);
+                    if (e.target.checked) next.add(trigger);
+                    else next.delete(trigger);
+                    updateDraft({ triggers: [...next] });
+                  }}
+                  disabled={!canWrite || !isWired}
+                />
+                {TRIGGER_LABELS[trigger] || trigger}
+                {isWired ? null : <span className="admin-api-builder__trigger-soon"> (coming soon)</span>}
+              </label>
+            );
+          })}
         </div>
         <div className="admin-events__form-actions" style={{ marginTop: 16 }}>
           {canWrite ? <button type="button" disabled={saving} onClick={saveIntegration}>Save draft</button> : null}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   IconArrowRight,
   IconCurrencyEuro,
@@ -8,20 +9,26 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import VolunteerForm from "../volunteer/VolunteerForm";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
+import { resolveOverrideText } from "../../i18n/overrideText.js";
 import "../../styles/get-involved-section.css";
 import "../../styles/volunteer-page.css";
 
 const linkCards = [
   {
-    title: "Sponsor Us",
-    description: "Partner with us and create lasting impact together.",
+    overrideKey: "involved1",
+    i18nKey: "sponsorUs",
+    titleEn: "Sponsor Us",
+    descriptionEn: "Partner with us and create lasting impact together.",
     to: "/sponsorship",
     accent: "magenta",
     Icon: IconHeartHandshake,
   },
   {
-    title: "Donate Now",
-    description: "Your support helps us create meaningful change.",
+    overrideKey: "involved2",
+    i18nKey: "donateNow",
+    titleEn: "Donate Now",
+    descriptionEn: "Your support helps us create meaningful change.",
     to: "/donate",
     accent: "gold",
     Icon: IconCurrencyEuro,
@@ -29,13 +36,17 @@ const linkCards = [
 ];
 
 const volunteerCard = {
-  title: "Volunteer",
-  description: "Give your time and make a real difference.",
+  overrideKey: "involved3",
+  i18nKey: "volunteer",
+  titleEn: "Volunteer",
+  descriptionEn: "Give your time and make a real difference.",
   accent: "blue",
   Icon: IconHandLoveYou,
 };
 
 export default function GetInvolvedSection() {
+  const { t } = useTranslation(["home"]);
+  const overrides = useContentOverrides();
   const [volunteerFormOpen, setVolunteerFormOpen] = useState(false);
 
   function openModal() {
@@ -68,18 +79,22 @@ export default function GetInvolvedSection() {
     <section className="get-involved-section" aria-label="Get involved">
       <div className="get-involved-section__inner">
         <div className="get-involved-grid">
-          {linkCards.map(({ title, description, to, accent, Icon }) => (
+          {linkCards.map(({ overrideKey, i18nKey, titleEn, descriptionEn, to, accent, Icon }) => (
             <Link
-              key={title}
+              key={i18nKey}
               className={`get-involved-card get-involved-card--${accent}`}
-              to={to}
+              to={overrides[`${overrideKey}Link`] || to}
             >
               <div className="get-involved-card__icon">
                 <Icon className="get-involved-card__icon-svg" aria-hidden stroke={1.75} />
               </div>
               <div className="get-involved-card__body">
-                <h3 className="get-involved-card__title">{title}</h3>
-                <p className="get-involved-card__description">{description}</p>
+                <h3 className="get-involved-card__title">
+                  {resolveOverrideText(overrides[`${overrideKey}Title`], titleEn, t(`home:getInvolved.${i18nKey}.title`))}
+                </h3>
+                <p className="get-involved-card__description">
+                  {resolveOverrideText(overrides[`${overrideKey}Description`], descriptionEn, t(`home:getInvolved.${i18nKey}.description`))}
+                </p>
                 <span className="get-involved-card__arrow" aria-hidden="true">
                   <IconArrowRight stroke={1.75} />
                 </span>
@@ -97,8 +112,20 @@ export default function GetInvolvedSection() {
               <IconHandLoveYou className="get-involved-card__icon-svg" aria-hidden stroke={1.75} />
             </div>
             <div className="get-involved-card__body">
-              <h3 className="get-involved-card__title">{volunteerCard.title}</h3>
-              <p className="get-involved-card__description">{volunteerCard.description}</p>
+              <h3 className="get-involved-card__title">
+                {resolveOverrideText(
+                  overrides[`${volunteerCard.overrideKey}Title`],
+                  volunteerCard.titleEn,
+                  t(`home:getInvolved.${volunteerCard.i18nKey}.title`)
+                )}
+              </h3>
+              <p className="get-involved-card__description">
+                {resolveOverrideText(
+                  overrides[`${volunteerCard.overrideKey}Description`],
+                  volunteerCard.descriptionEn,
+                  t(`home:getInvolved.${volunteerCard.i18nKey}.description`)
+                )}
+              </p>
               <span className="get-involved-card__arrow" aria-hidden="true">
                 <IconArrowRight stroke={1.75} />
               </span>
@@ -127,7 +154,7 @@ export default function GetInvolvedSection() {
               <IconX size={20} stroke={2} />
             </button>
             <h2 id="volunteer-modal-title" className="volunteer-modal__title">
-              Fill This Form to Volunteer
+              {t("home:getInvolved.volunteerFormTitle")}
             </h2>
             <VolunteerForm />
           </div>

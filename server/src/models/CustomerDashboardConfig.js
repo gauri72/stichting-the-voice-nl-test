@@ -1,18 +1,6 @@
 import mongoose from "mongoose";
 import { CUSTOMER_SECTION_TYPES } from "../config/customerDashboardConfig.js";
-
-const ctaSchema = new mongoose.Schema(
-  {
-    id: { type: String, required: true },
-    text: { type: String, default: "" },
-    url: { type: String, default: "" },
-    style: { type: String, default: "primary" },
-    target: { type: String, default: "_self" },
-    visible: { type: Boolean, default: true },
-    trackingLabel: { type: String, default: "" },
-  },
-  { _id: false }
-);
+import ctaSchema from "./shared/ctaSchema.js";
 
 const sectionSchema = new mongoose.Schema(
   {

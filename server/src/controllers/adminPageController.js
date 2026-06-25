@@ -1,13 +1,13 @@
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  if (status >= 500) console.error("[cms]", error);
-  return res.status(status).json({ error: error.message || "Something went wrong." });
+  return handleErrorBase(res, error, { logTag: "[cms]" });
 }
 
 export async function listPagesAdmin(req, res) {
   try {
     const { listPages } = await import("../services/pageService.js");
-    const pages = await listPages();
+    const pages = await listPages({ includeSeo: req.query.includeSeo === "true" });
     return res.json({ pages });
   } catch (error) {
     return handleError(res, error);
@@ -109,6 +109,16 @@ export async function addSectionAdmin(req, res) {
   try {
     const { addSection } = await import("../services/pageService.js");
     const page = await addSection(req.params.slug, req.body, req.admin?.id, req.admin?.role);
+    return res.status(201).json(page);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function addLinkedSectionAdmin(req, res) {
+  try {
+    const { addLinkedSection } = await import("../services/pageService.js");
+    const page = await addLinkedSection(req.params.slug, req.body.blockId, req.admin?.id, req.admin?.role);
     return res.status(201).json(page);
   } catch (error) {
     return handleError(res, error);
@@ -261,6 +271,16 @@ export async function updateFooterAdmin(req, res) {
     }
     const data = await updateFooterDraft(req.body, req.admin?.id);
     return res.json(data);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function getCmsAuditLogAdmin(req, res) {
+  try {
+    const { listAccessAuditLogs } = await import("../services/accessManagementService.js");
+    const logs = await listAccessAuditLogs({ cmsOnly: true });
+    return res.json({ logs });
   } catch (error) {
     return handleError(res, error);
   }

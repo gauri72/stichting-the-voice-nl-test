@@ -46,6 +46,7 @@ const discountRuleSchema = new mongoose.Schema(
     minimumOrderAmount: { type: Number, default: 0, min: 0 },
     startDate: { type: Date, default: null },
     expiryDate: { type: Date, default: null, index: true },
+    expiryReminderSentAt: { type: Date, default: null },
     allowStacking: { type: Boolean, default: true },
     status: {
       type: String,

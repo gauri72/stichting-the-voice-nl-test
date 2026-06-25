@@ -1,0 +1,36 @@
+{
+  "visionOfSounds": {
+    "label": "Vision Of Sounds",
+    "titleLineOne": "Geschichten Hinter",
+    "titleLineTwo": "Dem Erlebnis",
+    "description": "Verfolgen Sie die Reisen von Künstlern, Performern und Kreativen, die V.O.I.C.E. NL-Erlebnisse zum Leben erwecken.",
+    "featured": {
+      "badge": "Vorgestellte Geschichte",
+      "title": "Den Künstler Treffen",
+      "description": "Die Geschichte hinter der Performance.",
+      "ctaLabel": "Geschichte Ansehen"
+    },
+    "card1": { "title": "Künstlergeschichten", "description": "Reisen voller Leidenschaft, Talent und Durchhaltevermögen." },
+    "card2": { "title": "Hinter Den Kulissen", "description": "Momente, die man nicht auf der Bühne sieht." },
+    "card3": { "title": "Filmfestival-Geschichten", "description": "Kurzfilme. Große Geschichten. Globale Wirkung." },
+    "card4": { "title": "Gemeinschaftsgeschichten", "description": "Echte Menschen. Echte Geschichten. Echter Wandel." },
+    "viewAllLabel": "Alle Geschichten Ansehen"
+  },
+  "voiceOfVisionaries": {
+    "label": "Voice Of Visionaries",
+    "titleLineOne": "Ideen, Die",
+    "titleLineTwo": "Das Morgen Gestalten",
+    "description": "Gespräche mit Führungspersönlichkeiten, Innovatoren und Changemakern, die Wirkung erzielen.",
+    "featured": {
+      "badge": "Vorgestellte Episode",
+      "title": "Voice Of Visionaries Podcast",
+      "description": "Tiefgehende Gespräche. Kühne Ideen. Echte Wirkung.",
+      "ctaLabel": "Episode Ansehen"
+    },
+    "card1": { "title": "TED-Style Talks", "description": "Ideen, die es wert sind, verbreitet zu werden. Inspiration für alle." },
+    "card2": { "title": "Podcasts", "description": "Gespräche, die herausfordern und inspirieren." },
+    "card3": { "title": "Führungsgeschichten", "description": "Lektionen von Führungspersönlichkeiten mit Zielstrebigkeit." },
+    "card4": { "title": "Innovationsforen", "description": "Diskussionen, die Wandel und Fortschritt anstoßen." },
+    "viewAllLabel": "Alle Episoden Ansehen"
+  }
+}

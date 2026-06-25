@@ -1,0 +1,45 @@
+{
+  "herbeats": {
+    "brandName": "VOWNL",
+    "brandTagline": "Voice Of Women In The Netherlands",
+    "brandMotto": "Wij staan voor het welzijn van vrouwen",
+    "title": "VOWNL - HerBeats",
+    "description": "Een veilige plek waar vrouwen elkaar versterken, steunen en voor elkaar opkomen. Door het ritme van gedeelde ervaringen en collectieve kracht viert HerBeats de veerkracht van vrouwen, bevordert het verbinding en pleit het voor gelijke kansen voor iedereen.",
+    "quote": "Op naar sterkere stemmen, gedeelde doelen, en een toekomst geleid met compassie en moed.",
+    "ctaTitle": "Sluit je aan bij de VOWNL - HerBeats Movement",
+    "ctaSubtitle": "Verbind. Steun. Versterk."
+  },
+  "highlight": {
+    "label": "VOWNL Hoogtepunt",
+    "title": "HerBeats Her Night",
+    "description": "Een onvergetelijke avond waarop vrouwen worden gevierd door muziek, verbinding en gedeelde verhalen — waarbij elke beat empowerment versterkt.",
+    "linkLabel": "Bekijk Hoogtepunten",
+    "feature1": { "title": "Versterken", "description": "Vertrouwen en leiderschap opbouwen onder vrouwen." },
+    "feature2": { "title": "Steunen", "description": "Netwerken van zorg en solidariteit creëren." },
+    "feature3": { "title": "Pleiten", "description": "De stemmen van vrouwen versterken voor blijvende verandering." }
+  },
+  "areas": {
+    "heading": "Onze Impactgebieden",
+    "area1": {
+      "titleLead": "Sociale Impact door ",
+      "titleAccent": "VOWNL",
+      "description": "Het stimuleren van gemeenschapsondersteuning en het welzijn van vrouwen door inclusieve programma's die versterken, opleiden en empoweren.",
+      "items": ["Gemeenschapsondersteuningsprogramma's", "Onderwijs & Bewustwording", "Gezondheid & Welzijnsinitiatieven", "Vrouwenempowerment"],
+      "buttonLabel": "Meer Informatie"
+    },
+    "area2": {
+      "titleLead": "Jongerenempowerment door ",
+      "titleAccent": "V.O.I.C.E. Venture Studio",
+      "description": "We versterken jonge changemakers met mentorschap, innovatie en middelen om gedurfde ideeën om te zetten in betekenisvolle ondernemingen.",
+      "items": ["Ondernemerschap & Innovatie", "Mentorschap & Vaardigheidsontwikkeling", "Financiering & Middelen", "Leiderschapskansen"],
+      "buttonLabel": "Word Lid van de Venture Studio WhatsApp-groep"
+    },
+    "area3": {
+      "titleLead": "Andere ",
+      "titleAccent": "NGO's Helpen",
+      "description": "Samenwerken met ngo's wereldwijd om impact te versterken via gedeelde middelen, zichtbaarheid en cross-sectorale partnerschappen.",
+      "items": ["Capaciteitsopbouw & Middelen", "Campagneondersteuning & Zichtbaarheid", "Cross-Sectorale Partnerschappen", "Wereldwijd NGO-netwerk"],
+      "buttonLabel": "Doneer Nu"
+    }
+  }
+}

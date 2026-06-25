@@ -126,6 +126,15 @@
   font-size: 0.85rem;
 }
 
+.admin-api-builder__trigger:has(input:disabled) {
+  opacity: 0.5;
+}
+
+.admin-api-builder__trigger-soon {
+  font-style: italic;
+  color: var(--admin-text-muted, #888);
+}
+
 .admin-api-builder__templates {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));

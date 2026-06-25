@@ -4,6 +4,7 @@ import { IconArrowLeft } from "@tabler/icons-react";
 import { useAdminAuth } from "../../../contexts/AdminAuthContext.jsx";
 import { adminAuthHeaders, apiFetch } from "../../../utils/api.js";
 import { canWriteTemplates } from "../../../utils/settingsAdmin.js";
+import { sanitizeHtml } from "../../../utils/sanitizeHtml.js";
 
 const VARIABLES = [
   "first_name", "full_name", "email", "event_name", "amount", "currency",
@@ -122,7 +123,7 @@ export default function AdminEmailTemplateEditorPage() {
         <aside className="admin-settings__preview">
           <h3>Preview</h3>
           <button type="button" className="admin-settings__btn" onClick={loadPreview}>Refresh preview</button>
-          <div className="admin-settings__preview-frame" dangerouslySetInnerHTML={{ __html: preview || "<p>Click refresh preview</p>" }} />
+          <div className="admin-settings__preview-frame" dangerouslySetInnerHTML={{ __html: sanitizeHtml(preview) || "<p>Click refresh preview</p>" }} />
           <label className="admin-settings__field admin-settings__field--full">
             Send test to
             <input type="email" value={testTo} onChange={(e) => setTestTo(e.target.value)} />

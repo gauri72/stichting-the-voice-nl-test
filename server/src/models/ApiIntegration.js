@@ -13,7 +13,7 @@ const apiIntegrationSchema = new mongoose.Schema(
     authType: { type: String, default: "none", trim: true },
     templateId: { type: String, default: "", trim: true },
     triggers: [{ type: String, trim: true }],
-    webhookSecret: { type: String, default: "" },
+    webhookSecret: { type: String, default: "", select: false },
     oauthConfig: {
       tokenUrl: { type: String, default: "" },
       clientId: { type: String, default: "" },

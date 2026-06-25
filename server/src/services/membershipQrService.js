@@ -27,14 +27,6 @@ const QR_OPTIONS = {
 
 /**
  * @param {string} verificationToken
- * @returns {Promise<string>} data:image/png;base64,... (used for the PDF receipt embed)
- */
-export async function generateMembershipQrDataUrl(verificationToken) {
-  return QRCode.toDataURL(buildMembershipVerifyUrl(verificationToken), QR_OPTIONS);
-}
-
-/**
- * @param {string} verificationToken
  * @returns {Promise<Buffer>} PNG buffer (served by the QR endpoint / embedded in PDF)
  */
 export async function generateMembershipQrPngBuffer(verificationToken) {

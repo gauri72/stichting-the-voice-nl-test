@@ -1,8 +1,12 @@
 import env from "../config/env.js";
+import { isValidEmail } from "../utils/validation.js";
 import { getDonationTier } from "../config/donationTiers.js";
 import { getPlan } from "../config/membershipPlans.js";
 import { getTier } from "../config/sponsorshipTiers.js";
+import DiscountCode from "../models/DiscountCode.js";
+import User from "../models/User.js";
 import { getStripe, isStripeConfigured, getActiveWebhookSecret } from "../services/stripe.js";
+import { getActivePaymentProvider } from "../services/stripeSettingsService.js";
 import { sendDonationEmails, sendSponsorshipEmails } from "../services/mailer.js";
 import { sendMembershipEmails } from "../services/membershipMailer.js";
 import { provisionMembershipFromPayment } from "../services/membershipProvisioningService.js";
@@ -54,9 +58,6 @@ function sanitizeSponsor(input = {}) {
   return { name, firstName, lastName, email, phone, organization, country, message };
 }
 
-function isValidEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || "");
-}
 
 async function emailSponsorOnce(payload) {
   const { paymentIntentId } = payload;
@@ -185,6 +186,11 @@ export async function createPaymentIntent(req, res) {
         "Stripe is not configured on the server. Set STRIPE_SECRET_KEY in server/.env."
     });
   }
+  if (!(await getActivePaymentProvider())) {
+    return res.status(503).json({
+      error: "Online payments are currently disabled. Please try again later."
+    });
+  }
 
   try {
     const { kind = "sponsorship", tierId, amount: customAmount, sponsor: rawSponsor, discountCode } =
@@ -244,8 +250,7 @@ export async function createPaymentIntent(req, res) {
     if (isMembership && discountCode) {
       const cleanCode = String(discountCode).trim();
       if (cleanCode) {
-        const DiscountCodeModel = mongoose.model("DiscountCode");
-        const discount = await DiscountCodeModel.findOne({
+        const discount = await DiscountCode.findOne({
           code: cleanCode,
           deletedAt: null,
           status: "active",
@@ -270,8 +275,7 @@ export async function createPaymentIntent(req, res) {
             isAllowed = true;
           } else {
             const formEmail = sponsor.email.trim().toLowerCase();
-            const UserModel = mongoose.model("User");
-            const assignedUsers = await UserModel.find({ _id: { $in: discount.assignedUsers } });
+            const assignedUsers = await User.find({ _id: { $in: discount.assignedUsers } });
             const hasMatchingEmail = assignedUsers.some(u => u.email.trim().toLowerCase() === formEmail);
             if (hasMatchingEmail) {
               isAllowed = true;

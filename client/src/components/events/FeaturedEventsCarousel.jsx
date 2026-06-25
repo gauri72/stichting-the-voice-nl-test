@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   IconArrowLeft,
   IconArrowRight,
@@ -9,6 +10,7 @@ import {
   IconSparkles,
 } from "@tabler/icons-react";
 import { apiFetch } from "../../utils/api.js";
+import { useAutoAdvance } from "../../hooks/useAutoAdvance.js";
 import defaultHeroLight from "../../assets/Home/featured events-light.png";
 import "../../styles/featured-events-carousel.css";
 
@@ -33,7 +35,7 @@ function resolveImageUrl(event, isMobile) {
   return isMobile ? mobile || hero : hero;
 }
 
-function getRemainingTimeLabel(dateIso, startTime) {
+function getRemainingTimeLabel(dateIso, startTime, liveNowLabel) {
   if (!dateIso) return "";
   const base = new Date(dateIso);
   if (Number.isNaN(base.getTime())) return "";
@@ -44,7 +46,7 @@ function getRemainingTimeLabel(dateIso, startTime) {
   }
 
   const diffMs = base.getTime() - Date.now();
-  if (diffMs <= 0) return "Live now";
+  if (diffMs <= 0) return liveNowLabel;
 
   const totalMinutes = Math.floor(diffMs / 60_000);
   const days = Math.floor(totalMinutes / (24 * 60));
@@ -57,6 +59,7 @@ export default function FeaturedEventsCarousel({
   pageContext = "home",
   variant = "fullHero",
 }) {
+  const { t } = useTranslation(["events"]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -67,6 +70,11 @@ export default function FeaturedEventsCarousel({
   );
   const touchStartX = useRef(null);
   const containerRef = useRef(null);
+  const resumeTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => window.clearTimeout(resumeTimerRef.current);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -109,11 +117,7 @@ export default function FeaturedEventsCarousel({
   const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo]);
   const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo]);
 
-  useEffect(() => {
-    if (events.length <= 1 || isPaused) return undefined;
-    const timer = window.setInterval(goNext, AUTO_PLAY_MS);
-    return () => window.clearInterval(timer);
-  }, [events.length, isPaused, goNext, activeIndex]);
+  useAutoAdvance(goNext, { enabled: events.length > 1 && !isPaused, intervalMs: AUTO_PLAY_MS });
 
   const activeSlide = events[activeIndex];
 
@@ -124,7 +128,7 @@ export default function FeaturedEventsCarousel({
     }
 
     function updateCountdown() {
-      setTimeRemaining(getRemainingTimeLabel(activeSlide.date, activeSlide.startTime));
+      setTimeRemaining(getRemainingTimeLabel(activeSlide.date, activeSlide.startTime, t("events:carousel.liveNow")));
     }
 
     updateCountdown();
@@ -174,7 +178,8 @@ export default function FeaturedEventsCarousel({
     if (Math.abs(delta) < SWIPE_THRESHOLD) return;
     if (delta < 0) goNext();
     else goPrev();
-    window.setTimeout(() => setIsPaused(false), AUTO_PLAY_MS);
+    window.clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = window.setTimeout(() => setIsPaused(false), AUTO_PLAY_MS);
   }
 
   if (loading || events.length === 0) {
@@ -272,8 +277,8 @@ export default function FeaturedEventsCarousel({
                       <IconSparkles size={14} aria-hidden stroke={2} />
                       <span>
                         {event.membershipIncluded
-                          ? "Included with Premium membership"
-                          : "Member discounts available"}
+                          ? t("events:carousel.membershipIncluded")
+                          : t("events:carousel.memberDiscounts")}
                       </span>
                     </p>
                   ) : null}
@@ -281,7 +286,7 @@ export default function FeaturedEventsCarousel({
                 <div className="fec__actions">
                   <Link className="fec__cta fec__cta--primary" to={event.ticketsUrl}>
                     {event.featuredCtaText === "Book Tickets" || !event.featuredCtaText
-                      ? "Buy Tickets"
+                      ? t("events:carousel.buyTickets")
                       : event.featuredCtaText}
                   </Link>
                 </div>

@@ -6,11 +6,10 @@ import {
 } from "../services/discountService.js";
 import { buildOrderSummary, formatMoney } from "../services/ticketPricingService.js";
 
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  const message = error.message || "Something went wrong.";
-  if (status >= 500) console.error("[checkout-discount]", error);
-  return res.status(status).json({ error: message });
+  return handleErrorBase(res, error, { logTag: "[checkout-discount]" });
 }
 
 export async function applyDiscount(req, res) {

@@ -3,6 +3,7 @@ import Donation from "../models/Donation.js";
 import PaymentTransaction from "../models/PaymentTransaction.js";
 import { getNextSequence } from "../utils/sequence.js";
 import { buildReceiptNumber } from "../utils/receiptNumber.js";
+import { syncFinanceTransaction } from "./financeTransactionSyncService.js";
 
 function logRecord(tag, payload = {}) {
   const parts = Object.entries(payload)
@@ -71,6 +72,16 @@ export async function upsertSponsorshipFromPaymentIntent(intent, paymentMethod =
           },
         }
       );
+      await syncFinanceTransaction({
+        category: "sponsorship_revenue",
+        description: `Sponsorship — ${existing.sponsorName || existing.companyName || existing.sponsorshipId}`,
+        relatedModule: "sponsorships",
+        relatedRecordId: existing.sponsorshipId,
+        amount: existing.amount,
+        paymentMethod,
+        paymentReference,
+        transactionDate: paidAt,
+      });
     }
     logRecord("PAYMENT_LINKED_TO_SPONSORSHIP", {
       paymentReference,
@@ -124,6 +135,17 @@ export async function upsertSponsorshipFromPaymentIntent(intent, paymentMethod =
     sponsorshipId: doc.sponsorshipId,
   });
 
+  await syncFinanceTransaction({
+    category: "sponsorship_revenue",
+    description: `Sponsorship — ${doc.sponsorName || doc.companyName || doc.sponsorshipId}`,
+    relatedModule: "sponsorships",
+    relatedRecordId: doc.sponsorshipId,
+    amount: doc.amount,
+    paymentMethod,
+    paymentReference,
+    transactionDate: paidAt,
+  });
+
   return doc;
 }
 
@@ -159,6 +181,16 @@ export async function upsertDonationFromPaymentIntent(intent, paymentMethod = "C
           },
         }
       );
+      await syncFinanceTransaction({
+        category: "donation_revenue",
+        description: `Donation — ${existing.donorName || existing.donationId}`,
+        relatedModule: "donations",
+        relatedRecordId: existing.donationId,
+        amount: existing.amount,
+        paymentMethod,
+        paymentReference,
+        transactionDate: paidAt,
+      });
     }
     logRecord("PAYMENT_LINKED_TO_DONATION", {
       paymentReference,
@@ -207,6 +239,17 @@ export async function upsertDonationFromPaymentIntent(intent, paymentMethod = "C
   logRecord("PAYMENT_LINKED_TO_DONATION", {
     paymentReference,
     donationId: doc.donationId,
+  });
+
+  await syncFinanceTransaction({
+    category: "donation_revenue",
+    description: `Donation — ${doc.donorName || doc.donationId}`,
+    relatedModule: "donations",
+    relatedRecordId: doc.donationId,
+    amount: doc.amount,
+    paymentMethod,
+    paymentReference,
+    transactionDate: paidAt,
   });
 
   return doc;

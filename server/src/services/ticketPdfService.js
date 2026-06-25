@@ -3,6 +3,7 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import PDFDocument from "pdfkit";
 import { generateTicketQrPngBuffer } from "./ticketQrService.js";
+import { collectPdfBuffer as collectDoc } from "../utils/pdfBuffer.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOGO_PATH = path.join(__dirname, "..", "..", "..", "client", "src", "assets", "header-logo.png");
@@ -18,15 +19,6 @@ const COLORS = {
 };
 
 const PAGE_MARGIN = 40;
-
-function collectDoc(doc) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    doc.on("data", (chunk) => chunks.push(chunk));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", reject);
-  });
-}
 
 /**
  * @param {Record<string, string>} values

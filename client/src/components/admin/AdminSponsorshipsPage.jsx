@@ -323,7 +323,11 @@ export default function AdminSponsorshipsPage() {
   async function handleExport(exportType = "") {
     const params = buildParams();
     if (exportType) params.set("exportType", exportType);
-    await downloadBlob(`/api/admin/sponsorships/export?${params}`, "sponsorships-export.csv");
+    try {
+      await downloadBlob(`/api/admin/sponsorships/export?${params}`, "sponsorships-export.csv");
+    } catch (err) {
+      setError(err.message || "Export failed.");
+    }
   }
 
   function toggleSelect(id) {

@@ -1,7 +1,21 @@
 .admin-highlights {
+  --ae-purple: #6338c2;
+  --ae-purple-soft: rgba(99, 56, 194, 0.14);
+  --ae-card-bg: #0d111c;
+  --ae-input-bg: #080d18;
+  --ae-green: #22c55e;
+  --ae-gold: #eab308;
+  --ae-danger: #ef4444;
   max-width: 1080px;
   margin: 0 auto;
   padding: 0 16px 32px;
+}
+
+[data-theme="light"] .admin-highlights {
+  --ae-purple: #7c3aed;
+  --ae-purple-soft: rgba(124, 58, 237, 0.1);
+  --ae-card-bg: #ffffff;
+  --ae-input-bg: #f8fafc;
 }
 
 .admin-highlights__hero {
@@ -212,6 +226,26 @@
 .admin-highlights__action:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.admin-highlights__card-wrap {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-highlights__editor {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--ad-border);
+  background: var(--ae-input-bg, var(--ae-card-bg));
+  display: grid;
+  gap: 14px;
+}
+
+.admin-highlights__editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .admin-highlights__preview {

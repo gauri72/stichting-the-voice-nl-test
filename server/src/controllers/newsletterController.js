@@ -1,9 +1,6 @@
 import { sendNewsletterSubscribeEmails } from "../services/mailer.js";
 import { isMailerConfigured } from "../services/smtpTransport.js";
-
-function isValidEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
-}
+import { isValidEmail } from "../utils/validation.js";
 
 export async function subscribeNewsletter(req, res) {
   const email = String(req.body?.email || "").trim().slice(0, 160);

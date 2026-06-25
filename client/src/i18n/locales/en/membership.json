@@ -1,0 +1,57 @@
+{
+  "plans": {
+    "heading": "Membership plans",
+    "mostPopular": "MOST POPULAR",
+    "selected": "Selected — scroll down",
+    "becomeMember": "Become a Member",
+    "perYear": "/year",
+    "student": {
+      "name": "Student",
+      "tableNameLines": ["Student"],
+      "description": "Perfect for students who want to explore, learn and stay connected with the community.",
+      "features": ["Invitations to exclusive events", "Monthly newsletter", "Valid for 1 Year"]
+    },
+    "privilegedSingle": {
+      "name": "Privileged Single",
+      "tableNameLines": ["Privileged", "Single"],
+      "description": "Designed for individuals who want more value, priority and savings.",
+      "features": ["10% discount on tickets", "Invitations to exclusive events", "Monthly newsletter", "Valid for 1 Year"]
+    },
+    "privilegedFamily": {
+      "name": "Privileged Family",
+      "tableNameLines": ["Privileged", "Family"],
+      "description": "Great for families who want to enjoy more together while saving more.",
+      "features": ["20% discount on tickets", "Invitations to exclusive events", "Monthly newsletter", "Valid for 1 Year"]
+    },
+    "premiumSingle": {
+      "name": "Premium Single",
+      "tableNameLines": ["Premium", "Single"],
+      "description": "The ultimate experience for individuals who want the best of everything.",
+      "features": ["FREE entry to all events", "100% discount on tickets", "Priority registration"],
+      "moreBenefits": "+ 6 more benefits"
+    },
+    "premiumFamily": {
+      "name": "Premium Family",
+      "tableNameLines": ["Premium", "Family"],
+      "description": "The complete family experience with premium benefits for everyone.",
+      "features": ["FREE entry to all events", "100% discount on tickets", "Priority registration"],
+      "moreBenefits": "+ 6 more benefits"
+    }
+  },
+  "comparison": {
+    "heading": "Membership benefits comparison",
+    "benefitsHead": "Benefits",
+    "row1": "Discount on V.O.I.C.E. NL Tickets",
+    "row2": "Priority Registration",
+    "row3": "Free Entry to Events",
+    "row4": "Invitations to Exclusive Events",
+    "row5": "Exclusive Access",
+    "row6": "Meet & Greet with Artists",
+    "row7": "Discount on Merchandise",
+    "row8": "Discount on Partner Events",
+    "row9": "Monthly Newsletter",
+    "row10": "Valid For",
+    "allEvents": "All Events",
+    "oneYear": "1 Year"
+  }
+}

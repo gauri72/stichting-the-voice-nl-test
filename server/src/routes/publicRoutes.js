@@ -5,6 +5,8 @@ import {
   getPublicPageContent,
   getPublicHeader,
   getPublicFooter,
+  getPublicDesignSystem,
+  getPublicContentOverrides,
   getPreviewPageContent,
 } from "../controllers/publicPageController.js";
 import sessionPublicRoutes from "./sessionPublicRoutes.js";
@@ -23,6 +25,8 @@ router.get("/pages/:slug", getPublicPageContent);
 router.get("/pages/:slug/preview", getPreviewPageContent);
 router.get("/site/header", getPublicHeader);
 router.get("/site/footer", getPublicFooter);
+router.get("/site/design-system", getPublicDesignSystem);
+router.get("/content-overrides", getPublicContentOverrides);
 router.use(sessionPublicRoutes);
 
 export default router;

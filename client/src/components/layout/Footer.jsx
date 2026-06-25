@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   IconBrandFacebook,
   IconBrandInstagram,
@@ -27,6 +28,8 @@ import {
 import { apiFetch } from "../../utils/api.js";
 import { WHATSAPP_GROUP_URL } from "../../constants/siteLinks.js";
 import { useCmsFooter } from "../../hooks/useCmsPage.js";
+import { useCookieConsent } from "../../contexts/CookieConsentContext.jsx";
+import { translateKnownLabel, translateKnownNavLabel } from "../../i18n/navLabels.js";
 import footerBg from "../../assets/footer-bg.png";
 import voiceNlLogo from "../../assets/logos/V.O.I.C.E. NL Copyright HD Logo.png";
 import voiceVentureStudioLogo from "../../assets/VOICE Venture Studio.png";
@@ -45,18 +48,20 @@ function buildWhatsAppHref() {
   return `https://wa.me/${digits}`;
 }
 
-const footerQuickLinks = [
-  { label: "Home", to: "/", Icon: IconHome },
-  { label: "Experience", to: "/events", Icon: IconSparkles },
-  { label: "Become a member", to: "/membership", Icon: IconCrown },
-  { label: "Sponsor us", to: "/sponsorship", Icon: IconHeartHandshake },
-  { label: "Donate", to: "/donate", Icon: IconGift },
-  { label: "Stories", to: "/stories", Icon: IconMicrophone },
-  { label: "Impact", to: "/impact", Icon: IconHeartHandshake },
-  { label: "Innovation", to: "/voice-venture-studio", Icon: IconBulb },
-  { label: "About us", to: "/about-us", Icon: IconUsers },
-  { label: "Policies, terms & conditions", to: "/privacy-policy", Icon: IconShield },
-];
+function buildFooterQuickLinks(t) {
+  return [
+    { label: t("common:footer.quickLinks.home"), to: "/", Icon: IconHome },
+    { label: t("common:footer.quickLinks.experience"), to: "/events", Icon: IconSparkles },
+    { label: t("common:footer.quickLinks.becomeMember"), to: "/membership", Icon: IconCrown },
+    { label: t("common:footer.quickLinks.sponsorUs"), to: "/sponsorship", Icon: IconHeartHandshake },
+    { label: t("common:footer.quickLinks.donate"), to: "/donate", Icon: IconGift },
+    { label: t("common:footer.quickLinks.stories"), to: "/stories", Icon: IconMicrophone },
+    { label: t("common:footer.quickLinks.impact"), to: "/impact", Icon: IconHeartHandshake },
+    { label: t("common:footer.quickLinks.innovation"), to: "/voice-venture-studio", Icon: IconBulb },
+    { label: t("common:footer.quickLinks.aboutUs"), to: "/about-us", Icon: IconUsers },
+    { label: t("common:footer.quickLinks.policies"), to: "/privacy-policy", Icon: IconShield },
+  ];
+}
 
 const socialLinks = [
   {
@@ -150,6 +155,8 @@ function FooterDesktopContactCard({ label, value, href, accent, Icon }) {
 }
 
 export default function Footer() {
+  const { t } = useTranslation(["common", "cookies"]);
+  const { openPreferences } = useCookieConsent();
   const { footer: cmsFooter } = useCmsFooter();
   const cmsContent = cmsFooter?.content || {};
   const cmsContact = cmsFooter?.contactDetails || {};
@@ -159,22 +166,23 @@ export default function Footer() {
   const [contactEmail, setContactEmail] = useState(cmsContact.email || DEFAULT_CONTACT_EMAIL);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  const heroHeading = cmsContent.heroHeading || "Together, We Can";
-  const heroSubheading = cmsContent.heroSubheading || "Create a Better Tomorrow.";
-  const missionText = cmsContent.missionText || "We believe in positive change, inclusive communities, and empowering people to build a better future together.";
-  const copyrightText = cmsContent.copyrightText || "© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.";
-  const whatsappText = cmsContent.whatsappButtonText || "Join WhatsApp Group";
+  const heroHeading = translateKnownLabel(cmsContent.heroHeading, t) || t("common:footer.heroHeading");
+  const heroSubheading = translateKnownLabel(cmsContent.heroSubheading, t) || t("common:footer.heroSubheading");
+  const missionText = translateKnownLabel(cmsContent.missionText, t) || t("common:footer.missionText");
+  const copyrightText = translateKnownLabel(cmsContent.copyrightText, t) || t("common:footer.copyrightText");
+  const whatsappText = translateKnownLabel(cmsContent.whatsappButtonText, t) || t("common:footer.whatsappButton");
   const whatsappUrl = cmsContent.whatsappButtonUrl || WHATSAPP_GROUP_URL;
   const footerBgImage = cmsContent.backgroundImage?.url || footerBg;
   const footerLogo = cmsContent.logo?.url || voiceNlLogo;
 
+  const footerQuickLinks = buildFooterQuickLinks(t);
   const activeQuickLinks = cmsQuickLinks.length
     ? cmsQuickLinks
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
         .map((link) => {
           const fallback = footerQuickLinks.find((f) => f.to === link.url);
           return {
-            label: link.label,
+            label: translateKnownNavLabel(link.url, link.label, t),
             to: link.url,
             Icon: fallback?.Icon || IconHome,
           };
@@ -206,26 +214,26 @@ export default function Footer() {
 
   const contactCards = [
     {
-      label: "KVK",
+      label: t("common:footer.contact.kvk"),
       value: cmsContact.kvk || "92180213",
       accent: "blue",
       Icon: IconBuilding,
     },
     {
-      label: "Address",
-      value: cmsContact.address || "Wengehout 30, 2719 KA Zoetermeer, Netherlands",
+      label: t("common:footer.contact.address"),
+      value: cmsContact.address || t("common:footer.contact.addressValue"),
       accent: "green",
       Icon: IconMapPin,
     },
     {
-      label: "Email",
+      label: t("common:footer.contact.email"),
       value: contactEmail,
       href: `mailto:${contactEmail}`,
       accent: "purple",
       Icon: IconMail,
     },
     {
-      label: "Mobile",
+      label: t("common:footer.contact.mobile"),
       value: cmsContact.phone || "+31619032104",
       href: `tel:${(cmsContact.phone || "+31619032104").replace(/\s/g, "")}`,
       accent: "teal",
@@ -274,7 +282,7 @@ export default function Footer() {
         </div>
 
         <section className="footer-mobile-section" aria-label="Follow us">
-          <FooterSectionTitle>Follow Us</FooterSectionTitle>
+          <FooterSectionTitle>{t("common:footer.followUs")}</FooterSectionTitle>
           <div className="footer-mobile-social">
             {activeSocialLinks.map(({ href, label, Icon }) => (
               <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
@@ -285,7 +293,7 @@ export default function Footer() {
         </section>
 
         <section className="footer-mobile-section" aria-label="Quick links">
-          <FooterSectionTitle>Quick Links</FooterSectionTitle>
+          <FooterSectionTitle>{t("common:footer.quickLinksTitle")}</FooterSectionTitle>
           <div className="footer-mobile-quick-grid">
             {activeQuickLinks.map(({ label, to, Icon }) => (
               <Link key={to} to={to} className="footer-mobile-quick-link">
@@ -303,7 +311,7 @@ export default function Footer() {
         </section>
 
         <section className="footer-mobile-section" id="contact" aria-label="Contact us">
-          <FooterSectionTitle>Contact Us</FooterSectionTitle>
+          <FooterSectionTitle>{t("common:footer.contactUs")}</FooterSectionTitle>
           <div className="footer-mobile-contact-grid">
             {contactCards.map(({ label, value, href, accent, Icon }) => (
               <article
@@ -339,7 +347,7 @@ export default function Footer() {
 
           <p className="footer-mobile-credit__heading">
             <span className="footer-mobile-credit__heading-line" aria-hidden="true" />
-            <span>Proudly Designed &amp; Developed By</span>
+            <span>{t("common:footer.designedBy")}</span>
             <span className="footer-mobile-credit__heading-line" aria-hidden="true" />
           </p>
 
@@ -355,7 +363,7 @@ export default function Footer() {
                 <span className="footer-mobile-credit__name-voice">V.O.I.C.E.</span>
                 <span className="footer-mobile-credit__name-studio">VENTURE STUDIO</span>
               </div>
-              <p className="footer-mobile-credit__tagline">Digital • Design • Innovation</p>
+              <p className="footer-mobile-credit__tagline">{t("common:footer.studioTagline")}</p>
             </div>
           </div>
         </div>
@@ -364,6 +372,9 @@ export default function Footer() {
           <IconShield aria-hidden stroke={1.75} />
           <span>{copyrightText}</span>
         </p>
+        <button type="button" className="footer-cookie-settings" onClick={openPreferences}>
+          {t("cookies:footer.cookieSettings")}
+        </button>
       </div>
 
       <div className="footer-desktop">
@@ -403,7 +414,7 @@ export default function Footer() {
             </a>
 
             <div className="footer-desktop-follow">
-              <p className="footer-desktop-follow__title">Follow Us</p>
+              <p className="footer-desktop-follow__title">{t("common:footer.followUs")}</p>
               <div className="footer-desktop-social">
                 {activeSocialLinks.map(({ href, label, Icon }) => (
                   <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
@@ -417,7 +428,7 @@ export default function Footer() {
 
         <div className="footer-desktop-nav">
           <section className="footer-desktop-nav__quick" aria-label="Quick links">
-            <h3 className="footer-desktop-section-title">Quick Links</h3>
+            <h3 className="footer-desktop-section-title">{t("common:footer.quickLinksTitle")}</h3>
             <div className="footer-desktop-quick-grid">
               {activeQuickLinks.map(({ label, to, Icon }) => (
                 <FooterDesktopQuickLink key={to} label={label} to={to} Icon={Icon} />
@@ -429,7 +440,7 @@ export default function Footer() {
           <span className="footer-desktop-nav__vline" aria-hidden="true" />
 
           <section className="footer-desktop-nav__contact" id="contact-desktop" aria-label="Contact us">
-            <h3 className="footer-desktop-section-title">Contact Us</h3>
+            <h3 className="footer-desktop-section-title">{t("common:footer.contactUs")}</h3>
             <div className="footer-desktop-contact-grid">
               {desktopContactCards.map((card) => (
                 <FooterDesktopContactCard key={card.label} {...card} />
@@ -442,7 +453,7 @@ export default function Footer() {
           className="footer-desktop-partner"
           aria-label="Designed and developed by V.O.I.C.E. Venture Studio"
         >
-          <p className="footer-desktop-partner__label">Proudly Designed &amp; Developed By</p>
+          <p className="footer-desktop-partner__label">{t("common:footer.designedBy")}</p>
 
           <span className="footer-desktop-partner__vline" aria-hidden="true" />
 
@@ -457,16 +468,16 @@ export default function Footer() {
               <span className="footer-desktop-partner__name-voice">V.O.I.C.E.</span>
               <span className="footer-desktop-partner__name-studio">VENTURE STUDIO</span>
             </div>
-            <p className="footer-desktop-partner__tagline">Digital • Design • Innovation</p>
+            <p className="footer-desktop-partner__tagline">{t("common:footer.studioTagline")}</p>
           </div>
 
           <span className="footer-desktop-partner__vline" aria-hidden="true" />
 
           <p className="footer-desktop-partner__blurb">
             <span className="footer-desktop-partner__blurb-line">
-              V.O.I.C.E. Venture Studio is a digital solutions partner empowering brands with design,
+              {t("common:footer.studioBlurbLine1")}
             </span>
-            <span className="footer-desktop-partner__blurb-line">development and innovation.</span>
+            <span className="footer-desktop-partner__blurb-line">{t("common:footer.studioBlurbLine2")}</span>
           </p>
         </div>
 
@@ -476,6 +487,9 @@ export default function Footer() {
             <IconShield aria-hidden stroke={1.75} />
             <span>{copyrightText}</span>
           </p>
+          <button type="button" className="footer-cookie-settings" onClick={openPreferences}>
+            {t("cookies:footer.cookieSettings")}
+          </button>
         </div>
       </div>
 
@@ -483,7 +497,7 @@ export default function Footer() {
         <aside className="footer-whatsapp-widget" aria-label="WhatsApp chat">
           <div className="footer-whatsapp-header">
             <span>
-              <IconBrandWhatsapp aria-hidden stroke={1.75} /> WhatsApp
+              <IconBrandWhatsapp aria-hidden stroke={1.75} /> {t("common:footer.whatsappWidget.title")}
             </span>
             <button type="button" onClick={() => setIsChatOpen(false)} aria-label="Close WhatsApp chat widget">
               <IconX aria-hidden stroke={1.75} />
@@ -492,9 +506,9 @@ export default function Footer() {
 
           <div className="footer-whatsapp-body">
             <p>
-              Hello <span aria-hidden>👋</span>
+              {t("common:footer.whatsappWidget.greeting")} <span aria-hidden>👋</span>
               <br />
-              Can we help you?
+              {t("common:footer.whatsappWidget.helpQuestion")}
             </p>
           </div>
 
@@ -505,7 +519,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             aria-label="Open WhatsApp chat"
           >
-            Open chat
+            {t("common:footer.whatsappWidget.openChat")}
             <IconSend aria-hidden stroke={1.75} />
           </a>
         </aside>

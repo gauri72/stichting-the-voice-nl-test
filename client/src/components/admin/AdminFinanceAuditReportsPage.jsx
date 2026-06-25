@@ -94,6 +94,15 @@ export default function AdminFinanceAuditReportsPage() {
     }));
   }
 
+  async function openReportView(reportId) {
+    try {
+      const d = await apiFetch(`/api/admin/finance/audit-reports/${reportId}`, { headers: adminAuthHeaders() });
+      setViewReport(d.report);
+    } catch (err) {
+      setError(err.message || "Could not load report.");
+    }
+  }
+
   return (
     <AdminLayout pageTitle="Audit Reports" pageSubtitle="Generate transparent audit-ready reports for governance and financial review.">
       <div className="admin-finance">
@@ -120,7 +129,7 @@ export default function AdminFinanceAuditReportsPage() {
                   <td>{r.generatedByName || "—"}</td>
                   <td>
                     <div className="admin-finance__actions">
-                      <button type="button" className="admin-finance__icon-btn" onClick={async () => { const d = await apiFetch(`/api/admin/finance/audit-reports/${r.id}`, { headers: adminAuthHeaders() }); setViewReport(d.report); }}><IconEye size={16} /></button>
+                      <button type="button" className="admin-finance__icon-btn" onClick={() => openReportView(r.id)}><IconEye size={16} /></button>
                       <button type="button" className="admin-finance__icon-btn" onClick={() => downloadBlob(`/api/admin/finance/audit-reports/${r.id}/download-pdf`, `audit-${r.reportId}.pdf`)}><IconDownload size={16} /></button>
                       <button type="button" className="admin-finance__icon-btn" onClick={() => downloadBlob(`/api/admin/finance/audit-reports/${r.id}/download-excel`, `audit-${r.reportId}.xlsx`)}><IconDownload size={16} /></button>
                     </div>

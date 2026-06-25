@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IconClockHour4 } from "@tabler/icons-react";
 
 export default function WaitlistJoinForm({
@@ -9,6 +10,7 @@ export default function WaitlistJoinForm({
   defaultAttendee = {},
   onJoinWaitlist,
 }) {
+  const { t } = useTranslation(["checkout"]);
   const [open, setOpen] = useState(false);
   const [firstName, setFirstName] = useState(defaultAttendee.firstName || "");
   const [lastName, setLastName] = useState(defaultAttendee.lastName || "");
@@ -21,7 +23,7 @@ export default function WaitlistJoinForm({
   async function handleSubmit(event) {
     event.preventDefault();
     if (!firstName.trim() || !lastName.trim() || !email.trim()) {
-      setError("Please fill in your name and email.");
+      setError(t("checkout:waitlist.fillNameEmail"));
       return;
     }
     setSubmitting(true);
@@ -39,7 +41,7 @@ export default function WaitlistJoinForm({
       });
       setResult(data);
     } catch (err) {
-      setError(err.message || "Could not join the waitlist. Please try again.");
+      setError(err.message || t("checkout:waitlist.couldNotJoin"));
     } finally {
       setSubmitting(false);
     }
@@ -49,8 +51,11 @@ export default function WaitlistJoinForm({
     return (
       <p className="ticket-booking__waitlist-success" role="status">
         {result.alreadyJoined
-          ? "You're already on the waitlist for this ticket type — we'll email you when a spot opens up."
-          : `You're #${result.entry?.position || ""} on the waitlist for ${ticketTypeName}. We'll email you when a spot opens up.`}
+          ? t("checkout:waitlist.alreadyJoined")
+          : t("checkout:waitlist.positionMessage", {
+              position: result.entry?.position || "",
+              ticketTypeName,
+            })}
       </p>
     );
   }
@@ -62,7 +67,7 @@ export default function WaitlistJoinForm({
         className="ticket-booking__waitlist-trigger"
         onClick={() => setOpen(true)}
       >
-        <IconClockHour4 size={16} /> Join Waitlist
+        <IconClockHour4 size={16} /> {t("checkout:waitlist.joinWaitlist")}
       </button>
     );
   }
@@ -71,20 +76,20 @@ export default function WaitlistJoinForm({
     <form className="ticket-booking__waitlist-form" onSubmit={handleSubmit}>
       <div className="ticket-booking__waitlist-fields">
         <input
-          placeholder="First name"
+          placeholder={t("checkout:waitlist.firstName")}
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
           required
         />
         <input
-          placeholder="Last name"
+          placeholder={t("checkout:waitlist.lastName")}
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
           required
         />
         <input
           type="email"
-          placeholder="Email"
+          placeholder={t("checkout:waitlist.email")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -109,14 +114,14 @@ export default function WaitlistJoinForm({
           onClick={() => setOpen(false)}
           disabled={submitting}
         >
-          Cancel
+          {t("checkout:waitlist.cancel")}
         </button>
         <button
           type="submit"
           className="ticket-booking__cta ticket-booking__cta--small"
           disabled={submitting}
         >
-          {submitting ? "Joining…" : "Confirm"}
+          {submitting ? t("checkout:waitlist.joining") : t("checkout:waitlist.confirm")}
         </button>
       </div>
     </form>

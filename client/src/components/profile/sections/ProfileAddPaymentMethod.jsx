@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { FaLock } from "react-icons/fa";
 import { useTheme } from "../../../contexts/ThemeContext.jsx";
@@ -10,6 +11,7 @@ import {
 } from "../../../utils/stripePayment.js";
 
 function SetupForm({ onCancel, onSaved }) {
+  const { t } = useTranslation(["misc"]);
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -24,7 +26,7 @@ function SetupForm({ onCancel, onSaved }) {
 
     const { error: submitError } = await elements.submit();
     if (submitError) {
-      setError(submitError.message || "Please check your payment details.");
+      setError(submitError.message || t("misc:profile.paymentMethods.setup.errorCheckDetails"));
       setSubmitting(false);
       return;
     }
@@ -36,7 +38,7 @@ function SetupForm({ onCancel, onSaved }) {
     });
 
     if (confirmError) {
-      setError(confirmError.message || "Could not save your payment method. Please try again.");
+      setError(confirmError.message || t("misc:profile.paymentMethods.setup.errorCouldNotSave"));
       setSubmitting(false);
       return;
     }
@@ -77,21 +79,22 @@ function SetupForm({ onCancel, onSaved }) {
           onClick={onCancel}
           disabled={submitting}
         >
-          Cancel
+          {t("misc:profile.paymentMethods.setup.cancel")}
         </button>
         <button type="submit" className="profile-btn profile-btn--solid" disabled={submitting || !stripe}>
-          <FaLock aria-hidden /> {submitting ? "Saving…" : "Save payment method"}
+          <FaLock aria-hidden /> {submitting ? t("misc:profile.paymentMethods.setup.saving") : t("misc:profile.paymentMethods.setup.save")}
         </button>
       </div>
       <p className="profile-pay__secure profile-pay__secure--inline">
         <FaLock aria-hidden />
-        Securely stored by Stripe. Your full card details never touch our servers.
+        {t("misc:profile.paymentMethods.setup.secureInline")}
       </p>
     </form>
   );
 }
 
 export default function ProfileAddPaymentMethod({ onCancel, onSaved }) {
+  const { t } = useTranslation(["misc"]);
   const { isDark } = useTheme();
   const appearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
   const [clientSecret, setClientSecret] = useState("");
@@ -108,7 +111,7 @@ export default function ProfileAddPaymentMethod({ onCancel, onSaved }) {
         });
         if (!cancelled) setClientSecret(data.clientSecret);
       } catch (e) {
-        if (!cancelled) setError(e.message || "Could not start adding a payment method.");
+        if (!cancelled) setError(e.message || t("misc:profile.paymentMethods.setup.errorCouldNotStart"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -116,17 +119,17 @@ export default function ProfileAddPaymentMethod({ onCancel, onSaved }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   if (!STRIPE_PUBLISHABLE_KEY) {
     return (
       <div className="profile-pay__setup">
         <p className="profile-form__error" role="alert">
-          Stripe is not configured. Add VITE_STRIPE_PUBLISHABLE_KEY to client/.env and restart.
+          {t("misc:profile.paymentMethods.setup.stripeNotConfigured")}
         </p>
         <div className="profile-form__actions">
           <button type="button" className="profile-btn profile-btn--outline" onClick={onCancel}>
-            Close
+            {t("misc:profile.paymentMethods.setup.close")}
           </button>
         </div>
       </div>
@@ -135,7 +138,7 @@ export default function ProfileAddPaymentMethod({ onCancel, onSaved }) {
 
   return (
     <div className="profile-pay__setup">
-      {loading ? <p className="profile-pay__hint">Preparing secure form…</p> : null}
+      {loading ? <p className="profile-pay__hint">{t("misc:profile.paymentMethods.setup.preparing")}</p> : null}
 
       {!loading && error ? (
         <>
@@ -144,7 +147,7 @@ export default function ProfileAddPaymentMethod({ onCancel, onSaved }) {
           </p>
           <div className="profile-form__actions">
             <button type="button" className="profile-btn profile-btn--outline" onClick={onCancel}>
-              Close
+              {t("misc:profile.paymentMethods.setup.close")}
             </button>
           </div>
         </>

@@ -1,16 +1,14 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { escapeRegex } from "../utils/regexUtils.js";
 
 const BCRYPT_ROUNDS = 12;
 
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  const message = error.message || "Something went wrong.";
-  if (status >= 500) {
-    console.error("[admin-users]", error);
-  }
-  return res.status(status).json({ error: message });
+  return handleErrorBase(res, error, { logTag: "[admin-users]" });
 }
 
 // Map UI provider names to DB names
@@ -33,7 +31,7 @@ export async function listUsers(req, res) {
     let query = {};
 
     if (search?.trim()) {
-      const regex = new RegExp(search.trim(), "i");
+      const regex = new RegExp(escapeRegex(search.trim()), "i");
       query = {
         $or: [
           { firstName: regex },
@@ -148,7 +146,7 @@ export async function updateUser(req, res) {
       return res.status(400).json({ error: "First name, last name, and email are required." });
     }
 
-    const user = await User.findById(id);
+    const user = await User.findById(id).select("+passwordHash");
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }

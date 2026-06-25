@@ -22,11 +22,10 @@ import { logCheckoutAction, CHECKOUT_AUDIT_ACTIONS } from "../services/checkoutA
 import Event from "../models/Event.js";
 import { fulfillOrder } from "../services/postPaymentFulfillmentService.js";
 
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  const message = error.message || "Something went wrong.";
-  if (status >= 500) console.error("[checkout-bundle]", error);
-  return res.status(status).json({ error: message });
+  return handleErrorBase(res, error, { logTag: "[checkout-bundle]" });
 }
 
 export async function detectMemberStatus(req, res) {
@@ -142,8 +141,6 @@ export async function saveBeforeLogin(req, res) {
     if (!payload.eventId) {
       return res.status(400).json({ error: "Event ID is required." });
     }
-
-    console.log("[LOGIN_APPLY_BENEFITS_CLICKED] email=%s", payload.email || payload.attendeeDetails?.email || "");
 
     const result = await saveCheckoutBeforeLogin({
       ...payload,

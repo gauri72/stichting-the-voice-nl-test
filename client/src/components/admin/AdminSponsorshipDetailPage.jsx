@@ -110,7 +110,9 @@ export default function AdminSponsorshipDetailPage() {
               <button type="button" className="admin-finance__btn" onClick={() => action("download_receipt")}><IconDownload size={16} /> Download Receipt</button>
               <button type="button" className="admin-finance__btn" onClick={() => action("download_invoice")}><IconDownload size={16} /> Download Invoice</button>
               <button type="button" className="admin-finance__btn" onClick={() => action("thank_you")}><IconMail size={16} /> Thank You Email</button>
-              <button type="button" className="admin-finance__btn admin-finance__btn--accent" onClick={() => action("paid")}><IconCheck size={16} /> Mark as Paid</button>
+              {s.paymentStatus !== "paid" ? (
+                <button type="button" className="admin-finance__btn admin-finance__btn--accent" onClick={() => action("paid")}><IconCheck size={16} /> Mark as Paid</button>
+              ) : null}
             </div>
 
             <div className="admin-finance-detail__grid">

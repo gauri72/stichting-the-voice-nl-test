@@ -60,20 +60,6 @@ export async function notifyAdminTicketBooking({ order, event, tickets = [], pay
   });
 }
 
-export async function notifyAdminRsvp({ event, response }) {
-  return notifyAdminBooking({
-    kind: "rsvp",
-    subject: `RSVP — ${event?.title || "Event"}`,
-    summary: `${response?.email || "Guest"} responded: ${response?.response || response?.rsvpStatus || "—"}`,
-    details: {
-      Event: event?.title,
-      Response: response?.response || response?.rsvpStatus,
-      Guests: response?.guestCount ?? response?.numberOfGuests ?? "—",
-      Email: response?.email,
-    },
-  });
-}
-
 export async function notifyAdminSessionBooking({ session, booking }) {
   return notifyAdminBooking({
     kind: "session_booking",

@@ -1,14 +1,17 @@
 import breadcrumbBgLight from "../../assets/Sponsorship/breadcrumb-bg-light.png";
 import breadcrumbBgDark from "../../assets/Sponsorship/breadcrumb-bg-dark.png";
 import BreadcrumbPageHeader from "../layout/BreadcrumbPageHeader.jsx";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
 import "../../styles/sponsorship-breadcrumb-section.css";
 
 export default function SponsorshipBreadcrumbSection() {
+  const overrides = useContentOverrides();
+
   return (
     <BreadcrumbPageHeader
       ariaLabel="Sponsorship"
-      lightSrc={breadcrumbBgLight}
-      darkSrc={breadcrumbBgDark}
+      lightSrc={overrides.sponsorshipBreadcrumbImageLight?.url || breadcrumbBgLight}
+      darkSrc={overrides.sponsorshipBreadcrumbImageDark?.url || breadcrumbBgDark}
       heroClassName="sponsorship-page-hero"
     />
   );

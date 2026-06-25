@@ -156,51 +156,67 @@ export default function AdminSeatMapEditor() {
   }
 
   async function saveSeatPatch(seatId, patch) {
-    const data = await apiFetch(`/api/admin/events/${eventId}/seats/${seatId}`, {
-      method: "PATCH",
-      headers: adminAuthHeaders(),
-      body: JSON.stringify(patch),
-    });
-    setSeats((prev) => prev.map((s) => (s.seatId === seatId ? data.seat : s)));
+    try {
+      const data = await apiFetch(`/api/admin/events/${eventId}/seats/${seatId}`, {
+        method: "PATCH",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify(patch),
+      });
+      setSeats((prev) => prev.map((s) => (s.seatId === seatId ? data.seat : s)));
+    } catch (err) {
+      setError(err.message || "Failed to update seat.");
+    }
   }
 
   async function savePositions(updatedSeats) {
-    await apiFetch(`/api/admin/events/${eventId}/seats/reposition`, {
-      method: "POST",
-      headers: adminAuthHeaders(),
-      body: JSON.stringify({
-        positions: updatedSeats.map((s) => ({
-          seatId: s.seatId,
-          xPercent: s.xPercent,
-          yPercent: s.yPercent,
-          width: s.width,
-          height: s.height,
-        })),
-      }),
-    });
-    setMessage("Layout saved.");
+    try {
+      await apiFetch(`/api/admin/events/${eventId}/seats/reposition`, {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify({
+          positions: updatedSeats.map((s) => ({
+            seatId: s.seatId,
+            xPercent: s.xPercent,
+            yPercent: s.yPercent,
+            width: s.width,
+            height: s.height,
+          })),
+        }),
+      });
+      setMessage("Layout saved.");
+    } catch (err) {
+      setError(err.message || "Failed to save layout.");
+    }
   }
 
   async function deleteSeat(seatId) {
     if (!window.confirm("Delete this seat?")) return;
-    await apiFetch(`/api/admin/events/${eventId}/seats/${seatId}`, {
-      method: "DELETE",
-      headers: adminAuthHeaders(),
-    });
-    setSeats((prev) => prev.filter((s) => s.seatId !== seatId));
-    if (selectedSeatId === seatId) setSelectedSeatId("");
+    try {
+      await apiFetch(`/api/admin/events/${eventId}/seats/${seatId}`, {
+        method: "DELETE",
+        headers: adminAuthHeaders(),
+      });
+      setSeats((prev) => prev.filter((s) => s.seatId !== seatId));
+      if (selectedSeatId === seatId) setSelectedSeatId("");
+    } catch (err) {
+      setError(err.message || "Failed to delete seat.");
+    }
   }
 
   async function blockSelected(block) {
     const ids = selectedSeatId ? [selectedSeatId] : [];
     if (!ids.length) return;
     const endpoint = block ? "block" : "unblock";
-    const data = await apiFetch(`/api/admin/events/${eventId}/seats/${endpoint}`, {
-      method: "POST",
-      headers: adminAuthHeaders(),
-      body: JSON.stringify({ seatIds: ids }),
-    });
-    setSeats(data.seats || []);
+    try {
+      const data = await apiFetch(`/api/admin/events/${eventId}/seats/${endpoint}`, {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify({ seatIds: ids }),
+      });
+      setSeats(data.seats || []);
+    } catch (err) {
+      setError(err.message || "Failed to update seat block status.");
+    }
   }
 
   const selectedSeat = seats.find((s) => s.seatId === selectedSeatId);

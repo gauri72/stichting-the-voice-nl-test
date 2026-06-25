@@ -1,9 +1,11 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import AppSplash from "./components/layout/AppSplash";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
+import LanguageSwitcher from "./components/layout/LanguageSwitcher.jsx";
 import CookieConsentBanner from "./components/layout/CookieConsentBanner";
+import CookiePreferencesModal from "./components/layout/CookiePreferencesModal.jsx";
 import HomePage from "./components/home/HomePage";
 import AboutUsPage from "./components/about/AboutUsPage";
 import MembershipPage from "./components/membership/MembershipPage";
@@ -21,7 +23,8 @@ import StoriesPage from "./components/stories/StoriesPage";
 import ImpactPage from "./components/impact/ImpactPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MaintenancePage from "./components/maintenance/MaintenancePage";
-import PlaceholderPage from "./components/pages/PlaceholderPage";
+import OurPillarsPlaceholderPage from "./components/pages/OurPillarsPlaceholderPage.jsx";
+import ContactPage from "./components/contact/ContactPage.jsx";
 import PoliciesPage from "./components/policies/PoliciesPage";
 import AdminLoginPage from "./components/admin/AdminLoginPage";
 import AdminDashboardPage from "./components/admin/AdminDashboardPage";
@@ -56,6 +59,13 @@ import AdminReportsPage from "./components/admin/AdminReportsPage.jsx";
 import AdminCustomReportsPage from "./components/admin/AdminCustomReportsPage.jsx";
 import AdminPagesPage from "./components/admin/AdminPagesPage.jsx";
 import AdminPageEditorPage from "./components/admin/AdminPageEditorPage.jsx";
+import AdminCmsHubPage from "./components/admin/AdminCmsHubPage.jsx";
+import AdminMediaLibraryPage from "./components/admin/AdminMediaLibraryPage.jsx";
+import AdminDesignSystemPage from "./components/admin/AdminDesignSystemPage.jsx";
+import AdminComponentLibraryPage from "./components/admin/AdminComponentLibraryPage.jsx";
+import AdminTemplatesPage from "./components/admin/AdminTemplatesPage.jsx";
+import AdminCmsAuditLogPage from "./components/admin/AdminCmsAuditLogPage.jsx";
+import AdminCmsSeoPage from "./components/admin/AdminCmsSeoPage.jsx";
 import AdminHeaderEditorPage from "./components/admin/AdminHeaderEditorPage.jsx";
 import AdminFooterEditorPage from "./components/admin/AdminFooterEditorPage.jsx";
 import AdminSettingsLayout from "./components/admin/settings/AdminSettingsLayout.jsx";
@@ -102,7 +112,6 @@ import EventStagePlanPage from "./components/admin/operations/EventStagePlanPage
 import EventDocumentsPage from "./components/admin/operations/EventDocumentsPage.jsx";
 import AdminGlobalInventoryPage from "./components/admin/operations/AdminGlobalInventoryPage.jsx";
 import AdminGlobalDocumentsPage from "./components/admin/operations/AdminGlobalDocumentsPage.jsx";
-import AdminSectionPlaceholder from "./components/admin/AdminSectionPlaceholder";
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
 import ManifestRouter from "./components/pwa/ManifestRouter.jsx";
 import SiteInstallPwaPrompt from "./components/pwa/SiteInstallPwaPrompt.jsx";
@@ -111,7 +120,20 @@ import SiteInstallPwaPrompt from "./components/pwa/SiteInstallPwaPrompt.jsx";
 const MAINTENANCE_MODE = import.meta.env.VITE_MAINTENANCE_MODE === "true";
 
 function EmptyPage() {
-  return null;
+  return (
+    <div className="coming-soon-page">
+      <div className="coming-soon-page__inner">
+        <p className="coming-soon-page__eyebrow">Coming soon</p>
+        <h1 className="coming-soon-page__title">This page is on its way</h1>
+        <p className="coming-soon-page__body">
+          We're still putting this section together. Check back soon, or head back to the homepage in the meantime.
+        </p>
+        <Link to="/" className="coming-soon-page__link">
+          Back to homepage
+        </Link>
+      </div>
+    </div>
+  );
 }
 
 function ScrollToHash() {
@@ -158,7 +180,7 @@ export default function App() {
         <Routes>
           <Route path="/preview/:pageSlug" element={<PreviewPage />} />
           <Route path="/" element={<HomePage />} />
-          <Route path="/our-pillars" element={<PlaceholderPage title="Our Pillars" />} />
+          <Route path="/our-pillars" element={<OurPillarsPlaceholderPage />} />
           <Route path="/about-us" element={<AboutUsPage />} />
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/events" element={<EventsPage />} />
@@ -185,8 +207,8 @@ export default function App() {
           <Route path="/testimonials" element={<EmptyPage />} />
           <Route path="/blogs" element={<EmptyPage />} />
           <Route path="/donate" element={<DonatePage />} />
-          <Route path="/contact-us" element={<PlaceholderPage title="Contact Us" />} />
-          <Route path="/contact" element={<PlaceholderPage title="Contact Us" />} />
+          <Route path="/contact-us" element={<ContactPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/voice-venture-studio" element={<VentureStudioPage />} />
           <Route path="/film-festival" element={<EmptyPage />} />
           <Route path="/verify-membership/:token" element={<VerifyMembershipPage />} />
@@ -248,6 +270,7 @@ export default function App() {
             <Route path="invoice" element={<AdminSettingsCategoryPage />} />
             <Route path="security" element={<AdminSettingsCategoryPage />} />
             <Route path="integrations" element={<AdminSettingsCategoryPage />} />
+            <Route path="content-overrides" element={<AdminSettingsCategoryPage />} />
             <Route path="stripe" element={<AdminStripeSettingsPage />} />
             <Route path="bank" element={<AdminBankSettingsPage />} />
             <Route path="email-provider" element={<AdminEmailProviderSettingsPage />} />
@@ -580,12 +603,44 @@ export default function App() {
             element={<AdminProtectedRoute><AdminPagesPage /></AdminProtectedRoute>}
           />
           <Route
+            path="/admin/cms"
+            element={<AdminProtectedRoute><AdminCmsHubPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/cms/media-library"
+            element={<AdminProtectedRoute><AdminMediaLibraryPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/cms/design-system"
+            element={<AdminProtectedRoute><AdminDesignSystemPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/cms/component-library"
+            element={<AdminProtectedRoute><AdminComponentLibraryPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/cms/templates"
+            element={<AdminProtectedRoute><AdminTemplatesPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/cms/audit-log"
+            element={<AdminProtectedRoute><AdminCmsAuditLogPage /></AdminProtectedRoute>}
+          />
+          <Route
+            path="/admin/cms/seo"
+            element={<AdminProtectedRoute><AdminCmsSeoPage /></AdminProtectedRoute>}
+          />
+          <Route
             path="/admin/cms/pages"
             element={<AdminProtectedRoute><AdminPagesPage /></AdminProtectedRoute>}
           />
           <Route
             path="/admin/cms/pages/dashboard"
             element={<Navigate to="/admin/customer-dashboard-builder" replace />}
+          />
+          <Route
+            path="/admin/cms/pages/:pageSlug/visual-editor"
+            element={<AdminProtectedRoute><AdminPageEditorPage defaultVisualMode /></AdminProtectedRoute>}
           />
           <Route
             path="/admin/pages/header"
@@ -644,8 +699,10 @@ export default function App() {
         </Routes>
       </main>
       {!hideSiteChrome && <Footer />}
+      {!hideSiteChrome && <LanguageSwitcher />}
       {!hideSiteChrome && <SiteInstallPwaPrompt />}
       {!hideSiteChrome && <CookieConsentBanner />}
+      {!hideSiteChrome && <CookiePreferencesModal />}
     </div>
     </>
   );

@@ -1,0 +1,57 @@
+{
+  "plans": {
+    "heading": "Lidmaatschapsplannen",
+    "mostPopular": "MEEST GEKOZEN",
+    "selected": "Geselecteerd — scroll naar beneden",
+    "becomeMember": "Word Lid",
+    "perYear": "/jaar",
+    "student": {
+      "name": "Student",
+      "tableNameLines": ["Student"],
+      "description": "Perfect voor studenten die willen ontdekken, leren en verbonden willen blijven met de gemeenschap.",
+      "features": ["Uitnodigingen voor exclusieve evenementen", "Maandelijkse nieuwsbrief", "Geldig voor 1 jaar"]
+    },
+    "privilegedSingle": {
+      "name": "Privileged Single",
+      "tableNameLines": ["Privileged", "Single"],
+      "description": "Ontworpen voor individuen die meer waarde, prioriteit en besparingen willen.",
+      "features": ["10% korting op tickets", "Uitnodigingen voor exclusieve evenementen", "Maandelijkse nieuwsbrief", "Geldig voor 1 jaar"]
+    },
+    "privilegedFamily": {
+      "name": "Privileged Family",
+      "tableNameLines": ["Privileged", "Family"],
+      "description": "Geweldig voor families die meer samen willen genieten en meer willen besparen.",
+      "features": ["20% korting op tickets", "Uitnodigingen voor exclusieve evenementen", "Maandelijkse nieuwsbrief", "Geldig voor 1 jaar"]
+    },
+    "premiumSingle": {
+      "name": "Premium Single",
+      "tableNameLines": ["Premium", "Single"],
+      "description": "De ultieme ervaring voor individuen die het beste van alles willen.",
+      "features": ["GRATIS toegang tot alle evenementen", "100% korting op tickets", "Voorrang bij registratie"],
+      "moreBenefits": "+ 6 extra voordelen"
+    },
+    "premiumFamily": {
+      "name": "Premium Family",
+      "tableNameLines": ["Premium", "Family"],
+      "description": "De complete familie-ervaring met premium voordelen voor iedereen.",
+      "features": ["GRATIS toegang tot alle evenementen", "100% korting op tickets", "Voorrang bij registratie"],
+      "moreBenefits": "+ 6 extra voordelen"
+    }
+  },
+  "comparison": {
+    "heading": "Vergelijking van lidmaatschapsvoordelen",
+    "benefitsHead": "Voordelen",
+    "row1": "Korting op V.O.I.C.E. NL Tickets",
+    "row2": "Voorrang bij Registratie",
+    "row3": "Gratis Toegang tot Evenementen",
+    "row4": "Uitnodigingen voor Exclusieve Evenementen",
+    "row5": "Exclusieve Toegang",
+    "row6": "Meet & Greet met Artiesten",
+    "row7": "Korting op Merchandise",
+    "row8": "Korting op Partnerevenementen",
+    "row9": "Maandelijkse Nieuwsbrief",
+    "row10": "Geldig Voor",
+    "allEvents": "Alle Evenementen",
+    "oneYear": "1 Jaar"
+  }
+}

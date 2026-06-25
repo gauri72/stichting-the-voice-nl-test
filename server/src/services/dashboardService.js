@@ -3,7 +3,6 @@ import User from "../models/User.js";
 import PaymentTransaction from "../models/PaymentTransaction.js";
 import ActivityLog from "../models/ActivityLog.js";
 import Membership from "../models/Membership.js";
-import EventRegistration from "../models/EventRegistration.js";
 import {
   getTicketTailorStatus,
   isTicketTailorConfigured,
@@ -68,12 +67,11 @@ export async function getDashboardPayloadForUser(safeUser) {
       })
     : Promise.resolve({ orders: [], issuedMemberships: [] });
 
-  const [transactions, activityLogs, membership, localEventCount, ticketTailorAccount, ticketTailor] =
+  const [transactions, activityLogs, membership, ticketTailorAccount, ticketTailor] =
     await Promise.all([
       PaymentTransaction.find(buildUserMatch(userId, email)).sort({ paidAt: -1 }).limit(100).lean(),
       ActivityLog.find({ userId: oid }).sort({ createdAt: -1 }).limit(50).lean(),
       Membership.findOne({ userId: oid }).sort({ startedAt: -1 }).lean(),
-      EventRegistration.countDocuments({ userId: oid }),
       ticketTailorPromise,
       ticketTailorStatusPromise
     ]);
@@ -89,8 +87,7 @@ export async function getDashboardPayloadForUser(safeUser) {
   } = splitOrdersByCategory(ticketTailorOrders);
 
   const ticketEventCount = ttEventOrders.length;
-  const eventCount =
-    localEventCount + (isTicketTailorConfigured() ? ticketEventCount : 0);
+  const eventCount = isTicketTailorConfigured() ? ticketEventCount : 0;
 
   let donationTotalMinor = 0;
   let donationCount = 0;

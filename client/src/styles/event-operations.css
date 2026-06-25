@@ -176,6 +176,7 @@
   position: sticky;
   bottom: 5rem;
   z-index: 5;
+  align-self: flex-start;
 }
 
 .event-ops__mobile-card {

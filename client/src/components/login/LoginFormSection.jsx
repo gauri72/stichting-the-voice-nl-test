@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { FaEnvelope, FaEye, FaEyeSlash, FaLock, FaUser } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useCaptcha } from "../../hooks/useCaptcha.js";
@@ -20,6 +21,7 @@ function PasswordField({
   showPassword,
   onToggle,
 }) {
+  const { t } = useTranslation(["auth"]);
   return (
     <div className="login-form-section__field">
       <label htmlFor={id}>{label}</label>
@@ -39,7 +41,7 @@ function PasswordField({
           type="button"
           className="login-form-section__toggle-password"
           onClick={onToggle}
-          aria-label={showPassword ? "Hide password" : "Show password"}
+          aria-label={showPassword ? t("auth:form.fields.hidePassword") : t("auth:form.fields.showPassword")}
         >
           {showPassword ? <FaEyeSlash aria-hidden /> : <FaEye aria-hidden />}
         </button>
@@ -64,6 +66,7 @@ export default function LoginFormSection({
   prefillEmail = "",
   onAuthenticated,
 }) {
+  const { t } = useTranslation(["auth"]);
   const navigate = useNavigate();
   const { loginWithToken } = useAuth();
 
@@ -155,7 +158,7 @@ export default function LoginFormSection({
 
     const trimmedOtp = otp.replace(/\D/g, "").slice(0, 6);
     if (trimmedOtp.length !== 6) {
-      setOtpError("Please enter the 6-digit code from your email.");
+      setOtpError(t("auth:form.errors.otpInvalid"));
       return;
     }
 
@@ -178,7 +181,7 @@ export default function LoginFormSection({
       await loginWithToken(data.token, data.user, true);
       finishAuth(data.user);
     } catch (error) {
-      setOtpError(error.message || "Verification failed. Please try again.");
+      setOtpError(error.message || t("auth:form.errors.otpVerifyFailed"));
     } finally {
       otpCaptcha.reset();
       setIsVerifyingOtp(false);
@@ -210,7 +213,7 @@ export default function LoginFormSection({
       }));
       setOtp("");
     } catch (error) {
-      setOtpError(error.message || "Could not resend code. Please try again.");
+      setOtpError(error.message || t("auth:form.errors.otpResendFailed"));
     } finally {
       otpCaptcha.reset();
       setIsResendingOtp(false);
@@ -251,7 +254,7 @@ export default function LoginFormSection({
       await loginWithToken(data.token, data.user, useRememberMe);
       finishAuth(data.user);
     } catch (error) {
-      const message = error.message || "Google sign-in failed. Please try again.";
+      const message = error.message || t("auth:google.errorFailed");
       if (isSignUp) {
         setSignUpError(message);
         setHasSignUpAttempt(true);
@@ -267,7 +270,7 @@ export default function LoginFormSection({
   function renderOrDivider() {
     return (
       <div className="login-form-section__divider" role="separator" aria-label="or">
-        <span>OR</span>
+        <span>{t("auth:form.buttons.or")}</span>
       </div>
     );
   }
@@ -284,7 +287,7 @@ export default function LoginFormSection({
           role="separator"
           aria-label="or continue with"
         >
-          <span>or continue with</span>
+          <span>{t("auth:form.buttons.orContinueWith")}</span>
         </div>
         <GoogleSignInButton
           disabled={isGoogleSigningIn}
@@ -326,7 +329,7 @@ export default function LoginFormSection({
       await loginWithToken(data.token, data.user, rememberMe);
       finishAuth(data.user);
     } catch (error) {
-      setLoginError(error.message || "Log in failed. Please try again.");
+      setLoginError(error.message || t("auth:form.errors.loginFailed"));
     } finally {
       loginCaptcha.reset();
       setIsLoggingIn(false);
@@ -348,22 +351,22 @@ export default function LoginFormSection({
     const trimmedConfirm = confirmPassword.trim();
 
     if (!firstName.trim() || !lastName.trim() || !signUpEmail.trim()) {
-      setSignUpError("Please fill in all fields.");
+      setSignUpError(t("auth:form.errors.signupFillAll"));
       return;
     }
 
     if (!trimmedPassword || !trimmedConfirm) {
-      setSignUpError("Please enter and confirm your password.");
+      setSignUpError(t("auth:form.errors.signupPasswordRequired"));
       return;
     }
 
     if (trimmedPassword !== trimmedConfirm) {
-      setSignUpError("Passwords do not match. Please check and try again.");
+      setSignUpError(t("auth:form.errors.signupPasswordMismatch"));
       return;
     }
 
     if (trimmedPassword.length < 8) {
-      setSignUpError("Password must be at least 8 characters long.");
+      setSignUpError(t("auth:form.errors.signupPasswordTooShort"));
       return;
     }
 
@@ -393,7 +396,7 @@ export default function LoginFormSection({
       setOtp("");
       setOtpError("");
     } catch (error) {
-      setSignUpError(error.message || "Could not create account. Please try again.");
+      setSignUpError(error.message || t("auth:form.errors.signupFailed"));
     } finally {
       signUpCaptcha.reset();
       setIsSigningUp(false);
@@ -423,7 +426,7 @@ export default function LoginFormSection({
         devResetUrl: data.devResetUrl
       });
     } catch (error) {
-      setForgotError(error.message || "Could not send reset email. Please try again.");
+      setForgotError(error.message || t("auth:form.errors.forgotFailed"));
     } finally {
       forgotCaptcha.reset();
       setIsSubmittingForgot(false);
@@ -470,33 +473,32 @@ export default function LoginFormSection({
       <div className="login-form-section__card">
         <header className="login-form-section__header">
           <h2 id="login-form-title" className="login-form-section__title">
-            {isForgotPassword ? "Forgot Password" : isSignUp ? "Sign Up" : "Log In"}
+            {isForgotPassword ? t("auth:form.titles.forgotPassword") : isSignUp ? t("auth:form.titles.signup") : t("auth:form.titles.login")}
           </h2>
           <p className="login-form-section__intro">
             {isForgotPassword
-              ? "Enter your email address and we will send you a link to reset your password."
+              ? t("auth:form.intros.forgotPassword")
               : isSignUp
-                ? "Fill in your details below to create your account."
-                : "Please enter your credentials to access your account."}
+                ? t("auth:form.intros.signup")
+                : t("auth:form.intros.login")}
           </p>
         </header>
 
         {isSignUp && signUpSuccess ? (
           <div className="login-form-section__success" role="status">
-            <h3>Verify your email</h3>
+            <h3>{t("auth:form.verifyEmail.title")}</h3>
             <p>{signUpSuccess.message}</p>
             <p>
-              Enter the 6-digit code sent to <strong>{signUpSuccess.email}</strong>.
+              {t("auth:form.verifyEmail.enterCode", { email: signUpSuccess.email })}
             </p>
             {signUpSuccess.devOtp ? (
               <p className="login-form-section__dev-link">
-                Dev mode (SMTP not configured): your code is{" "}
-                <strong>{signUpSuccess.devOtp}</strong>
+                {t("auth:form.verifyEmail.devMode", { otp: signUpSuccess.devOtp })}
               </p>
             ) : null}
             <form className="login-form-section__otp-form" onSubmit={handleVerifyOtpSubmit} noValidate>
               <div className="login-form-section__field">
-                <label htmlFor="signup-otp">Verification code</label>
+                <label htmlFor="signup-otp">{t("auth:form.fields.verificationCode")}</label>
                 <input
                   id="signup-otp"
                   name="otp"
@@ -519,7 +521,7 @@ export default function LoginFormSection({
               <CaptchaField captcha={otpCaptcha} className="login-form-section__captcha" />
               <button type="submit" className="login-form-section__submit" disabled={isVerifyingOtp}>
                 <FaEnvelope aria-hidden />
-                {isVerifyingOtp ? "Verifying…" : "Verify & go to dashboard"}
+                {isVerifyingOtp ? t("auth:form.buttons.verifying") : t("auth:form.buttons.verifyAndGoToDashboard")}
               </button>
             </form>
             <button
@@ -528,26 +530,26 @@ export default function LoginFormSection({
               onClick={handleResendOtp}
               disabled={isResendingOtp}
             >
-              {isResendingOtp ? "Sending new code…" : "Resend code"}
+              {isResendingOtp ? t("auth:form.buttons.sendingNewCode") : t("auth:form.buttons.resendCode")}
             </button>
             <button type="button" className="login-form-section__switch-mode" onClick={switchToLogin}>
               <FaLock aria-hidden />
-              Back to Log In
+              {t("auth:form.buttons.backToLogIn")}
             </button>
           </div>
         ) : isForgotPassword && forgotSuccess ? (
           <div className="login-form-section__success" role="status">
-            <h3>Check your email</h3>
+            <h3>{t("auth:form.checkEmail.title")}</h3>
             <p>{forgotSuccess.message}</p>
             {forgotSuccess.devResetUrl ? (
               <p className="login-form-section__dev-link">
-                Dev mode (SMTP not configured):{" "}
+                {t("auth:form.checkEmail.devMode")}{" "}
                 <a href={forgotSuccess.devResetUrl}>{forgotSuccess.devResetUrl}</a>
               </p>
             ) : null}
             <button type="button" className="login-form-section__switch-mode" onClick={switchToLogin}>
               <FaLock aria-hidden />
-              Back to Log In
+              {t("auth:form.buttons.backToLogIn")}
             </button>
           </div>
         ) : isForgotPassword ? (
@@ -558,7 +560,7 @@ export default function LoginFormSection({
             noValidate
           >
             <div className="login-form-section__field">
-              <label htmlFor="forgot-email">Email Address</label>
+              <label htmlFor="forgot-email">{t("auth:form.fields.emailAddress")}</label>
               <div className="login-form-section__input-wrap">
                 <FaEnvelope className="login-form-section__input-icon" aria-hidden />
                 <input
@@ -566,7 +568,7 @@ export default function LoginFormSection({
                   name="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="john.doe@email.com"
+                  placeholder={t("auth:form.fields.emailPlaceholder")}
                   value={forgotEmail}
                   onChange={(event) => setForgotEmail(event.target.value)}
                   required
@@ -584,12 +586,12 @@ export default function LoginFormSection({
 
             <button type="submit" className="login-form-section__submit" disabled={isSubmittingForgot}>
               <FaEnvelope aria-hidden />
-              {isSubmittingForgot ? "Sending…" : "Send Reset Link"}
+              {isSubmittingForgot ? t("auth:form.buttons.sending") : t("auth:form.buttons.sendResetLink")}
             </button>
 
             <button type="button" className="login-form-section__switch-mode" onClick={switchToLogin}>
               <FaLock aria-hidden />
-              Back to Log In
+              {t("auth:form.buttons.backToLogIn")}
             </button>
           </form>
         ) : isSignUp ? (
@@ -601,7 +603,7 @@ export default function LoginFormSection({
           >
             <div className="login-form-section__name-row">
               <div className="login-form-section__field">
-                <label htmlFor="signup-first-name">First Name</label>
+                <label htmlFor="signup-first-name">{t("auth:form.fields.firstName")}</label>
                 <div className="login-form-section__input-wrap">
                   <FaUser className="login-form-section__input-icon" aria-hidden />
                   <input
@@ -609,7 +611,7 @@ export default function LoginFormSection({
                     name="firstName"
                     type="text"
                     autoComplete="given-name"
-                    placeholder="John"
+                    placeholder={t("auth:form.fields.firstNamePlaceholder")}
                     value={firstName}
                     onChange={(event) => setFirstName(event.target.value)}
                     required
@@ -618,7 +620,7 @@ export default function LoginFormSection({
               </div>
 
               <div className="login-form-section__field">
-                <label htmlFor="signup-last-name">Last Name</label>
+                <label htmlFor="signup-last-name">{t("auth:form.fields.lastName")}</label>
                 <div className="login-form-section__input-wrap">
                   <FaUser className="login-form-section__input-icon" aria-hidden />
                   <input
@@ -626,7 +628,7 @@ export default function LoginFormSection({
                     name="lastName"
                     type="text"
                     autoComplete="family-name"
-                    placeholder="Doe"
+                    placeholder={t("auth:form.fields.lastNamePlaceholder")}
                     value={lastName}
                     onChange={(event) => setLastName(event.target.value)}
                     required
@@ -636,7 +638,7 @@ export default function LoginFormSection({
             </div>
 
             <div className="login-form-section__field">
-              <label htmlFor="signup-email">Email Address</label>
+              <label htmlFor="signup-email">{t("auth:form.fields.emailAddress")}</label>
               <div className="login-form-section__input-wrap">
                 <FaEnvelope className="login-form-section__input-icon" aria-hidden />
                 <input
@@ -644,7 +646,7 @@ export default function LoginFormSection({
                   name="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="john.doe@email.com"
+                  placeholder={t("auth:form.fields.emailPlaceholder")}
                   value={signUpEmail}
                   onChange={(event) => setSignUpEmail(event.target.value)}
                   required
@@ -655,10 +657,10 @@ export default function LoginFormSection({
             <PasswordField
               id="signup-create-password"
               name="createPassword"
-              label="Create Password"
+              label={t("auth:form.fields.createPassword")}
               value={createPassword}
               onChange={handleCreatePasswordChange}
-              placeholder="Create a password"
+              placeholder={t("auth:form.fields.createPasswordPlaceholder")}
               autoComplete="new-password"
               showPassword={showCreatePassword}
               onToggle={() => setShowCreatePassword((visible) => !visible)}
@@ -667,10 +669,10 @@ export default function LoginFormSection({
             <PasswordField
               id="signup-confirm-password"
               name="confirmPassword"
-              label="Confirm Password"
+              label={t("auth:form.fields.confirmPassword")}
               value={confirmPassword}
               onChange={handleConfirmPasswordChange}
-              placeholder="Confirm your password"
+              placeholder={t("auth:form.fields.confirmPasswordPlaceholder")}
               autoComplete="new-password"
               showPassword={showConfirmPassword}
               onToggle={() => setShowConfirmPassword((visible) => !visible)}
@@ -686,7 +688,7 @@ export default function LoginFormSection({
 
             <button type="submit" className="login-form-section__submit" disabled={isSigningUp}>
               <FaUser aria-hidden />
-              {isSigningUp ? "Sending verification…" : "Create New Account"}
+              {isSigningUp ? t("auth:form.buttons.sendingVerification") : t("auth:form.buttons.createNewAccount")}
             </button>
 
             {renderSocialAuth()}
@@ -698,7 +700,7 @@ export default function LoginFormSection({
               onClick={switchToLogin}
             >
               <FaLock aria-hidden />
-              Log In
+              {t("auth:form.buttons.logIn")}
             </button>
           </form>
         ) : (
@@ -709,7 +711,7 @@ export default function LoginFormSection({
             noValidate
           >
             <div className="login-form-section__field">
-              <label htmlFor="login-email">Email Address</label>
+              <label htmlFor="login-email">{t("auth:form.fields.emailAddress")}</label>
               <div className="login-form-section__input-wrap">
                 <FaEnvelope className="login-form-section__input-icon" aria-hidden />
                 <input
@@ -717,7 +719,7 @@ export default function LoginFormSection({
                   name="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="john.doe@email.com"
+                  placeholder={t("auth:form.fields.emailPlaceholder")}
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   required
@@ -728,10 +730,10 @@ export default function LoginFormSection({
             <PasswordField
               id="login-password"
               name="password"
-              label="Password"
+              label={t("auth:form.fields.password")}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              placeholder="Enter your password"
+              placeholder={t("auth:form.fields.passwordPlaceholder")}
               autoComplete="current-password"
               showPassword={showPassword}
               onToggle={() => setShowPassword((visible) => !visible)}
@@ -751,14 +753,14 @@ export default function LoginFormSection({
                   checked={rememberMe}
                   onChange={(event) => setRememberMe(event.target.checked)}
                 />
-                <span>Remember Me</span>
+                <span>{t("auth:form.fields.rememberMe")}</span>
               </label>
               <button
                 type="button"
                 className="login-form-section__forgot"
                 onClick={switchToForgotPassword}
               >
-                Forgot Password?
+                {t("auth:form.fields.forgotPasswordLink")}
               </button>
             </div>
 
@@ -766,7 +768,7 @@ export default function LoginFormSection({
 
             <button type="submit" className="login-form-section__submit" disabled={isLoggingIn}>
               <FaLock aria-hidden />
-              {isLoggingIn ? "Logging in…" : "Log In"}
+              {isLoggingIn ? t("auth:form.buttons.loggingIn") : t("auth:form.buttons.logIn")}
             </button>
 
             {renderSocialAuth()}
@@ -778,7 +780,7 @@ export default function LoginFormSection({
               onClick={switchToSignUp}
             >
               <FaUser aria-hidden />
-              Create New Account
+              {t("auth:form.buttons.createNewAccount")}
             </button>
           </form>
         )}
@@ -786,21 +788,24 @@ export default function LoginFormSection({
         <p className="login-form-section__legal">
           {isSignUp ? (
             <>
-              By creating an account, you agree to our{" "}
-              <Link to="/terms-and-conditions">Terms &amp; Conditions</Link> and{" "}
-              <Link to="/privacy-policy">Privacy Policy</Link>.
+              {t("auth:form.legal.signupPrefix")}{" "}
+              <Link to="/terms-and-conditions">{t("auth:form.legal.termsLink")}</Link>{" "}
+              {t("auth:form.legal.and")}{" "}
+              <Link to="/privacy-policy">{t("auth:form.legal.privacyLink")}</Link>.
             </>
           ) : isForgotPassword ? (
             <>
-              By requesting a reset, you agree to our{" "}
-              <Link to="/terms-and-conditions">Terms &amp; Conditions</Link> and{" "}
-              <Link to="/privacy-policy">Privacy Policy</Link>.
+              {t("auth:form.legal.forgotPrefix")}{" "}
+              <Link to="/terms-and-conditions">{t("auth:form.legal.termsLink")}</Link>{" "}
+              {t("auth:form.legal.and")}{" "}
+              <Link to="/privacy-policy">{t("auth:form.legal.privacyLink")}</Link>.
             </>
           ) : (
             <>
-              By logging in, you agree to our{" "}
-              <Link to="/terms-and-conditions">Terms &amp; Conditions</Link> and{" "}
-              <Link to="/privacy-policy">Privacy Policy</Link>.
+              {t("auth:form.legal.loginPrefix")}{" "}
+              <Link to="/terms-and-conditions">{t("auth:form.legal.termsLink")}</Link>{" "}
+              {t("auth:form.legal.and")}{" "}
+              <Link to="/privacy-policy">{t("auth:form.legal.privacyLink")}</Link>.
             </>
           )}
         </p>

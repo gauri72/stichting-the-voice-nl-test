@@ -1,0 +1,45 @@
+{
+  "banner": {
+    "title": "We value your privacy",
+    "text": "We use cookies to keep the site working, remember your preferences, and understand how visitors use our site. You can accept all cookies, reject optional ones, or manage your preferences in detail.",
+    "policyLinkText": "Cookie Policy",
+    "acceptAll": "Accept All",
+    "rejectAll": "Reject All",
+    "managePreferences": "Manage Preferences"
+  },
+  "modal": {
+    "title": "Cookie Preferences",
+    "intro": "Choose which categories of cookies we're allowed to use. Strictly necessary cookies are always active because the site cannot function properly without them. You can change your preferences at any time from the \"Cookie Settings\" link in the footer.",
+    "alwaysActive": "Always Active",
+    "on": "On",
+    "off": "Off",
+    "categories": {
+      "necessary": {
+        "title": "Strictly Necessary Cookies",
+        "description": "Required for core site functionality such as security, network management, and accessibility. These cannot be switched off."
+      },
+      "functional": {
+        "title": "Functional Cookies",
+        "description": "Remember your preferences — such as language and display settings — to give you a more personalized experience."
+      },
+      "analytics": {
+        "title": "Analytics Cookies",
+        "description": "Help us understand how visitors interact with our site (e.g. Google Analytics, Hotjar) so we can improve performance and content."
+      },
+      "marketing": {
+        "title": "Marketing Cookies",
+        "description": "Used to deliver relevant ads, measure campaign performance, and power retargeting and tracking pixels across other sites."
+      }
+    },
+    "doNotSell": {
+      "title": "Do Not Sell or Share My Personal Information",
+      "description": "California residents can opt out of the sale or sharing of personal information for cross-context behavioral advertising. Enabling this disables marketing cookies."
+    },
+    "save": "Save Preferences",
+    "cancel": "Cancel",
+    "close": "Close cookie preferences"
+  },
+  "footer": {
+    "cookieSettings": "Cookie Settings"
+  }
+}

@@ -1,7 +1,9 @@
-import { useRef } from "react";
-import { IconPhoto, IconTrash, IconUpload } from "@tabler/icons-react";
+import { useRef, useState } from "react";
+import { IconPhoto, IconTrash, IconUpload, IconLibraryPhoto } from "@tabler/icons-react";
 import { adminAuthHeaders, apiFetch } from "../../../utils/api.js";
 import { readImageFile, validateImageFile } from "../../../utils/pagesAdmin.js";
+import MediaLibraryPicker from "./MediaLibraryPicker.jsx";
+import AiAssistantButton from "./AiAssistantButton.jsx";
 
 export default function CmsImageField({
   label,
@@ -12,6 +14,7 @@ export default function CmsImageField({
   disabled = false,
 }) {
   const inputRef = useRef(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const image = value || { url: "", alt: "", focusPosition: "center" };
 
   async function handleUpload(event) {
@@ -49,6 +52,9 @@ export default function CmsImageField({
               <button type="button" className="admin-cms__btn admin-cms__btn--sm" onClick={() => inputRef.current?.click()}>
                 <IconUpload size={16} /> Replace
               </button>
+              <button type="button" className="admin-cms__btn admin-cms__btn--sm" onClick={() => setPickerOpen(true)}>
+                <IconLibraryPhoto size={16} /> Choose from library
+              </button>
               <button type="button" className="admin-cms__btn admin-cms__btn--sm admin-cms__btn--danger" onClick={() => onChange({ url: "", alt: "", focusPosition: "center" })}>
                 <IconTrash size={16} /> Remove
               </button>
@@ -56,14 +62,24 @@ export default function CmsImageField({
           ) : null}
         </div>
       ) : (
-        <button type="button" className="admin-cms__upload-zone" onClick={() => !disabled && inputRef.current?.click()} disabled={disabled}>
-          <IconPhoto size={24} />
-          <span>Upload image</span>
-        </button>
+        <div className="admin-cms__image-actions">
+          <button type="button" className="admin-cms__upload-zone" onClick={() => !disabled && inputRef.current?.click()} disabled={disabled}>
+            <IconPhoto size={24} />
+            <span>Upload image</span>
+          </button>
+          {!disabled ? (
+            <button type="button" className="admin-cms__btn admin-cms__btn--sm" onClick={() => setPickerOpen(true)}>
+              <IconLibraryPhoto size={16} /> Choose from library
+            </button>
+          ) : null}
+        </div>
       )}
       <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/svg+xml" hidden onChange={handleUpload} />
       <div className="admin-cms__field-row">
-        <label className="admin-cms__label">Alt text</label>
+        <label className="admin-cms__label">
+          Alt text
+          <AiAssistantButton text={image.alt || label} actions={["generate_alt_text"]} onApply={(v) => onChange({ ...image, alt: v })} disabled={disabled} />
+        </label>
         <input
           className="admin-cms__input"
           value={image.alt || ""}
@@ -87,6 +103,14 @@ export default function CmsImageField({
           <option value="right">Right</option>
         </select>
       </div>
+      <MediaLibraryPicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(picked) => {
+          onChange({ ...picked, alt: image.alt || picked.alt, focusPosition: image.focusPosition || "center" });
+          setPickerOpen(false);
+        }}
+      />
     </div>
   );
 }

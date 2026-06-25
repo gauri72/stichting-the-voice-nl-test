@@ -15,6 +15,7 @@ import { logFinanceAction } from "./financeAuditService.js";
 import { renderInvoicePdf } from "./financePdfService.js";
 import { buildInvoicesExcel } from "./financeExcelService.js";
 import { sendModuleEmail } from "./sponsorshipDonationMailer.js";
+import { escapeRegex } from "../utils/regexUtils.js";
 
 function formatInvoice(doc) {
   if (!doc) return null;
@@ -100,7 +101,7 @@ function buildInvoiceFilter(params) {
     }
   }
   if (params.search) {
-    const q = params.search.trim();
+    const q = escapeRegex(params.search.trim());
     filter.$or = [
       { invoiceNumber: new RegExp(q, "i") },
       { clientName: new RegExp(q, "i") },

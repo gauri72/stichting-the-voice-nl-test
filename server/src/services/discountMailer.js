@@ -1,4 +1,4 @@
-import { isMailerConfigured, getSmtpTransporter } from "./smtpTransport.js";
+import { isMailerConfigured, getSmtpTransporter, getMailFromAddress } from "./smtpTransport.js";
 
 const ORG_NAME = "Stichting The V.O.I.C.E. NL";
 
@@ -37,7 +37,7 @@ async function sendEmail({ to, subject, html }) {
   }
   const transport = getSmtpTransporter();
   await transport.sendMail({
-    from: process.env.SMTP_FROM || `"${ORG_NAME}" <noreply@voice.nl>`,
+    from: getMailFromAddress(),
     to,
     subject,
     html: wrapEmail(html),

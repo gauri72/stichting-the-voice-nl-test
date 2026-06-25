@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
 import "../../styles/voice-brand-reveal.css";
 
 const BRAND_STEPS = ["V.", "V.O.", "V.O.I.", "V.O.I.C.", "V.O.I.C.E.", "V.O.I.C.E. NL"];
 
-const TAGLINE = "The Vision Of International Cultural Exchange In The Netherlands";
+const DEFAULT_TAGLINE = "The Vision Of International Cultural Exchange In The Netherlands";
 
-const PILLAR_LINES = [
+const DEFAULT_PILLAR_LINES = [
   "Connecting Cultures.",
   "Empowering Communities.",
   "Creating Experiences.",
@@ -53,6 +55,17 @@ function renderBrandText(text) {
 }
 
 export function VoiceBrandReveal() {
+  const { t } = useTranslation(["common"]);
+  const overrides = useContentOverrides();
+  const isCustomized = (value, fallback) => value && value !== fallback;
+  const TAGLINE = isCustomized(overrides.siteBrandTagline, DEFAULT_TAGLINE)
+    ? overrides.siteBrandTagline
+    : t("common:brandReveal.tagline");
+  const PILLAR_LINES = DEFAULT_PILLAR_LINES.map((line, i) => {
+    const override = overrides[`sitePillarLine${i + 1}`];
+    return isCustomized(override, line) ? override : t(`common:brandReveal.pillar${i + 1}`);
+  });
+
   const [brandStep, setBrandStep] = useState(0);
   const [showTagline, setShowTagline] = useState(false);
   const [visiblePillars, setVisiblePillars] = useState(0);
@@ -184,7 +197,7 @@ export function VoiceBrandReveal() {
                   {PILLAR_LINES.map((line, index) =>
                     index < visiblePillars ? (
                       <motion.li
-                        key={line}
+                        key={index}
                         className="voice-brand-reveal__pillar"
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}

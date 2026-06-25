@@ -8,8 +8,10 @@ import {
   renderSponsorshipInvoicePdf,
 } from "./receiptPdf.js";
 import { sendModuleEmail } from "./sponsorshipDonationMailer.js";
+import { escapeRegex } from "../utils/regexUtils.js";
 import env from "../config/env.js";
 import { resolveDonationPublicContactEmail } from "../config/donationPublicContact.js";
+import { syncFinanceTransaction } from "./financeTransactionSyncService.js";
 
 function throwError(message, status = 400) {
   const err = new Error(message);
@@ -93,7 +95,7 @@ function buildSponsorshipFilter(params) {
   if (params.receiptStatus) filter.receiptStatus = params.receiptStatus;
   if (params.followUpStatus) filter.followUpStatus = params.followUpStatus;
   if (params.campaignName) filter.campaignName = params.campaignName;
-  if (params.packageName) filter.packageName = new RegExp(params.packageName, "i");
+  if (params.packageName) filter.packageName = new RegExp(escapeRegex(params.packageName), "i");
   if (params.dateFrom || params.dateTo) {
     filter.createdAt = {};
     if (params.dateFrom) filter.createdAt.$gte = new Date(params.dateFrom);
@@ -104,7 +106,7 @@ function buildSponsorshipFilter(params) {
     }
   }
   if (params.search) {
-    const q = params.search.trim();
+    const q = escapeRegex(params.search.trim());
     filter.$or = [
       { sponsorName: new RegExp(q, "i") },
       { contactPerson: new RegExp(q, "i") },
@@ -540,6 +542,17 @@ export async function markSponsorshipPaid(id, adminId, body = {}) {
     targetType: "sponsorship",
     targetId: id,
     summary: "Sponsorship Marked Paid",
+  });
+
+  await syncFinanceTransaction({
+    category: "sponsorship_revenue",
+    description: `Sponsorship — ${doc.sponsorName || doc.companyName || doc.sponsorshipId}`,
+    relatedModule: "sponsorships",
+    relatedRecordId: doc.sponsorshipId,
+    amount: doc.amount,
+    paymentMethod: doc.paymentMethod,
+    paymentReference: doc.paymentReference,
+    transactionDate: doc.paymentDate,
   });
 
   if (body.sendReceiptEmail) {

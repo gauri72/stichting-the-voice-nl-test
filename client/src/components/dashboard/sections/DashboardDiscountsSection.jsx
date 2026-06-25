@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { IconCheck, IconCopy } from "@tabler/icons-react";
 import { apiFetch, authHeaders } from "../../../utils/api.js";
 import "../../../styles/dashboard-discounts-section.css";
+import { devWarn } from "../../../utils/devLog.js";
 
 function formatExpiry(iso) {
   if (!iso) return null;
@@ -24,7 +25,7 @@ export default function DashboardDiscountsSection() {
         if (!active) return;
         setDiscounts(data.discounts || []);
       } catch (err) {
-        console.warn("[discounts] Failed to load available discounts:", err.message);
+        devWarn("[discounts] Failed to load available discounts:", err.message);
         if (active) setDiscounts([]);
       } finally {
         if (active) setLoading(false);
@@ -45,7 +46,7 @@ export default function DashboardDiscountsSection() {
         setCopiedId(null);
       }, 2000);
     } catch (err) {
-      console.warn("[discounts] Clipboard copy failed:", err.message);
+      devWarn("[discounts] Clipboard copy failed:", err.message);
     }
   };
 

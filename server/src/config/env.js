@@ -76,6 +76,15 @@ const env = {
       String(process.env.PAST_DATA_SYNC_ON_STARTUP || "true").toLowerCase() !== "false",
     intervalHours: Math.max(1, Number(process.env.PAST_DATA_SYNC_INTERVAL_HOURS) || 24)
   },
+  // Daily check for personal discount codes expiring within DISCOUNT_EXPIRY_REMINDER_DAYS
+  // days; emails the assigned recipient once (tracked via expiryReminderSentAt).
+  // runOnStartup defaults to false so a deploy/restart can't trigger an immediate send.
+  discountExpiryReminder: {
+    enabled: String(process.env.DISCOUNT_EXPIRY_REMINDER_ENABLED || "true").toLowerCase() !== "false",
+    runOnStartup: String(process.env.DISCOUNT_EXPIRY_REMINDER_ON_STARTUP || "false").toLowerCase() === "true",
+    intervalHours: Math.max(1, Number(process.env.DISCOUNT_EXPIRY_REMINDER_INTERVAL_HOURS) || 24),
+    reminderWindowDays: Math.max(1, Number(process.env.DISCOUNT_EXPIRY_REMINDER_DAYS) || 3)
+  },
   // Some local resolvers refuse SRV lookups for mongodb+srv://. In non-production,
   // fall back to public DNS so local dev can reach Atlas. Override with DNS_SERVERS.
   dnsServers: (process.env.DNS_SERVERS || "")
@@ -113,6 +122,24 @@ const env = {
         process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_PRIVATE_KEY || ""
       ).replace(/\\n/g, "\n")
     }
+  },
+  // CMS media: S3 storage + CloudFront delivery (Phase 2 of the visual CMS).
+  // cloudFrontDomain is blank until the distribution exists — mediaStorageService
+  // falls back to a (non-public) direct S3 URL until then so the code path stays
+  // complete without blocking on AWS provisioning.
+  aws: {
+    accessKeyId: stripEnv(process.env.AWS_ACCESS_KEY_ID),
+    secretAccessKey: stripEnv(process.env.AWS_SECRET_ACCESS_KEY),
+    region: stripEnv(process.env.AWS_REGION) || "eu-central-1",
+    s3Bucket: stripEnv(process.env.AWS_S3_BUCKET) || "voice-nl-media",
+    cloudFrontDomain: stripEnv(process.env.AWS_CLOUDFRONT_DOMAIN),
+    cloudFrontDistributionId: stripEnv(process.env.AWS_CLOUDFRONT_DISTRIBUTION_ID)
+  },
+  // CMS AI Content Assistant (Phase 6) — blank until a key is provided;
+  // aiContentAssistantService stays inert (returns a "not configured" error)
+  // rather than throwing, so the UI can show a clear message instead of a 500.
+  anthropic: {
+    apiKey: stripEnv(process.env.ANTHROPIC_API_KEY)
   }
 };
 

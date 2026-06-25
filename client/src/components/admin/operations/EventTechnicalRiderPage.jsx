@@ -67,21 +67,42 @@ export default function EventTechnicalRiderPage() {
 
   async function handleSave(e) {
     e.preventDefault();
-    await saveRiderItem(eventId, form, editingId);
-    setShowForm(false);
-    load();
+    try {
+      await saveRiderItem(eventId, form, editingId);
+      setShowForm(false);
+      load();
+    } catch (err) {
+      setError(err.message || "Could not save requirement.");
+    }
   }
 
   async function addPreset(section, requirement) {
-    await saveRiderItem(eventId, { section, requirement, quantity: 1, status: "Needed" });
-    load();
+    try {
+      await saveRiderItem(eventId, { section, requirement, quantity: 1, status: "Needed" });
+      load();
+    } catch (err) {
+      setError(err.message || "Could not add requirement.");
+    }
+  }
+
+  async function copyFromEvent() {
+    try {
+      await apiFetch(`/api/admin/events/${eventId}/technical-rider/copy-from-event`, {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify({ sourceEventId: copyFromId }),
+      });
+      load();
+    } catch (err) {
+      setError(err.message || "Could not copy technical rider.");
+    }
   }
 
   return (
     <div className="event-ops__page">
       <div className="event-ops__toolbar-row">
         <button type="button" className="admin-events__primary-btn event-ops__fab" onClick={() => { setForm(EMPTY); setEditingId(null); setShowForm(true); }}>+ Add requirement</button>
-        <button type="button" className="admin-events__outline-btn" onClick={() => exportOperations(eventId, "technical_rider_pdf")}>Export PDF</button>
+        <button type="button" className="admin-events__outline-btn" onClick={() => exportOperations(eventId, "technical_rider_pdf").catch((err) => setError(err.message || "Export failed."))}>Export PDF</button>
         <label className="event-ops__inline-copy">
           Section
           <select value={sectionFilter} onChange={(e) => setSectionFilter(e.target.value)}>
@@ -99,14 +120,7 @@ export default function EventTechnicalRiderPage() {
             type="button"
             className="admin-events__outline-btn"
             disabled={!copyFromId}
-            onClick={async () => {
-              await apiFetch(`/api/admin/events/${eventId}/technical-rider/copy-from-event`, {
-                method: "POST",
-                headers: adminAuthHeaders(),
-                body: JSON.stringify({ sourceEventId: copyFromId }),
-              });
-              load();
-            }}
+            onClick={copyFromEvent}
           >
             Copy
           </button>

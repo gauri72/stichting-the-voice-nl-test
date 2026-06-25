@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { IconCheck } from "@tabler/icons-react";
 
 export default function MembershipPlanCards({
@@ -6,12 +7,13 @@ export default function MembershipPlanCards({
   onSelect,
   purchaseType = "NEW",
 }) {
+  const { t } = useTranslation(["checkout"]);
   if (!plans?.length) return null;
 
   return (
     <div className="ticket-booking__membership-plans">
       <h3>
-        {purchaseType === "RENEWAL" ? "Renew your membership" : "Choose a membership plan"}
+        {purchaseType === "RENEWAL" ? t("checkout:planCards.renewMembership") : t("checkout:planCards.choosePlan")}
       </h3>
       <ul className="ticket-booking__plan-list">
         {plans.map((plan) => {
@@ -32,7 +34,7 @@ export default function MembershipPlanCards({
                   ) : (
                     plan.regularPrice
                   )}
-                  <span className="ticket-booking__plan-period"> / {plan.durationLabel || "1 year"}</span>
+                  <span className="ticket-booking__plan-period"> / {plan.durationLabel || t("checkout:planCards.perYear")}</span>
                 </p>
               </div>
               <p className="ticket-booking__plan-desc">{plan.description}</p>
@@ -46,7 +48,7 @@ export default function MembershipPlanCards({
                 className={selected ? "ticket-booking__plan-selected" : "ticket-booking__plan-select"}
                 onClick={() => onSelect(plan.id)}
               >
-                {selected ? "Selected" : "Select"}
+                {selected ? t("checkout:planCards.selected") : t("checkout:planCards.select")}
               </button>
             </li>
           );

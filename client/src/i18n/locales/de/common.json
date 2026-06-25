@@ -1,0 +1,81 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "ourPillars": "Unsere Säulen",
+    "experience": "Erlebnis",
+    "stories": "Geschichten",
+    "impact": "Wirkung",
+    "innovation": "Innovation",
+    "partnerWithUs": "Mit Uns Zusammenarbeiten",
+    "becomeMember": "Mitglied Werden",
+    "sponsorUs": "Sponsern Sie Uns",
+    "donate": "Spenden",
+    "aboutUs": "Über Uns",
+    "contactUs": "Kontaktieren Sie Uns"
+  },
+  "header": {
+    "buyTickets": "Tickets Kaufen",
+    "logInSignUp": "Anmelden Oder Registrieren"
+  },
+  "buttons": {
+    "learnMore": "Mehr Erfahren",
+    "readMore": "Weiterlesen",
+    "viewAll": "Alle Anzeigen",
+    "viewMore": "Mehr Anzeigen",
+    "getStarted": "Jetzt Starten",
+    "submit": "Absenden",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "continue": "Fortfahren",
+    "loading": "Wird Geladen…"
+  },
+  "brandReveal": {
+    "tagline": "Die Vision Des Internationalen Kulturaustauschs In Den Niederlanden",
+    "pillar1": "Kulturen Verbinden.",
+    "pillar2": "Gemeinschaften Stärken.",
+    "pillar3": "Erlebnisse Schaffen.",
+    "pillar4": "Innovation Vorantreiben."
+  },
+  "footer": {
+    "quickLinks": {
+      "home": "Startseite",
+      "experience": "Erlebnis",
+      "becomeMember": "Mitglied werden",
+      "sponsorUs": "Sponsern Sie uns",
+      "donate": "Spenden",
+      "stories": "Geschichten",
+      "impact": "Wirkung",
+      "innovation": "Innovation",
+      "aboutUs": "Über uns",
+      "policies": "Richtlinien, AGB & Bedingungen"
+    },
+    "heroHeading": "Gemeinsam Können Wir",
+    "heroSubheading": "Eine Bessere Zukunft Schaffen.",
+    "missionText": "Wir glauben an positiven Wandel, inklusive Gemeinschaften und daran, Menschen zu befähigen, gemeinsam eine bessere Zukunft zu gestalten.",
+    "copyrightText": "© 2026 Stichting The V.O.I.C.E. NL. Alle Rechte vorbehalten.",
+    "whatsappButton": "WhatsApp-Gruppe Beitreten",
+    "followUs": "Folgen Sie Uns",
+    "quickLinksTitle": "Schnellzugriff",
+    "contactUs": "Kontaktieren Sie Uns",
+    "contact": {
+      "kvk": "Handelsregister",
+      "address": "Adresse",
+      "addressValue": "Wengehout 30, 2719 KA Zoetermeer, Niederlande",
+      "email": "E-Mail",
+      "mobile": "Mobil"
+    },
+    "designedBy": "Mit Stolz Entworfen & Entwickelt Von",
+    "studioTagline": "Digital • Design • Innovation",
+    "studioBlurbLine1": "V.O.I.C.E. Venture Studio ist ein Partner für digitale Lösungen, der Marken mit Design,",
+    "studioBlurbLine2": "Entwicklung und Innovation stärkt.",
+    "whatsappWidget": {
+      "title": "WhatsApp",
+      "greeting": "Hallo",
+      "helpQuestion": "Können wir Ihnen helfen?",
+      "openChat": "Chat öffnen"
+    }
+  }
+}

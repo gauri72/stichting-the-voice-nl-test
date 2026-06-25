@@ -89,7 +89,10 @@ export async function issueComplimentaryBooking(payload, adminId = null) {
     bookingMode: "complimentary",
   });
 
-  const result = await fulfillOrder(order._id.toString(), null, { isFreeOrder: true });
+  const result = await fulfillOrder(order._id.toString(), null, {
+    isFreeOrder: true,
+    isComplimentary: true,
+  });
 
   await logBookingAudit({
     action: "COMBINED_ORDER_CREATED",

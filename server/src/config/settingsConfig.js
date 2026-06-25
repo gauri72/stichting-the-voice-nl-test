@@ -15,7 +15,7 @@ export const SETTINGS_CATEGORIES = [
 ];
 
 export const FINANCE_CATEGORIES = new Set(["payment", "stripe", "bank", "invoice"]);
-export const CONTENT_CATEGORIES = new Set(["email_provider"]);
+export const CONTENT_CATEGORIES = new Set(["email_provider", "content_overrides"]);
 
 export const SETTINGS_PERMISSIONS = {
   superadmin: ["*"],

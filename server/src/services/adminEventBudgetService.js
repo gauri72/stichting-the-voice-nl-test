@@ -15,6 +15,7 @@ import {
 import { logFinanceAction, getAuditLogsForEntity } from "./financeAuditService.js";
 import { renderBudgetPdf } from "./financePdfService.js";
 import { buildBudgetExcel } from "./financeExcelService.js";
+import { escapeRegex } from "../utils/regexUtils.js";
 
 function formatBudget(doc) {
   if (!doc) return null;
@@ -63,7 +64,7 @@ function buildBudgetFilter(params) {
   if (params.status) filter.status = params.status;
   if (params.eventId) filter.eventId = params.eventId;
   if (params.search) {
-    const q = params.search.trim();
+    const q = escapeRegex(params.search.trim());
     filter.$or = [{ eventName: new RegExp(q, "i") }, { budgetId: new RegExp(q, "i") }];
   }
   if (params.dateFrom || params.dateTo) {
@@ -123,12 +124,6 @@ export async function getEventBudgetById(id) {
   if (!doc) throwFinanceError("Budget not found.", 404);
   const auditLogs = await getAuditLogsForEntity(doc.budgetId || doc._id.toString());
   return { budget: formatBudget(doc), auditLogs };
-}
-
-export async function getEventBudgetByEventId(eventId) {
-  const doc = await EventBudget.findOne({ eventId }).lean();
-  if (!doc) return null;
-  return getEventBudgetById(doc._id.toString());
 }
 
 export async function createEventBudget(data, admin, req) {

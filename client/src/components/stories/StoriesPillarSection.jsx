@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   IconArrowRight,
   IconMicrophone,
@@ -11,7 +12,13 @@ const ICON_MAP = {
   microphone: IconMicrophone,
 };
 
+const PILLAR_I18N_KEYS = {
+  "stories-vision-of-sounds": "visionOfSounds",
+  "stories-voice-of-visionaries": "voiceOfVisionaries",
+};
+
 export default function StoriesPillarSection({ pillar }) {
+  const { t } = useTranslation(["stories"]);
   const {
     id,
     accent,
@@ -28,6 +35,7 @@ export default function StoriesPillarSection({ pillar }) {
   } = pillar;
 
   const Icon = ICON_MAP[icon] || IconMusic;
+  const i18nKey = PILLAR_I18N_KEYS[id];
 
   return (
     <section
@@ -50,62 +58,69 @@ export default function StoriesPillarSection({ pillar }) {
                 <Icon size={24} stroke={1.8} />
               )}
             </span>
-            <span className="stories-pillar__label">{label}</span>
+            <span className="stories-pillar__label">{i18nKey ? t(`stories:${i18nKey}.label`) : label}</span>
             <h2 id={`${id}-title`} className="stories-pillar__title">
-              {titleLineOne}
+              {i18nKey ? t(`stories:${i18nKey}.titleLineOne`) : titleLineOne}
               <br />
-              {titleLineTwo}
+              {i18nKey ? t(`stories:${i18nKey}.titleLineTwo`) : titleLineTwo}
             </h2>
-            <p className="stories-pillar__description">{description}</p>
+            <p className="stories-pillar__description">{i18nKey ? t(`stories:${i18nKey}.description`) : description}</p>
           </div>
 
           <article className="stories-pillar__featured">
             <div className="stories-pillar__featured-media">
               <img src={featured.image} alt={featured.title} loading="lazy" />
-              <span className="stories-pillar__badge">{featured.badge}</span>
+              <span className="stories-pillar__badge">{i18nKey ? t(`stories:${i18nKey}.featured.badge`) : featured.badge}</span>
             </div>
             <div className="stories-pillar__featured-body">
-              <h3 className="stories-pillar__featured-title">{featured.title}</h3>
-              <p className="stories-pillar__featured-text">{featured.description}</p>
+              <h3 className="stories-pillar__featured-title">
+                {i18nKey ? t(`stories:${i18nKey}.featured.title`) : featured.title}
+              </h3>
+              <p className="stories-pillar__featured-text">
+                {i18nKey ? t(`stories:${i18nKey}.featured.description`) : featured.description}
+              </p>
               <Link to={featured.ctaTo} className="stories-pillar__watch">
                 <span className="stories-pillar__watch-icon" aria-hidden="true">
                   <IconPlayerPlayFilled size={14} />
                 </span>
-                {featured.ctaLabel}
+                {i18nKey ? t(`stories:${i18nKey}.featured.ctaLabel`) : featured.ctaLabel}
               </Link>
             </div>
           </article>
         </div>
 
         <div className="stories-pillar__grid" role="list">
-          {cards.map(({ title, description: cardText, image, accent: cardAccent, imageFit }) => (
-            <article
-              key={title}
-              className={`stories-card stories-card--${cardAccent}${
-                imageFit === "contain" ? " stories-card--logo" : ""
-              }`}
-              role="listitem"
-            >
-              <div className="stories-card__media">
-                <img
-                  src={image}
-                  alt={title}
-                  loading="lazy"
-                  className={imageFit === "contain" ? "stories-card__image--contain" : undefined}
-                />
-              </div>
-              <div className="stories-card__body">
-                <h4 className="stories-card__title">{title}</h4>
-                <p className="stories-card__text">{cardText}</p>
-                <span className="stories-card__bar" aria-hidden="true" />
-              </div>
-            </article>
-          ))}
+          {cards.map(({ title, description: cardText, image, accent: cardAccent, imageFit }, index) => {
+            const cardKey = `card${index + 1}`;
+            return (
+              <article
+                key={title}
+                className={`stories-card stories-card--${cardAccent}${
+                  imageFit === "contain" ? " stories-card--logo" : ""
+                }`}
+                role="listitem"
+              >
+                <div className="stories-card__media">
+                  <img
+                    src={image}
+                    alt={title}
+                    loading="lazy"
+                    className={imageFit === "contain" ? "stories-card__image--contain" : undefined}
+                  />
+                </div>
+                <div className="stories-card__body">
+                  <h4 className="stories-card__title">{i18nKey ? t(`stories:${i18nKey}.${cardKey}.title`) : title}</h4>
+                  <p className="stories-card__text">{i18nKey ? t(`stories:${i18nKey}.${cardKey}.description`) : cardText}</p>
+                  <span className="stories-card__bar" aria-hidden="true" />
+                </div>
+              </article>
+            );
+          })}
         </div>
 
         <div className="stories-pillar__view-all-wrap">
           <Link to={viewAllTo} className="stories-pillar__view-all">
-            {viewAllLabel}
+            {i18nKey ? t(`stories:${i18nKey}.viewAllLabel`) : viewAllLabel}
             <IconArrowRight size={16} stroke={2} aria-hidden />
           </Link>
         </div>

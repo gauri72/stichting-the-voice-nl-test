@@ -1,18 +1,22 @@
+import { useTranslation } from "react-i18next";
 import { IconArrowRight, IconBrandWhatsapp, IconHeart } from "@tabler/icons-react";
 import { IMPACT_HERBEATS } from "../../data/impactDisplay.js";
+import { useContentOverrides } from "../../hooks/useCmsPage.js";
+import { resolveOverrideText } from "../../i18n/overrideText.js";
 
 export default function ImpactHerBeatsSection() {
-  const {
-    logo,
-    brandName,
-    brandTagline,
-    brandMotto,
-    title,
-    description,
-    quote,
-    sideImage,
-    cta,
-  } = IMPACT_HERBEATS;
+  const { t } = useTranslation(["impact"]);
+  const overrides = useContentOverrides();
+  const { logo, sideImage } = IMPACT_HERBEATS;
+  const brandName = resolveOverrideText(overrides.impactPageHerbeatsBrandName, IMPACT_HERBEATS.brandName, t("impact:herbeats.brandName"));
+  const brandTagline = resolveOverrideText(overrides.impactPageHerbeatsTagline, IMPACT_HERBEATS.brandTagline, t("impact:herbeats.brandTagline"));
+  const brandMotto = resolveOverrideText(overrides.impactPageHerbeatsMotto, IMPACT_HERBEATS.brandMotto, t("impact:herbeats.brandMotto"));
+  const title = resolveOverrideText(overrides.impactPageHerbeatsTitle, IMPACT_HERBEATS.title, t("impact:herbeats.title"));
+  const description = resolveOverrideText(overrides.impactPageHerbeatsDescription, IMPACT_HERBEATS.description, t("impact:herbeats.description"));
+  const quote = resolveOverrideText(overrides.impactPageHerbeatsQuote, IMPACT_HERBEATS.quote, t("impact:herbeats.quote"));
+  const ctaTitle = resolveOverrideText(overrides.impactPageHerbeatsCtaTitle, IMPACT_HERBEATS.cta.title, t("impact:herbeats.ctaTitle"));
+  const ctaSubtitle = resolveOverrideText(overrides.impactPageHerbeatsCtaSubtitle, IMPACT_HERBEATS.cta.subtitle, t("impact:herbeats.ctaSubtitle"));
+  const ctaHref = overrides.impactPageHerbeatsCtaLink || IMPACT_HERBEATS.cta.href;
 
   return (
     <section className="impact-herbeats" aria-labelledby="impact-herbeats-title">
@@ -43,7 +47,7 @@ export default function ImpactHerBeatsSection() {
 
         <a
           className="impact-herbeats__cta"
-          href={cta.href}
+          href={ctaHref}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -51,8 +55,8 @@ export default function ImpactHerBeatsSection() {
             <IconBrandWhatsapp size={22} stroke={1.6} />
           </span>
           <span className="impact-herbeats__cta-text">
-            <span className="impact-herbeats__cta-title">{cta.title}</span>
-            <span className="impact-herbeats__cta-subtitle">{cta.subtitle}</span>
+            <span className="impact-herbeats__cta-title">{ctaTitle}</span>
+            <span className="impact-herbeats__cta-subtitle">{ctaSubtitle}</span>
           </span>
           <IconArrowRight className="impact-herbeats__cta-arrow" size={18} stroke={2} aria-hidden />
         </a>

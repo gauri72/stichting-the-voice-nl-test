@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { GoogleLogin } from "@react-oauth/google";
 
 const GOOGLE_CLIENT_ID = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
@@ -31,6 +32,7 @@ function GoogleIcon() {
 }
 
 export default function GoogleSignInButton({ onSuccess, onError, disabled }) {
+  const { t } = useTranslation(["auth"]);
   const wrapRef = useRef(null);
   const onSuccessRef = useRef(onSuccess);
   const onErrorRef = useRef(onError);
@@ -67,18 +69,18 @@ export default function GoogleSignInButton({ onSuccess, onError, disabled }) {
     >
       <button type="button" className="login-form-section__google-btn" tabIndex={-1} aria-hidden="true">
         <GoogleIcon />
-        <span>Continue with Google</span>
+        <span>{t("auth:google.continueWithGoogle")}</span>
       </button>
-      <div className="login-form-section__google-overlay" aria-label="Continue with Google">
+      <div className="login-form-section__google-overlay" aria-label={t("auth:google.continueWithGoogle")}>
         <GoogleLogin
           onSuccess={(response) => {
             if (response.credential) {
               onSuccessRef.current(response.credential);
             } else {
-              onErrorRef.current?.("Google sign-in failed. Please try again.");
+              onErrorRef.current?.(t("auth:google.errorFailed"));
             }
           }}
-          onError={() => onErrorRef.current?.("Google sign-in was cancelled or failed.")}
+          onError={() => onErrorRef.current?.(t("auth:google.errorCancelled"))}
           theme="outline"
           size="large"
           text="continue_with"

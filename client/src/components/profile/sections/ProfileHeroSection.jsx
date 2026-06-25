@@ -1,8 +1,10 @@
+import { useTranslation } from "react-i18next";
 import breadcrumbBgDark from "../../../assets/Dashboard/breadcrumb-bg-dark.png";
 import breadcrumbBgLight from "../../../assets/Dashboard/breadcrumb-bg-light.png";
 import { useTheme } from "../../../contexts/ThemeContext.jsx";
 
 export default function ProfileHeroSection() {
+  const { t } = useTranslation(["misc"]);
   const { isDark } = useTheme();
 
   return (
@@ -25,10 +27,10 @@ export default function ProfileHeroSection() {
           id="profile-hero-title"
           className={`profile-hero__title${isDark ? "" : " profile-hero__title--gradient"}`}
         >
-          My Profile
+          {t("misc:profile.hero.title")}
         </h1>
         <p className="profile-hero__subtitle">
-          Manage your personal information, security settings and payment methods.
+          {t("misc:profile.hero.subtitle")}
         </p>
       </div>
     </section>

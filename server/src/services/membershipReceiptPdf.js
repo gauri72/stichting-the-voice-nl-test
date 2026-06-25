@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import PDFDocument from "pdfkit";
 import env from "../config/env.js";
 import { generateMembershipQrPngBuffer } from "./membershipQrService.js";
+import { collectPdfBuffer as collectDoc } from "../utils/pdfBuffer.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HEADER_LOGO_PATH = path.join(
@@ -35,14 +36,6 @@ const COLORS = {
 const PAGE_MARGIN = 40;
 const CONTENT_WIDTH = 595.28 - PAGE_MARGIN * 2;
 
-function collectDoc(doc) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    doc.on("data", (chunk) => chunks.push(chunk));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", reject);
-  });
-}
 
 function labelValue(doc, label, value, x, y, width) {
   doc

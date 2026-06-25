@@ -35,6 +35,12 @@ export const API_TRIGGERS = [
   "scheduled_sync",
 ];
 
+// Triggers actually wired to a real event in the codebase. Everything else
+// in API_TRIGGERS is selectable in the data model but nothing ever fires it
+// yet — the admin UI disables those options rather than let an admin believe
+// an integration will auto-run on an event that doesn't call it.
+export const WIRED_API_TRIGGERS = ["manual_admin"];
+
 export const SMART_API_AUDIT_ACTIONS = {
   INTEGRATION_CREATED: "smart_api.integration.created",
   INTEGRATION_UPDATED: "smart_api.integration.updated",

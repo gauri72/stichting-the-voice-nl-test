@@ -18,6 +18,8 @@ import { sendMembershipEmails } from "./membershipMailer.js";
 import { buildMembershipEmailPayload } from "./membershipProvisioningService.js";
 import { buildMembershipId } from "../utils/membershipId.js";
 import { buildMembershipReceiptNumber } from "../utils/membershipReceiptNumber.js";
+import WaitlistEntry from "../models/WaitlistEntry.js";
+import { markWaitlistConverted } from "./booking/WaitlistService.js";
 import { buildMembershipQrImageUrl } from "./membershipQrService.js";
 import { recordDiscountUsage } from "./discountService.js";
 import { confirmTicketPayment } from "./ticketPaymentService.js";
@@ -29,6 +31,8 @@ import {
   freeOrderPaymentReference,
 } from "../utils/orderPaymentUtils.js";
 import { buildTicketPdfUrl } from "../utils/ticketPdfAccess.js";
+import { syncFinanceTransaction } from "./financeTransactionSyncService.js";
+import { sendMembershipDiscountAppliedEmail } from "./discountMailer.js";
 
 async function buildTicketNumber() {
   const seq = await getNextSequence("ticket");
@@ -135,24 +139,49 @@ export async function provisionMembershipFromBundleOrder({
   const membershipId = await buildMembershipId(plan.id, startDate);
   const receiptNumber = await buildMembershipReceiptNumber(startDate);
 
-  const member = await Member.create({
-    membershipId,
-    firstName: order.attendeeFirstName,
-    lastName: order.attendeeLastName,
-    email,
-    membershipType: plan.name,
-    planId: plan.id,
-    amountPaidMinor: membershipItem.finalPriceMinor,
-    currency: "eur",
-    startDate,
-    expiryDate,
-    membershipStatus: "active",
-    qrCodeUrl,
-    verificationToken,
-    paymentReference: paymentRef,
-    receiptNumber,
-    userId,
-  });
+  // The unique paymentReference index on Member is the idempotency gate: if a
+  // duplicate webhook/confirmation races this call, the loser returns the
+  // winner's existing record instead of throwing, same pattern as
+  // membershipProvisioningService.js.
+  let member;
+  try {
+    member = await Member.create({
+      membershipId,
+      firstName: order.attendeeFirstName,
+      lastName: order.attendeeLastName,
+      email,
+      membershipType: plan.name,
+      planId: plan.id,
+      amountPaidMinor: membershipItem.finalPriceMinor,
+      currency: "eur",
+      startDate,
+      expiryDate,
+      membershipStatus: "active",
+      qrCodeUrl,
+      verificationToken,
+      paymentReference: paymentRef,
+      receiptNumber,
+      userId,
+    });
+  } catch (error) {
+    if (error?.code === 11000) {
+      const winner = await Member.findOne({ paymentReference: paymentRef });
+      if (winner) {
+        const winnerPlan = getPlan(winner.planId) || plan;
+        return {
+          member: winner.toObject(),
+          created: false,
+          emailPayload: buildMembershipEmailPayload({
+            member: winner,
+            plan: winnerPlan,
+            intent: { id: paymentIntentId, created: Math.floor(Date.now() / 1000) },
+            paymentMethod,
+          }),
+        };
+      }
+    }
+    throw error;
+  }
 
   if (userId) {
     await Membership.findOneAndUpdate(
@@ -275,7 +304,7 @@ export async function generateTicketsForOrder(order) {
   return { tickets, event };
 }
 
-export async function recordOrderDiscountUsage(order) {
+export async function recordOrderDiscountUsage(order, event = null) {
   if (order.voucherCode) {
     const updated = await Voucher.findOneAndUpdate(
       {
@@ -306,6 +335,19 @@ export async function recordOrderDiscountUsage(order) {
         discountAmount: order.membershipDiscountMinor,
         totalAfterDiscount: order.totalAmountMinor,
       }).catch((err) => console.error("[discounts] member usage record failed:", err.message));
+
+      const discountValueLabel =
+        memberRule.discountType === "free_ticket"
+          ? "Free ticket"
+          : memberRule.discountType === "percentage"
+            ? `${memberRule.discountValue}%`
+            : `€${Number(memberRule.discountValue).toFixed(2)}`;
+      await sendMembershipDiscountAppliedEmail({
+        email: order.attendeeEmail,
+        firstName: order.attendeeFirstName,
+        discountValue: discountValueLabel,
+        eventName: event?.title || "",
+      }).catch((err) => console.error("[discounts] membership discount email failed:", err.message));
     }
   }
 
@@ -383,7 +425,8 @@ export async function sendMembershipEmailForOrder(order, membershipResult, payme
 }
 
 export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
-  const { isFreeOrder = false } = options;
+  const { isFreeOrder = false, isComplimentary = false } = options;
+  const resolveSettledStatus = () => (isComplimentary ? "complimentary" : isFreeOrder ? "free" : "paid");
   const TicketOrder = (await import("../models/TicketOrder.js")).default;
   const existingTickets = await Ticket.find({ orderId }).sort({ createdAt: 1 }).lean();
 
@@ -395,7 +438,7 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
       throw err;
     }
     if (!isOrderPaymentSettled(order.paymentStatus)) {
-      order.paymentStatus = isFreeOrder ? "free" : "paid";
+      order.paymentStatus = resolveSettledStatus();
       order.orderStatus = "COMPLETED";
       await order.save();
     }
@@ -407,7 +450,7 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
   }
 
   const order = await TicketOrder.findOneAndUpdate(
-    { _id: orderId, paymentStatus: { $in: ["pending", "failed"] } },
+    { _id: orderId, paymentStatus: { $in: ["pending", "failed", "complimentary"] } },
     { $set: { paymentStatus: "processing", orderStatus: "PROCESSING" } },
     { new: true }
   );
@@ -472,7 +515,7 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
 
   try {
   const { tickets, event } = await generateTicketsForOrder(order);
-  await recordOrderDiscountUsage(order);
+  await recordOrderDiscountUsage(order, event);
 
   let membershipResult = null;
   if (order.orderType === "TICKET_AND_MEMBERSHIP" && order.membershipItems?.length) {
@@ -486,9 +529,40 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
     });
   }
 
-  order.paymentStatus = isFreeOrder ? "free" : "paid";
+  order.paymentStatus = resolveSettledStatus();
   order.orderStatus = "COMPLETED";
   await order.save();
+
+  // If this buyer was previously notified that a waitlist spot opened up for
+  // one of these ticket types, mark that entry converted now that they've
+  // actually completed a booking.
+  const waitlistTicketTypeIds = [...new Set((order.lineItems || []).map((item) => String(item.ticketTypeId)))];
+  if (waitlistTicketTypeIds.length) {
+    const notifiedEntries = await WaitlistEntry.find({
+      resourceType: "ticket_type",
+      resourceId: { $in: waitlistTicketTypeIds },
+      email: order.attendeeEmail,
+      status: "notified",
+    }).lean();
+    for (const entry of notifiedEntries) {
+      await markWaitlistConverted(entry.waitlistId, order._id.toString());
+    }
+  }
+
+  if (!isFreeOrder && order.totalAmountMinor > 0) {
+    await syncFinanceTransaction({
+      category: order.orderType === "MEMBERSHIP_ONLY" ? "membership_revenue" : "ticket_sales",
+      description: `Order ${order.orderNumber} — ${event?.title || "Event"}`,
+      relatedModule: "tickets",
+      relatedRecordId: order.orderNumber,
+      relatedEventId: order.eventId,
+      relatedEventName: event?.title || "",
+      amount: order.totalAmountMinor,
+      paymentMethod: "Card via Stripe",
+      paymentReference: paymentIntentId || order.paymentIntentId,
+      transactionDate: new Date(),
+    });
+  }
 
   await sendTicketEmailsForOrder(order, tickets, event);
 
@@ -499,7 +573,7 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
       order,
       event,
       tickets,
-      paymentStatus: isFreeOrder ? "free" : "paid",
+      paymentStatus: resolveSettledStatus(),
     });
     if (order.userId) {
       await logUserBookingActivity({

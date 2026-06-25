@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { IconCalendar, IconMapPin, IconStarFilled, IconX, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import "../../styles/community-review-modal.css";
 
@@ -23,6 +24,7 @@ function CardStars({ count = 5 }) {
 }
 
 export default function CommunityReviewModal({ reviews = [], activeIndex = -1, onClose, onNext, onPrev }) {
+  const { t } = useTranslation(["events"]);
   const review = activeIndex >= 0 ? reviews[activeIndex] : null;
   const touchStart = useRef(null);
   const touchMove = useRef(null);
@@ -45,7 +47,7 @@ export default function CommunityReviewModal({ reviews = [], activeIndex = -1, o
   if (!review) return null;
 
   const text = review.text || review.quote || "";
-  const role = review.roleLabel || review.role || "Community Member";
+  const role = review.roleLabel || review.role || t("events:reviewModal.communityMember");
   const dateLabel = formatDate(review.submittedAt || review.createdAt);
 
   function handleTouchStart(event) {
@@ -115,9 +117,9 @@ export default function CommunityReviewModal({ reviews = [], activeIndex = -1, o
           </div>
           <p className="crs-modal__quote">&ldquo;{text}&rdquo;</p>
           <div className="crs-modal__footer">
-            <button type="button" className="crs-modal__footer-btn" onClick={onPrev}>Previous</button>
-            <button type="button" className="crs-modal__footer-btn" onClick={onNext}>Next</button>
-            <button type="button" className="crs-modal__footer-btn crs-modal__footer-btn--close" onClick={onClose}>Close</button>
+            <button type="button" className="crs-modal__footer-btn" onClick={onPrev}>{t("events:reviewModal.previous")}</button>
+            <button type="button" className="crs-modal__footer-btn" onClick={onNext}>{t("events:reviewModal.next")}</button>
+            <button type="button" className="crs-modal__footer-btn crs-modal__footer-btn--close" onClick={onClose}>{t("events:reviewModal.close")}</button>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import CmsImageField from "./CmsImageField.jsx";
+import AiAssistantButton from "./AiAssistantButton.jsx";
 
 export default function CmsSeoPanel({ seo = {}, onChange, readOnly = false }) {
   function set(field, value) {
@@ -8,11 +9,17 @@ export default function CmsSeoPanel({ seo = {}, onChange, readOnly = false }) {
   return (
     <div className="admin-cms__seo-panel">
       <div className="admin-cms__field-row">
-        <label className="admin-cms__label">Meta title</label>
+        <label className="admin-cms__label">
+          Meta title
+          <AiAssistantButton text={seo.metaTitle} actions={["improve_seo", "shorten"]} onApply={(v) => set("metaTitle", v)} disabled={readOnly} />
+        </label>
         <input className="admin-cms__input" value={seo.metaTitle || ""} onChange={(e) => set("metaTitle", e.target.value)} disabled={readOnly} maxLength={200} />
       </div>
       <div className="admin-cms__field-row">
-        <label className="admin-cms__label">Meta description</label>
+        <label className="admin-cms__label">
+          Meta description
+          <AiAssistantButton text={seo.metaDescription || seo.metaTitle} actions={["generate_meta_description", "improve_seo"]} onApply={(v) => set("metaDescription", v)} disabled={readOnly} />
+        </label>
         <textarea className="admin-cms__textarea" rows={3} value={seo.metaDescription || ""} onChange={(e) => set("metaDescription", e.target.value)} disabled={readOnly} maxLength={500} />
       </div>
       <div className="admin-cms__field-row">

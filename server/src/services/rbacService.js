@@ -124,16 +124,4 @@ export async function getAdminAccessProfile(adminId) {
   });
 }
 
-export function checkPermission(admin, permission) {
-  return hasPermission(admin?.permissions, permission);
-}
-
-export function checkAnyPermission(admin, permissions) {
-  return hasAnyPermission(admin?.permissions, permissions);
-}
-
-export function checkEventAccess(admin, eventId) {
-  return canAccessEvent(admin, eventId);
-}
-
 export { hasPermission, hasAnyPermission, canAccessEvent };

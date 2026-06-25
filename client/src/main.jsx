@@ -5,7 +5,9 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { AdminAuthProvider } from "./contexts/AdminAuthContext.jsx";
 import { ThemeProvider } from "./contexts/ThemeContext.jsx";
-import { initializeCookieConsent } from "./utils/cookieConsent.js";
+import { DesignSystemProvider } from "./contexts/DesignSystemContext.jsx";
+import { CookieConsentProvider } from "./contexts/CookieConsentContext.jsx";
+import "./i18n/index.js";
 import App from "./App";
 import AppErrorBoundary from "./components/layout/AppErrorBoundary.jsx";
 import "./styles/themes.css";
@@ -17,9 +19,9 @@ import "./styles/theme-toggle.css";
 import "./styles/dark-theme-overrides.css";
 import "./styles/app-splash.css";
 import "./styles/cookie-consent.css";
+import "./styles/coming-soon-page.css";
 
 const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
-initializeCookieConsent();
 
 function AppProviders({ children }) {
   if (!googleClientId) {
@@ -34,13 +36,17 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <AppProviders>
         <ThemeProvider>
-          <AuthProvider>
-            <AdminAuthProvider>
-              <AppErrorBoundary>
-                <App />
-              </AppErrorBoundary>
-            </AdminAuthProvider>
-          </AuthProvider>
+          <DesignSystemProvider>
+            <CookieConsentProvider>
+              <AuthProvider>
+                <AdminAuthProvider>
+                  <AppErrorBoundary>
+                    <App />
+                  </AppErrorBoundary>
+                </AdminAuthProvider>
+              </AuthProvider>
+            </CookieConsentProvider>
+          </DesignSystemProvider>
         </ThemeProvider>
       </AppProviders>
     </BrowserRouter>

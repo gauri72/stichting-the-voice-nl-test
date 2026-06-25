@@ -1,8 +1,7 @@
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  const message = error.message || "Something went wrong.";
-  if (status >= 500) console.error("[admin-events]", error);
-  return res.status(status).json({ error: message, ticket: error.ticket });
+  return handleErrorBase(res, error, { logTag: "[admin-events]", extra: { ticket: error.ticket } });
 }
 
 export async function listEvents(req, res) {
@@ -344,10 +343,43 @@ export async function markRefunded(req, res) {
     const Ticket = (await import("../models/Ticket.js")).default;
     const ticketDoc = await Ticket.findById(req.params.id);
     if (!ticketDoc) return res.status(404).json({ error: "Ticket not found." });
+    const wasAlreadyRefunded = ticketDoc.status === "refunded";
+
     const { updateAdminTicket } = await import("../services/ticketAdminService.js");
     const ticket = await updateAdminTicket(req.params.id, { status: "refunded" }, req.admin?.id);
     const TicketOrder = (await import("../models/TicketOrder.js")).default;
     await TicketOrder.findByIdAndUpdate(ticketDoc.orderId, { paymentStatus: "refunded" });
+
+    // A refund frees up one unit of capacity on the ticket type — release it
+    // back into soldCount and notify the next person on the waitlist, if any.
+    // (Guarded so re-refunding an already-refunded ticket can't double-release.)
+    if (!wasAlreadyRefunded && ticketDoc.seatId) {
+      const { releaseSeatsFromOrder } = await import("../services/seatService.js");
+      await releaseSeatsFromOrder({
+        selectedSeats: [{ seatId: ticketDoc.seatId }],
+        eventId: ticketDoc.eventId,
+      }).catch((err) => console.error("[tickets] seat release failed:", err.message));
+    }
+    if (!wasAlreadyRefunded && ticketDoc.ticketTypeId) {
+      const TicketType = (await import("../models/TicketType.js")).default;
+      const ticketType = await TicketType.findOneAndUpdate(
+        { _id: ticketDoc.ticketTypeId, soldCount: { $gt: 0 } },
+        { $inc: { soldCount: -1 } },
+        { new: true }
+      );
+      if (ticketType && ticketType.status === "sold_out" && ticketType.soldCount < ticketType.capacity) {
+        ticketType.status = "active";
+        await ticketType.save();
+      }
+      if (ticketType) {
+        const { notifyWaitlistAvailability } = await import("../services/booking/WaitlistService.js");
+        await notifyWaitlistAvailability({
+          resourceType: "ticket_type",
+          resourceId: ticketDoc.ticketTypeId.toString(),
+        }).catch((err) => console.error("[tickets] waitlist notification failed:", err.message));
+      }
+    }
+
     return res.status(200).json({ ticket });
   } catch (error) {
     return handleError(res, error);

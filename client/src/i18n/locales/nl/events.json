@@ -1,0 +1,67 @@
+{
+  "carousel": {
+    "liveNow": "Nu live",
+    "buyTickets": "Tickets Kopen",
+    "membershipIncluded": "Inbegrepen bij Premium-lidmaatschap",
+    "memberDiscounts": "Ledenkorting beschikbaar"
+  },
+  "highlightsSlider": {
+    "titleLead": "Onvergetelijke Momenten,",
+    "titleEmphasis": "Blijvende Impact",
+    "subtitle": "Herleef de ervaringen, verhalen en vieringen die onze gemeenschap samenbrachten.",
+    "emptyState": "Hoogtepunten van eerdere evenementen verschijnen hier zodra evenementen zijn afgerond.",
+    "defaultImpactText": "Een onvergetelijke V.O.I.C.E. NL-ervaring vol cultuur, verbinding en gedeelde herinneringen.",
+    "badge": {
+      "pastEvent": "Eerder Evenement",
+      "watchHighlights": "Bekijk Hoogtepunten",
+      "highlightsComingSoon": "Hoogtepunten Volgen Snel",
+      "videoAvailable": "Video Beschikbaar"
+    },
+    "cta": {
+      "viewMemories": "Bekijk Herinneringen",
+      "watchHighlights": "Bekijk Hoogtepunten"
+    }
+  },
+  "videoModal": {
+    "comingSoonText": "We bereiden de hoogtepuntenvideo voor dit onvergetelijke evenement voor.",
+    "previous": "Vorige"
+  },
+  "reviewsSlider": {
+    "title": "Wat Onze Gemeenschap Zegt",
+    "subtitle": "Echte verhalen van leden, gasten en partners die V.O.I.C.E. NL-evenementen hebben beleefd.",
+    "loading": "Communityreviews laden…",
+    "emptyState": "Wees de eerste die jouw V.O.I.C.E. NL-ervaring deelt.",
+    "shareExperience": "Deel Jouw Ervaring",
+    "closeForm": "Sluit Reviewformulier"
+  },
+  "reviewForm": {
+    "eyebrow": "Deel Jouw Ervaring",
+    "title": "Beoordeel V.O.I.C.E. NL",
+    "lead": "Jouw feedback helpt ons betere culturele ervaringen te creëren.",
+    "yourName": "Jouw Naam",
+    "namePlaceholder": "Vul je naam in",
+    "yourRating": "Jouw Beoordeling",
+    "yourReview": "Jouw Review",
+    "reviewPlaceholder": "Deel je ervaring met V.O.I.C.E. NL...",
+    "eventAttended": "Bezocht evenement (optioneel)",
+    "eventPlaceholder": "bv. Couples Night, HerBeats HerNight",
+    "consent": "Ik geef toestemming dat mijn review na moderatie wordt gepubliceerd.",
+    "submitting": "Bezig met versturen…",
+    "submitReview": "Review Versturen",
+    "errors": {
+      "name": "Vul je naam in.",
+      "rating": "Selecteer een sterbeoordeling.",
+      "review": "Deel je review.",
+      "consent": "Accepteer het toestemmingsvakje.",
+      "submitFailed": "Kon je review niet versturen. Probeer het opnieuw."
+    },
+    "communityMember": "Communitylid",
+    "thankYou": "Bedankt voor het delen van je ervaring. Je review is zichtbaar na moderatie."
+  },
+  "reviewModal": {
+    "communityMember": "Communitylid",
+    "previous": "Vorige",
+    "next": "Volgende",
+    "close": "Sluiten"
+  }
+}

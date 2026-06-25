@@ -6,7 +6,7 @@ const emailTemplateSchema = new mongoose.Schema(
     slug: { type: String, required: true, unique: true, trim: true, lowercase: true, maxlength: 120 },
     description: { type: String, default: "", trim: true, maxlength: 500 },
     subject: { type: String, required: true, trim: true, maxlength: 240 },
-    htmlBody: { type: String, required: true },
+    htmlBody: { type: String, required: true, maxlength: 10000000 },
     placeholders: { type: [String], default: [] },
     thumbnailKey: { type: String, default: "", trim: true, maxlength: 80 },
     isSystem: { type: Boolean, default: false },

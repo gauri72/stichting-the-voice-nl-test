@@ -1,0 +1,76 @@
+{
+  "plans": {
+    "heading": "Sponsorniveaus",
+    "mostPopular": "MEEST GEKOZEN",
+    "selected": "Geselecteerd — scroll naar beneden",
+    "becomeASponsor": "Word Sponsor",
+    "associate": {
+      "name": "Associate Sponsor",
+      "description": "Steun cultuur en gemeenschap met merkbekendheid op instapniveau.",
+      "features": [
+        "Logo/naam in de sponsorsectie van de website",
+        "Bedankvermelding op social media",
+        "Vermelding in geselecteerd evenementmateriaal",
+        "Sponsor-waarderingsslide tijdens het evenement",
+        "1 gratis evenemententicket"
+      ]
+    },
+    "silver": {
+      "name": "Silver Sponsor",
+      "description": "Vergroot je zichtbaarheid terwijl je onze culturele evenementen steunt.",
+      "features": [
+        "Alle Associate-voordelen",
+        "Logo op geselecteerde posters of digitale evenementcreaties",
+        "Sponsorvermelding in programma/pagina van het evenement",
+        "1 toegewijde social media shout-out",
+        "Publieke erkenning tijdens het evenement",
+        "4 gratis evenemententickets"
+      ]
+    },
+    "gold": {
+      "name": "Gold Sponsor",
+      "description": "Presenteer je merk als een belangrijke ondersteuner van culturele excellentie.",
+      "features": [
+        "Alle Silver-voordelen",
+        "Premium logoplaatsing op website en evenementscherm",
+        "Logo op banners/posters waar van toepassing",
+        "Halve pagina sponsorfeature in programma/pagina van het evenement",
+        "2 toegewijde social media posts/reels/stories",
+        "Mogelijkheid om een prijs uit te reiken of kort het publiek toe te spreken, indien het evenementformat dit toelaat",
+        "4 gratis evenemententickets"
+      ]
+    },
+    "platinum": {
+      "name": "Platinum Sponsor",
+      "description": "Maximale zichtbaarheid. Word een toonaangevende partner in onze culturele missie.",
+      "features": [
+        "Alle Gold-voordelen",
+        "Erkenning als Hoofdpartner / Presenting Sponsor waar van toepassing",
+        "Volledige pagina sponsorfeature in programma/pagina van het evenement",
+        "Premium logoplaatsing op hoofdpodium/scherm en campagnecreaties",
+        "Merkvermelding in pers-/mediacommunicatie waar van toepassing",
+        "Meet & greet of netwerkmogelijkheid waar van toepassing",
+        "Categorie-exclusiviteit onder overeenkomst",
+        "6 gratis evenemententickets"
+      ]
+    },
+    "custom": {
+      "name": "Sponsorship op Maat",
+      "description": "Kies elk bedrag dat past bij je budget en partnerschapsdoelen.",
+      "features": [
+        "Elk bijdragebedrag dat je kiest",
+        "Erkenning afgestemd op jouw steun",
+        "Bedankvermelding op social media",
+        "Persoonlijke bevestiging van ons team"
+      ]
+    }
+  },
+  "why": {
+    "heading": "Waarom Stichting The V.O.I.C.E. NL Sponsoren?",
+    "reason1": { "title": "Impact op de Gemeenschap", "description": "Versterk diverse gemeenschappen via kunst, cultuur, sport en onderwijs." },
+    "reason2": { "title": "Wereldwijde Zichtbaarheid", "description": "Bereik een breed en betrokken publiek op internationale evenementen en festivals." },
+    "reason3": { "title": "Merkzichtbaarheid", "description": "Presenteer je merk via meerdere platforms, evenementen en marketingkanalen." },
+    "reason4": { "title": "Positieve Associatie", "description": "Verbind je merk met waarden van eenheid, diversiteit, creativiteit en sociaal goed." },
+    "reason5": { "title": "Langetermijnwaarde", "description": "Bouw blijvende relaties op en creëer samen meetbare impact." }
+  }
+}

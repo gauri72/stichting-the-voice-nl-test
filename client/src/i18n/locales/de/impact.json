@@ -1,0 +1,45 @@
+{
+  "herbeats": {
+    "brandName": "VOWNL",
+    "brandTagline": "Voice Of Women In The Netherlands",
+    "brandMotto": "Wir setzen uns für das Wohl von Frauen ein",
+    "title": "VOWNL - HerBeats",
+    "description": "Ein sicherer Raum, in dem Frauen sich gegenseitig stärken, unterstützen und füreinander einstehen. Durch den Rhythmus gemeinsamer Erfahrungen und kollektiver Stärke feiert HerBeats die Resilienz von Frauen, fördert Verbindung und setzt sich für gleiche Chancen für alle ein.",
+    "quote": "Auf stärkere Stimmen, gemeinsame Ziele und eine Zukunft, die mit Mitgefühl und Mut angeführt wird.",
+    "ctaTitle": "Treten Sie der VOWNL - HerBeats Movement bei",
+    "ctaSubtitle": "Verbinden. Unterstützen. Stärken."
+  },
+  "highlight": {
+    "label": "VOWNL Highlight",
+    "title": "HerBeats Her Night",
+    "description": "Ein unvergesslicher Abend, der Frauen durch Musik, Verbindung und gemeinsame Geschichten feiert — bei dem jeder Beat Empowerment verstärkt.",
+    "linkLabel": "Höhepunkte Ansehen",
+    "feature1": { "title": "Stärken", "description": "Aufbau von Selbstvertrauen und Führungsqualitäten bei Frauen." },
+    "feature2": { "title": "Unterstützen", "description": "Schaffung von Netzwerken der Fürsorge und Solidarität." },
+    "feature3": { "title": "Einsetzen", "description": "Verstärkung der Stimmen von Frauen für dauerhaften Wandel." }
+  },
+  "areas": {
+    "heading": "Unsere Wirkungsbereiche",
+    "area1": {
+      "titleLead": "Soziale Wirkung durch ",
+      "titleAccent": "VOWNL",
+      "description": "Förderung von Gemeinschaftsunterstützung und dem Wohl von Frauen durch inklusive Programme, die stärken, bilden und befähigen.",
+      "items": ["Gemeinschaftsunterstützungsprogramme", "Bildung & Bewusstsein", "Gesundheits- und Wohlbefinden-Initiativen", "Frauenförderung"],
+      "buttonLabel": "Mehr Erfahren"
+    },
+    "area2": {
+      "titleLead": "Jugendförderung durch ",
+      "titleAccent": "V.O.I.C.E. Venture Studio",
+      "description": "Wir stärken junge Changemaker mit Mentoring, Innovation und Ressourcen, um kühne Ideen in bedeutungsvolle Unternehmungen zu verwandeln.",
+      "items": ["Unternehmertum & Innovation", "Mentoring & Kompetenzentwicklung", "Finanzierung & Ressourcen", "Führungsmöglichkeiten"],
+      "buttonLabel": "Venture Studio WhatsApp-Gruppe Beitreten"
+    },
+    "area3": {
+      "titleLead": "Anderen ",
+      "titleAccent": "NGOs Helfen",
+      "description": "Zusammenarbeit mit NGOs weltweit, um Wirkung durch gemeinsame Ressourcen, Sichtbarkeit und sektorübergreifende Partnerschaften zu verstärken.",
+      "items": ["Kapazitätsaufbau & Ressourcen", "Kampagnenunterstützung & Sichtbarkeit", "Sektorübergreifende Partnerschaften", "Globales NGO-Netzwerk"],
+      "buttonLabel": "Jetzt Spenden"
+    }
+  }
+}

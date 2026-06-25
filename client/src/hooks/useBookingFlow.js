@@ -62,7 +62,10 @@ export default function useBookingFlow({
 
   useEffect(() => {
     if (enabled && (eventId || slug)) resolveFlow();
-  }, [enabled, eventId, slug, items.length, reservedSeatingEnabled]);
+    // Deliberately omits resolveFlow/email/attendee/knownAnswers to avoid
+    // re-fetching on every keystroke; sessionId is included so a restored
+    // session (e.g. after login) re-triggers resolution.
+  }, [enabled, eventId, slug, items.length, reservedSeatingEnabled, sessionId]);
 
   const initSession = useCallback(async (payload = {}) => {
     const data = await apiFetch(`${FLOW_API}/${flowType}/start`, {

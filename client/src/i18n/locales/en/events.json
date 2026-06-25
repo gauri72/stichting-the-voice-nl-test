@@ -1,0 +1,67 @@
+{
+  "carousel": {
+    "liveNow": "Live now",
+    "buyTickets": "Buy Tickets",
+    "membershipIncluded": "Included with Premium membership",
+    "memberDiscounts": "Member discounts available"
+  },
+  "highlightsSlider": {
+    "titleLead": "Memorable Moments,",
+    "titleEmphasis": "Lasting Impact",
+    "subtitle": "Relive the experiences, stories and celebrations that brought our community together.",
+    "emptyState": "Past event highlights will appear here once events are completed.",
+    "defaultImpactText": "An unforgettable V.O.I.C.E. NL experience filled with culture, connection and shared memories.",
+    "badge": {
+      "pastEvent": "Past Event",
+      "watchHighlights": "Watch Highlights",
+      "highlightsComingSoon": "Highlights Coming Soon",
+      "videoAvailable": "Video Available"
+    },
+    "cta": {
+      "viewMemories": "View Memories",
+      "watchHighlights": "Watch Highlights"
+    }
+  },
+  "videoModal": {
+    "comingSoonText": "We are preparing the highlight reel for this unforgettable event.",
+    "previous": "Previous"
+  },
+  "reviewsSlider": {
+    "title": "What Our Community Says",
+    "subtitle": "Real stories from members, guests and partners who experienced V.O.I.C.E. NL events.",
+    "loading": "Loading community reviews…",
+    "emptyState": "Be the first to share your V.O.I.C.E. NL experience.",
+    "shareExperience": "Share Your Experience",
+    "closeForm": "Close Review Form"
+  },
+  "reviewForm": {
+    "eyebrow": "Share Your Experience",
+    "title": "Rate V.O.I.C.E. NL",
+    "lead": "Your feedback helps us create better cultural experiences.",
+    "yourName": "Your Name",
+    "namePlaceholder": "Enter your name",
+    "yourRating": "Your Rating",
+    "yourReview": "Your Review",
+    "reviewPlaceholder": "Share your experience with V.O.I.C.E. NL...",
+    "eventAttended": "Event attended (optional)",
+    "eventPlaceholder": "e.g. Couples Night, HerBeats HerNight",
+    "consent": "I consent to my review being published after moderation.",
+    "submitting": "Submitting…",
+    "submitReview": "Submit Review",
+    "errors": {
+      "name": "Please enter your name.",
+      "rating": "Please select a star rating.",
+      "review": "Please share your review.",
+      "consent": "Please accept the consent checkbox.",
+      "submitFailed": "Could not submit your review. Please try again."
+    },
+    "communityMember": "Community Member",
+    "thankYou": "Thank you for sharing your experience. Your review will be visible after moderation."
+  },
+  "reviewModal": {
+    "communityMember": "Community Member",
+    "previous": "Previous",
+    "next": "Next",
+    "close": "Close"
+  }
+}

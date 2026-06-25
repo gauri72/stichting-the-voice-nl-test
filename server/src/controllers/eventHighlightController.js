@@ -8,9 +8,10 @@ import {
   getEventHighlightAnalyticsReport,
 } from "../services/eventHighlightService.js";
 
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
 function handleError(res, error) {
-  const status = error.status || 500;
-  return res.status(status).json({ error: error.message || "Something went wrong." });
+  return handleErrorBase(res, error, { logTag: "[event-highlights]" });
 }
 
 export async function getPublicEventHighlights(req, res) {

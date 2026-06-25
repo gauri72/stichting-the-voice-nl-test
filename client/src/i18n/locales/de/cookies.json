@@ -1,0 +1,45 @@
+{
+  "banner": {
+    "title": "Wir legen Wert auf Ihre Privatsphäre",
+    "text": "Wir verwenden Cookies, damit die Website funktioniert, um Ihre Einstellungen zu speichern und um zu verstehen, wie Besucher unsere Website nutzen. Sie können alle Cookies akzeptieren, optionale Cookies ablehnen oder Ihre Einstellungen im Detail verwalten.",
+    "policyLinkText": "Cookie-Richtlinie",
+    "acceptAll": "Alle Akzeptieren",
+    "rejectAll": "Alle Ablehnen",
+    "managePreferences": "Einstellungen Verwalten"
+  },
+  "modal": {
+    "title": "Cookie-Einstellungen",
+    "intro": "Wählen Sie, welche Cookie-Kategorien wir verwenden dürfen. Unbedingt erforderliche Cookies sind immer aktiv, da die Website ohne sie nicht ordnungsgemäß funktionieren kann. Sie können Ihre Einstellungen jederzeit über den Link \"Cookie-Einstellungen\" in der Fußzeile ändern.",
+    "alwaysActive": "Immer Aktiv",
+    "on": "Ein",
+    "off": "Aus",
+    "categories": {
+      "necessary": {
+        "title": "Unbedingt Erforderliche Cookies",
+        "description": "Erforderlich für grundlegende Website-Funktionen wie Sicherheit, Netzwerkverwaltung und Barrierefreiheit. Diese können nicht deaktiviert werden."
+      },
+      "functional": {
+        "title": "Funktionale Cookies",
+        "description": "Speichern Ihre Einstellungen — wie Sprache und Anzeigeoptionen — für ein persönlicheres Erlebnis."
+      },
+      "analytics": {
+        "title": "Analyse-Cookies",
+        "description": "Helfen uns zu verstehen, wie Besucher mit unserer Website interagieren (z. B. Google Analytics, Hotjar), damit wir Leistung und Inhalte verbessern können."
+      },
+      "marketing": {
+        "title": "Marketing-Cookies",
+        "description": "Werden verwendet, um relevante Anzeigen auszuliefern, die Kampagnenleistung zu messen und Retargeting- sowie Tracking-Pixel auf anderen Websites zu ermöglichen."
+      }
+    },
+    "doNotSell": {
+      "title": "Meine Persönlichen Daten Nicht Verkaufen Oder Weitergeben",
+      "description": "Einwohner Kaliforniens können der Weitergabe oder dem Verkauf personenbezogener Daten für kontextübergreifende verhaltensbasierte Werbung widersprechen. Die Aktivierung deaktiviert Marketing-Cookies."
+    },
+    "save": "Einstellungen Speichern",
+    "cancel": "Abbrechen",
+    "close": "Cookie-Einstellungen schließen"
+  },
+  "footer": {
+    "cookieSettings": "Cookie-Einstellungen"
+  }
+}

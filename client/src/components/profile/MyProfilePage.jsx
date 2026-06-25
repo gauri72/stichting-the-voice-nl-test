@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { apiFetch, authHeaders } from "../../utils/api.js";
 import ProfileHeroSection from "./sections/ProfileHeroSection.jsx";
@@ -12,6 +13,7 @@ import "../../styles/my-profile-desktop.css";
 import "../../styles/my-profile-mobile.css";
 
 export default function MyProfilePage() {
+  const { t } = useTranslation(["misc"]);
   const { user, refreshUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,11 +26,11 @@ export default function MyProfilePage() {
       const data = await apiFetch("/api/dashboard", { headers: authHeaders() });
       setProfile(data?.profile || null);
     } catch (e) {
-      setLoadError(e.message || "Could not load your profile.");
+      setLoadError(e.message || t("misc:profile.loadError"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     load();
@@ -69,7 +71,7 @@ export default function MyProfilePage() {
         <div className="my-profile-page__content">
           {loading ? (
             <p className="my-profile-page__status" role="status">
-              Loading your profile…
+              {t("misc:profile.loading")}
             </p>
           ) : null}
 
@@ -77,7 +79,7 @@ export default function MyProfilePage() {
             <div className="my-profile-page__status my-profile-page__status--error" role="alert">
               <p>{loadError}</p>
               <button type="button" className="profile-btn profile-btn--outline" onClick={load}>
-                Try again
+                {t("misc:profile.tryAgain")}
               </button>
             </div>
           ) : null}
@@ -97,7 +99,7 @@ export default function MyProfilePage() {
           ) : null}
 
           <Link to={PROFILE_ROUTES.dashboard} className="my-profile-page__back">
-            Back to Dashboard
+            {t("misc:profile.backToDashboard")}
           </Link>
         </div>
       </div>

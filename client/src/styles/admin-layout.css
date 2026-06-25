@@ -427,6 +427,8 @@
     display: flex;
     flex-direction: column;
     height: calc(100dvh - 72px);
+    overflow-y: auto;
+    overflow-x: hidden;
     padding: 16px 12px;
     border-top: 0;
     border-right: 1px solid var(--ad-border);

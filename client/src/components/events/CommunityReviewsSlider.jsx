@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IconArrowLeft, IconArrowRight, IconStarFilled } from "@tabler/icons-react";
 import { apiFetch } from "../../utils/api.js";
+import { useAutoAdvance } from "../../hooks/useAutoAdvance.js";
 import CommunityReviewModal from "./CommunityReviewModal.jsx";
 import CommunityReviewForm from "./CommunityReviewForm.jsx";
 import "../../styles/community-reviews-slider.css";
@@ -34,6 +36,7 @@ function CardStars({ count = 5 }) {
 }
 
 export default function CommunityReviewsSlider({ onReviewsLoaded }) {
+  const { t } = useTranslation(["events"]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -70,12 +73,7 @@ export default function CommunityReviewsSlider({ onReviewsLoaded }) {
   const scrollNext = useCallback(() => scrollBy(SCROLL_STEP), [scrollBy]);
   const scrollPrev = useCallback(() => scrollBy(-SCROLL_STEP), [scrollBy]);
 
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track || reviews.length <= 1 || isPaused) return undefined;
-    const timer = window.setInterval(scrollNext, AUTO_SCROLL_MS);
-    return () => window.clearInterval(timer);
-  }, [reviews.length, isPaused, scrollNext]);
+  useAutoAdvance(scrollNext, { enabled: reviews.length > 1 && !isPaused, intervalMs: AUTO_SCROLL_MS });
 
   useEffect(() => {
     const track = trackRef.current;
@@ -104,22 +102,22 @@ export default function CommunityReviewsSlider({ onReviewsLoaded }) {
       <div className="crs-slider__inner">
         <header className="crs-slider__header">
           <h2 id="crs-slider-title" className="crs-slider__title">
-            What Our Community Says
+            {t("events:reviewsSlider.title")}
           </h2>
           <p className="crs-slider__subtitle">
-            Real stories from members, guests and partners who experienced V.O.I.C.E. NL events.
+            {t("events:reviewsSlider.subtitle")}
           </p>
         </header>
 
         {loading ? (
-          <p className="crs-slider__status" role="status">Loading community reviews…</p>
+          <p className="crs-slider__status" role="status">{t("events:reviewsSlider.loading")}</p>
         ) : null}
 
         {!loading && reviews.length === 0 ? (
           <div className="crs-slider__empty">
-            <p>Be the first to share your V.O.I.C.E. NL experience.</p>
+            <p>{t("events:reviewsSlider.emptyState")}</p>
             <button type="button" className="crs-slider__cta" onClick={() => setFormOpen(true)}>
-              Share Your Experience
+              {t("events:reviewsSlider.shareExperience")}
             </button>
           </div>
         ) : null}
@@ -198,7 +196,7 @@ export default function CommunityReviewsSlider({ onReviewsLoaded }) {
 
         <div className="crs-slider__actions">
           <button type="button" className="crs-slider__cta" onClick={() => setFormOpen((o) => !o)}>
-            {formOpen ? "Close Review Form" : "Share Your Experience"}
+            {formOpen ? t("events:reviewsSlider.closeForm") : t("events:reviewsSlider.shareExperience")}
           </button>
         </div>
 

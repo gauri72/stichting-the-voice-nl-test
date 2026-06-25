@@ -8,6 +8,7 @@ import DashboardWelcomeBannerSection from "./sections/DashboardWelcomeBannerSect
 import DashboardStatCardsSection from "./sections/DashboardStatCardsSection.jsx";
 import DashboardMembershipCardSection from "./sections/DashboardMembershipCardSection.jsx";
 import DashboardMyEventsWidget from "./sections/DashboardMyEventsWidget.jsx";
+import DashboardMySessionsSection from "./sections/DashboardMySessionsSection.jsx";
 import DashboardRecentActivitySection from "./sections/DashboardRecentActivitySection.jsx";
 import DashboardImpactSection from "./sections/DashboardImpactSection.jsx";
 import DashboardDiscountsSection from "./sections/DashboardDiscountsSection.jsx";
@@ -114,6 +115,8 @@ function renderSection(section, ctx) {
       return <DashboardDiscountsSection key={section.sectionId} />;
     case "my_events":
       return <DashboardMyEventsWidget key={section.sectionId} />;
+    case "my_sessions":
+      return <DashboardMySessionsSection key={section.sectionId} />;
     case "referral_code":
       return <DashboardReferralSection key={section.sectionId} />;
     case "stat_cards":
