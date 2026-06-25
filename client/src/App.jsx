@@ -34,6 +34,7 @@ import AdminCustomerDashboardPreviewPage from "./components/admin/AdminCustomerD
 import AdminBroadcastPage from "./components/admin/AdminBroadcastPage";
 import AdminTemplateUploadPage from "./components/admin/AdminTemplateUploadPage";
 import AdminDiscountsPage from "./components/admin/AdminDiscountsPage";
+import AdminMembershipDiscountsPage from "./components/admin/AdminMembershipDiscountsPage.jsx";
 import AdminUsersPage from "./components/admin/AdminUsersPage";
 import AdminEventsPage from "./components/admin/AdminEventsPage.jsx";
 import AdminSeatMapEditor from "./components/admin/AdminSeatMapEditor.jsx";
@@ -292,6 +293,14 @@ export default function App() {
             element={
               <AdminProtectedRoute>
                 <AdminDiscountsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/membership-discounts"
+            element={
+              <AdminProtectedRoute>
+                <AdminMembershipDiscountsPage />
               </AdminProtectedRoute>
             }
           />

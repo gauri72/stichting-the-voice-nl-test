@@ -3,7 +3,6 @@ export {
   buildOrderSummary,
   formatMoney,
   calculateVat,
-  validateVoucher,
 } from "../ticketPricingService.js";
 
 import { calculatePricePreview } from "../pricePreviewService.js";

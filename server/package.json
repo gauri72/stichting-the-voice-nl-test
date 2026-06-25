@@ -13,6 +13,7 @@
     "seed:admin": "node scripts/seed-admin.js",
     "seed:component-registry": "node scripts/seed-component-registry.js",
     "migrate:cms-images": "node scripts/migrate-cms-images-to-s3.js",
+    "migrate:discount-event-scopes": "node scripts/migrate-discount-event-scopes.js",
     "seed:featured-herbeats": "node scripts/seed-featured-herbeats.js",
     "seed:cms": "node scripts/seed-cms-pages.js",
     "test": "vitest run",

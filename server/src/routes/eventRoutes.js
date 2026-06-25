@@ -3,7 +3,6 @@ import { optionalAuth, requireAuth } from "../middleware/authMiddleware.js";
 import {
   listPublishedEvents,
   getPublishedEvent,
-  validateVoucher,
   quoteOrder,
   checkout,
   confirmPayment,
@@ -25,7 +24,6 @@ router.get("/:eventId/seat-map", getPublicSeatMap);
 router.get("/:eventId/seats/availability", getPublicSeatMap);
 
 router.get("/:idOrSlug", getPublishedEvent);
-router.post("/:eventId/validate-voucher", optionalAuth, validateVoucher);
 router.post("/:eventId/quote", optionalAuth, quoteOrder);
 router.post("/:eventId/checkout", optionalAuth, checkout);
 

@@ -24,6 +24,7 @@ import {
   normalizeMembershipType,
   resolveMembershipPlanId,
 } from "../utils/membershipTypeUtils.js";
+import { isEventPublished } from "./eventService.js";
 
 function throwError(message, status = 400) {
   const err = new Error(message);
@@ -50,10 +51,39 @@ function appliesToOrderType(rule, orderType) {
   return rule.appliesTo === orderType;
 }
 
-function appliesToEvent(rule, eventId) {
+/**
+ * Replaces the old appliesToEvent(). Precisely expresses "event A's VIP+General tickets"
+ * and "event B's General-only tickets" as independent scopes — a flat ticketTypeIds array
+ * crossed with a separate eligibleEventIds array cannot do this without ambiguity (see
+ * DiscountRule.js's eventScopes comment).
+ *
+ * Resolution order:
+ *   1. applyToAllEvents: true -> matches anything.
+ *   2. A populated eventScopes entry for this eventId -> matches per that entry's
+ *      applyToAllTicketTypes/ticketTypeIds.
+ *   3. No eventScopes at all (rule not yet migrated to the new fields) -> fall back to the
+ *      legacy eligibleEventIds array, event-level only (no ticket-type restriction), which
+ *      is exactly today's pre-migration behavior.
+ *   4. None of the above -> fail closed (no match), rather than silently treating an
+ *      explicitly-scoped-to-nothing rule as "applies everywhere."
+ */
+export function appliesToEventAndTicketType(rule, eventId, ticketTypeId) {
   if (!eventId) return true;
+  if (rule.applyToAllEvents) return true;
+
+  const scopes = Array.isArray(rule.eventScopes) ? rule.eventScopes : [];
+  if (scopes.length > 0) {
+    const scope = scopes.find((s) => String(s.eventId) === String(eventId));
+    if (!scope) return false;
+    if (scope.applyToAllTicketTypes) return true;
+    if (!ticketTypeId) return false;
+    return (scope.ticketTypeIds || []).some((id) => String(id) === String(ticketTypeId));
+  }
+
+  // Not migrated yet (no eventScopes at all): replicate the legacy appliesToEvent()
+  // semantics exactly, where an empty/missing eligibleEventIds meant "all events."
   if (!Array.isArray(rule.eligibleEventIds) || rule.eligibleEventIds.length === 0) return true;
-  return rule.eligibleEventIds.some((id) => id.toString() === eventId.toString());
+  return rule.eligibleEventIds.some((id) => String(id) === String(eventId));
 }
 
 export async function getActiveMembership(userId) {
@@ -88,14 +118,15 @@ export async function getActiveMembership(userId) {
   return null;
 }
 
-export async function getAutomaticMemberDiscount(userId, eventId, orderType = "tickets") {
+export async function getAutomaticMemberDiscount(userId, eventId, orderType = "tickets", ticketTypeId = null) {
   const membership = await getActiveMembership(userId);
   if (!membership) return null;
-  return getAutomaticMemberDiscountForPlan(resolvePlanId(membership.planId), eventId, orderType);
+  return getAutomaticMemberDiscountForPlan(resolvePlanId(membership.planId), eventId, orderType, ticketTypeId);
 }
 
-export async function getAutomaticMemberDiscountForPlan(planId, eventId, orderType = "tickets") {
+export async function getAutomaticMemberDiscountForPlan(planId, eventId, orderType = "tickets", ticketTypeId = null) {
   if (!planId) return null;
+  if (eventId && !(await isEventPublished(eventId))) return null;
 
   const resolvedPlanId = resolvePlanId(planId);
 
@@ -105,7 +136,9 @@ export async function getAutomaticMemberDiscountForPlan(planId, eventId, orderTy
     eligibleMembershipTypes: resolvedPlanId,
   }).lean();
 
-  const rule = rules.find((r) => isRuleActive(r) && appliesToOrderType(r, orderType) && appliesToEvent(r, eventId));
+  const rule = rules.find(
+    (r) => isRuleActive(r) && appliesToOrderType(r, orderType) && appliesToEventAndTicketType(r, eventId, ticketTypeId)
+  );
   if (!rule) return null;
 
   return {
@@ -135,6 +168,7 @@ export async function getMembershipDiscountRule({
   source,
   eventId,
   orderType = "tickets",
+  ticketTypeId = null,
   settings = null,
 }) {
   const rawType = membershipType || "";
@@ -170,7 +204,7 @@ export async function getMembershipDiscountRule({
   }
 
   if (resolvedPlanId) {
-    const dbRule = await getAutomaticMemberDiscountForPlan(resolvedPlanId, eventId, orderType);
+    const dbRule = await getAutomaticMemberDiscountForPlan(resolvedPlanId, eventId, orderType, ticketTypeId);
     if (dbRule) {
       logTTDiscount("TT_DISCOUNT_RULE_FOUND", { source: "LOCAL_DB", planId: resolvedPlanId });
       return dbRule;
@@ -208,10 +242,17 @@ export async function countUserDiscountUsage(discountId, userId, userEmail) {
   return DiscountUsage.countDocuments(query);
 }
 
-async function validateRuleEligibility(rule, { userId, email, eventId, orderType, subtotalMinor }) {
+async function validateRuleEligibility(rule, { userId, email, eventId, ticketTypeId, orderType, subtotalMinor }) {
+  // Checked first so an unpublished event always produces this specific message, ahead of
+  // any other validation failure that might otherwise fire for the same rule.
+  if (eventId && !(await isEventPublished(eventId))) {
+    throwError("This discount is not available for unpublished events.");
+  }
   if (!isRuleActive(rule)) throwError("This discount is not currently active.");
   if (!appliesToOrderType(rule, orderType)) throwError("This discount does not apply to this purchase type.");
-  if (!appliesToEvent(rule, eventId)) throwError("This discount is not valid for this event.");
+  if (!appliesToEventAndTicketType(rule, eventId, ticketTypeId)) {
+    throwError(ticketTypeId ? "This discount is not valid for this ticket type." : "This discount is not valid for this event.");
+  }
 
   if (rule.minimumOrderAmount > 0 && subtotalMinor < rule.minimumOrderAmount) {
     throwError(`Minimum order amount is €${(rule.minimumOrderAmount / 100).toFixed(2)}.`);
@@ -230,6 +271,15 @@ async function validateRuleEligibility(rule, { userId, email, eventId, orderType
     }
     if (!assignedUserId && !assignedEmail) {
       throwError("This personalized code has no assigned user.");
+    }
+  }
+
+  // Single-recipient vouchers (assignedEmail set at creation, Voucher.js's assignedEmail field):
+  // an empty assignedEmail means the voucher is redeemable by anyone with the code.
+  if (rule.isLegacyVoucher && rule.assignedEmail) {
+    const normalizedEmail = String(email || "").toLowerCase();
+    if (normalizedEmail !== String(rule.assignedEmail).toLowerCase()) {
+      throwError("This voucher is not valid for your email address.");
     }
   }
 
@@ -276,6 +326,9 @@ export async function findDiscountByCode(code) {
       discountValue: voucher.discountValue,
       appliesTo: "tickets",
       eligibleEventIds: voucher.eligibleEvents || [],
+      applyToAllEvents: voucher.applyToAllEvents || false,
+      eventScopes: voucher.eventScopes || [],
+      assignedEmail: voucher.assignedEmail || "",
       usageLimit: voucher.usageLimit,
       usedCount: voucher.usedCount,
       expiryDate: voucher.expiryDate,
@@ -288,18 +341,17 @@ export async function findDiscountByCode(code) {
   return null;
 }
 
-export async function validateDiscountCode(code, userId, email, eventId, orderType = "tickets", subtotalMinor = 0) {
+export async function validateDiscountCode(
+  code, userId, email, eventId, orderType = "tickets", subtotalMinor = 0, ticketTypeId = null
+) {
   const rule = await findDiscountByCode(code);
   if (!rule) throwError("Invalid discount code.");
 
+  await validateRuleEligibility(rule, { userId, email, eventId, ticketTypeId, orderType, subtotalMinor });
+
   if (rule.isLegacyVoucher) {
-    if (rule.expiryDate && new Date() > new Date(rule.expiryDate)) throwError("This code has expired.");
-    if (rule.usageLimit != null && rule.usedCount >= rule.usageLimit) throwError("This code has reached its usage limit.");
-    if (!appliesToEvent(rule, eventId)) throwError("This code is not valid for this event.");
     return { ...rule, label: "Voucher Discount" };
   }
-
-  await validateRuleEligibility(rule, { userId, email, eventId, orderType, subtotalMinor });
 
   const labels = {
     personalized_code: "Personal Code Discount",
@@ -465,7 +517,16 @@ export async function recordDiscountUsage({
     usedAt: new Date(),
   });
 
-  if (!discountRule.isLegacyVoucher) {
+  if (discountRule.isLegacyVoucher) {
+    // Pre-existing gap: vouchers redeemed via the findDiscountByCode() pseudo-rule path
+    // never had their usedCount incremented at all, so a "single-use" voucher was
+    // silently reusable until its usageLimit field (often unset) said otherwise.
+    const voucherId = discountRule._id || discountRule.id;
+    const updated = await Voucher.findByIdAndUpdate(voucherId, { $inc: { usedCount: 1 } }, { new: true });
+    if (updated && updated.usageLimit != null && updated.usedCount >= updated.usageLimit) {
+      await Voucher.updateOne({ _id: voucherId }, { status: "used" });
+    }
+  } else {
     await DiscountRule.findByIdAndUpdate(discountRule._id || discountRule.id, { $inc: { usedCount: 1 } });
   }
 
@@ -505,6 +566,7 @@ export async function applyDiscountsToOrder({
   userId,
   email,
   eventId,
+  ticketTypeId = null,
   orderType = "tickets",
   subtotalMinor,
   discountCode,
@@ -513,18 +575,27 @@ export async function applyDiscountsToOrder({
   memberRuleOverride = null,
   allowStacking = true,
 }) {
+  // Belt-and-suspenders: every code path this function can take to find a discount
+  // (member rule, code/voucher) already checks published status internally, but this is
+  // the single highest-traffic entry point (ticketOrderService, pricePreviewService,
+  // checkoutDiscountController, sessionPlatformService all call it), so it gets its own
+  // explicit early check too.
+  if (eventId && !(await isEventPublished(eventId))) {
+    throwError("This discount is not available for unpublished events.");
+  }
+
   const code = discountCode || voucherCode;
   let memberRule = memberRuleOverride || null;
 
   if (!memberRule && memberPlanId) {
-    memberRule = await getAutomaticMemberDiscountForPlan(memberPlanId, eventId, orderType);
+    memberRule = await getAutomaticMemberDiscountForPlan(memberPlanId, eventId, orderType, ticketTypeId);
   } else if (!memberRule && userId) {
-    memberRule = await getAutomaticMemberDiscount(userId, eventId, orderType);
+    memberRule = await getAutomaticMemberDiscount(userId, eventId, orderType, ticketTypeId);
   }
 
   let codeRule = null;
   if (code?.trim()) {
-    codeRule = await validateDiscountCode(code, userId, email, eventId, orderType, subtotalMinor);
+    codeRule = await validateDiscountCode(code, userId, email, eventId, orderType, subtotalMinor, ticketTypeId);
   }
 
   if (!allowStacking && memberRule && codeRule) {
@@ -543,6 +614,113 @@ export async function applyDiscountsToOrder({
     codeRule,
     orderType,
   });
+}
+
+/**
+ * Per-ticket-type discounting entry point. Resolves each line item's member/code discount
+ * independently (so "one code per ticket type, membership stacks per ticket type" falls out
+ * naturally from calling the single-line primitive above once per line) and sums the results
+ * for an order-level total. Kept as a thin wrapper around applyDiscountsToOrder rather than a
+ * rewrite, so the existing stacking logic in resolveStackedDiscounts() is reused unchanged.
+ */
+export async function applyDiscountsToOrderLines({
+  userId,
+  email,
+  eventId,
+  orderType = "tickets",
+  lineItems = [],
+  memberPlanId = null,
+  memberRuleOverride = null,
+  allowStacking = true,
+}) {
+  const lines = [];
+  let memberDiscountMinor = 0;
+  let codeDiscountMinor = 0;
+  let voucherDiscountMinor = 0;
+  let referralDiscountMinor = 0;
+  let personalDiscountMinor = 0;
+  let discountAmountMinor = 0;
+  // Representative label/rule for cart-level display (e.g. BookingPricePreview's banner) —
+  // taken from the first line that actually carries that discount, since different lines
+  // can now have different codes/membership rules under per-ticket-type scoping.
+  let memberLabel = "";
+  let codeLabel = "";
+  let memberRule = null;
+  let codeRule = null;
+
+  for (const line of lineItems) {
+    const lineMemberRuleOverride =
+      line.memberRuleOverride !== undefined ? line.memberRuleOverride : memberRuleOverride;
+    let result;
+    let codeError = null;
+    try {
+      result = await applyDiscountsToOrder({
+        userId,
+        email,
+        eventId,
+        ticketTypeId: line.ticketTypeId,
+        orderType,
+        subtotalMinor: line.lineSubtotalMinor,
+        discountCode: line.discountCode,
+        voucherCode: line.voucherCode,
+        memberPlanId,
+        memberRuleOverride: lineMemberRuleOverride,
+        allowStacking,
+      });
+    } catch (err) {
+      // A code valid for one ticket-type line but not another must not blow up the whole
+      // multi-line preview/order — degrade this one line to "no code applied" (member
+      // discount, if any, still computed normally) and surface the reason on the line.
+      // Re-validating a *specific* code's input field still throws via validateDiscountCode()
+      // directly (checkoutDiscountController.validateCode) — only this aggregator absorbs it.
+      codeError = err.message;
+      result = await applyDiscountsToOrder({
+        userId,
+        email,
+        eventId,
+        ticketTypeId: line.ticketTypeId,
+        orderType,
+        subtotalMinor: line.lineSubtotalMinor,
+        discountCode: null,
+        voucherCode: null,
+        memberPlanId,
+        memberRuleOverride: lineMemberRuleOverride,
+        allowStacking,
+      });
+    }
+
+    lines.push({ ticketTypeId: line.ticketTypeId, ...result, codeError });
+
+    memberDiscountMinor += result.memberDiscountMinor;
+    codeDiscountMinor += result.codeDiscountMinor;
+    voucherDiscountMinor += result.voucherDiscountMinor;
+    referralDiscountMinor += result.referralDiscountMinor;
+    personalDiscountMinor += result.personalDiscountMinor;
+    discountAmountMinor += result.discountAmountMinor;
+
+    if (!memberLabel && result.memberDiscountMinor > 0) {
+      memberLabel = result.memberLabel;
+      memberRule = result.memberRule;
+    }
+    if (!codeLabel && result.codeDiscountMinor > 0) {
+      codeLabel = result.codeLabel;
+      codeRule = result.codeRule;
+    }
+  }
+
+  return {
+    lineItems: lines,
+    memberDiscountMinor,
+    codeDiscountMinor,
+    voucherDiscountMinor,
+    referralDiscountMinor,
+    personalDiscountMinor,
+    discountAmountMinor,
+    memberLabel,
+    codeLabel,
+    memberRule,
+    codeRule,
+  };
 }
 
 /**

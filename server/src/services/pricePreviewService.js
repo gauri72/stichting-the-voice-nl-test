@@ -10,7 +10,7 @@ import {
   sanitizeCustomerDiscountLabel,
 } from "../utils/membershipDisplayLabels.js";
 import {
-  applyDiscountsToOrder,
+  applyDiscountsToOrderLines,
   calculateDiscountAmount,
   getMembershipDiscountRule,
 } from "./discountService.js";
@@ -42,6 +42,7 @@ async function resolveMemberBenefitContext({
   applyMemberBenefit,
   isLoggedIn,
   eventId,
+  ticketTypeId = null,
   subtotalMinor,
 }) {
   const instantAllowed =
@@ -85,6 +86,7 @@ async function resolveMemberBenefitContext({
           membershipType,
           source: MEMBERSHIP_SOURCE.TICKETTAILOR,
           eventId,
+          ticketTypeId,
           orderType: "tickets",
           settings: membershipSettings,
         });
@@ -95,6 +97,7 @@ async function resolveMemberBenefitContext({
           membershipType,
           source: membershipSource,
           eventId,
+          ticketTypeId,
           orderType: "tickets",
           settings: membershipSettings,
         });
@@ -139,6 +142,7 @@ async function resolveMemberBenefitContext({
       membershipType: "",
       source: "LOCAL",
       eventId,
+      ticketTypeId,
       orderType: "tickets",
       settings: membershipSettings,
     });
@@ -192,6 +196,7 @@ export async function calculatePricePreview({
   selectedPlanId = null,
   purchaseType = "NEW",
   discountCode = null,
+  discountCodes = {},
   applyMemberBenefit = true,
   sessionId = null,
   membershipCode = null,
@@ -214,26 +219,38 @@ export async function calculatePricePreview({
     membershipCode,
   });
 
-  const { memberPlanId, benefitReason, benefitApplied, memberRuleOverride, membershipSource, discountWarning } =
-    await resolveMemberBenefitContext({
-    memberDetection,
-    includeMembership,
-    selectedPlanId,
-    purchaseType,
-    eventSettings,
-    membershipSettings,
-    applyMemberBenefit,
-    isLoggedIn,
-    eventId: event.id,
-    subtotalMinor,
-  });
+  // Resolved per ticket type, not once for the whole cart: a membership discount (just
+  // like a code) can now be scoped to specific ticket types, so the same membership might
+  // yield a discount on a VIP line but nothing on a General line within the same order.
+  const perLineMemberContext = await Promise.all(
+    lineItems.map((line) =>
+      resolveMemberBenefitContext({
+        memberDetection,
+        includeMembership,
+        selectedPlanId,
+        purchaseType,
+        eventSettings,
+        membershipSettings,
+        applyMemberBenefit,
+        isLoggedIn,
+        eventId: event.id,
+        ticketTypeId: line.ticketTypeId,
+        subtotalMinor: line.originalPriceMinor,
+      })
+    )
+  );
 
-  if (memberRuleOverride && benefitApplied) {
+  // Cart-level display fields (banner text, comparison view) collapse the per-line contexts
+  // back to one representative value — the first line where a benefit actually applied, or
+  // the first line's facts otherwise. Validation itself stays fully per-line via
+  // discountLineItems below; this is display-only.
+  const firstApplied = perLineMemberContext.find((c) => c.benefitApplied) || perLineMemberContext[0] || {};
+  const { memberPlanId, benefitReason, benefitApplied, membershipSource, discountWarning } = firstApplied;
+
+  if (benefitApplied) {
     console.log(
-      "[TT_DISCOUNT_APPLIED_TO_PREVIEW] source=%s type=%s value=%s",
-      membershipSource,
-      memberRuleOverride.discountType,
-      memberRuleOverride.discountValue
+      "[TT_DISCOUNT_APPLIED_TO_PREVIEW] source=%s",
+      membershipSource
     );
   }
 
@@ -244,16 +261,25 @@ export async function calculatePricePreview({
     (membershipSource === MEMBERSHIP_SOURCE.TICKETTAILOR &&
       membershipSettings.allowTicketTailorMembershipDiscountStacking !== false);
 
-  const discountResult = await applyDiscountsToOrder({
-    userId: benefitApplied && isLoggedIn ? userId : null,
+  const discountLineItems = lineItems.map((line, i) => {
+    const lineMemberContext = perLineMemberContext[i];
+    const lineCode = discountCodes[line.ticketTypeId] ?? discountCode ?? null;
+    return {
+      ticketTypeId: line.ticketTypeId,
+      lineSubtotalMinor: line.originalPriceMinor,
+      discountCode: lineCode,
+      voucherCode: lineCode,
+      memberRuleOverride: lineMemberContext.benefitApplied ? lineMemberContext.memberRuleOverride : null,
+    };
+  });
+
+  const discountResult = await applyDiscountsToOrderLines({
+    userId: isLoggedIn ? userId : null,
     email,
     eventId: event.id,
     orderType: "tickets",
-    subtotalMinor,
-    discountCode,
-    voucherCode: discountCode,
+    lineItems: discountLineItems,
     memberPlanId: null,
-    memberRuleOverride: benefitApplied ? memberRuleOverride : null,
     allowStacking,
   });
 
@@ -410,7 +436,24 @@ export async function calculatePricePreview({
         : null,
     },
     ticketPricing: {
-      lineItems,
+      lineItems: lineItems.map((line) => {
+        const lineDiscount = discountResult.lineItems.find((l) => l.ticketTypeId === line.ticketTypeId);
+        const finalPriceMinor = Math.max(0, line.originalPriceMinor - (lineDiscount?.discountAmountMinor || 0));
+        return {
+          ...line,
+          memberDiscountMinor: lineDiscount?.memberDiscountMinor || 0,
+          codeDiscountMinor: lineDiscount?.codeDiscountMinor || 0,
+          voucherDiscountMinor: lineDiscount?.voucherDiscountMinor || 0,
+          referralDiscountMinor: lineDiscount?.referralDiscountMinor || 0,
+          personalDiscountMinor: lineDiscount?.personalDiscountMinor || 0,
+          discountAmountMinor: lineDiscount?.discountAmountMinor || 0,
+          memberLabel: sanitizeCustomerDiscountLabel(lineDiscount?.memberLabel || ""),
+          codeLabel: lineDiscount?.codeLabel || "",
+          codeError: lineDiscount?.codeError || null,
+          finalPriceMinor,
+          finalPrice: formatMoney(finalPriceMinor),
+        };
+      }),
       subtotalMinor,
       subtotal: formatMoney(subtotalMinor),
       eventDiscountMinor: 0,

@@ -34,8 +34,26 @@ function formatDiscountLabel(discountType, discountValue) {
   return `${discountValue}%`;
 }
 
-function formatRuleRow(rule, stats = {}) {
-  return {
+/**
+ * A rule/voucher with explicit event scoping (not applyToAllEvents) is "blocked" for
+ * display purposes when none of its referenced events are currently published — this is a
+ * derived, read-only signal for admin visibility, not a stored flag (see eventService.js's
+ * isEventPublished()/discountService.js's validateRuleEligibility() for the actual
+ * validation-time enforcement, which this purely mirrors for the list view).
+ */
+function isBlockedByUnpublishedEvent(row, eventStatusMap) {
+  if (row.applyToAllEvents) return false;
+  // Without a real status map (single-record action call sites that don't build one), default
+  // to "not blocked" rather than risk a false positive — this flag is informational only and
+  // is computed accurately wherever it matters: the admin list view below.
+  if (!eventStatusMap || Object.keys(eventStatusMap).length === 0) return false;
+  const ids = [...new Set([...(row.eligibleEventIds || []), ...(row.eventScopes || []).map((s) => s.eventId)])];
+  if (ids.length === 0) return false;
+  return ids.every((id) => eventStatusMap[id] !== "published");
+}
+
+function formatRuleRow(rule, stats = {}, eventStatusMap = {}) {
+  const row = {
     catalogId: `rule:${rule._id.toString()}`,
     id: rule._id.toString(),
     recordKind: "rule",
@@ -49,6 +67,24 @@ function formatRuleRow(rule, stats = {}) {
     discountLabel: formatDiscountLabel(rule.discountType, rule.discountValue),
     appliesTo: rule.appliesTo,
     eligibleEventIds: (rule.eligibleEventIds || []).map((id) => id.toString()),
+    applyToAllEvents: Boolean(rule.applyToAllEvents),
+    eventScopes: (rule.eventScopes || []).map((s) => ({
+      eventId: s.eventId.toString(),
+      applyToAllTicketTypes: s.applyToAllTicketTypes !== false,
+      ticketTypeIds: (s.ticketTypeIds || []).map((id) => id.toString()),
+    })),
+    eligibleMembershipTypes: rule.eligibleMembershipTypes || [],
+    assignedUserId: rule.assignedUserId?.toString() || "",
+    assignedEmail: rule.assignedEmail || "",
+    isPublic: Boolean(rule.isPublic),
+    referrerUserId: rule.referrerUserId?.toString() || "",
+    referrerEmail: rule.referrerEmail || "",
+    referrerName: rule.referrerName || "",
+    rewardType: rule.rewardType || "",
+    rewardValue: rule.rewardValue || 0,
+    usageLimitPerUser: rule.usageLimitPerUser,
+    minimumOrderAmount: rule.minimumOrderAmount || 0,
+    allowStacking: rule.allowStacking !== false,
     status: rule.status,
     visibleToUsers: rule.visibleToUsers !== false,
     showOnDashboard: rule.showOnDashboard !== false,
@@ -64,6 +100,8 @@ function formatRuleRow(rule, stats = {}) {
     archivedAt: rule.archivedAt,
     isLegacy: false,
   };
+  row.blockedByUnpublishedEvent = isBlockedByUnpublishedEvent(row, eventStatusMap);
+  return row;
 }
 
 function formatLegacyRow(legacy) {
@@ -104,9 +142,9 @@ function formatLegacyRow(legacy) {
   };
 }
 
-function formatVoucherRow(voucher) {
+function formatVoucherRow(voucher, eventStatusMap = {}) {
   const discountType = voucher.discountType === "fixed" ? "fixed_amount" : "percentage";
-  return {
+  const row = {
     catalogId: `voucher:${voucher._id.toString()}`,
     id: voucher._id.toString(),
     recordKind: "voucher",
@@ -120,6 +158,13 @@ function formatVoucherRow(voucher) {
     discountLabel: formatDiscountLabel(discountType, voucher.discountValue),
     appliesTo: "tickets",
     eligibleEventIds: (voucher.eligibleEvents || []).map((id) => id.toString()),
+    applyToAllEvents: Boolean(voucher.applyToAllEvents),
+    eventScopes: (voucher.eventScopes || []).map((s) => ({
+      eventId: s.eventId.toString(),
+      applyToAllTicketTypes: s.applyToAllTicketTypes !== false,
+      ticketTypeIds: (s.ticketTypeIds || []).map((id) => id.toString()),
+    })),
+    assignedEmail: voucher.assignedEmail || "",
     status: voucher.status,
     visibleToUsers: voucher.visibleToUsers !== false,
     showOnDashboard: voucher.showOnDashboard === true,
@@ -135,6 +180,8 @@ function formatVoucherRow(voucher) {
     archivedAt: voucher.archivedAt,
     isLegacy: false,
   };
+  row.blockedByUnpublishedEvent = isBlockedByUnpublishedEvent(row, eventStatusMap);
+  return row;
 }
 
 function matchesAdminFilters(row, params = {}) {
@@ -151,6 +198,27 @@ function matchesAdminFilters(row, params = {}) {
   }
 
   if (params.source && row.source !== params.source) return false;
+
+  // A row with no eligibleEventIds/eventScopes at all and applyToAllEvents not set is either
+  // not yet migrated (Section 1's legacy fallback) or a legacy DiscountCode that never had
+  // per-event scoping at all — both mean "matches any event," same convention as
+  // appliesToEventAndTicketType()'s fallback in discountService.js.
+  const hasExplicitEventScoping =
+    row.applyToAllEvents || (row.eligibleEventIds || []).length > 0 || (row.eventScopes || []).length > 0;
+
+  if (params.eventId && hasExplicitEventScoping && !row.applyToAllEvents) {
+    const ids = new Set([...(row.eligibleEventIds || []), ...(row.eventScopes || []).map((s) => s.eventId)]);
+    if (!ids.has(params.eventId)) return false;
+  }
+
+  if (params.ticketTypeId && (row.eventScopes || []).length > 0 && !row.applyToAllEvents) {
+    const scopes = row.eventScopes || [];
+    const scope = params.eventId
+      ? scopes.find((s) => s.eventId === params.eventId)
+      : scopes.find((s) => s.applyToAllTicketTypes || (s.ticketTypeIds || []).includes(params.ticketTypeId));
+    if (!scope) return false;
+    if (!scope.applyToAllTicketTypes && !(scope.ticketTypeIds || []).includes(params.ticketTypeId)) return false;
+  }
 
   if (params.search?.trim()) {
     const q = params.search.trim().toLowerCase();
@@ -203,10 +271,23 @@ export async function listAllDiscountsForAdmin(params = {}) {
   ]);
   const usageMap = Object.fromEntries(usageAgg.map((u) => [u._id.toString(), u]));
 
+  const referencedEventIds = [
+    ...new Set(
+      [...rules, ...vouchers].flatMap((r) => [
+        ...(r.eligibleEventIds || r.eligibleEvents || []).map((id) => id.toString()),
+        ...(r.eventScopes || []).map((s) => s.eventId.toString()),
+      ])
+    ),
+  ];
+  const eventStatuses = referencedEventIds.length
+    ? await Event.find({ _id: { $in: referencedEventIds } }).select("status").lean()
+    : [];
+  const eventStatusMap = Object.fromEntries(eventStatuses.map((e) => [e._id.toString(), e.status]));
+
   return [
-    ...rules.map((rule) => formatRuleRow(rule, usageMap[rule._id.toString()] || {})),
+    ...rules.map((rule) => formatRuleRow(rule, usageMap[rule._id.toString()] || {}, eventStatusMap)),
     ...legacyRecords.map(formatLegacyRow),
-    ...vouchers.map(formatVoucherRow),
+    ...vouchers.map((voucher) => formatVoucherRow(voucher, eventStatusMap)),
   ]
     .filter((row) => matchesAdminFilters(row, params))
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -235,11 +316,24 @@ export async function updateCatalogDiscount(catalogId, payload, adminId) {
   if (kind === "voucher") {
     const record = await Voucher.findById(id);
     if (!record) throwError("Voucher not found.", 404);
-    const fields = ["name", "description", "code", "discountType", "discountValue", "status", "visibleToUsers", "showOnDashboard", "usageLimit", "source"];
+    const fields = [
+      "name", "description", "code", "discountType", "discountValue", "status",
+      "visibleToUsers", "showOnDashboard", "usageLimit", "source",
+      "eligibleEvents", "applyToAllEvents", "assignedEmail",
+    ];
     for (const field of fields) {
       if (payload[field] !== undefined) record[field] = payload[field];
     }
     if (payload.expiryDate !== undefined) record.expiryDate = payload.expiryDate ? new Date(payload.expiryDate) : null;
+    if (payload.eventScopes !== undefined) {
+      record.eventScopes = (Array.isArray(payload.eventScopes) ? payload.eventScopes : [])
+        .filter((s) => s && s.eventId)
+        .map((s) => ({
+          eventId: s.eventId,
+          applyToAllTicketTypes: s.applyToAllTicketTypes !== false,
+          ticketTypeIds: Array.isArray(s.ticketTypeIds) ? s.ticketTypeIds : [],
+        }));
+    }
     await record.save();
     await logAudit(adminId, "Voucher Updated", catalogId, `Updated voucher: ${record.code}`);
     return formatVoucherRow(record.toObject());

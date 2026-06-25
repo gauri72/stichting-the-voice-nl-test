@@ -201,6 +201,89 @@
   color: #a8b8cc;
 }
 
+.ticket-booking__ticket-badge--member {
+  background: rgba(62, 207, 154, 0.15);
+  color: #3ecf9a;
+  gap: 4px;
+}
+
+.ticket-booking__ticket-price-final {
+  color: #3ecf9a;
+  font-weight: 800;
+}
+
+.ticket-booking__ticket-code {
+  margin-top: 10px;
+  max-width: 320px;
+}
+
+.ticket-booking__ticket-code-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #06152f;
+  transition: border-color 0.15s ease;
+}
+
+.ticket-booking__ticket-code-input input {
+  flex: 1;
+  padding: 10px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-transform: uppercase;
+  outline: none;
+}
+
+.ticket-booking__ticket-code-input--valid {
+  border-color: rgba(62, 207, 154, 0.5);
+}
+
+.ticket-booking__ticket-code-input--invalid {
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.ticket-booking__ticket-code-icon--valid {
+  color: #3ecf9a;
+  flex-shrink: 0;
+}
+
+.ticket-booking__ticket-code-icon--invalid {
+  color: #f87171;
+  flex-shrink: 0;
+}
+
+.ticket-booking__ticket-code-spinner {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #8a9bb5;
+  animation: ticket-booking-code-spin 0.7s linear infinite;
+}
+
+@keyframes ticket-booking-code-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ticket-booking__ticket-code-msg {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+}
+
+.ticket-booking__ticket-code-msg--valid {
+  color: #3ecf9a;
+}
+
+.ticket-booking__ticket-code-msg--invalid {
+  color: #f87171;
+}
+
 .ticket-booking__ticket-hint {
   margin: 4px 0 0;
   font-size: 0.75rem;
@@ -250,40 +333,6 @@
   background: #06152f;
   color: inherit;
   font: inherit;
-}
-
-.ticket-booking__voucher {
-  display: flex;
-  gap: 8px;
-  margin: 20px 0 8px;
-}
-
-.ticket-booking__voucher input {
-  flex: 1;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #06152f;
-  color: inherit;
-  font: inherit;
-  text-transform: uppercase;
-}
-
-.ticket-booking__voucher button {
-  padding: 12px 20px;
-  border-radius: 10px;
-  border: 1px solid rgba(62, 207, 154, 0.3);
-  background: rgba(62, 207, 154, 0.1);
-  color: #3ecf9a;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.ticket-booking__voucher-msg {
-  font-size: 0.85rem;
-  color: #3ecf9a;
-  margin: 0 0 12px;
 }
 
 .ticket-booking__membership-code {
@@ -799,6 +848,40 @@
   letter-spacing: 0.08em;
   color: #8a9bb5;
   font-weight: 700;
+}
+
+.ticket-booking__line-items {
+  display: grid;
+  gap: 10px;
+}
+
+.ticket-booking__line-item {
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ticket-booking__line-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ticket-booking__line-item-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  color: #d6dde8;
+}
+
+.ticket-booking__line-item-original {
+  color: #6b7d94;
+  text-decoration: line-through;
+  margin-right: 4px;
+}
+
+.ticket-booking__line-item-discount-label {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: #3ecf9a;
 }
 
 .ticket-booking__summary-subtotal {

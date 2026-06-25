@@ -25,9 +25,11 @@ import {
   IconWorldUpload,
   IconDots,
   IconSearch,
+  IconDiscount,
 } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
 import EventCheckoutFormSection from "./EventCheckoutFormSection.jsx";
+import AdminTicketTypeQuickDiscount from "./AdminTicketTypeQuickDiscount.jsx";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
 import "../../styles/admin-events-page.css";
 
@@ -724,6 +726,9 @@ export default function AdminEventsPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  // Quick-create-discount panel, opened from a ticket-type row (see "Add Discount" below).
+  const [quickDiscountTicketId, setQuickDiscountTicketId] = useState(null);
+  const [discountEvents, setDiscountEvents] = useState([]);
   const messageTimerRef = useRef(null);
   const showTransientMessage = useCallback((text, ms) => {
     window.clearTimeout(messageTimerRef.current);
@@ -825,6 +830,18 @@ export default function AdminEventsPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function openQuickDiscount(ticketTypeId) {
+    if (discountEvents.length === 0) {
+      try {
+        const data = await apiFetch("/api/admin/discounts/events", { headers: adminAuthHeaders() });
+        setDiscountEvents(data.events || []);
+      } catch {
+        setDiscountEvents([]);
+      }
+    }
+    setQuickDiscountTicketId(ticketTypeId);
   }
 
   function addTicketType() {
@@ -1838,6 +1855,15 @@ export default function AdminEventsPage() {
                         <IconTrash size={16} />
                       </button>
                     </div>
+                    {editId && editId !== "new" && tt.id ? (
+                      <button
+                        type="button"
+                        className="admin-events__outline-btn admin-events__outline-btn--sm admin-events__quick-discount-trigger"
+                        onClick={() => openQuickDiscount(tt.id)}
+                      >
+                        <IconDiscount size={14} /> Add Discount
+                      </button>
+                    ) : null}
                     <input className="admin-events__input" placeholder="Short description" value={tt.description} onChange={(e) => updateTicket(i, "description", e.target.value)} />
                     <div className="admin-events__ticket-editor-grid admin-events__ticket-editor-grid--wide">
                       <select className="admin-events__select" value={tt.visibility || "show_publicly"} onChange={(e) => updateTicket(i, "visibility", e.target.value)}>
@@ -1870,6 +1896,15 @@ export default function AdminEventsPage() {
                         onChange={(e) => updateTicket(i, "availableUntil", e.target.value)}
                       />
                     </div>
+                    {quickDiscountTicketId === tt.id ? (
+                      <AdminTicketTypeQuickDiscount
+                        eventId={editId}
+                        ticketTypeId={tt.id}
+                        events={discountEvents}
+                        onClose={() => setQuickDiscountTicketId(null)}
+                        onCreated={() => showTransientMessage("Discount created.", 2500)}
+                      />
+                    ) : null}
                   </li>
                 ))}
               </ul>

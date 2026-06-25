@@ -204,6 +204,50 @@
   font: inherit;
 }
 
+.admin-tickets__voucher-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.admin-tickets__voucher-form--full {
+  flex-direction: column;
+  align-items: stretch;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.admin-tickets__voucher-form--full h3 {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+}
+
+.admin-tickets__voucher-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+.admin-tickets__voucher-form--full textarea {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--ad-input-bg, #080d18);
+  color: inherit;
+  font: inherit;
+  resize: vertical;
+}
+
+.admin-tickets__radio {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+
 .admin-tickets__error {
   color: #ef4444;
   padding: 12px;

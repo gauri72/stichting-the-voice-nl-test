@@ -29,6 +29,7 @@ const checkoutSessionSchema = new mongoose.Schema(
     includeMembership: { type: Boolean, default: false },
     applyMemberBenefit: { type: Boolean, default: false },
     discountCode: { type: String, default: "", trim: true },
+    discountCodes: { type: mongoose.Schema.Types.Mixed, default: {} },
     referralCode: { type: String, default: "", trim: true },
     membershipCode: { type: String, default: "", trim: true },
     eventSlug: { type: String, default: "", trim: true },

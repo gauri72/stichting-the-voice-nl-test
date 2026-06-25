@@ -33,7 +33,9 @@
     "qty": "Qty",
     "available": "available",
     "maxPerOrder": "max {{count}} per order",
-    "continue": "Continue"
+    "continue": "Continue",
+    "codePlaceholder": "Discount or voucher code",
+    "memberDiscount": "Member discount applied"
   },
   "selectSeats": {
     "title": "Select your seats",
@@ -63,8 +65,6 @@
   },
   "review": {
     "title": "Review your booking",
-    "voucherPlaceholder": "Discount or referral code",
-    "apply": "Apply",
     "selectedSeats": "Selected seats",
     "acceptTerms": "I accept the",
     "termsAndConditions": "terms and conditions",
@@ -144,6 +144,7 @@
   },
   "pricePreview": {
     "title": "Price preview",
+    "perTicketBreakdown": "Per ticket type",
     "ticketPricing": "Ticket pricing",
     "subtotal": "Subtotal",
     "eventDiscount": "Event-specific discount",

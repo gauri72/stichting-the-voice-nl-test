@@ -70,6 +70,7 @@ const NAV_ITEMS = [
   { to: "/admin/sponsorships", label: "Sponsorships", icon: IconHeartHandshake },
   { to: "/admin/donations", label: "Donations", icon: IconHeart },
   { to: "/admin/discounts", label: "Discounts", icon: IconDiscount },
+  { to: "/admin/membership-discounts", label: "Membership Discounts", icon: IconDiscount },
   { to: "/admin/vouchers", label: "Vouchers", icon: IconDiscount },
   {
     label: "Finance & Audit",

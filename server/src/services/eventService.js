@@ -191,6 +191,18 @@ export async function getPublishedEventBySlugOrId(idOrSlug) {
   return formatEvent(event, visibleTypes);
 }
 
+/**
+ * Discounts/vouchers/membership-discounts must never apply against an unpublished
+ * event. A falsy eventId means "not scoped to a specific event" (e.g. a membership-only
+ * checkout) and is treated as not blocked by this check, matching how the legacy
+ * appliesToEvent() helper already treats a missing eventId.
+ */
+export async function isEventPublished(eventId) {
+  if (!eventId) return true;
+  const event = await Event.findById(eventId).select("status").lean();
+  return Boolean(event && event.status === "published");
+}
+
 export async function createEvent(payload, adminId) {
   const {
     title,

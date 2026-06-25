@@ -3,6 +3,7 @@ import {
   validateDiscountCode,
   getAutomaticMemberDiscount,
   recordDiscountUsage,
+  calculateDiscountAmount,
 } from "../services/discountService.js";
 import { buildOrderSummary, formatMoney } from "../services/ticketPricingService.js";
 
@@ -137,11 +138,16 @@ export async function getMemberDiscount(req, res) {
 
 export async function validateCode(req, res) {
   try {
-    const { code, eventId, orderType = "tickets", subtotalMinor = 0, email } = req.body || {};
+    const { code, eventId, ticketTypeId = null, orderType = "tickets", subtotalMinor = 0, email } = req.body || {};
     const userId = req.user?.id || null;
     const userEmail = email || req.user?.email || "";
 
-    const rule = await validateDiscountCode(code, userId, userEmail, eventId, orderType, Number(subtotalMinor));
+    const rule = await validateDiscountCode(
+      code, userId, userEmail, eventId, orderType, Number(subtotalMinor), ticketTypeId
+    );
+    const discountAmountMinor = Number(subtotalMinor) > 0
+      ? calculateDiscountAmount(Number(subtotalMinor), rule)
+      : 0;
 
     return res.status(200).json({
       valid: true,
@@ -150,6 +156,7 @@ export async function validateCode(req, res) {
       label: rule.label,
       discountType: rule.discountType,
       discountValue: rule.discountValue,
+      discountAmountMinor,
     });
   } catch (error) {
     return handleError(res, error);

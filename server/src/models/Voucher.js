@@ -15,10 +15,25 @@ const voucherSchema = new mongoose.Schema(
     usageLimit: { type: Number, default: null, min: 1 },
     usedCount: { type: Number, default: 0, min: 0 },
     expiryDate: { type: Date, default: null },
+    // Deprecated in favor of applyToAllEvents/eventScopes below — kept as a read-only
+    // fallback for documents created before that migration (see DiscountRule.js for the
+    // same pattern and the reasoning behind applyToAllEvents defaulting to false).
     eligibleEvents: [{ type: mongoose.Schema.Types.ObjectId, ref: "Event" }],
+    applyToAllEvents: { type: Boolean, default: false },
+    eventScopes: [
+      {
+        eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true },
+        applyToAllTicketTypes: { type: Boolean, default: true },
+        ticketTypeIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "TicketType" }],
+        _id: false,
+      },
+    ],
+    // Single-recipient restriction: when set, only this email may redeem the voucher.
+    // Empty string = redeemable by whoever has the code (subject to usageLimit).
+    assignedEmail: { type: String, default: "", lowercase: true, trim: true },
     status: {
       type: String,
-      enum: ["active", "inactive", "archived"],
+      enum: ["active", "inactive", "archived", "used"],
       default: "active",
       index: true,
     },

@@ -24,23 +24,6 @@ export async function getPublishedEvent(req, res) {
   }
 }
 
-export async function validateVoucher(req, res) {
-  try {
-    const { validateVoucher, applyVoucherDiscount } = await import("../services/ticketPricingService.js");
-    const voucher = await validateVoucher(req.body?.code, req.params.eventId);
-    return res.status(200).json({
-      valid: true,
-      voucher: {
-        code: voucher.code,
-        discountType: voucher.discountType,
-        discountValue: voucher.discountValue,
-      },
-    });
-  } catch (error) {
-    return handleError(res, error);
-  }
-}
-
 export async function quoteOrder(req, res) {
   try {
     const { quoteOrder } = await import("../services/ticketOrderService.js");

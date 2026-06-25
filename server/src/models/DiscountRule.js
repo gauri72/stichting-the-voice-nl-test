@@ -30,7 +30,24 @@ const discountRuleSchema = new mongoose.Schema(
       enum: APPLIES_TO,
       default: "tickets",
     },
+    // Deprecated in favor of applyToAllEvents/eventScopes below — kept for backward
+    // compatibility (read-only fallback) on documents created before that migration.
     eligibleEventIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "Event" }],
+    // Defaults to false (not true) deliberately: Mongoose applies schema defaults during
+    // hydration for ANY document missing the field, including old documents loaded via a
+    // non-lean query — defaulting to true would make every unmigrated rule with a populated
+    // legacy eligibleEventIds silently behave as "all events" the moment it's read without
+    // .lean(). false + empty eventScopes correctly falls through to the legacy-array check
+    // in appliesToEventAndTicketType() instead.
+    applyToAllEvents: { type: Boolean, default: false },
+    eventScopes: [
+      {
+        eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true },
+        applyToAllTicketTypes: { type: Boolean, default: true },
+        ticketTypeIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "TicketType" }],
+        _id: false,
+      },
+    ],
     eligibleMembershipTypes: [{ type: String, trim: true }],
     assignedUserId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
     assignedEmail: { type: String, default: "", lowercase: true, trim: true },

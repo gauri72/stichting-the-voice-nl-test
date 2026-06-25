@@ -35,6 +35,7 @@ export async function createOrUpdateSession({
   selectedPlanId = null,
   purchaseType = "NEW",
   discountCode = "",
+  discountCodes = {},
   applyMemberBenefit = true,
   isLoggedIn = false,
 }) {
@@ -49,6 +50,7 @@ export async function createOrUpdateSession({
     selectedPlanId,
     purchaseType,
     discountCode,
+    discountCodes,
     applyMemberBenefit,
     sessionId: sid,
   });
@@ -113,6 +115,7 @@ export async function saveCheckoutBeforeLogin({
   items = [],
   attendeeDetails = {},
   discountCode = "",
+  discountCodes = {},
   referralCode = "",
   membershipCode = "",
   memberDetection = null,
@@ -150,6 +153,7 @@ export async function saveCheckoutBeforeLogin({
         ? { planId: selectedPlanId || "", purchaseType }
         : { planId: "", purchaseType: "" },
       discountCode: discountCode || "",
+      discountCodes: discountCodes || {},
       referralCode: referralCode || "",
       membershipCode: membershipCode || "",
       applyMemberBenefit,
@@ -199,6 +203,7 @@ export async function restoreCheckoutSession(sessionId) {
     items: session.selectedTickets || [],
     attendeeDetails: session.attendeeDetails || {},
     discountCode: session.discountCode || "",
+    discountCodes: session.discountCodes || {},
     referralCode: session.referralCode || "",
     membershipCode: session.membershipCode || "",
     memberDetection: session.membershipDetectionResult || null,
@@ -240,6 +245,7 @@ export async function applyMemberBenefitsAfterLogin({ sessionId, userId, email }
     selectedPlanId,
     purchaseType,
     discountCode: session.discountCode || "",
+    discountCodes: session.discountCodes || {},
     applyMemberBenefit: true,
     isLoggedIn: true,
   });
@@ -482,6 +488,7 @@ export async function createBundleCheckout(eventId, payload, userId) {
     attendeePhone,
     voucherCode,
     discountCode,
+    discountCodes = {},
     termsAccepted,
     includeMembership = false,
     selectedPlanId = null,
@@ -572,6 +579,7 @@ export async function createBundleCheckout(eventId, payload, userId) {
     selectedPlanId,
     purchaseType: includeMembership ? purchaseType : "NEW",
     discountCode: code,
+    discountCodes,
     applyMemberBenefit,
     sessionId,
     membershipCode,
@@ -584,8 +592,12 @@ export async function createBundleCheckout(eventId, payload, userId) {
     ...li,
     originalPriceMinor: li.originalPriceMinor || li.unitPriceMinor * li.quantity,
     eventDiscountMinor: 0,
-    memberDiscountMinor: 0,
-    finalPriceMinor: li.unitPriceMinor * li.quantity,
+    // memberDiscountMinor/finalPriceMinor now come straight from the per-line breakdown
+    // (calculatePricePreview), accurate per ticket type rather than hardcoded to "no
+    // discount" — finalPriceMinor already nets out member + code/voucher/referral discounts
+    // combined, matching what the order is actually charged for this line.
+    memberDiscountMinor: li.memberDiscountMinor || 0,
+    finalPriceMinor: li.finalPriceMinor ?? li.unitPriceMinor * li.quantity,
   }));
 
   const membershipItems = includeMembership && preview.membershipPricing
@@ -784,6 +796,7 @@ export async function completeFreeOrder(eventId, payload, userId) {
     attendeePhone,
     voucherCode,
     discountCode,
+    discountCodes = {},
     termsAccepted,
     includeMembership = false,
     selectedPlanId = null,
@@ -843,6 +856,7 @@ export async function completeFreeOrder(eventId, payload, userId) {
     selectedPlanId,
     purchaseType: includeMembership ? purchaseType : "NEW",
     discountCode: code,
+    discountCodes,
     applyMemberBenefit,
     sessionId,
     membershipCode,
@@ -904,8 +918,12 @@ export async function completeFreeOrder(eventId, payload, userId) {
     ...li,
     originalPriceMinor: li.originalPriceMinor || li.unitPriceMinor * li.quantity,
     eventDiscountMinor: 0,
-    memberDiscountMinor: 0,
-    finalPriceMinor: li.unitPriceMinor * li.quantity,
+    // memberDiscountMinor/finalPriceMinor now come straight from the per-line breakdown
+    // (calculatePricePreview), accurate per ticket type rather than hardcoded to "no
+    // discount" — finalPriceMinor already nets out member + code/voucher/referral discounts
+    // combined, matching what the order is actually charged for this line.
+    memberDiscountMinor: li.memberDiscountMinor || 0,
+    finalPriceMinor: li.finalPriceMinor ?? li.unitPriceMinor * li.quantity,
   }));
 
   const membershipItems =

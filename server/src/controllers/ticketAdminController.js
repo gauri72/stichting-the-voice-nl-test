@@ -202,6 +202,28 @@ export async function deleteVoucher(req, res) {
   }
 }
 
+export async function bulkGenerateVouchers(req, res) {
+  try {
+    const { bulkGenerateVouchers } = await import("../services/voucherService.js");
+    const vouchers = await bulkGenerateVouchers(req.body, req.admin?.id);
+    return res.status(201).json({ vouchers });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function exportVouchersCsv(req, res) {
+  try {
+    const { exportVouchersCsv } = await import("../services/voucherService.js");
+    const csv = await exportVouchersCsv();
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", "attachment; filename=\"vouchers.csv\"");
+    return res.status(200).send(csv);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function listTickets(req, res) {
   try {
     const { listAdminTickets } = await import("../services/ticketAdminService.js");

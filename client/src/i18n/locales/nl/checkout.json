@@ -33,7 +33,9 @@
     "qty": "Aantal",
     "available": "beschikbaar",
     "maxPerOrder": "max {{count}} per bestelling",
-    "continue": "Doorgaan"
+    "continue": "Doorgaan",
+    "codePlaceholder": "Kortingscode of voucher",
+    "memberDiscount": "Ledenkorting toegepast"
   },
   "selectSeats": {
     "title": "Selecteer je stoelen",
@@ -63,8 +65,6 @@
   },
   "review": {
     "title": "Controleer je boeking",
-    "voucherPlaceholder": "Korting- of verwijzingscode",
-    "apply": "Toepassen",
     "selectedSeats": "Geselecteerde stoelen",
     "acceptTerms": "Ik ga akkoord met de",
     "termsAndConditions": "algemene voorwaarden",
@@ -144,6 +144,7 @@
   },
   "pricePreview": {
     "title": "Prijsoverzicht",
+    "perTicketBreakdown": "Per tickettype",
     "ticketPricing": "Ticketprijzen",
     "subtotal": "Subtotaal",
     "eventDiscount": "Evenementspecifieke korting",

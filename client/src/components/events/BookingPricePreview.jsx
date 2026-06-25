@@ -38,6 +38,36 @@ export default function BookingPricePreview({ preview }) {
         </div>
       ) : null}
 
+      {ticketPricing.lineItems?.length > 1 ? (
+        <div className="ticket-booking__preview-section">
+          <p className="ticket-booking__preview-label">{t("checkout:pricePreview.perTicketBreakdown")}</p>
+          <div className="ticket-booking__line-items">
+            {ticketPricing.lineItems.map((line) => (
+              <div key={line.ticketTypeId} className="ticket-booking__line-item">
+                <div className="ticket-booking__line-item-head">
+                  <span>{line.ticketTypeName} × {line.quantity}</span>
+                  <span>
+                    {line.discountAmountMinor > 0 ? (
+                      <>
+                        <span className="ticket-booking__line-item-original">€{(line.originalPriceMinor / 100).toFixed(2)}</span>{" "}
+                        {line.finalPrice}
+                      </>
+                    ) : (
+                      `€${(line.originalPriceMinor / 100).toFixed(2)}`
+                    )}
+                  </span>
+                </div>
+                {line.memberLabel || line.codeLabel ? (
+                  <p className="ticket-booking__line-item-discount-label">
+                    {[line.memberLabel, line.codeLabel].filter(Boolean).join(" · ")}
+                  </p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       <div className="ticket-booking__preview-section">
         <p className="ticket-booking__preview-label">{t("checkout:pricePreview.ticketPricing")}</p>
         <div className="ticket-booking__summary">

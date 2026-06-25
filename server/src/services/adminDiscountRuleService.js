@@ -43,6 +43,12 @@ function formatRule(rule) {
     discountValue: r.discountValue,
     appliesTo: r.appliesTo,
     eligibleEventIds: (r.eligibleEventIds || []).map((id) => id.toString()),
+    applyToAllEvents: Boolean(r.applyToAllEvents),
+    eventScopes: (r.eventScopes || []).map((s) => ({
+      eventId: s.eventId.toString(),
+      applyToAllTicketTypes: s.applyToAllTicketTypes !== false,
+      ticketTypeIds: (s.ticketTypeIds || []).map((id) => id.toString()),
+    })),
     eligibleMembershipTypes: r.eligibleMembershipTypes || [],
     assignedUserId: r.assignedUserId?.toString() || "",
     assignedEmail: r.assignedEmail || "",
@@ -69,6 +75,18 @@ function formatRule(rule) {
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
   };
+}
+
+/** Sanitizes admin-submitted eventScopes input into the schema's exact sub-document shape. */
+function normalizeEventScopes(eventScopes) {
+  if (!Array.isArray(eventScopes)) return [];
+  return eventScopes
+    .filter((s) => s && s.eventId)
+    .map((s) => ({
+      eventId: s.eventId,
+      applyToAllTicketTypes: s.applyToAllTicketTypes !== false,
+      ticketTypeIds: Array.isArray(s.ticketTypeIds) ? s.ticketTypeIds : [],
+    }));
 }
 
 function formatDiscountLabel(rule) {
@@ -203,6 +221,8 @@ export async function createDiscountRule(payload, adminId) {
     discountValue,
     appliesTo,
     eligibleEventIds,
+    applyToAllEvents,
+    eventScopes,
     eligibleMembershipTypes,
     assignedUserId,
     assignedEmail,
@@ -248,6 +268,8 @@ export async function createDiscountRule(payload, adminId) {
     discountValue: Number(discountValue),
     appliesTo: appliesTo || "tickets",
     eligibleEventIds: Array.isArray(eligibleEventIds) ? eligibleEventIds : [],
+    applyToAllEvents: Boolean(applyToAllEvents),
+    eventScopes: normalizeEventScopes(eventScopes),
     eligibleMembershipTypes: Array.isArray(eligibleMembershipTypes) ? eligibleMembershipTypes : [],
     assignedUserId: assignedUserId || null,
     assignedEmail: String(assignedEmail || "").toLowerCase().trim(),
@@ -281,7 +303,8 @@ export async function updateDiscountRule(id, payload, adminId) {
 
   const fields = [
     "name", "code", "type", "discountType", "discountValue", "appliesTo",
-    "eligibleEventIds", "eligibleMembershipTypes", "assignedUserId", "assignedEmail",
+    "eligibleEventIds", "applyToAllEvents", "eventScopes", "eligibleMembershipTypes",
+    "assignedUserId", "assignedEmail",
     "isPublic", "referrerUserId", "referrerEmail", "referrerName", "rewardType",
     "rewardValue", "usageLimit", "usageLimitPerUser", "minimumOrderAmount",
     "startDate", "expiryDate", "allowStacking", "status", "description",
@@ -293,6 +316,7 @@ export async function updateDiscountRule(id, payload, adminId) {
       if (field === "code") rule.code = String(payload.code || "").trim().toUpperCase();
       else if (field === "assignedEmail" || field === "referrerEmail") rule[field] = String(payload[field] || "").toLowerCase().trim();
       else if (field === "startDate" || field === "expiryDate") rule[field] = payload[field] ? new Date(payload[field]) : null;
+      else if (field === "eventScopes") rule.eventScopes = normalizeEventScopes(payload.eventScopes);
       else rule[field] = payload[field];
     }
   }
@@ -338,7 +362,8 @@ export async function duplicateDiscountRule(id, adminId) {
     }
   }
 
-  const { name, type, discountType, discountValue, appliesTo, eligibleEventIds, eligibleMembershipTypes,
+  const { name, type, discountType, discountValue, appliesTo, eligibleEventIds, applyToAllEvents,
+    eventScopes, eligibleMembershipTypes,
     assignedUserId, assignedEmail, isPublic, referrerUserId, referrerEmail, referrerName,
     rewardType, rewardValue, usageLimit, usageLimitPerUser, minimumOrderAmount,
     startDate, expiryDate, allowStacking, status, description } = source;
@@ -352,6 +377,8 @@ export async function duplicateDiscountRule(id, adminId) {
     discountValue,
     appliesTo,
     eligibleEventIds: eligibleEventIds || [],
+    applyToAllEvents: Boolean(applyToAllEvents),
+    eventScopes: eventScopes || [],
     eligibleMembershipTypes: eligibleMembershipTypes || [],
     assignedUserId: assignedUserId || null,
     assignedEmail: assignedEmail || "",
@@ -525,8 +552,14 @@ export async function listUsersForAssignment() {
   }));
 }
 
+/**
+ * Published only: every discount/voucher/membership-discount admin dropdown across the
+ * system uses this one function, so a discount can never be assigned to a draft event in
+ * the first place (the validation-time isEventPublished() check in discountService.js is
+ * the second line of defense for events unpublished *after* a discount was assigned).
+ */
 export async function listEventsForEligibility() {
-  const events = await Event.find({ status: { $in: ["published", "draft"] } })
+  const events = await Event.find({ status: "published" })
     .sort({ date: -1 })
     .select("title date status")
     .lean();

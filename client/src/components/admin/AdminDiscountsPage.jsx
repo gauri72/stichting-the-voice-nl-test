@@ -16,6 +16,7 @@ import {
   IconTag,
 } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
+import EventTicketTypeScopePicker from "./EventTicketTypeScopePicker.jsx";
 import { adminAuthHeaders, apiFetch, apiUrl } from "../../utils/api.js";
 import "../../styles/admin-discounts-page.css";
 
@@ -64,6 +65,8 @@ const EMPTY_FORM = {
   discountValue: "",
   appliesTo: "tickets",
   eligibleEventIds: [],
+  applyToAllEvents: true,
+  eventScopes: [],
   eligibleMembershipTypes: [],
   assignedUserId: "",
   assignedEmail: "",
@@ -108,7 +111,8 @@ export default function AdminDiscountsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState({ type: "", status: "", source: "" });
+  const [filters, setFilters] = useState({ type: "", status: "", source: "", eventId: "", ticketTypeId: "" });
+  const [filterTicketTypes, setFilterTicketTypes] = useState([]);
   const [editCatalogId, setEditCatalogId] = useState(null);
   const [editRecordKind, setEditRecordKind] = useState("rule");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -129,6 +133,8 @@ export default function AdminDiscountsPage() {
     if (filters.type) params.set("type", filters.type);
     if (filters.status) params.set("status", filters.status);
     if (filters.source) params.set("source", filters.source);
+    if (filters.eventId) params.set("eventId", filters.eventId);
+    if (filters.ticketTypeId) params.set("ticketTypeId", filters.ticketTypeId);
     return params;
   }, [search, filters]);
 
@@ -160,6 +166,16 @@ export default function AdminDiscountsPage() {
     loadData();
   }, [loadData]);
 
+  useEffect(() => {
+    if (!filters.eventId) {
+      setFilterTicketTypes([]);
+      return;
+    }
+    apiFetch(`/api/admin/events/${filters.eventId}`, { headers: adminAuthHeaders() })
+      .then((data) => setFilterTicketTypes(data.event?.ticketTypes || []))
+      .catch(() => setFilterTicketTypes([]));
+  }, [filters.eventId]);
+
   async function openDetail(discount) {
     const catalogId = discount.catalogId || discount.id;
     setDetailId(catalogId);
@@ -190,6 +206,8 @@ export default function AdminDiscountsPage() {
       discountValue: String(d.discountValue ?? ""),
       appliesTo: d.appliesTo || "tickets",
       eligibleEventIds: d.eligibleEventIds || [],
+      applyToAllEvents: d.applyToAllEvents !== false,
+      eventScopes: d.eventScopes || [],
       eligibleMembershipTypes: d.eligibleMembershipTypes || [],
       assignedUserId: d.assignedUserId || "",
       assignedEmail: d.assignedEmail || "",
@@ -400,6 +418,19 @@ export default function AdminDiscountsPage() {
           <select value={filters.source} onChange={(e) => setFilters((f) => ({ ...f, source: e.target.value }))}>
             {SOURCE_OPTIONS.map((o) => <option key={o.value || "all-source"} value={o.value}>{o.label}</option>)}
           </select>
+          <select
+            value={filters.eventId}
+            onChange={(e) => setFilters((f) => ({ ...f, eventId: e.target.value, ticketTypeId: "" }))}
+          >
+            <option value="">All events</option>
+            {events.map((ev) => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
+          </select>
+          {filters.eventId ? (
+            <select value={filters.ticketTypeId} onChange={(e) => setFilters((f) => ({ ...f, ticketTypeId: e.target.value }))}>
+              <option value="">All ticket types</option>
+              {filterTicketTypes.map((tt) => <option key={tt.id} value={tt.id}>{tt.name}</option>)}
+            </select>
+          ) : null}
           <button type="button" className="admin-discounts__btn" onClick={() => setShowReferrals((v) => !v)}>
             <IconTag size={16} /> {showReferrals ? "Hide Referrals" : "Referral Rewards"}
           </button>
@@ -632,15 +663,14 @@ export default function AdminDiscountsPage() {
                 <label className="admin-discounts__checkbox"><input type="checkbox" checked={form.showOnDashboard} onChange={(e) => setForm((f) => ({ ...f, showOnDashboard: e.target.checked }))} /> Show on member dashboard</label>
               </fieldset>
 
-              {!["automatic_member", "membership_code"].includes(form.type) ? (
-                <fieldset className="admin-discounts__section">
-                  <legend>Eligible Events</legend>
-                  <select multiple value={form.eligibleEventIds} onChange={(e) => setForm((f) => ({ ...f, eligibleEventIds: Array.from(e.target.selectedOptions, (o) => o.value) }))}>
-                    {events.map((ev) => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
-                  </select>
-                  <small>Leave empty for all events</small>
-                </fieldset>
-              ) : null}
+              <fieldset className="admin-discounts__section">
+                <legend>Eligible Events &amp; Ticket Types</legend>
+                <EventTicketTypeScopePicker
+                  events={events}
+                  value={{ applyToAllEvents: form.applyToAllEvents, eventScopes: form.eventScopes }}
+                  onChange={(next) => setForm((f) => ({ ...f, ...next }))}
+                />
+              </fieldset>
 
               <div className="admin-discounts__drawer-actions">
                 <button type="button" className="admin-discounts__btn" onClick={() => setDrawerOpen(false)}>Cancel</button>

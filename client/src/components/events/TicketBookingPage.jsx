@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Elements } from "@stripe/react-stripe-js";
-import { IconCalendar, IconMapPin, IconTicket, IconCheck } from "@tabler/icons-react";
+import { IconCalendar, IconMapPin, IconTicket, IconCheck, IconX, IconStar } from "@tabler/icons-react";
 import StripeCheckoutForm from "../payments/StripeCheckoutForm.jsx";
 import LoginModal from "../common/LoginModal.jsx";
 import MembershipBenefitBanner from "./MembershipBenefitBanner.jsx";
@@ -67,14 +67,20 @@ export default function TicketBookingPage() {
   const [event, setEvent] = useState(null);
   const [quantities, setQuantities] = useState({});
   const [attendee, setAttendee] = useState(EMPTY_ATTENDEE);
-  const [voucherCode, setVoucherCode] = useState("");
+  // Per-ticket-type discount/voucher code entry — replaces the old single cart-wide
+  // voucherCode/voucherMessage (now entered once per ticket-type row in Select Tickets
+  // instead of once for the whole order in Review).
+  const [ticketCodes, setTicketCodes] = useState({});
+  const [ticketCodeStatus, setTicketCodeStatus] = useState({});
+  const [ticketCodeMessage, setTicketCodeMessage] = useState({});
+  const [ticketCodeResult, setTicketCodeResult] = useState({});
+  const ticketCodeTimersRef = useRef({});
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [preview, setPreview] = useState(null);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [error, setError] = useState("");
-  const [voucherMessage, setVoucherMessage] = useState("");
   const [clientSecret, setClientSecret] = useState("");
   const [checkoutOrder, setCheckoutOrder] = useState(null);
   const [handlingReturn, setHandlingReturn] = useState(() => isPaymentReturnUrl());
@@ -260,7 +266,7 @@ export default function TicketBookingPage() {
           includeMembership: overrides.includeMembership ?? includeMembership,
           selectedPlanId: overrides.selectedPlanId ?? selectedPlanId,
           purchaseType: overrides.purchaseType ?? purchaseType,
-          discountCode: voucherCode || undefined,
+          discountCodes: ticketCodes,
           applyMemberBenefit: overrides.applyMemberBenefit ?? applyMemberBenefit,
           membershipCode: membershipCode || undefined,
         });
@@ -276,7 +282,7 @@ export default function TicketBookingPage() {
     includeMembership,
     selectedPlanId,
     purchaseType,
-    voucherCode,
+    ticketCodes,
     applyMemberBenefit,
     sessionId,
     membershipCode,
@@ -323,7 +329,7 @@ export default function TicketBookingPage() {
         email: attendee.email,
         items: selectedItems,
         attendeeDetails: attendee,
-        discountCode: voucherCode || "",
+        discountCodes: ticketCodes,
         membershipCode: membershipCode || "",
         memberDetection,
         returnStep: step,
@@ -340,7 +346,7 @@ export default function TicketBookingPage() {
     sessionId,
     attendee,
     selectedItems,
-    voucherCode,
+    ticketCodes,
     membershipCode,
     memberDetection,
     step,
@@ -379,7 +385,9 @@ export default function TicketBookingPage() {
         phone: restored.attendeeDetails.phone || "",
       });
     }
-    if (restored.discountCode) setVoucherCode(restored.discountCode);
+    if (restored.discountCodes && Object.keys(restored.discountCodes).length) {
+      setTicketCodes(restored.discountCodes);
+    }
     if (restored.membershipCode) {
       setMembershipCode(restored.membershipCode);
       setMembershipCodeApplied(true);
@@ -438,11 +446,15 @@ export default function TicketBookingPage() {
   }, [step, attendee.email, DETAILS_STEP, BENEFITS_STEP, detectMember]);
 
   useEffect(() => {
-    if (step >= 4 && selectedItems.length) {
+    // Runs from Select Tickets onward (not just step >= 4 as before) so the per-ticket-type
+    // membership badge and discount amounts have something to read as soon as quantities or
+    // codes change, not only once the customer reaches Review.
+    if (selectedItems.length) {
       const timer = window.setTimeout(refreshPreview, 300);
       return () => window.clearTimeout(timer);
     }
-  }, [step, refreshPreview, selectedItems.length, includeMembership, selectedPlanId, applyMemberBenefit]);
+    setPreview(null);
+  }, [refreshPreview, selectedItems.length, includeMembership, selectedPlanId, applyMemberBenefit]);
 
   useEffect(() => {
     if (!event?.id || !selectedItems.length) {
@@ -563,19 +575,48 @@ export default function TicketBookingPage() {
     }
   }
 
-  async function applyVoucher() {
-    if (!voucherCode.trim()) return;
-    setVoucherMessage("");
+  async function validateTicketCode(ticketTypeId, code) {
+    const tt = (event?.ticketTypes || []).find((t) => t.id === ticketTypeId);
+    const qty = quantities[ticketTypeId] || 1;
+    const lineSubtotalMinor = (tt?.priceMinor || 0) * qty;
+
+    setTicketCodeStatus((s) => ({ ...s, [ticketTypeId]: "checking" }));
     try {
-      await validateDiscountCode(voucherCode, {
-          orderType: "tickets",
-          subtotalMinor: preview?.ticketPricing?.subtotalMinor || 0,
-        });
-      setVoucherMessage(t("checkout:errors.discountApplied"));
+      const result = await validateDiscountCode(code, {
+        ticketTypeId,
+        orderType: "tickets",
+        subtotalMinor: lineSubtotalMinor,
+      });
+      setTicketCodeStatus((s) => ({ ...s, [ticketTypeId]: "valid" }));
+      setTicketCodeMessage((s) => ({ ...s, [ticketTypeId]: t("checkout:errors.discountApplied") }));
+      setTicketCodeResult((s) => ({ ...s, [ticketTypeId]: result }));
       refreshPreview();
     } catch (err) {
-      setVoucherMessage(err.message || t("checkout:errors.discountInvalid"));
+      setTicketCodeStatus((s) => ({ ...s, [ticketTypeId]: "invalid" }));
+      setTicketCodeMessage((s) => ({ ...s, [ticketTypeId]: err.message || t("checkout:errors.discountInvalid") }));
+      setTicketCodeResult((s) => ({ ...s, [ticketTypeId]: null }));
     }
+  }
+
+  function handleTicketCodeChange(ticketTypeId, rawValue) {
+    const value = rawValue.toUpperCase();
+    setTicketCodes((c) => ({ ...c, [ticketTypeId]: value }));
+
+    if (ticketCodeTimersRef.current[ticketTypeId]) {
+      window.clearTimeout(ticketCodeTimersRef.current[ticketTypeId]);
+    }
+
+    if (!value.trim()) {
+      setTicketCodeStatus((s) => ({ ...s, [ticketTypeId]: "idle" }));
+      setTicketCodeMessage((s) => ({ ...s, [ticketTypeId]: "" }));
+      setTicketCodeResult((s) => ({ ...s, [ticketTypeId]: null }));
+      refreshPreview();
+      return;
+    }
+
+    ticketCodeTimersRef.current[ticketTypeId] = window.setTimeout(() => {
+      validateTicketCode(ticketTypeId, value);
+    }, 500);
   }
 
   async function initCheckout() {
@@ -596,8 +637,7 @@ export default function TicketBookingPage() {
           attendeeLastName: attendee.lastName,
           attendeeEmail: attendee.email,
           attendeePhone: attendee.phone,
-          voucherCode: voucherCode || undefined,
-          discountCode: voucherCode || undefined,
+          discountCodes: ticketCodes,
           termsAccepted,
           includeMembership,
           selectedPlanId: includeMembership ? selectedPlanId : undefined,
@@ -651,8 +691,7 @@ export default function TicketBookingPage() {
           attendeeLastName: attendee.lastName,
           attendeeEmail: attendee.email,
           attendeePhone: attendee.phone,
-          voucherCode: voucherCode || undefined,
-          discountCode: voucherCode || undefined,
+          discountCodes: ticketCodes,
           termsAccepted,
           includeMembership,
           selectedPlanId: includeMembership ? selectedPlanId : undefined,
@@ -906,6 +945,10 @@ export default function TicketBookingPage() {
                 const statusClass = tt.computedStatus
                   ? ` ticket-booking__ticket-row--${tt.computedStatus.toLowerCase()}`
                   : "";
+                const qty = quantities[tt.id] || 0;
+                const previewLine = preview?.ticketPricing?.lineItems?.find((l) => l.ticketTypeId === tt.id);
+                const hasMembershipDiscount = (previewLine?.memberDiscountMinor || 0) > 0;
+                const codeStatus = ticketCodeStatus[tt.id] || "idle";
                 return (
                 <li key={tt.id} className={`ticket-booking__ticket-row${statusClass}${selectable ? "" : " ticket-booking__ticket-row--disabled"}`}>
                   <div>
@@ -916,9 +959,19 @@ export default function TicketBookingPage() {
                           {tt.badge}
                         </span>
                       ) : null}
+                      {hasMembershipDiscount ? (
+                        <span className="ticket-booking__ticket-badge ticket-booking__ticket-badge--member">
+                          <IconStar size={12} /> {sanitizeCustomerDiscountLabel(previewLine.memberLabel, t) || t("checkout:selectTickets.memberDiscount")}
+                        </span>
+                      ) : null}
                     </div>
                     <p className="ticket-booking__ticket-desc">{tt.description}</p>
-                    <p className="ticket-booking__ticket-price">€{tt.price}</p>
+                    <p className="ticket-booking__ticket-price">
+                      €{tt.price}
+                      {previewLine?.discountAmountMinor > 0 ? (
+                        <span className="ticket-booking__ticket-price-final"> → {previewLine.finalPrice}</span>
+                      ) : null}
+                    </p>
                     {tt.displayLabel ? (
                       <p className="ticket-booking__ticket-status-note">{tt.displayLabel}</p>
                     ) : selectable ? (
@@ -935,6 +988,29 @@ export default function TicketBookingPage() {
                         defaultAttendee={attendee}
                         onJoinWaitlist={joinWaitlist}
                       />
+                    ) : null}
+                    {qty > 0 ? (
+                      <div className="ticket-booking__ticket-code">
+                        <div className={`ticket-booking__ticket-code-input ticket-booking__ticket-code-input--${codeStatus}`}>
+                          <input
+                            placeholder={t("checkout:selectTickets.codePlaceholder")}
+                            value={ticketCodes[tt.id] || ""}
+                            onChange={(e) => handleTicketCodeChange(tt.id, e.target.value)}
+                            aria-label={`Discount or voucher code for ${tt.name}`}
+                          />
+                          {codeStatus === "checking" ? <span className="ticket-booking__ticket-code-spinner" aria-hidden="true" /> : null}
+                          {codeStatus === "valid" ? <IconCheck className="ticket-booking__ticket-code-icon--valid" size={16} /> : null}
+                          {codeStatus === "invalid" ? <IconX className="ticket-booking__ticket-code-icon--invalid" size={16} /> : null}
+                        </div>
+                        {ticketCodeMessage[tt.id] ? (
+                          <p
+                            className={`ticket-booking__ticket-code-msg ticket-booking__ticket-code-msg--${codeStatus}`}
+                            role="status"
+                          >
+                            {ticketCodeMessage[tt.id]}
+                          </p>
+                        ) : null}
+                      </div>
                     ) : null}
                   </div>
                   <label className="ticket-booking__qty-label">
@@ -1146,16 +1222,6 @@ export default function TicketBookingPage() {
         {step === REVIEW_STEP ? (
           <section className="ticket-booking__card">
             <h2>{t("checkout:review.title")}</h2>
-
-            <div className="ticket-booking__voucher">
-              <input
-                placeholder={t("checkout:review.voucherPlaceholder")}
-                value={voucherCode}
-                onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
-              />
-              <button type="button" onClick={applyVoucher}>{t("checkout:review.apply")}</button>
-            </div>
-            {voucherMessage ? <p className="ticket-booking__voucher-msg">{voucherMessage}</p> : null}
 
             <div className="ticket-booking__membership-code">
               <input

@@ -15,6 +15,8 @@ import {
   createVoucher,
   updateVoucher,
   deleteVoucher,
+  bulkGenerateVouchers,
+  exportVouchersCsv,
   listTickets,
   ticketStats,
   updateTicket,
@@ -76,6 +78,8 @@ router.post("/check-in", checkIn);
 
 router.get("/vouchers", listVouchers);
 router.post("/vouchers", createVoucher);
+router.post("/vouchers/bulk-generate", bulkGenerateVouchers);
+router.get("/vouchers/export.csv", exportVouchersCsv);
 router.patch("/vouchers/:id", updateVoucher);
 router.delete("/vouchers/:id", deleteVoucher);
 

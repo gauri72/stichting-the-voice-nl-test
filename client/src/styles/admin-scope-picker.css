@@ -1,0 +1,9 @@
+/* Event/ticket-type scope picker (EventTicketTypeScopePicker.jsx) — two MultiSelectDropdown
+   fields ("Select Events" / "Select Ticket Type") used by the Discounts, Membership
+   Discounts, and Vouchers admin pages. */
+
+.scope-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}

@@ -234,8 +234,11 @@ export async function confirmBooking(flowType, payload, userId = null) {
     if (payload.isFreeOrder || payload.skipPayment) {
       return completeFreeOrder(payload.eventId, payload, userId);
     }
-    const { confirmPayment } = await import("./PaymentService.js");
-    return confirmPayment({ orderId: payload.orderId, paymentIntentId: payload.paymentIntentId });
+    const { completeOrderPayment, completeOrderPaymentByIntent } = await import("../ticketOrderService.js");
+    if (payload.orderId) {
+      return completeOrderPayment(payload.orderId, payload.paymentIntentId);
+    }
+    return completeOrderPaymentByIntent(payload.paymentIntentId);
   }
   if (flowType === BOOKING_FLOW_TYPES.SESSION) {
     const { confirmSessionBookingPayment } = await import("./SessionBookingService.js");
