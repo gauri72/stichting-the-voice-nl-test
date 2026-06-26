@@ -132,6 +132,11 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.ticket-booking__ticket-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .ticket-booking__ticket-name {
   margin: 0;
   font-weight: 700;
@@ -628,6 +633,7 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .ticket-booking__qty-text {
@@ -639,6 +645,18 @@
 }
 
 @media (max-width: 560px) {
+  .ticket-booking__container {
+    padding: 0 14px;
+  }
+
+  .ticket-booking__card {
+    padding: 18px 16px;
+  }
+
+  .ticket-booking__ticket-row {
+    gap: 10px;
+  }
+
   .ticket-booking__form-grid {
     grid-template-columns: 1fr;
   }

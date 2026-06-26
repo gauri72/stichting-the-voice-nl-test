@@ -78,6 +78,7 @@ export default function TicketBookingPage() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [preview, setPreview] = useState(null);
   const [step, setStep] = useState(1);
+  const stepTopRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [error, setError] = useState("");
@@ -200,6 +201,10 @@ export default function TicketBookingPage() {
   const MEMBERSHIP_STEP = 4 + seatOffset;
   const REVIEW_STEP = (showMembershipStep ? 5 : 4) + seatOffset;
   const PAYMENT_STEP = REVIEW_STEP + 1;
+
+  useEffect(() => {
+    stepTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [step]);
 
   useEffect(() => {
     if (user) {
@@ -939,7 +944,7 @@ export default function TicketBookingPage() {
           {event.description ? <p className="ticket-booking__desc">{event.description}</p> : null}
         </header>
 
-        <div className="ticket-booking__steps" aria-label="Booking progress">
+        <div className="ticket-booking__steps" aria-label="Booking progress" ref={stepTopRef}>
           {visibleSteps.map((label, i) => (
             <span
               key={label}
@@ -967,7 +972,7 @@ export default function TicketBookingPage() {
                 const codeStatus = ticketCodeStatus[tt.id] || "idle";
                 return (
                 <li key={tt.id} className={`ticket-booking__ticket-row${statusClass}${selectable ? "" : " ticket-booking__ticket-row--disabled"}`}>
-                  <div>
+                  <div className="ticket-booking__ticket-info">
                     <div className="ticket-booking__ticket-head">
                       <p className="ticket-booking__ticket-name">{tt.name}</p>
                       {tt.badge ? (

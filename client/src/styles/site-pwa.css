@@ -2,8 +2,8 @@
   position: fixed;
   left: 12px;
   right: 12px;
-  bottom: calc(12px + env(safe-area-inset-bottom));
-  z-index: 120;
+  top: calc(59px + env(safe-area-inset-top));
+  z-index: 1100;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -14,6 +14,18 @@
   border: 1px solid rgba(99, 56, 194, 0.35);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(10px);
+  animation: site-pwa-install-slide-down 0.35s ease-out;
+}
+
+@keyframes site-pwa-install-slide-down {
+  from {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 [data-theme="light"] .site-pwa-install {
@@ -70,21 +82,11 @@
   color: inherit;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1100px) {
   .site-pwa-install {
     left: auto;
     right: 20px;
-    bottom: 20px;
+    top: 116px;
     max-width: 420px;
   }
-}
-
-/* Keep install banner above cookie consent when both are visible */
-.cookie-consent-banner ~ .site-pwa-install,
-.site-pwa-install {
-  bottom: calc(12px + env(safe-area-inset-bottom));
-}
-
-body:has(.cookie-consent-banner) .site-pwa-install {
-  bottom: calc(88px + env(safe-area-inset-bottom));
 }
