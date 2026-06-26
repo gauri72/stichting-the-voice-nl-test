@@ -66,6 +66,7 @@
   "review": {
     "title": "Überprüfen Sie Ihre Buchung",
     "selectedSeats": "Ausgewählte Sitzplätze",
+    "voucherCodesTitle": "Gutscheincodes",
     "acceptTerms": "Ich akzeptiere die",
     "termsAndConditions": "Allgemeinen Geschäftsbedingungen",
     "completeFreeBooking": "Kostenlose Buchung abschließen",

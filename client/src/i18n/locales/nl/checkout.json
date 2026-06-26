@@ -66,6 +66,7 @@
   "review": {
     "title": "Controleer je boeking",
     "selectedSeats": "Geselecteerde stoelen",
+    "voucherCodesTitle": "Vouchercodes",
     "acceptTerms": "Ik ga akkoord met de",
     "termsAndConditions": "algemene voorwaarden",
     "completeFreeBooking": "Gratis boeking voltooien",

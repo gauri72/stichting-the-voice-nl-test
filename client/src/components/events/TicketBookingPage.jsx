@@ -357,6 +357,20 @@ export default function TicketBookingPage() {
     saveBeforeLoginApi,
   ]);
 
+  const handleRequestLogin = useCallback(async () => {
+    // The modal never navigates away, so apply-benefits-after-login needs a CheckoutSession
+    // record to write the post-login detection back onto — without this, that call 404s
+    // ("Checkout session expired or not found") and the failure gets swallowed, leaving the
+    // user stuck on the same screen after logging in.
+    try {
+      await saveCheckoutBeforeLogin();
+    } catch (err) {
+      setError(err.message || t("checkout:errors.couldNotStartCheckout"));
+      return;
+    }
+    setIsLoginModalOpen(true);
+  }, [saveCheckoutBeforeLogin, t]);
+
   const handleLoginModalAuthenticated = useCallback(async () => {
     setIsLoginModalOpen(false);
     setApplyMemberBenefit(true);
@@ -369,8 +383,9 @@ export default function TicketBookingPage() {
       if (result.preview) setPreview(result.preview);
     } catch (err) {
       devWarn("Could not apply member benefits after login:", err.message);
+      setError(err.message || t("checkout:errors.couldNotStartCheckout"));
     }
-  }, [applyBenefitsAfterLogin, sessionId, attendee.email]);
+  }, [applyBenefitsAfterLogin, sessionId, attendee.email, t]);
 
   const restoreCheckoutFromSession = useCallback(async (checkoutSessionId) => {
     const data = await restoreSessionApi(checkoutSessionId);
@@ -825,6 +840,7 @@ export default function TicketBookingPage() {
     setApplyMemberBenefit(false);
     setError("");
     refreshPreview({ applyMemberBenefit: false });
+    setStep(includeMembership ? MEMBERSHIP_STEP : REVIEW_STEP);
   }
 
   function nextFromDetails() {
@@ -1032,6 +1048,42 @@ export default function TicketBookingPage() {
                 );
               })}
             </ul>
+
+            {selectedItems.length ? (
+              <div className="ticket-booking__membership-code">
+                <label>
+                  {t("checkout:yourDetails.membershipCode")}
+                  <input
+                    placeholder={t("checkout:yourDetails.membershipCodePlaceholder")}
+                    value={membershipCode}
+                    onChange={(e) => {
+                      setMembershipCode(e.target.value.toUpperCase());
+                      setMembershipCodeMessage("");
+                      setMembershipCodeApplied(false);
+                    }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="ticket-booking__cta ticket-booking__cta--small"
+                  disabled={!membershipCode.trim() || detectingMember}
+                  onClick={applyMembershipCode}
+                >
+                  {t("checkout:yourDetails.applyMembershipCode")}
+                </button>
+              </div>
+            ) : null}
+            {selectedItems.length && membershipCodeMessage ? (
+              <p
+                className={`ticket-booking__membership-code-msg${
+                  membershipCodeApplied ? " ticket-booking__membership-code-msg--success" : ""
+                }`}
+                role="status"
+              >
+                {membershipCodeMessage}
+              </p>
+            ) : null}
+
             <button
               type="button"
               className="ticket-booking__cta"
@@ -1165,7 +1217,7 @@ export default function TicketBookingPage() {
               messages={detectionMessages}
               includeMembership={includeMembership}
               returnPath={returnPath}
-              onRequestLogin={() => setIsLoginModalOpen(true)}
+              onRequestLogin={handleRequestLogin}
               onContinueWithoutDiscount={handleContinueWithoutDiscount}
               onAddMembership={handleAddMembership}
               onTicketsOnly={handleTicketsOnly}
@@ -1222,6 +1274,41 @@ export default function TicketBookingPage() {
         {step === REVIEW_STEP ? (
           <section className="ticket-booking__card">
             <h2>{t("checkout:review.title")}</h2>
+
+            {(event.ticketTypes || []).filter((tt) => (quantities[tt.id] || 0) > 0).length ? (
+              <div className="ticket-booking__review-vouchers">
+                <p className="ticket-booking__review-vouchers-label">{t("checkout:review.voucherCodesTitle")}</p>
+                {(event.ticketTypes || [])
+                  .filter((tt) => (quantities[tt.id] || 0) > 0)
+                  .map((tt) => {
+                    const codeStatus = ticketCodeStatus[tt.id] || "idle";
+                    return (
+                      <div key={tt.id} className="ticket-booking__ticket-code">
+                        <label>{tt.name}</label>
+                        <div className={`ticket-booking__ticket-code-input ticket-booking__ticket-code-input--${codeStatus}`}>
+                          <input
+                            placeholder={t("checkout:selectTickets.codePlaceholder")}
+                            value={ticketCodes[tt.id] || ""}
+                            onChange={(e) => handleTicketCodeChange(tt.id, e.target.value)}
+                            aria-label={`Discount or voucher code for ${tt.name}`}
+                          />
+                          {codeStatus === "checking" ? <span className="ticket-booking__ticket-code-spinner" aria-hidden="true" /> : null}
+                          {codeStatus === "valid" ? <IconCheck className="ticket-booking__ticket-code-icon--valid" size={16} /> : null}
+                          {codeStatus === "invalid" ? <IconX className="ticket-booking__ticket-code-icon--invalid" size={16} /> : null}
+                        </div>
+                        {ticketCodeMessage[tt.id] ? (
+                          <p
+                            className={`ticket-booking__ticket-code-msg ticket-booking__ticket-code-msg--${codeStatus}`}
+                            role="status"
+                          >
+                            {ticketCodeMessage[tt.id]}
+                          </p>
+                        ) : null}
+                      </div>
+                    );
+                  })}
+              </div>
+            ) : null}
 
             <div className="ticket-booking__membership-code">
               <input

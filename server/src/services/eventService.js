@@ -166,6 +166,9 @@ export async function getEventById(eventId, { includeHiddenTypes = false } = {})
 
 export async function getPublishedEventBySlugOrId(idOrSlug) {
   let event = null;
+  // Callers sometimes pass a Mongo ObjectId straight from a lean()'d document
+  // (no .match method) rather than a string — normalize before the regex check.
+  idOrSlug = String(idOrSlug);
   if (idOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
     event = await Event.findOne({ _id: idOrSlug, status: "published" }).lean();
   }

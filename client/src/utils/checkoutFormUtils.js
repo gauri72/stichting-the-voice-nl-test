@@ -76,8 +76,16 @@ export function autoPopulateValues(fields = [], knownAnswers = {}, existing = {}
   const next = { ...existing };
   for (const field of fields || []) {
     const key = fieldKey(field);
-    if (next[key] != null && next[key] !== "") continue;
     const known = knownAnswers[field.fieldId];
+    // Core fields (first_name/last_name/email/phone/full_name) are collected via the
+    // dedicated attendee step and hidden here — always mirror the latest value rather than
+    // freezing on whatever was typed first, otherwise correcting e.g. a typo'd email after
+    // going back leaves this hidden copy stuck on the original, invalid value.
+    if (CORE_CUSTOMER_FIELD_IDS.has(field.fieldId)) {
+      if (known != null && known !== "") next[key] = known;
+      continue;
+    }
+    if (next[key] != null && next[key] !== "") continue;
     if (known != null && known !== "") next[key] = known;
   }
   return next;

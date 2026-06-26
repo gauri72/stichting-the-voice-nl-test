@@ -66,6 +66,7 @@
   "review": {
     "title": "Review your booking",
     "selectedSeats": "Selected seats",
+    "voucherCodesTitle": "Voucher codes",
     "acceptTerms": "I accept the",
     "termsAndConditions": "terms and conditions",
     "completeFreeBooking": "Complete free booking",
