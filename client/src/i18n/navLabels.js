@@ -17,9 +17,23 @@ const PATH_LABEL_KEYS = {
   "/terms-and-conditions": "common:footer.quickLinks.policies",
 };
 
+const SUPPORTED_LNGS = ["en", "nl", "de"];
+
+/** True if `label` still reads like the untouched default for `key` in any
+ * supported language — i.e. the admin never customized it away from the
+ * auto-generated text. */
+function matchesDefaultLabel(key, label, t) {
+  const normalized = String(label || "").trim().toLowerCase();
+  return SUPPORTED_LNGS.some((lng) => t(key, { lng }).trim().toLowerCase() === normalized);
+}
+
 export function translateKnownNavLabel(path, label, t) {
   const key = PATH_LABEL_KEYS[path];
-  return key ? t(key) : label;
+  if (!key) return label;
+  // Only swap in the live-language translation while the label still matches
+  // a default — once an admin types a custom label (e.g. "Experience" -> "Events"),
+  // that custom text must win regardless of which path it points to.
+  return matchesDefaultLabel(key, label, t) ? t(key) : label;
 }
 
 // Header CTA button text (Buy Tickets / Become A Member / Log In) is a CMS
