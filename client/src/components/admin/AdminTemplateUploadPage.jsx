@@ -1,287 +1,84 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  IconAlertCircle,
-  IconCheck,
-  IconFileCode,
-  IconLoader2,
-  IconSparkles,
-  IconUpload,
-} from "@tabler/icons-react";
+import { useState } from "react";
+import { IconLibrary, IconSparkles, IconUpload } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
-import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
+import TemplateGeneratorPanel from "./templates/TemplateGeneratorPanel.jsx";
+import TemplateUploadPanel from "./templates/TemplateUploadPanel.jsx";
+import TemplateLibraryPanel from "./templates/TemplateLibraryPanel.jsx";
+import ToastContainer from "../common/Toast.jsx";
+import useToast from "../../hooks/useToast.js";
 import "../../styles/admin-template-upload.css";
+import "../../styles/admin-templates.css";
+import "../../styles/admin-broadcast-page.css";
+
+const TABS = [
+  { key: "generate", label: "Generate with AI", icon: IconSparkles },
+  { key: "upload", label: "Upload HTML File", icon: IconUpload },
+  { key: "library", label: "Library", icon: IconLibrary },
+];
 
 export default function AdminTemplateUploadPage() {
-  const [name, setName] = useState("");
-  const [file, setFile] = useState(null);
-  const [fileError, setFileError] = useState("");
-  const [htmlContent, setHtmlContent] = useState("");
-  const [isDragging, setIsDragging] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
-  
-  const fileInputRef = useRef(null);
-  const navigateTimerRef = useRef(null);
-  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("generate");
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  const { toasts, pushToast, dismissToast } = useToast();
 
-  useEffect(() => {
-    return () => window.clearTimeout(navigateTimerRef.current);
-  }, []);
+  // Shared by Generate/Upload panels: show a toast, then jump to the Library so the admin
+  // immediately sees their new/updated template in context.
+  function handleSaved() {
+    setEditingTemplate(null);
+    setActiveTab("library");
+  }
 
-  const processFile = async (selectedFile) => {
-    if (!selectedFile) return;
+  function handleEditFromLibrary(template) {
+    setEditingTemplate(template);
+    setActiveTab("generate");
+  }
 
-    const extension = selectedFile.name.split(".").pop().toLowerCase();
-    const isHtml = extension === "html" || extension === "htm" || selectedFile.type === "text/html";
-
-    if (!isHtml) {
-      setFileError("Invalid file type. Please select an HTML file (.html or .htm).");
-      setFile(null);
-      setHtmlContent("");
-      return;
-    }
-
-    setFileError("");
-    setFile(selectedFile);
-
-    try {
-      const text = await selectedFile.text();
-      setHtmlContent(text);
-      
-      // Auto-fill template name if empty
-      if (!name) {
-        const baseName = selectedFile.name
-          .replace(/\.html?$/i, "")
-          .replace(/[-_]+/g, " ")
-          .trim();
-        setName(baseName);
-      }
-    } catch (err) {
-      setFileError("Could not read file content. Please try another file.");
-      setFile(null);
-      setHtmlContent("");
-    }
-  };
-
-  const handleDragOver = useCallback((e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
-
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const droppedFile = e.dataTransfer.files?.[0];
-    if (droppedFile) {
-      processFile(droppedFile);
-    }
-  }, [name]);
-
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      processFile(selectedFile);
-    }
-  };
-
-  const triggerBrowse = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleResetFile = () => {
-    setFile(null);
-    setHtmlContent("");
-    setFileError("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!name.trim()) {
-      setError("Template name is required.");
-      return;
-    }
-    if (!htmlContent) {
-      setError("Please select and load an HTML template file.");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      await apiFetch("/api/admin/broadcasts/templates", {
-        method: "POST",
-        headers: adminAuthHeaders(),
-        body: JSON.stringify({
-          name: name.trim(),
-          subject: name.trim(), // satisfies backend validation requirement
-          description: "Uploaded via simple template manager",
-          htmlBody: htmlContent,
-        }),
-      });
-
-      setSuccess(true);
-      navigateTimerRef.current = window.setTimeout(() => {
-        navigate("/admin/communication");
-      }, 2000);
-    } catch (err) {
-      setError(err.message || "Failed to upload template. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatBytes = (bytes) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const dm = 2;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  };
+  function handleTabChange(key) {
+    if (key !== "generate") setEditingTemplate(null);
+    setActiveTab(key);
+  }
 
   return (
     <AdminLayout
-      pageTitle="Upload Email Template"
-      pageSubtitle="Import custom HTML email templates directly to your communication portal."
+      pageTitle="Templates"
+      pageSubtitle="Generate, upload, and manage HTML email templates for broadcasts."
     >
-      <div className="admin-upload-card">
-        {success ? (
-          <div className="admin-upload-success-state">
-            <div className="admin-upload-success-icon">
-              <IconCheck size={36} stroke={2.5} />
-            </div>
-            <h2 className="admin-upload-success-title">Upload Successful!</h2>
-            <p className="admin-upload-success-subtitle">
-              Your template has been saved. Redirecting to Communication...
-            </p>
-            <IconLoader2 className="admin-upload-spin" size={24} />
-          </div>
-        ) : (
-          <form className="admin-upload-form" onSubmit={handleSubmit}>
-            <div className="admin-upload-group">
-              <label htmlFor="template-name" className="admin-upload-label">
-                Template Name
-              </label>
-              <input
-                id="template-name"
-                type="text"
-                className="admin-upload-input"
-                placeholder="e.g. Summer Newsletter 2026"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                maxLength={160}
-                disabled={loading}
-              />
-            </div>
-
-            <div className="admin-upload-group">
-              <span className="admin-upload-label">HTML Template File</span>
-              
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept=".html,.htm,text/html"
-                style={{ display: "none" }}
-              />
-
-              {!file ? (
-                <div
-                  className={`admin-upload-dropzone${
-                    isDragging ? " admin-upload-dropzone--dragging" : ""
-                  }`}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  onClick={triggerBrowse}
-                >
-                  <div className="admin-upload-dropzone-icon">
-                    <IconUpload size={24} />
-                  </div>
-                  <p className="admin-upload-dropzone-text">
-                    Drag & drop your HTML file here, or <span style={{ color: "var(--ad-purple)", textDecoration: "underline" }}>browse</span>
-                  </p>
-                  <p className="admin-upload-dropzone-hint">
-                    Supports HTML files (.html, .htm) up to 50MB
-                  </p>
-                </div>
-              ) : (
-                <div className="admin-upload-file-details">
-                  <div className="admin-upload-file-info">
-                    <IconFileCode size={28} className="admin-upload-file-icon" />
-                    <div>
-                      <p className="admin-upload-file-name">{file.name}</p>
-                      <p className="admin-upload-file-size">{formatBytes(file.size)}</p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    className="admin-upload-change-btn"
-                    onClick={handleResetFile}
-                    disabled={loading}
-                  >
-                    Change File
-                  </button>
-                </div>
-              )}
-
-              {fileError && (
-                <div className="admin-upload-error-alert" style={{ marginTop: "8px" }}>
-                  <IconAlertCircle size={18} />
-                  <span>{fileError}</span>
-                </div>
-              )}
-            </div>
-
-            {error && (
-              <div className="admin-upload-error-alert">
-                <IconAlertCircle size={18} />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <div className="admin-upload-actions">
+      <div className="admin-templates">
+        <div className="admin-templates__tabs" role="tablist">
+          {TABS.map((tab) => {
+            const Icon = tab.icon;
+            return (
               <button
+                key={tab.key}
                 type="button"
-                className="admin-broadcast__ghost-btn"
-                onClick={() => navigate("/admin/communication")}
-                disabled={loading}
+                role="tab"
+                aria-selected={activeTab === tab.key}
+                className={`admin-templates__tab${activeTab === tab.key ? " admin-templates__tab--active" : ""}`}
+                onClick={() => handleTabChange(tab.key)}
               >
-                Cancel
+                <Icon size={16} /> {tab.label}
               </button>
-              <button
-                type="submit"
-                className="admin-broadcast__primary-btn"
-                disabled={loading || !file || !name.trim()}
-              >
-                {loading ? (
-                  <>
-                    <IconLoader2 className="admin-upload-spin" size={18} />
-                    <span>Uploading...</span>
-                  </>
-                ) : (
-                  <>
-                    <IconSparkles size={18} />
-                    <span>Upload Template</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        )}
+            );
+          })}
+        </div>
+
+        <div className="admin-templates__panel">
+          {activeTab === "generate" ? (
+            <TemplateGeneratorPanel
+              key={editingTemplate?.id || "new"}
+              editingTemplate={editingTemplate}
+              onSaved={handleSaved}
+              pushToast={pushToast}
+            />
+          ) : null}
+          {activeTab === "upload" ? <TemplateUploadPanel onSaved={handleSaved} pushToast={pushToast} /> : null}
+          {activeTab === "library" ? (
+            <TemplateLibraryPanel onEdit={handleEditFromLibrary} pushToast={pushToast} />
+          ) : null}
+        </div>
       </div>
+
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </AdminLayout>
   );
 }

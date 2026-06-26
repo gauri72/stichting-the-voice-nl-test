@@ -2,13 +2,17 @@ import {
   buildPreview,
   createTemplate,
   deleteTemplate,
+  duplicateTemplate,
   getBroadcastOverview,
   getSampleUsers,
+  getTemplateById,
   listRecentCampaigns,
   listTemplates,
   resolveAudience,
   sendBroadcast,
+  updateTemplate,
 } from "../services/broadcastService.js";
+import { generateTemplateHtml, isTemplateGeneratorConfigured } from "../services/aiTemplateGeneratorService.js";
 
 import { handleError as handleErrorBase } from "../utils/handleError.js";
 
@@ -36,14 +40,69 @@ export async function broadcastTemplates(req, res) {
 
 export async function broadcastCreateTemplate(req, res) {
   try {
-    const { name, description, subject, htmlBody } = req.body || {};
+    const { name, description, subject, htmlBody, type, tags, status, aiGenerated, aiPrompt, colorScheme } = req.body || {};
     const template = await createTemplate({
       name,
       description,
       subject,
       htmlBody,
       adminId: req.admin?.id,
+      type,
+      tags,
+      status,
+      aiGenerated,
+      aiPrompt,
+      colorScheme,
     });
+    return res.status(201).json({ template });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function broadcastGetTemplate(req, res) {
+  try {
+    const template = await getTemplateById(req.params.id);
+    return res.status(200).json({
+      template: {
+        id: template._id.toString(),
+        name: template.name,
+        slug: template.slug,
+        description: template.description,
+        subject: template.subject,
+        htmlBody: template.htmlBody,
+        placeholders: template.placeholders,
+        isSystem: template.isSystem,
+        type: template.type,
+        tags: template.tags,
+        status: template.status,
+        aiGenerated: template.aiGenerated,
+        aiPrompt: template.aiPrompt,
+        colorScheme: template.colorScheme,
+        usageCount: template.usageCount,
+        lastUsedAt: template.lastUsedAt,
+        createdAt: template.createdAt,
+        updatedAt: template.updatedAt,
+      },
+    });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function broadcastUpdateTemplate(req, res) {
+  try {
+    const { name, description, subject, htmlBody, type, tags, status, colorScheme } = req.body || {};
+    const template = await updateTemplate(req.params.id, { name, description, subject, htmlBody, type, tags, status, colorScheme });
+    return res.status(200).json({ template });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function broadcastDuplicateTemplate(req, res) {
+  try {
+    const template = await duplicateTemplate(req.params.id, req.admin?.id);
     return res.status(201).json({ template });
   } catch (error) {
     return handleError(res, error);
@@ -54,6 +113,20 @@ export async function broadcastDeleteTemplate(req, res) {
   try {
     await deleteTemplate(req.params.id);
     return res.status(200).json({ ok: true });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function broadcastGenerateStatus(req, res) {
+  return res.status(200).json({ configured: isTemplateGeneratorConfigured() });
+}
+
+export async function broadcastGenerateTemplate(req, res) {
+  try {
+    const { prompt, templateType, colorScheme } = req.body || {};
+    const result = await generateTemplateHtml({ prompt, templateType, colorScheme });
+    return res.status(200).json(result);
   } catch (error) {
     return handleError(res, error);
   }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   IconChevronRight,
   IconEdit,
@@ -31,6 +32,8 @@ const EMPTY_FORM = {
 };
 
 export default function AdminBroadcastPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [overview, setOverview] = useState(null);
   const [sampleUsers, setSampleUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,6 +80,21 @@ export default function AdminBroadcastPage() {
   useEffect(() => {
     loadOverview();
   }, [loadOverview]);
+
+  // Hand-off from the Templates library's "Use for Broadcast" button. Jumps straight to
+  // Review & Send — the existing preview-loading effect below already auto-fires whenever
+  // wizardOpen && wizardStep === 2 && selectedTemplateId, so no separate preview-fetch logic
+  // is needed here. Strip the query param afterward so a page refresh doesn't re-trigger it.
+  useEffect(() => {
+    const templateId = searchParams.get("templateId");
+    if (!templateId || !overview?.templates) return;
+    const exists = overview.templates.some((t) => t.id === templateId);
+    if (!exists) return;
+    setSelectedTemplateId(templateId);
+    openWizard(2);
+    navigate("/admin/communication", { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [overview, searchParams]);
 
   const donutStyle = useMemo(() => {
     const segments = overview?.audience?.segments || [];

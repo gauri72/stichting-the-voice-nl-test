@@ -232,9 +232,17 @@ export async function getAudienceOverview() {
   };
 }
 
-export async function listTemplates() {
-  const templates = await EmailTemplate.find({}).sort({ createdAt: -1 }).lean();
-  return templates.map((template) => ({
+function normalizeTags(tags) {
+  if (!Array.isArray(tags)) return [];
+  return tags
+    .filter(Boolean)
+    .map((t) => String(t).trim())
+    .filter(Boolean)
+    .slice(0, 20);
+}
+
+function formatTemplateSummary(template) {
+  return {
     id: template._id.toString(),
     name: template.name,
     slug: template.slug,
@@ -243,9 +251,21 @@ export async function listTemplates() {
     placeholders: template.placeholders,
     thumbnailKey: template.thumbnailKey,
     isSystem: template.isSystem,
+    type: template.type,
+    tags: template.tags,
+    status: template.status,
+    aiGenerated: template.aiGenerated,
+    colorScheme: template.colorScheme,
+    usageCount: template.usageCount,
+    lastUsedAt: template.lastUsedAt,
     createdAt: template.createdAt,
     updatedAt: template.updatedAt,
-  }));
+  };
+}
+
+export async function listTemplates() {
+  const templates = await EmailTemplate.find({}).sort({ createdAt: -1 }).lean();
+  return templates.map(formatTemplateSummary);
 }
 
 export async function getTemplateById(templateId) {
@@ -258,7 +278,19 @@ export async function getTemplateById(templateId) {
   return template;
 }
 
-export async function createTemplate({ name, description, subject, htmlBody, adminId }) {
+export async function createTemplate({
+  name,
+  description,
+  subject,
+  htmlBody,
+  adminId,
+  type,
+  tags,
+  status,
+  aiGenerated,
+  aiPrompt,
+  colorScheme,
+}) {
   if (!name?.trim() || !subject?.trim() || !htmlBody?.trim()) {
     const error = new Error("Name, subject, and HTML body are required.");
     error.status = 400;
@@ -278,17 +310,71 @@ export async function createTemplate({ name, description, subject, htmlBody, adm
     htmlBody: htmlBody.trim(),
     placeholders,
     createdBy: adminId || null,
+    type: type || "custom",
+    tags: normalizeTags(tags),
+    status: status || "active",
+    aiGenerated: Boolean(aiGenerated),
+    aiPrompt: aiPrompt?.trim().slice(0, 4000) || "",
+    colorScheme: colorScheme || "default",
   });
 
-  return {
-    id: template._id.toString(),
-    name: template.name,
-    slug: template.slug,
-    description: template.description,
-    subject: template.subject,
-    placeholders: template.placeholders,
-    createdAt: template.createdAt,
-  };
+  return formatTemplateSummary(template);
+}
+
+/**
+ * Edits content/metadata are allowed even on isSystem templates (so an admin can fix a typo
+ * in the seeded welcome template) — only deleteTemplate() blocks isSystem rows.
+ */
+export async function updateTemplate(templateId, updates = {}) {
+  const template = await EmailTemplate.findById(templateId);
+  if (!template) {
+    const error = new Error("Email template not found.");
+    error.status = 404;
+    throw error;
+  }
+
+  if (updates.name !== undefined) template.name = updates.name.trim();
+  if (updates.description !== undefined) template.description = updates.description.trim();
+  if (updates.subject !== undefined) template.subject = updates.subject.trim();
+  if (updates.htmlBody !== undefined) template.htmlBody = updates.htmlBody.trim();
+  if (updates.type !== undefined) template.type = updates.type;
+  if (updates.tags !== undefined) template.tags = normalizeTags(updates.tags);
+  if (updates.status !== undefined) template.status = updates.status;
+  if (updates.colorScheme !== undefined) template.colorScheme = updates.colorScheme;
+
+  if (!template.name?.trim() || !template.subject?.trim() || !template.htmlBody?.trim()) {
+    const error = new Error("Name, subject, and HTML body are required.");
+    error.status = 400;
+    throw error;
+  }
+
+  // Placeholders are derived data — re-extract whenever the source text changes so they
+  // never go stale relative to the actual stored content.
+  if (updates.subject !== undefined || updates.htmlBody !== undefined) {
+    template.placeholders = extractPlaceholders(`${template.subject}\n${template.htmlBody}`);
+  }
+
+  await template.save();
+  return formatTemplateSummary(template);
+}
+
+/** Duplicates always land as a draft, regardless of the source's status, so a copy never
+ * silently looks "active" before the admin has reviewed it. isSystem is never copied. */
+export async function duplicateTemplate(templateId, adminId) {
+  const source = await getTemplateById(templateId);
+  return createTemplate({
+    name: `${source.name} (Copy)`,
+    description: source.description,
+    subject: source.subject,
+    htmlBody: source.htmlBody,
+    adminId,
+    type: source.type,
+    tags: source.tags,
+    status: "draft",
+    aiGenerated: source.aiGenerated,
+    aiPrompt: source.aiPrompt,
+    colorScheme: source.colorScheme,
+  });
 }
 
 export async function deleteTemplate(templateId) {
@@ -434,6 +520,14 @@ export async function sendBroadcast({ templateId, audienceSegment, mergeVariable
   broadcast.sentAt = new Date();
   broadcast.errorMessage = failedCount > 0 ? lastError : "";
   await broadcast.save();
+
+  // Atomic increment, not a fetch-mutate-save round trip — `template` here is already a
+  // lean object (from getTemplateById), and this must stay race-safe under concurrent
+  // broadcasts. Counts once per campaign sent, not once per recipient email.
+  await EmailTemplate.updateOne(
+    { _id: template._id },
+    { $inc: { usageCount: 1 }, $set: { lastUsedAt: new Date() } }
+  );
 
   return {
     id: broadcast._id.toString(),
