@@ -37,37 +37,31 @@ export async function buildBudgetExcel(budget, formatted) {
     workbook,
     "Income",
     ["Category", "Description", "Planned", "Actual", "Status", "Source", "Notes"],
-    (budget.plannedIncomeLines || []).map((l, i) => {
-      const actual = budget.actualIncomeLines?.[i];
-      return [
-        l.category,
-        l.description,
-        formatMoney(l.plannedAmount),
-        formatMoney(actual?.actualAmount || l.actualAmount || 0),
-        actual?.paymentStatus || l.paymentStatus,
-        l.sourceModule,
-        l.notes,
-      ];
-    })
+    (budget.incomeLines || []).map((l) => [
+      l.category,
+      l.description,
+      formatMoney(l.plannedAmount),
+      formatMoney(l.actualAmount || 0),
+      l.paymentStatus,
+      l.sourceModule,
+      l.notes,
+    ])
   );
 
   addSheet(
     workbook,
     "Expenses",
     ["Category", "Vendor", "Description", "Planned", "Actual", "VAT%", "Status", "Notes"],
-    (budget.plannedExpenseLines || []).map((l, i) => {
-      const actual = budget.actualExpenseLines?.[i];
-      return [
-        l.category,
-        l.vendorPayee || actual?.vendorPayee,
-        l.description,
-        formatMoney(l.plannedAmount),
-        formatMoney(actual?.actualAmount || l.actualAmount || 0),
-        l.vatRate,
-        actual?.paymentStatus || l.paymentStatus,
-        l.notes,
-      ];
-    })
+    (budget.expenseLines || []).map((l) => [
+      l.category,
+      l.vendorPayee,
+      l.description,
+      formatMoney(l.plannedAmount),
+      formatMoney(l.actualAmount || 0),
+      l.vatRate,
+      l.paymentStatus,
+      l.notes,
+    ])
   );
 
   addSheet(workbook, "Variance", ["Metric", "Value"], [

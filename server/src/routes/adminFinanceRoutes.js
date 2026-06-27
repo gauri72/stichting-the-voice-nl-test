@@ -13,6 +13,7 @@ import {
   markInvoiceOverdue,
   cancelInvoice,
   downloadInvoicePdf,
+  previewInvoicePdf,
   exportInvoices,
   budgetDashboard,
   listEventBudgets,
@@ -63,6 +64,7 @@ router.get("/invoices/dashboard", requireFinancePermission("invoices.read"), inv
 router.get("/invoices/export", requireFinancePermission("invoices.read"), exportInvoices);
 router.get("/invoices", requireFinancePermission("invoices.read"), listInvoices);
 router.post("/invoices", requireFinancePermission("invoices.write"), createInvoice);
+router.post("/invoices/preview-pdf", requireFinancePermission("invoices.write"), previewInvoicePdf);
 router.get("/invoices/:id/download-pdf", requireFinancePermission("invoices.read"), downloadInvoicePdf);
 router.post("/invoices/:id/send", requireFinancePermission("invoices.send"), sendInvoice);
 router.post("/invoices/:id/resend", requireFinancePermission("invoices.send"), resendInvoice);

@@ -11,8 +11,8 @@ export async function getFinanceDashboardStats() {
     getTransactionDashboardStats(),
     getAuditReportDashboardStats(),
     EventBudget.aggregate([
-      { $unwind: "$actualExpenseLines" },
-      { $match: { "actualExpenseLines.receiptAttached": { $ne: true }, "actualExpenseLines.actualAmount": { $gt: 0 } } },
+      { $unwind: "$expenseLines" },
+      { $match: { "expenseLines.receiptAttached": { $ne: true }, "expenseLines.actualAmount": { $gt: 0 } } },
       { $count: "count" },
     ]),
   ]);

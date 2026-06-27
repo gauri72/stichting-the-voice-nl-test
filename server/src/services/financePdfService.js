@@ -95,6 +95,11 @@ export function renderInvoicePdf(payload) {
     if (payload.vatNumber) doc.text(`VAT: ${payload.vatNumber}`);
     doc.moveDown(1);
 
+    if (payload.introText) {
+      doc.font("Helvetica").fontSize(10).fillColor(COLORS.text).text(payload.introText, left, doc.y, { width: w });
+      doc.moveDown(1);
+    }
+
     const widths = [w * 0.4, w * 0.1, w * 0.15, w * 0.1, w * 0.1, w * 0.15];
     let y = doc.y;
     drawTableRow(doc, ["Description", "Qty", "Unit", "VAT%", "Disc.", "Total"], y, widths, true);

@@ -43,6 +43,19 @@
   line-height: 1.3;
 }
 
+.admin-finance__stat input {
+  width: 100%;
+  text-align: center;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--ad-input-bg, #080d18);
+  color: var(--color-accent-teal, #3ecf9a);
+  font: inherit;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
 .admin-finance__toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -257,7 +270,8 @@
   gap: 12px;
 }
 
-.admin-finance__field label {
+.admin-finance__field label,
+.admin-finance__form-grid > label:not(:has(input[type="checkbox"])) {
   display: block;
   font-size: 0.72rem;
   color: var(--ad-muted);
@@ -266,7 +280,10 @@
 
 .admin-finance__field input,
 .admin-finance__field select,
-.admin-finance__field textarea {
+.admin-finance__field textarea,
+.admin-finance__form-grid > label:not(:has(input[type="checkbox"])) input,
+.admin-finance__form-grid > label:not(:has(input[type="checkbox"])) select,
+.admin-finance__form-grid > label:not(:has(input[type="checkbox"])) textarea {
   width: 100%;
   padding: 8px 12px;
   border-radius: 10px;
@@ -276,15 +293,36 @@
   font: inherit;
 }
 
-.admin-finance__field textarea {
+.admin-finance__field textarea,
+.admin-finance__form-grid > label:not(:has(input[type="checkbox"])) textarea {
   min-height: 80px;
   resize: vertical;
+}
+
+.admin-finance__form-grid > label:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
 }
 
 .admin-finance__field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+.admin-finance__field-hint {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  opacity: 0.75;
+}
+
+.admin-finance__drawer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .admin-finance__checkboxes {
@@ -458,6 +496,21 @@
   max-width: 560px;
 }
 
+.admin-finance__pdf-preview {
+  width: min(820px, 100vw);
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-finance__pdf-preview-frame {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: #525659;
+}
+
 .admin-finance__checkbox-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -489,6 +542,87 @@
   grid-template-columns: 2fr 0.6fr 1fr 0.6fr;
   gap: 8px;
   margin-bottom: 8px;
+}
+
+.admin-finance__budget-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.admin-finance__budget-line-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1.6fr 1fr 1fr 1.1fr 32px;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-finance__budget-line-row--expense {
+  grid-template-columns: 1.2fr 1.1fr 1.4fr 1fr 1fr 1.1fr 32px;
+}
+
+.admin-finance__budget-line-row select,
+.admin-finance__budget-line-row input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--ad-input-bg, #080d18);
+  color: inherit;
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.admin-finance__budget-line-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.admin-finance__pl-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.admin-finance__pl-banner--profit {
+  background: rgba(62, 207, 154, 0.12);
+  border: 1px solid rgba(62, 207, 154, 0.35);
+  color: #3ecf9a;
+}
+
+.admin-finance__pl-banner--loss {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+.admin-finance__pl-banner--breakeven {
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: #fbbf24;
+}
+
+.admin-finance__pl-banner-label {
+  font-size: 1.1rem;
+}
+
+.admin-finance__pl-banner-amount {
+  font-size: 1.3rem;
+}
+
+@media (max-width: 720px) {
+  .admin-finance__budget-line-row,
+  .admin-finance__budget-line-row--expense {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .admin-finance__settings-form {

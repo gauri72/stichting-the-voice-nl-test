@@ -150,6 +150,18 @@ export async function downloadInvoicePdf(req, res) {
   }
 }
 
+export async function previewInvoicePdf(req, res) {
+  try {
+    const { previewInvoicePdf: preview } = await import("../services/adminInvoiceService.js");
+    const { pdf, filename } = await preview(req.body);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+    return res.send(pdf);
+  } catch (e) {
+    return handleError(res, e);
+  }
+}
+
 export async function exportInvoices(req, res) {
   try {
     const { exportInvoices: exp } = await import("../services/adminInvoiceService.js");

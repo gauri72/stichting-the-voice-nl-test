@@ -72,6 +72,15 @@ export const INCOME_CATEGORIES = [
   { value: "other_income", label: "Other Income" },
 ];
 
+export const EXPENSE_PAYMENT_STATUSES = [
+  { value: "planned", label: "Planned" },
+  { value: "pending", label: "Pending" },
+  { value: "paid", label: "Paid" },
+  { value: "partially_paid", label: "Partially Paid" },
+  { value: "overdue", label: "Overdue" },
+  { value: "cancelled", label: "Cancelled" },
+];
+
 export const EXPENSE_CATEGORIES = [
   { value: "venue_rental", label: "Venue Rental" },
   { value: "artist_fees", label: "Artist Fees" },

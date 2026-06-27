@@ -6,7 +6,7 @@ import {
 import { Link } from "react-router-dom";
 import AdminLayout from "./AdminLayout.jsx";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
-import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
+import { adminAuthHeaders, apiFetch, apiUrl } from "../../utils/api.js";
 import { formatDate, badgeClass, downloadBlob, hasFinancePermission, canDeleteFinance } from "../../utils/financeAdmin.js";
 import "../../styles/admin-sponsorships-donations-page.css";
 
@@ -68,6 +68,9 @@ export default function AdminFinanceInvoicesPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [viewItem, setViewItem] = useState(null);
+  const [previewing, setPreviewing] = useState(false);
+  const [previewError, setPreviewError] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
 
   const buildParams = useCallback(() => {
     const params = new URLSearchParams();
@@ -131,22 +134,26 @@ export default function AdminFinanceInvoicesPage() {
     setDrawerOpen(true);
   }
 
+  function buildInvoicePayload() {
+    return {
+      ...form,
+      lineItems: form.lineItems.map((l) => ({
+        ...l,
+        quantity: Number(l.quantity),
+        unitPrice: Number(l.unitPrice),
+        vatRate: Number(l.vatRate),
+        discount: Number(l.discount) || 0,
+      })),
+      relatedEventId: form.relatedEventId || null,
+    };
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!canWrite) return;
     setSubmitting(true);
     try {
-      const payload = {
-        ...form,
-        lineItems: form.lineItems.map((l) => ({
-          ...l,
-          quantity: Number(l.quantity),
-          unitPrice: Number(l.unitPrice),
-          vatRate: Number(l.vatRate),
-          discount: Number(l.discount) || 0,
-        })),
-        relatedEventId: form.relatedEventId || null,
-      };
+      const payload = buildInvoicePayload();
       if (editId) {
         await apiFetch(`/api/admin/finance/invoices/${editId}`, { method: "PATCH", headers: adminAuthHeaders(), body: JSON.stringify(payload) });
       } else {
@@ -159,6 +166,33 @@ export default function AdminFinanceInvoicesPage() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  async function handlePreviewPdf() {
+    setPreviewing(true);
+    setPreviewError("");
+    try {
+      const response = await fetch(apiUrl("/api/admin/finance/invoices/preview-pdf"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...adminAuthHeaders() },
+        body: JSON.stringify(buildInvoicePayload()),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.error || "Could not generate preview.");
+      }
+      const blob = await response.blob();
+      setPreviewUrl(URL.createObjectURL(blob));
+    } catch (err) {
+      setPreviewError(err.message || "Could not generate preview.");
+    } finally {
+      setPreviewing(false);
+    }
+  }
+
+  function closePreview() {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl("");
   }
 
   async function handleAction(id, action) {
@@ -280,18 +314,66 @@ export default function AdminFinanceInvoicesPage() {
               <button type="button" className="admin-finance__icon-btn" onClick={() => setDrawerOpen(false)}><IconX size={18} /></button>
             </div>
             <form className="admin-finance__form-grid" onSubmit={handleSubmit}>
-              <label>Client Type<select value={form.clientType} onChange={(e) => setForm((f) => ({ ...f, clientType: e.target.value }))}>{CLIENT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</select></label>
-              <label>Client Name<input value={form.clientName} onChange={(e) => setForm((f) => ({ ...f, clientName: e.target.value }))} required /></label>
-              <label>Company<input value={form.companyName} onChange={(e) => setForm((f) => ({ ...f, companyName: e.target.value }))} /></label>
-              <label>Contact Person<input value={form.contactPerson} onChange={(e) => setForm((f) => ({ ...f, contactPerson: e.target.value }))} /></label>
-              <label>Email<input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} /></label>
-              <label>Phone<input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} /></label>
-              <label className="admin-finance__full">Address<textarea value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} rows={2} /></label>
-              <label>VAT Number<input value={form.vatNumber} onChange={(e) => setForm((f) => ({ ...f, vatNumber: e.target.value }))} /></label>
-              <label>Related Type<select value={form.relatedType} onChange={(e) => setForm((f) => ({ ...f, relatedType: e.target.value }))}>{RELATED_TYPES.filter((t) => t.value).map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</select></label>
-              <label>Related Event<select value={form.relatedEventId} onChange={(e) => setForm((f) => ({ ...f, relatedEventId: e.target.value }))}><option value="">—</option>{events.map((ev) => <option key={ev.id} value={ev.id}>{ev.title || ev.name}</option>)}</select></label>
-              <label>Invoice Date<input type="date" value={form.invoiceDate} onChange={(e) => setForm((f) => ({ ...f, invoiceDate: e.target.value }))} /></label>
-              <label>Due Date<input type="date" value={form.dueDate} onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))} /></label>
+              <div className="admin-finance__field-row">
+                <div className="admin-finance__field">
+                  <label>Client Type</label>
+                  <select value={form.clientType} onChange={(e) => setForm((f) => ({ ...f, clientType: e.target.value }))}>{CLIENT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</select>
+                </div>
+                <div className="admin-finance__field">
+                  <label>Company</label>
+                  <input value={form.companyName} onChange={(e) => setForm((f) => ({ ...f, companyName: e.target.value }))} />
+                </div>
+              </div>
+              <div className="admin-finance__field">
+                <label>Client Name *</label>
+                <input value={form.clientName} onChange={(e) => setForm((f) => ({ ...f, clientName: e.target.value }))} required />
+              </div>
+              <div className="admin-finance__field-row">
+                <div className="admin-finance__field">
+                  <label>Contact Person</label>
+                  <input value={form.contactPerson} onChange={(e) => setForm((f) => ({ ...f, contactPerson: e.target.value }))} />
+                </div>
+                <div className="admin-finance__field">
+                  <label>Phone</label>
+                  <input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} />
+                </div>
+              </div>
+              <div className="admin-finance__field">
+                <label>Email</label>
+                <input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+              </div>
+              <div className="admin-finance__field">
+                <label>Address</label>
+                <textarea value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} rows={2} />
+              </div>
+              <div className="admin-finance__field-row">
+                <div className="admin-finance__field">
+                  <label>VAT Number</label>
+                  <input value={form.vatNumber} onChange={(e) => setForm((f) => ({ ...f, vatNumber: e.target.value }))} />
+                </div>
+                <div className="admin-finance__field">
+                  <label>Related Type</label>
+                  <select value={form.relatedType} onChange={(e) => setForm((f) => ({ ...f, relatedType: e.target.value }))}>{RELATED_TYPES.filter((t) => t.value).map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</select>
+                </div>
+              </div>
+              <div className="admin-finance__field">
+                <label>Related Event</label>
+                <select value={form.relatedEventId} onChange={(e) => setForm((f) => ({ ...f, relatedEventId: e.target.value }))}><option value="">—</option>{events.map((ev) => <option key={ev.id} value={ev.id}>{ev.title || ev.name}</option>)}</select>
+              </div>
+              <div className="admin-finance__field">
+                <label>Invoice Message <span className="admin-finance__field-hint">(shown as an intro paragraph on the PDF)</span></label>
+                <textarea value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} rows={3} placeholder="e.g. Thank you for your support — please find the details of your invoice below." />
+              </div>
+              <div className="admin-finance__field-row">
+                <div className="admin-finance__field">
+                  <label>Invoice Date</label>
+                  <input type="date" value={form.invoiceDate} onChange={(e) => setForm((f) => ({ ...f, invoiceDate: e.target.value }))} />
+                </div>
+                <div className="admin-finance__field">
+                  <label>Due Date</label>
+                  <input type="date" value={form.dueDate} onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))} />
+                </div>
+              </div>
               <div className="admin-finance__full">
                 <h3>Line Items</h3>
                 {form.lineItems.map((line, idx) => (
@@ -304,10 +386,15 @@ export default function AdminFinanceInvoicesPage() {
                 ))}
                 <button type="button" className="admin-finance__btn" onClick={() => setForm((f) => ({ ...f, lineItems: [...f.lineItems, { ...EMPTY_LINE }] }))}>+ Add line</button>
               </div>
-              <label className="admin-finance__full">Notes<textarea value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} rows={2} /></label>
-              <label><input type="checkbox" checked={form.saveAsDraft} onChange={(e) => setForm((f) => ({ ...f, saveAsDraft: e.target.checked }))} /> Save as Draft</label>
-              <label><input type="checkbox" checked={form.sendByEmail} onChange={(e) => setForm((f) => ({ ...f, sendByEmail: e.target.checked }))} /> Send by Email</label>
+              <div className="admin-finance__checkboxes">
+                <label><input type="checkbox" checked={form.saveAsDraft} onChange={(e) => setForm((f) => ({ ...f, saveAsDraft: e.target.checked }))} /> Save as Draft</label>
+                <label><input type="checkbox" checked={form.sendByEmail} onChange={(e) => setForm((f) => ({ ...f, sendByEmail: e.target.checked }))} /> Send by Email</label>
+              </div>
+              {previewError ? <p className="admin-finance__error">{previewError}</p> : null}
               <div className="admin-finance__drawer-actions admin-finance__full">
+                <button type="button" className="admin-finance__btn" onClick={handlePreviewPdf} disabled={previewing || !form.clientName || !form.lineItems.some((l) => l.description)}>
+                  {previewing ? "Generating…" : "Preview PDF"}
+                </button>
                 <button type="submit" className="admin-finance__btn admin-finance__btn--primary" disabled={submitting}>{submitting ? "Saving…" : "Save Invoice"}</button>
               </div>
             </form>
@@ -329,6 +416,19 @@ export default function AdminFinanceInvoicesPage() {
               <p><strong>Balance:</strong> {viewItem.balanceDueFormatted}</p>
               <p><strong>Status:</strong> <span className={badgeClass(viewItem.paymentStatus)}>{viewItem.paymentStatus}</span></p>
             </div>
+          </aside>
+        </>
+      ) : null}
+
+      {previewUrl ? (
+        <>
+          <div className="admin-finance__overlay" onClick={closePreview} aria-hidden />
+          <aside className="admin-finance__drawer admin-finance__drawer--wide admin-finance__pdf-preview">
+            <div className="admin-finance__drawer-head">
+              <h2>Invoice Preview</h2>
+              <button type="button" className="admin-finance__icon-btn" onClick={closePreview}><IconX size={18} /></button>
+            </div>
+            <iframe title="Invoice preview" src={previewUrl} className="admin-finance__pdf-preview-frame" />
           </aside>
         </>
       ) : null}

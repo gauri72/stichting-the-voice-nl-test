@@ -166,6 +166,7 @@ async function buildPdfPayload(invoice, settings) {
     phone: invoice.phone,
     address: invoice.address,
     vatNumber: invoice.vatNumber,
+    introText: invoice.notes || "",
     lineItems: invoice.lineItems.map((l) => ({
       ...l,
       unitPriceFormatted: formatMoney(l.unitPrice),
@@ -380,6 +381,41 @@ async function buildInvoicePdfBuffer(invoiceDoc) {
   const payload = await buildPdfPayload(formatted, settings);
   const pdf = await renderInvoicePdf(payload);
   return { pdf, filename: `invoice-${formatted.invoiceNumber}.pdf` };
+}
+
+export async function previewInvoicePdf(data) {
+  const settings = await getSettings();
+  const lineItems = normalizeLineItems(data.lineItems);
+  const discountAmount = normalizeAmountField(data.discountAmount);
+  const totals = computeInvoiceTotals(lineItems, discountAmount);
+  const amountPaid = normalizeAmountField(data.amountPaid);
+
+  const draftInvoice = {
+    invoiceNumber: "PREVIEW",
+    invoiceDate: data.invoiceDate ? new Date(data.invoiceDate) : new Date(),
+    dueDate: data.dueDate
+      ? new Date(data.dueDate)
+      : new Date(Date.now() + (settings.paymentTermsDays || 30) * 86400000),
+    clientName: data.clientName || "",
+    companyName: data.companyName || "",
+    contactPerson: data.contactPerson || "",
+    email: data.email || "",
+    phone: data.phone || "",
+    address: data.address || "",
+    vatNumber: data.vatNumber || "",
+    notes: data.notes || "",
+    lineItems,
+    ...totals,
+    amountPaid,
+    balanceDue: Math.max(0, totals.totalAmount - amountPaid),
+    paymentReference: data.paymentReference || "",
+    paymentLink: data.paymentLink || "",
+    footerNote: data.footerNote || "",
+  };
+
+  const payload = await buildPdfPayload(draftInvoice, settings);
+  const pdf = await renderInvoicePdf(payload);
+  return { pdf, filename: "invoice-preview.pdf" };
 }
 
 export async function downloadInvoicePdf(id, admin, req) {

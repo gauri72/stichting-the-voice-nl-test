@@ -31,10 +31,8 @@ function formatBudget(doc) {
     status: doc.status,
     expectedAttendance: doc.expectedAttendance,
     actualAttendance: doc.actualAttendance,
-    plannedIncomeLines: doc.plannedIncomeLines || [],
-    actualIncomeLines: doc.actualIncomeLines || [],
-    plannedExpenseLines: doc.plannedExpenseLines || [],
-    actualExpenseLines: doc.actualExpenseLines || [],
+    incomeLines: doc.incomeLines || [],
+    expenseLines: doc.expenseLines || [],
     ...totals,
     plannedIncomeTotalFormatted: formatMoney(totals.plannedIncomeTotal),
     actualIncomeTotalFormatted: formatMoney(totals.actualIncomeTotal),
@@ -150,10 +148,8 @@ export async function createEventBudget(data, admin, req) {
     status: "draft",
     expectedAttendance: Number(data.expectedAttendance) || 0,
     actualAttendance: Number(data.actualAttendance) || 0,
-    plannedIncomeLines: data.plannedIncomeLines || [],
-    actualIncomeLines: data.actualIncomeLines || [],
-    plannedExpenseLines: data.plannedExpenseLines || [],
-    actualExpenseLines: data.actualExpenseLines || [],
+    incomeLines: data.incomeLines || [],
+    expenseLines: data.expenseLines || [],
     notes: data.notes || "",
     createdBy: admin?.id || admin?._id,
   });
@@ -181,7 +177,7 @@ export async function updateEventBudget(id, data, admin, req) {
   const oldValue = formatBudget(doc.toObject());
   const fields = [
     "eventName", "venue", "status", "expectedAttendance", "actualAttendance", "notes",
-    "plannedIncomeLines", "actualIncomeLines", "plannedExpenseLines", "actualExpenseLines", "attachments",
+    "incomeLines", "expenseLines", "attachments",
   ];
   for (const f of fields) {
     if (data[f] !== undefined) doc[f] = data[f];
@@ -204,6 +200,11 @@ export async function updateEventBudget(id, data, admin, req) {
   return formatBudget(doc.toObject());
 }
 
+function resetLineActuals(line, defaultPaymentStatus) {
+  const { _id, ...rest } = line;
+  return { ...rest, actualAmount: 0, paymentStatus: defaultPaymentStatus };
+}
+
 export async function duplicateEventBudget(id, admin, req) {
   const original = await EventBudget.findById(id).lean();
   if (!original) throwFinanceError("Budget not found.", 404);
@@ -214,10 +215,8 @@ export async function duplicateEventBudget(id, admin, req) {
       eventDate: original.eventDate,
       venue: original.venue,
       expectedAttendance: original.expectedAttendance,
-      plannedIncomeLines: original.plannedIncomeLines,
-      plannedExpenseLines: original.plannedExpenseLines,
-      actualIncomeLines: [],
-      actualExpenseLines: [],
+      incomeLines: (original.incomeLines || []).map((l) => resetLineActuals(l, "pending")),
+      expenseLines: (original.expenseLines || []).map((l) => resetLineActuals(l, "planned")),
       notes: original.notes,
     },
     admin,
@@ -289,39 +288,45 @@ export async function importExpensesFromModules(budgetId, admin, req) {
     budget.eventId ? TicketOrder.find({ eventId: budget.eventId, status: "paid" }).lean() : [],
   ]);
 
-  const incomeLines = [...(budget.actualIncomeLines || [])];
+  const incomeLines = [...(budget.incomeLines || [])];
+  function upsertImportedLine({ category, description, actualAmount, sourceModule, linkedRecordId }) {
+    const existing = incomeLines.find((l) => l.sourceModule === sourceModule && l.linkedRecordId === linkedRecordId);
+    if (existing) {
+      existing.actualAmount = actualAmount;
+      existing.paymentStatus = "paid";
+    } else {
+      incomeLines.push({ category, description, plannedAmount: 0, actualAmount, paymentStatus: "paid", sourceModule, linkedRecordId });
+    }
+  }
   for (const d of donations) {
-    incomeLines.push({
+    upsertImportedLine({
       category: "donation_revenue",
       description: `Donation ${d.donationId}`,
       actualAmount: d.amount,
-      paymentStatus: "paid",
       sourceModule: "donations",
       linkedRecordId: d.donationId,
     });
   }
   for (const s of sponsorships) {
-    incomeLines.push({
+    upsertImportedLine({
       category: "sponsorship_revenue",
       description: `Sponsorship ${s.sponsorshipId}`,
       actualAmount: s.amount,
-      paymentStatus: "paid",
       sourceModule: "sponsorships",
       linkedRecordId: s.sponsorshipId,
     });
   }
   for (const o of ticketOrders) {
-    incomeLines.push({
+    upsertImportedLine({
       category: "ticket_sales",
       description: `Order ${o.orderNumber || o._id}`,
       actualAmount: o.totalAmount || o.amount || 0,
-      paymentStatus: "paid",
       sourceModule: "tickets",
       linkedRecordId: o._id.toString(),
     });
   }
 
-  budget.actualIncomeLines = incomeLines;
+  budget.incomeLines = incomeLines;
   applyTotals(budget);
   await budget.save();
   await logFinanceAction({
@@ -337,24 +342,16 @@ export async function importExpensesFromModules(budgetId, admin, req) {
 
 async function buildBudgetExportPayload(budget) {
   const formatted = formatBudget(budget);
-  const incomeLines = [
-    ...(budget.plannedIncomeLines || []).map((l) => ({
-      category: l.category,
-      planned: formatMoney(l.plannedAmount),
-      actual: formatMoney(
-        budget.actualIncomeLines?.find((a) => a.category === l.category)?.actualAmount || l.actualAmount || 0
-      ),
-    })),
-  ];
-  const expenseLines = [
-    ...(budget.plannedExpenseLines || []).map((l) => ({
-      category: l.category,
-      planned: formatMoney(l.plannedAmount),
-      actual: formatMoney(
-        budget.actualExpenseLines?.find((a) => a.category === l.category)?.actualAmount || l.actualAmount || 0
-      ),
-    })),
-  ];
+  const incomeLines = (budget.incomeLines || []).map((l) => ({
+    category: l.category,
+    planned: formatMoney(l.plannedAmount),
+    actual: formatMoney(l.actualAmount || 0),
+  }));
+  const expenseLines = (budget.expenseLines || []).map((l) => ({
+    category: l.category,
+    planned: formatMoney(l.plannedAmount),
+    actual: formatMoney(l.actualAmount || 0),
+  }));
   return {
     payload: {
       eventName: budget.eventName,

@@ -805,10 +805,10 @@ export async function getFinanceAnalytics(params = {}) {
       {
         $project: {
           eventId: 1,
-          plannedIncome: { $sum: "$plannedIncomeLines.plannedAmount" },
-          actualIncome: { $sum: "$actualIncomeLines.actualAmount" },
-          plannedExpense: { $sum: "$plannedExpenseLines.plannedAmount" },
-          actualExpense: { $sum: "$actualExpenseLines.actualAmount" },
+          plannedIncome: { $sum: "$incomeLines.plannedAmount" },
+          actualIncome: { $sum: "$incomeLines.actualAmount" },
+          plannedExpense: { $sum: "$expenseLines.plannedAmount" },
+          actualExpense: { $sum: "$expenseLines.actualAmount" },
         },
       },
       { $limit: 10 },

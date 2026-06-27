@@ -18,8 +18,6 @@ const BUDGET_STATUSES = [
 
 const EMPTY_FORM = {
   eventId: "", eventName: "", eventDate: "", venue: "", expectedAttendance: "", notes: "",
-  plannedIncomeLines: [{ category: "ticket_sales", description: "", plannedAmount: "" }],
-  plannedExpenseLines: [{ category: "venue_rental", description: "", plannedAmount: "", vendorPayee: "" }],
 };
 
 function varianceClass(value) {
@@ -73,8 +71,6 @@ export default function AdminFinanceEventBudgetsPage() {
       const payload = {
         ...form,
         expectedAttendance: Number(form.expectedAttendance) || 0,
-        plannedIncomeLines: form.plannedIncomeLines.map((l) => ({ ...l, plannedAmount: Math.round(Number(l.plannedAmount) * 100) })),
-        plannedExpenseLines: form.plannedExpenseLines.map((l) => ({ ...l, plannedAmount: Math.round(Number(l.plannedAmount) * 100) })),
       };
       const res = await apiFetch("/api/admin/finance/event-budgets", { method: "POST", headers: adminAuthHeaders(), body: JSON.stringify(payload) });
       setDrawerOpen(false);

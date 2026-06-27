@@ -59,19 +59,19 @@ export function computeInvoiceTotals(lineItems, discountAmount = 0) {
 }
 
 export function computeBudgetTotals(budget) {
-  const plannedIncomeTotal = (budget.plannedIncomeLines || []).reduce(
+  const plannedIncomeTotal = (budget.incomeLines || []).reduce(
     (s, l) => s + (Number(l.plannedAmount) || 0),
     0
   );
-  const actualIncomeTotal = (budget.actualIncomeLines || []).reduce(
+  const actualIncomeTotal = (budget.incomeLines || []).reduce(
     (s, l) => s + (Number(l.actualAmount) || 0),
     0
   );
-  const plannedExpenseTotal = (budget.plannedExpenseLines || []).reduce(
+  const plannedExpenseTotal = (budget.expenseLines || []).reduce(
     (s, l) => s + (Number(l.plannedAmount) || 0),
     0
   );
-  const actualExpenseTotal = (budget.actualExpenseLines || []).reduce(
+  const actualExpenseTotal = (budget.expenseLines || []).reduce(
     (s, l) => s + (Number(l.actualAmount) || 0),
     0
   );
