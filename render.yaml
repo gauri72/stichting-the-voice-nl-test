@@ -62,6 +62,19 @@ services:
       # Public API URL for QR verify links in emails/PDFs (e.g. https://voice-nl-api.onrender.com)
       - key: PUBLIC_API_URL
         sync: false
+      # V.Assist (AI chat). Required for the AI assistant feature to work —
+      # other features are unaffected if this is left blank.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Web Push for scheduled-prompt notifications (V.Assist). Optional —
+      # that one feature no-ops if left blank. Generate a pair with
+      # `npx web-push generate-vapid-keys`.
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false
 
   # -----------------------------------------------------------------
   # Frontend (Vite static build of the React app)
