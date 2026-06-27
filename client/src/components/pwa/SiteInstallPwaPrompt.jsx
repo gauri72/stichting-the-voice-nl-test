@@ -20,7 +20,7 @@ export default function SiteInstallPwaPrompt() {
           aria-label="Install V.App"
         >
           <IconDownload size={20} aria-hidden stroke={1.75} />
-          <span>V.App</span>
+          <span className="site-pwa-install__label">V.App</span>
         </button>
         <button
           type="button"

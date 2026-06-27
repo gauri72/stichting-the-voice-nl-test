@@ -56,7 +56,9 @@
     left: 0;
     right: auto;
     transform: none;
-    max-width: min(88%, 100%);
+    /* Capped well under 100% so the greeting/name never reaches into the
+       account-actions badges' zone on the right, regardless of name length. */
+    max-width: 62%;
     padding: 0 16px;
     align-items: flex-start;
     text-align: left;
@@ -101,18 +103,26 @@
 
   .dash-welcome__account-actions {
     justify-content: flex-end;
-    gap: 8px;
-  }
-
-  .dash-welcome__account-actions .dash-welcome__badge {
-    flex-shrink: 0;
-    padding: 7px 12px;
-    font-size: clamp(0.6875rem, 2.6vw, 0.8125rem);
     gap: 6px;
   }
 
+  /* Icon-only on phones — 3 full text+icon pills don't fit beside the
+     greeting/name without overlapping it (confirmed via screenshot). */
+  .dash-welcome__account-actions .dash-welcome__badge {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+  }
+
+  .dash-welcome__account-actions .dash-welcome__badge-label {
+    display: none;
+  }
+
   .dash-welcome__account-actions .dash-welcome__badge-icon {
-    font-size: 0.88em;
+    font-size: 1em;
   }
 
   .dash-welcome__btn {
