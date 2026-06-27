@@ -105,9 +105,28 @@ async function handleSucceededPayment(intent) {
   const meta = intent.metadata || {};
   const paymentMethod = describePaymentMethod(intent);
 
+  if (meta.payment_kind === "wallet_topup") {
+    const { confirmTopUpFromWebhook } = await import("../services/walletWebhookService.js");
+    await confirmTopUpFromWebhook(intent);
+    return;
+  }
+
   if (meta.payment_kind === "event_ticket" || meta.payment_kind === "ticket_and_membership") {
     const orderId = meta.order_id;
     if (!orderId) return;
+
+    // Split V.Wallet + card checkout: the wallet portion is only debited
+    // once the card portion has actually succeeded (this webhook firing),
+    // so the wallet is never charged for an order that fails on the card side.
+    if (meta.wallet_portion_minor) {
+      const { applyDeferredWalletPortion } = await import("../services/walletCheckoutService.js");
+      const applied = await applyDeferredWalletPortion(orderId, meta);
+      if (!applied.success) {
+        console.error("[payments] Deferred wallet portion failed for order", orderId, applied.error);
+        return;
+      }
+    }
+
     const { fulfillOrder } = await import("../services/postPaymentFulfillmentService.js");
     await fulfillOrder(orderId, intent.id);
     return;

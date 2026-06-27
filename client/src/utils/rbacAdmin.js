@@ -37,6 +37,9 @@ export const NAV_ROUTE_PERMISSIONS = {
   "/admin/access-management": "access_management.view",
   "/admin/inventory": "inventory.view",
   "/admin/documents": "documents.view",
+  "/admin/personal-ai": "personal_ai.view",
+  "/admin/wallet": "wallet.view",
+  "/admin/icon-library": "icon_library.view",
 };
 
 export function hasPermission(permissions, required) {

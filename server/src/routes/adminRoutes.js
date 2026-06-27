@@ -33,6 +33,8 @@ import adminApiBuilderRoutes from "./adminApiBuilderRoutes.js";
 import adminAccessRoutes from "./adminAccessRoutes.js";
 import adminGlobalInventoryRoutes from "./adminGlobalInventoryRoutes.js";
 import adminGlobalDocumentsRoutes from "./adminGlobalDocumentsRoutes.js";
+import adminPersonalAiRoutes from "./adminPersonalAiRoutes.js";
+import adminWalletRoutes from "./adminWalletRoutes.js";
 import { syncTicketTailor } from "../controllers/adminMembershipController.js";
 
 const router = Router();
@@ -71,5 +73,7 @@ router.use("/page-templates", requireAdmin, adminPageTemplateRoutes);
 router.use("/ai-assistant", requireAdmin, adminAiAssistantRoutes);
 router.use("/customer-dashboard", requireAdmin, adminCustomerDashboardRoutes);
 router.use("/settings", requireAdmin, adminSettingsRoutes);
+router.use("/personal-ai", requireAdmin, adminPersonalAiRoutes);
+router.use("/wallet", requireAdmin, adminWalletRoutes);
 
 export default router;

@@ -140,6 +140,14 @@ const env = {
   // rather than throwing, so the UI can show a clear message instead of a 500.
   anthropic: {
     apiKey: stripEnv(process.env.ANTHROPIC_API_KEY)
+  },
+
+  // Personal AI Assistant: Web Push (VAPID keypair). Blank until provided —
+  // webPushService stays inert rather than throwing on import.
+  vapid: {
+    publicKey: stripEnv(process.env.VAPID_PUBLIC_KEY),
+    privateKey: stripEnv(process.env.VAPID_PRIVATE_KEY),
+    subject: stripEnv(process.env.VAPID_SUBJECT) || "mailto:info@stichtingthevoice.nl"
   }
 };
 

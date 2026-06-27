@@ -1,11 +1,25 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   plugins: [
     react(),
+    tailwindcss(),
     VitePWA({
+      // Switched from the default generateSW strategy to injectManifest so the
+      // Personal AI Assistant feature can add push/notificationclick listeners
+      // in a hand-written service worker (src/sw.js) — generateSW's auto-built
+      // worker has no hook for custom event listeners.
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.js",
+      injectManifest: {
+        globPatterns: ["**/*.{js,css,html,ico,svg,woff2}", "favicon.png"],
+        globIgnores: ["**/events-highlights/**"],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+      },
       registerType: "autoUpdate",
       includeAssets: ["favicon.png", "pwa/icon-192.png", "pwa/icon-512.png"],
       devOptions: {
@@ -63,19 +77,6 @@ export default defineConfig({
             short_name: "Donate",
             url: "/donate",
             icons: [{ src: "/pwa/icon-192.png", sizes: "192x192", type: "image/png" }],
-          },
-        ],
-      },
-      workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,svg,woff2}", "favicon.png"],
-        globIgnores: ["**/events-highlights/**"],
-        navigateFallback: "/index.html",
-        navigateFallbackDenylist: [/^\/api/],
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) => url.pathname.startsWith("/api/"),
-            handler: "NetworkOnly",
           },
         ],
       },

@@ -504,6 +504,98 @@
   cursor: not-allowed;
 }
 
+/* V.Wallet payment option on the checkout step */
+.ticket-booking__wallet-pay {
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  background: rgba(124, 58, 237, 0.08);
+}
+
+.ticket-booking__wallet-pay-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.ticket-booking__wallet-pay-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #e9d8ff;
+}
+
+.ticket-booking__wallet-pay-balance {
+  font-size: 0.85rem;
+  color: #c4b5fd;
+}
+
+.ticket-booking__wallet-pay-points {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+  font-size: 0.85rem;
+  color: #c4b5fd;
+}
+
+.ticket-booking__wallet-pay-points input {
+  width: 90px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+
+.ticket-booking__wallet-pay-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #7c3aed 0%, #22d3ee 100%);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ticket-booking__wallet-pay-cta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ticket-booking__wallet-pay-topup {
+  font-size: 0.85rem;
+  color: #fbbf24;
+}
+
+.ticket-booking__wallet-pay-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0;
+  font-size: 0.78rem;
+  color: #5d6b85;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ticket-booking__wallet-pay-divider::before,
+.ticket-booking__wallet-pay-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .ticket-booking__nav {
   display: flex;
   gap: 12px;

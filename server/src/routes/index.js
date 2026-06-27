@@ -18,6 +18,8 @@ import ticketPublicRoutes from "./ticketPublicRoutes.js";
 import verifyMembershipRoutes from "./verifyMembershipRoutes.js";
 import webhookRoutes from "./webhookRoutes.js";
 import consentRoutes from "./consentRoutes.js";
+import aiAssistantRoutes from "./aiAssistantRoutes.js";
+import walletRoutes from "./walletRoutes.js";
 
 const router = Router();
 
@@ -39,6 +41,8 @@ router.use("/booking", bookingRoutes);
 router.use("/events", eventRoutes);
 router.use("/tickets", ticketPublicRoutes);
 router.use("/webhooks", webhookRoutes);
+router.use("/ai", aiAssistantRoutes);
+router.use("/wallet", walletRoutes);
 router.use("/admin", adminRoutes);
 
 export default router;

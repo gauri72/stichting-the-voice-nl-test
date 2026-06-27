@@ -1,10 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  IconCalendarEvent,
-  IconCrown,
-  IconDownload,
-  IconRefresh,
-} from "@tabler/icons-react";
+import { BookTickets, ExportCsv, ManageMembership } from "../icons/icons/index.js";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { apiFetch, authHeaders } from "../../utils/api.js";
 import {
@@ -186,14 +181,14 @@ export default function MemberDashboard() {
     {
       id: "explore",
       label: "Explore Events",
-      icon: <IconCalendarEvent size={20} stroke={1.75} />,
+      icon: <BookTickets width={20} height={20} />,
       to: DASHBOARD_ROUTES.myEvents,
       tone: "teal",
     },
     {
       id: "download",
       label: "Download Card",
-      icon: <IconDownload size={20} stroke={1.75} />,
+      icon: <ExportCsv width={20} height={20} />,
       tone: "blue",
       onClick: () => {
         const card = document.querySelector(".voice-ecard:not(.voice-ecard--empty)");
@@ -205,14 +200,14 @@ export default function MemberDashboard() {
     {
       id: "renew",
       label: "Renew Membership",
-      icon: <IconRefresh size={20} stroke={1.75} />,
+      icon: <ManageMembership width={20} height={20} />,
       to: DASHBOARD_ROUTES.membershipMatrix,
       tone: "green",
     },
     {
       id: "upgrade",
       label: "Upgrade Membership",
-      icon: <IconCrown size={20} stroke={1.75} />,
+      icon: <ManageMembership width={20} height={20} />,
       to: DASHBOARD_ROUTES.membershipMatrix,
       tone: "teal-dark",
     },

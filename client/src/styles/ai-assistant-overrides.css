@@ -1,0 +1,130 @@
+/*
+ * A handful of precise pixel/viewport-relative values that Tailwind's
+ * arbitrary-bracket syntax (`h-[calc(...)]`, `max-w-[78%]`, etc.) does not
+ * currently generate in this project's Tailwind v4 + Vite setup — every
+ * other class in the AI assistant components is a standard Tailwind
+ * utility and works as expected. Plain CSS is the pragmatic fallback for
+ * just these cases rather than fighting the build pipeline further.
+ */
+
+.ai-chat-shell {
+  height: calc(100vh - 160px);
+  min-height: 480px;
+}
+@media (min-width: 640px) {
+  .ai-chat-shell {
+    height: 70vh;
+  }
+}
+
+.ai-chat-history-panel {
+  max-height: 70vh;
+}
+@media (min-width: 640px) {
+  .ai-chat-history-panel {
+    max-height: 400px;
+  }
+}
+
+.ai-bubble-max-width {
+  max-width: 78%;
+}
+
+.ai-modal-max-height {
+  max-height: 90vh;
+}
+
+@media (min-width: 640px) {
+  .ai-modal-width {
+    width: 440px;
+  }
+  /* Centered via top:0 + margin:auto rather than translate(-50%,-50%) —
+     this element is also animated by Framer Motion (`animate={{ y: 0 }}`),
+     and its inline transform would silently clobber a CSS transform used
+     for centering. */
+  .ai-modal-centered {
+    top: 0;
+    margin: auto;
+  }
+}
+
+.ai-text-9 {
+  font-size: 9px;
+  line-height: 1.2;
+}
+
+.ai-text-10 {
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+.ai-text-11 {
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* V Assist floating overlay — opens in place over whatever page triggered it,
+   rather than navigating away. z-index is set above every other fixed
+   element on the site (PWA install banner, header, cookie banner, etc). */
+.ai-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+}
+
+.ai-overlay-panel {
+  position: fixed;
+  z-index: 10001;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 92vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .ai-overlay-panel {
+    /* Centered via inset + margin:auto rather than the usual
+       left/top/translate(-50%,-50%) trick — Framer Motion drives this
+       element's `transform` directly for the open/close animation, and an
+       inline style always wins over a CSS class, so a transform-based
+       centering rule here would get silently clobbered. */
+    inset: 0;
+    margin: auto;
+    width: 720px;
+    max-width: calc(100vw - 48px);
+    height: min(680px, 85vh);
+    border-radius: 20px;
+  }
+}
+
+.ai-overlay-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+}
+.ai-overlay-body.ai-overlay-body--chat {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+.ai-overlay-body--chat .ai-chat-shell {
+  height: 100%;
+  min-height: 0;
+  border-radius: 0;
+}
+
+/* Nested modals (chat history drawer, schedule form) need to render above
+   the V Assist overlay panel itself when opened from inside it, since both
+   are `position: fixed` and therefore compete in the root stacking context
+   regardless of DOM nesting. */
+.ai-nested-modal-backdrop {
+  z-index: 10002;
+}
+.ai-nested-modal-panel {
+  z-index: 10003;
+}

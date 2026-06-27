@@ -27,6 +27,9 @@ export const PERMISSION_MODULES = {
   reviews: ["view", "edit", "moderate"],
   team_public: ["view", "edit"],
   checkout_forms: ["view", "edit"],
+  personal_ai: ["view", "edit"],
+  wallet: ["view", "edit"],
+  icon_library: ["view"],
 };
 
 export function buildPermissionList() {
@@ -95,6 +98,9 @@ export const DEFAULT_ROLES = [
       communication: ["view", "edit", "send"],
       team_public: ["view", "edit"],
       checkout_forms: ["view", "edit"],
+      personal_ai: ["view", "edit"],
+      wallet: ["view", "edit"],
+      icon_library: ["view"],
     }),
     dashboardAccess: "operational",
   },
@@ -198,6 +204,9 @@ export const DEFAULT_ROLES = [
       cms: ["view"],
       inventory: ["view"],
       documents: ["view"],
+      personal_ai: ["view"],
+      wallet: ["view"],
+      icon_library: ["view"],
     }),
     dashboardAccess: "readonly",
   },
@@ -259,6 +268,9 @@ export const NAV_ROUTE_PERMISSIONS = {
   "/admin/access-management": "access_management.view",
   "/admin/inventory": "inventory.view",
   "/admin/documents": "documents.view",
+  "/admin/personal-ai": "personal_ai.view",
+  "/admin/wallet": "wallet.view",
+  "/admin/icon-library": "icon_library.view",
 };
 
 export const DEFAULT_INVITE_EXPIRY_DAYS = 7;

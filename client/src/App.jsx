@@ -17,6 +17,12 @@ import ResetPasswordPage from "./components/login/ResetPasswordPage";
 const DashboardPage = lazy(() => import("./components/dashboard/DashboardPage"));
 const DashboardMyEventsPage = lazy(() => import("./components/dashboard/DashboardMyEventsPage"));
 const DashboardEventTicketsPage = lazy(() => import("./components/dashboard/DashboardEventTicketsPage"));
+const AiChatPage = lazy(() => import("./components/dashboard/ai-assistant/AiChatPage.jsx"));
+const AiPromptLibraryPage = lazy(() => import("./components/dashboard/ai-assistant/AiPromptLibraryPage.jsx"));
+const AiScheduledPromptsPage = lazy(() => import("./components/dashboard/ai-assistant/AiScheduledPromptsPage.jsx"));
+const WalletPage = lazy(() => import("./components/dashboard/wallet/WalletPage.jsx"));
+import AiAssistantPageShell from "./components/dashboard/ai-assistant/AiAssistantPageShell.jsx";
+import AiAssistantOverlay from "./components/dashboard/ai-assistant/AiAssistantOverlay.jsx";
 import MyProfilePage from "./components/profile/MyProfilePage";
 import VentureStudioPage from "./components/venture-studio/VentureStudioPage";
 import StoriesPage from "./components/stories/StoriesPage";
@@ -96,6 +102,9 @@ import AdminCheckoutFormsPage from "./components/admin/AdminCheckoutFormsPage.js
 import AdminReviewsPage from "./components/admin/AdminReviewsPage.jsx";
 import AdminTeamMembersPage from "./components/admin/AdminTeamMembersPage.jsx";
 import AdminApiBuilderPage from "./components/admin/AdminApiBuilderPage.jsx";
+import AdminAiAssistantPage from "./components/admin/AdminAiAssistantPage.jsx";
+import AdminWalletPage from "./components/admin/AdminWalletPage.jsx";
+import AdminIconLibraryPage from "./components/admin/icon-library/AdminIconLibraryPage.jsx";
 import AdminApiBuilderLogsPage from "./components/admin/AdminApiBuilderLogsPage.jsx";
 import AccessManagementLayout from "./components/admin/access/AccessManagementLayout.jsx";
 import AccessTeamMembersPage from "./components/admin/access/AccessTeamMembersPage.jsx";
@@ -456,6 +465,30 @@ export default function App() {
             }
           />
           <Route
+            path="/admin/personal-ai"
+            element={
+              <AdminProtectedRoute>
+                <AdminAiAssistantPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/wallet"
+            element={
+              <AdminProtectedRoute>
+                <AdminWalletPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/icon-library"
+            element={
+              <AdminProtectedRoute>
+                <AdminIconLibraryPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/api-builder"
             element={
               <AdminProtectedRoute>
@@ -705,6 +738,52 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/dashboard/wallet"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="member-dashboard__status">Loading your wallet…</div>}>
+                  <WalletPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/ai-assistant"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="member-dashboard__status">Loading your assistant…</div>}>
+                  <AiAssistantPageShell>
+                    <AiChatPage />
+                  </AiAssistantPageShell>
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/ai-assistant/prompts"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="member-dashboard__status">Loading your prompts…</div>}>
+                  <AiAssistantPageShell>
+                    <AiPromptLibraryPage />
+                  </AiAssistantPageShell>
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/ai-assistant/schedule"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="member-dashboard__status">Loading your schedules…</div>}>
+                  <AiAssistantPageShell>
+                    <AiScheduledPromptsPage />
+                  </AiAssistantPageShell>
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
       {!hideSiteChrome && <Footer />}
@@ -712,6 +791,7 @@ export default function App() {
       {!hideSiteChrome && <SiteInstallPwaPrompt />}
       {!hideSiteChrome && <CookieConsentBanner />}
       {!hideSiteChrome && <CookiePreferencesModal />}
+      <AiAssistantOverlay />
     </div>
     </>
   );

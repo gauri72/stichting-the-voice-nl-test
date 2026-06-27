@@ -9,6 +9,7 @@ import MembershipBenefitBanner from "./MembershipBenefitBanner.jsx";
 import MembershipPlanCards from "./MembershipPlanCards.jsx";
 import BookingPricePreview from "./BookingPricePreview.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useWallet } from "../../contexts/WalletContext.jsx";
 import { useTheme } from "../../contexts/ThemeContext.jsx";
 import { apiFetch, authHeaders } from "../../utils/api.js";
 import { getStripePromise, STRIPE_PUBLISHABLE_KEY } from "../../utils/stripeClient.js";
@@ -31,6 +32,7 @@ import DynamicCheckoutForm, { serializeCheckoutAnswers } from "./DynamicCheckout
 import useBookingFlow from "../../hooks/useBookingFlow.js";
 import "../../styles/sponsorship-payment-block.css";
 import "../../styles/seat-map.css";
+import "../../styles/ticket-booking-page.css";
 import { devWarn } from "../../utils/devLog.js";
 
 const TICKET_CHECKOUT_SESSION_KEY = "voice_nl_ticket_checkout";
@@ -61,8 +63,13 @@ export default function TicketBookingPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { wallet: walletData, loadWallet, payWithWallet } = useWallet();
   const { isDark } = useTheme();
   const stripeAppearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
+
+  const [walletSubmitting, setWalletSubmitting] = useState(false);
+  const [walletPayError, setWalletPayError] = useState("");
+  const [pointsToRedeem, setPointsToRedeem] = useState(0);
 
   const [event, setEvent] = useState(null);
   const [quantities, setQuantities] = useState({});
@@ -807,6 +814,39 @@ export default function TicketBookingPage() {
     initCheckout();
   }, [step, clientSecret, checkoutLoading, handlingReturn, checkoutOrder, isFreeCheckout]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (user) loadWallet();
+  }, [user, loadWallet]);
+
+  async function handlePayWithWallet() {
+    setWalletSubmitting(true);
+    setWalletPayError("");
+    try {
+      const result = await payWithWallet({
+        eventId: eventIdOrSlug,
+        checkout: {
+          items: selectedItems,
+          attendeeFirstName: attendee.firstName,
+          attendeeLastName: attendee.lastName,
+          attendeeEmail: attendee.email,
+          attendeePhone: attendee.phone,
+          discountCodes: ticketCodes,
+          termsAccepted,
+          selectedSeatIds,
+          checkoutFormAnswers,
+          participantCount: ticketQty,
+        },
+        pointsToRedeem: pointsToRedeem || 0,
+      });
+      clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
+      goToConfirmation(result.order.orderNumber, attendee.email);
+    } catch (err) {
+      setWalletPayError(err.message || t("checkout:errors.couldNotStartCheckout"));
+    } finally {
+      setWalletSubmitting(false);
+    }
+  }
+
   async function handleStripeSuccess(paymentIntent) {
     const orderId = checkoutOrder?.id || resolveOrderId(paymentIntent);
     if (!orderId && !paymentIntent?.id) {
@@ -1461,6 +1501,49 @@ export default function TicketBookingPage() {
                     <div className="ticket-booking__summary-total">
                       <span>{t("checkout:payment.totalDue")}</span><span>{preview.combined.grandTotal}</span>
                     </div>
+                  </div>
+                ) : null}
+
+                {user && walletData?.enabled && preview?.combined ? (
+                  <div className="ticket-booking__wallet-pay">
+                    <div className="ticket-booking__wallet-pay-head">
+                      <span className="ticket-booking__wallet-pay-title">💳 Pay with V.Wallet</span>
+                      <span className="ticket-booking__wallet-pay-balance">Balance: €{(walletData.balanceMinor / 100).toFixed(2)}</span>
+                    </div>
+
+                    {walletData.rewardPoints >= walletData.pointsProgram.minRedemptionPoints ? (
+                      <div className="ticket-booking__wallet-pay-points">
+                        <label htmlFor="wallet-points-redeem">Redeem points ({walletData.rewardPoints} available)</label>
+                        <input
+                          id="wallet-points-redeem"
+                          type="number"
+                          min="0"
+                          max={walletData.rewardPoints}
+                          step={walletData.pointsProgram.minRedemptionPoints}
+                          value={pointsToRedeem}
+                          onChange={(e) => setPointsToRedeem(Math.max(0, Number(e.target.value)))}
+                        />
+                      </div>
+                    ) : null}
+
+                    {walletPayError ? <p className="ticket-booking__error">{walletPayError}</p> : null}
+
+                    {walletData.balanceMinor >= (preview.combined.grandTotalMinor || 0) ? (
+                      <button
+                        type="button"
+                        className="ticket-booking__wallet-pay-cta"
+                        disabled={walletSubmitting}
+                        onClick={handlePayWithWallet}
+                      >
+                        {walletSubmitting ? "Processing…" : `Pay ${preview.combined.grandTotal} with V.Wallet`}
+                      </button>
+                    ) : (
+                      <p className="ticket-booking__wallet-pay-topup">
+                        Your wallet balance doesn't cover this total yet — top up from your dashboard, or pay by card below.
+                      </p>
+                    )}
+
+                    <div className="ticket-booking__wallet-pay-divider">or pay by card</div>
                   </div>
                 ) : null}
 

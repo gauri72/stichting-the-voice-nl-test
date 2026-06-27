@@ -165,6 +165,12 @@ export function resolveAdminPermission(req) {
   if (url.includes("/admin/page-templates")) {
     return method === "GET" ? "cms.view" : "cms.edit";
   }
+  if (url.includes("/admin/personal-ai")) {
+    return method === "GET" ? "personal_ai.view" : "personal_ai.edit";
+  }
+  if (url.includes("/admin/wallet")) {
+    return method === "GET" ? "wallet.view" : "wallet.edit";
+  }
   if (url.includes("/admin/ai-assistant")) {
     return method === "GET" ? "cms.view" : "cms.edit";
   }

@@ -1,0 +1,61 @@
+import { motion } from "framer-motion";
+import { IconStar, IconStarFilled, IconTrash, IconPlayerPlayFilled } from "@tabler/icons-react";
+
+export default function PromptCard({ prompt, isPrebuilt, onRun, onToggleFavourite, onDelete }) {
+  return (
+    <motion.div
+      whileHover={{ y: -4, scale: 1.015 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className="group flex flex-col justify-between rounded-xl bg-slate-800/60 p-4 ring-1 ring-white/10 shadow-md transition-shadow hover:shadow-xl hover:shadow-purple-900/20"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm leading-snug text-slate-100">{prompt.promptText || prompt.text}</p>
+        {!isPrebuilt && (
+          <button
+            type="button"
+            onClick={onToggleFavourite}
+            aria-label={prompt.isFavourite ? "Remove from favourites" : "Add to favourites"}
+            className="shrink-0 text-amber-300 transition hover:scale-110"
+          >
+            {prompt.isFavourite ? (
+              <motion.span
+                animate={{ filter: ["drop-shadow(0 0 0px #fbbf24)", "drop-shadow(0 0 6px #fbbf24)", "drop-shadow(0 0 0px #fbbf24)"] }}
+                transition={{ duration: 1.8, repeat: Infinity }}
+              >
+                <IconStarFilled size={18} />
+              </motion.span>
+            ) : (
+              <IconStar size={18} className="text-slate-500" />
+            )}
+          </button>
+        )}
+      </div>
+
+      <div className="mt-3 flex items-center justify-between">
+        <span className="ai-text-10 rounded-full bg-white/5 px-2 py-0.5 uppercase tracking-wide text-slate-400">
+          {prompt.category}
+        </span>
+        <div className="flex items-center gap-1">
+          {!isPrebuilt && (
+            <button
+              type="button"
+              onClick={onDelete}
+              aria-label="Delete prompt"
+              className="rounded-md p-1.5 text-slate-500 opacity-0 transition group-hover:opacity-100 hover:bg-white/10 hover:text-red-300"
+            >
+              <IconTrash size={14} />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onRun}
+            aria-label="Run this prompt"
+            className="ai-text-11 flex items-center gap-1 rounded-md bg-purple-600/80 px-2.5 py-1 font-medium text-white transition hover:bg-purple-500 active:scale-95"
+          >
+            <IconPlayerPlayFilled size={12} /> Run
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}

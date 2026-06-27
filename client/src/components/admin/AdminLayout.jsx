@@ -32,6 +32,9 @@ import {
   IconPackage,
   IconFiles,
   IconVideo,
+  IconSparkles,
+  IconWallet,
+  IconShape,
 } from "@tabler/icons-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
 import { canAccessRoute } from "../../utils/rbacAdmin.js";
@@ -106,6 +109,9 @@ const NAV_ITEMS = [
     ],
   },
   { to: "/admin/reports", label: "Reports", icon: IconChartBar },
+  { to: "/admin/personal-ai", label: "Personal AI Assistant", icon: IconSparkles },
+  { to: "/admin/wallet", label: "V.Wallet", icon: IconWallet },
+  { to: "/admin/icon-library", label: "V Icon Library", icon: IconShape },
   { to: "/admin/api-builder", label: "Smart API Builder", icon: IconApi },
   {
     label: "Administration",

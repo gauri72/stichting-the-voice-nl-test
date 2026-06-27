@@ -8,6 +8,8 @@ import { logStripeConfiguration, loadStripeSecretsFromSettings } from "./service
 import { logTicketTailorConfiguration } from "./services/ticketTailorService.js";
 import { startPastDataSyncScheduler } from "./services/pastDataSyncScheduler.js";
 import { startDiscountExpiryReminderScheduler } from "./services/discountExpiryReminderScheduler.js";
+import { startAiSchedulerService } from "./services/aiSchedulerService.js";
+import { startWalletPointsExpiryScheduler } from "./services/walletPointsExpiryScheduler.js";
 import { logMailConfiguration, verifySmtpConnection, loadEmailSecretsFromSettings } from "./services/smtpTransport.js";
 import { cleanupExpiredSeatHolds } from "./services/seatService.js";
 import { ensureDefaultTeamMembers } from "./services/teamMemberService.js";
@@ -64,6 +66,8 @@ if (shouldConnectDb) {
       await loadEmailSecretsFromSettings().catch(() => {});
       startPastDataSyncScheduler();
       startDiscountExpiryReminderScheduler();
+      startAiSchedulerService();
+      startWalletPointsExpiryScheduler();
       setInterval(() => {
         cleanupExpiredSeatHolds().catch((err) =>
           console.warn("[seats] hold cleanup failed:", err.message)

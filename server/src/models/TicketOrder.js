@@ -101,6 +101,10 @@ const ticketOrderSchema = new mongoose.Schema(
       index: true,
     },
     paymentIntentId: { type: String, default: "", trim: true, index: true },
+    // Distinguishes a wallet-funded order from a genuinely free/complimentary
+    // one even though both can land on paymentStatus "free" via fulfillOrder's
+    // isFreeOrder bypass — needed for admin wallet revenue reporting.
+    paymentMethod: { type: String, enum: ["card", "wallet", "wallet_split", "free", "complimentary"], default: "card" },
     termsAccepted: { type: Boolean, default: false },
     bookingMode: { type: String, default: "", trim: true, index: true },
     adminIssued: { type: Boolean, default: false },
