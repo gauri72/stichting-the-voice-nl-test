@@ -1,0 +1,165 @@
+/*
+ * V Icon design system — color roles and the V-chevron "draw in" accent
+ * animation. Plain CSS rather than Tailwind for two reasons: (1) the
+ * chevron-draw effect needs `stroke-dasharray`/`stroke-dashoffset`, which
+ * aren't Tailwind utilities, and (2) parent-hover-affects-child-SVG-path
+ * effects need a real CSS selector, not Tailwind's arbitrary-value syntax
+ * (which doesn't reliably generate in this project's Tailwind v4 setup —
+ * see the dashboard AI assistant / wallet components for the same finding).
+ * Sizing, layout and the lift/scale hover are all standard Tailwind
+ * utilities directly in VIcon.jsx/VIconButton.jsx instead.
+ */
+
+:root,
+[data-theme="light"] {
+  --vicon-accent-fg: #0d5288;
+  --vicon-accent-bg: rgba(31, 134, 201, 0.12);
+  --vicon-accent-bg-hover: rgba(31, 134, 201, 0.22);
+
+  --vicon-success-fg: #1a6b34;
+  --vicon-success-bg: rgba(47, 168, 79, 0.12);
+  --vicon-success-bg-hover: rgba(47, 168, 79, 0.22);
+
+  --vicon-warning-fg: #92580a;
+  --vicon-warning-bg: rgba(251, 191, 36, 0.16);
+  --vicon-warning-bg-hover: rgba(251, 191, 36, 0.26);
+
+  --vicon-danger-fg: #b42318;
+  --vicon-danger-bg: rgba(248, 113, 113, 0.14);
+  --vicon-danger-bg-hover: rgba(248, 113, 113, 0.24);
+
+  --vicon-pro-fg: #5b21b6;
+  --vicon-pro-bg: rgba(167, 139, 250, 0.14);
+  --vicon-pro-bg-hover: rgba(167, 139, 250, 0.24);
+
+  --vicon-neutral-fg: #475569;
+  --vicon-neutral-bg: rgba(148, 163, 184, 0.14);
+  --vicon-neutral-bg-hover: rgba(148, 163, 184, 0.24);
+}
+
+[data-theme="dark"] {
+  --vicon-accent-fg: #56b8e8;
+  --vicon-accent-bg: rgba(31, 134, 201, 0.16);
+  --vicon-accent-bg-hover: rgba(31, 134, 201, 0.28);
+
+  --vicon-success-fg: #4ade80;
+  --vicon-success-bg: rgba(47, 168, 79, 0.16);
+  --vicon-success-bg-hover: rgba(47, 168, 79, 0.28);
+
+  --vicon-warning-fg: #fbbf24;
+  --vicon-warning-bg: rgba(251, 191, 36, 0.16);
+  --vicon-warning-bg-hover: rgba(251, 191, 36, 0.28);
+
+  --vicon-danger-fg: #f87171;
+  --vicon-danger-bg: rgba(248, 113, 113, 0.16);
+  --vicon-danger-bg-hover: rgba(248, 113, 113, 0.28);
+
+  --vicon-pro-fg: #c4b5fd;
+  --vicon-pro-bg: rgba(167, 139, 250, 0.18);
+  --vicon-pro-bg-hover: rgba(167, 139, 250, 0.3);
+
+  --vicon-neutral-fg: #cbd5e1;
+  --vicon-neutral-bg: rgba(148, 163, 184, 0.16);
+  --vicon-neutral-bg-hover: rgba(148, 163, 184, 0.28);
+}
+
+/* The signature element: every icon's V-chevron path carries this class.
+   It draws in (stroke animates from invisible to complete) on hover/focus
+   of the nearest .v-icon-wrapper, and gets a quick scale "pulse" on click
+   via the .v-icon-pulse class toggled briefly from VIcon.jsx. */
+.v-icon-chevron {
+  stroke-dasharray: 16;
+  stroke-dashoffset: 16;
+  transform-origin: center;
+}
+
+/* Only animates when VIcon was rendered with animated={true} (the
+   .v-icon-animated class) — the `animated` prop is a per-instance opt-out
+   distinct from the system-level prefers-reduced-motion handled below. */
+.v-icon-wrapper.v-icon-animated .v-icon-chevron {
+  transition: stroke-dashoffset 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.v-icon-wrapper.v-icon-animated:hover .v-icon-chevron,
+.v-icon-wrapper.v-icon-animated:focus-visible .v-icon-chevron {
+  stroke-dashoffset: 0;
+}
+
+/* Toggled on .v-icon-wrapper briefly by VIcon.jsx on click — targets the
+   chevron path as a descendant so icon files never need to know about it. */
+.v-icon-wrapper.v-icon-pulse-active .v-icon-chevron {
+  animation: v-icon-pulse-kf 0.32s ease-out;
+}
+
+@keyframes v-icon-pulse-kf {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Background brightens on hover/focus — plain CSS rather than a Framer
+   Motion `whileHover` value, since Framer Motion can't interpolate a
+   `var(--token)` color reference (it needs a literal hex/rgb to animate
+   between, not an opaque CSS variable). */
+.v-icon-button {
+  transition: background-color 0.18s ease;
+}
+.v-icon-button:hover:not(:disabled),
+.v-icon-button:focus-visible:not(:disabled) {
+  background-color: var(--vicon-btn-bg-hover);
+}
+
+/* Loading spinner — continuous rotation of the V shape itself. The chevron
+   path is hidden by default (.v-icon-chevron's base dashoffset:16) since
+   that's normally only revealed by a hover/success state — force it
+   visible here so there's actually a V rotating, not an empty circle. */
+.v-icon-spin {
+  animation: v-icon-spin-kf 1s linear infinite;
+  transform-origin: center;
+}
+.v-icon-spin .v-icon-chevron {
+  stroke-dashoffset: 0;
+}
+
+@keyframes v-icon-spin-kf {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success checkmark draw — used when an action completes. Targets the
+   chevron path as a descendant (same reasoning as .v-icon-pulse-active):
+   stroke-dasharray/dashoffset only do something on the actual stroked
+   <path>, not the outer <svg> the class gets applied to. */
+.v-icon-success-draw .v-icon-chevron {
+  stroke-dasharray: 16;
+  stroke-dashoffset: 16;
+  animation: v-icon-draw-kf 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes v-icon-draw-kf {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v-icon-chevron,
+  .v-icon-wrapper.v-icon-pulse-active .v-icon-chevron,
+  .v-icon-spin,
+  .v-icon-success-draw .v-icon-chevron,
+  .v-icon-button {
+    animation: none !important;
+    transition: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
