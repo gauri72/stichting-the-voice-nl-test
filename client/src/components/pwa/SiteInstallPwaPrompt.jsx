@@ -12,26 +12,25 @@ export default function SiteInstallPwaPrompt() {
 
   return (
     <>
-      <aside className="site-pwa-install" aria-label="Install website app">
-        <div className="site-pwa-install__copy">
-          <strong>Install V.O.I.C.E. app</strong>
-          <p>Get quick access to events, membership, and more from your home screen.</p>
-        </div>
-        <div className="site-pwa-install__actions">
-          <button type="button" className="site-pwa-install__primary" onClick={() => setDialogOpen(true)}>
-            <IconDownload size={16} aria-hidden />
-            Install
-          </button>
-          <button
-            type="button"
-            className="site-pwa-install__dismiss"
-            onClick={() => setDismissed(true)}
-            aria-label="Dismiss install prompt"
-          >
-            <IconX size={16} />
-          </button>
-        </div>
-      </aside>
+      <div className="site-pwa-install">
+        <button
+          type="button"
+          className="site-pwa-install__fab"
+          onClick={() => setDialogOpen(true)}
+          aria-label="Install V.App"
+        >
+          <IconDownload size={20} aria-hidden stroke={1.75} />
+          <span>V.App</span>
+        </button>
+        <button
+          type="button"
+          className="site-pwa-install__dismiss"
+          onClick={() => setDismissed(true)}
+          aria-label="Dismiss install prompt"
+        >
+          <IconX size={11} />
+        </button>
+      </div>
 
       <PwaInstallDialog
         open={dialogOpen}
