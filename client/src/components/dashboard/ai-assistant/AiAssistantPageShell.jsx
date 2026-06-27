@@ -17,7 +17,7 @@ const TABS = [
  */
 export default function AiAssistantPageShell({ children }) {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+    <div className="mx-auto max-w-5xl px-4 pb-6 sm:px-6" style={{ paddingTop: "clamp(72px, 10vw, 96px)" }}>
       <nav className="mb-4 flex gap-1 overflow-x-auto rounded-xl bg-slate-900/60 p-1 ring-1 ring-white/10" aria-label="AI Assistant sections">
         {TABS.map(({ to, label, icon: Icon, end }) => (
           <NavLink

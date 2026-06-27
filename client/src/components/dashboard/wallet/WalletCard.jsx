@@ -83,9 +83,9 @@ export default function WalletCard({ customerName, customerId, balanceMinor, rew
             )}
           </div>
 
-          <div className="flex items-end justify-between">
-            <p className="font-mono text-sm tracking-widest text-white/80">{maskWalletId(customerId)}</p>
-            <p className="truncate text-right text-sm font-semibold" style={{ maxWidth: "55%" }}>{customerName}</p>
+          <div className="flex items-end justify-between gap-2">
+            <p className="shrink-0 font-mono text-sm tracking-widest text-white/80">{maskWalletId(customerId)}</p>
+            <p className="min-w-0 flex-1 truncate text-right text-sm font-semibold">{customerName}</p>
           </div>
         </div>
 
