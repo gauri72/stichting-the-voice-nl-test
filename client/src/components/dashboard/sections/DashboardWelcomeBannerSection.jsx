@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FaIdCard, FaSignOutAlt } from "react-icons/fa";
-import { AiAgent, PayWallet } from "../../icons/icons/index.js";
+import { IconSparkles } from "@tabler/icons-react";
+import { PayWallet } from "../../icons/icons/index.js";
 import breadcrumbBgLight from "../../../assets/Dashboard/breadcrumb-bg-light.png";
 import breadcrumbBgDark from "../../../assets/Dashboard/breadcrumb-bg-dark.png";
 import { useTheme } from "../../../contexts/ThemeContext.jsx";
@@ -48,7 +49,7 @@ export default function DashboardWelcomeBannerSection({ displayName, greeting = 
         </h1>
         <button type="button" onClick={openAssistant} className="dash-welcome__ai-cta">
           <span className="dash-welcome__ai-cta-icon">
-            <AiAgent width={20} height={20} aria-hidden="true" />
+            <IconSparkles size={20} aria-hidden="true" />
           </span>
           <span className="dash-welcome__ai-cta-text">
             <span className="dash-welcome__ai-cta-title">V.Assist</span>

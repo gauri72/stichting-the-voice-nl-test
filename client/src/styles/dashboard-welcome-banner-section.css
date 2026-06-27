@@ -416,8 +416,14 @@ a.dash-welcome__badge:hover {
   height: 34px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: linear-gradient(135deg, #a78bfa 0%, #22d3ee 100%);
-  color: #ffffff;
+  /* Matches the "V.O.I.C.E. AI Assist" subtitle's color below it. */
+  background: rgba(167, 139, 250, 0.16);
+  color: #d8b4fe;
+}
+
+[data-theme="light"] .dash-welcome__ai-cta-icon {
+  background: rgba(76, 29, 149, 0.12);
+  color: #4c1d95;
 }
 
 .dash-welcome__ai-cta-text {
