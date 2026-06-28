@@ -112,6 +112,7 @@ export default function TicketBookingPage() {
   const [checkoutFormFields, setCheckoutFormFields] = useState([]);
   const [checkoutFormValues, setCheckoutFormValues] = useState({});
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [loginModalInitialMode, setLoginModalInitialMode] = useState("login");
   const sessionRestoreRef = useRef(false);
 
   const checkoutSessionIdFromUrl = searchParams.get("checkoutSessionId") || "";
@@ -369,7 +370,7 @@ export default function TicketBookingPage() {
     saveBeforeLoginApi,
   ]);
 
-  const handleRequestLogin = useCallback(async () => {
+  const handleRequestLogin = useCallback(async (mode = "login") => {
     // The modal never navigates away, so apply-benefits-after-login needs a CheckoutSession
     // record to write the post-login detection back onto — without this, that call 404s
     // ("Checkout session expired or not found") and the failure gets swallowed, leaving the
@@ -380,6 +381,7 @@ export default function TicketBookingPage() {
       setError(err.message || t("checkout:errors.couldNotStartCheckout"));
       return;
     }
+    setLoginModalInitialMode(mode);
     setIsLoginModalOpen(true);
   }, [saveCheckoutBeforeLogin, t]);
 
@@ -966,6 +968,7 @@ export default function TicketBookingPage() {
         onAuthenticated={handleLoginModalAuthenticated}
         returnTo={returnPath}
         prefillEmail={attendee.email}
+        initialMode={loginModalInitialMode}
       />
       {event.heroImage ? (
         <div className="ticket-booking__hero" style={{ backgroundImage: `url(${event.heroImage})` }} />
@@ -1501,6 +1504,25 @@ export default function TicketBookingPage() {
                     <div className="ticket-booking__summary-total">
                       <span>{t("checkout:payment.totalDue")}</span><span>{preview.combined.grandTotal}</span>
                     </div>
+                  </div>
+                ) : null}
+
+                {!user && preview?.combined ? (
+                  <div className="ticket-booking__wallet-pay ticket-booking__wallet-pay--guest">
+                    <div className="ticket-booking__wallet-pay-head">
+                      <span className="ticket-booking__wallet-pay-title">💳 Pay with V.Wallet</span>
+                    </div>
+                    <p className="ticket-booking__wallet-pay-topup">
+                      Pay instantly from your balance and earn reward points on every booking. Create a free V.O.I.C.E. NL account to get a V.Wallet.
+                    </p>
+                    <button
+                      type="button"
+                      className="ticket-booking__wallet-pay-cta"
+                      onClick={() => handleRequestLogin("signup")}
+                    >
+                      Create your free account
+                    </button>
+                    <div className="ticket-booking__wallet-pay-divider">or pay by card below</div>
                   </div>
                 ) : null}
 

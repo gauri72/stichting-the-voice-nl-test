@@ -5,9 +5,9 @@ import { IconX } from "@tabler/icons-react";
 import LoginFormSection from "../login/LoginFormSection.jsx";
 import "../../styles/login-modal.css";
 
-export default function LoginModal({ open, onClose, onAuthenticated, returnTo, prefillEmail }) {
+export default function LoginModal({ open, onClose, onAuthenticated, returnTo, prefillEmail, initialMode = "login" }) {
   const { t } = useTranslation(["auth"]);
-  const [mode, setMode] = useState("login");
+  const [mode, setMode] = useState(initialMode);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -23,7 +23,8 @@ export default function LoginModal({ open, onClose, onAuthenticated, returnTo, p
   }, [open, onClose]);
 
   useEffect(() => {
-    if (open) setMode("login");
+    if (open) setMode(initialMode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   if (!open) return null;
