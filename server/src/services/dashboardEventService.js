@@ -8,6 +8,7 @@ import { formatOrder, formatTicket } from "./ticketOrderService.js";
 import { getAutomaticMemberDiscount, getActiveMembership } from "./discountService.js";
 import { resolvePlanId } from "../config/membershipPlans.js";
 import { buildTicketPdfUrl } from "../utils/ticketPdfAccess.js";
+import { SETTLED_PAYMENT_STATUSES } from "../utils/orderPaymentUtils.js";
 
 const UPCOMING_WINDOW_DAYS = 60;
 
@@ -343,7 +344,11 @@ export async function getEventTicketsForUser(userId, eventId) {
   const orders = await TicketOrder.find({
     userId: oid,
     eventId: event._id,
-    paymentStatus: "paid",
+    // Matching "paid" only excluded wallet-funded orders (settled as "free"
+    // by the free-order fulfillment bypass before paymentMethod-aware
+    // settlement was added) and genuinely free/complimentary orders alike —
+    // any settled order should be viewable here.
+    paymentStatus: { $in: SETTLED_PAYMENT_STATUSES },
   })
     .sort({ createdAt: -1 })
     .lean();
@@ -379,6 +384,9 @@ export async function getEventTicketsForUser(userId, eventId) {
       purchaseDateLabel: formatDisplayDate(primaryOrder.createdAt),
       status: resolveBookingStatus(orders, tickets),
       paymentStatus: primaryOrder.paymentStatus,
+      totalAmountMinor: primaryOrder.totalAmountMinor,
+      paymentMethod: primaryOrder.paymentMethod || "card",
+      bookedVia: primaryOrder.bookingMode === "ai_assistant" ? "V.Assist" : "customer",
     },
     orders: orders.map(formatOrder),
     tickets: tickets.map(formatTicket),

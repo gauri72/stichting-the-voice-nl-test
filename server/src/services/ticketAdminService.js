@@ -15,6 +15,7 @@ export async function listAdminTickets(filters = {}) {
     eventId,
     ticketTypeId,
     paymentStatus,
+    paymentMethod,
     checkedIn,
     section,
     row,
@@ -25,6 +26,8 @@ export async function listAdminTickets(filters = {}) {
 
   const orderFilter = {};
   if (paymentStatus) orderFilter.paymentStatus = paymentStatus;
+  if (paymentMethod === "wallet") orderFilter.paymentMethod = { $in: ["wallet", "wallet_split"] };
+  else if (paymentMethod) orderFilter.paymentMethod = paymentMethod;
   if (eventId) orderFilter.eventId = eventId;
 
   let orderIds = null;

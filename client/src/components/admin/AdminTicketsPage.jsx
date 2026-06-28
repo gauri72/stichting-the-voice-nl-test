@@ -26,6 +26,7 @@ export default function AdminTicketsPage() {
   const [filters, setFilters] = useState({
     eventId: "",
     paymentStatus: "",
+    paymentMethod: "",
     checkedIn: "",
     section: "",
     row: "",
@@ -40,6 +41,7 @@ export default function AdminTicketsPage() {
       if (search) params.set("search", search);
       if (filters.eventId) params.set("eventId", filters.eventId);
       if (filters.paymentStatus) params.set("paymentStatus", filters.paymentStatus);
+      if (filters.paymentMethod) params.set("paymentMethod", filters.paymentMethod);
       if (filters.checkedIn) params.set("checkedIn", filters.checkedIn);
       if (filters.section) params.set("section", filters.section);
       if (filters.row) params.set("row", filters.row);
@@ -142,6 +144,15 @@ export default function AdminTicketsPage() {
     }
   }
 
+  function paymentMethodLabel(order) {
+    if (!order) return "—";
+    if (order.paymentStatus === "complimentary") return "Complimentary";
+    if (order.paymentMethod === "wallet") return "V.Wallet";
+    if (order.paymentMethod === "wallet_split") return "V.Wallet + Card";
+    if (order.paymentStatus === "free") return "Free Booking";
+    return "Card";
+  }
+
   function renderTicketRow(t, { readOnly = false } = {}) {
     return (
       <tr key={t.id} className={readOnly ? "admin-tickets__row--tt" : undefined}>
@@ -168,9 +179,12 @@ export default function AdminTicketsPage() {
           )}
         </td>
         <td>
-          <span className={`admin-tickets__badge admin-tickets__badge--${t.order?.paymentStatus}`}>
-            {t.order?.paymentStatus === "free" ? "Free Booking" : (t.order?.paymentStatus || "—")}
+          <span className={`admin-tickets__badge admin-tickets__badge--${t.order?.paymentMethod || t.order?.paymentStatus}`}>
+            {paymentMethodLabel(t.order)}
           </span>
+          {t.order?.bookingMode === "ai_assistant" ? (
+            <span className="admin-tickets__badge admin-tickets__badge--ai">V.Assist</span>
+          ) : null}
         </td>
         <td>{t.checkedIn ? "✓ Yes" : "No"}</td>
         <td className="admin-tickets__actions">
@@ -284,6 +298,13 @@ export default function AdminTicketsPage() {
             <option value="free">Free booking</option>
             <option value="pending">Pending</option>
             <option value="refunded">Refunded</option>
+          </select>
+          <select value={filters.paymentMethod} onChange={(e) => setFilters((f) => ({ ...f, paymentMethod: e.target.value }))}>
+            <option value="">All payment methods</option>
+            <option value="wallet">V.Wallet</option>
+            <option value="card">Card</option>
+            <option value="free">Free</option>
+            <option value="complimentary">Complimentary</option>
           </select>
           <select value={filters.checkedIn} onChange={(e) => setFilters((f) => ({ ...f, checkedIn: e.target.value }))}>
             <option value="">Check-in: all</option>

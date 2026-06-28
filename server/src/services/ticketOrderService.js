@@ -159,6 +159,8 @@ export function formatOrder(order) {
     vatAmountMinor: order.vatAmountMinor,
     totalAmountMinor: order.totalAmountMinor,
     paymentStatus: order.paymentStatus,
+    paymentMethod: order.paymentMethod || "card",
+    bookingMode: order.bookingMode || "",
     orderStatus: order.orderStatus || "PENDING",
     isFreeBooking: order.paymentStatus === "free" || order.totalAmountMinor <= 0,
     createdAt: order.createdAt,

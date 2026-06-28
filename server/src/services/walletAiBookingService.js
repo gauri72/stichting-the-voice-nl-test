@@ -7,7 +7,7 @@ import AIBookingLog from "../models/AIBookingLog.js";
 import { listEvents } from "./eventService.js";
 import { calculatePricePreview } from "./pricePreviewService.js";
 import { fulfillOrder } from "./postPaymentFulfillmentService.js";
-import { debitWallet, awardPoints, computePointsForSpend, getOrCreateWallet, getOrCreateWalletSettings } from "./walletService.js";
+import { debitWallet, creditWallet, awardPoints, computePointsForSpend, getOrCreateWallet, getOrCreateWalletSettings } from "./walletService.js";
 import { sendAiBookingConfirmationEmail } from "./walletMailer.js";
 import { sendPush } from "./webPushService.js";
 import PushSubscription from "../models/PushSubscription.js";
@@ -205,32 +205,57 @@ export async function executeWalletBooking(customerId, { bookingIntentId }) {
     return toolError(e.message || "Wallet payment failed.");
   }
 
-  const orderSeq = await getNextSequence("ticket_order");
-  const orderNumber = `VOICE-${new Date().getFullYear()}-${String(orderSeq).padStart(6, "0")}`;
+  let order;
+  try {
+    const orderSeq = await getNextSequence("ticket_order");
+    const orderNumber = `VOICE-${new Date().getFullYear()}-${String(orderSeq).padStart(6, "0")}`;
 
-  const order = await TicketOrder.create({
-    orderNumber,
-    orderType: "TICKET_ONLY",
-    userId: customerId,
-    eventId: preview.event.id,
-    attendeeFirstName: user.firstName || "Member",
-    attendeeLastName: user.lastName || "",
-    attendeeEmail: user.email,
-    lineItems: preview.ticketPricing.lineItems.map((li) => ({
-      ...li,
-      finalPriceMinor: li.finalPriceMinor ?? li.unitPriceMinor * li.quantity,
-    })),
-    subtotalMinor: preview.ticketPricing.subtotalMinor,
-    bookingFeeMinor: preview.summary.bookingFeeMinor,
-    vatAmountMinor: preview.summary.vatAmountMinor,
-    totalAmountMinor: pending.totalAmountMinor,
-    paymentStatus: "pending",
-    paymentMethod: "wallet",
-    termsAccepted: true,
-    bookingMode: "ai_assistant",
-  });
+    order = await TicketOrder.create({
+      orderNumber,
+      orderType: "TICKET_ONLY",
+      userId: customerId,
+      eventId: preview.event.id,
+      attendeeFirstName: user.firstName || "Member",
+      attendeeLastName: user.lastName || "",
+      attendeeEmail: user.email,
+      lineItems: preview.ticketPricing.lineItems.map((li) => ({
+        ...li,
+        finalPriceMinor: li.finalPriceMinor ?? li.unitPriceMinor * li.quantity,
+      })),
+      subtotalMinor: preview.ticketPricing.subtotalMinor,
+      bookingFeeMinor: preview.summary.bookingFeeMinor,
+      vatAmountMinor: preview.summary.vatAmountMinor,
+      totalAmountMinor: pending.totalAmountMinor,
+      paymentStatus: "pending",
+      paymentMethod: "wallet",
+      termsAccepted: true,
+      bookingMode: "ai_assistant",
+    });
 
-  const fulfilled = await fulfillOrder(order._id, null, { isFreeOrder: true });
+    await fulfillOrder(order._id, null, { isFreeOrder: true });
+  } catch (e) {
+    console.error("[wallet-ai-booking] booking failed after wallet debit:", e.message);
+    // The wallet was already debited above — the customer must not be left
+    // out of pocket for a booking that never actually went through.
+    if (pending.totalAmountMinor > 0) {
+      await creditWallet(customerId, pending.totalAmountMinor, {
+        type: "refund",
+        description: `Refund — booking could not be completed for ${preview.event.title}`,
+        referenceType: "aiBooking",
+        referenceId: pending._id.toString(),
+        initiatedBy: "ai",
+      }).catch((refundErr) => {
+        console.error("[wallet-ai-booking] CRITICAL: refund after failed booking also failed:", refundErr.message);
+      });
+    }
+    if (order) {
+      await TicketOrder.findByIdAndUpdate(order._id, {
+        $set: { paymentStatus: "failed", orderStatus: "PENDING" },
+      }).catch(() => {});
+    }
+    return toolError("We couldn't complete this booking, so your V.Wallet balance has been refunded. Please try again or contact support if this keeps happening.");
+  }
+
   const points = await computePointsForSpend(customerId, pending.totalAmountMinor);
   if (points > 0) {
     await awardPoints(customerId, points, {

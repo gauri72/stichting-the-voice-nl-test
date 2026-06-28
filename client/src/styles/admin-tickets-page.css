@@ -153,6 +153,15 @@
 .admin-tickets__badge--free { background: rgba(96, 165, 250, 0.2); color: #60a5fa; }
 .admin-tickets__badge--pending { background: rgba(234, 179, 8, 0.2); color: #eab308; }
 .admin-tickets__badge--refunded { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+.admin-tickets__badge--wallet { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+.admin-tickets__badge--wallet_split { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+.admin-tickets__badge--card { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.admin-tickets__badge--complimentary { background: rgba(96, 165, 250, 0.2); color: #60a5fa; }
+.admin-tickets__badge--ai {
+  margin-left: 4px;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.25), rgba(34, 211, 238, 0.25));
+  color: #c4b5fd;
+}
 
 .admin-tickets__actions {
   display: flex;

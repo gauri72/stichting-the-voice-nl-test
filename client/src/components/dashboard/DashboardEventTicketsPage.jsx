@@ -202,6 +202,25 @@ export default function DashboardEventTicketsPage() {
             <dt>Status</dt>
             <dd>{summary.status?.replace(/_/g, " ")}</dd>
           </div>
+          <div>
+            <dt>Total Paid</dt>
+            <dd>€{((summary.totalAmountMinor || 0) / 100).toFixed(2)}</dd>
+          </div>
+          <div>
+            <dt>Payment Method</dt>
+            <dd>
+              {summary.paymentMethod === "wallet"
+                ? "V.Wallet"
+                : summary.paymentMethod === "wallet_split"
+                ? "V.Wallet + Card"
+                : summary.paymentStatus === "free"
+                ? "Free Booking"
+                : "Card"}
+              {summary.bookedVia === "V.Assist" ? (
+                <span className="dash-event-tickets__pill dash-event-tickets__pill--ai">V.Assist</span>
+              ) : null}
+            </dd>
+          </div>
         </dl>
         <p className="dash-event-tickets__event-meta">
           {event.dateLabel}

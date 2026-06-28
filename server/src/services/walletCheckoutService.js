@@ -3,7 +3,7 @@ import { getStripe } from "./stripe.js";
 import TicketOrder from "../models/TicketOrder.js";
 import { createBundleCheckout } from "./checkoutBundleService.js";
 import { fulfillOrder } from "./postPaymentFulfillmentService.js";
-import { debitWallet, redeemPoints, awardPoints, computePointsForSpend, getOrCreateWallet } from "./walletService.js";
+import { debitWallet, creditWallet, redeemPoints, awardPoints, computePointsForSpend, getOrCreateWallet } from "./walletService.js";
 
 function err(message, status = 400) {
   const e = new Error(message);
@@ -92,12 +92,40 @@ export async function payTicketWithWallet(eventId, payload, userId, { pointsToRe
   }
   order.paymentMethod = "wallet";
   order.paymentIntentId = "";
-  await order.save();
 
-  const fulfilled = await fulfillOrder(order._id, null, { isFreeOrder: true });
-  const points = await awardPurchasePoints(userId, order, initiatedBy);
-
-  return { order: fulfilled.order, tickets: fulfilled.tickets, pointsEarned: points, pointsRedeemedDiscountMinor: discountMinor };
+  try {
+    await order.save();
+    const fulfilled = await fulfillOrder(order._id, null, { isFreeOrder: true });
+    const points = await awardPurchasePoints(userId, order, initiatedBy);
+    return { order: fulfilled.order, tickets: fulfilled.tickets, pointsEarned: points, pointsRedeemedDiscountMinor: discountMinor };
+  } catch (e) {
+    console.error("[wallet-checkout] booking failed after wallet debit:", e.message);
+    // The wallet (and any redeemed points) were already spent above — refund
+    // both since no ticket was actually issued.
+    if (amountDueMinor > 0) {
+      await creditWallet(userId, amountDueMinor, {
+        type: "refund",
+        description: `Refund — booking could not be completed for order ${order.orderNumber}`,
+        referenceType: "ticketOrder",
+        referenceId: order._id.toString(),
+        initiatedBy,
+      }).catch((refundErr) => {
+        console.error("[wallet-checkout] CRITICAL: refund after failed booking also failed:", refundErr.message);
+      });
+    }
+    if (pointsToRedeem > 0) {
+      await awardPoints(userId, pointsToRedeem, {
+        description: "Points refunded — booking could not be completed",
+        referenceType: "ticketOrder",
+        referenceId: order._id.toString(),
+        initiatedBy: "customer",
+      }).catch(() => {});
+    }
+    await TicketOrder.findByIdAndUpdate(order._id, {
+      $set: { paymentStatus: "failed", orderStatus: "CANCELLED" },
+    }).catch(() => {});
+    throw err("We couldn't complete this booking, so your V.Wallet balance (and any points used) have been refunded. Please try again.", 500);
+  }
 }
 
 /**

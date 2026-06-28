@@ -554,6 +554,12 @@
   color: #f59e0b;
 }
 
+.dash-event-tickets__pill--ai {
+  margin-left: 8px;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(34, 211, 238, 0.2));
+  color: #a78bfa;
+}
+
 .dash-event-tickets__order-ref {
   font-size: var(--font-small);
   color: var(--md-text-muted, #94a3b8);

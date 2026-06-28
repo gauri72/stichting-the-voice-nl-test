@@ -424,9 +424,19 @@ export async function sendMembershipEmailForOrder(order, membershipResult, payme
   }
 }
 
+function isWalletPaymentMethod(paymentMethod) {
+  return paymentMethod === "wallet" || paymentMethod === "wallet_split";
+}
+
 export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
   const { isFreeOrder = false, isComplimentary = false } = options;
-  const resolveSettledStatus = () => (isComplimentary ? "complimentary" : isFreeOrder ? "free" : "paid");
+  // isFreeOrder skips the Stripe PaymentIntent confirmation step below — that
+  // applies equally to wallet-funded orders (no PaymentIntent exists; the
+  // money already moved via debitWallet()). But unlike a genuine 100%-discount
+  // booking, real money WAS spent, so a wallet order must still settle as
+  // "paid" (and be counted as revenue below), not "free".
+  const resolveSettledStatus = (paymentMethod) =>
+    isComplimentary ? "complimentary" : isFreeOrder && !isWalletPaymentMethod(paymentMethod) ? "free" : "paid";
   const TicketOrder = (await import("../models/TicketOrder.js")).default;
   const existingTickets = await Ticket.find({ orderId }).sort({ createdAt: 1 }).lean();
 
@@ -438,7 +448,7 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
       throw err;
     }
     if (!isOrderPaymentSettled(order.paymentStatus)) {
-      order.paymentStatus = resolveSettledStatus();
+      order.paymentStatus = resolveSettledStatus(order.paymentMethod);
       order.orderStatus = "COMPLETED";
       await order.save();
     }
@@ -519,17 +529,18 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
 
   let membershipResult = null;
   if (order.orderType === "TICKET_AND_MEMBERSHIP" && order.membershipItems?.length) {
+    const isWalletOrder = isWalletPaymentMethod(order.paymentMethod);
     membershipResult = await provisionMembershipFromBundleOrder({
       order,
       paymentIntentId: isFreeOrder
         ? freeOrderPaymentReference(order._id.toString())
         : paymentIntentId || order.paymentIntentId,
-      paymentMethod: isFreeOrder ? "Free booking (100% discount)" : "Card via Stripe",
-      isFreeOrder,
+      paymentMethod: isWalletOrder ? "V.Wallet" : isFreeOrder ? "Free booking (100% discount)" : "Card via Stripe",
+      isFreeOrder: isFreeOrder && !isWalletOrder,
     });
   }
 
-  order.paymentStatus = resolveSettledStatus();
+  order.paymentStatus = resolveSettledStatus(order.paymentMethod);
   order.orderStatus = "COMPLETED";
   await order.save();
 
@@ -549,7 +560,8 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
     }
   }
 
-  if (!isFreeOrder && order.totalAmountMinor > 0) {
+  const isWalletOrder = isWalletPaymentMethod(order.paymentMethod);
+  if ((!isFreeOrder || isWalletOrder) && order.totalAmountMinor > 0) {
     await syncFinanceTransaction({
       category: order.orderType === "MEMBERSHIP_ONLY" ? "membership_revenue" : "ticket_sales",
       description: `Order ${order.orderNumber} — ${event?.title || "Event"}`,
@@ -558,8 +570,8 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
       relatedEventId: order.eventId,
       relatedEventName: event?.title || "",
       amount: order.totalAmountMinor,
-      paymentMethod: "Card via Stripe",
-      paymentReference: paymentIntentId || order.paymentIntentId,
+      paymentMethod: isWalletOrder ? "V.Wallet" : "Card via Stripe",
+      paymentReference: isWalletOrder ? order.orderNumber : paymentIntentId || order.paymentIntentId,
       transactionDate: new Date(),
     });
   }
@@ -573,7 +585,7 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
       order,
       event,
       tickets,
-      paymentStatus: resolveSettledStatus(),
+      paymentStatus: order.paymentStatus,
     });
     if (order.userId) {
       await logUserBookingActivity({
@@ -596,7 +608,7 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
   }
 
   await logCheckoutAction({
-    action: isFreeOrder
+    action: isFreeOrder && !isWalletOrder
       ? CHECKOUT_AUDIT_ACTIONS.FREE_ORDER_COMPLETED
       : CHECKOUT_AUDIT_ACTIONS.CHECKOUT_COMPLETED,
     orderId: order.orderNumber,
