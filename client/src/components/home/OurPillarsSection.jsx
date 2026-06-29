@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -10,6 +11,8 @@ import {
 import { TABLER_ICON_STROKE } from "../../constants/homeIcons.js";
 import { useContentOverrides } from "../../hooks/useCmsPage.js";
 import { resolveOverrideText } from "../../i18n/overrideText.js";
+import useIsMobileViewport from "../../hooks/useIsMobileViewport.js";
+import PillarDetailModal from "./PillarDetailModal.jsx";
 import "../../styles/our-pillars-section.css";
 
 const ArrowIcon = IconArrowRight;
@@ -65,6 +68,8 @@ export default function OurPillarsSection({ title, sectionClassName = "" }) {
   const { t } = useTranslation(["home"]);
   const overrides = useContentOverrides();
   const resolvedTitle = title || t("home:pillars.title");
+  const isMobile = useIsMobileViewport();
+  const [selectedPillar, setSelectedPillar] = useState(null);
 
   return (
     <section
@@ -98,13 +103,29 @@ export default function OurPillarsSection({ title, sectionClassName = "" }) {
                 t(`home:pillars.${i18nKey}.lead`)
               );
               const link = overrides[`${overrideKey}Link`] || to;
+              const tags = t(`home:pillars.${i18nKey}.tags`);
+              const openModal = () =>
+                setSelectedPillar({ Icon, accent, title: title2, lead, tags, link });
+
               return (
                 <article
                   key={i18nKey}
                   className={`our-pillars-item our-pillars-item--${accent}${
                     index < pillars.length - 1 ? " our-pillars-item--divided" : ""
                   }`}
-                  role="listitem"
+                  role={isMobile ? "button" : "listitem"}
+                  tabIndex={isMobile ? 0 : undefined}
+                  onClick={isMobile ? openModal : undefined}
+                  onKeyDown={
+                    isMobile
+                      ? (e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            openModal();
+                          }
+                        }
+                      : undefined
+                  }
                 >
                   <div className="our-pillars-item__icon" aria-hidden="true">
                     <Icon className="our-pillars-item__icon-svg" stroke={TABLER_ICON_STROKE} />
@@ -119,10 +140,20 @@ export default function OurPillarsSection({ title, sectionClassName = "" }) {
 
                   <div className="our-pillars-item__description">
                     <p className="our-pillars-item__lead">{lead}</p>
-                    <p className="our-pillars-item__tags">{t(`home:pillars.${i18nKey}.tags`)}</p>
+                    <p className="our-pillars-item__tags">{tags}</p>
                   </div>
 
-                  <Link className="our-pillars-item__link" to={link}>
+                  <Link
+                    className="our-pillars-item__link"
+                    to={link}
+                    onClick={(e) => {
+                      if (isMobile) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openModal();
+                      }
+                    }}
+                  >
                     {t("home:pillars.learnMore")}
                     <ArrowIcon aria-hidden stroke={TABLER_ICON_STROKE} />
                   </Link>
@@ -132,6 +163,12 @@ export default function OurPillarsSection({ title, sectionClassName = "" }) {
           )}
         </div>
       </div>
+
+      <PillarDetailModal
+        pillar={selectedPillar}
+        onClose={() => setSelectedPillar(null)}
+        knowMoreLabel={t("home:pillars.knowMore")}
+      />
     </section>
   );
 }
