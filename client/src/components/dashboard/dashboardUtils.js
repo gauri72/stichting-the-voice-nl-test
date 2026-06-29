@@ -22,11 +22,13 @@ export const DASHBOARD_ROUTES = {
   profile: "/dashboard/profile",
   donate: "/donate",
   sponsorship: "/sponsorship",
+  donationsHistory: "/dashboard/donations",
+  sponsorshipsHistory: "/dashboard/sponsorships",
 };
 
 const ACTIVITY_VIEW_ROUTES = {
-  donation: DASHBOARD_ROUTES.donate,
-  sponsorship: DASHBOARD_ROUTES.sponsorship,
+  donation: DASHBOARD_ROUTES.donationsHistory,
+  sponsorship: DASHBOARD_ROUTES.sponsorshipsHistory,
   membership: DASHBOARD_ROUTES.membership,
   event_ticket: DASHBOARD_ROUTES.myEvents,
   profile_updated: DASHBOARD_ROUTES.profile,

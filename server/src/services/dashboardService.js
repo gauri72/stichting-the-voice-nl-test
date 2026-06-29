@@ -36,7 +36,7 @@ function formatDisplayDate(isoOrDate) {
   }).format(d);
 }
 
-function buildUserMatch(userId, email) {
+export function buildUserMatch(userId, email) {
   const emailNorm = String(email || "").trim().toLowerCase();
   const conditions = [{ donorEmail: emailNorm }];
   if (userId && mongoose.isValidObjectId(userId)) {

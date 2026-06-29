@@ -16,6 +16,7 @@ import LoginPage from "./components/login/LoginPage";
 import ResetPasswordPage from "./components/login/ResetPasswordPage";
 const DashboardPage = lazy(() => import("./components/dashboard/DashboardPage"));
 const DashboardMyEventsPage = lazy(() => import("./components/dashboard/DashboardMyEventsPage"));
+const DashboardGivingPage = lazy(() => import("./components/dashboard/DashboardGivingPage.jsx"));
 const DashboardEventTicketsPage = lazy(() => import("./components/dashboard/DashboardEventTicketsPage"));
 const AiChatPage = lazy(() => import("./components/dashboard/ai-assistant/AiChatPage.jsx"));
 const AiPromptLibraryPage = lazy(() => import("./components/dashboard/ai-assistant/AiPromptLibraryPage.jsx"));
@@ -726,6 +727,26 @@ export default function App() {
               <ProtectedRoute>
                 <Suspense fallback={<div className="member-dashboard__status">Loading your tickets…</div>}>
                   <DashboardEventTicketsPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/donations"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="member-dashboard__status">Loading your donations…</div>}>
+                  <DashboardGivingPage kind="donations" />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/sponsorships"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="member-dashboard__status">Loading your sponsorships…</div>}>
+                  <DashboardGivingPage kind="sponsorships" />
                 </Suspense>
               </ProtectedRoute>
             }

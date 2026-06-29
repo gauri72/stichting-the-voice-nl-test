@@ -5,6 +5,7 @@ import {
   getEventBookingStatusForUser,
 } from "../services/dashboardEventService.js";
 import { getAvailableDiscountsForUser } from "../services/dashboardAvailableDiscountsService.js";
+import { getDashboardGivingForUser } from "../services/dashboardGivingService.js";
 import { getUserReferralData } from "../services/adminDiscountRuleService.js";
 import { REFERRAL_SYSTEM_ENABLED } from "../config/discountConfig.js";
 import env from "../config/env.js";
@@ -127,6 +128,18 @@ export async function getDashboardEvents(req, res) {
     const status = error.status || 500;
     const message = error.message || "Events unavailable.";
     if (status >= 500) console.error("[dashboard/events]", error);
+    return res.status(status).json({ error: message });
+  }
+}
+
+export async function getDashboardGiving(req, res) {
+  try {
+    const data = await getDashboardGivingForUser(req.user);
+    return res.status(200).json(data);
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || "Giving history unavailable.";
+    if (status >= 500) console.error("[dashboard/giving]", error);
     return res.status(status).json({ error: message });
   }
 }

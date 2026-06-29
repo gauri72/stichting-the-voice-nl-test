@@ -10,7 +10,6 @@ import {
   planTierLabel,
   scrollToId,
   DASHBOARD_MEMBERSHIP_CARD_ID,
-  DASHBOARD_RECENT_ACTIVITY_ID,
   DASHBOARD_ROUTES,
 } from "../dashboardUtils.js";
 import "../../../styles/dashboard-stat-cards-section.css";
@@ -42,7 +41,7 @@ export default function DashboardStatCardsSection({ overview, hasMembership, pla
       label: ["Donations", "Made"],
       value: overview?.donations?.value ?? "€0",
       tone: "green",
-      to: `#${DASHBOARD_RECENT_ACTIVITY_ID}`,
+      to: DASHBOARD_ROUTES.donationsHistory,
     },
     {
       id: "sponsorships",
@@ -50,7 +49,7 @@ export default function DashboardStatCardsSection({ overview, hasMembership, pla
       label: ["Sponsorships", ""],
       value: `${overview?.sponsorships?.count ?? 0} Active`,
       tone: "blue",
-      to: `#${DASHBOARD_RECENT_ACTIVITY_ID}`,
+      to: DASHBOARD_ROUTES.sponsorshipsHistory,
     },
   ];
 

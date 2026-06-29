@@ -9,6 +9,7 @@ import {
   getReferrals,
   getAvailableDiscounts,
   getDashboardEvents,
+  getDashboardGiving,
   getDashboardEventTickets,
   getDashboardEventBookingStatus,
   getDashboardSessions,
@@ -28,6 +29,7 @@ router.get("/", requireAuth, getDashboard);
 router.get("/available-discounts", requireAuth, getAvailableDiscounts);
 router.get("/referrals", requireAuth, getReferrals);
 router.get("/events", requireAuth, getDashboardEvents);
+router.get("/giving", requireAuth, getDashboardGiving);
 router.get("/events/:eventId/tickets", requireAuth, getDashboardEventTickets);
 router.get("/events/:eventId/booking-status", requireAuth, getDashboardEventBookingStatus);
 router.get("/sessions", requireAuth, getDashboardSessions);
