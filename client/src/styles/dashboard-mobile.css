@@ -56,9 +56,9 @@
     left: 0;
     right: auto;
     transform: none;
-    /* Capped well under 100% so the greeting/name never reaches into the
-       account-actions badges' zone on the right, regardless of name length. */
-    max-width: 62%;
+    /* Tightened further (was 62%) now that the account-action badges show
+       full text again — they need more guaranteed clear space on the right. */
+    max-width: 48%;
     padding: 0 16px;
     align-items: flex-start;
     text-align: left;
@@ -67,12 +67,60 @@
   }
 
   .dash-welcome__greeting {
-    font-size: var(--font-body);
+    font-size: var(--font-small);
   }
 
   .dash-welcome__name {
-    font-size: 1.65rem;
+    font-size: 1.3rem;
     word-break: break-word;
+  }
+
+  /* Membership Code spans the full content width — was previously a
+     shrink-to-fit box. V.Assist is now a small fixed-size icon button
+     (styled in dashboard-welcome-banner-section.css) so it's excluded here. */
+  .dash-welcome__chips-row {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .dash-welcome__membership-code {
+    display: flex;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 12px;
+  }
+
+  /* Membership code: label + the value/copy-icon row both centered, not
+     hugging the left edge. */
+  .dash-welcome__membership-code {
+    align-items: center;
+  }
+
+  .dash-welcome__membership-code-label,
+  .dash-welcome__membership-code-row {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .dash-welcome__membership-code-label,
+  .dash-welcome__membership-code-value {
+    font-size: 0.7rem;
+  }
+
+  /* Redeemable points: same centering treatment, plus a bit more compact. */
+  .dash-welcome__points-chip {
+    align-items: center;
+    text-align: center;
+    padding: 6px 12px;
+  }
+
+  .dash-welcome__points-chip-label {
+    font-size: 0.62rem;
+  }
+
+  .dash-welcome__points-chip-value {
+    font-size: 1.05rem;
   }
 
   .dash-welcome__badge {
@@ -103,26 +151,23 @@
 
   .dash-welcome__account-actions {
     justify-content: flex-end;
-    gap: 6px;
+    flex-wrap: wrap;
+    gap: 5px;
   }
 
-  /* Icon-only on phones — 3 full text+icon pills don't fit beside the
-     greeting/name without overlapping it (confirmed via screenshot). */
+  /* Full text again now that the content column above is capped tighter
+     (48%) — kept deliberately more compact than the desktop pill (smaller
+     padding/font/gap) since 3 full labels + the name still have to share a
+     ~400px-wide row. */
   .dash-welcome__account-actions .dash-welcome__badge {
     flex-shrink: 0;
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    gap: 0;
-    justify-content: center;
-  }
-
-  .dash-welcome__account-actions .dash-welcome__badge-label {
-    display: none;
+    padding: 6px 9px;
+    gap: 4px;
+    font-size: 0.64rem;
   }
 
   .dash-welcome__account-actions .dash-welcome__badge-icon {
-    font-size: 1em;
+    font-size: 0.85em;
   }
 
   .dash-welcome__btn {
