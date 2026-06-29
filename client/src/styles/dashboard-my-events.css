@@ -624,6 +624,15 @@
   font-size: var(--font-small);
 }
 
+/* Compact variant — used when sharing a row with My Bookings. */
+.dash-my-events-widget--compact .dash-my-events-widget__grid {
+  grid-template-columns: 1fr;
+}
+
+.dash-my-events-widget--compact .dash-my-events-widget__head {
+  margin-bottom: 12px;
+}
+
 .dash-my-events-widget__empty {
   padding: 24px;
   border-radius: 14px;

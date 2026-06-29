@@ -50,6 +50,9 @@ export default function DashboardMembershipCardSection({
   hasMembership,
   qrSrc,
   wallet,
+  showCard = true,
+  showBenefits = true,
+  compact = false,
 }) {
   const cardRef = useRef(null);
   const [actionMessage, setActionMessage] = useState("");
@@ -70,102 +73,109 @@ export default function DashboardMembershipCardSection({
   };
 
   return (
-    <div className="dash-membership-group">
-      <section
-        className="dash-membership__rect dash-membership__rect--top dash-membership__rect--ecard"
-        id={DASHBOARD_MEMBERSHIP_CARD_ID}
-        aria-labelledby="dash-membership-title"
-      >
-        <div className="dash-membership__rect-body">
-          <p className="dash-membership__eyebrow dash-membership__eyebrow--membership">
-            <span className="dash-membership__eyebrow-line" aria-hidden />
-            <span id="dash-membership-title">Your Membership Card</span>
-            <span className="dash-membership__eyebrow-line" aria-hidden />
-          </p>
+    <div className={`dash-membership-group${compact ? " dash-membership-group--compact" : ""}`}>
+      {showCard ? (
+        <>
+          {/* Heading rendered outside .dash-membership__rect--top on purpose
+              — that element sets its own container-type:inline-size for the
+              e-card's internal QR/field sizing, which would make this
+              heading's cqw units resolve against the card's own (narrower)
+              width instead of the same outer container My Bookings' heading
+              uses, throwing the two out of sync. */}
+          <h2 id="dash-membership-title" className="dash-membership__title">Your Membership Card</h2>
+          <section
+            className="dash-membership__rect dash-membership__rect--top dash-membership__rect--ecard"
+            id={DASHBOARD_MEMBERSHIP_CARD_ID}
+            aria-labelledby="dash-membership-title"
+          >
+            <div className="dash-membership__rect-body">
+              <MembershipEcard
+                ref={cardRef}
+                membershipId={membershipId}
+                memberSince={memberSince}
+                validUntil={validUntil}
+                validFrom={validFrom}
+                planShort={planShort}
+                planId={planId}
+                qrSrc={qrSrc}
+                hasMembership={hasMembership}
+              />
 
-          <MembershipEcard
-            ref={cardRef}
-            membershipId={membershipId}
-            memberSince={memberSince}
-            validUntil={validUntil}
-            validFrom={validFrom}
-            planShort={planShort}
-            planId={planId}
-            qrSrc={qrSrc}
-            hasMembership={hasMembership}
-          />
+              {hasMembership ? (
+                <div className="voice-ecard__actions" aria-label="Membership card actions">
+                  <button
+                    type="button"
+                    className="voice-ecard__action"
+                    disabled={Boolean(busyAction)}
+                    onClick={() =>
+                      runAction("download", () => downloadMembershipEcard(cardRef.current, membershipId))
+                    }
+                  >
+                    <span className="voice-ecard__action-icon" aria-hidden>
+                      <IconDownload size={18} stroke={1.75} />
+                    </span>
+                    {busyAction === "download" ? "Preparing…" : "Download E-Card"}
+                  </button>
 
-          {hasMembership ? (
-            <div className="voice-ecard__actions" aria-label="Membership card actions">
-              <button
-                type="button"
-                className="voice-ecard__action"
-                disabled={Boolean(busyAction)}
-                onClick={() =>
-                  runAction("download", () => downloadMembershipEcard(cardRef.current, membershipId))
-                }
-              >
-                <span className="voice-ecard__action-icon" aria-hidden>
-                  <IconDownload size={18} stroke={1.75} />
-                </span>
-                {busyAction === "download" ? "Preparing…" : "Download E-Card"}
-              </button>
+                  <button
+                    type="button"
+                    className="voice-ecard__action voice-ecard__action--google"
+                    disabled={!googleEnabled || Boolean(busyAction)}
+                    title={
+                      googleEnabled
+                        ? "Save this membership to Google Wallet"
+                        : "Google Wallet is not configured on the server yet"
+                    }
+                    onClick={() => runAction("google", addMembershipToGoogleWallet)}
+                  >
+                    <span className="voice-ecard__action-icon" aria-hidden>
+                      <IconBrandGoogle size={18} stroke={1.75} />
+                    </span>
+                    {busyAction === "google" ? "Opening…" : "Add to Google Wallet"}
+                  </button>
+                </div>
+              ) : null}
 
-              <button
-                type="button"
-                className="voice-ecard__action voice-ecard__action--google"
-                disabled={!googleEnabled || Boolean(busyAction)}
-                title={
-                  googleEnabled
-                    ? "Save this membership to Google Wallet"
-                    : "Google Wallet is not configured on the server yet"
-                }
-                onClick={() => runAction("google", addMembershipToGoogleWallet)}
-              >
-                <span className="voice-ecard__action-icon" aria-hidden>
-                  <IconBrandGoogle size={18} stroke={1.75} />
-                </span>
-                {busyAction === "google" ? "Opening…" : "Add to Google Wallet"}
-              </button>
+              {actionMessage ? (
+                <p className="voice-ecard__wallet-note" role="alert">
+                  {actionMessage}
+                </p>
+              ) : hasMembership && !googleEnabled ? (
+                <p className="voice-ecard__wallet-note">
+                  Download your e-card anytime. Google Wallet becomes available once credentials are
+                  configured for this environment.
+                </p>
+              ) : null}
             </div>
-          ) : null}
+          </section>
+        </>
+      ) : null}
 
-          {actionMessage ? (
-            <p className="voice-ecard__wallet-note" role="alert">
-              {actionMessage}
+      {showBenefits ? (
+        <section className="dash-membership__rect dash-membership__rect--bottom" aria-label="Your Premium Benefits">
+          <div className="dash-membership__rect-body">
+            <p className="dash-membership__eyebrow dash-membership__eyebrow--benefits">
+              <span className="dash-membership__eyebrow-line" aria-hidden />
+              <span className="dash-membership__benefits-title dash-grad-text">Your Premium Benefits</span>
+              <span className="dash-membership__eyebrow-line" aria-hidden />
             </p>
-          ) : hasMembership && !googleEnabled ? (
-            <p className="voice-ecard__wallet-note">
-              Download your e-card anytime. Google Wallet becomes available once credentials are
-              configured for this environment.
-            </p>
-          ) : null}
-        </div>
-      </section>
-
-      <section className="dash-membership__rect dash-membership__rect--bottom" aria-label="Your Premium Benefits">
-        <div className="dash-membership__rect-body">
-          <p className="dash-membership__eyebrow dash-membership__eyebrow--benefits">
-            <span className="dash-membership__eyebrow-line" aria-hidden />
-            <span className="dash-membership__benefits-title dash-grad-text">Your Premium Benefits</span>
-            <span className="dash-membership__eyebrow-line" aria-hidden />
-          </p>
-          <ul className="dash-membership__benefits-list">
-            {PREMIUM_BENEFITS.map((benefit) => {
-              const config = BENEFIT_CONFIG[benefit.id];
-              const Icon = config?.Icon;
-              return (
-                <li key={benefit.id}>
-                  <span className="dash-membership__benefit-icon" aria-hidden>
-                    {Icon ? <Icon size={32} stroke={1.65} /> : null}
-                  </span>
-                  <TwoLineLabel lines={config?.lines || [benefit.label, ""]} />
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </section>
+            <ul className="dash-membership__benefits-list">
+              {PREMIUM_BENEFITS.map((benefit) => {
+                const config = BENEFIT_CONFIG[benefit.id];
+                const Icon = config?.Icon;
+                return (
+                  <li key={benefit.id}>
+                    <span className="dash-membership__benefit-icon" aria-hidden>
+                      {Icon ? <Icon size={32} stroke={1.65} /> : null}
+                    </span>
+                    <TwoLineLabel lines={config?.lines || [benefit.label, ""]} />
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

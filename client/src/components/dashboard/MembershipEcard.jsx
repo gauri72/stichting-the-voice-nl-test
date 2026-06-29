@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useState } from "react";
+import { IconCheck, IconCopy } from "@tabler/icons-react";
 import membershipLogo from "../../assets/Dashboard/logo.png";
 import memberPassLight from "../../assets/Dashboard/member-pass-light-theme.png";
 import { buildQrSrc, resolveMembershipQrSrc } from "./dashboardUtils.js";
@@ -24,10 +25,21 @@ const MembershipEcard = forwardRef(function MembershipEcard(
   const [qrImageSrc, setQrImageSrc] = useState(() =>
     resolveMembershipQrSrc(qrSrc, membershipId),
   );
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     setQrImageSrc(resolveMembershipQrSrc(qrSrc, membershipId));
   }, [qrSrc, membershipId]);
+
+  async function handleCopyMembershipId() {
+    try {
+      await navigator.clipboard.writeText(membershipId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
 
   if (!hasMembership) {
     return (
@@ -71,7 +83,17 @@ const MembershipEcard = forwardRef(function MembershipEcard(
           />
         </div>
 
-        <p className="voice-ecard__field voice-ecard__field--id">{membershipId}</p>
+        <button
+          type="button"
+          className="voice-ecard__field voice-ecard__field--id voice-ecard__field--copyable"
+          onClick={handleCopyMembershipId}
+          aria-label={`Copy membership ID ${membershipId}`}
+        >
+          {membershipId}
+          <span className="voice-ecard__copy-icon" aria-hidden="true">
+            {copied ? <IconCheck size={12} /> : <IconCopy size={12} />}
+          </span>
+        </button>
         <p className="voice-ecard__field voice-ecard__field--until">{untilDisplay}</p>
         <p className="voice-ecard__field voice-ecard__field--level">{level}</p>
       </div>

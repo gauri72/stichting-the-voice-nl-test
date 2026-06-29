@@ -96,21 +96,28 @@ function LegacyMemberDashboard({ displayName, overview, activity, membership, ha
     <>
       <DashboardWelcomeBannerSection displayName={displayName} membershipId={membershipId} hasMembership={hasMembership} />
       <div className="member-dashboard__body">
-        <DashboardMyBookingsSection />
+        <div className="dash-bookings-events-row">
+          <div className="dash-bookings-events-row__col">
+            <DashboardMyBookingsSection compact />
+            <DashboardMyEventsWidget compact />
+          </div>
+          <div className="dash-bookings-events-row__col">
+            <DashboardMembershipCardSection
+              planShort={planShort}
+              planId={planId}
+              membershipId={membershipId}
+              memberSince={memberSince}
+              validUntil={validUntil}
+              validFrom={validFrom}
+              hasMembership={hasMembership}
+              qrSrc={qrSrc}
+              wallet={wallet}
+              compact
+            />
+          </div>
+        </div>
         <DashboardStatCardsSection overview={overview} hasMembership={hasMembership} planId={planId} />
-        <DashboardMembershipCardSection
-          planShort={planShort}
-          planId={planId}
-          membershipId={membershipId}
-          memberSince={memberSince}
-          validUntil={validUntil}
-          validFrom={validFrom}
-          hasMembership={hasMembership}
-          qrSrc={qrSrc}
-          wallet={wallet}
-        />
         <DashboardDiscountsSection />
-        <DashboardMyEventsWidget />
         <DashboardMySessionsSection />
         <DashboardReferralSection />
         <DashboardImpactSection overview={overview} />

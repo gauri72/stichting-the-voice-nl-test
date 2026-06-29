@@ -65,6 +65,38 @@
   gap: clamp(20px, 3cqw, 32px);
 }
 
+.dash-bookings-events-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(12px, 1.6cqw, 18px);
+  align-items: start;
+}
+
+.dash-bookings-events-row__col {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 1.6cqw, 18px);
+  min-width: 0;
+}
+
+/* My Bookings hides itself entirely when there's nothing upcoming — when
+   that leaves Upcoming Experiences as the only child, let it take the
+   full row instead of half-width next to empty space. */
+.dash-bookings-events-row:has(> :only-child) {
+  grid-template-columns: 1fr;
+}
+
+.dash-bookings-events-row .dash-my-bookings,
+.dash-bookings-events-row .dash-my-events-widget {
+  margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .dash-bookings-events-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Blue + green theme gradient text (shared across sections, both themes) */
 .dash-grad-text {
   background: linear-gradient(120deg, #1f86c9 0%, #149aa6 50%, #2fa84f 100%);

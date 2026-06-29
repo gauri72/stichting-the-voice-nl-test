@@ -102,11 +102,37 @@
   background: rgba(10, 95, 117, 0.06);
 }
 
+.dash-my-bookings__ticket-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 4px;
+  margin: -4px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.dash-my-bookings__ticket-trigger:hover,
+.dash-my-bookings__ticket-trigger:focus-visible {
+  background: rgba(26, 167, 196, 0.1);
+}
+
+.dash-my-bookings__ticket-trigger:hover .dash-my-bookings__qr {
+  transform: scale(1.06);
+}
+
 .dash-my-bookings__qr {
   flex-shrink: 0;
   border-radius: 6px;
   background: #fff;
   padding: 3px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .dash-my-bookings__ticket-info {
@@ -175,4 +201,212 @@
   .dash-my-bookings__pdf-btn:hover {
     transform: none;
   }
+}
+
+/* Ticket detail modal */
+.dash-ticket-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 3vw, 24px);
+  background: rgba(4, 8, 16, 0.86);
+  backdrop-filter: blur(12px);
+  animation: dash-ticket-modal-fade-in 0.2s ease;
+}
+
+.dash-ticket-modal__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(380px, 100%);
+  max-height: min(92vh, 700px);
+  overflow-y: auto;
+  padding: clamp(24px, 4vw, 32px) clamp(20px, 4vw, 28px);
+  border-radius: 18px;
+  background: #0d0d0d;
+  border: 1px solid rgba(26, 167, 196, 0.3);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  animation: dash-ticket-modal-pop-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+[data-theme="light"] .dash-ticket-modal__panel {
+  background: #fff;
+  border-color: rgba(10, 95, 117, 0.3);
+}
+
+.dash-ticket-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--md-text);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dash-ticket-modal__close:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(1.06);
+}
+
+.dash-ticket-modal__qr {
+  border-radius: 10px;
+  background: #fff;
+  padding: 10px;
+  margin-bottom: 16px;
+}
+
+.dash-ticket-modal__type {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--md-text);
+  text-align: center;
+}
+
+.dash-ticket-modal__holder {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-ticket-modal__number {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  font-family: monospace;
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-ticket-modal__status {
+  margin-top: 10px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dash-ticket-modal__status--valid {
+  color: var(--md-green, #2fa84f);
+  background: rgba(47, 168, 79, 0.12);
+}
+
+.dash-ticket-modal__status--cancelled,
+.dash-ticket-modal__status--refunded {
+  color: var(--md-red, #c83b3b);
+  background: rgba(200, 59, 59, 0.12);
+}
+
+.dash-ticket-modal__divider {
+  width: 100%;
+  height: 1px;
+  margin: 18px 0;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .dash-ticket-modal__divider {
+  background: rgba(10, 95, 117, 0.15);
+}
+
+.dash-ticket-modal__event {
+  width: 100%;
+  text-align: left;
+}
+
+.dash-ticket-modal__event-title {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--md-text);
+}
+
+.dash-ticket-modal__event-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-size: 0.82rem;
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-ticket-modal__download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 20px;
+  padding: 11px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--md-cyan, #1aa7c4);
+  color: var(--md-cyan, #1aa7c4);
+  background: transparent;
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.dash-ticket-modal__download:hover {
+  background: var(--md-cyan, #1aa7c4);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+@keyframes dash-ticket-modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dash-ticket-modal-pop-in {
+  from { opacity: 0; transform: scale(0.92) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-ticket-modal,
+  .dash-ticket-modal__panel {
+    animation: none;
+  }
+}
+
+/* Compact variant — used when sharing a row with Upcoming Experiences,
+   where each column only has half the page width to work with. */
+.dash-my-bookings--compact .dash-my-bookings__grid {
+  grid-template-columns: 1fr;
+}
+
+.dash-my-bookings--compact .dash-my-bookings__card {
+  padding: 14px;
+  gap: 10px;
+}
+
+.dash-my-bookings--compact .dash-my-bookings__title {
+  font-size: 0.95rem;
+}
+
+.dash-my-bookings--compact .dash-my-bookings__qr {
+  width: 40px;
+  height: 40px;
+}
+
+.dash-my-bookings--compact .dash-my-bookings__ticket {
+  padding: 6px 8px;
+}
+
+.dash-my-bookings--compact .dash-my-bookings__pdf-btn {
+  width: 30px;
+  height: 30px;
 }
