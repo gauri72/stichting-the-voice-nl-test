@@ -1003,16 +1003,84 @@ export default function TicketBookingPage() {
         {step === 1 ? (
           <section className="ticket-booking__card">
             <h2><IconTicket size={20} /> {t("checkout:selectTickets.title")}</h2>
+
+            {(() => {
+              const selectedTicketTypes = (event.ticketTypes || []).filter((tt) => (quantities[tt.id] || 0) > 0);
+              return selectedTicketTypes.map((tt) => {
+                const codeStatus = ticketCodeStatus[tt.id] || "idle";
+                return (
+                  <div key={tt.id} className="ticket-booking__pre-list-code">
+                    <label>
+                      {t("checkout:selectTickets.codePlaceholder")}
+                      {selectedTicketTypes.length > 1 ? ` — ${tt.name}` : ""}
+                      <div className={`ticket-booking__ticket-code-input ticket-booking__ticket-code-input--${codeStatus}`}>
+                        <input
+                          placeholder={t("checkout:selectTickets.codePlaceholder")}
+                          value={ticketCodes[tt.id] || ""}
+                          onChange={(e) => handleTicketCodeChange(tt.id, e.target.value)}
+                          aria-label={`Discount or voucher code for ${tt.name}`}
+                        />
+                        {codeStatus === "checking" ? <span className="ticket-booking__ticket-code-spinner" aria-hidden="true" /> : null}
+                        {codeStatus === "valid" ? <IconCheck className="ticket-booking__ticket-code-icon--valid" size={16} /> : null}
+                        {codeStatus === "invalid" ? <IconX className="ticket-booking__ticket-code-icon--invalid" size={16} /> : null}
+                      </div>
+                    </label>
+                    {ticketCodeMessage[tt.id] ? (
+                      <p
+                        className={`ticket-booking__ticket-code-msg ticket-booking__ticket-code-msg--${codeStatus}`}
+                        role="status"
+                      >
+                        {ticketCodeMessage[tt.id]}
+                      </p>
+                    ) : null}
+                  </div>
+                );
+              });
+            })()}
+
+            {selectedItems.length ? (
+              <div className="ticket-booking__membership-code">
+                <label>
+                  {t("checkout:yourDetails.membershipCode")}
+                  <input
+                    placeholder={t("checkout:yourDetails.membershipCodePlaceholder")}
+                    value={membershipCode}
+                    onChange={(e) => {
+                      setMembershipCode(e.target.value.toUpperCase());
+                      setMembershipCodeMessage("");
+                      setMembershipCodeApplied(false);
+                    }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="ticket-booking__cta ticket-booking__cta--small"
+                  disabled={!membershipCode.trim() || detectingMember}
+                  onClick={applyMembershipCode}
+                >
+                  {t("checkout:yourDetails.applyMembershipCode")}
+                </button>
+              </div>
+            ) : null}
+            {selectedItems.length && membershipCodeMessage ? (
+              <p
+                className={`ticket-booking__membership-code-msg${
+                  membershipCodeApplied ? " ticket-booking__membership-code-msg--success" : ""
+                }`}
+                role="status"
+              >
+                {membershipCodeMessage}
+              </p>
+            ) : null}
+
             <ul className="ticket-booking__ticket-list">
               {(event.ticketTypes || []).map((tt) => {
                 const selectable = tt.selectable === true;
                 const statusClass = tt.computedStatus
                   ? ` ticket-booking__ticket-row--${tt.computedStatus.toLowerCase()}`
                   : "";
-                const qty = quantities[tt.id] || 0;
                 const previewLine = preview?.ticketPricing?.lineItems?.find((l) => l.ticketTypeId === tt.id);
                 const hasMembershipDiscount = (previewLine?.memberDiscountMinor || 0) > 0;
-                const codeStatus = ticketCodeStatus[tt.id] || "idle";
                 return (
                 <li key={tt.id} className={`ticket-booking__ticket-row${statusClass}${selectable ? "" : " ticket-booking__ticket-row--disabled"}`}>
                   <div className="ticket-booking__ticket-info">
@@ -1053,29 +1121,9 @@ export default function TicketBookingPage() {
                         onJoinWaitlist={joinWaitlist}
                       />
                     ) : null}
-                    {qty > 0 ? (
-                      <div className="ticket-booking__ticket-code">
-                        <div className={`ticket-booking__ticket-code-input ticket-booking__ticket-code-input--${codeStatus}`}>
-                          <input
-                            placeholder={t("checkout:selectTickets.codePlaceholder")}
-                            value={ticketCodes[tt.id] || ""}
-                            onChange={(e) => handleTicketCodeChange(tt.id, e.target.value)}
-                            aria-label={`Discount or voucher code for ${tt.name}`}
-                          />
-                          {codeStatus === "checking" ? <span className="ticket-booking__ticket-code-spinner" aria-hidden="true" /> : null}
-                          {codeStatus === "valid" ? <IconCheck className="ticket-booking__ticket-code-icon--valid" size={16} /> : null}
-                          {codeStatus === "invalid" ? <IconX className="ticket-booking__ticket-code-icon--invalid" size={16} /> : null}
-                        </div>
-                        {ticketCodeMessage[tt.id] ? (
-                          <p
-                            className={`ticket-booking__ticket-code-msg ticket-booking__ticket-code-msg--${codeStatus}`}
-                            role="status"
-                          >
-                            {ticketCodeMessage[tt.id]}
-                          </p>
-                        ) : null}
-                      </div>
-                    ) : null}
+                    {/* Discount/voucher code for this ticket type now renders above the
+                        list once selected (see selectedTicketTypes block above) rather
+                        than inline here. */}
                   </div>
                   <label className="ticket-booking__qty-label">
                     <span className="ticket-booking__qty-text">{t("checkout:selectTickets.qty")}</span>
@@ -1096,41 +1144,6 @@ export default function TicketBookingPage() {
                 );
               })}
             </ul>
-
-            {selectedItems.length ? (
-              <div className="ticket-booking__membership-code">
-                <label>
-                  {t("checkout:yourDetails.membershipCode")}
-                  <input
-                    placeholder={t("checkout:yourDetails.membershipCodePlaceholder")}
-                    value={membershipCode}
-                    onChange={(e) => {
-                      setMembershipCode(e.target.value.toUpperCase());
-                      setMembershipCodeMessage("");
-                      setMembershipCodeApplied(false);
-                    }}
-                  />
-                </label>
-                <button
-                  type="button"
-                  className="ticket-booking__cta ticket-booking__cta--small"
-                  disabled={!membershipCode.trim() || detectingMember}
-                  onClick={applyMembershipCode}
-                >
-                  {t("checkout:yourDetails.applyMembershipCode")}
-                </button>
-              </div>
-            ) : null}
-            {selectedItems.length && membershipCodeMessage ? (
-              <p
-                className={`ticket-booking__membership-code-msg${
-                  membershipCodeApplied ? " ticket-booking__membership-code-msg--success" : ""
-                }`}
-                role="status"
-              >
-                {membershipCodeMessage}
-              </p>
-            ) : null}
 
             <button
               type="button"

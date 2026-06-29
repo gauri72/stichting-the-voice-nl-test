@@ -235,6 +235,11 @@
 
 .ticket-booking__ticket-code-input input {
   flex: 1;
+  /* Flex items default to min-width:auto (their own intrinsic content
+     width), which doesn't shrink below it — on narrow mobile widths this
+     pushed the input past the rounded border instead of letting the text
+     scroll/clip inside it. */
+  min-width: 0;
   padding: 10px 0;
   border: 0;
   background: transparent;
@@ -287,6 +292,23 @@
 
 .ticket-booking__ticket-code-msg--invalid {
   color: #f87171;
+}
+
+/* Wrapper for the discount/voucher code field(s) now shown above the ticket
+   list (one per selected ticket type) rather than inline within each row —
+   gives them the same "label above input" layout as the membership code
+   field below them. Deliberately doesn't restyle the input itself (that's
+   still .ticket-booking__ticket-code-input above) to avoid colliding with
+   .ticket-booking__membership-code input's own border/background rules. */
+.ticket-booking__pre-list-code {
+  margin: 0 0 14px;
+}
+
+.ticket-booking__pre-list-code label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
 }
 
 .ticket-booking__ticket-hint {
