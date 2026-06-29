@@ -9,6 +9,8 @@ import { getAutomaticMemberDiscount, getActiveMembership } from "./discountServi
 import { resolvePlanId } from "../config/membershipPlans.js";
 import { buildTicketPdfUrl } from "../utils/ticketPdfAccess.js";
 import { SETTLED_PAYMENT_STATUSES } from "../utils/orderPaymentUtils.js";
+import { isTicketTailorConfigured, loadTicketTailorAccountData, splitOrdersByCategory } from "./ticketTailorService.js";
+import { awardEventAttendancePoints, ticketTailorEventReferenceId } from "./walletService.js";
 
 const UPCOMING_WINDOW_DAYS = 60;
 
@@ -204,7 +206,7 @@ async function loadUserEventData(userId) {
 }
 
 export async function getDashboardEventsForUser(userId) {
-  const user = await User.findById(userId).select("_id").lean();
+  const user = await User.findById(userId).select("_id email").lean();
   if (!user) {
     const err = new Error("User not found.");
     err.status = 404;
@@ -257,7 +259,7 @@ export async function getDashboardEventsForUser(userId) {
     if (orders.length && tickets.length) pastEventIds.add(eventId);
   }
 
-  const history = events
+  const platformHistory = events
     .filter((e) => pastEventIds.has(e._id.toString()))
     .map((event) => {
       const eventId = event._id.toString();
@@ -279,9 +281,65 @@ export async function getDashboardEventsForUser(userId) {
           : null,
         bookingUrl: `/events/${event.slug || eventId}/tickets`,
         ticketsUrl: `/dashboard/events/${eventId}/tickets`,
+        source: "platform",
       };
-    })
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
+    });
+
+  // Events bought directly through Ticket Tailor (e.g. before this platform's
+  // own checkout existed) have no platform Event/Ticket record to join
+  // against, so they're folded in here from the order data itself rather
+  // than the events/tickets-by-event maps above. No ticketsUrl/pdfUrl since
+  // there's no platform ticket behind them — the client shows a "Ticket
+  // Tailor" badge instead of the View Ticket/Download PDF actions.
+  let ticketTailorHistory = [];
+  if (isTicketTailorConfigured() && user.email) {
+    const { orders: ttOrders } = await loadTicketTailorAccountData(user.email).catch(() => ({ orders: [] }));
+    const { events: ttEventOrders } = splitOrdersByCategory(ttOrders || []);
+
+    // Ticket Tailor returns one order per ticket, not per checkout — without
+    // grouping, a single multi-ticket purchase shows up as many near-identical
+    // rows for the same event. Group by event title, count tickets, and use
+    // the most recent purchase date as the representative date.
+    const grouped = new Map();
+    for (const o of ttEventOrders) {
+      const key = o.eventTitle || "Event (Ticket Tailor)";
+      const entry = grouped.get(key) || { title: key, count: 0, latestDate: null, firstId: o.id };
+      entry.count += 1;
+      if (!entry.latestDate || new Date(o.createdAt) > new Date(entry.latestDate)) {
+        entry.latestDate = o.createdAt;
+      }
+      grouped.set(key, entry);
+    }
+
+    ticketTailorHistory = [...grouped.values()].map((entry) => ({
+      id: `tt-${entry.firstId}`,
+      title: entry.title,
+      slug: null,
+      date: entry.latestDate,
+      dateLabel: formatDisplayDate(entry.latestDate),
+      bookingStatus: "BOOKED",
+      ticketCount: entry.count,
+      ticketNumber: null,
+      pdfUrl: null,
+      bookingUrl: null,
+      ticketsUrl: null,
+      source: "ticketTailor",
+    }));
+
+    // Award the same loyalty bonus for Ticket Tailor attendance as for
+    // platform bookings. awardEventAttendancePoints() is idempotent per
+    // (customerId, referenceId), so running this on every dashboard/My
+    // Events load is safe — it only actually awards once per distinct event.
+    for (const entry of grouped.values()) {
+      await awardEventAttendancePoints(userId, ticketTailorEventReferenceId(entry.title), entry.title).catch((err) => {
+        console.warn("[dashboard-events] TT attendance points failed:", err.message);
+      });
+    }
+  }
+
+  const history = [...platformHistory, ...ticketTailorHistory].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
 
   const widgetEvents = [...cards]
     .sort((a, b) => new Date(a.date) - new Date(b.date))

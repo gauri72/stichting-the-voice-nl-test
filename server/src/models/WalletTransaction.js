@@ -15,9 +15,9 @@ const walletTransactionSchema = new mongoose.Schema(
     amountMinor: { type: Number, default: 0 }, // signed: positive = credit, negative = debit
     points: { type: Number, default: 0 }, // signed: positive = earned, negative = redeemed/expired
     description: { type: String, default: "", trim: true, maxlength: 300 },
-    referenceType: { type: String, enum: ["ticketOrder", "topup", "admin", "aiBooking", ""], default: "" },
+    referenceType: { type: String, enum: ["ticketOrder", "topup", "admin", "aiBooking", "eventAttendance", ""], default: "" },
     referenceId: { type: String, default: "", trim: true },
-    initiatedBy: { type: String, enum: ["customer", "ai", "admin"], default: "customer", index: true },
+    initiatedBy: { type: String, enum: ["customer", "ai", "admin", "system"], default: "customer", index: true },
     paymentIntentId: { type: String, default: "", trim: true, index: true },
     status: { type: String, enum: ["pending", "completed", "failed"], default: "completed", index: true },
     // Only set on `pointsEarned` rows — the points-expiry scheduler reads these.

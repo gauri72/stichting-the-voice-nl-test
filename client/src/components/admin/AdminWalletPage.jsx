@@ -136,6 +136,10 @@ export default function AdminWalletPage() {
                 <input type="number" defaultValue={settings.pointsPerEuroSpent} onBlur={(e) => handleSettingsChange("pointsPerEuroSpent", Number(e.target.value))} />
               </div>
               <div className="admin-finance__field">
+                <label>Points per event attended</label>
+                <input type="number" defaultValue={settings.pointsPerEventAttended} onBlur={(e) => handleSettingsChange("pointsPerEventAttended", Number(e.target.value))} />
+              </div>
+              <div className="admin-finance__field">
                 <label>Min points to redeem</label>
                 <input type="number" defaultValue={settings.minRedemptionPoints} onBlur={(e) => handleSettingsChange("minRedemptionPoints", Number(e.target.value))} />
               </div>

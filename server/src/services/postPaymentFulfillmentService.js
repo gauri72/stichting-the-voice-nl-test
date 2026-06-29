@@ -33,6 +33,7 @@ import {
 import { buildTicketPdfUrl } from "../utils/ticketPdfAccess.js";
 import { syncFinanceTransaction } from "./financeTransactionSyncService.js";
 import { sendMembershipDiscountAppliedEmail } from "./discountMailer.js";
+import { awardEventAttendancePoints } from "./walletService.js";
 
 async function buildTicketNumber() {
   const seq = await getNextSequence("ticket");
@@ -543,6 +544,17 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
   order.paymentStatus = resolveSettledStatus(order.paymentMethod);
   order.orderStatus = "COMPLETED";
   await order.save();
+
+  // Loyalty points for attending an event — flat bonus, once per distinct
+  // event regardless of how many tickets/orders, registered customers only
+  // (guests have no wallet to credit). awardEventAttendancePoints() is
+  // idempotent so this is safe even if fulfillOrder is ever called twice
+  // for the same order (e.g. webhook retry).
+  if (order.userId && order.eventId) {
+    await awardEventAttendancePoints(order.userId, order.eventId, event?.title).catch((err) => {
+      console.warn("[fulfillment] event-attendance points failed:", err.message);
+    });
+  }
 
   // If this buyer was previously notified that a waitlist spot opened up for
   // one of these ticket types, mark that entry converted now that they've

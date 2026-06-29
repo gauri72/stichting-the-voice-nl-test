@@ -229,6 +229,52 @@ export async function awardPoints(customerId, points, opts = {}) {
   }
 }
 
+/**
+ * Ticket Tailor orders have no platform Event ObjectId to key off of — the
+ * event's title is the only stable identifier available across multiple
+ * orders for the same event (mirrors the same grouping key already used to
+ * de-duplicate Ticket Tailor rows in "My Event History"). Prefixed so it can
+ * never collide with a real Mongo ObjectId passed to the same function.
+ */
+export function ticketTailorEventReferenceId(eventTitle) {
+  const slug = String(eventTitle || "event")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return `tt:${slug}`;
+}
+
+/**
+ * Awards the flat per-event bonus the first time a customer's order for a
+ * given event settles, and is a no-op on every subsequent ticket/order for
+ * that same event — points are for *attending an event*, not per ticket or
+ * per order. Idempotency is enforced by checking for an existing
+ * pointsEarned transaction with this exact (customerId, eventId) reference
+ * rather than relying on the caller to only call this once. `eventId` can be
+ * a platform Event ObjectId (string) or a ticketTailorEventReferenceId().
+ */
+export async function awardEventAttendancePoints(customerId, eventId, eventTitle) {
+  if (!customerId || !eventId) return null;
+  const global = await getGlobalSettings();
+  const points = global.pointsPerEventAttended;
+  if (!Number.isInteger(points) || points <= 0) return null;
+
+  const existing = await WalletTransaction.findOne({
+    customerId,
+    referenceType: "eventAttendance",
+    referenceId: String(eventId),
+  }).lean();
+  if (existing) return null;
+
+  return awardPoints(customerId, points, {
+    description: `Attended ${eventTitle || "an event"}`,
+    referenceType: "eventAttendance",
+    referenceId: String(eventId),
+    initiatedBy: "system",
+  });
+}
+
 /** Read-only preview of what redeeming N points would discount, for checkout UI — does not mutate anything. The actual redemption happens via redeemPoints() at payment time. */
 export async function previewPointsRedemption(customerId, points) {
   if (!Number.isInteger(points) || points <= 0) throw err("Points to redeem must be a positive integer.");

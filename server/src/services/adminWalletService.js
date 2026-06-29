@@ -137,6 +137,7 @@ export async function updateGlobalSettings(updates) {
     "maxWalletBalanceMinor",
     "twoFactorTopUpThresholdMinor",
     "pointsPerEuroSpent",
+    "pointsPerEventAttended",
     "minRedemptionPoints",
     "pointsNeededPerEuroDiscount",
     "pointsExpiryDays",

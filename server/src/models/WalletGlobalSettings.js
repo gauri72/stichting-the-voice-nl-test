@@ -10,6 +10,7 @@ const walletGlobalSettingsSchema = new mongoose.Schema(
     maxWalletBalanceMinor: { type: Number, default: 50000 }, // €500 per-customer cap
     twoFactorTopUpThresholdMinor: { type: Number, default: 10000 }, // €100 — OTP required above this
     pointsPerEuroSpent: { type: Number, default: 1 }, // 1 point per €1 spent via wallet
+    pointsPerEventAttended: { type: Number, default: 25 }, // flat bonus per distinct event attended
     minRedemptionPoints: { type: Number, default: 100 },
     pointsNeededPerEuroDiscount: { type: Number, default: 100 }, // 100 points = €1 off
     pointsExpiryDays: { type: Number, default: 365 },
