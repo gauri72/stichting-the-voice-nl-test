@@ -1,4 +1,4 @@
-import { IconChevronDown, IconChevronUp, IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronUp, IconCornerUpLeft, IconPlus, IconTrash } from "@tabler/icons-react";
 
 function newNavItem(label = "New item") {
   return {
@@ -16,19 +16,6 @@ function newNavItem(label = "New item") {
     type: "page",
     children: [],
   };
-}
-
-function updateAtPath(items, path, updater) {
-  if (!path.length) return updater(items);
-  const [head, ...rest] = path;
-  return items.map((item, index) => {
-    if (index !== head) return item;
-    const children = item.children || [];
-    return {
-      ...item,
-      children: updateAtPath(children, rest, updater),
-    };
-  });
 }
 
 function removeAtPath(items, path) {
@@ -56,7 +43,7 @@ function moveAtPath(items, path, direction) {
   });
 }
 
-function NavItemEditor({ item, path, depth, readOnly, onChange, onRemove, onMove, onAddChild }) {
+function NavItemEditor({ item, path, depth, readOnly, onChange, onRemove, onMove, onAddChild, onPromote, topLevelOptions }) {
   const isSub = depth > 0;
 
   return (
@@ -72,10 +59,36 @@ function NavItemEditor({ item, path, depth, readOnly, onChange, onRemove, onMove
               <IconChevronDown size={14} />
             </button>
             {!isSub ? (
-              <button type="button" className="admin-cms__btn admin-cms__btn--sm" onClick={() => onAddChild(path)}>
-                <IconPlus size={14} /> Submenu
+              <>
+                <button type="button" className="admin-cms__btn admin-cms__btn--sm" onClick={() => onAddChild(path)}>
+                  <IconPlus size={14} /> Submenu
+                </button>
+                {topLevelOptions.length > 1 ? (
+                  <select
+                    className="admin-cms__select admin-cms__select--sm"
+                    value=""
+                    aria-label="Convert to submenu of"
+                    onChange={(e) => {
+                      const targetIndex = Number(e.target.value);
+                      if (!Number.isNaN(targetIndex)) onPromote(path, "demote", targetIndex);
+                    }}
+                  >
+                    <option value="">Move under…</option>
+                    {topLevelOptions
+                      .filter((opt) => opt.index !== path[0])
+                      .map((opt) => (
+                        <option key={opt.index} value={opt.index}>
+                          {opt.label || "Untitled"}
+                        </option>
+                      ))}
+                  </select>
+                ) : null}
+              </>
+            ) : (
+              <button type="button" className="admin-cms__btn admin-cms__btn--sm" onClick={() => onPromote(path, "promote")}>
+                <IconCornerUpLeft size={14} /> Promote to Menu
               </button>
-            ) : null}
+            )}
             <button type="button" className="admin-cms__btn admin-cms__btn--sm admin-cms__btn--danger" onClick={() => onRemove(path)} aria-label="Remove">
               <IconTrash size={14} />
             </button>
@@ -128,6 +141,8 @@ function NavItemEditor({ item, path, depth, readOnly, onChange, onRemove, onMove
           onRemove={onRemove}
           onMove={onMove}
           onAddChild={onAddChild}
+          onPromote={onPromote}
+          topLevelOptions={topLevelOptions}
         />
       ))}
     </div>
@@ -163,16 +178,56 @@ export default function AdminNavigationEditor({ items = [], readOnly, onChange }
   }
 
   function handleAddChild(path) {
+    const [index] = path;
     onChange(
-      updateAtPath(items, path, (list) =>
-        list.map((item, index) => {
-          if (index !== path[0]) return item;
-          const children = [...(item.children || [])];
-          children.push({ ...newNavItem("Submenu item"), order: children.length });
-          return { ...item, children };
-        })
-      )
+      items.map((item, i) => {
+        if (i !== index) return item;
+        const children = [...(item.children || [])];
+        children.push({ ...newNavItem("Submenu item"), order: children.length });
+        return { ...item, children };
+      })
     );
+  }
+
+  // Submenus can't have their own submenus (the live header only renders
+  // one level of dropdown), so promote/demote only ever deals with
+  // depth-0 <-> depth-1 moves — paths are always 1 or 2 elements.
+  function handlePromote(path, action, targetIndex) {
+    if (action === "promote") {
+      const [parentIndex, childIndex] = path;
+      const parent = items[parentIndex];
+      const child = parent?.children?.[childIndex];
+      if (!child) return;
+
+      const nextItems = items.map((item, i) =>
+        i === parentIndex ? { ...item, children: item.children.filter((_, ci) => ci !== childIndex) } : item
+      );
+      nextItems.push({ ...child, children: [], order: nextItems.length });
+      onChange(nextItems);
+      return;
+    }
+
+    const [index] = path;
+    if (targetIndex === index) return;
+    const moving = items[index];
+    if (!moving) return;
+
+    if (moving.children?.length) {
+      const proceed = window.confirm(
+        `"${moving.label || "This item"}" has ${moving.children.length} submenu item(s) — they'll be removed if you move it under another menu. Continue?`
+      );
+      if (!proceed) return;
+    }
+
+    const withoutMoving = items.filter((_, i) => i !== index);
+    const adjustedTargetIndex = targetIndex > index ? targetIndex - 1 : targetIndex;
+
+    const nextItems = withoutMoving.map((item, i) => {
+      if (i !== adjustedTargetIndex) return item;
+      const children = [...(item.children || []), { ...moving, children: [], order: (item.children || []).length }];
+      return { ...item, children };
+    });
+    onChange(nextItems);
   }
 
   function addTopLevel() {
@@ -200,6 +255,8 @@ export default function AdminNavigationEditor({ items = [], readOnly, onChange }
           onRemove={handleRemove}
           onMove={handleMove}
           onAddChild={handleAddChild}
+          onPromote={handlePromote}
+          topLevelOptions={items.map((it, i) => ({ index: i, label: it.label }))}
         />
       ))}
     </div>
