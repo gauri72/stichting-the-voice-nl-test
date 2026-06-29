@@ -74,7 +74,7 @@ export default function WalletPage() {
 
   if (!wallet) {
     return (
-      <div className="mx-auto max-w-3xl px-4 pb-10 text-center text-slate-400" style={{ paddingTop: "clamp(72px, 10vw, 96px)" }}>
+      <div className="mx-auto max-w-3xl px-4 pb-10 text-center text-slate-600 dark:text-slate-400" style={{ paddingTop: "clamp(72px, 10vw, 96px)" }}>
         Loading your wallet…
       </div>
     );
@@ -82,10 +82,10 @@ export default function WalletPage() {
 
   if (!wallet.enabled) {
     return (
-      <div className="mx-auto max-w-3xl px-4 pb-16 text-center text-slate-400" style={{ paddingTop: "clamp(72px, 10vw, 96px)" }}>
-        <IconWalletOff size={40} className="mx-auto mb-3 text-slate-600" />
+      <div className="mx-auto max-w-3xl px-4 pb-16 text-center text-slate-600 dark:text-slate-400" style={{ paddingTop: "clamp(72px, 10vw, 96px)" }}>
+        <IconWalletOff size={40} className="mx-auto mb-3 text-slate-500 dark:text-slate-600" />
         <p className="mb-4">V.Wallet is currently unavailable. Please check back later.</p>
-        <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 transition hover:text-slate-200">
+        <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200">
           <IconArrowLeft size={16} /> Back to My Account
         </Link>
       </div>
@@ -96,12 +96,12 @@ export default function WalletPage() {
     <div className="mx-auto max-w-3xl px-4 pb-6 sm:px-6" style={{ paddingTop: "clamp(72px, 10vw, 96px)" }}>
       <Link
         to="/dashboard"
-        className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 transition hover:text-slate-200"
+        className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
       >
         <IconArrowLeft size={16} /> Back to My Account
       </Link>
-      <h1 className="mb-1 text-xl font-bold text-white">V.Wallet</h1>
-      <p className="mb-5 text-sm text-slate-400">Top up, earn reward points, and let V.Assist book for you.</p>
+      <h1 className="mb-1 text-xl font-bold text-slate-900 dark:text-white">V.Wallet</h1>
+      <p className="mb-5 text-sm text-slate-600 dark:text-slate-400">Top up, earn reward points, and let V.Assist book for you.</p>
 
       {error && <p className="mb-4 rounded-lg bg-red-950/50 px-3 py-2 text-sm text-red-300" role="alert">{error}</p>}
       {handlingReturn && (
