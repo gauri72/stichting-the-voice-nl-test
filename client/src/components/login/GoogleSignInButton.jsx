@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GoogleLogin } from "@react-oauth/google";
 
@@ -36,6 +36,11 @@ export default function GoogleSignInButton({ onSuccess, onError, disabled }) {
   const wrapRef = useRef(null);
   const onSuccessRef = useRef(onSuccess);
   const onErrorRef = useRef(onError);
+  // Google's real (near-invisible) button needs its own width prop to match
+  // the overlay container exactly — a mismatch (it was hardcoded to 400)
+  // left it off-center/clipped, which is what showed up as a faint, offset
+  // "ghost" icon next to the decorative button's centered one.
+  const [googleWidth, setGoogleWidth] = useState(280);
 
   onSuccessRef.current = onSuccess;
   onErrorRef.current = onError;
@@ -51,6 +56,7 @@ export default function GoogleSignInButton({ onSuccess, onError, disabled }) {
         overlay.style.width = `${width}px`;
         overlay.style.height = "50px";
       }
+      setGoogleWidth(width);
     }
 
     syncOverlayWidth();
@@ -85,7 +91,7 @@ export default function GoogleSignInButton({ onSuccess, onError, disabled }) {
           size="large"
           text="continue_with"
           shape="rectangular"
-          width="400"
+          width={String(Math.min(googleWidth, 400))}
           useOneTap={false}
         />
       </div>

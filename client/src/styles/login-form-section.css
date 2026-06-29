@@ -372,10 +372,27 @@
   box-sizing: border-box;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   pointer-events: none;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 [data-theme="light"] .login-form-section__google-btn {
   box-shadow: 0 2px 8px var(--color-shadow);
+}
+
+/* The decorative button itself has pointer-events:none (the real click
+   target is the near-invisible overlay on top of it), so its own :hover
+   never fires from a real cursor — hovering anywhere in the wrapper does,
+   though, which is what actually contains the cursor at that point. Without
+   this, the button had no hover feedback at all, reinforcing the "flat/
+   already-pressed" feel reported. */
+.login-form-section__google-wrap:hover .login-form-section__google-btn {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  border-color: var(--md-cyan, #1aa7c4);
+}
+
+[data-theme="light"] .login-form-section__google-wrap:hover .login-form-section__google-btn {
+  box-shadow: 0 6px 16px rgba(15, 53, 78, 0.16);
 }
 
 .login-form-section__google-icon {
@@ -393,7 +410,11 @@
   justify-content: center;
   overflow: hidden;
   border-radius: 8px;
-  opacity: 0.011;
+  /* Must stay above 0 — Google's button can't be made fully invisible
+     (opacity:0/visibility:hidden), but this is low enough to read as
+     "not there" rather than the faint ghost icon it was at 0.011,
+     especially against this app's dark background. */
+  opacity: 0.001;
   cursor: pointer;
 }
 
