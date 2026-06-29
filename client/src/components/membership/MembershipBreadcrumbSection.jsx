@@ -6,6 +6,8 @@ import "../../styles/membership-breadcrumb-section.css";
 
 export default function MembershipBreadcrumbSection() {
   const overrides = useContentOverrides();
+  const usesDefaultImage =
+    !overrides.membershipBreadcrumbImageLight?.url && !overrides.membershipBreadcrumbImageDark?.url;
 
   return (
     <BreadcrumbPageHeader
@@ -13,6 +15,7 @@ export default function MembershipBreadcrumbSection() {
       lightSrc={overrides.membershipBreadcrumbImageLight?.url || breadcrumbBgLight}
       darkSrc={overrides.membershipBreadcrumbImageDark?.url || breadcrumbBgDark}
       heroClassName="membership-page-hero"
+      showVMark={usesDefaultImage}
     />
   );
 }

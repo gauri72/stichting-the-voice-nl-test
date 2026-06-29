@@ -6,6 +6,8 @@ import "../../styles/sponsorship-breadcrumb-section.css";
 
 export default function SponsorshipBreadcrumbSection() {
   const overrides = useContentOverrides();
+  const usesDefaultImage =
+    !overrides.sponsorshipBreadcrumbImageLight?.url && !overrides.sponsorshipBreadcrumbImageDark?.url;
 
   return (
     <BreadcrumbPageHeader
@@ -13,6 +15,7 @@ export default function SponsorshipBreadcrumbSection() {
       lightSrc={overrides.sponsorshipBreadcrumbImageLight?.url || breadcrumbBgLight}
       darkSrc={overrides.sponsorshipBreadcrumbImageDark?.url || breadcrumbBgDark}
       heroClassName="sponsorship-page-hero"
+      showVMark={usesDefaultImage}
     />
   );
 }

@@ -6,6 +6,8 @@ import "../../styles/events-breadcrumb-section.css";
 
 export default function EventsBreadcrumbSection() {
   const overrides = useContentOverrides();
+  const usesDefaultImage =
+    !overrides.eventsBreadcrumbImageLight?.url && !overrides.eventsBreadcrumbImageDark?.url;
 
   return (
     <BreadcrumbPageHeader
@@ -14,6 +16,7 @@ export default function EventsBreadcrumbSection() {
       darkSrc={overrides.eventsBreadcrumbImageDark?.url || breadcrumbBgDark}
       heroClassName="events-page-hero"
       fetchPriority="high"
+      showVMark={usesDefaultImage}
     />
   );
 }

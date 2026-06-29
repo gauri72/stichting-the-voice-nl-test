@@ -10,6 +10,8 @@ import "../../styles/impact-page.css";
 
 function ImpactPageFallback() {
   const overrides = useContentOverrides();
+  const usesDefaultImage =
+    !overrides.impactPageBreadcrumbImageLight?.url && !overrides.impactPageBreadcrumbImageDark?.url;
 
   return (
     <div id="impact-navbar-top" className="impact-page-shell">
@@ -19,6 +21,7 @@ function ImpactPageFallback() {
         darkSrc={overrides.impactPageBreadcrumbImageDark?.url || breadcrumbBgDark}
         heroClassName="impact-hero"
         fetchPriority="high"
+        showVMark={usesDefaultImage}
       />
       <ImpactHerBeatsSection />
       <ImpactHighlightSection />

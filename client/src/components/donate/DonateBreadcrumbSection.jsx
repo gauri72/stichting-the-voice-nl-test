@@ -6,6 +6,8 @@ import "../../styles/donate-breadcrumb-section.css";
 
 export default function DonateBreadcrumbSection() {
   const overrides = useContentOverrides();
+  const usesDefaultImage =
+    !overrides.donateBreadcrumbImageLight?.url && !overrides.donateBreadcrumbImageDark?.url;
 
   return (
     <BreadcrumbPageHeader
@@ -13,6 +15,7 @@ export default function DonateBreadcrumbSection() {
       lightSrc={overrides.donateBreadcrumbImageLight?.url || breadcrumbBgLight}
       darkSrc={overrides.donateBreadcrumbImageDark?.url || breadcrumbBgDark}
       heroClassName="donate-page-hero"
+      showVMark={usesDefaultImage}
     />
   );
 }
