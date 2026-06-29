@@ -10,9 +10,7 @@ export const EVENT_FILTERS = [
   { id: "all", label: "All Events" },
   { id: "featured", label: "Featured" },
   { id: "upcoming", label: "Upcoming" },
-  { id: "booked", label: "Booked" },
-  { id: "attended", label: "Attended" },
-  { id: "membership", label: "Included in Membership" },
+  { id: "past", label: "Past Events" },
 ];
 
 export function slugifyFilename(text) {
@@ -30,9 +28,6 @@ export function filterEvents(events, { filter, search }) {
 
   if (filter === "featured") list = list.filter((e) => e.isFeatured);
   else if (filter === "upcoming") list = list.filter((e) => e.isUpcoming);
-  else if (filter === "booked") list = list.filter((e) => e.bookingStatus === "BOOKED" || e.bookingStatus === "CHECKED_IN");
-  else if (filter === "attended") list = list.filter((e) => e.bookingStatus === "CHECKED_IN");
-  else if (filter === "membership") list = list.filter((e) => e.hasMembershipBenefit);
 
   if (q) {
     list = list.filter((e) => {

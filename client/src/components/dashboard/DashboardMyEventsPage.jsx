@@ -129,6 +129,8 @@ export default function DashboardMyEventsPage() {
     );
   }
 
+  const showPastOnly = filter === "past";
+  const showHistory = (filter === "all" && !search) || showPastOnly;
   const showFeatured = data.featured?.length > 0 && filter === "all" && !search;
 
   const historySection = (
@@ -202,11 +204,11 @@ export default function DashboardMyEventsPage() {
           </section>
           {historySection}
         </div>
-      ) : (
+      ) : showHistory ? (
         historySection
-      )}
+      ) : null}
 
-      {!hasAnyEvents ? (
+      {showPastOnly ? null : !hasAnyEvents ? (
         <div className="dash-my-events__empty">
           <IconCalendarEvent size={40} aria-hidden />
           <h2>No upcoming events available right now.</h2>
