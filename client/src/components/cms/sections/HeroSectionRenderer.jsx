@@ -16,6 +16,7 @@ export default function HeroSectionRenderer({ section }) {
         heroClassName="hero-section"
         fetchPriority="high"
         mobileSrc={mobile.url || undefined}
+        showVMark={!hero.url}
       />
       {(content.heading || content.description) && (
         <div className="cms-hero-section__overlay">

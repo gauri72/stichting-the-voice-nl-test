@@ -22,6 +22,7 @@ export default function LoginBreadcrumbSection({ mode = "login" }) {
         darkSrc={heroBgDark}
         heroClassName="login-page-hero"
         fetchPriority="high"
+        showVMark
       />
 
       <section className="login-hero" aria-labelledby="login-hero-title">

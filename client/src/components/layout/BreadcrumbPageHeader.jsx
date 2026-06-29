@@ -11,6 +11,7 @@ export default function BreadcrumbPageHeader({
   darkSrc,
   heroClassName = "",
   fetchPriority = "auto",
+  showVMark = false,
 }) {
   return (
     <div className="breadcrumb-page-header">
@@ -20,6 +21,7 @@ export default function BreadcrumbPageHeader({
         lightSrc={lightSrc}
         darkSrc={darkSrc}
         fetchPriority={fetchPriority}
+        showVMark={showVMark}
       />
       <VoiceBrandReveal />
     </div>

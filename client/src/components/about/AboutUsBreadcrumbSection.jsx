@@ -6,6 +6,8 @@ import "../../styles/about-us-breadcrumb-section.css";
 
 export default function AboutUsBreadcrumbSection() {
   const overrides = useContentOverrides();
+  const usesDefaultImage =
+    !overrides.aboutUsBreadcrumbImageLight?.url && !overrides.aboutUsBreadcrumbImageDark?.url;
 
   return (
     <BreadcrumbPageHeader
@@ -14,6 +16,7 @@ export default function AboutUsBreadcrumbSection() {
       darkSrc={overrides.aboutUsBreadcrumbImageDark?.url || heroBgDark}
       heroClassName="about-us-page-hero"
       fetchPriority="high"
+      showVMark={usesDefaultImage}
     />
   );
 }

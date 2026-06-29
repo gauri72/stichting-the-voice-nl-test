@@ -9,6 +9,8 @@ import "../../styles/stories-page.css";
 
 function StoriesPageFallback() {
   const overrides = useContentOverrides();
+  const usesDefaultImage =
+    !overrides.storiesBreadcrumbImageLight?.url && !overrides.storiesBreadcrumbImageDark?.url;
 
   return (
     <div id="stories-navbar-top" className="stories-page-shell">
@@ -18,6 +20,7 @@ function StoriesPageFallback() {
         darkSrc={overrides.storiesBreadcrumbImageDark?.url || heroBgDark}
         heroClassName="stories-hero"
         fetchPriority="high"
+        showVMark={usesDefaultImage}
       />
       {STORIES_PILLARS.map((pillar) => (
         <StoriesPillarSection key={pillar.id} pillar={pillar} />

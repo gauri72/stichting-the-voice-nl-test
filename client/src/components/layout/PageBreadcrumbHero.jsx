@@ -1,3 +1,4 @@
+import VoiceVMarkLink from "./VoiceVMarkLink.jsx";
 import "../../styles/page-breadcrumb-hero.css";
 
 export default function PageBreadcrumbHero({
@@ -6,6 +7,7 @@ export default function PageBreadcrumbHero({
   lightSrc,
   darkSrc,
   fetchPriority = "auto",
+  showVMark = false,
 }) {
   return (
     <section
@@ -25,6 +27,7 @@ export default function PageBreadcrumbHero({
         alt=""
         decoding="async"
       />
+      {showVMark ? <VoiceVMarkLink /> : null}
     </section>
   );
 }

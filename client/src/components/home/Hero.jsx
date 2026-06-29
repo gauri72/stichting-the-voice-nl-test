@@ -10,6 +10,7 @@ export default function Hero() {
       darkSrc={heroBgDark}
       heroClassName="hero-section"
       fetchPriority="high"
+      showVMark
     />
   );
 }
