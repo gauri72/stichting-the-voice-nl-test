@@ -33,6 +33,28 @@
   color: #000000;
 }
 
+/* Reset native <button>/<a> styling so they look identical to the original
+   <article> cards, plus a hover affordance since they're now interactive. */
+.dash-stat--clickable {
+  width: 100%;
+  font: inherit;
+  border: 1px solid rgba(26, 167, 196, 0.22);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.dash-stat--clickable:hover,
+.dash-stat--clickable:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="light"] .dash-stat--clickable:hover,
+[data-theme="light"] .dash-stat--clickable:focus-visible {
+  box-shadow: 0 10px 22px rgba(15, 53, 78, 0.16);
+}
+
 [data-theme="light"] .dash-stat--teal {
   background: rgba(10, 107, 122, 0.07);
   border-color: rgba(10, 107, 122, 0.42);

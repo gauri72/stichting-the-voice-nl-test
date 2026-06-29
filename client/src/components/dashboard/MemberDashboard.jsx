@@ -93,12 +93,8 @@ function DashboardShell({ children }) {
 function LegacyMemberDashboard({ displayName, overview, activity, membership, hasMembership, planId, planShort, membershipId, memberSince, validUntil, validFrom, qrSrc, wallet, quickActions }) {
   return (
     <>
-      <DashboardWelcomeBannerSection displayName={displayName} />
+      <DashboardWelcomeBannerSection displayName={displayName} membershipId={membershipId} hasMembership={hasMembership} />
       <div className="member-dashboard__body">
-        <DashboardDiscountsSection />
-        <DashboardMyEventsWidget />
-        <DashboardMySessionsSection />
-        <DashboardReferralSection />
         <DashboardStatCardsSection overview={overview} hasMembership={hasMembership} planId={planId} />
         <DashboardMembershipCardSection
           planShort={planShort}
@@ -111,6 +107,10 @@ function LegacyMemberDashboard({ displayName, overview, activity, membership, ha
           qrSrc={qrSrc}
           wallet={wallet}
         />
+        <DashboardDiscountsSection />
+        <DashboardMyEventsWidget />
+        <DashboardMySessionsSection />
+        <DashboardReferralSection />
         <DashboardImpactSection overview={overview} />
         <DashboardRecentActivitySection activity={activity} quickActions={quickActions} />
         <DashboardClosingCtaSection />

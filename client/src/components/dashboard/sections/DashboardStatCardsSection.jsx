@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { FaRegCheckCircle } from "react-icons/fa";
 import {
   IconCalendarEvent,
@@ -5,7 +6,13 @@ import {
   IconShieldCheck,
   IconUsersGroup,
 } from "@tabler/icons-react";
-import { planTierLabel } from "../dashboardUtils.js";
+import {
+  planTierLabel,
+  scrollToId,
+  DASHBOARD_MEMBERSHIP_CARD_ID,
+  DASHBOARD_RECENT_ACTIVITY_ID,
+  DASHBOARD_ROUTES,
+} from "../dashboardUtils.js";
 import "../../../styles/dashboard-stat-cards-section.css";
 
 export default function DashboardStatCardsSection({ overview, hasMembership, planId }) {
@@ -19,6 +26,7 @@ export default function DashboardStatCardsSection({ overview, hasMembership, pla
       value: hasMembership ? tier : "—",
       tone: "green",
       showCheck: hasMembership,
+      to: `#${DASHBOARD_MEMBERSHIP_CARD_ID}`,
     },
     {
       id: "events",
@@ -26,6 +34,7 @@ export default function DashboardStatCardsSection({ overview, hasMembership, pla
       label: ["Events", "Attended"],
       value: overview?.events?.value ?? "0",
       tone: "teal",
+      to: DASHBOARD_ROUTES.myEvents,
     },
     {
       id: "donations",
@@ -33,6 +42,7 @@ export default function DashboardStatCardsSection({ overview, hasMembership, pla
       label: ["Donations", "Made"],
       value: overview?.donations?.value ?? "€0",
       tone: "green",
+      to: `#${DASHBOARD_RECENT_ACTIVITY_ID}`,
     },
     {
       id: "sponsorships",
@@ -40,6 +50,7 @@ export default function DashboardStatCardsSection({ overview, hasMembership, pla
       label: ["Sponsorships", ""],
       value: `${overview?.sponsorships?.count ?? 0} Active`,
       tone: "blue",
+      to: `#${DASHBOARD_RECENT_ACTIVITY_ID}`,
     },
   ];
 
@@ -49,26 +60,44 @@ export default function DashboardStatCardsSection({ overview, hasMembership, pla
         Your V.O.I.C.E. NL Impact
       </h2>
       <div className="dash-stats">
-        {cards.map((card) => (
-          <article key={card.id} className={`dash-stat dash-stat--${card.tone}`}>
-            <span className={`dash-stat__icon dash-stat__icon--${card.tone}`} aria-hidden>
-              {card.icon}
-            </span>
-            <p className="dash-stat__label">
-              {card.label[0]}
-              {card.label[1] ? (
-                <>
-                  <br />
-                  {card.label[1]}
-                </>
+        {cards.map((card) => {
+          const isAnchor = card.to.startsWith("#");
+          const content = (
+            <>
+              <span className={`dash-stat__icon dash-stat__icon--${card.tone}`} aria-hidden>
+                {card.icon}
+              </span>
+              <p className="dash-stat__label">
+                {card.label[0]}
+                {card.label[1] ? (
+                  <>
+                    <br />
+                    {card.label[1]}
+                  </>
+                ) : null}
+              </p>
+              <p className={`dash-stat__value dash-stat__value--${card.tone}`}>{card.value}</p>
+              {card.showCheck ? (
+                <FaRegCheckCircle className="dash-stat__check" aria-hidden />
               ) : null}
-            </p>
-            <p className={`dash-stat__value dash-stat__value--${card.tone}`}>{card.value}</p>
-            {card.showCheck ? (
-              <FaRegCheckCircle className="dash-stat__check" aria-hidden />
-            ) : null}
-          </article>
-        ))}
+            </>
+          );
+
+          return isAnchor ? (
+            <button
+              key={card.id}
+              type="button"
+              className={`dash-stat dash-stat--${card.tone} dash-stat--clickable`}
+              onClick={() => scrollToId(card.to)}
+            >
+              {content}
+            </button>
+          ) : (
+            <Link key={card.id} to={card.to} className={`dash-stat dash-stat--${card.tone} dash-stat--clickable`}>
+              {content}
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

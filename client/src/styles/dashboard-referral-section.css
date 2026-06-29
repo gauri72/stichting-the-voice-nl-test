@@ -79,6 +79,20 @@
   padding: 12px 8px;
 }
 
+.dash-referral-section__stat--clickable {
+  width: 100%;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.dash-referral-section__stat--clickable:hover,
+.dash-referral-section__stat--clickable:focus-visible {
+  background: rgba(0, 166, 183, 0.15);
+  transform: translateY(-1px);
+}
+
 .dash-referral-section__stat strong {
   display: block;
   font-size: 1.2rem;

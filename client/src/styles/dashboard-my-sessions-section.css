@@ -1,0 +1,40 @@
+.member-dashboard__panel {
+  background: linear-gradient(135deg, rgba(0, 166, 183, 0.08), rgba(123, 47, 247, 0.08));
+  border: 1px solid rgba(0, 166, 183, 0.2);
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.member-dashboard__panel-head h2 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  color: var(--color-heading, #fff);
+}
+
+.member-dashboard__panel-subtitle {
+  margin: 0 0 16px;
+  font-size: 0.85rem;
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.member-dashboard__panel-body h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: var(--color-heading, #fff);
+}
+
+.member-dashboard__panel-body ul {
+  margin: 0 0 16px;
+  padding-left: 18px;
+  color: var(--md-text, #e2e8f0);
+  font-size: 0.9rem;
+}
+
+.member-dashboard__panel-body ul:last-child {
+  margin-bottom: 0;
+}
+
+.member-dashboard__panel-body li {
+  margin-bottom: 4px;
+}

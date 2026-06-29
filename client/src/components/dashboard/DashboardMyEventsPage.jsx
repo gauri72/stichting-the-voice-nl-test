@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { IconArrowLeft, IconCalendarEvent, IconSearch } from "@tabler/icons-react";
+import {
+  IconArrowLeft,
+  IconCalendarEvent,
+  IconSearch,
+  IconTicket,
+  IconCircleCheck,
+  IconBan,
+  IconReceiptRefund,
+} from "@tabler/icons-react";
 import { apiFetch, apiUrl, authHeaders } from "../../utils/api.js";
 import { DASHBOARD_ROUTES } from "./dashboardUtils.js";
 import DashboardEventCard from "./DashboardEventCard.jsx";
@@ -12,6 +20,48 @@ function DashboardShell({ children }) {
     <div className="member-dashboard-viewport">
       <section className="member-dashboard dash-my-events-page">{children}</section>
     </div>
+  );
+}
+
+const HISTORY_STATUS_ICON = {
+  booked: IconTicket,
+  checked_in: IconCircleCheck,
+  cancelled: IconBan,
+  refunded: IconReceiptRefund,
+};
+
+function HistoryCard({ item }) {
+  const Icon = HISTORY_STATUS_ICON[item.bookingStatus.toLowerCase()] || IconTicket;
+  return (
+    <li className={`dash-history-card dash-history-card--${item.bookingStatus.toLowerCase()}`}>
+      <span className="dash-history-card__icon" aria-hidden>
+        <Icon size={20} stroke={1.75} />
+      </span>
+      <div className="dash-history-card__body">
+        <p className="dash-history-card__title">{item.title}</p>
+        <p className="dash-history-card__date">{item.dateLabel}</p>
+        <div className="dash-history-card__badges">
+          <span className={`dash-history-card__status dash-history-card__status--${item.bookingStatus.toLowerCase()}`}>
+            {item.bookingStatus.replace(/_/g, " ")}
+          </span>
+          <span className="dash-history-card__count">
+            {item.ticketCount} ticket{item.ticketCount === 1 ? "" : "s"}
+          </span>
+        </div>
+      </div>
+      {(item.ticketsUrl || item.pdfUrl) ? (
+        <div className="dash-history-card__actions">
+          {item.ticketsUrl ? (
+            <Link to={item.ticketsUrl} className="dash-my-events__link-btn">View Ticket</Link>
+          ) : null}
+          {item.pdfUrl ? (
+            <a href={apiUrl(item.pdfUrl)} className="dash-my-events__link-btn" target="_blank" rel="noreferrer">
+              Download PDF
+            </a>
+          ) : null}
+        </div>
+      ) : null}
+    </li>
   );
 }
 
@@ -40,10 +90,16 @@ export default function DashboardMyEventsPage() {
     load();
   }, [load]);
 
-  const filteredEvents = useMemo(
-    () => filterEvents(data?.events, { filter, search }),
-    [data?.events, filter, search],
-  );
+  const filteredEvents = useMemo(() => {
+    const result = filterEvents(data?.events, { filter, search });
+    // Default view already shows featured events in their own section right
+    // above — don't repeat the same cards immediately below in "All Events".
+    // The dedicated "Featured" filter tab is unaffected since it isn't "all".
+    if (filter === "all" && !search) {
+      return result.filter((e) => !e.isFeatured);
+    }
+    return result;
+  }, [data?.events, filter, search]);
 
   const hasBookedHistory = (data?.history?.length || 0) > 0;
   const hasAnyEvents = (data?.events?.length || 0) > 0;
@@ -73,10 +129,32 @@ export default function DashboardMyEventsPage() {
     );
   }
 
+  const showFeatured = data.featured?.length > 0 && filter === "all" && !search;
+
+  const historySection = (
+    <section className="dash-my-events__section dash-my-events__section--history" aria-labelledby="history-title">
+      <h2 id="history-title" className="dash-my-events__section-title">My Event History</h2>
+      {!hasBookedHistory ? (
+        <div className="dash-my-events__empty dash-my-events__empty--inline">
+          <p>You haven&apos;t booked any events yet.</p>
+          <Link to={DASHBOARD_ROUTES.events} className="dash-my-events__btn dash-my-events__btn--secondary">
+            Explore Events
+          </Link>
+        </div>
+      ) : (
+        <ul className="dash-history-list">
+          {data.history.map((item) => (
+            <HistoryCard key={item.id} item={item} />
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+
   return (
     <DashboardShell>
       <header className="dash-my-events__hero">
-        <Link to={DASHBOARD_ROUTES.myEvents.replace("/events", "")} className="dash-my-events__back">
+        <Link to="/dashboard" className="dash-my-events__back">
           <IconArrowLeft size={18} aria-hidden /> Dashboard
         </Link>
         <h1 className="dash-my-events__page-title">My Events</h1>
@@ -112,6 +190,22 @@ export default function DashboardMyEventsPage() {
         </div>
       </div>
 
+      {showFeatured ? (
+        <div className="dash-my-events__top-grid">
+          <section className="dash-my-events__section" aria-labelledby="featured-events-title">
+            <h2 id="featured-events-title" className="dash-my-events__section-title">Featured Events</h2>
+            <div className="dash-my-events__grid">
+              {data.featured.map((event) => (
+                <DashboardEventCard key={event.id} event={event} onViewTickets={handleViewTickets} />
+              ))}
+            </div>
+          </section>
+          {historySection}
+        </div>
+      ) : (
+        historySection
+      )}
+
       {!hasAnyEvents ? (
         <div className="dash-my-events__empty">
           <IconCalendarEvent size={40} aria-hidden />
@@ -123,17 +217,6 @@ export default function DashboardMyEventsPage() {
         </div>
       ) : (
         <>
-          {data.featured?.length > 0 && filter === "all" && !search ? (
-            <section className="dash-my-events__section" aria-labelledby="featured-events-title">
-              <h2 id="featured-events-title" className="dash-my-events__section-title">Featured Events</h2>
-              <div className="dash-my-events__grid">
-                {data.featured.map((event) => (
-                  <DashboardEventCard key={event.id} event={event} onViewTickets={handleViewTickets} />
-                ))}
-              </div>
-            </section>
-          ) : null}
-
           {data.upcoming?.length > 0 && filter === "all" && !search ? (
             <section className="dash-my-events__section" aria-labelledby="upcoming-events-title">
               <h2 id="upcoming-events-title" className="dash-my-events__section-title">Upcoming Events</h2>
@@ -145,59 +228,28 @@ export default function DashboardMyEventsPage() {
             </section>
           ) : null}
 
-          <section className="dash-my-events__section" aria-labelledby="all-events-title">
-            <h2 id="all-events-title" className="dash-my-events__section-title">
-              {filter === "all" && !search ? "All Events" : "Results"}
-            </h2>
-            {filteredEvents.length === 0 ? (
-              <p className="dash-my-events__no-results">No events match your search or filter.</p>
-            ) : (
-              <div className="dash-my-events__grid">
-                {filteredEvents.map((event) => (
-                  <DashboardEventCard key={event.id} event={event} onViewTickets={handleViewTickets} />
-                ))}
-              </div>
-            )}
-          </section>
+          {/* In the default (no filter/search) view, an empty "All Events"
+              here is just Featured/Upcoming repeated as "nothing else" —
+              not useful, so skip it. A filter or search the member actively
+              chose still needs to report back when it finds nothing. */}
+          {filteredEvents.length > 0 || filter !== "all" || search ? (
+            <section className="dash-my-events__section" aria-labelledby="all-events-title">
+              <h2 id="all-events-title" className="dash-my-events__section-title">
+                {filter === "all" && !search ? "All Events" : "Results"}
+              </h2>
+              {filteredEvents.length === 0 ? (
+                <p className="dash-my-events__no-results">No events match your search or filter.</p>
+              ) : (
+                <div className="dash-my-events__grid">
+                  {filteredEvents.map((event) => (
+                    <DashboardEventCard key={event.id} event={event} onViewTickets={handleViewTickets} />
+                  ))}
+                </div>
+              )}
+            </section>
+          ) : null}
         </>
       )}
-
-      <section className="dash-my-events__section dash-my-events__section--history" aria-labelledby="history-title">
-        <h2 id="history-title" className="dash-my-events__section-title">My Event History</h2>
-        {!hasBookedHistory ? (
-          <div className="dash-my-events__empty dash-my-events__empty--inline">
-            <p>You haven&apos;t booked any events yet.</p>
-            <Link to={DASHBOARD_ROUTES.events} className="dash-my-events__btn dash-my-events__btn--secondary">
-              Explore Events
-            </Link>
-          </div>
-        ) : (
-          <ul className="dash-my-events__history">
-            {data.history.map((item) => (
-              <li key={item.id} className="dash-my-events__history-row">
-                <div>
-                  <strong>{item.title}</strong>
-                  <span>{item.dateLabel}</span>
-                </div>
-                <div className="dash-my-events__history-meta">
-                  <span className={`dash-my-events__status dash-my-events__status--${item.bookingStatus.toLowerCase()}`}>
-                    {item.bookingStatus.replace(/_/g, " ")}
-                  </span>
-                  <span>{item.ticketCount} ticket{item.ticketCount === 1 ? "" : "s"}</span>
-                </div>
-                <div className="dash-my-events__history-actions">
-                  <Link to={item.ticketsUrl} className="dash-my-events__link-btn">View Ticket</Link>
-                  {item.pdfUrl ? (
-                    <a href={apiUrl(item.pdfUrl)} className="dash-my-events__link-btn" target="_blank" rel="noreferrer">
-                      Download PDF
-                    </a>
-                  ) : null}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
     </DashboardShell>
   );
 }
