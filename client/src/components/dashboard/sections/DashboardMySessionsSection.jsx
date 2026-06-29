@@ -35,10 +35,14 @@ export default function DashboardMySessionsSection() {
         {sessions.length ? (
           <>
             <h3 style={{ marginTop: 0 }}>Upcoming Sessions</h3>
-            <ul>
+            <ul className="dash-session-list">
               {sessions.slice(0, 5).map((s) => (
-                <li key={s.bookingId}>
-                  {new Date(s.startsAt).toLocaleString()} · {s.bookingId} · {s.bookingStatus}
+                <li key={s.bookingId} className="dash-session-row">
+                  <span className="dash-session-row__date">{new Date(s.startsAt).toLocaleString()}</span>
+                  <span className="dash-session-row__id">{s.bookingId}</span>
+                  <span className={`dash-session-row__status dash-session-row__status--${String(s.bookingStatus).toLowerCase()}`}>
+                    {s.bookingStatus}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -47,10 +51,14 @@ export default function DashboardMySessionsSection() {
         {rsvps.length ? (
           <>
             <h3>My RSVPs</h3>
-            <ul>
+            <ul className="dash-session-list">
               {rsvps.slice(0, 5).map((r, i) => (
-                <li key={`${r.eventSlug}-${i}`}>
-                  {r.eventName} · {r.status} · {new Date(r.eventDate).toLocaleDateString()}
+                <li key={`${r.eventSlug}-${i}`} className="dash-session-row">
+                  <span className="dash-session-row__name">{r.eventName}</span>
+                  <span className={`dash-session-row__status dash-session-row__status--${String(r.status).toLowerCase()}`}>
+                    {r.status}
+                  </span>
+                  <span className="dash-session-row__date">{new Date(r.eventDate).toLocaleDateString()}</span>
                 </li>
               ))}
             </ul>
