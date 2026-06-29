@@ -355,6 +355,46 @@ export async function getDashboardEventsForUser(userId) {
   };
 }
 
+/** "My Bookings" — valid tickets for events that haven't happened yet, with
+ * QR codes and PDF links, for the dashboard home page. Empty when the
+ * customer has no upcoming bookings (the section hides itself in that case). */
+export async function getUpcomingBookingsForUser(userId) {
+  const now = new Date();
+  const events = await Event.find({
+    status: "published",
+    archived: { $ne: true },
+  }).lean();
+
+  const activeEvents = events.filter((e) => !isEventExpired(e, now));
+  const { ordersByEvent, ticketsByEvent } = await loadUserEventData(userId);
+
+  const bookings = activeEvents
+    .map((event) => {
+      const eventId = event._id.toString();
+      const orders = ordersByEvent.get(eventId) || [];
+      const hasSettledOrder = orders.some((o) => SETTLED_PAYMENT_STATUSES.includes(o.paymentStatus));
+      const tickets = (ticketsByEvent.get(eventId) || []).filter((t) => t.status === "valid");
+      if (!hasSettledOrder || !tickets.length) return null;
+
+      return {
+        eventId,
+        eventTitle: event.title,
+        eventSlug: event.slug || "",
+        eventDate: event.date,
+        dateLabel: formatDisplayDate(event.date),
+        timeLabel: [event.startTime, event.endTime].filter(Boolean).join(" - "),
+        venueName: event.venueName || "",
+        ticketCount: tickets.length,
+        ticketsUrl: `/dashboard/events/${eventId}/tickets`,
+        tickets: tickets.map(formatTicket),
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => new Date(a.eventDate) - new Date(b.eventDate));
+
+  return { bookings };
+}
+
 export async function getEventBookingStatusForUser(userId, eventId) {
   if (!mongoose.isValidObjectId(eventId)) {
     const err = new Error("Event not found.");

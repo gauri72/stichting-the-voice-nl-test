@@ -1,0 +1,178 @@
+/* Dashboard — My Bookings (upcoming events with valid tickets) */
+
+.dash-my-bookings {
+  margin-bottom: clamp(20px, 3cqw, 32px);
+}
+
+.dash-my-bookings__section-title {
+  margin: 0 0 clamp(14px, 2cqw, 20px);
+  font-size: clamp(1.2rem, 2.6cqw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--md-text);
+}
+
+.dash-my-bookings__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: clamp(12px, 1.6cqw, 18px);
+}
+
+.dash-my-bookings__card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #0d0d0d;
+  border: 1px solid rgba(26, 167, 196, 0.22);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.dash-my-bookings__card:hover {
+  transform: translateY(-3px);
+  border-color: var(--md-cyan, #1aa7c4);
+  box-shadow: 0 12px 28px rgba(26, 167, 196, 0.25);
+}
+
+[data-theme="light"] .dash-my-bookings__card {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(10, 95, 117, 0.3);
+  box-shadow: 0 6px 18px rgba(15, 53, 78, 0.08);
+}
+
+.dash-my-bookings__card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dash-my-bookings__title {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--md-text);
+}
+
+.dash-my-bookings__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--md-text-muted, #94a3b8);
+}
+
+.dash-my-bookings__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--md-green, #2fa84f);
+  background: rgba(47, 168, 79, 0.12);
+}
+
+.dash-my-bookings__ticket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dash-my-bookings__ticket {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="light"] .dash-my-bookings__ticket {
+  background: rgba(10, 95, 117, 0.06);
+}
+
+.dash-my-bookings__qr {
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: #fff;
+  padding: 3px;
+}
+
+.dash-my-bookings__ticket-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-my-bookings__ticket-type {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--md-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-my-bookings__ticket-holder {
+  margin: 1px 0 0;
+  font-size: 0.72rem;
+  color: var(--md-text-muted, #94a3b8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-my-bookings__pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--md-cyan, #1aa7c4);
+  color: var(--md-cyan, #1aa7c4);
+  background: transparent;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.dash-my-bookings__pdf-btn:hover {
+  background: var(--md-cyan, #1aa7c4);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.dash-my-bookings__view-all {
+  align-self: flex-start;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--md-cyan, #1aa7c4);
+  text-decoration: none;
+}
+
+.dash-my-bookings__view-all:hover {
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-my-bookings__card,
+  .dash-my-bookings__pdf-btn {
+    transition: none;
+  }
+
+  .dash-my-bookings__card:hover,
+  .dash-my-bookings__pdf-btn:hover {
+    transform: none;
+  }
+}

@@ -199,9 +199,11 @@ export function formatTicket(ticket) {
     attendeeEmail: ticket.attendeeEmail,
     verificationToken,
     qrCodeUrl: normalizeTicketQrPath(ticket.qrCodeUrl, verificationToken),
-    pdfUrl: ticket.pdfUrl?.startsWith("/")
-      ? ticket.pdfUrl
-      : pdfFallback || ticket.pdfUrl,
+    // The PDF route requires ?token= to match verificationToken (see
+    // verifyTicketPdfAccess) — always derive the URL from the token rather
+    // than trusting the stored ticket.pdfUrl, which on older tickets was
+    // saved before token-based access existed and 403s without it.
+    pdfUrl: pdfFallback || ticket.pdfUrl,
     status: ticket.status,
     checkedIn: ticket.checkedIn,
     checkedInAt: ticket.checkedInAt,

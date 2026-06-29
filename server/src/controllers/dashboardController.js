@@ -1,6 +1,7 @@
 import { getDashboardPayloadForUser } from "../services/dashboardService.js";
 import {
   getDashboardEventsForUser,
+  getUpcomingBookingsForUser,
   getEventTicketsForUser,
   getEventBookingStatusForUser,
 } from "../services/dashboardEventService.js";
@@ -140,6 +141,18 @@ export async function getDashboardGiving(req, res) {
     const status = error.status || 500;
     const message = error.message || "Giving history unavailable.";
     if (status >= 500) console.error("[dashboard/giving]", error);
+    return res.status(status).json({ error: message });
+  }
+}
+
+export async function getDashboardBookings(req, res) {
+  try {
+    const data = await getUpcomingBookingsForUser(req.user.id);
+    return res.status(200).json(data);
+  } catch (error) {
+    const status = error.status || 500;
+    const message = error.message || "Bookings unavailable.";
+    if (status >= 500) console.error("[dashboard/bookings]", error);
     return res.status(status).json({ error: message });
   }
 }

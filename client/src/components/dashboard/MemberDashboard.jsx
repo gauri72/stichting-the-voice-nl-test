@@ -10,6 +10,7 @@ import {
 import { downloadMembershipEcard } from "../../utils/membershipEcard.js";
 import CustomerDashboardRenderer from "./CustomerDashboardRenderer.jsx";
 import DashboardWelcomeBannerSection from "./sections/DashboardWelcomeBannerSection.jsx";
+import DashboardMyBookingsSection from "./sections/DashboardMyBookingsSection.jsx";
 import DashboardStatCardsSection from "./sections/DashboardStatCardsSection.jsx";
 import DashboardMembershipCardSection from "./sections/DashboardMembershipCardSection.jsx";
 import DashboardMyEventsWidget from "./sections/DashboardMyEventsWidget.jsx";
@@ -95,6 +96,7 @@ function LegacyMemberDashboard({ displayName, overview, activity, membership, ha
     <>
       <DashboardWelcomeBannerSection displayName={displayName} membershipId={membershipId} hasMembership={hasMembership} />
       <div className="member-dashboard__body">
+        <DashboardMyBookingsSection />
         <DashboardStatCardsSection overview={overview} hasMembership={hasMembership} planId={planId} />
         <DashboardMembershipCardSection
           planShort={planShort}
