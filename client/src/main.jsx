@@ -25,6 +25,15 @@ import "./styles/coming-soon-page.css";
 import "./styles/ai-assistant-tailwind.css";
 import "./styles/ai-assistant-overrides.css";
 
+// The browser's own scroll restoration runs before React even mounts, and
+// can win the race against ScrollToHash's window.scrollTo(0,0) on refresh —
+// landing the page wherever the user last scrolled (sometimes the footer)
+// instead of the top. Disabling it here makes every load/refresh start at
+// the top, with ScrollToHash (in App.jsx) handling in-app navigation.
+if (typeof window !== "undefined" && window.history && "scrollRestoration" in window.history) {
+  window.history.scrollRestoration = "manual";
+}
+
 const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
 
 function AppProviders({ children }) {
