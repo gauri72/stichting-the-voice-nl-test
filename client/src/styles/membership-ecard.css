@@ -102,7 +102,9 @@
 }
 
 .voice-ecard__field--id {
-  left: 17.39%;
+  /* Measured directly from the template image's underline (member-pass-
+     light-theme.png, 1435x957): centered at x=239/1435. */
+  left: 16.66%;
   max-width: none;
   white-space: nowrap;
   word-break: normal;
@@ -110,12 +112,15 @@
 }
 
 .voice-ecard__field--until {
-  left: 49.44%;
+  /* Underline centered at x=714/1435. */
+  left: 49.76%;
   max-width: 22%;
 }
 
 .voice-ecard__field--level {
-  left: 80.46%;
+  /* Underline centered at x=1184/1435 — this one was off by ~2 points
+     (was 80.46%), the most visibly misaligned of the three. */
+  left: 82.51%;
   max-width: 22%;
 }
 
