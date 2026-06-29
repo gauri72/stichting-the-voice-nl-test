@@ -15,7 +15,8 @@
   },
   "header": {
     "buyTickets": "Tickets Kopen",
-    "logInSignUp": "Inloggen Of Registreren"
+    "logInSignUp": "Inloggen Of Registreren",
+    "myAccount": "Mijn Account"
   },
   "buttons": {
     "learnMore": "Meer Informatie",

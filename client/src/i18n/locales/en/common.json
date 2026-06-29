@@ -15,7 +15,8 @@
   },
   "header": {
     "buyTickets": "Buy Tickets",
-    "logInSignUp": "Log In Or Sign Up"
+    "logInSignUp": "Log In Or Sign Up",
+    "myAccount": "My Account"
   },
   "buttons": {
     "learnMore": "Learn More",

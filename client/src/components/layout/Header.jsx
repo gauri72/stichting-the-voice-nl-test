@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { IconTicket, IconUser, IconUserPlus } from "@tabler/icons-react";
+import { IconTicket, IconUser, IconUserCheck, IconUserPlus } from "@tabler/icons-react";
 import ThemeToggle from "./ThemeToggle.jsx";
 import { useCmsHeader } from "../../hooks/useCmsPage.js";
+import { useAuth } from "../../contexts/AuthContext.jsx";
 import { translateKnownLabel, translateKnownNavLabel } from "../../i18n/navLabels.js";
 
 const DEFAULT_BUY_TICKETS_URL =
@@ -58,6 +59,7 @@ function cmsItemsToNav(items = [], defaultNavItems, t) {
 export default function Header() {
   const { t } = useTranslation(["common"]);
   const { header } = useCmsHeader();
+  const { user, isAuthenticated } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdownLabel, setOpenDropdownLabel] = useState(null);
 
@@ -69,6 +71,7 @@ export default function Header() {
   const buyTicketsText = translateKnownLabel(settings.buyTicketsButtonText, t) || t("common:header.buyTickets");
   const loginText = translateKnownLabel(settings.loginButtonText, t) || t("common:header.logInSignUp");
   const loginUrl = settings.loginButtonUrl || "/my-account";
+  const accountText = isAuthenticated && user?.firstName ? user.firstName : t("common:header.myAccount");
   const showThemeToggle = settings.themeToggleVisible !== false;
   const stickyClass = settings.stickyHeader !== false ? " site-header--sticky" : "";
   const announcement = header?.announcementBar;
@@ -144,7 +147,16 @@ export default function Header() {
     </a>
   );
 
-  const authCta = (
+  const authCta = isAuthenticated ? (
+    <Link
+      className="donate-button auth-button auth-button--active nav-toolbar__cta-auth dash-welcome__badge"
+      to="/dashboard"
+      onClick={closeMenu}
+    >
+      <IconUserCheck className="nav-toolbar__cta-icon dash-welcome__badge-icon auth-button-icon" aria-hidden stroke={1.75} />
+      <span>{accountText}</span>
+    </Link>
+  ) : (
     <Link
       className="donate-button auth-button nav-toolbar__cta-auth dash-welcome__badge"
       to={loginUrl}

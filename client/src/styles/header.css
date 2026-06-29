@@ -386,6 +386,25 @@
   box-shadow: none;
 }
 
+/* Logged-in state — green, matching the "active"/membership-confirmed
+   convention used elsewhere (e.g. the dashboard's Active Membership stat).
+   !important because several more-specific breakpoint/theme rules below
+   (`.nav-toolbar .dash-welcome__badge.auth-button`, etc.) otherwise repaint
+   this back to the default blue regardless of source order. */
+.auth-button.auth-button--active {
+  border-color: var(--md-green, #2fa84f) !important;
+  color: var(--md-green, #2fa84f) !important;
+}
+
+.auth-button.auth-button--active:hover {
+  color: var(--md-green, #2fa84f) !important;
+  box-shadow: 0 6px 14px rgba(47, 168, 79, 0.18);
+}
+
+.auth-button.auth-button--active .dash-welcome__badge-icon {
+  color: var(--md-green, #2fa84f) !important;
+}
+
 .auth-button-desktop {
   display: inline-flex;
 }
