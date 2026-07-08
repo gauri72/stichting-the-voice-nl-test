@@ -2215,3 +2215,28 @@
   padding: 0.25rem 0.5rem;
   font-size: 0.8rem;
 }
+
+/* Event Experience — YouTube Short panel (AdminEventShortPanel.jsx) */
+.admin-event-short__preview {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+}
+
+.admin-event-short__thumb {
+  width: 90px;
+  border-radius: 8px;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border: 1px solid var(--ad-border, #2a2f3a);
+}
+
+.admin-event-short__hidden-probe {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}

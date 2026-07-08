@@ -1,0 +1,59 @@
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+/* This app's theme toggle sets data-theme="dark"/"light" on <html> — not a
+   .dark class, not OS preference — so Tailwind's default dark: variant
+   never tracks it. Redeclared here (not shared from ai-assistant-tailwind.css
+   — Tailwind v4 custom variants don't cross-import cleanly) so this page's
+   Tailwind scope stays fully independent of the dashboard's. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@source "../components/event-experience";
+
+/* Maps this page's utilities onto the SAME CSS custom properties the rest
+   of the public site already uses (client/src/styles/themes.css) — dark/
+   light stays driven entirely by the existing data-theme attribute swap,
+   no new theme logic. Prefixed evx- to avoid colliding with Tailwind's own
+   default palette token names (e.g. "accent"). */
+@theme {
+  --color-evx-bg: var(--color-bg);
+  --color-evx-bg-muted: var(--color-bg-muted);
+  --color-evx-surface: var(--color-surface);
+  --color-evx-surface-elevated: var(--color-surface-elevated);
+  --color-evx-card-bg: var(--color-card-bg);
+  --color-evx-text: var(--color-text);
+  --color-evx-text-secondary: var(--color-text-secondary);
+  --color-evx-text-muted: var(--color-text-muted);
+  --color-evx-heading: var(--color-heading);
+  --color-evx-border: var(--color-border);
+  --color-evx-border-strong: var(--color-border-strong);
+  --color-evx-accent: var(--color-accent);
+  --color-evx-accent-teal: var(--color-accent-teal);
+  --color-evx-link: var(--color-link);
+  --color-evx-shadow: var(--color-shadow);
+  --color-evx-shadow-strong: var(--color-shadow-strong);
+}
+
+/* Hero slide auto-advance progress bar — a real CSS animation (not Framer
+   Motion) specifically because animation-play-state lets hover pause it in
+   place and resume seamlessly, without re-deriving "current progress" by
+   hand on every pause/resume cycle. */
+@keyframes evx-hero-progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+@keyframes evx-particle-float {
+  0% { transform: translate(0, 0); opacity: 0; }
+  10% { opacity: 0.7; }
+  50% { transform: translate(var(--evx-drift, 20px), -55vh); opacity: 0.9; }
+  90% { opacity: 0.4; }
+  100% { transform: translate(calc(var(--evx-drift, 20px) * 1.6), -100vh); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evx-reduced-motion-static {
+    animation: none !important;
+    transition: none !important;
+  }
+}

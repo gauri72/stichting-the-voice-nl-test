@@ -132,6 +132,12 @@ async function handleSucceededPayment(intent) {
     return;
   }
 
+  if (meta.payment_kind === "business_order") {
+    const { fulfillOrder } = await import("../services/businessOrderService.js");
+    await fulfillOrder(intent.id);
+    return;
+  }
+
   if (meta.payment_kind === "membership") {
     try {
       const result = await provisionMembershipFromPayment({

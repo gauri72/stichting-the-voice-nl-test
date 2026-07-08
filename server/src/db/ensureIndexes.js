@@ -56,6 +56,7 @@ import CheckoutForm from "../models/CheckoutForm.js";
 import CheckoutFormResponse from "../models/CheckoutFormResponse.js";
 import WaitlistEntry from "../models/WaitlistEntry.js";
 import EventHighlightMetric from "../models/EventHighlightMetric.js";
+import SavedEvent from "../models/SavedEvent.js";
 import TeamMember from "../models/TeamMember.js";
 import ApiIntegration from "../models/ApiIntegration.js";
 import ApiCredential from "../models/ApiCredential.js";
@@ -76,6 +77,11 @@ import DocumentVersion from "../models/DocumentVersion.js";
 import EventChecklistItem from "../models/EventChecklistItem.js";
 import EventVendor from "../models/EventVendor.js";
 import StripeWebhookEvent from "../models/StripeWebhookEvent.js";
+import BusinessApplication from "../models/BusinessApplication.js";
+import BusinessProfile from "../models/BusinessProfile.js";
+import BusinessProduct from "../models/BusinessProduct.js";
+import BusinessOrder from "../models/BusinessOrder.js";
+import BusinessPayout from "../models/BusinessPayout.js";
 
 /**
  * Every model maps to exactly one explicitly-named collection in the active
@@ -143,6 +149,7 @@ const MODELS = [
   ["checkout_form_responses", CheckoutFormResponse],
   ["waitlist_entries", WaitlistEntry],
   ["event_highlight_metrics", EventHighlightMetric],
+  ["saved_events", SavedEvent],
   ["team_members", TeamMember],
   ["api_integrations", ApiIntegration],
   ["api_credentials", ApiCredential],
@@ -163,6 +170,11 @@ const MODELS = [
   ["event_checklist_items", EventChecklistItem],
   ["event_vendors", EventVendor],
   ["stripe_webhook_events", StripeWebhookEvent],
+  ["business_applications", BusinessApplication],
+  ["business_profiles", BusinessProfile],
+  ["business_products", BusinessProduct],
+  ["business_orders", BusinessOrder],
+  ["business_payouts", BusinessPayout],
 ];
 
 export async function ensureIndexes() {

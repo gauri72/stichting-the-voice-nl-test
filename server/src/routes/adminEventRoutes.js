@@ -41,6 +41,11 @@ import {
   getHighlightAnalyticsAdmin,
 } from "../controllers/eventHighlightController.js";
 import {
+  getEventShortAdmin,
+  previewYoutubeShortAdmin,
+  patchEventShortAdmin,
+} from "../controllers/eventExperienceAdminController.js";
+import {
   getSeatMap,
   patchSeatMap,
   uploadSeatMapImage,
@@ -110,6 +115,9 @@ router.get("/:id/highlight", getHighlightAdmin);
 router.patch("/:id/highlight", patchHighlightAdmin);
 router.post("/:id/highlight/preview-youtube", previewYoutubeAdmin);
 router.post("/:id/highlight/upload-thumbnail", uploadHighlightThumbnailAdmin);
+router.get("/:id/short", getEventShortAdmin);
+router.post("/:id/short/preview", previewYoutubeShortAdmin);
+router.patch("/:id/short", patchEventShortAdmin);
 router.patch("/:id/featured-flags", patchFeaturedFlags);
 router.post("/:id/ai/featured-style", generateFeaturedStyle);
 router.post("/:id/ai/featured-image-prompt", generateFeaturedImagePrompt);

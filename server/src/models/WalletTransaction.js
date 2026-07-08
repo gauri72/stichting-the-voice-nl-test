@@ -15,7 +15,7 @@ const walletTransactionSchema = new mongoose.Schema(
     amountMinor: { type: Number, default: 0 }, // signed: positive = credit, negative = debit
     points: { type: Number, default: 0 }, // signed: positive = earned, negative = redeemed/expired
     description: { type: String, default: "", trim: true, maxlength: 300 },
-    referenceType: { type: String, enum: ["ticketOrder", "topup", "admin", "aiBooking", "eventAttendance", ""], default: "" },
+    referenceType: { type: String, enum: ["ticketOrder", "topup", "admin", "aiBooking", "eventAttendance", "businessOrder", ""], default: "" },
     referenceId: { type: String, default: "", trim: true },
     initiatedBy: { type: String, enum: ["customer", "ai", "admin", "system"], default: "customer", index: true },
     paymentIntentId: { type: String, default: "", trim: true, index: true },

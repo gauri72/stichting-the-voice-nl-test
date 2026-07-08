@@ -145,6 +145,14 @@ const eventSchema = new mongoose.Schema(
       default: "global_fallback",
     },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
+
+    // Event Experience page — separate from the highlightVideo*/youtubeHighlightUrl
+    // fields above, which belong to the existing /events page's own video system.
+    youtubeShortUrl: { type: String, default: "", trim: true, maxlength: 500 },
+    youtubeShortVideoId: { type: String, default: "", trim: true, maxlength: 20 },
+    youtubeThumbnail: { type: String, default: "", trim: true, maxlength: 500 },
+    youtubeDuration: { type: Number, default: 0, min: 0 },
+    featureInCarousel: { type: Boolean, default: false, index: true },
   },
   { timestamps: true, collection: "events" }
 );
@@ -154,6 +162,7 @@ eventSchema.index({ featured: 1, showOnHomePage: 1, status: 1, date: 1 });
 eventSchema.index({ featured: 1, showOnEventsPage: 1, status: 1, date: 1 });
 eventSchema.index({ status: 1, date: -1, showInMemorableMoments: 1 });
 eventSchema.index({ slug: 1 }, { unique: true, sparse: true });
+eventSchema.index({ status: 1, youtubeShortUrl: 1, featureInCarousel: 1 });
 
 const Event = mongoose.models.Event || mongoose.model("Event", eventSchema);
 

@@ -257,6 +257,16 @@
   background: rgba(168, 85, 247, 0.12);
 }
 
+.admin-layout__nav-item--preview {
+  opacity: 0.65;
+  font-style: italic;
+  border: 1px dashed var(--ad-border, rgba(128,128,128,0.3));
+  margin-top: 2px;
+}
+.admin-layout__nav-item--preview:hover {
+  opacity: 1;
+}
+
 .admin-layout__nav-item svg {
   flex-shrink: 0;
 }

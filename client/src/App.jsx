@@ -22,6 +22,13 @@ const AiChatPage = lazy(() => import("./components/dashboard/ai-assistant/AiChat
 const AiPromptLibraryPage = lazy(() => import("./components/dashboard/ai-assistant/AiPromptLibraryPage.jsx"));
 const AiScheduledPromptsPage = lazy(() => import("./components/dashboard/ai-assistant/AiScheduledPromptsPage.jsx"));
 const WalletPage = lazy(() => import("./components/dashboard/wallet/WalletPage.jsx"));
+const EventExperiencePage = lazy(() => import("./components/event-experience/EventExperiencePage.jsx"));
+const VCommercePage = lazy(() => import("./components/vcommerce/VCommercePage.jsx"));
+const VCommerceProfilePage = lazy(() => import("./components/vcommerce/VCommerceProfilePage.jsx"));
+const VCommerceApplicationPage = lazy(() => import("./components/vcommerce/VCommerceApplicationPage.jsx"));
+const VCommerceApplicationSuccessPage = lazy(() => import("./components/vcommerce/VCommerceApplicationSuccessPage.jsx"));
+const VCommerceCheckoutPage = lazy(() => import("./components/vcommerce/checkout/VCommerceCheckoutPage.jsx"));
+const VCommercePortalPage = lazy(() => import("./components/dashboard/vcommerce/VCommercePortalPage.jsx"));
 import AiAssistantPageShell from "./components/dashboard/ai-assistant/AiAssistantPageShell.jsx";
 import AiAssistantOverlay from "./components/dashboard/ai-assistant/AiAssistantOverlay.jsx";
 import MyProfilePage from "./components/profile/MyProfilePage";
@@ -106,6 +113,7 @@ import AdminApiBuilderPage from "./components/admin/AdminApiBuilderPage.jsx";
 import AdminAiAssistantPage from "./components/admin/AdminAiAssistantPage.jsx";
 import AdminWalletPage from "./components/admin/AdminWalletPage.jsx";
 import AdminIconLibraryPage from "./components/admin/icon-library/AdminIconLibraryPage.jsx";
+import AdminVCommercePage from "./components/admin/AdminVCommercePage.jsx";
 import AdminApiBuilderLogsPage from "./components/admin/AdminApiBuilderLogsPage.jsx";
 import AccessManagementLayout from "./components/admin/access/AccessManagementLayout.jsx";
 import AccessTeamMembersPage from "./components/admin/access/AccessTeamMembersPage.jsx";
@@ -195,6 +203,56 @@ export default function App() {
           <Route path="/about-us" element={<AboutUsPage />} />
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/events" element={<EventsPage />} />
+          <Route
+            path="/event-experience"
+            element={
+              <RouteErrorBoundary name="event-experience" title="Events page unavailable">
+                <Suspense fallback={<div className="member-dashboard__status">Loading events…</div>}>
+                  <EventExperiencePage />
+                </Suspense>
+              </RouteErrorBoundary>
+            }
+          />
+          <Route
+            path="/vcommerce"
+            element={
+              <Suspense fallback={<div className="member-dashboard__status">Loading VCommerce…</div>}>
+                <VCommercePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/vcommerce/checkout"
+            element={
+              <Suspense fallback={<div className="member-dashboard__status">Loading checkout…</div>}>
+                <VCommerceCheckoutPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/vcommerce/apply"
+            element={
+              <Suspense fallback={<div className="member-dashboard__status">Loading…</div>}>
+                <VCommerceApplicationPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/vcommerce/apply/success"
+            element={
+              <Suspense fallback={<div className="member-dashboard__status">Loading…</div>}>
+                <VCommerceApplicationSuccessPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/vcommerce/:slug"
+            element={
+              <Suspense fallback={<div className="member-dashboard__status">Loading business…</div>}>
+                <VCommerceProfilePage />
+              </Suspense>
+            }
+          />
           <Route
             path="/events/:eventIdOrSlug/tickets"
             element={
@@ -490,6 +548,14 @@ export default function App() {
             }
           />
           <Route
+            path="/admin/vcommerce"
+            element={
+              <AdminProtectedRoute>
+                <AdminVCommercePage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
             path="/admin/api-builder"
             element={
               <AdminProtectedRoute>
@@ -765,6 +831,16 @@ export default function App() {
               <ProtectedRoute>
                 <Suspense fallback={<div className="member-dashboard__status">Loading your wallet…</div>}>
                   <WalletPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/vcommerce"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="member-dashboard__status">Loading your business…</div>}>
+                  <VCommercePortalPage />
                 </Suspense>
               </ProtectedRoute>
             }

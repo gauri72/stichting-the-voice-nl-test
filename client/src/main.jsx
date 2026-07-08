@@ -24,6 +24,9 @@ import "./styles/cookie-consent.css";
 import "./styles/coming-soon-page.css";
 import "./styles/ai-assistant-tailwind.css";
 import "./styles/ai-assistant-overrides.css";
+import "./styles/event-experience-tailwind.css";
+import "./styles/vcommerce-tailwind.css";
+import "./styles/vcommerce.css";
 
 // The browser's own scroll restoration runs before React even mounts, and
 // can win the race against ScrollToHash's window.scrollTo(0,0) on refresh —

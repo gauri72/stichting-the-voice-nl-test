@@ -35,6 +35,8 @@ import {
   IconSparkles,
   IconWallet,
   IconShape,
+  IconExternalLink,
+  IconShoppingBag,
 } from "@tabler/icons-react";
 import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
 import { canAccessRoute } from "../../utils/rbacAdmin.js";
@@ -54,6 +56,7 @@ const NAV_ITEMS = [
     ],
   },
   { to: "/admin/events", label: "Events", icon: IconTicket },
+  { href: "/event-experience", label: "Preview Event Experience ↗", icon: IconExternalLink, preview: true },
   {
     label: "Bookings & Check-in",
     icon: IconCalendarEvent,
@@ -111,6 +114,7 @@ const NAV_ITEMS = [
   { to: "/admin/reports", label: "Reports", icon: IconChartBar },
   { to: "/admin/personal-ai", label: "Personal AI Assistant", icon: IconSparkles },
   { to: "/admin/wallet", label: "V.Wallet", icon: IconWallet },
+  { to: "/admin/vcommerce", label: "VCommerce", icon: IconShoppingBag },
   { to: "/admin/icon-library", label: "V Icon Library", icon: IconShape },
   { to: "/admin/api-builder", label: "Smart API Builder", icon: IconApi },
   {
@@ -188,6 +192,22 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
   }
 
   function renderNavItem(item, onClick) {
+    if (item.href) {
+      const Icon = item.icon;
+      return (
+        <a
+          key={item.href}
+          href={item.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onClick}
+          className="admin-layout__nav-item admin-layout__nav-item--preview"
+        >
+          <Icon size={20} stroke={1.7} aria-hidden />
+          <span>{item.label}</span>
+        </a>
+      );
+    }
     if (item.children) {
       const groupActive = isGroupActive(item);
       const isOpen = Boolean(openGroups[item.label]);

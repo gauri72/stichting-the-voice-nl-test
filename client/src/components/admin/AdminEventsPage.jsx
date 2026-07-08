@@ -30,6 +30,7 @@ import {
 import AdminLayout from "./AdminLayout.jsx";
 import EventCheckoutFormSection from "./EventCheckoutFormSection.jsx";
 import AdminTicketTypeQuickDiscount from "./AdminTicketTypeQuickDiscount.jsx";
+import AdminEventShortPanel from "./AdminEventShortPanel.jsx";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
 import "../../styles/admin-events-page.css";
 
@@ -1910,6 +1911,8 @@ export default function AdminEventsPage() {
               </ul>
             </div>
           </section>
+
+          {editId ? <AdminEventShortPanel eventId={editId} /> : null}
 
           <footer className="admin-events__footer admin-events__footer--actions">
             <button

@@ -1,0 +1,36 @@
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+/* This app's theme toggle sets data-theme="dark"/"light" on <html>.
+   Redeclared here (not shared) so this page stays fully independent. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@source "../components/vcommerce";
+
+/* Maps vco-* utilities onto the same CSS vars the rest of the site uses.
+   Prefix vco- avoids collision with Tailwind default palette tokens. */
+@theme {
+  --color-vco-bg: var(--color-bg);
+  --color-vco-bg-muted: var(--color-bg-muted);
+  --color-vco-surface: var(--color-surface);
+  --color-vco-surface-elevated: var(--color-surface-elevated);
+  --color-vco-card-bg: var(--color-card-bg);
+  --color-vco-text: var(--color-text);
+  --color-vco-text-secondary: var(--color-text-secondary);
+  --color-vco-text-muted: var(--color-text-muted);
+  --color-vco-heading: var(--color-heading);
+  --color-vco-border: var(--color-border);
+  --color-vco-border-strong: var(--color-border-strong);
+  --color-vco-accent: var(--color-accent);
+  --color-vco-accent-teal: var(--color-accent-teal);
+  --color-vco-link: var(--color-link);
+  --color-vco-shadow: var(--color-shadow);
+  --color-vco-shadow-strong: var(--color-shadow-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vco-reduced-motion-static {
+    animation: none !important;
+    transition: none !important;
+  }
+}
