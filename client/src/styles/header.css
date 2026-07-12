@@ -1086,7 +1086,7 @@
   .nav-toolbar .dash-welcome__badge {
     min-height: 38px;
     padding: 5px 3px;
-    font-size: 11px;
+    font-size: 13px;
   }
 
   .nav-toolbar .menu-toggle,
@@ -1098,7 +1098,7 @@
   }
 
   .nav-toolbar .nav-toolbar__cta-auth {
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .nav-toolbar .nav-toolbar__cta-icon,
@@ -1124,7 +1124,7 @@
   .nav-toolbar .dash-welcome__badge {
     min-height: 36px;
     padding: 4px 2px;
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .nav-toolbar .menu-toggle,
@@ -1136,7 +1136,7 @@
   }
 
   .nav-toolbar .nav-toolbar__cta-auth {
-    font-size: 11px;
+    font-size: 13px;
   }
 
   .nav-toolbar .nav-toolbar__cta-icon,
