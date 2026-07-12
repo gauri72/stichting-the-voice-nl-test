@@ -149,8 +149,28 @@
   background: rgba(0, 0, 0, 0.38);
   backdrop-filter: blur(4px);
   font-family: inherit;
+  line-height: normal;
   cursor: pointer;
   z-index: 1;
+}
+
+@media (max-width: 767px) {
+  .dash-welcome__membership-code {
+    padding: 8px 14px;
+    border-radius: 8px;
+  }
+
+  .dash-welcome__membership-code-label {
+    font-size: 0.7rem;
+  }
+
+  .dash-welcome__membership-code-row {
+    gap: 8px;
+  }
+
+  .dash-welcome__membership-code-value {
+    font-size: 1.05rem;
+  }
 }
 
 .dash-welcome__membership-code-label {
