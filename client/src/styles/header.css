@@ -1097,6 +1097,10 @@
     min-height: 38px;
   }
 
+  .nav-toolbar .nav-toolbar__cta-auth {
+    font-size: 11px;
+  }
+
   .nav-toolbar .nav-toolbar__cta-icon,
   .nav-toolbar .buy-tickets-icon {
     width: 12px;
@@ -1129,6 +1133,10 @@
     min-width: 36px;
     height: 36px;
     min-height: 36px;
+  }
+
+  .nav-toolbar .nav-toolbar__cta-auth {
+    font-size: 10px;
   }
 
   .nav-toolbar .nav-toolbar__cta-icon,
