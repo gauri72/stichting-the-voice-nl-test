@@ -166,7 +166,7 @@
   }
 
   .dash-welcome__membership-code-label {
-    font-size: 0.8rem;
+    font-size: 0.6rem;
   }
 
   .dash-welcome__membership-code-row {
@@ -174,12 +174,12 @@
   }
 
   .dash-welcome__membership-code-value {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
   }
 }
 
 .dash-welcome__membership-code-label {
-  font-size: clamp(0.7rem, 1cqw, 0.8rem);
+  font-size: clamp(0.5rem, 1cqw, 0.6rem);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -194,7 +194,7 @@
 
 .dash-welcome__membership-code-value {
   font-family: "SF Mono", "Roboto Mono", Consolas, monospace;
-  font-size: clamp(1.05rem, 2.2cqw, 1.4rem);
+  font-size: clamp(0.85rem, 2.2cqw, 1.2rem);
   font-weight: 800;
   letter-spacing: 0.04em;
   color: #ffffff;
