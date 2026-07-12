@@ -92,11 +92,6 @@
     padding: 11px 20px;
   }
 
-  .dash-welcome__membership-code-label,
-  .dash-welcome__membership-code-value {
-    font-size: inherit;
-  }
-
   /* Redeemable points: same centering treatment, plus a bit more compact. */
   .dash-welcome__points-chip {
     align-items: center;
