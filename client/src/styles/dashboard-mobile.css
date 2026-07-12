@@ -87,7 +87,7 @@
     position: absolute;
     display: inline-flex;
     width: fit-content;
-    align-items: flex-start;
+    align-items: center;
     box-sizing: content-box;
     padding: 11px 20px;
   }

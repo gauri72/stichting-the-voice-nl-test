@@ -141,7 +141,7 @@
   left: 16px;
   display: inline-flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 2px;
   width: fit-content;
   padding: clamp(8px, 1.1cqw, 11px) clamp(14px, 1.8cqw, 20px);
