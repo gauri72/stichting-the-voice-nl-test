@@ -75,37 +75,26 @@
     word-break: break-word;
   }
 
-  /* Membership Code spans the full content width — was previously a
-     shrink-to-fit box. V.Assist is now a small fixed-size icon button
-     (styled in dashboard-welcome-banner-section.css) so it's excluded here. */
+  /* Membership code is now absolutely positioned over the breadcrumb image —
+     reset the old full-width / block rules that applied when it lived in
+     the chips-row flow. */
   .dash-welcome__chips-row {
     flex-direction: column;
     width: 100%;
   }
 
   .dash-welcome__membership-code {
-    display: flex;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 6px 12px;
-  }
-
-  /* Membership code: label + the value/copy-icon row both centered, not
-     hugging the left edge. */
-  .dash-welcome__membership-code {
-    align-items: center;
-  }
-
-  .dash-welcome__membership-code-label,
-  .dash-welcome__membership-code-row {
-    width: 100%;
-    justify-content: center;
-    text-align: center;
+    position: absolute;
+    display: inline-flex;
+    width: fit-content;
+    align-items: flex-start;
+    box-sizing: content-box;
+    padding: 11px 20px;
   }
 
   .dash-welcome__membership-code-label,
   .dash-welcome__membership-code-value {
-    font-size: 0.7rem;
+    font-size: inherit;
   }
 
   /* Redeemable points: same centering treatment, plus a bit more compact. */
