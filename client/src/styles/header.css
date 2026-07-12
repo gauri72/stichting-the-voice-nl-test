@@ -1086,7 +1086,7 @@
   .nav-toolbar .dash-welcome__badge {
     min-height: 38px;
     padding: 5px 3px;
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .nav-toolbar .menu-toggle,
@@ -1120,7 +1120,7 @@
   .nav-toolbar .dash-welcome__badge {
     min-height: 36px;
     padding: 4px 2px;
-    font-size: 8px;
+    font-size: 9px;
   }
 
   .nav-toolbar .menu-toggle,
