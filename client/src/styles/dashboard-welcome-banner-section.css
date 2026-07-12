@@ -143,6 +143,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
+  width: fit-content;
   padding: clamp(8px, 1.1cqw, 11px) clamp(14px, 1.8cqw, 20px);
   border-radius: 10px;
   border: 1px solid var(--md-cyan, #1aa7c4);
@@ -641,6 +642,12 @@ a.dash-welcome__badge {
   overflow: hidden;
   isolation: isolate;
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.2s ease;
+}
+
+/* Re-assert absolute positioning — the grouped rule above overrides position:absolute
+   set earlier in the file since it appears later in the cascade. */
+.dash-welcome__membership-code {
+  position: absolute;
 }
 
 .dash-welcome__badge::before,
