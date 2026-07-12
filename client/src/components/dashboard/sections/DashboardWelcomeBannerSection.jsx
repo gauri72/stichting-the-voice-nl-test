@@ -56,7 +56,7 @@ export default function DashboardWelcomeBannerSection({
 
   return (
     <header className="dash-welcome" aria-labelledby="dash-welcome-name">
-      <div className="dash-welcome__bg" aria-hidden>
+      <div className="dash-welcome__bg">
         <img
           className="dash-welcome__bg-image dash-welcome__bg-image--light"
           src={breadcrumbBgLight}
@@ -70,6 +70,24 @@ export default function DashboardWelcomeBannerSection({
           alt=""
           decoding="async"
         />
+        {hasMembership && membershipId ? (
+          <button
+            type="button"
+            className="dash-welcome__membership-code"
+            onClick={handleCopyMembershipId}
+            aria-label={`Copy membership code ${membershipId}`}
+          >
+            <span className="dash-welcome__membership-code-label">Membership code</span>
+            <span className="dash-welcome__membership-code-row">
+              <span className="dash-welcome__membership-code-value">{membershipId}</span>
+              {copied ? (
+                <IconCheck size={20} aria-hidden="true" className="dash-welcome__membership-code-icon dash-welcome__membership-code-icon--copied" />
+              ) : (
+                <IconCopy size={20} aria-hidden="true" className="dash-welcome__membership-code-icon" />
+              )}
+            </span>
+          </button>
+        ) : null}
       </div>
 
       <div className="dash-welcome__content">
@@ -80,26 +98,6 @@ export default function DashboardWelcomeBannerSection({
         >
           {displayName}
         </h1>
-        <div className="dash-welcome__chips-row">
-          {hasMembership && membershipId ? (
-            <button
-              type="button"
-              className="dash-welcome__membership-code"
-              onClick={handleCopyMembershipId}
-              aria-label={`Copy membership code ${membershipId}`}
-            >
-              <span className="dash-welcome__membership-code-label">Membership code</span>
-              <span className="dash-welcome__membership-code-row">
-                <span className="dash-welcome__membership-code-value">{membershipId}</span>
-                {copied ? (
-                  <IconCheck size={20} aria-hidden="true" className="dash-welcome__membership-code-icon dash-welcome__membership-code-icon--copied" />
-                ) : (
-                  <IconCopy size={20} aria-hidden="true" className="dash-welcome__membership-code-icon" />
-                )}
-              </span>
-            </button>
-          ) : null}
-        </div>
         <div className="dash-welcome__ai-cta-wrap">
           <button
             type="button"

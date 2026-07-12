@@ -136,6 +136,9 @@
    the value+icon row (rather than all three in one row) — same shape as the
    redeemable-points chip for visual consistency. */
 .dash-welcome__membership-code {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
@@ -147,6 +150,7 @@
   backdrop-filter: blur(4px);
   font-family: inherit;
   cursor: pointer;
+  z-index: 1;
 }
 
 .dash-welcome__membership-code-label {
