@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaIdCard, FaSignOutAlt } from "react-icons/fa";
-import { IconSparkles, IconCopy, IconCheck, IconShoppingBag } from "@tabler/icons-react";
+import { IconSparkles, IconCopy, IconCheck } from "@tabler/icons-react";
 import { PayWallet } from "../../icons/icons/index.js";
 import breadcrumbBgLight from "../../../assets/Dashboard/breadcrumb-bg-light.png";
 import breadcrumbBgDark from "../../../assets/Dashboard/breadcrumb-bg-dark.png";
@@ -130,10 +130,6 @@ export default function DashboardWelcomeBannerSection({
           <Link to="/dashboard/wallet" className="dash-welcome__badge dash-welcome__btn--wallet" aria-label="V.Wallet">
             <PayWallet width="1em" height="1em" aria-hidden="true" className="dash-welcome__badge-icon" />
             <span className="dash-welcome__badge-label">V.Wallet</span>
-          </Link>
-          <Link to="/dashboard/vcommerce" className="dash-welcome__badge dash-welcome__btn--profile" aria-label="My Business">
-            <IconShoppingBag size="1em" aria-hidden="true" className="dash-welcome__badge-icon" />
-            <span className="dash-welcome__badge-label">My Business</span>
           </Link>
           <Link to={DASHBOARD_ROUTES.profile} className="dash-welcome__badge dash-welcome__btn--profile" aria-label="My Profile">
             <FaIdCard aria-hidden className="dash-welcome__badge-icon" />
