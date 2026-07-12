@@ -166,7 +166,7 @@
   }
 
   .dash-welcome__membership-code-label {
-    font-size: 0.2rem;
+    font-size: 0.1rem;
   }
 
   .dash-welcome__membership-code-row {
@@ -174,7 +174,7 @@
   }
 
   .dash-welcome__membership-code-value {
-    font-size: 0.8rem;
+    font-size: 0.6rem;
   }
 }
 
