@@ -57,6 +57,7 @@ export default function VCommerceApplicationPage() {
   const [error, setError] = useState(null);
 
   const [form, setForm] = useState({
+    applicantType: "community_member",
     businessName: "",
     category: "",
     tagline: "",
@@ -69,6 +70,8 @@ export default function VCommerceApplicationPage() {
     linkedin: "",
     tiktok: "",
     whatsapp: "",
+    companyRegistrationNumber: "",
+    vatNumber: "",
     applicationMessage: "",
   });
 
@@ -103,6 +106,7 @@ export default function VCommerceApplicationPage() {
     setSubmitting(true);
     try {
       await postApply({
+        applicantType: form.applicantType,
         businessName: form.businessName,
         category: form.category,
         tagline: form.tagline,
@@ -117,6 +121,8 @@ export default function VCommerceApplicationPage() {
           tiktok: form.tiktok,
           whatsapp: form.whatsapp,
         },
+        companyRegistrationNumber: form.companyRegistrationNumber,
+        vatNumber: form.vatNumber,
         applicationMessage: form.applicationMessage,
       });
       navigate("/vcommerce/apply/success");
@@ -170,16 +176,16 @@ export default function VCommerceApplicationPage() {
     );
   }
 
-  // Membership gate
-  if (statusData && !statusData.hasFamilyMembership) {
+  // Membership gate — only for community members, not sponsors
+  if (statusData && !statusData.hasFamilyMembership && form.applicantType === "community_member") {
     return (
       <div className="vco-apply-page">
         <div className="vco-apply-page__inner vco-apply-page__gate">
           <div className="vco-gate-icon">👑</div>
           <h1 className="vco-apply-page__title">Family Membership Required</h1>
           <p className="vco-apply-page__subtitle">
-            VCommerce is exclusive to Family Membership holders. Upgrade your membership to
-            apply and showcase your business to the V.O.I.C.E. NL community.
+            Community member listings are exclusive to Family Membership holders. Upgrade your membership to
+            apply, or apply as a Sponsor / Business below.
           </p>
           <div className="vco-apply-page__plan-list">
             {Object.entries(FAMILY_PLAN_NAMES).map(([, name]) => (
@@ -189,6 +195,10 @@ export default function VCommerceApplicationPage() {
           <Link to="/membership" className="vco-btn vco-btn--primary">
             Explore Membership Plans
           </Link>
+          <button type="button" className="vco-btn vco-btn--ghost"
+            onClick={() => setForm((f) => ({ ...f, applicantType: "sponsor" }))}>
+            Apply as Sponsor / Business instead
+          </button>
           <Link to="/vcommerce" className="vco-btn vco-btn--ghost">
             Back to VCommerce
           </Link>
@@ -256,6 +266,38 @@ export default function VCommerceApplicationPage() {
         <form onSubmit={handleSubmit} className="vco-apply-form">
           {step === 0 && (
             <div className="vco-apply-form__section">
+              {/* Applicant type selector */}
+              <div className="vco-field">
+                <label className="vco-label">I am applying as…</label>
+                <div className="vco-applicant-type-grid">
+                  {[
+                    {
+                      value: "community_member",
+                      icon: "👩",
+                      title: "Community Member",
+                      desc: "Women-led businesses from the V.O.I.C.E. NL community (Family Membership required)",
+                    },
+                    {
+                      value: "sponsor",
+                      icon: "🏢",
+                      title: "Sponsor / Business",
+                      desc: "Brands, distributors, and businesses selling to our community (no membership required)",
+                    },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      className={`vco-applicant-type-card${form.applicantType === opt.value ? " vco-applicant-type-card--selected" : ""}`}
+                      onClick={() => setForm((f) => ({ ...f, applicantType: opt.value }))}
+                    >
+                      <span className="vco-applicant-type-card__icon">{opt.icon}</span>
+                      <span className="vco-applicant-type-card__title">{opt.title}</span>
+                      <span className="vco-applicant-type-card__desc">{opt.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="vco-field">
                 <label className="vco-label" htmlFor="businessName">Business Name *</label>
                 <input
@@ -314,6 +356,39 @@ export default function VCommerceApplicationPage() {
                 />
                 <span className="vco-field__hint">{form.description.length}/2000</span>
               </div>
+
+              {/* Sponsor-only extra fields */}
+              {form.applicantType === "sponsor" && (
+                <div className="vco-apply-form__sponsor-fields">
+                  <p className="vco-apply-form__subsection-label">Business Registration (optional but recommended for faster approval)</p>
+                  <div className="vco-field-grid">
+                    <div className="vco-field">
+                      <label className="vco-label" htmlFor="companyReg">Company Registration / KvK</label>
+                      <input
+                        id="companyReg"
+                        className="vco-input"
+                        type="text"
+                        value={form.companyRegistrationNumber}
+                        onChange={set("companyRegistrationNumber")}
+                        maxLength={100}
+                        placeholder="e.g. 12345678"
+                      />
+                    </div>
+                    <div className="vco-field">
+                      <label className="vco-label" htmlFor="vatNumber">VAT Number</label>
+                      <input
+                        id="vatNumber"
+                        className="vco-input"
+                        type="text"
+                        value={form.vatNumber}
+                        onChange={set("vatNumber")}
+                        maxLength={50}
+                        placeholder="e.g. NL123456789B01"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -413,8 +488,12 @@ export default function VCommerceApplicationPage() {
               </div>
 
               <p className="vco-apply-form__terms">
-                By submitting, you confirm that your business is women-led and agree to the{" "}
+                By submitting, you agree to the{" "}
                 <Link to="/terms-and-conditions" target="_blank">VCommerce Terms &amp; Conditions</Link>.
+                {form.applicantType === "community_member"
+                  ? " Community listings are for women-led businesses within the V.O.I.C.E. NL community."
+                  : " Sponsor listings are open to all businesses and brands. Our team reviews applications within 5 days."
+                }{" "}
                 Platform fee is 0% by default.
               </p>
 

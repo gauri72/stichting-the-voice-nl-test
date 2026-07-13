@@ -5,6 +5,7 @@ import {
   deleteProduct,
   reorderProducts,
   adminListProducts,
+  setBulkPricing,
 } from "../services/businessProductService.js";
 import { listBusinessOrders, markOrderFulfilled } from "../services/businessOrderService.js";
 import { listPayouts } from "../services/businessPayoutService.js";
@@ -14,6 +15,11 @@ import {
   isMediaStorageConfigured,
 } from "../services/mediaStorageService.js";
 import { ALLOWED_IMAGE_MIME_TYPES, MAX_IMAGE_SIZE_BYTES } from "../config/cmsConfig.js";
+import {
+  importProductsFromExcel,
+  generateExcelTemplate,
+  getImportHistory,
+} from "../services/businessExcelImportService.js";
 
 function parseDataUrl(dataUrl) {
   if (!dataUrl || typeof dataUrl !== "string") return null;
@@ -154,6 +160,67 @@ export async function getMyPayouts(req, res) {
       pageSize: pageSize ? Math.min(Number(pageSize), 50) : 20,
     });
     ok(res, result);
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function patchMyProductPricing(req, res) {
+  try {
+    const { tiers, minOrderQty, maxOrderQty } = req.body;
+    const product = await setBulkPricing(req.user.id, req.params.productId, { tiers, minOrderQty, maxOrderQty });
+    ok(res, { product });
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function postImportProducts(req, res) {
+  try {
+    const business = await getOwnBusiness(req.user.id);
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded." });
+    }
+    const result = await importProductsFromExcel(
+      req.user.id,
+      business._id,
+      req.file.buffer,
+      req.file.originalname
+    );
+    return ok(res, result);
+  } catch (e) {
+    return fail(res, e);
+  }
+}
+
+export async function getProductsTemplate(req, res) {
+  try {
+    const buffer = generateExcelTemplate();
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", 'attachment; filename="vcommerce-products-template.xlsx"');
+    return res.send(buffer);
+  } catch (e) {
+    return fail(res, e);
+  }
+}
+
+export async function getMyImportHistory(req, res) {
+  try {
+    const business = await getOwnBusiness(req.user.id);
+    const history = await getImportHistory(req.user.id, business._id);
+    ok(res, { history });
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function getMyReferralLink(req, res) {
+  try {
+    const business = await getOwnBusiness(req.user.id);
+    const host = req.get("origin") || `${req.protocol}://${req.get("host")}`;
+    const code = business.directReferralCode || "";
+    const url = code ? `${host}/vcommerce?ref=${code}` : null;
+    ok(res, { code, url });
   } catch (e) {
     fail(res, e);
   }

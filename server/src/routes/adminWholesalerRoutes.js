@@ -1,0 +1,68 @@
+import { Router } from "express";
+import {
+  adminListWholesalers,
+  adminUpdateWholesaler,
+} from "../services/wholesalerService.js";
+import { adminListReviews, adminDeleteReview } from "../services/businessReviewService.js";
+
+// requireAdmin is applied by the parent adminRoutes.js before mounting this router
+const router = Router();
+
+function ok(res, data, status = 200) {
+  return res.status(status).json(data);
+}
+
+function fail(res, err) {
+  const status = err.status || 500;
+  return res.status(status).json({ error: err.message || "Unexpected error" });
+}
+
+router.get("/", async (req, res) => {
+  try {
+    const { status, search, page, pageSize } = req.query;
+    const result = await adminListWholesalers({
+      status,
+      search,
+      page: page ? Number(page) : 1,
+      pageSize: pageSize ? Math.min(Number(pageSize), 50) : 20,
+    });
+    return ok(res, result);
+  } catch (e) {
+    return fail(res, e);
+  }
+});
+
+router.patch("/:id", async (req, res) => {
+  try {
+    const profile = await adminUpdateWholesaler(req.params.id, req.admin._id, req.body);
+    return ok(res, { profile });
+  } catch (e) {
+    return fail(res, e);
+  }
+});
+
+// Review moderation
+router.get("/reviews", async (req, res) => {
+  try {
+    const { businessId, page, pageSize } = req.query;
+    const result = await adminListReviews({
+      businessId,
+      page: page ? Number(page) : 1,
+      pageSize: pageSize ? Math.min(Number(pageSize), 50) : 20,
+    });
+    return ok(res, result);
+  } catch (e) {
+    return fail(res, e);
+  }
+});
+
+router.delete("/reviews/:id", async (req, res) => {
+  try {
+    await adminDeleteReview(req.params.id);
+    return ok(res, { success: true });
+  } catch (e) {
+    return fail(res, e);
+  }
+});
+
+export default router;

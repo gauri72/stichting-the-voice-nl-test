@@ -76,8 +76,8 @@ export default function AppSplash({ disabled = false }) {
             className="app-splash__logo"
             src={SPLASH_LOGO_SRC}
             alt=""
-            width={64}
-            height={64}
+            width={80}
+            height={80}
             decoding="sync"
             fetchPriority="high"
           />

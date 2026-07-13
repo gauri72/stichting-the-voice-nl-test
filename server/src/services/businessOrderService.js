@@ -4,7 +4,15 @@ import BusinessOrder from "../models/BusinessOrder.js";
 import { creditWallet } from "./walletService.js";
 import { getStripe } from "./stripe.js";
 
-export async function createOrderIntent(customerId, customerData, businessId, items, shippingAddress) {
+function resolveUnitPrice(product, qty) {
+  const tiers = [...(product.bulkPricingTiers ?? [])].sort((a, b) => b.minQty - a.minQty);
+  for (const tier of tiers) {
+    if (qty >= tier.minQty) return tier.priceMinor;
+  }
+  return product.priceMinor;
+}
+
+export async function createOrderIntent(customerId, customerData, businessId, items, shippingAddress, { referralCode, poNumber } = {}) {
   const business = await BusinessProfile.findById(businessId).lean();
   if (!business || business.status !== "active") {
     const err = new Error("Business not found or not active.");
@@ -35,7 +43,16 @@ export async function createOrderIntent(customerId, customerData, businessId, it
       throw err;
     }
 
-    const lineTotal = product.priceMinor * item.quantity;
+    // Enforce minimum order quantity
+    const minQty = product.minOrderQty ?? 1;
+    if (item.quantity < minQty) {
+      const err = new Error(`Minimum order quantity for "${product.name}" is ${minQty}.`);
+      err.status = 400;
+      throw err;
+    }
+
+    const unitPrice = resolveUnitPrice(product, item.quantity);
+    const lineTotal = unitPrice * item.quantity;
     subtotalMinor += lineTotal;
 
     resolvedItems.push({
@@ -44,7 +61,7 @@ export async function createOrderIntent(customerId, customerData, businessId, it
       productType: product.type,
       variant: item.variant || "",
       quantity: item.quantity,
-      unitPriceMinor: product.priceMinor,
+      unitPriceMinor: unitPrice,
       lineTotalMinor: lineTotal,
     });
   }
@@ -55,10 +72,28 @@ export async function createOrderIntent(customerId, customerData, businessId, it
     throw err;
   }
 
-  const platformFeePercent = business.platformFeePercent || 0;
+  // Enforce minimum order value per seller storefront
+  if (business.minOrderValueMinor > 0 && subtotalMinor < business.minOrderValueMinor) {
+    const minEur = (business.minOrderValueMinor / 100).toFixed(2);
+    const err = new Error(`Minimum order value for this seller is €${minEur}.`);
+    err.status = 400;
+    throw err;
+  }
+
+  // Determine effective commission rate (tiered: reorder or direct-link = lower rate)
+  const isDirect = referralCode && business.directReferralCode && referralCode === business.directReferralCode;
+  const isReorder = await BusinessOrder.exists({
+    businessId,
+    customerId,
+    status: { $in: ["paid", "fulfilled"] },
+  });
+  const effectiveFeePercent = (isDirect || isReorder)
+    ? (business.reorderFeePercent ?? 5)
+    : (business.platformFeePercent ?? 0);
+
   const cashbackPercent = business.cashbackPercent ?? 5;
 
-  const platformFeeMinor = Math.round((subtotalMinor * platformFeePercent) / 100);
+  const platformFeeMinor = Math.round((subtotalMinor * effectiveFeePercent) / 100);
   const businessAmountMinor = subtotalMinor - platformFeeMinor;
   const cashbackMinor = Math.round((subtotalMinor * cashbackPercent) / 100);
 
@@ -74,12 +109,14 @@ export async function createOrderIntent(customerId, customerData, businessId, it
     customerEmail: customerData.email || "",
     items: resolvedItems,
     subtotalMinor,
-    platformFeePercent,
+    platformFeePercent: effectiveFeePercent,
     platformFeeMinor,
     businessAmountMinor,
     cashbackMinor,
     currency: business.currency || "eur",
     shippingAddress: shippingAddress || null,
+    poNumber: poNumber || "",
+    customerNote: customerData.note || "",
     status: "pending",
   });
 

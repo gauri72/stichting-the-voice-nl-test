@@ -29,6 +29,9 @@ const VCommerceApplicationPage = lazy(() => import("./components/vcommerce/VComm
 const VCommerceApplicationSuccessPage = lazy(() => import("./components/vcommerce/VCommerceApplicationSuccessPage.jsx"));
 const VCommerceCheckoutPage = lazy(() => import("./components/vcommerce/checkout/VCommerceCheckoutPage.jsx"));
 const VCommercePortalPage = lazy(() => import("./components/dashboard/vcommerce/VCommercePortalPage.jsx"));
+const WholesalerRegistrationPage = lazy(() => import("./components/vcommerce/wholesaler/WholesalerRegistrationPage.jsx"));
+const WholesalerRegistrationSuccessPage = lazy(() => import("./components/vcommerce/wholesaler/WholesalerRegistrationSuccessPage.jsx"));
+const WholesalerPortalPage = lazy(() => import("./components/dashboard/vcommerce/WholesalerPortalPage.jsx"));
 import AiAssistantPageShell from "./components/dashboard/ai-assistant/AiAssistantPageShell.jsx";
 import AiAssistantOverlay from "./components/dashboard/ai-assistant/AiAssistantOverlay.jsx";
 import MyProfilePage from "./components/profile/MyProfilePage";
@@ -242,6 +245,22 @@ export default function App() {
             element={
               <Suspense fallback={<div className="member-dashboard__status">Loading…</div>}>
                 <VCommerceApplicationSuccessPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/vcommerce/wholesaler/register"
+            element={
+              <Suspense fallback={<div className="member-dashboard__status">Loading…</div>}>
+                <WholesalerRegistrationPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/vcommerce/wholesaler/register/success"
+            element={
+              <Suspense fallback={<div className="member-dashboard__status">Loading…</div>}>
+                <WholesalerRegistrationSuccessPage />
               </Suspense>
             }
           />
@@ -841,6 +860,16 @@ export default function App() {
               <ProtectedRoute>
                 <Suspense fallback={<div className="member-dashboard__status">Loading your business…</div>}>
                   <VCommercePortalPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/vcommerce-buyer"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="member-dashboard__status">Loading wholesaler portal…</div>}>
+                  <WholesalerPortalPage />
                 </Suspense>
               </ProtectedRoute>
             }

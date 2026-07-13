@@ -47,6 +47,7 @@ const businessOrderSchema = new mongoose.Schema(
       index: true,
     },
     shippingAddress: { type: shippingAddressSchema, default: null },
+    poNumber: { type: String, default: "", trim: true, maxlength: 50 },
     customerNote: { type: String, default: "", trim: true, maxlength: 500 },
     businessNote: { type: String, default: "", trim: true, maxlength: 500 },
     fulfilledAt: { type: Date, default: null },

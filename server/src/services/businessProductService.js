@@ -62,6 +62,9 @@ export async function createProduct(userId, businessId, data) {
     tags: data.tags || [],
     deliveryInfo: data.deliveryInfo || "",
     sortOrder: data.sortOrder || 0,
+    bulkPricingTiers: data.bulkPricingTiers || [],
+    minOrderQty: data.minOrderQty ?? 1,
+    maxOrderQty: data.maxOrderQty ?? null,
   });
 
   return product;
@@ -79,7 +82,7 @@ export async function updateProduct(userId, productId, data) {
   const allowed = [
     "name", "description", "type", "imageUrls", "priceMinor",
     "stockCount", "isAvailable", "isFeatured", "variants", "tags",
-    "deliveryInfo", "sortOrder",
+    "deliveryInfo", "sortOrder", "minOrderQty", "maxOrderQty",
   ];
   for (const key of allowed) {
     if (data[key] !== undefined) product[key] = data[key];
@@ -120,5 +123,43 @@ export async function adminUpdateProduct(productId, data) {
     err.status = 404;
     throw err;
   }
+  return product;
+}
+
+export async function setBulkPricing(userId, productId, { tiers, minOrderQty, maxOrderQty }) {
+  const product = await BusinessProduct.findById(productId);
+  if (!product) {
+    const err = new Error("Product not found.");
+    err.status = 404;
+    throw err;
+  }
+  await assertOwnership(product.businessId, userId);
+
+  // Validate tiers: sorted ascending, no duplicate minQty, positive prices
+  if (tiers && tiers.length > 0) {
+    const sorted = [...tiers].sort((a, b) => a.minQty - b.minQty);
+    const qtys = sorted.map((t) => t.minQty);
+    const uniqueQtys = new Set(qtys);
+    if (uniqueQtys.size !== qtys.length) {
+      const err = new Error("Bulk pricing tiers must have unique minimum quantities.");
+      err.status = 400;
+      throw err;
+    }
+    for (const tier of sorted) {
+      if (tier.minQty < 1 || tier.priceMinor < 0) {
+        const err = new Error("Invalid bulk pricing tier values.");
+        err.status = 400;
+        throw err;
+      }
+    }
+    product.bulkPricingTiers = sorted;
+  } else {
+    product.bulkPricingTiers = [];
+  }
+
+  if (minOrderQty !== undefined) product.minOrderQty = Math.max(1, Number(minOrderQty));
+  if (maxOrderQty !== undefined) product.maxOrderQty = maxOrderQty === null ? null : Number(maxOrderQty);
+
+  await product.save();
   return product;
 }

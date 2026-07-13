@@ -11,6 +11,15 @@ export const BUSINESS_CATEGORIES = [
   "consulting",
   "media",
   "other",
+  // Global marketplace additions
+  "grocery",
+  "cosmetics",
+  "travel",
+  "food_wholesale",
+  "beverages",
+  "health",
+  "household",
+  "electronics",
 ];
 
 export const BUSINESS_CATEGORY_LABELS = {
@@ -26,6 +35,14 @@ export const BUSINESS_CATEGORY_LABELS = {
   consulting: "Consulting & Services",
   media: "Media & Content",
   other: "Other",
+  grocery: "Grocery & Supermarket",
+  cosmetics: "Cosmetics & Personal Care",
+  travel: "Travel & Tourism",
+  food_wholesale: "Food Wholesale & Distribution",
+  beverages: "Beverages & Drinks",
+  health: "Health & Pharmaceuticals",
+  household: "Household & Cleaning",
+  electronics: "Electronics & Appliances",
 };
 
 export const CATEGORY_ICONS = {
@@ -41,4 +58,12 @@ export const CATEGORY_ICONS = {
   consulting: "💼",
   media: "📱",
   other: "✨",
+  grocery: "🛒",
+  cosmetics: "💄",
+  travel: "✈️",
+  food_wholesale: "📦",
+  beverages: "🥤",
+  health: "💊",
+  household: "🏠",
+  electronics: "🔌",
 };

@@ -8,6 +8,7 @@ import {
   createApplication,
 } from "../services/businessApplicationService.js";
 import { getOrderStatus, createOrderIntent } from "../services/businessOrderService.js";
+import { postReview, getReviews } from "../services/businessReviewService.js";
 import { checkRateLimit } from "../utils/rateLimit.js";
 
 function ok(res, data, status = 200) {
@@ -80,19 +81,46 @@ export async function postCreateOrder(req, res) {
     if (!rl.allowed) {
       return res.status(429).json({ error: "Too many order requests. Please wait a moment." });
     }
-    const { items, shippingAddress } = req.body;
+    const { items, shippingAddress, referralCode, poNumber } = req.body;
     const customerData = {
       name: `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim(),
       email: req.user.email || "",
+      note: req.body.customerNote || "",
     };
     const result = await createOrderIntent(
       req.user.id,
       customerData,
       req.params.businessId,
       items,
-      shippingAddress
+      shippingAddress,
+      { referralCode, poNumber }
     );
     return ok(res, result, 201);
+  } catch (e) {
+    return fail(res, e);
+  }
+}
+
+export async function postReviewHandler(req, res) {
+  try {
+    const { orderId, rating, body } = req.body;
+    const reviewerName = `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim();
+    const review = await postReview(req.user.id, reviewerName, req.params.businessId, orderId, { rating, body });
+    return ok(res, { review }, 201);
+  } catch (e) {
+    return fail(res, e);
+  }
+}
+
+export async function getReviewsHandler(req, res) {
+  try {
+    const business = await getBusinessBySlug(req.params.slug);
+    const { page, pageSize } = req.query;
+    const result = await getReviews(business._id, {
+      page: page ? Number(page) : 1,
+      pageSize: pageSize ? Math.min(Number(pageSize), 20) : 10,
+    });
+    return ok(res, result);
   } catch (e) {
     return fail(res, e);
   }

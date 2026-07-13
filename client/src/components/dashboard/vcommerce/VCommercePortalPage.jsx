@@ -6,15 +6,20 @@ import {
   getMyProducts,
   postMyProduct,
   patchMyProduct,
+  patchMyProductPricing,
   deleteMyProduct,
   getMyOrders,
   markOrderFulfilled,
   getMyPayouts,
   patchMyBusiness,
   uploadBusinessImage,
+  postImportProducts,
+  getProductsTemplate,
+  getMyImportHistory,
+  getMyReferralLink,
 } from "../../vcommerce/shared/vcommerceApi.js";
 
-const TABS = ["Overview", "Products", "Orders", "Payouts", "Settings"];
+const TABS = ["Overview", "Products", "Orders", "Payouts", "Settings", "Import"];
 
 function formatPrice(minor, currency = "eur") {
   if (minor == null) return "—";
@@ -44,6 +49,21 @@ const S = {
 
 // ── Overview tab ──
 function OverviewTab({ business }) {
+  const [refLink, setRefLink] = useState(null);
+  const [refCopied, setRefCopied] = useState(false);
+
+  useEffect(() => {
+    getMyReferralLink().then((d) => setRefLink(d)).catch(() => {});
+  }, []);
+
+  function copyRef() {
+    if (!refLink?.url) return;
+    navigator.clipboard.writeText(refLink.url).then(() => {
+      setRefCopied(true);
+      setTimeout(() => setRefCopied(false), 2000);
+    });
+  }
+
   return (
     <div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 16, marginBottom: 24 }}>
@@ -72,6 +92,7 @@ function OverviewTab({ business }) {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <span style={{ ...(S.badge(business.status === "active" ? "green" : "red")) }}>{business.status}</span>
               {business.isFeaturedThisWeek && <span style={S.badge("green")}>⭐ Featured this week</span>}
+              {business.avgRating && <span style={S.badge("yellow")}>★ {business.avgRating} ({business.reviewCount} reviews)</span>}
               <a href={`/vcommerce/${business.slug}`} target="_blank" rel="noopener noreferrer"
                 style={{ fontSize: "0.8rem", color: "var(--color-accent,#8B5CF6)" }}>
                 View public page ↗
@@ -81,18 +102,143 @@ function OverviewTab({ business }) {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 16 }}>
         <div style={S.card}>
-          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>Platform Fee</p>
+          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>New Buyer Fee</p>
           <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>{business.platformFeePercent}%</p>
-          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>Deducted from each payout</p>
+          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>First-time marketplace buyers</p>
+        </div>
+        <div style={S.card}>
+          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>Reorder Fee</p>
+          <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>{business.reorderFeePercent ?? 5}%</p>
+          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>Repeat buyers &amp; direct-link orders</p>
         </div>
         <div style={S.card}>
           <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>Customer Cashback</p>
           <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>{business.cashbackPercent}%</p>
-          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>Credited to V.Wallet after purchase</p>
+          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>Credited to V.Wallet</p>
         </div>
+        {business.minOrderValueMinor > 0 && (
+          <div style={S.card}>
+            <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>Min. Order Value</p>
+            <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>{formatPrice(business.minOrderValueMinor)}</p>
+            <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>Minimum basket per order</p>
+          </div>
+        )}
       </div>
+
+      {refLink?.url && (
+        <div style={{ ...S.card, marginTop: 16 }}>
+          <h3 style={{ margin: "0 0 8px", fontSize: "0.95rem", fontWeight: 700 }}>Your Direct Link (0% commission for introduced buyers)</h3>
+          <p style={{ margin: "0 0 12px", fontSize: "0.82rem", color: "var(--color-text-secondary,#666)" }}>
+            Share this link with your existing wholesale customers. Orders placed through it are charged the lower reorder fee, not the new-buyer rate.
+          </p>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <code style={{ fontSize: "0.82rem", background: "var(--color-bg-muted,rgba(128,128,128,0.08))", padding: "6px 10px", borderRadius: 6, wordBreak: "break-all", flex: 1 }}>{refLink.url}</code>
+            <button type="button" style={S.btn("sm")} onClick={copyRef}>{refCopied ? "Copied!" : "Copy"}</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Bulk pricing accordion (used inside ProductsTab modal) ──
+function BulkPricingSection({ productId, initialTiers = [], initialMinQty = 1, initialMaxQty = null }) {
+  const [open, setOpen] = useState(false);
+  const [tiers, setTiers] = useState(initialTiers.map((t) => ({ minQty: t.minQty, priceEUR: (t.priceMinor / 100).toFixed(2) })));
+  const [minOrderQty, setMinOrderQty] = useState(initialMinQty ?? 1);
+  const [maxOrderQty, setMaxOrderQty] = useState(initialMaxQty ?? "");
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  function addTier() {
+    setTiers((t) => [...t, { minQty: "", priceEUR: "" }]);
+  }
+
+  function removeTier(i) {
+    setTiers((t) => t.filter((_, idx) => idx !== i));
+  }
+
+  function updateTier(i, key, val) {
+    setTiers((t) => t.map((tier, idx) => idx === i ? { ...tier, [key]: val } : tier));
+  }
+
+  async function savePricing() {
+    setSaving(true);
+    setMsg("");
+    try {
+      const parsed = tiers
+        .filter((t) => t.minQty !== "" && t.priceEUR !== "")
+        .map((t) => ({ minQty: Number(t.minQty), priceMinor: Math.round(parseFloat(t.priceEUR) * 100) }));
+      await patchMyProductPricing(productId, {
+        tiers: parsed,
+        minOrderQty: Number(minOrderQty) || 1,
+        maxOrderQty: maxOrderQty === "" ? null : Number(maxOrderQty),
+      });
+      setMsg("Bulk pricing saved.");
+    } catch (err) {
+      setMsg(err?.message || "Error saving pricing.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!productId) return null;
+
+  return (
+    <div style={{ borderTop: "1px solid var(--color-border,rgba(128,128,128,0.15))", marginTop: 4, paddingTop: 4 }}>
+      <button type="button"
+        style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", width: "100%", padding: "10px 0", fontSize: "0.88rem", fontWeight: 700, color: "var(--color-accent,#8B5CF6)" }}
+        onClick={() => setOpen((o) => !o)}>
+        <span style={{ fontSize: "0.7rem" }}>{open ? "▼" : "▶"}</span>
+        Bulk Pricing Tiers {tiers.length > 0 && `(${tiers.length} tier${tiers.length !== 1 ? "s" : ""})`}
+      </button>
+
+      {open && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingBottom: 8 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div>
+              <label style={S.label}>Min. Order Qty</label>
+              <input style={S.input} type="number" min="1" value={minOrderQty}
+                onChange={(e) => setMinOrderQty(e.target.value)} />
+            </div>
+            <div>
+              <label style={S.label}>Max. Order Qty (blank = unlimited)</label>
+              <input style={S.input} type="number" min="1" value={maxOrderQty}
+                onChange={(e) => setMaxOrderQty(e.target.value)} placeholder="—" />
+            </div>
+          </div>
+
+          <div>
+            <label style={{ ...S.label, marginBottom: 8 }}>Price tiers (lower unit price at higher qty)</label>
+            {tiers.length === 0 && (
+              <p style={{ fontSize: "0.8rem", color: "var(--color-text-muted,#aaa)", margin: "0 0 8px" }}>
+                No tiers yet. Buyers pay the base retail price.
+              </p>
+            )}
+            {tiers.map((tier, i) => (
+              <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 8, marginBottom: 8, alignItems: "center" }}>
+                <input style={S.input} type="number" min="1" placeholder="Min qty" value={tier.minQty}
+                  onChange={(e) => updateTier(i, "minQty", e.target.value)} />
+                <input style={S.input} type="number" min="0.01" step="0.01" placeholder="Price (€)" value={tier.priceEUR}
+                  onChange={(e) => updateTier(i, "priceEUR", e.target.value)} />
+                <button type="button" onClick={() => removeTier(i)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626", fontSize: "1rem", padding: "0 4px" }}>✕</button>
+              </div>
+            ))}
+            <button type="button" onClick={addTier}
+              style={{ ...S.btn("sm"), marginTop: 4 }}>+ Add tier</button>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button type="button" onClick={savePricing} disabled={saving} style={S.btn("sm")}>
+              {saving ? "Saving…" : "Save Bulk Pricing"}
+            </button>
+            {msg && <span style={{ fontSize: "0.8rem", color: msg.startsWith("Error") ? "#DC2626" : "#059669" }}>{msg}</span>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -101,7 +247,7 @@ function OverviewTab({ business }) {
 function ProductsTab({ businessId }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(null); // null | {} (new) | product
+  const [editing, setEditing] = useState(null); // null | "new" | product
   const [form, setForm] = useState({});
   const [msg, setMsg] = useState("");
 
@@ -187,6 +333,7 @@ function ProductsTab({ businessId }) {
                 <th style={S.th}>Name</th>
                 <th style={S.th}>Type</th>
                 <th style={S.th}>Price</th>
+                <th style={S.th}>Bulk Tiers</th>
                 <th style={S.th}>Stock</th>
                 <th style={S.th}>Available</th>
                 <th style={S.th}>Actions</th>
@@ -198,6 +345,11 @@ function ProductsTab({ businessId }) {
                   <td style={S.td}><strong>{p.name}</strong></td>
                   <td style={S.td}>{p.type}</td>
                   <td style={S.td}>{formatPrice(p.priceMinor, p.currency)}</td>
+                  <td style={S.td}>
+                    {p.bulkPricingTiers?.length > 0
+                      ? <span style={S.badge("yellow")}>🏷️ {p.bulkPricingTiers.length} tier{p.bulkPricingTiers.length !== 1 ? "s" : ""}</span>
+                      : <span style={{ color: "var(--color-text-muted,#aaa)", fontSize: "0.8rem" }}>—</span>}
+                  </td>
                   <td style={S.td}>{p.stockCount ?? "∞"}</td>
                   <td style={S.td}><span style={S.badge(p.isAvailable ? "green" : "red")}>{p.isAvailable ? "Yes" : "No"}</span></td>
                   <td style={S.td}>
@@ -217,7 +369,7 @@ function ProductsTab({ businessId }) {
       {editing !== null && (
         <div style={{ position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"center",justifyContent:"center",padding:24 }}
           onClick={(e) => e.target === e.currentTarget && setEditing(null)}>
-          <div style={{ background:"var(--color-card-bg,#fff)",borderRadius:16,maxWidth:500,width:"100%",overflow:"auto",maxHeight:"90vh" }}>
+          <div style={{ background:"var(--color-card-bg,#fff)",borderRadius:16,maxWidth:520,width:"100%",overflow:"auto",maxHeight:"92vh" }}>
             <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",padding:"20px 24px",borderBottom:"1px solid var(--color-border,rgba(128,128,128,0.15))" }}>
               <h3 style={{ margin:0,fontSize:"1rem",fontWeight:700 }}>{editing === "new" ? "Add Product" : "Edit Product"}</h3>
               <button type="button" style={{ background:"none",border:"none",cursor:"pointer",fontSize:"1.2rem",color:"var(--color-text-muted,#888)" }} onClick={() => setEditing(null)}>✕</button>
@@ -248,6 +400,17 @@ function ProductsTab({ businessId }) {
                 <input type="checkbox" id="avail" checked={form.isAvailable} onChange={(e) => setForm((f) => ({ ...f, isAvailable: e.target.checked }))} />
                 <label htmlFor="avail" style={{ fontSize:"0.9rem" }}>Available for purchase</label>
               </div>
+
+              {/* Bulk pricing accordion — only shown when editing existing product */}
+              {editing !== "new" && (
+                <BulkPricingSection
+                  productId={editing._id}
+                  initialTiers={editing.bulkPricingTiers || []}
+                  initialMinQty={editing.minOrderQty}
+                  initialMaxQty={editing.maxOrderQty}
+                />
+              )}
+
               <div style={{ display:"flex",gap:10,marginTop:8 }}>
                 <button type="submit" style={S.btn()}>Save</button>
                 <button type="button" style={S.btn("ghost")} onClick={() => setEditing(null)}>Cancel</button>
@@ -429,6 +592,251 @@ function PayoutsTab() {
           </table>
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Import tab ──
+const TEMPLATE_COLS = ["name","description","type","priceEUR","stockCount","deliveryInfo","isAvailable","minOrderQty","tier1_minQty","tier1_priceEUR","tier2_minQty","tier2_priceEUR","tags"];
+
+function ImportTab({ businessId }) {
+  const dropRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [preview, setPreview] = useState(null); // [{ row, cols... }]
+  const [fileName, setFileName] = useState("");
+  const [fileObj, setFileObj] = useState(null);
+  const [importing, setImporting] = useState(false);
+  const [result, setResult] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [histLoading, setHistLoading] = useState(true);
+  const [dragging, setDragging] = useState(false);
+  const [downloadingTemplate, setDownloadingTemplate] = useState(false);
+
+  useEffect(() => {
+    getMyImportHistory()
+      .then((d) => setHistory(d.logs || []))
+      .catch(() => {})
+      .finally(() => setHistLoading(false));
+  }, [businessId]);
+
+  async function parseFile(file) {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { alert("File too large (max 10 MB)."); return; }
+    setFileName(file.name);
+    setFileObj(file);
+    setResult(null);
+    try {
+      const XLSX = (await import("xlsx")).default;
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+      if (rows.length < 2) { setPreview([]); return; }
+      const headers = rows[0].map(String);
+      const data = rows.slice(1).map((row, i) => {
+        const obj = { _row: i + 2 };
+        headers.forEach((h, ci) => { obj[h] = row[ci] ?? ""; });
+        return obj;
+      });
+      setPreview(data);
+    } catch (err) {
+      alert("Could not read file: " + (err?.message || "unknown error"));
+    }
+  }
+
+  function onFileChange(e) {
+    parseFile(e.target.files?.[0]);
+    e.target.value = "";
+  }
+
+  function onDrop(e) {
+    e.preventDefault();
+    setDragging(false);
+    parseFile(e.dataTransfer.files?.[0]);
+  }
+
+  async function handleImport() {
+    if (!fileObj) return;
+    setImporting(true);
+    setResult(null);
+    try {
+      const fd = new FormData();
+      fd.append("file", fileObj);
+      const data = await postImportProducts(fd);
+      setResult(data);
+      setPreview(null);
+      setFileName("");
+      setFileObj(null);
+      // Refresh history
+      const h = await getMyImportHistory().catch(() => ({ logs: [] }));
+      setHistory(h.logs || []);
+    } catch (err) {
+      setResult({ error: err?.message || "Import failed." });
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  async function handleTemplateDownload() {
+    setDownloadingTemplate(true);
+    try {
+      const blob = await getProductsTemplate();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "vcommerce-product-template.xlsx";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert("Could not download template: " + (err?.message || "error"));
+    } finally {
+      setDownloadingTemplate(false);
+    }
+  }
+
+  const dropZoneStyle = {
+    border: `2px dashed ${dragging ? "var(--color-accent,#8B5CF6)" : "var(--color-border,rgba(128,128,128,0.3))"}`,
+    borderRadius: 12,
+    padding: "40px 24px",
+    textAlign: "center",
+    cursor: "pointer",
+    background: dragging ? "rgba(139,92,246,0.05)" : "var(--color-card-bg,#fff)",
+    transition: "border-color 0.15s, background 0.15s",
+  };
+
+  const previewCols = preview?.[0] ? Object.keys(preview[0]).filter((k) => k !== "_row") : TEMPLATE_COLS;
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h3 style={{ margin: "0 0 4px", fontSize: "1rem", fontWeight: 700 }}>Bulk Product Import</h3>
+          <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--color-text-secondary,#666)" }}>
+            Upload an Excel file to create or update products in bulk.
+          </p>
+        </div>
+        <button type="button" style={S.btn("ghost")} onClick={handleTemplateDownload} disabled={downloadingTemplate}>
+          {downloadingTemplate ? "Downloading…" : "↓ Download Template"}
+        </button>
+      </div>
+
+      {/* Drop zone */}
+      {!preview && (
+        <div
+          ref={dropRef}
+          style={dropZoneStyle}
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={onDrop}
+        >
+          <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📂</div>
+          <p style={{ margin: "0 0 8px", fontWeight: 600 }}>{fileName || "Drop .xlsx or .csv here"}</p>
+          <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--color-text-muted,#888)" }}>or click to browse · max 10 MB</p>
+          <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" style={{ display: "none" }} onChange={onFileChange} />
+        </div>
+      )}
+
+      {/* Preview table */}
+      {preview !== null && (
+        <div style={S.card}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+            <div>
+              <strong style={{ fontSize: "0.9rem" }}>{fileName}</strong>
+              <span style={{ marginLeft: 8, fontSize: "0.82rem", color: "var(--color-text-muted,#888)" }}>
+                {preview.length} row{preview.length !== 1 ? "s" : ""} detected
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button type="button" style={S.btn("ghost")} onClick={() => { setPreview(null); setFileName(""); setFileObj(null); }}>
+                Clear
+              </button>
+              <button type="button" style={S.btn()} onClick={handleImport} disabled={importing || preview.length === 0}>
+                {importing ? "Importing…" : `Import ${preview.length} product${preview.length !== 1 ? "s" : ""}`}
+              </button>
+            </div>
+          </div>
+          <div style={{ overflowX: "auto", maxHeight: 360, overflowY: "auto" }}>
+            <table style={{ ...S.table, minWidth: 600 }}>
+              <thead>
+                <tr>
+                  <th style={{ ...S.th, whiteSpace: "nowrap" }}>#</th>
+                  {previewCols.map((c) => <th key={c} style={{ ...S.th, whiteSpace: "nowrap" }}>{c}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {preview.map((row) => (
+                  <tr key={row._row}>
+                    <td style={{ ...S.td, color: "var(--color-text-muted,#aaa)", fontSize: "0.78rem" }}>{row._row}</td>
+                    {previewCols.map((c) => (
+                      <td key={c} style={{ ...S.td, whiteSpace: "nowrap", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {String(row[c] ?? "")}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Import result */}
+      {result && (
+        <div style={{ ...S.card, background: result.error ? "rgba(239,68,68,0.06)" : "rgba(16,185,129,0.06)", border: `1px solid ${result.error ? "rgba(239,68,68,0.2)" : "rgba(16,185,129,0.2)"}` }}>
+          {result.error ? (
+            <p style={{ margin: 0, color: "#DC2626", fontWeight: 600 }}>Import failed: {result.error}</p>
+          ) : (
+            <>
+              <p style={{ margin: "0 0 6px", fontWeight: 700, color: "#059669" }}>
+                Import complete — {result.imported} product{result.imported !== 1 ? "s" : ""} imported, {result.skipped ?? 0} skipped
+              </p>
+              {result.errors?.length > 0 && (
+                <ul style={{ margin: 0, paddingLeft: 20, fontSize: "0.82rem", color: "#B45309" }}>
+                  {result.errors.map((e, i) => <li key={i}>Row {e.row}: {e.message}</li>)}
+                </ul>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Import history */}
+      <div style={{ marginTop: 28 }}>
+        <h4 style={{ margin: "0 0 12px", fontSize: "0.9rem", fontWeight: 700 }}>Import History</h4>
+        {histLoading ? (
+          <p style={{ color: "var(--color-text-muted,#888)", fontSize: "0.875rem" }}>Loading…</p>
+        ) : history.length === 0 ? (
+          <p style={{ color: "var(--color-text-muted,#888)", fontSize: "0.875rem" }}>No imports yet.</p>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={S.table}>
+              <thead>
+                <tr>
+                  <th style={S.th}>File</th>
+                  <th style={S.th}>Imported</th>
+                  <th style={S.th}>Errors</th>
+                  <th style={S.th}>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((log, i) => (
+                  <tr key={i}>
+                    <td style={S.td}><span style={{ fontSize: "0.82rem" }}>{log.filename}</span></td>
+                    <td style={S.td}><span style={S.badge("green")}>{log.importedCount}</span></td>
+                    <td style={S.td}>
+                      {log.errorCount > 0
+                        ? <span style={S.badge("red")}>{log.errorCount}</span>
+                        : <span style={{ color: "var(--color-text-muted,#aaa)", fontSize: "0.8rem" }}>—</span>}
+                    </td>
+                    <td style={S.td}>{formatDate(log.importedAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -696,6 +1104,7 @@ export default function VCommercePortalPage() {
       {activeTab === 2 && <OrdersTab />}
       {activeTab === 3 && <PayoutsTab />}
       {activeTab === 4 && <SettingsTab business={business} onRefresh={loadBusiness} />}
+      {activeTab === 5 && <ImportTab businessId={business._id} />}
     </div>
   );
 }

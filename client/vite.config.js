@@ -16,12 +16,12 @@ export default defineConfig({
       srcDir: "src",
       filename: "sw.js",
       injectManifest: {
-        globPatterns: ["**/*.{js,css,html,ico,svg,woff2}", "favicon.png"],
+        globPatterns: ["**/*.{js,css,html,ico,svg,woff2}", "favicon.png", "pwa/*.png"],
         globIgnores: ["**/events-highlights/**"],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
       registerType: "autoUpdate",
-      includeAssets: ["favicon.png", "pwa/icon-192.png", "pwa/icon-512.png"],
+      includeAssets: ["favicon.png", "pwa/icon-192.png", "pwa/icon-512.png", "pwa/icon-180.png"],
       devOptions: {
         enabled: true,
         type: "module",

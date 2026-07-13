@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
 
+const bulkPricingTierSchema = new mongoose.Schema(
+  {
+    minQty: { type: Number, required: true, min: 1 },
+    priceMinor: { type: Number, required: true, min: 0 },
+  },
+  { _id: false }
+);
+
 const variantSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 80 },
@@ -29,6 +37,10 @@ const businessProductSchema = new mongoose.Schema(
     tags: { type: [String], default: [] },
     deliveryInfo: { type: String, default: "", trim: true, maxlength: 500 },
     sortOrder: { type: Number, default: 0 },
+    // Bulk / wholesale pricing
+    bulkPricingTiers: { type: [bulkPricingTierSchema], default: [] },
+    minOrderQty: { type: Number, default: 1, min: 1 },
+    maxOrderQty: { type: Number, default: null },
   },
   { timestamps: true, collection: "business_products" }
 );

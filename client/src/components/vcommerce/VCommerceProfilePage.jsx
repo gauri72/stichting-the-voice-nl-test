@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { getVCommerceProfile } from "./shared/vcommerceApi.js";
 import { BUSINESS_CATEGORY_LABELS, CATEGORY_ICONS } from "./shared/BUSINESS_CATEGORIES.js";
 import { useCart } from "./cart/useCart.js";
 import CartDrawer from "./cart/CartDrawer.jsx";
+import { useWholesaler } from "../../contexts/WholesalerContext.jsx";
+import { useAuth } from "../../contexts/AuthContext.jsx";
 
 function formatPrice(minor, currency = "eur") {
   return new Intl.NumberFormat("nl-NL", {
@@ -31,7 +33,16 @@ function SocialLinks({ links = {} }) {
   );
 }
 
-function ProductCard({ product, cashbackPercent, onSelect }) {
+function resolveUnitPrice(product, qty) {
+  const tiers = [...(product.bulkPricingTiers ?? [])].sort((a, b) => b.minQty - a.minQty);
+  for (const tier of tiers) {
+    if (qty >= tier.minQty) return tier.priceMinor;
+  }
+  return product.priceMinor;
+}
+
+function ProductCard({ product, cashbackPercent, onSelect, isApprovedWholesaler }) {
+  const hasWholesale = product.bulkPricingTiers?.length > 0;
   return (
     <div className="vco-product-card" onClick={() => onSelect(product)} role="button" tabIndex={0}
       onKeyDown={(e) => e.key === "Enter" && onSelect(product)}>
@@ -45,6 +56,11 @@ function ProductCard({ product, cashbackPercent, onSelect }) {
         <p className="vco-product-card__type">{product.type}</p>
         <p className="vco-product-card__name">{product.name}</p>
         <p className="vco-product-card__price">{formatPrice(product.priceMinor, product.currency)}</p>
+        {hasWholesale && (
+          <span className="vco-cashback-pill" style={{ marginTop: 4 }}>
+            🏷️ {isApprovedWholesaler ? "Bulk pricing available" : "Wholesale pricing — register to unlock"}
+          </span>
+        )}
         {cashbackPercent > 0 && (
           <span className="vco-cashback-pill">
             🎁 +{formatPrice(Math.round(product.priceMinor * cashbackPercent / 100), product.currency)} cashback
@@ -55,16 +71,22 @@ function ProductCard({ product, cashbackPercent, onSelect }) {
   );
 }
 
-function ProductModal({ product, business, onClose, onAddToCart }) {
-  const [qty, setQty] = useState(1);
+function ProductModal({ product, business, onClose, onAddToCart, isApprovedWholesaler, isAuthenticated }) {
+  const [qty, setQty] = useState(product?.minOrderQty || 1);
   const [selectedVariant, setSelectedVariant] = useState("");
 
   if (!product) return null;
+
+  const hasTiers = product.bulkPricingTiers?.length > 0;
+  const effectiveUnitPrice = resolveUnitPrice(product, qty);
+  const minQty = product.minOrderQty || 1;
 
   function handleAdd() {
     onAddToCart(business, product, qty, selectedVariant);
     onClose();
   }
+
+  const sortedTiers = [...(product.bulkPricingTiers ?? [])].sort((a, b) => a.minQty - b.minQty);
 
   return (
     <div
@@ -100,10 +122,68 @@ function ProductModal({ product, business, onClose, onAddToCart }) {
             </div>
           ))}
 
+          {/* Bulk pricing tier table — visible to approved wholesalers */}
+          {hasTiers && isApprovedWholesaler && (
+            <div style={{ marginBottom:16,borderRadius:10,border:"1px solid rgba(139,92,246,0.2)",overflow:"hidden" }}>
+              <div style={{ background:"rgba(139,92,246,0.06)",padding:"8px 14px",fontSize:"0.78rem",fontWeight:700,color:"var(--color-accent,#8B5CF6)",textTransform:"uppercase",letterSpacing:"0.04em" }}>
+                🏷️ Wholesale Pricing
+              </div>
+              <table style={{ width:"100%",borderCollapse:"collapse",fontSize:"0.85rem" }}>
+                <thead>
+                  <tr>
+                    <th style={{ padding:"8px 14px",textAlign:"left",fontWeight:600,color:"var(--color-text-muted,#888)",fontSize:"0.75rem",borderBottom:"1px solid rgba(128,128,128,0.1)" }}>Min. Qty</th>
+                    <th style={{ padding:"8px 14px",textAlign:"right",fontWeight:600,color:"var(--color-text-muted,#888)",fontSize:"0.75rem",borderBottom:"1px solid rgba(128,128,128,0.1)" }}>Unit Price</th>
+                    <th style={{ padding:"8px 14px",textAlign:"right",fontWeight:600,color:"var(--color-text-muted,#888)",fontSize:"0.75rem",borderBottom:"1px solid rgba(128,128,128,0.1)" }}>vs. Retail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[{ minQty: 1, priceMinor: product.priceMinor, _isRetail: true }, ...sortedTiers].map((tier, i) => {
+                    const isActive = qty >= tier.minQty && (i === sortedTiers.length || qty < (sortedTiers[i]?.minQty ?? Infinity));
+                    const saving = tier._isRetail ? null : Math.round((1 - tier.priceMinor / product.priceMinor) * 100);
+                    return (
+                      <tr key={i} style={{ background: isActive ? "rgba(139,92,246,0.06)" : "transparent" }}>
+                        <td style={{ padding:"8px 14px",fontWeight:isActive?700:400 }}>
+                          {tier._isRetail ? "1+" : `${tier.minQty}+`}
+                          {isActive && <span style={{ marginLeft:6,fontSize:"0.7rem",color:"var(--color-accent,#8B5CF6)" }}>← current</span>}
+                        </td>
+                        <td style={{ padding:"8px 14px",textAlign:"right",fontWeight:isActive?700:400 }}>
+                          {formatPrice(tier.priceMinor, product.currency)}
+                        </td>
+                        <td style={{ padding:"8px 14px",textAlign:"right",color:saving>0?"#059669":"var(--color-text-muted,#aaa)",fontWeight:saving>0?600:400 }}>
+                          {saving > 0 ? `−${saving}%` : tier._isRetail ? "Retail" : "—"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Wholesale CTA for non-wholesaler logged-in users */}
+          {hasTiers && !isApprovedWholesaler && (
+            <div style={{ marginBottom:16,padding:"12px 16px",borderRadius:10,background:"rgba(139,92,246,0.06)",border:"1px solid rgba(139,92,246,0.15)" }}>
+              <p style={{ margin:"0 0 8px",fontSize:"0.85rem",fontWeight:600 }}>🏷️ Wholesale pricing available</p>
+              <p style={{ margin:"0 0 10px",fontSize:"0.82rem",color:"var(--color-text-secondary,#666)" }}>
+                Register as a wholesaler to unlock tiered bulk pricing on this product.
+              </p>
+              <Link to="/vcommerce/wholesaler/register" className="vco-btn vco-btn--primary" style={{ fontSize:"0.82rem",padding:"6px 14px" }}>
+                Register as Wholesaler
+              </Link>
+            </div>
+          )}
+
           <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20 }}>
-            <span style={{ fontSize:"1.4rem",fontWeight:700,color:"var(--color-accent,#8B5CF6)" }}>
-              {formatPrice(product.priceMinor * qty, product.currency)}
-            </span>
+            <div>
+              <span style={{ fontSize:"1.4rem",fontWeight:700,color:"var(--color-accent,#8B5CF6)" }}>
+                {formatPrice(effectiveUnitPrice * qty, product.currency)}
+              </span>
+              {hasTiers && isApprovedWholesaler && effectiveUnitPrice !== product.priceMinor && (
+                <span style={{ marginLeft:8,fontSize:"0.82rem",color:"var(--color-text-muted,#aaa)",textDecoration:"line-through" }}>
+                  {formatPrice(product.priceMinor * qty, product.currency)}
+                </span>
+              )}
+            </div>
             {business.cashbackPercent > 0 && (
               <span className="vco-cashback-pill" style={{ fontSize:"0.82rem" }}>
                 🎁 {business.cashbackPercent}% cashback
@@ -113,12 +193,15 @@ function ProductModal({ product, business, onClose, onAddToCart }) {
 
           <div style={{ display:"flex",alignItems:"center",gap:12,marginBottom:20 }}>
             <div style={{ display:"flex",alignItems:"center",gap:8 }}>
-              <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))}
+              <button type="button" onClick={() => setQty((q) => Math.max(minQty, q - 1))}
                 style={{ width:32,height:32,borderRadius:8,border:"1px solid var(--color-border,rgba(128,128,128,0.3))",background:"none",cursor:"pointer",fontSize:"1rem" }}>−</button>
               <span style={{ fontWeight:600,minWidth:24,textAlign:"center" }}>{qty}</span>
-              <button type="button" onClick={() => setQty((q) => q + 1)}
+              <button type="button" onClick={() => setQty((q) => product.maxOrderQty ? Math.min(product.maxOrderQty, q + 1) : q + 1)}
                 style={{ width:32,height:32,borderRadius:8,border:"1px solid var(--color-border,rgba(128,128,128,0.3))",background:"none",cursor:"pointer",fontSize:"1rem" }}>+</button>
             </div>
+            {minQty > 1 && (
+              <span style={{ fontSize:"0.78rem",color:"var(--color-text-muted,#aaa)" }}>Min. {minQty}</span>
+            )}
             <button type="button" className="vco-btn vco-btn--primary" style={{ flex:1 }} onClick={handleAdd}>
               Add to Cart
             </button>
@@ -134,6 +217,9 @@ function ProductModal({ product, business, onClose, onAddToCart }) {
 
 export default function VCommerceProfilePage() {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const { isAuthenticated } = useAuth();
+  const { isApprovedWholesaler } = useWholesaler();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -144,6 +230,12 @@ export default function VCommerceProfilePage() {
     addToCart, removeFromCart, updateQty,
     subtotalMinor, cashbackMinor, itemCount,
   } = useCart();
+
+  // Capture referral code from ?ref= and store in sessionStorage
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) sessionStorage.setItem("vco_ref", ref);
+  }, [searchParams]);
 
   useEffect(() => {
     setLoading(true);
@@ -257,6 +349,7 @@ export default function VCommerceProfilePage() {
                     product={p}
                     cashbackPercent={profile.cashbackPercent}
                     onSelect={setSelectedProduct}
+                    isApprovedWholesaler={isApprovedWholesaler}
                   />
                 ))}
               </div>
@@ -308,6 +401,8 @@ export default function VCommerceProfilePage() {
           business={profile}
           onClose={() => setSelectedProduct(null)}
           onAddToCart={addToCart}
+          isApprovedWholesaler={isApprovedWholesaler}
+          isAuthenticated={isAuthenticated}
         />
       )}
 

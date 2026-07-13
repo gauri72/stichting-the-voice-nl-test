@@ -8,6 +8,8 @@ import {
   postApply,
   postCreateOrder,
   getOrderStatusHandler,
+  postReviewHandler,
+  getReviewsHandler,
 } from "../controllers/vcommerceController.js";
 
 const router = Router();
@@ -15,17 +17,21 @@ const router = Router();
 router.get("/featured", getFeatured);
 router.get("/", getList);
 
-// Apply routes — /apply/status must be before /:slug to avoid clash
+// Apply routes — static paths before /:slug
 router.get("/apply/status", requireAuth, getApplyStatus);
 router.post("/apply", requireAuth, postApply);
 
 // Order status polling (auth required)
 router.get("/order/:orderId/status", requireAuth, getOrderStatusHandler);
 
-// Business profile (public) — must be last so static paths above win
+// Business profile and per-business actions — static before /:slug
+router.get("/:slug/reviews", getReviewsHandler);
+
+// Business profile (public)
 router.get("/:slug", getProfile);
 
-// Place an order with a specific business
+// Per-business actions (auth required)
 router.post("/:businessId/order", requireAuth, postCreateOrder);
+router.post("/:businessId/review", requireAuth, postReviewHandler);
 
 export default router;

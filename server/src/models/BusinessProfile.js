@@ -48,6 +48,14 @@ const businessProfileSchema = new mongoose.Schema(
     payoutBankName: { type: String, default: "", trim: true },
     payoutIBAN: { type: String, default: "", trim: true },
     payoutBankHolder: { type: String, default: "", trim: true },
+    // Global marketplace fields
+    vatNumber: { type: String, default: "", trim: true },
+    minOrderValueMinor: { type: Number, default: 0, min: 0 },
+    reorderFeePercent: { type: Number, default: 5, min: 0, max: 100 },
+    directReferralCode: { type: String, default: null, trim: true, sparse: true },
+    reviewCount: { type: Number, default: 0 },
+    avgRating: { type: Number, default: null },
+    importLogs: { type: [{ filename: String, importedAt: Date, importedCount: Number, errorCount: Number }], default: [] },
   },
   { timestamps: true, collection: "business_profiles" }
 );

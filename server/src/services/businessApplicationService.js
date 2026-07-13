@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import Membership from "../models/Membership.js";
 import BusinessApplication from "../models/BusinessApplication.js";
 import BusinessProfile from "../models/BusinessProfile.js";
@@ -54,12 +55,31 @@ export async function getApplicationStatus(userId) {
   };
 }
 
+function generateReferralCode() {
+  return crypto.randomBytes(3).toString("hex").toUpperCase(); // 6 chars e.g. "A3F9D2"
+}
+
+async function makeUniqueReferralCode() {
+  let code;
+  do {
+    code = generateReferralCode();
+  } while (await BusinessProfile.exists({ directReferralCode: code }));
+  return code;
+}
+
 export async function createApplication(userId, data) {
-  const { hasMembership, planId } = await checkFamilyMembership(userId);
-  if (!hasMembership) {
-    const err = new Error("A Family Membership is required to apply.");
-    err.status = 403;
-    throw err;
+  const applicantType = data.applicantType === "sponsor" ? "sponsor" : "community_member";
+  let planId = null;
+
+  // Only community members need Family Membership
+  if (applicantType === "community_member") {
+    const { hasMembership, planId: pid } = await checkFamilyMembership(userId);
+    if (!hasMembership) {
+      const err = new Error("A Family Membership is required to apply as a community member.");
+      err.status = 403;
+      throw err;
+    }
+    planId = pid;
   }
 
   // Prevent duplicate pending applications
@@ -72,7 +92,8 @@ export async function createApplication(userId, data) {
 
   const application = await BusinessApplication.create({
     userId,
-    membershipPlanId: planId,
+    membershipPlanId: planId || "",
+    applicantType,
     businessName: data.businessName,
     category: data.category,
     description: data.description || "",
@@ -82,6 +103,8 @@ export async function createApplication(userId, data) {
     website: data.website || "",
     socialLinks: data.socialLinks || {},
     applicationMessage: data.applicationMessage || "",
+    companyRegistrationNumber: data.companyRegistrationNumber || "",
+    vatNumber: data.vatNumber || "",
     status: "pending",
   });
 
@@ -128,6 +151,7 @@ export async function reviewApplication(applicationId, adminId, { action, note }
   if (action === "approve") {
     const baseSlug = generateSlug(application.businessName);
     const slug = await makeUniqueSlug(baseSlug);
+    const directReferralCode = await makeUniqueReferralCode();
 
     const profile = await BusinessProfile.create({
       userId: application.userId,
@@ -141,6 +165,8 @@ export async function reviewApplication(applicationId, adminId, { action, note }
       contactPhone: application.contactPhone,
       website: application.website,
       socialLinks: application.socialLinks,
+      vatNumber: application.vatNumber || "",
+      directReferralCode,
       status: "active",
     });
 

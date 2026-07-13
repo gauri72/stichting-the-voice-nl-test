@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { getVCommerceFeatured, getVCommerceList } from "./shared/vcommerceApi.js";
 import { BUSINESS_CATEGORIES, BUSINESS_CATEGORY_LABELS, CATEGORY_ICONS } from "./shared/BUSINESS_CATEGORIES.js";
 
@@ -86,6 +86,7 @@ function SpotlightHero({ featured }) {
 }
 
 export default function VCommercePage() {
+  const [searchParams] = useSearchParams();
   const [featured, setFeatured] = useState(null);
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -97,6 +98,12 @@ export default function VCommercePage() {
     document.title = "VCommerce — V.O.I.C.E. NL Business Spotlight";
     return () => { document.title = "V.O.I.C.E. NL"; };
   }, []);
+
+  // Capture referral code from ?ref= and store in sessionStorage for checkout
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) sessionStorage.setItem("vco_ref", ref);
+  }, [searchParams]);
 
   useEffect(() => {
     getVCommerceFeatured().then(setFeatured).catch(() => {});

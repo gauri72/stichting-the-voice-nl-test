@@ -23,6 +23,7 @@ import aiAssistantRoutes from "./aiAssistantRoutes.js";
 import walletRoutes from "./walletRoutes.js";
 import vcommerceRoutes from "./vcommerceRoutes.js";
 import vcommercePortalRoutes from "./vcommercePortalRoutes.js";
+import wholesalerRoutes from "./wholesalerRoutes.js";
 
 const router = Router();
 
@@ -49,6 +50,7 @@ router.use("/ai", aiAssistantRoutes);
 router.use("/wallet", walletRoutes);
 router.use("/vcommerce", vcommerceRoutes);
 router.use("/vcommerce-portal", vcommercePortalRoutes);
+router.use("/wholesaler", wholesalerRoutes);
 router.use("/admin", adminRoutes);
 
 export default router;

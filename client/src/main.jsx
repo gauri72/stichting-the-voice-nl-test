@@ -9,6 +9,7 @@ import { DesignSystemProvider } from "./contexts/DesignSystemContext.jsx";
 import { CookieConsentProvider } from "./contexts/CookieConsentContext.jsx";
 import { AiAssistantProvider } from "./contexts/AiAssistantContext.jsx";
 import { WalletProvider } from "./contexts/WalletContext.jsx";
+import { WholesalerProvider } from "./contexts/WholesalerContext.jsx";
 import "./i18n/index.js";
 import App from "./App";
 import AppErrorBoundary from "./components/layout/AppErrorBoundary.jsx";
@@ -57,11 +58,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               <AuthProvider>
                 <AdminAuthProvider>
                   <WalletProvider>
-                    <AiAssistantProvider>
-                      <AppErrorBoundary>
-                        <App />
-                      </AppErrorBoundary>
-                    </AiAssistantProvider>
+                    <WholesalerProvider>
+                      <AiAssistantProvider>
+                        <AppErrorBoundary>
+                          <App />
+                        </AppErrorBoundary>
+                      </AiAssistantProvider>
+                    </WholesalerProvider>
                   </WalletProvider>
                 </AdminAuthProvider>
               </AuthProvider>

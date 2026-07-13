@@ -20,6 +20,9 @@ const businessApplicationSchema = new mongoose.Schema(
     },
     applicationMessage: { type: String, default: "", trim: true, maxlength: 1000 },
     membershipPlanId: { type: String, default: "", trim: true },
+    applicantType: { type: String, enum: ["community_member", "sponsor"], default: "community_member" },
+    companyRegistrationNumber: { type: String, default: "", trim: true, maxlength: 100 },
+    vatNumber: { type: String, default: "", trim: true, maxlength: 50 },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

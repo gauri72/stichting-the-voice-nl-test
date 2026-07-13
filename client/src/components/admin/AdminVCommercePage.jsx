@@ -13,8 +13,9 @@ import {
   adminGetAnalytics,
 } from "../vcommerce/shared/vcommerceApi.js";
 import { BUSINESS_CATEGORY_LABELS } from "../vcommerce/shared/BUSINESS_CATEGORIES.js";
+import AdminWholesalerPage from "./AdminWholesalerPage.jsx";
 
-const TABS = ["Applications", "Businesses", "Orders", "Payouts", "Analytics"];
+const TABS = ["Applications", "Businesses", "Orders", "Payouts", "Analytics", "Wholesalers"];
 
 function formatPrice(minor, currency = "eur") {
   if (minor == null) return "—";
@@ -674,6 +675,7 @@ export default function AdminVCommercePage() {
         {activeTab === 2 && <OrdersTab />}
         {activeTab === 3 && <PayoutsTab />}
         {activeTab === 4 && <AnalyticsTab />}
+        {activeTab === 5 && <AdminWholesalerPage />}
       </div>
     </AdminLayout>
   );

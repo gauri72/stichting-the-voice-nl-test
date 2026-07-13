@@ -111,6 +111,117 @@ export function getMyPayouts() {
   return apiFetch("/api/vcommerce-portal/me/payouts", { headers: authHeaders() });
 }
 
+// --- Portal: Bulk Pricing ---
+
+export function patchMyProductPricing(productId, data) {
+  return apiFetch(`/api/vcommerce-portal/me/products/${productId}/pricing`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(data),
+  });
+}
+
+// --- Portal: Excel Import ---
+
+export function getProductsTemplate() {
+  return fetch("/api/vcommerce-portal/me/products/template", { headers: authHeaders() }).then((r) => {
+    if (!r.ok) throw new Error("Failed to download template.");
+    return r.blob();
+  });
+}
+
+export function postImportProducts(formData) {
+  return apiFetch("/api/vcommerce-portal/me/products/import", {
+    method: "POST",
+    headers: authHeaders(), // no Content-Type — browser sets multipart boundary
+    body: formData,
+  });
+}
+
+export function getMyImportHistory() {
+  return apiFetch("/api/vcommerce-portal/me/products/import-history", { headers: authHeaders() });
+}
+
+// --- Portal: Referral Link ---
+
+export function getMyReferralLink() {
+  return apiFetch("/api/vcommerce-portal/me/referral-link", { headers: authHeaders() });
+}
+
+// --- Public: Reviews ---
+
+export function getVCommerceReviews(slug, params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return apiFetch(`/api/vcommerce/${slug}/reviews${qs ? `?${qs}` : ""}`);
+}
+
+export function postVCommerceReview(businessId, data) {
+  return apiFetch(`/api/vcommerce/${businessId}/review`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(data),
+  });
+}
+
+// --- Wholesaler ---
+
+export function getWholesalerStatus() {
+  return apiFetch("/api/wholesaler/status", { headers: authHeaders() });
+}
+
+export function postRegisterWholesaler(data) {
+  return apiFetch("/api/wholesaler/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(data),
+  });
+}
+
+export function getMyWholesalerProfile() {
+  return apiFetch("/api/wholesaler/me", { headers: authHeaders() });
+}
+
+export function patchMyWholesalerProfile(data) {
+  return apiFetch("/api/wholesaler/me", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(data),
+  });
+}
+
+export function postReorderFromPastOrder(orderId) {
+  return apiFetch(`/api/wholesaler/orders/${orderId}/reorder`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+}
+
+// --- Admin: Wholesalers ---
+
+export function adminGetWholesalers(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return adminFetch(`/api/admin/wholesalers${qs ? `?${qs}` : ""}`);
+}
+
+export function adminPatchWholesaler(id, data) {
+  return adminFetch(`/api/admin/wholesalers/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+// --- Admin: Reviews ---
+
+export function adminGetReviews(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return adminFetch(`/api/admin/wholesalers/reviews${qs ? `?${qs}` : ""}`);
+}
+
+export function adminDeleteReview(id) {
+  return adminFetch(`/api/admin/wholesalers/reviews/${id}`, { method: "DELETE" });
+}
+
 // --- Admin ---
 
 function adminFetch(path, opts = {}) {
