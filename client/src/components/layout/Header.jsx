@@ -3,6 +3,8 @@ import { Link, NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { IconTicket, IconUser, IconUserCheck, IconUserPlus } from "@tabler/icons-react";
 import ThemeToggle from "./ThemeToggle.jsx";
+import LanguageSwitcher from "./LanguageSwitcher.jsx";
+import SiteInstallPwaPrompt from "../pwa/SiteInstallPwaPrompt.jsx";
 import { useCmsHeader } from "../../hooks/useCmsPage.js";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { translateKnownLabel, translateKnownNavLabel } from "../../i18n/navLabels.js";
@@ -304,6 +306,13 @@ export default function Header() {
             <Link to="/vcommerce/categories" onClick={closeMenu}>Categories</Link>
             <Link to="/vcommerce/apply" onClick={closeMenu}>List Your Business</Link>
             <Link to="/dashboard" onClick={closeMenu}>My Dashboard</Link>
+          </div>
+          <div className="nav-actions__utilities">
+            <span>Preferences &amp; App</span>
+            <div className="nav-actions__utilities-grid">
+              <LanguageSwitcher embedded />
+              <SiteInstallPwaPrompt embedded />
+            </div>
           </div>
         </div>
       </nav>

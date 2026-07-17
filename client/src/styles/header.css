@@ -1339,6 +1339,35 @@
     background: currentColor;
   }
 
+  .nav-actions__utilities {
+    margin-top: 14px;
+    padding: 14px;
+    border: 1px solid rgba(0, 228, 223, 0.24);
+    border-radius: 17px;
+    background: rgba(5, 24, 41, 0.62);
+  }
+
+  .nav-actions__utilities > span {
+    display: block;
+    margin-bottom: 10px;
+    color: #21ddd7;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .nav-actions__utilities-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+
+  [data-theme="light"] .nav-actions__utilities {
+    border-color: #c7dce5;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
   .nav-actions .menu-links--mobile {
     display: flex;
     width: 100%;

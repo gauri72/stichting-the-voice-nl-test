@@ -28,7 +28,7 @@ import {
   getVCommerceFeatured,
   getVCommercePopularProducts,
 } from "../../vcommerce/shared/vcommerceApi.js";
-import { membershipBadgeLabel, PREMIUM_BENEFITS } from "../dashboardUtils.js";
+import { buildQrSrc, membershipBadgeLabel, PREMIUM_BENEFITS } from "../dashboardUtils.js";
 import {
   addMembershipToGoogleWallet,
   downloadMembershipEcard,
@@ -137,8 +137,22 @@ export default function MobileDashboardCommandCenter({
   const [marketplaceProducts, setMarketplaceProducts] = useState([]);
   const [membershipAction, setMembershipAction] = useState("");
   const [membershipActionMessage, setMembershipActionMessage] = useState("");
+  const [membershipQrImageSrc, setMembershipQrImageSrc] = useState(() =>
+    qrSrc ? apiUrl(qrSrc) : buildQrSrc(membershipId),
+  );
   const membershipCardRef = useRef(null);
   const sheet = searchParams.get("panel") || "";
+
+  useEffect(() => {
+    setMembershipQrImageSrc(qrSrc ? apiUrl(qrSrc) : buildQrSrc(membershipId));
+  }, [qrSrc, membershipId]);
+
+  function handleMembershipQrError() {
+    const fallback = buildQrSrc(membershipId);
+    if (membershipQrImageSrc !== fallback) {
+      setMembershipQrImageSrc(fallback);
+    }
+  }
 
   function openSheet(panel) {
     const next = new URLSearchParams(searchParams);
@@ -349,7 +363,13 @@ export default function MobileDashboardCommandCenter({
                   Stichting<br />The <strong>V.O.I.C.E.</strong> NL
                 </span>
               </div>
-              <img className="mobile-sheet-membership__qr" src={qrSrc} alt={`Membership QR code ${membershipId}`} />
+              <img
+                className="mobile-sheet-membership__qr"
+                src={membershipQrImageSrc}
+                alt={`Membership QR code ${membershipId}`}
+                decoding="async"
+                onError={handleMembershipQrError}
+              />
               <span className="mobile-sheet-membership__pass-label">Member pass</span>
               <h3>{membershipLabel}</h3>
               <dl>

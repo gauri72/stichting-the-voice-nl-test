@@ -4,7 +4,7 @@ import { IconCheck, IconWorld } from "@tabler/icons-react";
 import { SUPPORTED_LANGUAGES } from "../../i18n/index.js";
 import "../../styles/language-switcher.css";
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ embedded = false }) {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
@@ -35,7 +35,7 @@ export default function LanguageSwitcher() {
   }
 
   return (
-    <div className="language-switcher" ref={rootRef}>
+    <div className={`language-switcher${embedded ? " language-switcher--embedded" : ""}`} ref={rootRef}>
       {open ? (
         <ul className="language-switcher__menu" role="menu" aria-label="Choose language">
           {SUPPORTED_LANGUAGES.map((lang) => (

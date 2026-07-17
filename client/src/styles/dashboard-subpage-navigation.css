@@ -1,0 +1,101 @@
+.dashboard-subpage-nav {
+  position: sticky;
+  z-index: 780;
+  top: 8px;
+  display: flex;
+  width: min(1180px, calc(100% - 32px));
+  min-height: 52px;
+  margin: 14px auto;
+  padding: 7px 9px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(40, 199, 224, 0.32);
+  border-radius: 17px;
+  background: rgba(4, 18, 32, 0.88);
+  color: #f5fbff;
+  box-shadow: 0 13px 35px rgba(0, 5, 15, 0.26);
+  backdrop-filter: blur(18px) saturate(145%);
+}
+
+.dashboard-subpage-nav__back,
+.dashboard-subpage-nav__context {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-subpage-nav__back {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid rgba(0, 228, 223, 0.36);
+  border-radius: 12px;
+  color: #eaffff;
+  font-size: 0.78rem;
+  font-weight: 750;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.dashboard-subpage-nav__back:hover {
+  border-color: #00e4df;
+  background: rgba(0, 228, 223, 0.11);
+  color: #61fff8;
+  transform: translateX(-2px);
+}
+
+.dashboard-subpage-nav__back svg {
+  width: 18px;
+}
+
+.dashboard-subpage-nav__context {
+  padding-right: 9px;
+  color: #9eb3c3;
+  font-size: 0.7rem;
+  font-weight: 650;
+}
+
+.dashboard-subpage-nav__context svg {
+  width: 16px;
+  color: #23dfe0;
+}
+
+[data-theme="light"] .dashboard-subpage-nav {
+  border-color: rgba(25, 146, 171, 0.28);
+  background: rgba(250, 254, 255, 0.9);
+  color: #102438;
+  box-shadow: 0 12px 30px rgba(30, 73, 95, 0.14);
+}
+
+[data-theme="light"] .dashboard-subpage-nav__back {
+  border-color: rgba(0, 146, 174, 0.34);
+  color: #0c536b;
+}
+
+[data-theme="light"] .dashboard-subpage-nav__context {
+  color: #557187;
+}
+
+@media (max-width: 767px) {
+  .dashboard-subpage-nav {
+    top: 6px;
+    width: calc(100% - 20px);
+    min-height: 48px;
+    margin: 8px 10px 10px;
+    border-radius: 15px;
+  }
+
+  .dashboard-subpage-nav__back {
+    min-height: 36px;
+    padding-inline: 11px;
+    font-size: 0.73rem;
+  }
+
+  .dashboard-subpage-nav__context {
+    overflow: hidden;
+    max-width: 42%;
+    font-size: 0.66rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

@@ -7,10 +7,28 @@ import {
   IconHistory,
   IconX,
   IconSparkles,
+  IconCalendarEvent,
+  IconShoppingBag,
+  IconShieldCheck,
+  IconWallet,
+  IconMicrophone,
+  IconLock,
+  IconUsers,
 } from "@tabler/icons-react";
 import { useAiAssistant } from "../../../contexts/AiAssistantContext.jsx";
+import { useWallet } from "../../../contexts/WalletContext.jsx";
+import { apiFetch, authHeaders } from "../../../utils/api.js";
 import ChatMessageBubble from "./ChatMessageBubble.jsx";
 import UsageRing from "./UsageRing.jsx";
+import vAssistOrb from "../../../assets/Dashboard/v-assist-orb.png";
+import "../../../styles/ai-assistant-premium.css";
+
+const STARTERS = [
+  { title: "Find an event", subtitle: "Discover what’s on", prompt: "What events are coming up?", icon: IconCalendarEvent },
+  { title: "Explore V.Commerce", subtitle: "Shop curated offers", prompt: "Show me featured V.Commerce offers", icon: IconShoppingBag },
+  { title: "Check my benefits", subtitle: "See what you’re entitled to", prompt: "What membership benefits can I use?", icon: IconShieldCheck },
+  { title: "Use my V.Wallet", subtitle: "View balance & history", prompt: "Help me with my V.Wallet", icon: IconWallet },
+];
 
 export default function AiChatPage() {
   const {
@@ -27,16 +45,25 @@ export default function AiChatPage() {
     usage,
     loadUsage,
   } = useAiAssistant();
+  const { wallet, loadWallet } = useWallet();
 
   const [input, setInput] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState("");
+  const [membershipLabel, setMembershipLabel] = useState("Member");
   const scrollRef = useRef(null);
 
   useEffect(() => {
     loadChatHistory();
     loadUsage();
-  }, [loadChatHistory, loadUsage]);
+    loadWallet();
+    apiFetch("/api/dashboard/memberships", { headers: authHeaders() })
+      .then((data) => {
+        const active = data?.active;
+        setMembershipLabel(active?.planNameAccent || active?.planName || "Member");
+      })
+      .catch(() => {});
+  }, [loadChatHistory, loadUsage, loadWallet]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -59,40 +86,64 @@ export default function AiChatPage() {
     setTimeout(() => setSaveFeedback(""), 2500);
   }
 
-  return (
-    <div className="ai-chat-shell relative flex flex-col overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-black text-slate-100 ring-1 ring-white/10">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
-        <div className="flex items-center gap-2">
-          <IconSparkles size={20} className="text-purple-400" aria-hidden="true" />
-          <h2 className="text-sm font-semibold tracking-wide">Personal AI Assistant</h2>
-        </div>
-        <div className="flex items-center gap-2">
-          {usage && <UsageRing used={usage.todayCount} limit={usage.dailyLimit} />}
-          <button
-            type="button"
-            onClick={() => setHistoryOpen(true)}
-            aria-label="Chat history"
-            className="rounded-lg p-2 text-slate-300 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple-400"
-          >
-            <IconHistory size={18} />
-          </button>
-          <button
-            type="button"
-            onClick={startNewChat}
-            className="flex items-center gap-1 rounded-lg bg-white/10 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/20 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple-400"
-          >
-            <IconPlus size={14} /> New Chat
-          </button>
-        </div>
-      </div>
+  const walletBalance = new Intl.NumberFormat("nl-NL", {
+    style: "currency",
+    currency: "EUR",
+  }).format((wallet?.balanceMinor || 0) / 100);
 
-      {/* Message list */}
-      <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-5 scroll-smooth">
+  return (
+    <div className="ai-chat-shell ai-premium-chat">
+      <header className="ai-premium-chat__tools">
+        <div>
+          <IconSparkles aria-hidden="true" />
+          <span>Your personal AI concierge</span>
+        </div>
+        <div>
+          {usage && <UsageRing used={usage.todayCount} limit={usage.dailyLimit} />}
+          <button type="button" onClick={() => setHistoryOpen(true)} aria-label="Chat history">
+            <IconHistory />
+          </button>
+          <button type="button" onClick={startNewChat} aria-label="Start a new chat">
+            <IconPlus />
+            <span>New chat</span>
+          </button>
+        </div>
+      </header>
+
+      <div ref={scrollRef} className="ai-premium-chat__conversation">
         {messages.length === 0 && (
-          <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-slate-400">
-            <IconSparkles size={32} className="text-purple-400/60" />
-            <p className="text-sm">Ask me about news, weather, or your upcoming events.</p>
+          <div className="ai-premium-welcome">
+            <div className="ai-premium-orb" aria-hidden="true">
+              <img src={vAssistOrb} alt="" />
+            </div>
+            <h2>Your Community Concierge</h2>
+            <p>How can I help you today?</p>
+            <span className="ai-premium-welcome__online"><i /> Online</span>
+
+            <div className="ai-premium-context">
+              <div><IconUsers aria-hidden="true" /><span><small>Member context</small><strong>{membershipLabel}</strong></span></div>
+              <div><IconWallet aria-hidden="true" /><span><small>V.Wallet</small><strong>{walletBalance}</strong></span></div>
+            </div>
+
+            <div className="ai-premium-welcome__intro">
+              <strong>Welcome back.</strong>
+              <span>Here are a few things I can help you with.</span>
+            </div>
+
+            <div className="ai-premium-starters">
+              {STARTERS.map(({ title, subtitle, prompt, icon: Icon }) => (
+                <button key={title} type="button" onClick={() => setInput(prompt)}>
+                  <Icon aria-hidden="true" />
+                  <strong>{title}</strong>
+                  <span>{subtitle}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="ai-premium-suggestions">
+              <button type="button" onClick={() => setInput("What’s happening this week?")}><IconSparkles /> What’s happening this week?</button>
+              <button type="button" onClick={() => setInput("Show me member discounts")}><IconShieldCheck /> Show member discounts</button>
+            </div>
           </div>
         )}
         <AnimatePresence initial={false}>
@@ -117,40 +168,29 @@ export default function AiChatPage() {
         </motion.p>
       )}
 
-      {/* Input bar */}
-      <form onSubmit={handleSubmit} className="flex items-end gap-2 border-t border-white/10 bg-white/5 p-3 sm:p-4">
-        <button
-          type="button"
-          onClick={handleSavePrompt}
-          disabled={!messages.some((m) => m.role === "user")}
-          aria-label="Save last prompt to your library"
-          className="rounded-lg p-2.5 text-slate-300 transition hover:bg-white/10 disabled:opacity-30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple-400"
-        >
-          <IconBookmarkPlus size={18} />
-        </button>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSubmit(e);
-            }
-          }}
-          placeholder="Ask your assistant anything…"
-          rows={1}
-          aria-label="Message"
-          className="flex-1 resize-none rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 transition focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/40"
-        />
-        <button
-          type="submit"
-          disabled={!input.trim() || streaming}
-          aria-label="Send message"
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-900/30 transition active:scale-90 disabled:opacity-40"
-        >
-          <IconSend2 size={18} />
-        </button>
-      </form>
+      <footer className="ai-premium-composer-wrap">
+        <p><IconLock /> Private <i /> Personalised <i /> Available 24/7</p>
+        <form onSubmit={handleSubmit} className="ai-premium-composer">
+          <button type="button" onClick={handleSavePrompt} disabled={!messages.some((m) => m.role === "user")} aria-label="Save last prompt">
+            <IconBookmarkPlus />
+          </button>
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
+            placeholder="Ask V.Assist anything…"
+            rows={1}
+            aria-label="Message"
+          />
+          <button type="button" className="ai-premium-composer__mic" aria-label="Voice input"><IconMicrophone /></button>
+          <button type="submit" disabled={!input.trim() || streaming} aria-label="Send message"><IconSend2 /></button>
+        </form>
+      </footer>
 
       <AnimatePresence>
         {saveFeedback && (

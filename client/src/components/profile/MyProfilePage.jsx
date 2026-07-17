@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { apiFetch, authHeaders } from "../../utils/api.js";
@@ -7,7 +6,6 @@ import ProfileHeroSection from "./sections/ProfileHeroSection.jsx";
 import ProfilePersonalDetailsCard from "./sections/ProfilePersonalDetailsCard.jsx";
 import ProfileChangePasswordCard from "./sections/ProfileChangePasswordCard.jsx";
 import ProfilePaymentMethodsCard from "./sections/ProfilePaymentMethodsCard.jsx";
-import { PROFILE_ROUTES } from "./profileUtils.js";
 import "../../styles/my-profile-page.css";
 import "../../styles/my-profile-desktop.css";
 import "../../styles/my-profile-mobile.css";
@@ -97,10 +95,6 @@ export default function MyProfilePage() {
               <ProfilePaymentMethodsCard />
             </>
           ) : null}
-
-          <Link to={PROFILE_ROUTES.dashboard} className="my-profile-page__back">
-            {t("misc:profile.backToDashboard")}
-          </Link>
         </div>
       </div>
     </div>

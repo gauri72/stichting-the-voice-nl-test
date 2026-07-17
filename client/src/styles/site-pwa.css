@@ -13,6 +13,28 @@
   animation: site-pwa-install-pop 0.3s ease-out;
 }
 
+.site-pwa-install--embedded {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  z-index: auto;
+  width: 100%;
+  animation: none;
+}
+
+.site-pwa-install--embedded .site-pwa-install__fab {
+  width: 100%;
+  height: 46px;
+  justify-content: center;
+  border: 1px solid rgba(0, 228, 223, 0.22);
+  background: rgba(10, 31, 50, 0.84);
+  box-shadow: none;
+}
+
+.site-pwa-install--embedded .site-pwa-install__dismiss {
+  display: none;
+}
+
 @keyframes site-pwa-install-pop {
   from {
     transform: scale(0.8);
@@ -92,4 +114,32 @@
   .site-pwa-install__label {
     display: none;
   }
+
+  .site-pwa-install--embedded {
+    right: auto;
+    bottom: auto;
+  }
+
+  .site-pwa-install--embedded .site-pwa-install__fab {
+    width: 100%;
+    height: 46px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .site-pwa-install--embedded .site-pwa-install__label {
+    display: inline;
+  }
+}
+
+@media (max-width: 1100px) {
+  .site-pwa-install:not(.site-pwa-install--embedded) {
+    display: none;
+  }
+}
+
+[data-theme="light"] .site-pwa-install--embedded .site-pwa-install__fab {
+  border-color: #c7dce5;
+  background: #ffffff;
+  color: #173047;
 }

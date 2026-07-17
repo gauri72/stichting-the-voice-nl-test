@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import IdleSessionGuard from "./IdleSessionGuard.jsx";
 import { rememberAuthIntent } from "../../utils/authRedirect.js";
+import DashboardSubpageNavigation from "../dashboard/DashboardSubpageNavigation.jsx";
 
 export default function ProtectedRoute({ children }) {
   const { user, loading, logout } = useAuth();
@@ -35,6 +36,7 @@ export default function ProtectedRoute({ children }) {
 
   return (
     <IdleSessionGuard enabled onIdle={handleIdleLogout}>
+      <DashboardSubpageNavigation />
       {children}
     </IdleSessionGuard>
   );

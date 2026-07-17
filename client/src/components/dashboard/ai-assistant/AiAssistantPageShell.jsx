@@ -1,5 +1,6 @@
-import { NavLink } from "react-router-dom";
-import { IconMessageCircle2, IconBooks, IconCalendarTime } from "@tabler/icons-react";
+import { Link, NavLink } from "react-router-dom";
+import { IconArrowLeft, IconMessageCircle2, IconBooks, IconCalendarTime, IconX } from "@tabler/icons-react";
+import "../../../styles/ai-assistant-premium.css";
 
 const TABS = [
   { to: "/dashboard/ai-assistant", label: "Chat", icon: IconMessageCircle2, end: true },
@@ -17,20 +18,21 @@ const TABS = [
  */
 export default function AiAssistantPageShell({ children }) {
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-6 sm:px-6" style={{ paddingTop: "clamp(72px, 10vw, 96px)" }}>
-      <nav className="mb-4 flex gap-1 overflow-x-auto rounded-xl bg-slate-900/60 p-1 ring-1 ring-white/10" aria-label="AI Assistant sections">
+    <div className="ai-standalone-premium">
+      <header className="ai-premium-page-header">
+        <Link to="/dashboard" aria-label="Back to dashboard"><IconArrowLeft /><span>Back to dashboard</span></Link>
+        <div><i>V</i><strong>V.Assist</strong></div>
+        <Link to="/dashboard" aria-label="Close V Assist"><IconX /></Link>
+      </header>
+      <nav className="ai-premium-page-tabs" aria-label="AI Assistant sections">
         {TABS.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
             end={end}
-            className={({ isActive }) =>
-              `flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple-400 ${
-                isActive ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white" : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
-              }`
-            }
+            className={({ isActive }) => isActive ? "is-active" : ""}
           >
-            <Icon size={16} /> {label}
+            <Icon /> <span>{label}</span>
           </NavLink>
         ))}
       </nav>

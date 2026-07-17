@@ -55,34 +55,33 @@ export default function AiAssistantOverlay() {
             role="dialog"
             aria-modal="true"
             aria-label="V Assist"
-            className="ai-overlay-panel bg-slate-950 text-slate-100 ring-1 ring-white/10"
+            className="ai-overlay-panel ai-premium-panel"
           >
-            <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-white/5 px-3 py-2.5">
-              <div className="flex items-center gap-1 overflow-x-auto">
+            <header className="ai-premium-panel__header">
+              <div className="ai-premium-panel__brand" aria-label="V.Assist">
+                <span>V</span>
+                <strong>V.Assist</strong>
+              </div>
+              <button type="button" onClick={closeAssistant} aria-label="Close V Assist" className="ai-premium-panel__close">
+                <IconX />
+              </button>
+            </header>
+            <div className="ai-premium-panel__tabs">
+              <div>
                 {TABS.map(({ id, label, icon: Icon }) => (
                   <button
                     key={id}
                     type="button"
                     onClick={() => setActiveTab(id)}
-                    className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple-400 ${
-                      activeTab === id
-                        ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white"
-                        : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
-                    }`}
+                    className={activeTab === id ? "is-active" : ""}
+                    aria-label={label}
+                    title={label}
                   >
-                    <Icon size={16} />
-                    <span className="hidden sm:inline">{label}</span>
+                    <Icon />
+                    <span>{label}</span>
                   </button>
                 ))}
               </div>
-              <button
-                type="button"
-                onClick={closeAssistant}
-                aria-label="Close V Assist"
-                className="flex shrink-0 items-center justify-center rounded-lg p-2 text-slate-300 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple-400"
-              >
-                <IconX size={20} />
-              </button>
             </div>
 
             <div className={`ai-overlay-body ${activeTab === "chat" ? "ai-overlay-body--chat" : ""}`}>

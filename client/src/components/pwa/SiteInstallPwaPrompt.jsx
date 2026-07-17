@@ -4,7 +4,7 @@ import { isStandalonePwa, PWA_VARIANTS } from "../../pwa/manifestConfig.js";
 import PwaInstallDialog from "./PwaInstallDialog.jsx";
 import "../../styles/site-pwa.css";
 
-export default function SiteInstallPwaPrompt() {
+export default function SiteInstallPwaPrompt({ embedded = false }) {
   const [dismissed, setDismissed] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -12,7 +12,7 @@ export default function SiteInstallPwaPrompt() {
 
   return (
     <>
-      <div className="site-pwa-install">
+      <div className={`site-pwa-install${embedded ? " site-pwa-install--embedded" : ""}`}>
         <button
           type="button"
           className="site-pwa-install__fab"
