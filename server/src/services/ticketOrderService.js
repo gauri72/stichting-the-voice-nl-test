@@ -1,5 +1,6 @@
 import TicketOrder from "../models/TicketOrder.js";
 import Ticket from "../models/Ticket.js";
+import User from "../models/User.js";
 import { getPublishedEventBySlugOrId } from "./eventService.js";
 import {
   buildOrderSummary,
@@ -197,6 +198,19 @@ export function formatTicket(ticket) {
     ticketTypeName: ticket.ticketTypeName,
     attendeeName: ticket.attendeeName,
     attendeeEmail: ticket.attendeeEmail,
+    alternateEmails: ticket.alternateEmails || [],
+    partnerDetails: ticket.partnerDetails || {},
+    assignedUserId: ticket.assignedUserId?.toString?.() || ticket.assignedUserId || "",
+    transferRecipientEmail: ticket.transferRecipientEmail || "",
+    transferHistory: (ticket.transferHistory || []).map((entry) => ({
+      id: entry._id?.toString?.() || entry.id,
+      fromName: entry.fromName || "",
+      fromEmail: entry.fromEmail || "",
+      toName: entry.toName || "",
+      toEmail: entry.toEmail || "",
+      reason: entry.reason || "",
+      transferredAt: entry.transferredAt,
+    })),
     verificationToken,
     qrCodeUrl: normalizeTicketQrPath(ticket.qrCodeUrl, verificationToken),
     // The PDF route requires ?token= to match verificationToken (see
@@ -226,9 +240,20 @@ export async function getUserOrders(userId) {
 }
 
 export async function getUserTickets(userId) {
+  const user = await User.findById(userId).select("email").lean();
   const orders = await TicketOrder.find({ userId, paymentStatus: { $in: ["paid", "free"] } }).select("_id").lean();
   const orderIds = orders.map((o) => o._id);
-  const tickets = await Ticket.find({ orderId: { $in: orderIds } })
+  const tickets = await Ticket.find({
+    $or: [
+      {
+        orderId: { $in: orderIds },
+        assignedUserId: null,
+        transferRecipientEmail: { $in: ["", null] },
+      },
+      { assignedUserId: userId },
+      ...(user?.email ? [{ transferRecipientEmail: user.email.toLowerCase() }] : []),
+    ],
+  })
     .sort({ createdAt: -1 })
     .lean();
   return tickets.map(formatTicket);

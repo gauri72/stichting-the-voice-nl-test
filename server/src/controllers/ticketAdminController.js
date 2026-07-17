@@ -284,6 +284,26 @@ export async function updateTicket(req, res) {
   }
 }
 
+export async function getTicketDetail(req, res) {
+  try {
+    const { getAdminTicketDetail } = await import("../services/ticketAdminService.js");
+    const result = await getAdminTicketDetail(req.params.id);
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function transferTicket(req, res) {
+  try {
+    const { transferAdminTicket } = await import("../services/ticketAdminService.js");
+    const result = await transferAdminTicket(req.params.id, req.body, req.admin?.id);
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function checkIn(req, res) {
   try {
     const token = req.body?.token || req.body?.verificationToken;

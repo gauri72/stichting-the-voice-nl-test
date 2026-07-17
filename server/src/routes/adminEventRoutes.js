@@ -20,6 +20,8 @@ import {
   listTickets,
   ticketStats,
   updateTicket,
+  getTicketDetail,
+  transferTicket,
   checkIn,
   resendEmail,
   downloadTicketPdf,
@@ -72,9 +74,11 @@ router.get("/highlights/analytics", getHighlightAnalyticsAdmin);
 router.get("/stats", ticketStats);
 router.get("/tickets", listTickets);
 router.get("/tickets/export", exportCsv);
+router.get("/tickets/:id", getTicketDetail);
 router.post("/tickets/:ticketId/change-seat", changeTicketSeat);
 router.post("/tickets/:ticketId/release-seat", releaseTicketSeat);
 router.patch("/tickets/:id", updateTicket);
+router.post("/tickets/:id/transfer", transferTicket);
 router.post("/tickets/:id/check-in", markCheckedIn);
 router.post("/tickets/:id/refund", markRefunded);
 router.post("/tickets/:id/resend-email", resendEmail);

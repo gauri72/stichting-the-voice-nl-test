@@ -180,11 +180,22 @@ function enrichEventCard(event, { orders, tickets, membershipBenefit, now }) {
 
 async function loadUserEventData(userId) {
   const oid = new mongoose.Types.ObjectId(userId);
-  const orders = await TicketOrder.find({ userId: oid }).lean();
-  const orderIds = orders.map((o) => o._id);
-  const tickets = orderIds.length
-    ? await Ticket.find({ orderId: { $in: orderIds } }).lean()
-    : [];
+  const user = await User.findById(oid).select("email").lean();
+  const ownedOrders = await TicketOrder.find({ userId: oid }).lean();
+  const ownedOrderIds = ownedOrders.map((o) => o._id);
+  const tickets = await Ticket.find({
+    $or: [
+      {
+        orderId: { $in: ownedOrderIds },
+        assignedUserId: null,
+        transferRecipientEmail: { $in: ["", null] },
+      },
+      { assignedUserId: oid },
+      ...(user?.email ? [{ transferRecipientEmail: user.email.toLowerCase() }] : []),
+    ],
+  }).lean();
+  const relevantOrderIds = [...new Set(tickets.map((ticket) => ticket.orderId.toString()))];
+  const orders = await TicketOrder.find({ _id: { $in: relevantOrderIds } }).lean();
 
   const ordersByEvent = new Map();
   for (const order of orders) {
@@ -439,27 +450,34 @@ export async function getEventTicketsForUser(userId, eventId) {
   }
 
   const oid = new mongoose.Types.ObjectId(userId);
-  const orders = await TicketOrder.find({
+  const user = await User.findById(oid).select("email").lean();
+  const ownedOrders = await TicketOrder.find({
     userId: oid,
     eventId: event._id,
-    // Matching "paid" only excluded wallet-funded orders (settled as "free"
-    // by the free-order fulfillment bypass before paymentMethod-aware
-    // settlement was added) and genuinely free/complimentary orders alike —
-    // any settled order should be viewable here.
     paymentStatus: { $in: SETTLED_PAYMENT_STATUSES },
-  })
-    .sort({ createdAt: -1 })
-    .lean();
+  }).select("_id").lean();
+  const ownedOrderIds = ownedOrders.map((order) => order._id);
+  const tickets = await Ticket.find({
+    eventId: event._id,
+    $or: [
+      {
+        orderId: { $in: ownedOrderIds },
+        assignedUserId: null,
+        transferRecipientEmail: { $in: ["", null] },
+      },
+      { assignedUserId: oid },
+      ...(user?.email ? [{ transferRecipientEmail: user.email.toLowerCase() }] : []),
+    ],
+  }).sort({ createdAt: 1 }).lean();
 
-  if (!orders.length) {
+  if (!tickets.length) {
     const err = new Error("No tickets found for this event.");
     err.status = 404;
     throw err;
   }
-
-  const orderIds = orders.map((o) => o._id);
-  const tickets = await Ticket.find({ orderId: { $in: orderIds } })
-    .sort({ createdAt: 1 })
+  const relevantOrderIds = [...new Set(tickets.map((ticket) => ticket.orderId.toString()))];
+  const orders = await TicketOrder.find({ _id: { $in: relevantOrderIds } })
+    .sort({ createdAt: -1 })
     .lean();
 
   const primaryOrder = orders[0];

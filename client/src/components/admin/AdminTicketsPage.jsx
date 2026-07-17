@@ -6,6 +6,10 @@ import {
   IconRefresh,
   IconSearch,
   IconTicket,
+  IconEdit,
+  IconTransfer,
+  IconX,
+  IconUser,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import AdminLayout from "./AdminLayout.jsx";
@@ -23,6 +27,13 @@ export default function AdminTicketsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [ticketDetail, setTicketDetail] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [editForm, setEditForm] = useState(null);
+  const [transferForm, setTransferForm] = useState({ toName: "", toEmail: "", reason: "" });
   const [filters, setFilters] = useState({
     eventId: "",
     paymentStatus: "",
@@ -144,6 +155,88 @@ export default function AdminTicketsPage() {
     }
   }
 
+  async function openTicket(t) {
+    setSelectedTicket(t);
+    setTicketDetail(null);
+    setTransferOpen(false);
+    setDetailLoading(true);
+    try {
+      const data = await apiFetch(`/api/admin/events/tickets/${t.id}`, { headers: adminAuthHeaders() });
+      setTicketDetail(data);
+      const ticket = data.ticket;
+      setEditForm({
+        attendeeName: ticket.attendeeName || "",
+        attendeeEmail: ticket.attendeeEmail || "",
+        alternateEmails: (ticket.alternateEmails || []).join(", "),
+        partnerName: ticket.partnerDetails?.name || "",
+        partnerEmail: ticket.partnerDetails?.email || "",
+        partnerPhone: ticket.partnerDetails?.phone || "",
+        partnerRelationship: ticket.partnerDetails?.relationship || "",
+      });
+    } catch (err) {
+      window.alert(err.message || "Could not load ticket details.");
+      setSelectedTicket(null);
+    } finally {
+      setDetailLoading(false);
+    }
+  }
+
+  async function saveTicketDetails(e) {
+    e.preventDefault();
+    if (!selectedTicket || !editForm) return;
+    setSaving(true);
+    try {
+      await apiFetch(`/api/admin/events/tickets/${selectedTicket.id}`, {
+        method: "PATCH",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify({
+          attendeeName: editForm.attendeeName,
+          attendeeEmail: editForm.attendeeEmail,
+          alternateEmails: editForm.alternateEmails.split(",").map((email) => email.trim()).filter(Boolean),
+          partnerDetails: {
+            name: editForm.partnerName,
+            email: editForm.partnerEmail,
+            phone: editForm.partnerPhone,
+            relationship: editForm.partnerRelationship,
+          },
+        }),
+      });
+      await openTicket(selectedTicket);
+      await loadData();
+    } catch (err) {
+      window.alert(err.message || "Could not update ticket.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function transferTicket(e) {
+    e.preventDefault();
+    if (!selectedTicket) return;
+    if (!window.confirm(`Transfer this ticket to ${transferForm.toEmail}? The existing QR code will stop working.`)) return;
+    setSaving(true);
+    try {
+      const result = await apiFetch(`/api/admin/events/tickets/${selectedTicket.id}/transfer`, {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify(transferForm),
+      });
+      window.alert(
+        result.recipientHasAccount
+          ? "Ticket transferred and assigned to the recipient’s account."
+          : "Ticket transferred. It will appear when the recipient creates an account with this email."
+      );
+      setTransferForm({ toName: "", toEmail: "", reason: "" });
+      setTransferOpen(false);
+      await openTicket(selectedTicket);
+      await loadData();
+    } catch (err) {
+      window.alert(err.message || "Could not transfer ticket.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function paymentMethodLabel(order) {
     if (!order) return "—";
     if (order.paymentStatus === "complimentary") return "Complimentary";
@@ -155,7 +248,11 @@ export default function AdminTicketsPage() {
 
   function renderTicketRow(t, { readOnly = false } = {}) {
     return (
-      <tr key={t.id} className={readOnly ? "admin-tickets__row--tt" : undefined}>
+      <tr
+        key={t.id}
+        className={`${readOnly ? "admin-tickets__row--tt" : "admin-tickets__row--interactive"}`}
+        onClick={readOnly ? undefined : () => openTicket(t)}
+      >
         <td>
           <span className="admin-tickets__mono">{t.ticketNumber}</span>
           <span className="admin-tickets__sub">{t.order?.orderNumber}</span>
@@ -187,9 +284,10 @@ export default function AdminTicketsPage() {
           ) : null}
         </td>
         <td>{t.checkedIn ? "✓ Yes" : "No"}</td>
-        <td className="admin-tickets__actions">
+        <td className="admin-tickets__actions" onClick={(event) => event.stopPropagation()}>
           {readOnly ? (
             <>
+              <button type="button" onClick={() => openTicket(t)} title="View and edit ticket"><IconEdit size={14} /></button>
               {t.ticketTailor?.qrCodeUrl ? (
                 <a
                   href={t.ticketTailor.qrCodeUrl}
@@ -404,6 +502,69 @@ export default function AdminTicketsPage() {
             <p className="admin-tickets__status admin-tickets__status--empty">
               <IconTicket size={32} /> No tickets found.
             </p>
+          </div>
+        ) : null}
+
+        {selectedTicket ? (
+          <div className="admin-ticket-detail__backdrop" role="presentation" onMouseDown={() => setSelectedTicket(null)}>
+            <aside className="admin-ticket-detail" role="dialog" aria-modal="true" aria-label="Manage ticket" onMouseDown={(e) => e.stopPropagation()}>
+              <header className="admin-ticket-detail__header">
+                <div>
+                  <span>Ticket management</span>
+                  <h2>{selectedTicket.ticketNumber}</h2>
+                </div>
+                <button type="button" onClick={() => setSelectedTicket(null)} aria-label="Close"><IconX /></button>
+              </header>
+
+              {detailLoading || !ticketDetail || !editForm ? (
+                <p className="admin-tickets__status">Loading ticket details…</p>
+              ) : (
+                <div className="admin-ticket-detail__body">
+                  <section className="admin-ticket-detail__summary">
+                    <div><small>Event</small><strong>{ticketDetail.ticket.eventTitle}</strong></div>
+                    <div><small>Ticket type</small><strong>{ticketDetail.ticket.ticketTypeName}</strong></div>
+                    <div><small>Payment</small><strong>{paymentMethodLabel(ticketDetail.ticket.order)}</strong></div>
+                    <div><small>Check-in</small><strong>{ticketDetail.ticket.checkedIn ? "Checked in" : "Not checked in"}</strong></div>
+                  </section>
+
+                  <form className="admin-ticket-detail__form" onSubmit={saveTicketDetails}>
+                    <h3><IconUser /> Holder details</h3>
+                    <label>Full name<input value={editForm.attendeeName} onChange={(e) => setEditForm((f) => ({ ...f, attendeeName: e.target.value }))} required /></label>
+                    <label>Primary email<input type="email" value={editForm.attendeeEmail} onChange={(e) => setEditForm((f) => ({ ...f, attendeeEmail: e.target.value }))} required /></label>
+                    <label className="admin-ticket-detail__wide">Alternate emails <small>Separate multiple addresses with commas.</small><input value={editForm.alternateEmails} onChange={(e) => setEditForm((f) => ({ ...f, alternateEmails: e.target.value }))} placeholder="email1@example.com, email2@example.com" /></label>
+
+                    <h3 className="admin-ticket-detail__wide">Partner / companion details</h3>
+                    <label>Name<input value={editForm.partnerName} onChange={(e) => setEditForm((f) => ({ ...f, partnerName: e.target.value }))} /></label>
+                    <label>Email<input type="email" value={editForm.partnerEmail} onChange={(e) => setEditForm((f) => ({ ...f, partnerEmail: e.target.value }))} /></label>
+                    <label>Phone<input value={editForm.partnerPhone} onChange={(e) => setEditForm((f) => ({ ...f, partnerPhone: e.target.value }))} /></label>
+                    <label>Relationship<input value={editForm.partnerRelationship} onChange={(e) => setEditForm((f) => ({ ...f, partnerRelationship: e.target.value }))} /></label>
+                    <button type="submit" className="admin-tickets__btn admin-tickets__btn--primary admin-ticket-detail__wide" disabled={saving}>
+                      {saving ? "Saving…" : "Save ticket details"}
+                    </button>
+                  </form>
+
+                  <section className="admin-ticket-detail__transfer">
+                    <button type="button" onClick={() => setTransferOpen((value) => !value)}><IconTransfer /> Transfer ticket</button>
+                    <p>Transfers invalidate the current QR code and assign a new QR code to the recipient.</p>
+                    {transferOpen ? (
+                      <form onSubmit={transferTicket}>
+                        <label>Recipient name<input value={transferForm.toName} onChange={(e) => setTransferForm((f) => ({ ...f, toName: e.target.value }))} required /></label>
+                        <label>Recipient email<input type="email" value={transferForm.toEmail} onChange={(e) => setTransferForm((f) => ({ ...f, toEmail: e.target.value }))} required /></label>
+                        <label>Reason<textarea value={transferForm.reason} onChange={(e) => setTransferForm((f) => ({ ...f, reason: e.target.value }))} rows={3} /></label>
+                        <button type="submit" className="admin-tickets__btn admin-tickets__btn--accent" disabled={saving}>Confirm secure transfer</button>
+                      </form>
+                    ) : null}
+                  </section>
+
+                  <section className="admin-ticket-detail__activity">
+                    <h3>Activity</h3>
+                    {ticketDetail.activity?.length ? ticketDetail.activity.map((item) => (
+                      <div key={item.id}><strong>{item.summary || item.action}</strong><time>{new Date(item.createdAt).toLocaleString()}</time></div>
+                    )) : <p>No administrative changes recorded yet.</p>}
+                  </section>
+                </div>
+              )}
+            </aside>
           </div>
         ) : null}
       </div>

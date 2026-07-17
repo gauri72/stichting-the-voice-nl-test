@@ -8,6 +8,9 @@ import { verifyTicketPdfAccess } from "../utils/ticketPdfAccess.js";
 import { formatMoney } from "./ticketPricingService.js";
 import { sendTicketConfirmationEmail } from "./ticketMailer.js";
 import { escapeRegex } from "../utils/regexUtils.js";
+import crypto from "crypto";
+import User from "../models/User.js";
+import { logAdminAction, getAuditLogsForTarget } from "./adminAuditService.js";
 
 export async function listAdminTickets(filters = {}) {
   const {
@@ -141,6 +144,22 @@ export async function updateAdminTicket(ticketId, payload, adminId) {
   if (payload.attendeeEmail !== undefined) {
     ticket.attendeeEmail = String(payload.attendeeEmail).trim().toLowerCase();
   }
+  if (payload.alternateEmails !== undefined) {
+    ticket.alternateEmails = [...new Set(
+      (Array.isArray(payload.alternateEmails) ? payload.alternateEmails : [])
+        .map((email) => String(email || "").trim().toLowerCase())
+        .filter(Boolean)
+    )].slice(0, 5);
+  }
+  if (payload.partnerDetails !== undefined) {
+    const partner = payload.partnerDetails || {};
+    ticket.partnerDetails = {
+      name: String(partner.name || "").trim().slice(0, 160),
+      email: String(partner.email || "").trim().toLowerCase().slice(0, 160),
+      phone: String(partner.phone || "").trim().slice(0, 40),
+      relationship: String(partner.relationship || "").trim().slice(0, 80),
+    };
+  }
   if (payload.ticketTypeId) {
     const tt = await TicketType.findById(payload.ticketTypeId);
     if (!tt) {
@@ -157,7 +176,131 @@ export async function updateAdminTicket(ticketId, payload, adminId) {
   }
 
   await ticket.save();
+  await logAdminAction({
+    adminId,
+    action: "Ticket Details Updated",
+    targetType: "ticket",
+    targetId: ticket._id,
+    summary: `Updated ticket ${ticket.ticketNumber}`,
+    detail: {
+      attendeeName: ticket.attendeeName,
+      attendeeEmail: ticket.attendeeEmail,
+      alternateEmails: ticket.alternateEmails,
+      partnerDetails: ticket.partnerDetails,
+    },
+  });
   return formatTicket(ticket);
+}
+
+export async function getAdminTicketDetail(ticketId) {
+  const ticket = await Ticket.findById(ticketId).lean();
+  if (!ticket) {
+    const err = new Error("Ticket not found.");
+    err.status = 404;
+    throw err;
+  }
+  const [order, event, audits] = await Promise.all([
+    TicketOrder.findById(ticket.orderId).lean(),
+    Event.findById(ticket.eventId).lean(),
+    getAuditLogsForTarget(ticketId, 40),
+  ]);
+  return {
+    ticket: {
+      ...formatTicket(ticket),
+      eventTitle: event?.title || "",
+      eventDate: event?.date || null,
+      order: order ? formatOrder(order) : null,
+    },
+    activity: audits.map((row) => ({
+      id: row._id?.toString(),
+      action: row.action,
+      summary: row.summary,
+      detail: row.detail,
+      createdAt: row.createdAt,
+    })),
+  };
+}
+
+export async function transferAdminTicket(ticketId, payload, adminId) {
+  const ticket = await Ticket.findById(ticketId);
+  if (!ticket) {
+    const err = new Error("Ticket not found.");
+    err.status = 404;
+    throw err;
+  }
+  if (ticket.status !== "valid") {
+    const err = new Error("Only valid tickets can be transferred.");
+    err.status = 409;
+    throw err;
+  }
+  const toName = String(payload.toName || "").trim().slice(0, 160);
+  const toEmail = String(payload.toEmail || "").trim().toLowerCase();
+  if (!toName || !toEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toEmail)) {
+    const err = new Error("A valid recipient name and email are required.");
+    err.status = 400;
+    throw err;
+  }
+  if (toEmail === ticket.attendeeEmail) {
+    const err = new Error("The recipient already owns this ticket.");
+    err.status = 409;
+    throw err;
+  }
+
+  const previous = { name: ticket.attendeeName, email: ticket.attendeeEmail };
+  const recipient = await User.findOne({ email: toEmail }).select("_id").lean();
+  ticket.transferHistory.push({
+    fromName: previous.name,
+    fromEmail: previous.email,
+    toName,
+    toEmail,
+    reason: String(payload.reason || "").trim().slice(0, 500),
+    transferredBy: adminId || null,
+    transferredAt: new Date(),
+  });
+  ticket.attendeeName = toName;
+  ticket.attendeeEmail = toEmail;
+  ticket.assignedUserId = recipient?._id || null;
+  ticket.transferRecipientEmail = toEmail;
+  ticket.verificationToken = crypto.randomBytes(24).toString("hex");
+  ticket.qrCodeUrl = `/api/tickets/qr/${ticket.verificationToken}.png`;
+  ticket.pdfUrl = "";
+  ticket.checkedIn = false;
+  ticket.checkedInAt = null;
+  ticket.checkedInBy = null;
+  await ticket.save();
+
+  await logAdminAction({
+    adminId,
+    action: "Ticket Transferred",
+    targetType: "ticket",
+    targetId: ticket._id,
+    summary: `Transferred ${ticket.ticketNumber} from ${previous.email} to ${toEmail}`,
+    detail: { from: previous, to: { name: toName, email: toEmail }, reason: payload.reason || "" },
+  });
+
+  const [order, event] = await Promise.all([
+    TicketOrder.findById(ticket.orderId).lean(),
+    Event.findById(ticket.eventId).lean(),
+  ]);
+  let emailStatus = "skipped";
+  if (order && event) {
+    try {
+      await sendTicketConfirmationEmail({ order, ticket: ticket.toObject(), event });
+      emailStatus = "sent";
+    } catch {
+      emailStatus = "failed";
+    }
+  }
+  if (previous.email && previous.email !== toEmail) {
+    const { sendSimpleEmail } = await import("./booking/EmailNotificationService.js");
+    await sendSimpleEmail({
+      to: previous.email,
+      subject: `Ticket transfer completed — ${ticket.ticketNumber}`,
+      text: `Your ticket ${ticket.ticketNumber} for ${event?.title || "the event"} has been transferred to ${toName} (${toEmail}). The previous QR code is no longer valid.`,
+      html: `<p>Your ticket <strong>${ticket.ticketNumber}</strong> for <strong>${event?.title || "the event"}</strong> has been transferred to ${toName} (${toEmail}).</p><p>The previous QR code is no longer valid.</p>`,
+    }).catch(() => {});
+  }
+  return { ticket: formatTicket(ticket), recipientHasAccount: Boolean(recipient), emailStatus };
 }
 
 export async function checkInTicket(verificationToken, adminId) {

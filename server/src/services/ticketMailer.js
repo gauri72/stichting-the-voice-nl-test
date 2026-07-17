@@ -338,11 +338,15 @@ export async function sendTicketConfirmationEmail({ order, ticket, event }) {
   const html = buildTicketEmailHtml({ order, ticket, event }, { qrCid });
   const text = buildTicketEmailText({ order, ticket, event });
   const eventTitle = event?.title || "V.O.I.C.E. NL Event";
+  const recipients = [...new Set([
+    ticket.attendeeEmail,
+    ...(Array.isArray(ticket.alternateEmails) ? ticket.alternateEmails : []),
+  ].map((email) => String(email || "").trim().toLowerCase()).filter(Boolean))];
 
   try {
     await transporter.sendMail({
       from: getMailFromAddress(),
-      to: ticket.attendeeEmail,
+      to: recipients,
       subject: `Your ticket for ${eventTitle} — ${ticket.ticketNumber}`,
       text,
       html,
@@ -350,7 +354,7 @@ export async function sendTicketConfirmationEmail({ order, ticket, event }) {
     });
   } catch (error) {
     console.error(
-      `[tickets] confirmation email failed for ${ticket.ticketNumber} → ${ticket.attendeeEmail}:`,
+      `[tickets] confirmation email failed for ${ticket.ticketNumber} → ${recipients.join(", ")}:`,
       error.message
     );
     throw error;
