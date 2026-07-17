@@ -35,7 +35,7 @@ function OrderConfirmation({ cashbackMinor, currency, orderId, onDone }) {
         </div>
       )}
       <div style={{ display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap" }}>
-        <Link to="/vcommerce" className="vco-btn vco-btn--primary">Back to VCommerce</Link>
+        <Link to="/vcommerce" className="vco-btn vco-btn--primary">Back to V.Commerce</Link>
         <Link to="/dashboard" className="vco-btn vco-btn--ghost">My Dashboard</Link>
       </div>
     </div>
@@ -150,7 +150,7 @@ export default function VCommerceCheckoutPage() {
   const appearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
 
   useEffect(() => {
-    document.title = "Checkout — VCommerce";
+    document.title = "Checkout — V.Commerce";
     return () => { document.title = "V.O.I.C.E. NL"; };
   }, []);
 
@@ -214,7 +214,7 @@ export default function VCommerceCheckoutPage() {
         <div className="vco-apply-page__inner vco-apply-page__gate">
           <div className="vco-gate-icon">🛒</div>
           <h1 className="vco-apply-page__title">Your cart is empty</h1>
-          <Link to="/vcommerce" className="vco-btn vco-btn--primary">Browse VCommerce</Link>
+          <Link to="/vcommerce" className="vco-btn vco-btn--primary">Browse V.Commerce</Link>
         </div>
       </div>
     );

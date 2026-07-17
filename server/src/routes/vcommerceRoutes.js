@@ -10,11 +10,16 @@ import {
   getOrderStatusHandler,
   postReviewHandler,
   getReviewsHandler,
+  getStats,
+  getPopularProductsHandler,
 } from "../controllers/vcommerceController.js";
 
 const router = Router();
 
+// Static routes first — always before any /:param wildcards
 router.get("/featured", getFeatured);
+router.get("/stats", getStats);
+router.get("/products/popular", getPopularProductsHandler);
 router.get("/", getList);
 
 // Apply routes — static paths before /:slug

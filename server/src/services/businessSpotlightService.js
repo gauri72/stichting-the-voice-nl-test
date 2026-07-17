@@ -1,5 +1,6 @@
 import BusinessProfile from "../models/BusinessProfile.js";
 import BusinessProduct from "../models/BusinessProduct.js";
+import BusinessOrder from "../models/BusinessOrder.js";
 
 export async function getFeaturedBusiness() {
   const business = await BusinessProfile.findOne({
@@ -7,7 +8,15 @@ export async function getFeaturedBusiness() {
     isFeaturedThisWeek: true,
   }).lean();
 
-  if (!business) return null;
+  // Fetch alternates (up to 5 other active businesses) for the BOTW carousel
+  const alternatesFilter = { status: "active" };
+  if (business) alternatesFilter._id = { $ne: business._id };
+  const alternates = await BusinessProfile.find(alternatesFilter)
+    .sort({ totalOrders: -1, createdAt: -1 })
+    .limit(5)
+    .lean();
+
+  if (!business) return { business: null, alternates };
 
   const products = await BusinessProduct.find({
     businessId: business._id,
@@ -17,7 +26,66 @@ export async function getFeaturedBusiness() {
     .limit(6)
     .lean();
 
-  return { ...business, products };
+  return { business: { ...business, products }, alternates };
+}
+
+/**
+ * Aggregate marketplace-wide statistics.
+ * verifiedBusinesses === activeShops because every listed BusinessProfile
+ * has already cleared the admin review of its BusinessApplication.
+ */
+export async function getMarketplaceStats() {
+  const [activeShops, countries, categories, customerIds] = await Promise.all([
+    BusinessProfile.countDocuments({ status: "active" }),
+    BusinessProfile.distinct("location.country", { status: "active" }),
+    BusinessProfile.distinct("category", { status: "active" }),
+    BusinessOrder.distinct("customerId", { status: { $in: ["paid", "fulfilled"] } }),
+  ]);
+  return {
+    activeShops,
+    verifiedBusinesses: activeShops,
+    customers: customerIds.length,
+    countries: countries.filter(Boolean).length,
+    categories: categories.length,
+  };
+}
+
+/**
+ * Cross-business popular products with parent cashbackPercent attached.
+ * No per-product cashback exists; business.cashbackPercent is the real rate.
+ */
+export async function getPopularProducts({ limit = 12 } = {}) {
+  return BusinessProduct.aggregate([
+    { $match: { isAvailable: true } },
+    {
+      $lookup: {
+        from: "business_profiles",
+        localField: "businessId",
+        foreignField: "_id",
+        as: "business",
+      },
+    },
+    { $unwind: "$business" },
+    { $match: { "business.status": "active" } },
+    { $sort: { isFeatured: -1, "business.totalOrders": -1, sortOrder: 1 } },
+    { $limit: Number(limit) || 12 },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        slug: 1,
+        imageUrls: 1,
+        priceMinor: 1,
+        currency: 1,
+        isFeatured: 1,
+        "business._id": 1,
+        "business.businessName": 1,
+        "business.slug": 1,
+        "business.category": 1,
+        "business.cashbackPercent": 1,
+      },
+    },
+  ]);
 }
 
 export async function listBusinesses({ category, search, page = 1, pageSize = 12 } = {}) {

@@ -6,6 +6,15 @@ export function getVCommerceFeatured() {
   return apiFetch("/api/vcommerce/featured");
 }
 
+export function getVCommerceStats() {
+  return apiFetch("/api/vcommerce/stats");
+}
+
+export function getVCommercePopularProducts(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return apiFetch(`/api/vcommerce/products/popular${qs ? `?${qs}` : ""}`);
+}
+
 export function getVCommerceList(params = {}) {
   const qs = new URLSearchParams(
     Object.entries(params).filter(([, v]) => v !== undefined && v !== "")

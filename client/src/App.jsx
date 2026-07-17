@@ -32,6 +32,9 @@ const VCommercePortalPage = lazy(() => import("./components/dashboard/vcommerce/
 const WholesalerRegistrationPage = lazy(() => import("./components/vcommerce/wholesaler/WholesalerRegistrationPage.jsx"));
 const WholesalerRegistrationSuccessPage = lazy(() => import("./components/vcommerce/wholesaler/WholesalerRegistrationSuccessPage.jsx"));
 const WholesalerPortalPage = lazy(() => import("./components/dashboard/vcommerce/WholesalerPortalPage.jsx"));
+const BusinessesListPage = lazy(() => import("./components/vcommerce/BusinessesListPage.jsx"));
+const VCommerceCategoriesPage = lazy(() => import("./components/vcommerce/VCommerceCategoriesPage.jsx"));
+const VCommerceFavouritesPage = lazy(() => import("./components/vcommerce/VCommerceFavouritesPage.jsx"));
 import AiAssistantPageShell from "./components/dashboard/ai-assistant/AiAssistantPageShell.jsx";
 import AiAssistantOverlay from "./components/dashboard/ai-assistant/AiAssistantOverlay.jsx";
 import MyProfilePage from "./components/profile/MyProfilePage";
@@ -137,6 +140,8 @@ import AdminGlobalDocumentsPage from "./components/admin/operations/AdminGlobalD
 import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
 import ManifestRouter from "./components/pwa/ManifestRouter.jsx";
 import SiteInstallPwaPrompt from "./components/pwa/SiteInstallPwaPrompt.jsx";
+import vcommerceHeaderBrand from "./assets/VCommerce/vcommerce-header-brand.png";
+import vcommerceHeaderBrandTransparent from "./assets/VCommerce/vcommerce-header-brand-transparent.png";
 
 // Enable by setting VITE_MAINTENANCE_MODE=true in your .env / hosting environment.
 const MAINTENANCE_MODE = import.meta.env.VITE_MAINTENANCE_MODE === "true";
@@ -186,6 +191,8 @@ export default function App() {
   const location = useLocation();
   const isStandalonePage =
     location.pathname.startsWith("/admin") || location.pathname === "/check-in";
+  const isVCommerceSubpage =
+    location.pathname.startsWith("/vcommerce/");
   const hideSiteChrome = isStandalonePage;
   const hideSplash = location.pathname === "/check-in";
 
@@ -198,7 +205,18 @@ export default function App() {
       <ManifestRouter />
       <ScrollToHash />
       {!hideSiteChrome && <Header />}
-      <main className={`app-main${isStandalonePage ? " app-main--standalone" : ""}`}>
+      <main className={`app-main${isStandalonePage ? " app-main--standalone" : ""}${isVCommerceSubpage ? " app-main--vcommerce-subpage" : ""}`}>
+        {isVCommerceSubpage ? (
+          <>
+            <Link to="/" className="vcommerce-subpage-brand" aria-label="Stichting The V.O.I.C.E. NL — go to homepage">
+              <img className="vcommerce-subpage-brand__dark" src={vcommerceHeaderBrand} alt="" aria-hidden="true" />
+              <img className="vcommerce-subpage-brand__light" src={vcommerceHeaderBrandTransparent} alt="" aria-hidden="true" />
+            </Link>
+            <Link to="/vcommerce" className="vcommerce-subpage-back" aria-label="Back to V.Commerce main page">
+              <span aria-hidden="true">←</span> Back to V.Commerce
+            </Link>
+          </>
+        ) : null}
         <Routes>
           <Route path="/preview/:pageSlug" element={<PreviewPage />} />
           <Route path="/" element={<HomePage />} />
@@ -219,7 +237,7 @@ export default function App() {
           <Route
             path="/vcommerce"
             element={
-              <Suspense fallback={<div className="member-dashboard__status">Loading VCommerce…</div>}>
+              <Suspense fallback={<div className="member-dashboard__status">Loading V.Commerce…</div>}>
                 <VCommercePage />
               </Suspense>
             }
@@ -263,6 +281,38 @@ export default function App() {
                 <WholesalerRegistrationSuccessPage />
               </Suspense>
             }
+          />
+          <Route
+            path="/vcommerce/businesses"
+            element={
+              <Suspense fallback={<div className="member-dashboard__status">Loading businesses…</div>}>
+                <BusinessesListPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/vcommerce/categories"
+            element={
+              <Suspense fallback={<div className="member-dashboard__status">Loading categories…</div>}>
+                <VCommerceCategoriesPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/vcommerce/favourites"
+            element={
+              <Suspense fallback={<div className="member-dashboard__status">Loading favourites…</div>}>
+                <VCommerceFavouritesPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/vcommerce/orders"
+            element={<div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7a94" }}>Orders — Coming Soon</div>}
+          />
+          <Route
+            path="/vcommerce/deals"
+            element={<div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7a94" }}>Deals — Coming Soon</div>}
           />
           <Route
             path="/vcommerce/:slug"

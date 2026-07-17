@@ -13,6 +13,7 @@ const DEFAULT_BUY_TICKETS_URL =
 function buildDefaultNavItems(t) {
   return [
     { label: t("common:nav.home"), to: "/", end: true },
+    { label: t("common:nav.events"), to: "/events" },
     {
       label: t("common:nav.ourPillars"),
       children: [
@@ -25,9 +26,9 @@ function buildDefaultNavItems(t) {
     {
       label: t("common:nav.partnerWithUs"),
       children: [
-        { label: t("common:nav.becomeMember"), to: "/membership" },
         { label: t("common:nav.sponsorUs"), to: "/sponsorship" },
         { label: t("common:nav.donate"), to: "/donate" },
+        { label: "V.Commerce", to: "/vcommerce" },
       ],
     },
     { label: t("common:nav.aboutUs"), to: "/about-us" },
@@ -56,6 +57,63 @@ function cmsItemsToNav(items = [], defaultNavItems, t) {
     });
 }
 
+function addPartnerWithUsNavigation(items = [], t) {
+  const partnerRoutes = new Set(["/sponsorship", "/donate", "/vcommerce"]);
+  const partnerItem = {
+    label: t("common:nav.partnerWithUs"),
+    children: [
+      { label: t("common:nav.sponsorUs"), to: "/sponsorship" },
+      { label: t("common:nav.donate"), to: "/donate" },
+      { label: "V.Commerce", to: "/vcommerce" },
+    ],
+  };
+  let insertionIndex = items.findIndex((item) =>
+    partnerRoutes.has(item.to) ||
+    item.children?.some((child) => partnerRoutes.has(child.to)) ||
+    String(item.label || "").toLowerCase().includes("partner with us")
+  );
+
+  const remainingItems = items.reduce((result, item) => {
+    const isPartnerGroup =
+      String(item.label || "").toLowerCase().includes("partner with us") ||
+      item.children?.some((child) => partnerRoutes.has(child.to));
+
+    if (partnerRoutes.has(item.to) || isPartnerGroup) return result;
+    result.push(item);
+    return result;
+  }, []);
+
+  if (insertionIndex < 0) {
+    const aboutIndex = remainingItems.findIndex((item) => item.to === "/about-us");
+    insertionIndex = aboutIndex < 0 ? remainingItems.length : aboutIndex;
+  } else {
+    insertionIndex = Math.min(insertionIndex, remainingItems.length);
+  }
+
+  const normalizedItems = [
+    ...remainingItems.slice(0, insertionIndex),
+    partnerItem,
+    ...remainingItems.slice(insertionIndex),
+  ];
+
+  if (!normalizedItems.some((item) => item.to === "/events")) {
+    normalizedItems.push({ label: t("common:nav.events"), to: "/events" });
+  }
+
+  function navigationRank(item) {
+    if (item.to === "/") return 0;
+    if (item.to === "/events") return 1;
+    if (item.children?.some((child) => ["/stories", "/impact", "/voice-venture-studio"].includes(child.to))) return 2;
+    if (item.children?.some((child) => partnerRoutes.has(child.to))) return 3;
+    if (item.to === "/about-us") return 5;
+    return 4;
+  }
+
+  return normalizedItems
+    .filter((item, index, allItems) => item.to !== "/events" || index === allItems.findIndex((candidate) => candidate.to === "/events"))
+    .sort((a, b) => navigationRank(a) - navigationRank(b));
+}
+
 export default function Header() {
   const { t } = useTranslation(["common"]);
   const { header } = useCmsHeader();
@@ -64,7 +122,10 @@ export default function Header() {
   const [openDropdownLabel, setOpenDropdownLabel] = useState(null);
 
   const settings = header?.settings || {};
-  const NAV_ITEMS = cmsItemsToNav(header?.items, buildDefaultNavItems(t), t);
+  const NAV_ITEMS = addPartnerWithUsNavigation(
+    cmsItemsToNav(header?.items, buildDefaultNavItems(t), t),
+    t
+  );
   const buyTicketsUrl = settings.buyTicketsButtonUrl || DEFAULT_BUY_TICKETS_URL;
   const memberText = translateKnownLabel(settings.memberButtonText, t) || t("common:nav.becomeMember");
   const memberUrl = settings.memberButtonUrl || "/membership";

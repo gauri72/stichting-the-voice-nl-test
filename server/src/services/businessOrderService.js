@@ -129,7 +129,7 @@ export async function createOrderIntent(customerId, customerData, businessId, it
       businessId: businessId.toString(),
       customerId: customerId.toString(),
     },
-    description: `VCommerce order at ${business.businessName}`,
+    description: `V.Commerce order at ${business.businessName}`,
   });
 
   // Store the payment intent ID on the order
@@ -164,7 +164,7 @@ export async function fulfillOrder(paymentIntentId) {
     try {
       const { transaction } = await creditWallet(order.customerId, order.cashbackMinor, {
         type: "adminCredit",
-        description: `Cashback from ${order.businessName} via VCommerce`,
+        description: `Cashback from ${order.businessName} via V.Commerce`,
         referenceType: "businessOrder",
         referenceId: order._id.toString(),
         initiatedBy: "system",

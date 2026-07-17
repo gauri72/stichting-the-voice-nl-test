@@ -76,7 +76,7 @@ export default function VCommerceApplicationPage() {
   });
 
   useEffect(() => {
-    document.title = "Apply to VCommerce — V.O.I.C.E. NL";
+    document.title = "Apply to V.Commerce — V.O.I.C.E. NL";
     return () => { document.title = "V.O.I.C.E. NL"; };
   }, []);
 
@@ -150,7 +150,7 @@ export default function VCommerceApplicationPage() {
           <div className="vco-gate-icon">🔒</div>
           <h1 className="vco-apply-page__title">Sign in to Apply</h1>
           <p className="vco-apply-page__subtitle">
-            You need a V.O.I.C.E. NL account to apply for a VCommerce business listing.
+            You need a V.O.I.C.E. NL account to apply for a V.Commerce business listing.
           </p>
           <Link
             to="/my-account?return=/vcommerce/apply"
@@ -159,7 +159,7 @@ export default function VCommerceApplicationPage() {
             Sign in or Create Account
           </Link>
           <Link to="/vcommerce" className="vco-btn vco-btn--ghost">
-            Back to VCommerce
+            Back to V.Commerce
           </Link>
         </div>
       </div>
@@ -200,7 +200,7 @@ export default function VCommerceApplicationPage() {
             Apply as Sponsor / Business instead
           </button>
           <Link to="/vcommerce" className="vco-btn vco-btn--ghost">
-            Back to VCommerce
+            Back to V.Commerce
           </Link>
         </div>
       </div>
@@ -236,7 +236,7 @@ export default function VCommerceApplicationPage() {
             </Link>
           )}
           <Link to="/vcommerce" className="vco-btn vco-btn--ghost">
-            Back to VCommerce
+            Back to V.Commerce
           </Link>
         </div>
       </div>
@@ -248,9 +248,9 @@ export default function VCommerceApplicationPage() {
       <div className="vco-apply-page__inner">
         <div className="vco-apply-page__header">
           <Link to="/vcommerce" className="vco-apply-page__back">
-            ← Back to VCommerce
+            ← Back to V.Commerce
           </Link>
-          <h1 className="vco-apply-page__title">Apply to Join VCommerce</h1>
+          <h1 className="vco-apply-page__title">Apply to Join V.Commerce</h1>
           <p className="vco-apply-page__subtitle">
             List your business, sell products and services, and reach the V.O.I.C.E. NL community. Weekly featured spots available.
           </p>
@@ -463,14 +463,14 @@ export default function VCommerceApplicationPage() {
             <div className="vco-apply-form__section">
               <div className="vco-field">
                 <label className="vco-label" htmlFor="applicationMessage">
-                  Why do you want to join VCommerce? *
+                  Why do you want to join V.Commerce? *
                 </label>
                 <textarea
                   id="applicationMessage"
                   className="vco-input vco-input--textarea"
                   value={form.applicationMessage}
                   onChange={set("applicationMessage")}
-                  placeholder="Tell us about your goals, your community connection, and what you hope to achieve through VCommerce…"
+                  placeholder="Tell us about your goals, your community connection, and what you hope to achieve through V.Commerce…"
                   maxLength={1000}
                   rows={6}
                   required
@@ -489,7 +489,7 @@ export default function VCommerceApplicationPage() {
 
               <p className="vco-apply-form__terms">
                 By submitting, you agree to the{" "}
-                <Link to="/terms-and-conditions" target="_blank">VCommerce Terms &amp; Conditions</Link>.
+                <Link to="/terms-and-conditions" target="_blank">V.Commerce Terms &amp; Conditions</Link>.
                 {form.applicantType === "community_member"
                   ? " Community listings are for women-led businesses within the V.O.I.C.E. NL community."
                   : " Sponsor listings are open to all businesses and brands. Our team reviews applications within 5 days."

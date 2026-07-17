@@ -7,7 +7,7 @@ export default function VCommerceApplicationSuccessPage() {
         <div className="vco-gate-icon">🎉</div>
         <h1 className="vco-apply-page__title">Application Submitted!</h1>
         <p className="vco-apply-page__subtitle">
-          Thank you for applying to VCommerce — V.O.I.C.E. NL Business Spotlight.
+          Thank you for applying to V.Commerce — V.O.I.C.E. NL Business Spotlight.
           Our team will review your application and get back to you within <strong>5 business days</strong>.
         </p>
         <div className="vco-success-steps">
@@ -29,7 +29,7 @@ export default function VCommerceApplicationSuccessPage() {
           </div>
         </div>
         <Link to="/vcommerce" className="vco-btn vco-btn--primary">
-          Explore VCommerce
+          Explore V.Commerce
         </Link>
         <Link to="/dashboard" className="vco-btn vco-btn--ghost">
           Go to My Dashboard

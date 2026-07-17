@@ -84,3 +84,285 @@ body {
   margin: 0 0 1.25rem;
   opacity: 0.85;
 }
+/* V.Commerce sub-pages use the global desktop header, which is absolutely
+   positioned above 1100px. Reserve its height once at the route shell so
+   every present and future marketplace sub-page begins below the header. */
+@media (min-width: 1101px) {
+  .app-main--vcommerce-subpage {
+    position: relative;
+    padding-top: 158px;
+  }
+
+  .vcommerce-subpage-brand {
+    position: absolute;
+    z-index: 1001;
+    top: 14px;
+    left: clamp(18px, 2vw, 34px);
+    width: 68px;
+    height: 88px;
+    display: block;
+    transform-origin: center;
+    transition: transform .3s cubic-bezier(.2,.8,.2,1), filter .3s ease;
+  }
+
+  .vcommerce-subpage-brand img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .vcommerce-subpage-brand__light {
+    display: none !important;
+  }
+
+  .vcommerce-subpage-brand:hover {
+    transform: translateY(-2px) scale(1.055);
+    filter: drop-shadow(0 0 14px rgba(0, 228, 223, .42));
+  }
+
+  .vcommerce-subpage-brand:active {
+    transform: scale(.97);
+  }
+
+  [data-theme="light"] .vcommerce-subpage-brand__dark {
+    display: none !important;
+  }
+
+  [data-theme="light"] .vcommerce-subpage-brand__light {
+    display: block !important;
+    object-fit: contain;
+    filter: invert(1) hue-rotate(180deg) saturate(.9) contrast(1.12);
+  }
+
+  [data-theme="light"] .vcommerce-subpage-brand {
+    filter: drop-shadow(0 5px 12px rgba(16,32,51,.1));
+  }
+
+  [data-theme="light"] .vcommerce-subpage-brand:hover {
+    filter: drop-shadow(0 7px 18px rgba(0,143,168,.28));
+  }
+
+  .vcommerce-subpage-back {
+    top: 116px;
+    left: max(20px, calc((100% - 1100px) / 2));
+  }
+}
+
+@media (max-width: 1100px) {
+  .vcommerce-subpage-brand { display: none; }
+  .app-main--vcommerce-subpage {
+    position: relative;
+    padding-top: 50px;
+  }
+  .vcommerce-subpage-back {
+    top: 9px;
+    left: 20px;
+  }
+}
+
+.vcommerce-subpage-back {
+  position: absolute;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 6px 12px;
+  color: var(--mkt-cyan, #00d4ff);
+  background: rgba(0, 212, 255, .07);
+  border: 1px solid rgba(0, 212, 255, .22);
+  border-radius: 999px;
+  font-family: var(--font-poppins, "Poppins", sans-serif);
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition: transform .28s cubic-bezier(.2,.8,.2,1), background-color .22s ease, border-color .22s ease, box-shadow .3s ease;
+}
+
+.vcommerce-subpage-back span {
+  font-size: 1.1rem;
+  transition: transform .25s ease;
+}
+
+.vcommerce-subpage-back:hover {
+  transform: translateY(-2px);
+  background: rgba(0, 212, 255, .12);
+  border-color: rgba(0, 212, 255, .55);
+  box-shadow: 0 9px 22px rgba(0, 212, 255, .11);
+}
+
+.vcommerce-subpage-back:hover span {
+  transform: translateX(-3px);
+}
+
+.vcommerce-subpage-back:focus-visible {
+  outline: 2px solid var(--mkt-cyan, #00d4ff);
+  outline-offset: 3px;
+}
+
+[data-theme="light"] .vcommerce-subpage-back {
+  color: #007f99;
+  background: rgba(0, 142, 174, .07);
+  border-color: rgba(0, 142, 174, .24);
+}
+
+[data-theme="light"] .vcommerce-subpage-back:hover {
+  background: rgba(0, 142, 174, .12);
+  border-color: rgba(0, 142, 174, .52);
+  box-shadow: 0 9px 22px rgba(0, 142, 174, .12);
+}
+
+/* Shared premium motion for every V.Commerce sub-page. */
+@keyframes vcommerce-subpage-enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.app-main--vcommerce-subpage > * {
+  animation: vcommerce-subpage-enter .58s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.app-main--vcommerce-subpage :is(a, button, input, select, textarea) {
+  transition:
+    color .22s ease,
+    background-color .22s ease,
+    border-color .22s ease,
+    box-shadow .3s ease,
+    transform .3s cubic-bezier(.2,.8,.2,1),
+    opacity .22s ease;
+}
+
+.app-main--vcommerce-subpage :is(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--mkt-cyan, #00d4ff);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(0, 212, 255, .13);
+}
+
+.app-main--vcommerce-subpage :is(.vcohp-category-card, .vcohp-biz-card, .vco-product-card, .vco-applicant-type-card, .vco-success-steps__item, .mkt-success-card__step) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    transform .38s cubic-bezier(.2,.8,.2,1),
+    border-color .3s ease,
+    box-shadow .38s ease,
+    background-color .3s ease;
+}
+
+.app-main--vcommerce-subpage :is(.vcohp-category-card, .vcohp-biz-card, .vco-product-card, .vco-applicant-type-card, .vco-success-steps__item, .mkt-success-card__step)::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 0, rgba(0, 212, 255, .12), transparent 58%);
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+
+.app-main--vcommerce-subpage :is(.vcohp-category-card, .vcohp-biz-card, .vco-product-card, .vco-applicant-type-card, .vco-success-steps__item, .mkt-success-card__step):hover {
+  z-index: 2;
+  transform: translateY(-7px);
+  border-color: rgba(0, 212, 255, .42) !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .26), 0 0 20px rgba(0, 212, 255, .07);
+}
+
+.app-main--vcommerce-subpage :is(.vcohp-category-card, .vcohp-biz-card, .vco-product-card, .vco-applicant-type-card, .vco-success-steps__item, .mkt-success-card__step):hover::after {
+  opacity: 1;
+}
+
+.app-main--vcommerce-subpage .vcohp-category-card > span:first-child,
+.app-main--vcommerce-subpage .vco-applicant-type-card__icon,
+.app-main--vcommerce-subpage .mkt-success-card__icon,
+.app-main--vcommerce-subpage .vco-gate-icon {
+  transition: transform .4s cubic-bezier(.2,.8,.2,1), filter .35s ease;
+}
+
+.app-main--vcommerce-subpage .vcohp-category-card:hover > span:first-child,
+.app-main--vcommerce-subpage .vco-applicant-type-card:hover .vco-applicant-type-card__icon {
+  transform: translateY(-4px) scale(1.12) rotate(-3deg);
+  filter: drop-shadow(0 7px 10px rgba(0, 212, 255, .2));
+}
+
+.app-main--vcommerce-subpage :is(.vcohp-biz-card, .vco-product-card) img {
+  transition: transform .65s cubic-bezier(.2,.8,.2,1), filter .4s ease;
+}
+
+.app-main--vcommerce-subpage :is(.vcohp-biz-card, .vco-product-card):hover img {
+  transform: scale(1.065);
+  filter: saturate(1.08) contrast(1.03);
+}
+
+.app-main--vcommerce-subpage :is(.vco-btn--primary, .vcohp-desk__biz-cta-btn, .vcohp-mob__biz-cta-btn) {
+  position: relative;
+  overflow: hidden;
+}
+
+.app-main--vcommerce-subpage :is(.vco-btn--primary, .vcohp-desk__biz-cta-btn, .vcohp-mob__biz-cta-btn):hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 191, 190, .24);
+  filter: brightness(1.05);
+}
+
+.app-main--vcommerce-subpage :is(.vco-btn--primary, .vcohp-desk__biz-cta-btn, .vcohp-mob__biz-cta-btn):active {
+  transform: translateY(-1px) scale(.985);
+}
+
+.app-main--vcommerce-subpage .vco-btn--ghost:hover {
+  transform: translateY(-2px);
+  border-color: var(--mkt-cyan, #00d4ff);
+  background: rgba(0, 212, 255, .08);
+}
+
+.app-main--vcommerce-subpage :is(.vco-input, input, select, textarea):focus {
+  border-color: var(--mkt-cyan, #00d4ff) !important;
+  box-shadow: 0 0 0 4px rgba(0, 212, 255, .09);
+}
+
+.app-main--vcommerce-subpage :is(.vco-apply-form__section, .mkt-registration__section, .vco-profile-about, .vco-profile-sidebar, .vco-profile-products) {
+  transition: border-color .3s ease, box-shadow .35s ease, transform .35s cubic-bezier(.2,.8,.2,1);
+}
+
+.app-main--vcommerce-subpage :is(.vco-apply-form__section, .mkt-registration__section, .vco-profile-about, .vco-profile-sidebar):hover {
+  border-color: rgba(0, 212, 255, .26);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .12);
+}
+
+.app-main--vcommerce-subpage .vco-social-link:hover {
+  transform: translateY(-3px) scale(1.08);
+  color: var(--mkt-cyan, #00d4ff);
+  box-shadow: 0 8px 20px rgba(0, 212, 255, .15);
+}
+
+.app-main--vcommerce-subpage .vco-profile-hero__banner {
+  transition: transform .9s cubic-bezier(.2,.8,.2,1), filter .45s ease;
+}
+
+.app-main--vcommerce-subpage .vco-profile-hero:hover .vco-profile-hero__banner {
+  transform: scale(1.025);
+  filter: saturate(1.06);
+}
+
+[data-theme="light"] .app-main--vcommerce-subpage :is(.vcohp-category-card, .vcohp-biz-card, .vco-product-card, .vco-applicant-type-card, .vco-success-steps__item, .mkt-success-card__step):hover {
+  box-shadow: 0 18px 40px rgba(31, 71, 101, .14), 0 0 18px rgba(0, 142, 174, .06);
+  border-color: rgba(0, 142, 174, .42) !important;
+}
+
+@media (hover: none) {
+  .app-main--vcommerce-subpage :is(.vcohp-category-card, .vcohp-biz-card, .vco-product-card, .vco-applicant-type-card, .vco-success-steps__item, .mkt-success-card__step):hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-main--vcommerce-subpage *,
+  .app-main--vcommerce-subpage *::before,
+  .app-main--vcommerce-subpage *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

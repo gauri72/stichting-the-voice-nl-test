@@ -1061,7 +1061,7 @@ export default function VCommercePortalPage() {
         <div style={{ fontSize:"3rem",marginBottom:16 }}>🏪</div>
         <h2 style={{ fontSize:"1.5rem",fontWeight:700,marginBottom:12 }}>No Business Found</h2>
         <p style={{ color:"var(--color-text-secondary,#666)",marginBottom:24 }}>
-          {error || "You don't have an approved VCommerce listing yet."}
+          {error || "You don't have an approved V.Commerce listing yet."}
         </p>
         <div style={{ display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap" }}>
           <Link to="/vcommerce/apply" className="vco-btn vco-btn--primary">Apply Now</Link>

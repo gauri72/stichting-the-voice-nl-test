@@ -4,6 +4,7 @@ import FeaturedEventsCarousel from "../events/FeaturedEventsCarousel";
 import GetInvolvedSection from "./GetInvolvedSection";
 import OurPillarsSection from "./OurPillarsSection";
 import SponsorsSection from "./SponsorsSection";
+import VCommerceSpotlightSection from "./VCommerceSpotlightSection.jsx";
 import CmsAwarePage from "../cms/CmsAwarePage.jsx";
 import "../../styles/home-page.css";
 
@@ -13,6 +14,7 @@ function HomePageFallback() {
       <Hero />
       <FeaturedEventsCarousel pageContext="home" variant="fullHero" />
       <OurPillarsSection />
+      <VCommerceSpotlightSection />
       <GetInvolvedSection />
       <ImpactStatsBar />
       <SponsorsSection />
@@ -21,5 +23,5 @@ function HomePageFallback() {
 }
 
 export default function HomePage() {
-  return <CmsAwarePage slug="home" fallback={<HomePageFallback />} />;
+  return <CmsAwarePage slug="home" fallback={<HomePageFallback />} append={<VCommerceSpotlightSection />} />;
 }

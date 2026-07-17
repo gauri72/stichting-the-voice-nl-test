@@ -2,6 +2,8 @@ import {
   getFeaturedBusiness,
   listBusinesses,
   getBusinessBySlug,
+  getMarketplaceStats,
+  getPopularProducts,
 } from "../services/businessSpotlightService.js";
 import {
   getApplicationStatus,
@@ -22,8 +24,27 @@ function fail(res, err) {
 
 export async function getFeatured(req, res) {
   try {
-    const business = await getFeaturedBusiness();
-    ok(res, { business });
+    const { business, alternates } = await getFeaturedBusiness();
+    ok(res, { business, alternates });
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function getStats(req, res) {
+  try {
+    const stats = await getMarketplaceStats();
+    ok(res, stats);
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function getPopularProductsHandler(req, res) {
+  try {
+    const limit = req.query.limit ? Math.min(Number(req.query.limit), 24) : 12;
+    const products = await getPopularProducts({ limit });
+    ok(res, { products });
   } catch (e) {
     fail(res, e);
   }

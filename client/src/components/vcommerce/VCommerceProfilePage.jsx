@@ -243,7 +243,7 @@ export default function VCommerceProfilePage() {
       .then((d) => {
         setData(d);
         if (d?.profile?.businessName) {
-          document.title = `${d.profile.businessName} — VCommerce`;
+          document.title = `${d.profile.businessName} — V.Commerce`;
         }
       })
       .catch((err) => setError(err?.message || "Business not found"))
@@ -269,7 +269,7 @@ export default function VCommerceProfilePage() {
         <p style={{ color:"var(--color-text-secondary,#666)" }}>
           {error || "This business listing isn't available."}
         </p>
-        <Link to="/vcommerce" className="vco-btn vco-btn--primary">Back to VCommerce</Link>
+        <Link to="/vcommerce" className="vco-btn vco-btn--primary">Back to V.Commerce</Link>
       </div>
     );
   }

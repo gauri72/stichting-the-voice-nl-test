@@ -10,6 +10,27 @@
 /* Maps vco-* utilities onto the same CSS vars the rest of the site uses.
    Prefix vco- avoids collision with Tailwind default palette tokens. */
 @theme {
+  /* Marketplace-specific token utilities — bg-vco-mkt-cyan, text-vco-mkt-text, etc. */
+  --color-vco-mkt-bg:               var(--mkt-bg);
+  --color-vco-mkt-surface:          var(--mkt-surface);
+  --color-vco-mkt-surface-elevated: var(--mkt-surface-elevated);
+  --color-vco-mkt-text:             var(--mkt-text);
+  --color-vco-mkt-text-2:           var(--mkt-text-2);
+  --color-vco-mkt-text-muted:       var(--mkt-text-muted);
+  --color-vco-mkt-border:           var(--mkt-border);
+  --color-vco-mkt-border-strong:    var(--mkt-border-strong);
+  --color-vco-mkt-cyan:             var(--mkt-cyan);
+  --color-vco-mkt-cyan-dim:         var(--mkt-cyan-dim);
+  --color-vco-mkt-green:            var(--mkt-green);
+  --color-vco-mkt-blue:             var(--mkt-blue);
+  --color-vco-mkt-purple:           var(--mkt-purple);
+  --color-vco-mkt-gold:             var(--mkt-gold);
+  --color-vco-mkt-pink:             var(--mkt-pink);
+  --radius-vco-mkt-sm:              var(--mkt-radius-sm);
+  --radius-vco-mkt:                 var(--mkt-radius);
+  --radius-vco-mkt-lg:              var(--mkt-radius-lg);
+
+  /* Existing site-wide mappings (unchanged) */
   --color-vco-bg: var(--color-bg);
   --color-vco-bg-muted: var(--color-bg-muted);
   --color-vco-surface: var(--color-surface);

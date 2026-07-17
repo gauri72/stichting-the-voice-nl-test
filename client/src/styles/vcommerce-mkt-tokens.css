@@ -1,0 +1,88 @@
+/* ================================================================
+   V.Commerce Marketplace — Scoped design tokens (.vco-mkt)
+   Applied via `.vco-mkt` on the marketplace page wrapper.
+   Does NOT touch global --color-* tokens in themes.css.
+   ================================================================ */
+
+.vco-mkt,
+[data-theme="light"] .vco-mkt {
+  --mkt-bg:               #f4f8fb;
+  --mkt-surface:          #ffffff;
+  --mkt-surface-elevated: #ffffff;
+  --mkt-surface-subtle:   #f7fafc;
+  --mkt-text:             #071426;
+  --mkt-text-2:           #2d3f56;
+  --mkt-text-muted:       #718096;
+  --mkt-border:           rgba(7,20,38,0.10);
+  --mkt-border-md:        rgba(7,20,38,0.14);
+  --mkt-border-strong:    rgba(0,142,174,0.24);
+  --mkt-cyan:             #008eae;
+  --mkt-cyan-dim:         rgba(0,142,174,0.10);
+  --mkt-green:            #169b62;
+  --mkt-green-dim:        rgba(22,155,98,0.12);
+  --mkt-blue:             #1677d2;
+  --mkt-blue-dim:         rgba(22,119,210,0.12);
+  --mkt-purple:           #7650c9;
+  --mkt-purple-dim:       rgba(118,80,201,0.12);
+  --mkt-gold:             #c88713;
+  --mkt-gold-dim:         rgba(200,135,19,0.12);
+  --mkt-pink:             #d6455d;
+  --mkt-pink-dim:         rgba(214,69,93,0.12);
+  --mkt-shadow:           0 8px 30px rgba(15,42,68,0.08);
+  --mkt-shadow-sm:        0 2px 12px rgba(15,42,68,0.06);
+  --mkt-radius-sm:        12px;
+  --mkt-radius:           18px;
+  --mkt-radius-lg:        24px;
+}
+
+[data-theme="dark"] .vco-mkt {
+  --mkt-bg:               #050816;
+  --mkt-surface:          #0b1020;
+  --mkt-surface-elevated: #10182a;
+  --mkt-surface-subtle:   #080d1a;
+  --mkt-text:             #f8fafc;
+  --mkt-text-2:           #aab6ca;
+  --mkt-text-muted:       #6f7d93;
+  --mkt-border:           rgba(255,255,255,0.08);
+  --mkt-border-md:        rgba(255,255,255,0.12);
+  --mkt-border-strong:    rgba(0,212,255,0.28);
+  --mkt-cyan:             #00d4ff;
+  --mkt-cyan-dim:         rgba(0,212,255,0.10);
+  --mkt-green:            #00ffb2;
+  --mkt-green-dim:        rgba(0,255,178,0.10);
+  --mkt-blue:             #168bff;
+  --mkt-blue-dim:         rgba(22,139,255,0.12);
+  --mkt-purple:           #8b5cf6;
+  --mkt-purple-dim:       rgba(139,92,246,0.14);
+  --mkt-gold:             #f8b84e;
+  --mkt-gold-dim:         rgba(248,184,78,0.14);
+  --mkt-pink:             #ec4899;
+  --mkt-pink-dim:         rgba(236,72,153,0.14);
+  --mkt-shadow:           0 8px 30px rgba(0,0,0,0.45);
+  --mkt-shadow-sm:        0 2px 12px rgba(0,0,0,0.35);
+  --mkt-radius-sm:        12px;
+  --mkt-radius:           18px;
+  --mkt-radius-lg:        24px;
+}
+
+@keyframes mkt-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+.mkt-skeleton {
+  border-radius: var(--mkt-radius-sm);
+  animation: mkt-shimmer 1.5s infinite linear;
+}
+
+[data-theme="dark"] .mkt-skeleton {
+  background: linear-gradient(90deg,#111e35 25%,#1a2d4a 50%,#111e35 75%);
+  background-size: 800px 100%;
+}
+[data-theme="light"] .mkt-skeleton, .mkt-skeleton {
+  background: linear-gradient(90deg,#e8eef4 25%,#f4f8fb 50%,#e8eef4 75%);
+  background-size: 800px 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mkt-skeleton { animation: none; background: var(--mkt-border); }
+}

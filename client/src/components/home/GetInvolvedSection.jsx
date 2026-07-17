@@ -11,6 +11,9 @@ import {
 import VolunteerForm from "../volunteer/VolunteerForm";
 import { useContentOverrides } from "../../hooks/useCmsPage.js";
 import { resolveOverrideText } from "../../i18n/overrideText.js";
+import sponsorCommunityImage from "../../assets/Home/get-involved/sponsor-community-partnership.jpg";
+import donateCommunityImage from "../../assets/Home/get-involved/donate-community-impact.jpg";
+import volunteerCommunityImage from "../../assets/Home/get-involved/volunteer-community-welcome-v-logo-indian-student.jpg";
 import "../../styles/get-involved-section.css";
 import "../../styles/volunteer-page.css";
 
@@ -23,6 +26,7 @@ const linkCards = [
     to: "/sponsorship",
     accent: "magenta",
     Icon: IconHeartHandshake,
+    image: sponsorCommunityImage,
   },
   {
     overrideKey: "involved2",
@@ -32,6 +36,7 @@ const linkCards = [
     to: "/donate",
     accent: "gold",
     Icon: IconCurrencyEuro,
+    image: donateCommunityImage,
   },
 ];
 
@@ -42,6 +47,7 @@ const volunteerCard = {
   descriptionEn: "Give your time and make a real difference.",
   accent: "blue",
   Icon: IconHandLoveYou,
+  image: volunteerCommunityImage,
 };
 
 export default function GetInvolvedSection() {
@@ -79,11 +85,12 @@ export default function GetInvolvedSection() {
     <section className="get-involved-section" aria-label="Get involved">
       <div className="get-involved-section__inner">
         <div className="get-involved-grid">
-          {linkCards.map(({ overrideKey, i18nKey, titleEn, descriptionEn, to, accent, Icon }) => (
+          {linkCards.map(({ overrideKey, i18nKey, titleEn, descriptionEn, to, accent, Icon, image }) => (
             <Link
               key={i18nKey}
-              className={`get-involved-card get-involved-card--${accent}`}
+              className={`get-involved-card get-involved-card--with-image get-involved-card--${accent}`}
               to={overrides[`${overrideKey}Link`] || to}
+              style={{ "--get-involved-image": `url(${image})` }}
             >
               <div className="get-involved-card__icon">
                 <Icon className="get-involved-card__icon-svg" aria-hidden stroke={1.75} />
@@ -104,9 +111,10 @@ export default function GetInvolvedSection() {
 
           <button
             type="button"
-            className={`get-involved-card get-involved-card--${volunteerCard.accent}`}
+            className={`get-involved-card get-involved-card--with-image get-involved-card--${volunteerCard.accent}`}
             onClick={openModal}
             aria-haspopup="dialog"
+            style={{ "--get-involved-image": `url(${volunteerCard.image})` }}
           >
             <div className="get-involved-card__icon">
               <IconHandLoveYou className="get-involved-card__icon-svg" aria-hidden stroke={1.75} />

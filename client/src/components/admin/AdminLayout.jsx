@@ -114,7 +114,7 @@ const NAV_ITEMS = [
   { to: "/admin/reports", label: "Reports", icon: IconChartBar },
   { to: "/admin/personal-ai", label: "Personal AI Assistant", icon: IconSparkles },
   { to: "/admin/wallet", label: "V.Wallet", icon: IconWallet },
-  { to: "/admin/vcommerce", label: "VCommerce", icon: IconShoppingBag },
+  { to: "/admin/vcommerce", label: "V.Commerce", icon: IconShoppingBag },
   { to: "/admin/icon-library", label: "V Icon Library", icon: IconShape },
   { to: "/admin/api-builder", label: "Smart API Builder", icon: IconApi },
   {

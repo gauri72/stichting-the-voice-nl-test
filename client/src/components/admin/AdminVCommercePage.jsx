@@ -644,7 +644,7 @@ export default function AdminVCommercePage() {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
-    <AdminLayout pageTitle="VCommerce" pageSubtitle="Manage business applications, listings, orders and payouts">
+    <AdminLayout pageTitle="V.Commerce" pageSubtitle="Manage business applications, listings, orders and payouts">
       <div style={{ padding: "0 0 32px" }}>
         <div style={{ display: "flex", gap: 4, borderBottom: "1px solid var(--ad-border,rgba(128,128,128,0.15))", marginBottom: 28, overflowX: "auto" }}>
           {TABS.map((tab, i) => (
