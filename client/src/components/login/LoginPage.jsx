@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../contexts/AuthContext.jsx";
-import { getReturnTo } from "../../utils/authRedirect.js";
+import { clearAuthIntent, getReturnTo, readAuthIntent } from "../../utils/authRedirect.js";
 import LoginBreadcrumbSection from "./LoginBreadcrumbSection";
 import LoginFormSection from "./LoginFormSection";
 import LoginCtaSection from "./LoginCtaSection";
@@ -14,6 +14,7 @@ export default function LoginPage() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const returnTo = getReturnTo(searchParams, location.state);
+  const journey = searchParams.get("journey") || readAuthIntent()?.journey || "account";
   const [authMode, setAuthMode] = useState(() => {
     if (searchParams.get("mode") === "signup") return "signup";
     return location.state?.authMode === "forgot-password" ? "forgot-password" : "login";
@@ -26,6 +27,10 @@ export default function LoginPage() {
       setAuthMode(location.state.authMode);
     }
   }, [location.state?.authMode, searchParams]);
+
+  useEffect(() => {
+    if (!loading && user) clearAuthIntent();
+  }, [loading, user]);
 
   const sessionExpired = Boolean(location.state?.sessionExpired);
 
@@ -47,6 +52,7 @@ export default function LoginPage() {
         mode={authMode}
         onModeChange={setAuthMode}
         returnTo={returnTo}
+        journey={journey}
         prefillEmail={prefillEmail}
       />
       <LoginCtaSection />

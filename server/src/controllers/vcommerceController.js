@@ -12,6 +12,10 @@ import {
 import { getOrderStatus, createOrderIntent } from "../services/businessOrderService.js";
 import { postReview, getReviews } from "../services/businessReviewService.js";
 import { checkRateLimit } from "../utils/rateLimit.js";
+import {
+  createApplicationPackageCheckout,
+  confirmApplicationPackageCheckout,
+} from "../services/vcommercePackageService.js";
 
 function ok(res, data, status = 200) {
   return res.status(status).json(data);
@@ -90,9 +94,24 @@ export async function postApply(req, res) {
       return res.status(429).json({ error: "Too many applications. Please wait before trying again." });
     }
     const application = await createApplication(req.user.id, req.body);
-    return ok(res, { application }, 201);
+    const origin = req.get("origin") || `${req.protocol}://${req.get("host")}`;
+    const checkout = await createApplicationPackageCheckout(req.user.id, application, origin);
+    return ok(res, { application, ...checkout }, 201);
   } catch (e) {
     return fail(res, e);
+  }
+}
+
+export async function confirmApplicationPayment(req, res) {
+  try {
+    const result = await confirmApplicationPackageCheckout(req.user.id, req.query.sessionId);
+    ok(res, {
+      applicationStatus: result.application.status,
+      businessId: result.business._id,
+      businessSlug: result.business.slug,
+    });
+  } catch (e) {
+    fail(res, e);
   }
 }
 

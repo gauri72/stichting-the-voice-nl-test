@@ -18,6 +18,10 @@ import {
   getProductsTemplate,
   getMyImportHistory,
   getMyReferralLink,
+  postConnectOnboarding,
+  getConnectStatus,
+  postPackageCheckout,
+  postSubmitForReview,
 } from "../controllers/vcommercePortalController.js";
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
@@ -31,6 +35,10 @@ router.get("/me", getMyBusiness);
 router.patch("/me", patchMyBusiness);
 router.post("/me/upload/:field", uploadBusinessImage);
 router.get("/me/referral-link", getMyReferralLink);
+router.get("/me/connect/status", getConnectStatus);
+router.post("/me/connect/onboarding", postConnectOnboarding);
+router.post("/me/package/checkout", postPackageCheckout);
+router.post("/me/submit-review", postSubmitForReview);
 
 // Products — static paths before /:productId
 router.get("/me/products/template", getProductsTemplate);

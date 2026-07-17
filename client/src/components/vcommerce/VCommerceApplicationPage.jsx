@@ -1,22 +1,27 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
-import { getApplyStatus, postApply } from "./shared/vcommerceApi.js";
+import { confirmApplicationPackagePayment, getApplyStatus, postApply } from "./shared/vcommerceApi.js";
 import { BUSINESS_CATEGORIES, BUSINESS_CATEGORY_LABELS } from "./shared/BUSINESS_CATEGORIES.js";
+import { SELLING_MODES, VCOMMERCE_PLANS } from "./shared/VCOMMERCE_PLANS.js";
+import "../../styles/vcommerce-marketplace.css";
+import { buildLoginUrl } from "../../utils/authRedirect.js";
 
-const STEPS = ["Your Business", "Contact & Links", "Application"];
+const STEPS = ["Your Business", "Selling Setup", "Contact & Links", "Review"];
+const APPLICATION_DRAFT_KEY = "vcommerce_application_draft";
+
+function readApplicationDraft() {
+  try {
+    return JSON.parse(sessionStorage.getItem(APPLICATION_DRAFT_KEY) || "null") || {};
+  } catch {
+    return {};
+  }
+}
 
 const STATUS_LABELS = {
   pending: "Under Review",
   approved: "Approved",
   rejected: "Not Approved",
-};
-
-const FAMILY_PLAN_NAMES = {
-  privilegedFamily: "Privileged Family",
-  premiumFamily: "Premium Family",
-  family: "Family",
-  privileged: "Privileged",
 };
 
 function StepIndicator({ current }) {
@@ -47,17 +52,22 @@ function StatusBadge({ status }) {
 }
 
 export default function VCommerceApplicationPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [statusData, setStatusData] = useState(null);
   const [statusLoading, setStatusLoading] = useState(false);
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [confirmingPayment, setConfirmingPayment] = useState(false);
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState(() => ({
     applicantType: "community_member",
+    sellingMode: "hosted",
+    packageId: "starter",
+    billingCycle: "monthly",
     businessName: "",
     category: "",
     tagline: "",
@@ -73,7 +83,8 @@ export default function VCommerceApplicationPage() {
     companyRegistrationNumber: "",
     vatNumber: "",
     applicationMessage: "",
-  });
+    ...readApplicationDraft(),
+  }));
 
   useEffect(() => {
     document.title = "Apply to V.Commerce — V.O.I.C.E. NL";
@@ -91,13 +102,55 @@ export default function VCommerceApplicationPage() {
   }, [user]);
 
   useEffect(() => {
+    const draft = statusData?.applicationDraft;
+    if (!draft) return;
+    setForm((current) => ({
+      ...current,
+      ...draft,
+      instagram: draft.socialLinks?.instagram || current.instagram,
+      facebook: draft.socialLinks?.facebook || current.facebook,
+      linkedin: draft.socialLinks?.linkedin || current.linkedin,
+      tiktok: draft.socialLinks?.tiktok || current.tiktok,
+      whatsapp: draft.socialLinks?.whatsapp || current.whatsapp,
+    }));
+  }, [statusData?.applicationDraft]);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(APPLICATION_DRAFT_KEY, JSON.stringify(form));
+    } catch {
+      // The form still works when storage is unavailable.
+    }
+  }, [form]);
+
+  useEffect(() => {
     if (statusData?.hasApprovedBusiness) {
       navigate("/dashboard/vcommerce", { replace: true });
     }
   }, [statusData, navigate]);
 
+  useEffect(() => {
+    const sessionId = searchParams.get("session_id");
+    if (searchParams.get("payment") !== "success" || !sessionId || !user) return;
+    setConfirmingPayment(true);
+    confirmApplicationPackagePayment(sessionId)
+      .then(() => {
+        try { sessionStorage.removeItem(APPLICATION_DRAFT_KEY); } catch { /* no-op */ }
+        navigate("/dashboard/vcommerce?onboarding=1&payment=success", { replace: true });
+      })
+      .catch((err) => {
+        setError(err?.message || "We could not verify your package payment.");
+        setConfirmingPayment(false);
+      });
+  }, [navigate, searchParams, user]);
+
   function set(field) {
     return (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+  }
+
+  function handleSwitchAccount() {
+    logout();
+    navigate(buildLoginUrl("/vcommerce/apply", { journey: "business-onboarding" }), { replace: true });
   }
 
   async function handleSubmit(e) {
@@ -105,8 +158,11 @@ export default function VCommerceApplicationPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await postApply({
+      const result = await postApply({
         applicantType: form.applicantType,
+        sellingMode: form.sellingMode,
+        packageId: form.packageId,
+        billingCycle: form.billingCycle,
         businessName: form.businessName,
         category: form.category,
         tagline: form.tagline,
@@ -125,7 +181,8 @@ export default function VCommerceApplicationPage() {
         vatNumber: form.vatNumber,
         applicationMessage: form.applicationMessage,
       });
-      navigate("/vcommerce/apply/success");
+      if (!result?.url) throw new Error("Secure package checkout could not be started.");
+      window.location.assign(result.url);
     } catch (err) {
       setError(err?.message || "Something went wrong. Please try again.");
       setSubmitting(false);
@@ -142,6 +199,18 @@ export default function VCommerceApplicationPage() {
     );
   }
 
+  if (confirmingPayment) {
+    return (
+      <div className="vco-apply-page">
+        <div className="vco-apply-page__inner vco-apply-page__gate">
+          <div className="vco-payment-orbit" aria-hidden="true"><span /><span /><span /></div>
+          <h1 className="vco-apply-page__title">Preparing your business workspace</h1>
+          <p className="vco-apply-page__subtitle">Payment received. We’re securely creating your private V.Commerce setup area.</p>
+        </div>
+      </div>
+    );
+  }
+
   // Auth gate
   if (!user) {
     return (
@@ -153,7 +222,12 @@ export default function VCommerceApplicationPage() {
             You need a V.O.I.C.E. NL account to apply for a V.Commerce business listing.
           </p>
           <Link
-            to="/my-account?return=/vcommerce/apply"
+            to={buildLoginUrl(
+              searchParams.get("payment") === "success"
+                ? `/vcommerce/apply?${searchParams.toString()}`
+                : "/vcommerce/apply",
+              { journey: "business-onboarding" }
+            )}
             className="vco-btn vco-btn--primary"
           >
             Sign in or Create Account
@@ -170,45 +244,14 @@ export default function VCommerceApplicationPage() {
     return (
       <div className="vco-apply-page">
         <div className="vco-apply-page__inner">
-          <p className="vco-apply-page__loading">Checking your membership…</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Membership gate — only for community members, not sponsors
-  if (statusData && !statusData.hasFamilyMembership && form.applicantType === "community_member") {
-    return (
-      <div className="vco-apply-page">
-        <div className="vco-apply-page__inner vco-apply-page__gate">
-          <div className="vco-gate-icon">👑</div>
-          <h1 className="vco-apply-page__title">Family Membership Required</h1>
-          <p className="vco-apply-page__subtitle">
-            Community member listings are exclusive to Family Membership holders. Upgrade your membership to
-            apply, or apply as a Sponsor / Business below.
-          </p>
-          <div className="vco-apply-page__plan-list">
-            {Object.entries(FAMILY_PLAN_NAMES).map(([, name]) => (
-              <div key={name} className="vco-plan-pill">✓ {name}</div>
-            ))}
-          </div>
-          <Link to="/membership" className="vco-btn vco-btn--primary">
-            Explore Membership Plans
-          </Link>
-          <button type="button" className="vco-btn vco-btn--ghost"
-            onClick={() => setForm((f) => ({ ...f, applicantType: "sponsor" }))}>
-            Apply as Sponsor / Business instead
-          </button>
-          <Link to="/vcommerce" className="vco-btn vco-btn--ghost">
-            Back to V.Commerce
-          </Link>
+          <p className="vco-apply-page__loading">Preparing your business setup…</p>
         </div>
       </div>
     );
   }
 
   // Already applied — show status tracker
-  if (statusData?.alreadyApplied && statusData.applicationStatus !== "rejected") {
+  if (statusData?.alreadyApplied && ["setup", "pending", "approved"].includes(statusData.applicationStatus)) {
     return (
       <div className="vco-apply-page">
         <div className="vco-apply-page__inner vco-apply-page__gate">
@@ -229,6 +272,24 @@ export default function VCommerceApplicationPage() {
                 Congratulations! Your business has been approved. Go to your dashboard to set up your storefront.
               </p>
             )}
+          </div>
+          <div className="vco-status-account">
+            <div className="vco-status-account__identity">
+              <span className="vco-status-account__avatar" aria-hidden="true">
+                {(user?.firstName || user?.email || "A").charAt(0).toUpperCase()}
+              </span>
+              <span>
+                <small>Signed in as</small>
+                <strong>{user?.email || "Your account"}</strong>
+              </span>
+            </div>
+            <p>
+              One application can be under review per account. To apply for a different business using another
+              account, sign out and continue with that account.
+            </p>
+            <button type="button" className="vco-btn vco-btn--switch-account" onClick={handleSwitchAccount}>
+              <span aria-hidden="true">↪</span> Sign out and use another account
+            </button>
           </div>
           {statusData.applicationStatus === "approved" && (
             <Link to="/dashboard/vcommerce" className="vco-btn vco-btn--primary">
@@ -275,7 +336,7 @@ export default function VCommerceApplicationPage() {
                       value: "community_member",
                       icon: "👩",
                       title: "Community Member",
-                      desc: "Women-led businesses from the V.O.I.C.E. NL community (Family Membership required)",
+                      desc: "Independent, local and community-led businesses. No membership is required.",
                     },
                     {
                       value: "sponsor",
@@ -393,6 +454,51 @@ export default function VCommerceApplicationPage() {
           )}
 
           {step === 1 && (
+            <div className="vco-apply-form__section vco-commercial-step">
+              <div>
+                <span className="vco-kicker">Choose how you sell</span>
+                <h2 className="vco-commercial-step__title">Your shop, your way</h2>
+                <p className="vco-commercial-step__intro">No website? No problem. V.Commerce can become your complete online storefront.</p>
+              </div>
+              <div className="vco-selling-grid">
+                {SELLING_MODES.map((mode) => (
+                  <button key={mode.id} type="button"
+                    className={`vco-selling-card${form.sellingMode === mode.id ? " is-selected" : ""}`}
+                    onClick={() => setForm((f) => ({ ...f, sellingMode: mode.id }))}>
+                    <span className="vco-selling-card__icon">{mode.icon}</span>
+                    <strong>{mode.name}</strong>
+                    <span>{mode.description}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="vco-billing-toggle" aria-label="Billing cycle">
+                {["monthly", "annual"].map((cycle) => (
+                  <button key={cycle} type="button" className={form.billingCycle === cycle ? "is-active" : ""}
+                    onClick={() => setForm((f) => ({ ...f, billingCycle: cycle }))}>
+                    {cycle === "monthly" ? "Monthly" : "Annual · save more"}
+                  </button>
+                ))}
+              </div>
+              <div className="vco-plan-grid">
+                {VCOMMERCE_PLANS.map((plan) => (
+                  <button key={plan.id} type="button"
+                    className={`vco-plan-card vco-plan-card--${plan.accent}${form.packageId === plan.id ? " is-selected" : ""}`}
+                    onClick={() => setForm((f) => ({ ...f, packageId: plan.id }))}>
+                    {plan.id === "growth" && <span className="vco-plan-card__flag">Most popular</span>}
+                    <span className="vco-plan-card__name">{plan.name}</span>
+                    <span className="vco-plan-card__price">{form.billingCycle === "annual" ? plan.annual : plan.monthly}<small>/{form.billingCycle === "annual" ? "year" : "month"}</small></span>
+                    <span className="vco-plan-card__founding">Founding offer from {plan.founding}/month</span>
+                    <ul>{plan.features.map((feature) => <li key={feature}>✓ {feature}</li>)}</ul>
+                  </button>
+                ))}
+              </div>
+              <div className="vco-fee-notice">
+                <strong>Simple and transparent:</strong> V.Commerce retains 5% only on sales completed through our checkout. Seller payouts are normally initiated on the fifth business day after successful payment.
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
             <div className="vco-apply-form__section">
               <div className="vco-field">
                 <label className="vco-label" htmlFor="contactEmail">Contact Email *</label>
@@ -459,7 +565,7 @@ export default function VCommerceApplicationPage() {
             </div>
           )}
 
-          {step === 2 && (
+          {step === 3 && (
             <div className="vco-apply-form__section">
               <div className="vco-field">
                 <label className="vco-label" htmlFor="applicationMessage">
@@ -484,17 +590,15 @@ export default function VCommerceApplicationPage() {
                   <div><span>Business:</span> <strong>{form.businessName || "—"}</strong></div>
                   <div><span>Category:</span> <strong>{BUSINESS_CATEGORY_LABELS[form.category] || "—"}</strong></div>
                   <div><span>Email:</span> <strong>{form.contactEmail || "—"}</strong></div>
+                  <div><span>Selling:</span> <strong>{SELLING_MODES.find((m) => m.id === form.sellingMode)?.name}</strong></div>
+                  <div><span>Package:</span> <strong>{VCOMMERCE_PLANS.find((p) => p.id === form.packageId)?.name}</strong></div>
                 </div>
               </div>
 
               <p className="vco-apply-form__terms">
                 By submitting, you agree to the{" "}
                 <Link to="/terms-and-conditions" target="_blank">V.Commerce Terms &amp; Conditions</Link>.
-                {form.applicantType === "community_member"
-                  ? " Community listings are for women-led businesses within the V.O.I.C.E. NL community."
-                  : " Sponsor listings are open to all businesses and brands. Our team reviews applications within 5 days."
-                }{" "}
-                Platform fee is 0% by default.
+                {" "}Our team normally reviews complete applications within 5 business days. Hosted V.Commerce sales carry a transparent 5% platform fee.
               </p>
 
               {error && <p className="vco-apply-form__error">{error}</p>}
@@ -527,7 +631,7 @@ export default function VCommerceApplicationPage() {
                 className="vco-btn vco-btn--primary"
                 disabled={submitting}
               >
-                {submitting ? "Submitting…" : "Submit Application"}
+                {submitting ? "Opening secure checkout…" : "Continue to Secure Payment"}
               </button>
             )}
           </div>

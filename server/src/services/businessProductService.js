@@ -1,5 +1,6 @@
 import BusinessProduct from "../models/BusinessProduct.js";
 import BusinessProfile from "../models/BusinessProfile.js";
+import { resolveVCommercePlan } from "../config/vcommercePlans.js";
 
 function generateSlug(name) {
   return name
@@ -41,7 +42,14 @@ export async function listProducts(businessId) {
 }
 
 export async function createProduct(userId, businessId, data) {
-  await assertOwnership(businessId, userId);
+  const business = await assertOwnership(businessId, userId);
+  const plan = resolveVCommercePlan(business.packageId);
+  const currentCount = await BusinessProduct.countDocuments({ businessId });
+  if (currentCount >= plan.productLimit) {
+    const err = new Error(`${plan.name} supports up to ${plan.productLimit} products. Upgrade your package to add more.`);
+    err.status = 403;
+    throw err;
+  }
 
   const baseSlug = generateSlug(data.name);
   const slug = await makeUniqueProductSlug(businessId, baseSlug);

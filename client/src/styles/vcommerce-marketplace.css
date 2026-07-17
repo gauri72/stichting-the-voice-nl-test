@@ -664,3 +664,497 @@
   background: #fff;
   border-color: rgba(0, 0, 0, 0.08);
 }
+
+/* ── V.Commerce commercial experience ── */
+
+.vco-commercial-step,
+.vco-portal-motion {
+  animation: vco-rise-in 560ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+.vco-kicker {
+  display: inline-block;
+  color: #12d8cf;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.vco-commercial-step__title,
+.vco-promotions__intro h2,
+.vco-seller-hero h2 {
+  margin: .45rem 0 .35rem;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  letter-spacing: -.035em;
+}
+
+.vco-commercial-step__intro,
+.vco-promotions__intro p,
+.vco-seller-hero p {
+  color: var(--color-text-secondary, #657184);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.vco-selling-grid,
+.vco-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.vco-selling-card,
+.vco-plan-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-border, rgba(14, 165, 233, .2));
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(18, 216, 207, .12), transparent 42%),
+    var(--color-card-bg, #fff);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: transform 280ms cubic-bezier(.2,.8,.2,1), border-color 280ms, box-shadow 280ms;
+}
+
+.vco-selling-card {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+}
+
+.vco-selling-card > span:last-child {
+  color: var(--color-text-secondary, #657184);
+  font-size: .8rem;
+  line-height: 1.5;
+}
+
+.vco-selling-card__icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: rgba(18, 216, 207, .1);
+  font-size: 1.25rem;
+}
+
+.vco-selling-card:hover,
+.vco-plan-card:hover,
+.vco-promotion-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(18, 216, 207, .72);
+  box-shadow: 0 20px 45px rgba(2, 16, 35, .16), 0 0 0 1px rgba(18, 216, 207, .08);
+}
+
+.vco-selling-card.is-selected,
+.vco-plan-card.is-selected {
+  border-color: #12d8cf;
+  box-shadow: 0 0 0 3px rgba(18, 216, 207, .12), 0 16px 38px rgba(18, 216, 207, .1);
+}
+
+.vco-billing-toggle {
+  display: inline-flex;
+  align-self: center;
+  padding: 4px;
+  border: 1px solid var(--color-border, rgba(128,128,128,.18));
+  border-radius: 999px;
+  background: rgba(128,128,128,.06);
+}
+
+.vco-billing-toggle button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: 700 .78rem/1 inherit;
+  padding: 10px 16px;
+}
+
+.vco-billing-toggle button.is-active {
+  color: #001018;
+  background: linear-gradient(120deg, #1ad7f2, #22d27f);
+  box-shadow: 0 8px 24px rgba(18, 216, 207, .2);
+}
+
+.vco-plan-card {
+  display: flex;
+  min-height: 250px;
+  flex-direction: column;
+  padding: 22px;
+}
+
+.vco-plan-card__flag {
+  align-self: flex-start;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  background: linear-gradient(120deg, #7838f5, #be4ee9);
+  color: #fff;
+  font-size: .66rem;
+  font-weight: 800;
+  padding: 5px 9px;
+  text-transform: uppercase;
+}
+
+.vco-plan-card__name { font-size: 1rem; font-weight: 800; }
+.vco-plan-card__price { margin-top: 7px; font-size: 1.7rem; font-weight: 850; letter-spacing: -.04em; }
+.vco-plan-card__price small { color: var(--color-text-secondary, #657184); font-size: .72rem; font-weight: 600; }
+.vco-plan-card__founding { margin-top: 3px; color: #12aa73; font-size: .72rem; font-weight: 700; }
+.vco-plan-card ul { display: grid; gap: 8px; margin: auto 0 0; padding: 18px 0 0; list-style: none; color: var(--color-text-secondary, #657184); font-size: .76rem; }
+
+.vco-fee-notice {
+  padding: 16px 18px;
+  border: 1px solid rgba(18,216,207,.22);
+  border-radius: 15px;
+  background: linear-gradient(110deg, rgba(18,216,207,.09), rgba(70,90,255,.06));
+  font-size: .82rem;
+  line-height: 1.6;
+}
+
+.vco-status-account {
+  display: grid;
+  width: min(100%, 520px);
+  gap: 14px;
+  margin: 8px auto 2px;
+  padding: 18px;
+  border: 1px solid rgba(18, 216, 207, .2);
+  border-radius: 17px;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(18, 216, 207, .1), transparent 40%),
+    var(--color-card-bg, rgba(128,128,128,.04));
+  text-align: left;
+}
+
+.vco-payment-orbit {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 12px;
+  border: 2px solid rgba(18,216,207,.12);
+  border-top-color: #12d8cf;
+  border-radius: 50%;
+  animation: vco-spin 1s linear infinite;
+}
+.vco-payment-orbit span {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #12d8cf;
+  box-shadow: 0 0 18px rgba(18,216,207,.8);
+}
+.vco-payment-orbit span:nth-child(1) { top: 4px; right: 10px; }
+.vco-payment-orbit span:nth-child(2) { right: -1px; bottom: 18px; background: #6d5dfc; }
+.vco-payment-orbit span:nth-child(3) { bottom: 0; left: 18px; background: #18c879; }
+
+@keyframes vco-spin { to { transform: rotate(360deg); } }
+
+.vco-status-account__identity {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.vco-status-account__avatar {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  place-items: center;
+  border: 1px solid rgba(18,216,207,.35);
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(11,191,227,.18), rgba(20,200,120,.18));
+  color: #12bfb5;
+  font-weight: 800;
+}
+
+.vco-status-account__identity span:last-child {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.vco-status-account__identity small {
+  color: var(--color-text-secondary, #7a8698);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.vco-status-account__identity strong {
+  overflow: hidden;
+  font-size: .82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vco-status-account p {
+  margin: 0;
+  color: var(--color-text-secondary, #7a8698);
+  font-size: .76rem;
+  line-height: 1.55;
+}
+
+.vco-btn--switch-account {
+  justify-content: center;
+  border-color: rgba(18,216,207,.35);
+  background: rgba(18,216,207,.06);
+  color: #12bfb5;
+}
+
+.vco-btn--switch-account:hover {
+  border-color: #12d8cf;
+  background: rgba(18,216,207,.12);
+  box-shadow: 0 10px 28px rgba(18,216,207,.12);
+  transform: translateY(-2px);
+}
+
+.vco-seller-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid rgba(18,216,207,.2);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 85% 15%, rgba(80, 50, 245, .2), transparent 30%),
+    radial-gradient(circle at 15% 100%, rgba(18,216,207,.14), transparent 35%),
+    var(--color-card-bg, #fff);
+  box-shadow: 0 24px 70px rgba(2,16,35,.1);
+}
+
+.vco-seller-hero__chips {
+  display: flex;
+  max-width: 270px;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.vco-seller-hero__chips span {
+  padding: 7px 10px;
+  border: 1px solid rgba(18,216,207,.22);
+  border-radius: 999px;
+  background: rgba(18,216,207,.08);
+  font-size: .7rem;
+  font-weight: 700;
+}
+
+.vco-package-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: -8px 0 24px;
+  padding: 16px 18px;
+  border: 1px solid rgba(250,180,40,.28);
+  border-radius: 16px;
+  background: linear-gradient(110deg, rgba(250,180,40,.1), rgba(251,95,178,.06));
+}
+.vco-package-action div { display: grid; gap: 3px; }
+.vco-package-action strong { font-size: .86rem; }
+.vco-package-action div span { color: var(--color-text-secondary,#657184); font-size: .74rem; line-height: 1.45; }
+.vco-package-action button {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(120deg, #f2b62d, #f36db2);
+  color: #171006;
+  cursor: pointer;
+  font: 800 .75rem inherit;
+  padding: 11px 14px;
+  transition: transform 180ms, box-shadow 180ms;
+}
+.vco-package-action button:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(243,109,178,.2); }
+
+.vco-onboarding-panel {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 24px;
+  padding: clamp(20px, 4vw, 30px);
+  border: 1px solid rgba(18,216,207,.25);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(109,93,252,.13), transparent 32%),
+    linear-gradient(130deg, rgba(18,216,207,.08), transparent 55%),
+    var(--color-card-bg,#fff);
+  box-shadow: 0 20px 60px rgba(2,16,35,.1);
+}
+.vco-onboarding-panel__heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+.vco-onboarding-panel__heading h2 { margin: 6px 0 4px; font-size: clamp(1.15rem,3vw,1.55rem); letter-spacing: -.03em; }
+.vco-onboarding-panel__heading p { max-width: 650px; margin: 0; color: var(--color-text-secondary,#657184); font-size: .8rem; line-height: 1.55; }
+.vco-onboarding-panel__progress {
+  display: grid;
+  min-width: 74px;
+  height: 74px;
+  place-items: center;
+  border: 1px solid rgba(18,216,207,.3);
+  border-radius: 50%;
+  background: rgba(18,216,207,.08);
+  color: #12bfb5;
+  font-size: .82rem;
+  font-weight: 800;
+}
+.vco-onboarding-checklist {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+}
+.vco-onboarding-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--color-border,rgba(128,128,128,.15));
+  border-radius: 13px;
+  background: rgba(128,128,128,.035);
+}
+.vco-onboarding-check > span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(128,128,128,.1);
+  color: var(--color-text-secondary,#657184);
+  font-weight: 800;
+}
+.vco-onboarding-check.is-complete { border-color: rgba(24,200,121,.25); background: rgba(24,200,121,.05); }
+.vco-onboarding-check.is-complete > span { background: rgba(24,200,121,.14); color: #18b46f; }
+.vco-onboarding-check div { display: grid; gap: 2px; }
+.vco-onboarding-check strong { font-size: .78rem; }
+.vco-onboarding-check small { color: var(--color-text-secondary,#657184); font-size: .68rem; line-height: 1.35; }
+.vco-onboarding-panel__submit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  border-radius: 13px;
+  background: linear-gradient(120deg,#0bbfe3,#18c879);
+  color: #001018;
+  cursor: pointer;
+  font: 800 .82rem inherit;
+  padding: 13px 16px;
+  box-shadow: 0 12px 30px rgba(18,216,207,.17);
+  transition: transform 180ms,box-shadow 180ms;
+}
+.vco-onboarding-panel__submit:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 16px 36px rgba(18,216,207,.25); }
+.vco-onboarding-panel__submit:disabled { cursor: wait; opacity: .65; }
+.vco-onboarding-panel__message,.vco-review-note {
+  margin: 0;
+  padding: 11px 13px;
+  border-radius: 11px;
+  background: rgba(245,158,11,.09);
+  color: #c77b08;
+  font-size: .75rem;
+  line-height: 1.5;
+}
+.vco-review-state {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 24px;
+  padding: 18px;
+  border: 1px solid rgba(245,158,11,.25);
+  border-radius: 16px;
+  background: rgba(245,158,11,.07);
+}
+.vco-review-state > span { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 50%; background: rgba(245,158,11,.14); color: #d48408; font-weight: 900; }
+.vco-review-state strong { font-size: .86rem; }
+.vco-review-state p { margin: 3px 0 0; color: var(--color-text-secondary,#657184); font-size: .74rem; line-height: 1.45; }
+
+.vco-promotions__intro { max-width: 620px; margin-bottom: 22px; }
+.vco-connect-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  margin-bottom: 18px;
+  padding: 20px;
+  border: 1px solid rgba(18,216,207,.25);
+  border-radius: 18px;
+  background: linear-gradient(115deg, rgba(18,216,207,.1), rgba(69,57,230,.08));
+}
+.vco-connect-card h3 { margin: 6px 0 3px; font-size: 1rem; }
+.vco-connect-card p { margin: 0; color: var(--color-text-secondary,#657184); font-size: .8rem; line-height: 1.5; }
+.vco-connect-card small { display: block; margin-top: 6px; color: #dc2626; }
+.vco-connect-card button {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(120deg, #0bbfe3, #14c878);
+  color: #001018;
+  cursor: pointer;
+  font: 800 .78rem inherit;
+  padding: 11px 16px;
+  box-shadow: 0 10px 28px rgba(18,216,207,.2);
+  transition: transform 180ms, box-shadow 180ms;
+}
+.vco-connect-card button:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(18,216,207,.28); }
+.vco-connect-card button:disabled { cursor: default; opacity: .72; }
+.vco-promotion-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.vco-promotion-card {
+  animation: vco-rise-in 520ms var(--vco-delay, 0ms) cubic-bezier(.2,.8,.2,1) both;
+  padding: 20px;
+  border: 1px solid var(--color-border, rgba(128,128,128,.16));
+  border-radius: 18px;
+  background: var(--color-card-bg, #fff);
+  transition: transform 280ms cubic-bezier(.2,.8,.2,1), border-color 280ms, box-shadow 280ms;
+}
+.vco-promotion-card__eyebrow { color: #12aa9f; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
+.vco-promotion-card h3 { min-height: 2.6em; margin: 8px 0; font-size: .95rem; }
+.vco-promotion-card > strong { display: block; margin-bottom: 18px; font-size: 1.55rem; }
+.vco-promotion-card button {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  border: 1px solid rgba(18,216,207,.3);
+  border-radius: 10px;
+  background: rgba(18,216,207,.07);
+  color: inherit;
+  font: 700 .76rem inherit;
+  padding: 10px 12px;
+}
+
+@keyframes vco-rise-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 760px) {
+  .vco-selling-grid,
+  .vco-plan-grid,
+  .vco-promotion-grid { grid-template-columns: 1fr; }
+  .vco-selling-card, .vco-plan-card { min-height: auto; }
+  .vco-seller-hero { flex-direction: column; }
+  .vco-seller-hero__chips { max-width: none; justify-content: flex-start; }
+  .vco-connect-card { align-items: flex-start; flex-direction: column; }
+  .vco-package-action { align-items: flex-start; flex-direction: column; }
+  .vco-onboarding-panel__heading { align-items: flex-start; flex-direction: column; }
+  .vco-onboarding-checklist { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vco-commercial-step,
+  .vco-portal-motion,
+  .vco-promotion-card { animation: none !important; }
+  .vco-payment-orbit { animation: none !important; }
+  .vco-selling-card,
+  .vco-plan-card,
+  .vco-promotion-card { transition: border-color 120ms !important; }
+  .vco-selling-card:hover,
+  .vco-plan-card:hover,
+  .vco-promotion-card:hover { transform: none; }
+}

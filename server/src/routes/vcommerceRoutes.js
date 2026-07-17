@@ -12,6 +12,7 @@ import {
   getReviewsHandler,
   getStats,
   getPopularProductsHandler,
+  confirmApplicationPayment,
 } from "../controllers/vcommerceController.js";
 
 const router = Router();
@@ -25,6 +26,7 @@ router.get("/", getList);
 // Apply routes — static paths before /:slug
 router.get("/apply/status", requireAuth, getApplyStatus);
 router.post("/apply", requireAuth, postApply);
+router.get("/apply/payment-confirm", requireAuth, confirmApplicationPayment);
 
 // Order status polling (auth required)
 router.get("/order/:orderId/status", requireAuth, getOrderStatusHandler);

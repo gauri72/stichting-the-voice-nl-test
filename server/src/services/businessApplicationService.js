@@ -1,9 +1,8 @@
 import crypto from "crypto";
-import Membership from "../models/Membership.js";
 import BusinessApplication from "../models/BusinessApplication.js";
 import BusinessProfile from "../models/BusinessProfile.js";
-
-const FAMILY_PLAN_IDS = ["privilegedFamily", "premiumFamily", "family", "privileged"];
+import { VCOMMERCE_PLATFORM_FEE_PERCENT, resolveVCommercePlan } from "../config/vcommercePlans.js";
+import BusinessProduct from "../models/BusinessProduct.js";
 
 function generateSlug(name) {
   return name
@@ -25,33 +24,37 @@ async function makeUniqueSlug(base) {
   return slug;
 }
 
-export async function checkFamilyMembership(userId) {
-  const now = new Date();
-  const membership = await Membership.findOne({
-    userId,
-    active: true,
-    planId: { $in: FAMILY_PLAN_IDS },
-    endsAt: { $exists: true, $ne: null, $gt: now },
-  }).lean();
-  return {
-    hasMembership: !!membership,
-    planId: membership?.planId || null,
-  };
-}
-
 export async function getApplicationStatus(userId) {
-  const [application, business, { hasMembership }] = await Promise.all([
+  const [application, business] = await Promise.all([
     BusinessApplication.findOne({ userId }).sort({ createdAt: -1 }).lean(),
     BusinessProfile.findOne({ userId }).lean(),
-    checkFamilyMembership(userId),
   ]);
+  const isLegacyUnpaidPending =
+    application?.status === "pending" && !application.paidAt && !application.businessProfileId;
+  const applicationStatus = isLegacyUnpaidPending ? "payment_pending" : (application?.status || null);
   return {
-    hasFamilyMembership: hasMembership,
     hasApprovedBusiness: !!business,
     businessSlug: business?.slug || null,
     alreadyApplied: !!application,
-    applicationStatus: application?.status || null,
+    applicationStatus,
     reviewNote: application?.status === "rejected" ? (application.reviewNote || "") : "",
+    applicationDraft: applicationStatus === "payment_pending" ? {
+      applicantType: application?.applicantType,
+      sellingMode: application?.sellingMode,
+      packageId: application?.packageId,
+      billingCycle: application?.billingCycle,
+      businessName: application?.businessName,
+      category: application?.category,
+      tagline: application?.tagline,
+      description: application?.description,
+      contactEmail: application?.contactEmail,
+      contactPhone: application?.contactPhone,
+      website: application?.website,
+      socialLinks: application?.socialLinks,
+      companyRegistrationNumber: application?.companyRegistrationNumber,
+      vatNumber: application?.vatNumber,
+      applicationMessage: application?.applicationMessage,
+    } : null,
   };
 }
 
@@ -69,31 +72,32 @@ async function makeUniqueReferralCode() {
 
 export async function createApplication(userId, data) {
   const applicantType = data.applicantType === "sponsor" ? "sponsor" : "community_member";
-  let planId = null;
+  const plan = resolveVCommercePlan(data.packageId);
+  const sellingMode = ["hosted", "external", "hybrid"].includes(data.sellingMode) ? data.sellingMode : "hosted";
+  const billingCycle = data.billingCycle === "annual" ? "annual" : "monthly";
 
-  // Only community members need Family Membership
-  if (applicantType === "community_member") {
-    const { hasMembership, planId: pid } = await checkFamilyMembership(userId);
-    if (!hasMembership) {
-      const err = new Error("A Family Membership is required to apply as a community member.");
-      err.status = 403;
-      throw err;
-    }
-    planId = pid;
-  }
-
-  // Prevent duplicate pending applications
-  const existing = await BusinessApplication.findOne({ userId, status: "pending" });
-  if (existing) {
+  // One in-progress business journey per account. Payment-pending drafts can be
+  // updated and retried without creating duplicate applications.
+  const existing = await BusinessApplication.findOne({
+    userId,
+    status: { $in: ["payment_pending", "setup", "pending", "approved"] },
+  }).sort({ createdAt: -1 });
+  const canResumeLegacyUnpaid =
+    existing?.status === "pending" && !existing.paidAt && !existing.businessProfileId;
+  if (canResumeLegacyUnpaid) existing.status = "payment_pending";
+  if (existing && existing.status !== "payment_pending") {
     const err = new Error("You already have a pending application.");
     err.status = 409;
     throw err;
   }
 
-  const application = await BusinessApplication.create({
+  const applicationData = {
     userId,
-    membershipPlanId: planId || "",
+    membershipPlanId: "",
     applicantType,
+    sellingMode,
+    packageId: plan.id,
+    billingCycle,
     businessName: data.businessName,
     category: data.category,
     description: data.description || "",
@@ -105,8 +109,12 @@ export async function createApplication(userId, data) {
     applicationMessage: data.applicationMessage || "",
     companyRegistrationNumber: data.companyRegistrationNumber || "",
     vatNumber: data.vatNumber || "",
-    status: "pending",
-  });
+    status: "payment_pending",
+  };
+
+  const application = existing
+    ? await BusinessApplication.findByIdAndUpdate(existing._id, { $set: applicationData }, { new: true, runValidators: true })
+    : await BusinessApplication.create(applicationData);
 
   return application;
 }
@@ -149,30 +157,94 @@ export async function reviewApplication(applicationId, adminId, { action, note }
   application.reviewNote = note || "";
 
   if (action === "approve") {
-    const baseSlug = generateSlug(application.businessName);
-    const slug = await makeUniqueSlug(baseSlug);
-    const directReferralCode = await makeUniqueReferralCode();
-
-    const profile = await BusinessProfile.create({
-      userId: application.userId,
-      applicationId: application._id,
-      businessName: application.businessName,
-      slug,
-      tagline: application.tagline,
-      description: application.description,
-      category: application.category,
-      contactEmail: application.contactEmail,
-      contactPhone: application.contactPhone,
-      website: application.website,
-      socialLinks: application.socialLinks,
-      vatNumber: application.vatNumber || "",
-      directReferralCode,
-      status: "active",
-    });
+    let profile = application.businessProfileId
+      ? await BusinessProfile.findById(application.businessProfileId)
+      : null;
+    if (profile) {
+      profile.status = "active";
+      await profile.save();
+    } else {
+      const baseSlug = generateSlug(application.businessName);
+      const slug = await makeUniqueSlug(baseSlug);
+      const directReferralCode = await makeUniqueReferralCode();
+      profile = await BusinessProfile.create({
+        userId: application.userId,
+        applicationId: application._id,
+        businessName: application.businessName,
+        slug,
+        tagline: application.tagline,
+        description: application.description,
+        category: application.category,
+        contactEmail: application.contactEmail,
+        contactPhone: application.contactPhone,
+        website: application.website,
+        sellingMode: application.sellingMode || "hosted",
+        packageId: application.packageId || "starter",
+        billingCycle: application.billingCycle || "monthly",
+        platformFeePercent: VCOMMERCE_PLATFORM_FEE_PERCENT,
+        socialLinks: application.socialLinks,
+        vatNumber: application.vatNumber || "",
+        directReferralCode,
+        status: "active",
+      });
+    }
 
     application.businessProfileId = profile._id;
+  } else if (application.businessProfileId) {
+    await BusinessProfile.findByIdAndUpdate(application.businessProfileId, { $set: { status: "setup" } });
   }
 
   await application.save();
   return application;
+}
+
+export async function submitBusinessForReview(userId) {
+  const business = await BusinessProfile.findOne({ userId });
+  if (!business) {
+    const err = new Error("Your paid business workspace was not found.");
+    err.status = 404;
+    throw err;
+  }
+  const application = await BusinessApplication.findById(business.applicationId);
+  if (!application) {
+    const err = new Error("Business application was not found.");
+    err.status = 404;
+    throw err;
+  }
+  if (business.packageStatus !== "active" || !application.paidAt) {
+    const err = new Error("Activate your V.Commerce package before submitting for verification.");
+    err.status = 409;
+    throw err;
+  }
+
+  const missing = [];
+  if (!business.businessName?.trim()) missing.push("business name");
+  if (!business.category) missing.push("business category");
+  if (!business.description?.trim()) missing.push("brand description");
+  if (!business.contactEmail?.trim()) missing.push("contact email");
+  if (!business.logoUrl?.trim()) missing.push("business logo");
+  if (["hosted", "hybrid"].includes(business.sellingMode)) {
+    const productCount = await BusinessProduct.countDocuments({ businessId: business._id, isAvailable: true });
+    if (productCount < 1) missing.push("at least one available product or service");
+  }
+  if (missing.length) {
+    const err = new Error(`Complete the following before review: ${missing.join(", ")}.`);
+    err.status = 400;
+    err.missing = missing;
+    throw err;
+  }
+
+  application.businessName = business.businessName;
+  application.category = business.category;
+  application.description = business.description;
+  application.tagline = business.tagline;
+  application.contactEmail = business.contactEmail;
+  application.contactPhone = business.contactPhone;
+  application.website = business.website;
+  application.socialLinks = business.socialLinks;
+  application.status = "pending";
+  application.reviewNote = "";
+  business.status = "review";
+  await Promise.all([application.save(), business.save()]);
+  return { application, business };
 }

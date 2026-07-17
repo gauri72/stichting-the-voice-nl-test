@@ -12,6 +12,7 @@ import {
   DASHBOARD_MEMBERSHIP_CARD_ID,
   DASHBOARD_ROUTES,
 } from "../dashboardUtils.js";
+import DashboardVCommerceHighlights from "./DashboardVCommerceHighlights.jsx";
 import "../../../styles/dashboard-stat-cards-section.css";
 
 export default function DashboardStatCardsSection({ overview, hasMembership, planId }) {
@@ -54,11 +55,13 @@ export default function DashboardStatCardsSection({ overview, hasMembership, pla
   ];
 
   return (
-    <section className="dash-stats-section" aria-labelledby="dash-impact-title">
-      <h2 id="dash-impact-title" className="dash-stats-section__title">
-        Your V.O.I.C.E. NL Impact
-      </h2>
-      <div className="dash-stats">
+    <>
+      <DashboardVCommerceHighlights />
+      <section className="dash-stats-section" aria-labelledby="dash-impact-title">
+        <h2 id="dash-impact-title" className="dash-stats-section__title">
+          Your V.O.I.C.E. NL Impact
+        </h2>
+        <div className="dash-stats">
         {cards.map((card) => {
           const isAnchor = card.to.startsWith("#");
           const content = (
@@ -97,7 +100,8 @@ export default function DashboardStatCardsSection({ overview, hasMembership, pla
             </Link>
           );
         })}
-      </div>
-    </section>
+        </div>
+      </section>
+    </>
   );
 }

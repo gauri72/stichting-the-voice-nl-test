@@ -40,6 +40,11 @@ export function postApply(data) {
   });
 }
 
+export function confirmApplicationPackagePayment(sessionId) {
+  const qs = new URLSearchParams({ sessionId }).toString();
+  return apiFetch(`/api/vcommerce/apply/payment-confirm?${qs}`, { headers: authHeaders() });
+}
+
 // --- Orders ---
 
 export function postCreateOrder(businessId, data) {
@@ -155,6 +160,31 @@ export function getMyImportHistory() {
 
 export function getMyReferralLink() {
   return apiFetch("/api/vcommerce-portal/me/referral-link", { headers: authHeaders() });
+}
+
+export function getMyConnectStatus() {
+  return apiFetch("/api/vcommerce-portal/me/connect/status", { headers: authHeaders() });
+}
+
+export function startMyConnectOnboarding() {
+  return apiFetch("/api/vcommerce-portal/me/connect/onboarding", {
+    method: "POST",
+    headers: authHeaders(),
+  });
+}
+
+export function startMyPackageCheckout() {
+  return apiFetch("/api/vcommerce-portal/me/package/checkout", {
+    method: "POST",
+    headers: authHeaders(),
+  });
+}
+
+export function submitMyBusinessForReview() {
+  return apiFetch("/api/vcommerce-portal/me/submit-review", {
+    method: "POST",
+    headers: authHeaders(),
+  });
 }
 
 // --- Public: Reviews ---

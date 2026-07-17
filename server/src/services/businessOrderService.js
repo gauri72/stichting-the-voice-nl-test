@@ -3,6 +3,21 @@ import BusinessProduct from "../models/BusinessProduct.js";
 import BusinessOrder from "../models/BusinessOrder.js";
 import { creditWallet } from "./walletService.js";
 import { getStripe } from "./stripe.js";
+import {
+  VCOMMERCE_PLATFORM_FEE_PERCENT,
+  VCOMMERCE_PAYOUT_DELAY_BUSINESS_DAYS,
+} from "../config/vcommercePlans.js";
+
+export function addBusinessDays(date, count) {
+  const result = new Date(date);
+  let remaining = count;
+  while (remaining > 0) {
+    result.setUTCDate(result.getUTCDate() + 1);
+    const day = result.getUTCDay();
+    if (day !== 0 && day !== 6) remaining -= 1;
+  }
+  return result;
+}
 
 function resolveUnitPrice(product, qty) {
   const tiers = [...(product.bulkPricingTiers ?? [])].sort((a, b) => b.minQty - a.minQty);
@@ -80,16 +95,9 @@ export async function createOrderIntent(customerId, customerData, businessId, it
     throw err;
   }
 
-  // Determine effective commission rate (tiered: reorder or direct-link = lower rate)
-  const isDirect = referralCode && business.directReferralCode && referralCode === business.directReferralCode;
-  const isReorder = await BusinessOrder.exists({
-    businessId,
-    customerId,
-    status: { $in: ["paid", "fulfilled"] },
-  });
-  const effectiveFeePercent = (isDirect || isReorder)
-    ? (business.reorderFeePercent ?? 5)
-    : (business.platformFeePercent ?? 0);
+  // Orders paid on V.Commerce use one clear marketplace rate. Businesses that
+  // send customers to an external site don't create a platform order.
+  const effectiveFeePercent = business.platformFeePercent ?? VCOMMERCE_PLATFORM_FEE_PERCENT;
 
   const cashbackPercent = business.cashbackPercent ?? 5;
 
@@ -157,6 +165,7 @@ export async function fulfillOrder(paymentIntentId) {
   }
 
   order.status = "paid";
+  order.payoutEligibleAt = addBusinessDays(new Date(), VCOMMERCE_PAYOUT_DELAY_BUSINESS_DAYS);
   await order.save();
 
   // Credit cashback to customer V.Wallet

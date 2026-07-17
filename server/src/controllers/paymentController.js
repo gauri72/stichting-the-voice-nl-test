@@ -444,6 +444,19 @@ export async function stripeWebhook(req, res) {
     console.warn("[payments] Webhook idempotency check skipped:", idempotencyErr.message);
   }
 
+  if (
+    event.type === "checkout.session.completed" &&
+    ["vcommerce_package", "vcommerce_application_package"].includes(event.data.object?.metadata?.payment_kind)
+  ) {
+    try {
+      const { activatePackageFromCheckout } = await import("../services/vcommercePackageService.js");
+      await activatePackageFromCheckout(event.data.object);
+    } catch (packageError) {
+      console.error("[payments] V.Commerce package activation failed:", packageError.message);
+      return res.status(500).json({ error: "Package activation failed." });
+    }
+  }
+
   if (event.type === "payment_intent.succeeded") {
     const baseIntent = event.data.object;
 

@@ -3,6 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext.jsx";
 import { postRegisterWholesaler } from "../shared/vcommerceApi.js";
 import "../../../styles/vcommerce-marketplace.css";
+import { buildLoginUrl } from "../../../utils/authRedirect.js";
+
+const WHOLESALER_DRAFT_KEY = "vcommerce_wholesaler_draft";
+
+function readWholesalerDraft() {
+  try {
+    return JSON.parse(sessionStorage.getItem(WHOLESALER_DRAFT_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
 
 const COMPANY_TYPES = [
   { value: "grocery_store", label: "Grocery Store / Supermarket" },
@@ -36,17 +47,34 @@ const EMPTY = {
 export default function WholesalerRegistrationPage() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
-  const [form, setForm] = useState(EMPTY);
+  const draft = readWholesalerDraft();
+  const [step, setStep] = useState(draft?.step === 1 ? 1 : 0);
+  const [form, setForm] = useState(() => draft?.form || EMPTY);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  function persistDraft(nextForm, nextStep = step) {
+    try {
+      sessionStorage.setItem(WHOLESALER_DRAFT_KEY, JSON.stringify({ form: nextForm, step: nextStep }));
+    } catch {
+      // no-op
+    }
+  }
+
   function set(key, value) {
-    setForm((f) => ({ ...f, [key]: value }));
+    setForm((f) => {
+      const next = { ...f, [key]: value };
+      persistDraft(next);
+      return next;
+    });
   }
 
   function setAddr(key, value) {
-    setForm((f) => ({ ...f, address: { ...f.address, [key]: value } }));
+    setForm((f) => {
+      const next = { ...f, address: { ...f.address, [key]: value } };
+      persistDraft(next);
+      return next;
+    });
   }
 
   function validateStep0() {
@@ -66,6 +94,7 @@ export default function WholesalerRegistrationPage() {
     if (err) { setError(err); return; }
     setError("");
     setStep(1);
+    persistDraft(form, 1);
   }
 
   async function handleSubmit(e) {
@@ -76,6 +105,7 @@ export default function WholesalerRegistrationPage() {
     setSubmitting(true);
     try {
       await postRegisterWholesaler(form);
+      try { sessionStorage.removeItem(WHOLESALER_DRAFT_KEY); } catch { /* no-op */ }
       navigate("/vcommerce/wholesaler/register/success");
     } catch (ex) {
       setError(ex.message || "Registration failed. Please try again.");
@@ -90,7 +120,12 @@ export default function WholesalerRegistrationPage() {
         <div className="vco-auth-gate">
           <h2 className="vco-auth-gate__title">Sign in to register as a wholesaler</h2>
           <p className="vco-auth-gate__text">You need an account to apply for a wholesaler account.</p>
-          <Link to="/my-account" className="vco-btn vco-btn--primary">Sign In</Link>
+          <Link
+            to={buildLoginUrl("/vcommerce/wholesaler/register", { journey: "wholesaler-registration" })}
+            className="vco-btn vco-btn--primary"
+          >
+            Sign In &amp; Continue
+          </Link>
         </div>
       </div>
     );

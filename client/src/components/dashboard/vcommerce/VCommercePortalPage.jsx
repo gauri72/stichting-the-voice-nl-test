@@ -17,9 +17,15 @@ import {
   getProductsTemplate,
   getMyImportHistory,
   getMyReferralLink,
+  getMyConnectStatus,
+  startMyConnectOnboarding,
+  startMyPackageCheckout,
+  submitMyBusinessForReview,
 } from "../../vcommerce/shared/vcommerceApi.js";
+import { PROMOTION_OPTIONS, SELLING_MODES, VCOMMERCE_PLANS } from "../../vcommerce/shared/VCOMMERCE_PLANS.js";
+import "../../../styles/vcommerce-marketplace.css";
 
-const TABS = ["Overview", "Products", "Orders", "Payouts", "Settings", "Import"];
+const TABS = ["Overview", "Products", "Orders", "Payouts", "Promote", "Settings", "Import"];
 
 function formatPrice(minor, currency = "eur") {
   if (minor == null) return "—";
@@ -48,12 +54,16 @@ const S = {
 };
 
 // ── Overview tab ──
-function OverviewTab({ business }) {
+function OverviewTab({ business, onRefresh }) {
   const [refLink, setRefLink] = useState(null);
   const [refCopied, setRefCopied] = useState(false);
+  const [productCount, setProductCount] = useState(0);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewMessage, setReviewMessage] = useState("");
 
   useEffect(() => {
     getMyReferralLink().then((d) => setRefLink(d)).catch(() => {});
+    getMyProducts().then((d) => setProductCount(d.products?.filter((product) => product.isAvailable).length || 0)).catch(() => {});
   }, []);
 
   function copyRef() {
@@ -64,8 +74,91 @@ function OverviewTab({ business }) {
     });
   }
 
+  async function activatePackage() {
+    try {
+      const { url } = await startMyPackageCheckout();
+      window.location.assign(url);
+    } catch (err) {
+      window.alert(err?.message || "Package checkout could not be started.");
+    }
+  }
+
+  async function submitForReview() {
+    setSubmittingReview(true);
+    setReviewMessage("");
+    try {
+      await submitMyBusinessForReview();
+      setReviewMessage("Your completed business has been submitted for verification.");
+      onRefresh?.();
+    } catch (err) {
+      setReviewMessage(err?.message || "Your business could not be submitted for review.");
+    } finally {
+      setSubmittingReview(false);
+    }
+  }
+
   return (
-    <div>
+    <div className="vco-portal-motion">
+      <div className="vco-seller-hero">
+        <div>
+          <span className="vco-kicker">V.Commerce seller studio</span>
+          <h2>{SELLING_MODES.find((mode) => mode.id === business.sellingMode)?.name || "Hosted by V.Commerce"}</h2>
+          <p>{business.website ? "Use your V.Commerce shop alongside your existing website." : "Your complete storefront, checkout and order desk—no separate website needed."}</p>
+        </div>
+        <div className="vco-seller-hero__chips">
+          <span>{VCOMMERCE_PLANS.find((plan) => plan.id === business.packageId)?.name || "Starter"} package</span>
+          <span>5% per hosted sale</span>
+          <span>5-business-day payout target</span>
+        </div>
+      </div>
+      {business.packageStatus !== "active" && (
+        <div className="vco-package-action">
+          <div><strong>Activate your {VCOMMERCE_PLANS.find((plan) => plan.id === business.packageId)?.name || "Starter"} package</strong><span>Your listing can be prepared during the trial; package payment activates ongoing marketplace access.</span></div>
+          <button type="button" onClick={activatePackage}>Continue to secure payment <span>→</span></button>
+        </div>
+      )}
+      {business.applicationStatus === "pending" || business.status === "review" ? (
+        <div className="vco-review-state vco-review-state--pending">
+          <span aria-hidden="true">✓</span>
+          <div>
+            <strong>Submitted for verification</strong>
+            <p>Your workspace remains private while our team reviews the completed business details.</p>
+          </div>
+        </div>
+      ) : business.status !== "active" ? (
+        <section className="vco-onboarding-panel">
+          <div className="vco-onboarding-panel__heading">
+            <div>
+              <span className="vco-kicker">Paid workspace · private setup</span>
+              <h2>Complete your storefront before verification</h2>
+              <p>Your business will only appear publicly after you submit these details and an administrator approves them.</p>
+            </div>
+            <span className="vco-onboarding-panel__progress">
+              {[business.packageStatus === "active", Boolean(business.logoUrl), Boolean(business.description), !["hosted", "hybrid"].includes(business.sellingMode) || productCount > 0].filter(Boolean).length}/4 ready
+            </span>
+          </div>
+          {business.applicationReviewNote && (
+            <div className="vco-review-note"><strong>Review feedback:</strong> {business.applicationReviewNote}</div>
+          )}
+          <div className="vco-onboarding-checklist">
+            {[
+              ["Package payment", business.packageStatus === "active", "Secure subscription active"],
+              ["Logo and brand", Boolean(business.logoUrl && business.description), "Add your logo and brand story in Settings"],
+              ["Contact and selling setup", Boolean(business.contactEmail && business.sellingMode), "Confirm how customers buy from you"],
+              ["Products or services", !["hosted", "hybrid"].includes(business.sellingMode) || productCount > 0, `${productCount} available listing${productCount === 1 ? "" : "s"}`],
+            ].map(([label, complete, detail]) => (
+              <div className={`vco-onboarding-check${complete ? " is-complete" : ""}`} key={label}>
+                <span aria-hidden="true">{complete ? "✓" : "○"}</span>
+                <div><strong>{label}</strong><small>{detail}</small></div>
+              </div>
+            ))}
+          </div>
+          {reviewMessage && <p className="vco-onboarding-panel__message" role="status">{reviewMessage}</p>}
+          <button type="button" className="vco-onboarding-panel__submit" onClick={submitForReview} disabled={submittingReview}>
+            {submittingReview ? "Checking your storefront…" : "Submit completed business for verification"} <span>→</span>
+          </button>
+        </section>
+      ) : null}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 16, marginBottom: 24 }}>
         {[
           { label: "Total Revenue", value: formatPrice(business.totalRevenueMinor) },
@@ -93,10 +186,12 @@ function OverviewTab({ business }) {
               <span style={{ ...(S.badge(business.status === "active" ? "green" : "red")) }}>{business.status}</span>
               {business.isFeaturedThisWeek && <span style={S.badge("green")}>⭐ Featured this week</span>}
               {business.avgRating && <span style={S.badge("yellow")}>★ {business.avgRating} ({business.reviewCount} reviews)</span>}
-              <a href={`/vcommerce/${business.slug}`} target="_blank" rel="noopener noreferrer"
-                style={{ fontSize: "0.8rem", color: "var(--color-accent,#8B5CF6)" }}>
-                View public page ↗
-              </a>
+              {business.status === "active" && (
+                <a href={`/vcommerce/${business.slug}`} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: "0.8rem", color: "var(--color-accent,#8B5CF6)" }}>
+                  View public page ↗
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -104,14 +199,14 @@ function OverviewTab({ business }) {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 16 }}>
         <div style={S.card}>
-          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>New Buyer Fee</p>
+          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>V.Commerce Fee</p>
           <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>{business.platformFeePercent}%</p>
-          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>First-time marketplace buyers</p>
+          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>Only on hosted checkout sales</p>
         </div>
         <div style={S.card}>
-          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>Reorder Fee</p>
-          <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>{business.reorderFeePercent ?? 5}%</p>
-          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>Repeat buyers &amp; direct-link orders</p>
+          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>Payout Schedule</p>
+          <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>5 days</p>
+          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>Normally initiated after payment</p>
         </div>
         <div style={S.card}>
           <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>Customer Cashback</p>
@@ -129,9 +224,9 @@ function OverviewTab({ business }) {
 
       {refLink?.url && (
         <div style={{ ...S.card, marginTop: 16 }}>
-          <h3 style={{ margin: "0 0 8px", fontSize: "0.95rem", fontWeight: 700 }}>Your Direct Link (0% commission for introduced buyers)</h3>
+          <h3 style={{ margin: "0 0 8px", fontSize: "0.95rem", fontWeight: 700 }}>Your V.Commerce shop link</h3>
           <p style={{ margin: "0 0 12px", fontSize: "0.82rem", color: "var(--color-text-secondary,#666)" }}>
-            Share this link with your existing wholesale customers. Orders placed through it are charged the lower reorder fee, not the new-buyer rate.
+            Share this link so customers can discover your products and buy securely through your hosted storefront.
           </p>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <code style={{ fontSize: "0.82rem", background: "var(--color-bg-muted,rgba(128,128,128,0.08))", padding: "6px 10px", borderRadius: 6, wordBreak: "break-all", flex: 1 }}>{refLink.url}</code>
@@ -545,18 +640,43 @@ function OrdersTab() {
 function PayoutsTab() {
   const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [connect, setConnect] = useState(null);
+  const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
     getMyPayouts()
       .then((d) => setPayouts(d.payouts || []))
       .catch(() => setPayouts([]))
       .finally(() => setLoading(false));
+    getMyConnectStatus().then(setConnect).catch(() => setConnect({ status: "not_started", payoutsEnabled: false }));
   }, []);
+
+  async function beginConnect() {
+    setConnecting(true);
+    try {
+      const { url } = await startMyConnectOnboarding();
+      window.location.assign(url);
+    } catch (err) {
+      setConnect((current) => ({ ...current, error: err?.message || "Could not start secure payout setup." }));
+      setConnecting(false);
+    }
+  }
 
   return (
     <div>
+      <div className="vco-connect-card">
+        <div>
+          <span className="vco-kicker">Secure seller payouts</span>
+          <h3>{connect?.payoutsEnabled ? "Your payout account is ready" : "Connect your bank account"}</h3>
+          <p>{connect?.payoutsEnabled ? "Identity and payout details are verified through Stripe." : "Complete secure identity and bank verification before receiving marketplace earnings."}</p>
+          {connect?.error && <small>{connect.error}</small>}
+        </div>
+        <button type="button" onClick={beginConnect} disabled={connecting || connect?.payoutsEnabled}>
+          {connect?.payoutsEnabled ? "Verified ✓" : connecting ? "Opening…" : connect?.status === "pending" ? "Continue verification" : "Set up payouts"}
+        </button>
+      </div>
       <p style={{ fontSize:"0.875rem",color:"var(--color-text-secondary,#666)",marginBottom:20,padding:"12px 16px",background:"rgba(139,92,246,0.06)",borderRadius:8 }}>
-        💡 Payouts are processed manually by V.O.I.C.E. NL via bank transfer. Your pending earnings are released in batches. Make sure your IBAN is up to date in Settings.
+        💡 Seller payouts are normally initiated on the fifth business day after successful payment. Verification, refunds, disputes, fraud reviews or unfulfilled orders can temporarily place a payout on hold.
       </p>
       {loading ? (
         <p style={{ color:"var(--color-text-muted,#888)",padding:40,textAlign:"center" }}>Loading…</p>
@@ -593,6 +713,28 @@ function PayoutsTab() {
         </div>
       )}
     </div>
+  );
+}
+
+function PromotionsTab() {
+  return (
+    <section className="vco-promotions" aria-labelledby="vco-promotions-title">
+      <div className="vco-promotions__intro">
+        <span className="vco-kicker">Affordable visibility</span>
+        <h2 id="vco-promotions-title">Put your business in front of more customers</h2>
+        <p>Choose a focused boost when it helps your business. No newsletter bundles and no long commitment.</p>
+      </div>
+      <div className="vco-promotion-grid">
+        {PROMOTION_OPTIONS.map(([name, duration, price], index) => (
+          <article className="vco-promotion-card" key={name} style={{ "--vco-delay": `${index * 55}ms` }}>
+            <span className="vco-promotion-card__eyebrow">{duration}</span>
+            <h3>{name}</h3>
+            <strong>{price}</strong>
+            <button type="button" disabled title="Promotion checkout will be enabled after admin approval">Request promotion <span>→</span></button>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -918,6 +1060,7 @@ function SettingsTab({ business, onRefresh }) {
     contactEmail: business.contactEmail || "",
     contactPhone: business.contactPhone || "",
     website: business.website || "",
+    sellingMode: business.sellingMode || "hosted",
     socialLinks: {
       instagram: business.socialLinks?.instagram || "",
       facebook: business.socialLinks?.facebook || "",
@@ -987,6 +1130,7 @@ function SettingsTab({ business, onRefresh }) {
           <div><label style={S.label}>Contact Email</label><input style={S.input} type="email" value={form.contactEmail} onChange={setField("contactEmail")} /></div>
           <div><label style={S.label}>Contact Phone</label><input style={S.input} type="tel" value={form.contactPhone} onChange={setField("contactPhone")} /></div>
           <div><label style={S.label}>Website</label><input style={S.input} type="url" value={form.website} onChange={setField("website")} placeholder="https://yourwebsite.com" /></div>
+          <div><label style={S.label}>Selling setup</label><select style={S.input} value={form.sellingMode} onChange={setField("sellingMode")}>{SELLING_MODES.map((mode) => <option key={mode.id} value={mode.id}>{mode.name}</option>)}</select></div>
         </div>
       </div>
 
@@ -1072,7 +1216,7 @@ export default function VCommercePortalPage() {
   }
 
   return (
-    <div style={{ maxWidth:900,margin:"0 auto",padding:"clamp(48px,8vw,72px) 24px 60px" }}>
+    <div className="vco-portal-shell" style={{ maxWidth:1040,margin:"0 auto",padding:"clamp(48px,8vw,72px) 24px 60px" }}>
       <div style={{ marginBottom:8 }}>
         <Link to="/dashboard" style={{ fontSize:"0.85rem",color:"var(--color-text-secondary,#666)",textDecoration:"none" }}>
           ← Dashboard
@@ -1083,10 +1227,12 @@ export default function VCommercePortalPage() {
           <h1 style={{ margin:"0 0 4px",fontSize:"1.4rem",fontWeight:800 }}>My Business</h1>
           <p style={{ margin:0,fontSize:"0.9rem",color:"var(--color-text-secondary,#666)" }}>{business.businessName}</p>
         </div>
-        <a href={`/vcommerce/${business.slug}`} target="_blank" rel="noopener noreferrer"
-          style={{ fontSize:"0.85rem",color:"var(--color-accent,#8B5CF6)",textDecoration:"none",display:"flex",alignItems:"center",gap:4 }}>
-          View public page ↗
-        </a>
+        {business.status === "active" && (
+          <a href={`/vcommerce/${business.slug}`} target="_blank" rel="noopener noreferrer"
+            style={{ fontSize:"0.85rem",color:"var(--color-accent,#8B5CF6)",textDecoration:"none",display:"flex",alignItems:"center",gap:4 }}>
+            View public page ↗
+          </a>
+        )}
       </div>
 
       {/* Tabs */}
@@ -1099,12 +1245,13 @@ export default function VCommercePortalPage() {
         ))}
       </div>
 
-      {activeTab === 0 && <OverviewTab business={business} />}
+      {activeTab === 0 && <OverviewTab business={business} onRefresh={loadBusiness} />}
       {activeTab === 1 && <ProductsTab businessId={business._id} />}
       {activeTab === 2 && <OrdersTab />}
       {activeTab === 3 && <PayoutsTab />}
-      {activeTab === 4 && <SettingsTab business={business} onRefresh={loadBusiness} />}
-      {activeTab === 5 && <ImportTab businessId={business._id} />}
+      {activeTab === 4 && <PromotionsTab />}
+      {activeTab === 5 && <SettingsTab business={business} onRefresh={loadBusiness} />}
+      {activeTab === 6 && <ImportTab businessId={business._id} />}
     </div>
   );
 }

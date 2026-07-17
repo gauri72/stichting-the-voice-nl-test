@@ -9,6 +9,7 @@ import { CAPTCHA_REQUIRED_MESSAGE } from "../../utils/captcha.js";
 import CaptchaField from "../common/CaptchaField.jsx";
 import GoogleSignInButton, { isGoogleSignInEnabled } from "./GoogleSignInButton.jsx";
 import "../../styles/login-form-section.css";
+import { clearAuthIntent } from "../../utils/authRedirect.js";
 
 function PasswordField({
   id,
@@ -65,12 +66,14 @@ export default function LoginFormSection({
   returnTo = "/dashboard",
   prefillEmail = "",
   onAuthenticated,
+  journey = "account",
 }) {
   const { t } = useTranslation(["auth"]);
   const navigate = useNavigate();
   const { loginWithToken } = useAuth();
 
   function finishAuth(user) {
+    clearAuthIntent();
     if (onAuthenticated) {
       onAuthenticated(user);
       return;
@@ -79,6 +82,12 @@ export default function LoginFormSection({
   }
   const isSignUp = mode === "signup";
   const isForgotPassword = mode === "forgot-password";
+  const journeyMessage = {
+    "business-onboarding": "Sign in to continue setting up your V.Commerce business.",
+    "vcommerce-checkout": "Sign in to return to your cart and complete checkout.",
+    "wholesaler-registration": "Sign in to continue your V.Commerce wholesaler registration.",
+    "protected-route": "Sign in to continue where you left off.",
+  }[journey];
   const skipNextSignUpSubmitRef = useRef(false);
 
   const [email, setEmail] = useState("");
@@ -476,7 +485,9 @@ export default function LoginFormSection({
             {isForgotPassword ? t("auth:form.titles.forgotPassword") : isSignUp ? t("auth:form.titles.signup") : t("auth:form.titles.login")}
           </h2>
           <p className="login-form-section__intro">
-            {isForgotPassword
+            {!isForgotPassword && journeyMessage
+              ? journeyMessage
+              : isForgotPassword
               ? t("auth:form.intros.forgotPassword")
               : isSignUp
                 ? t("auth:form.intros.signup")
@@ -521,7 +532,7 @@ export default function LoginFormSection({
               <CaptchaField captcha={otpCaptcha} className="login-form-section__captcha" />
               <button type="submit" className="login-form-section__submit" disabled={isVerifyingOtp}>
                 <FaEnvelope aria-hidden />
-                {isVerifyingOtp ? t("auth:form.buttons.verifying") : t("auth:form.buttons.verifyAndGoToDashboard")}
+                {isVerifyingOtp ? t("auth:form.buttons.verifying") : journey !== "account" ? "Verify & continue" : t("auth:form.buttons.verifyAndGoToDashboard")}
               </button>
             </form>
             <button

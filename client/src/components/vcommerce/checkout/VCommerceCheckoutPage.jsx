@@ -6,6 +6,7 @@ import { getStripeElementsAppearance } from "../../../utils/stripePayment.js";
 import { useAuth } from "../../../contexts/AuthContext.jsx";
 import { useCart } from "../cart/useCart.js";
 import { postCreateOrder, getOrderStatus } from "../shared/vcommerceApi.js";
+import { buildLoginUrl } from "../../../utils/authRedirect.js";
 
 function formatPrice(minor, currency = "eur") {
   return new Intl.NumberFormat("nl-NL", {
@@ -189,7 +190,15 @@ export default function VCommerceCheckoutPage() {
           <div className="vco-gate-icon">🔒</div>
           <h1 className="vco-apply-page__title">Sign in to Checkout</h1>
           <p className="vco-apply-page__subtitle">You need to be signed in to complete your purchase.</p>
-          <Link to="/my-account?return=/vcommerce/checkout" className="vco-btn vco-btn--primary">Sign In</Link>
+          <Link
+            to={buildLoginUrl(`/vcommerce/checkout${businessId ? `?business=${encodeURIComponent(businessId)}` : ""}`, {
+              journey: "vcommerce-checkout",
+              context: { businessId: businessId || "" },
+            })}
+            className="vco-btn vco-btn--primary"
+          >
+            Sign In &amp; Return to Checkout
+          </Link>
         </div>
       </div>
     );

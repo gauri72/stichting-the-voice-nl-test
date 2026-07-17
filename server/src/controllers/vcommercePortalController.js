@@ -20,6 +20,13 @@ import {
   generateExcelTemplate,
   getImportHistory,
 } from "../services/businessExcelImportService.js";
+import {
+  createSellerOnboardingLink,
+  refreshSellerConnectStatus,
+} from "../services/businessConnectService.js";
+import { createPackageCheckout } from "../services/vcommercePackageService.js";
+import { submitBusinessForReview } from "../services/businessApplicationService.js";
+import BusinessApplication from "../models/BusinessApplication.js";
 
 function parseDataUrl(dataUrl) {
   if (!dataUrl || typeof dataUrl !== "string") return null;
@@ -50,8 +57,28 @@ async function getOwnBusiness(userId) {
 export async function getMyBusiness(req, res) {
   try {
     const business = await getOwnBusiness(req.user.id);
-    ok(res, { business });
+    const application = business.applicationId
+      ? await BusinessApplication.findById(business.applicationId).select("status reviewNote paidAt").lean()
+      : null;
+    ok(res, {
+      business: {
+        ...business,
+        applicationStatus: application?.status || null,
+        applicationReviewNote: application?.reviewNote || "",
+        packagePaidAt: application?.paidAt || null,
+      },
+    });
   } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function postSubmitForReview(req, res) {
+  try {
+    const result = await submitBusinessForReview(req.user.id);
+    ok(res, { status: result.application.status });
+  } catch (e) {
+    if (e.missing) return res.status(e.status || 400).json({ error: e.message, missing: e.missing });
     fail(res, e);
   }
 }
@@ -64,6 +91,7 @@ export async function patchMyBusiness(req, res) {
       "tagline", "description", "contactEmail", "contactPhone", "website",
       "socialLinks", "location", "logoUrl", "bannerUrl", "galleryUrls",
       "payoutBankName", "payoutIBAN", "payoutBankHolder",
+      "sellingMode",
     ];
     const data = {};
     for (const key of allowed) {
@@ -133,7 +161,7 @@ export async function getMyOrders(req, res) {
       page: page ? Number(page) : 1,
       pageSize: pageSize ? Math.min(Number(pageSize), 50) : 20,
     });
-    ok(res, result);
+    ok(res, { ...result, orders: result.items });
   } catch (e) {
     fail(res, e);
   }
@@ -159,7 +187,7 @@ export async function getMyPayouts(req, res) {
       page: page ? Number(page) : 1,
       pageSize: pageSize ? Math.min(Number(pageSize), 50) : 20,
     });
-    ok(res, result);
+    ok(res, { ...result, payouts: result.items });
   } catch (e) {
     fail(res, e);
   }
@@ -221,6 +249,34 @@ export async function getMyReferralLink(req, res) {
     const code = business.directReferralCode || "";
     const url = code ? `${host}/vcommerce?ref=${code}` : null;
     ok(res, { code, url });
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function postConnectOnboarding(req, res) {
+  try {
+    const origin = req.get("origin") || `${req.protocol}://${req.get("host")}`;
+    const returnUrl = `${origin}/dashboard/vcommerce?connect=complete`;
+    const refreshUrl = `${origin}/dashboard/vcommerce?connect=refresh`;
+    ok(res, await createSellerOnboardingLink(req.user.id, { returnUrl, refreshUrl }));
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function getConnectStatus(req, res) {
+  try {
+    ok(res, await refreshSellerConnectStatus(req.user.id));
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function postPackageCheckout(req, res) {
+  try {
+    const origin = req.get("origin") || `${req.protocol}://${req.get("host")}`;
+    ok(res, await createPackageCheckout(req.user.id, origin));
   } catch (e) {
     fail(res, e);
   }

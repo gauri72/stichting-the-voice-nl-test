@@ -125,6 +125,18 @@ export async function getBusinessBySlug(slug) {
 }
 
 export async function setFeaturedBusiness(businessId) {
+  const candidate = await BusinessProfile.findById(businessId);
+  if (!candidate) {
+    const err = new Error("Business not found.");
+    err.status = 404;
+    throw err;
+  }
+  if (candidate.status !== "active") {
+    const err = new Error("Only an approved, active business can be featured.");
+    err.status = 409;
+    throw err;
+  }
+
   // Clear any existing featured flag
   await BusinessProfile.updateMany({ isFeaturedThisWeek: true }, { $set: { isFeaturedThisWeek: false } });
 
@@ -181,11 +193,21 @@ export async function updateBusinessProfile(businessId, data) {
     if (data[key] !== undefined) update[key] = data[key];
   }
 
-  const business = await BusinessProfile.findByIdAndUpdate(businessId, { $set: update }, { new: true, runValidators: true });
-  if (!business) {
+  const existing = await BusinessProfile.findById(businessId);
+  if (!existing) {
     const err = new Error("Business not found.");
     err.status = 404;
     throw err;
   }
+
+  if (update.status === "active" && ["setup", "review"].includes(existing.status)) {
+    const err = new Error("Complete application approval before activating this business.");
+    err.status = 409;
+    throw err;
+  }
+
+  Object.assign(existing, update);
+  await existing.save();
+  const business = existing;
   return business;
 }

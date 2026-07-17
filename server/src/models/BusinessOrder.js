@@ -40,6 +40,9 @@ const businessOrderSchema = new mongoose.Schema(
     cashbackMinor: { type: Number, default: 0 },
     currency: { type: String, default: "eur", lowercase: true },
     stripePaymentIntentId: { type: String, default: "", trim: true, index: true },
+    payoutEligibleAt: { type: Date, default: null, index: true },
+    payoutHoldReason: { type: String, default: "", trim: true, maxlength: 500 },
+    processingFeeMinor: { type: Number, default: 0, min: 0 },
     status: {
       type: String,
       enum: ["pending", "paid", "fulfilled", "cancelled", "refunded"],
@@ -61,6 +64,7 @@ const businessOrderSchema = new mongoose.Schema(
 businessOrderSchema.index({ businessId: 1, status: 1 });
 businessOrderSchema.index({ customerId: 1, createdAt: -1 });
 businessOrderSchema.index({ payoutId: 1 });
+businessOrderSchema.index({ status: 1, payoutEligibleAt: 1, payoutId: 1 });
 
 const BusinessOrder =
   mongoose.models.BusinessOrder || mongoose.model("BusinessOrder", businessOrderSchema);

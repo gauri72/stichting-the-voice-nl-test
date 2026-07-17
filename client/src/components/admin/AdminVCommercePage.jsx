@@ -260,8 +260,14 @@ function BusinessesTab() {
                 <tr key={b._id}>
                   <td style={S.td}><strong>{b.businessName}</strong><br/><span style={{ fontSize: "0.78rem", color: "var(--ad-text-muted,#888)" }}>/{b.slug}</span></td>
                   <td style={S.td}>{BUSINESS_CATEGORY_LABELS[b.category] || b.category}</td>
-                  <td style={S.td}><span style={S.badge(b.status === "active" ? "green" : "red")}>{b.status}</span></td>
-                  <td style={S.td}>{b.isFeaturedThisWeek ? <span style={S.badge("green")}>⭐ Featured</span> : <button type="button" style={S.btn("sm")} onClick={() => handleSetFeatured(b._id)}>Set Featured</button>}</td>
+                  <td style={S.td}><span style={S.badge(b.status === "active" ? "green" : b.status === "review" ? "orange" : "red")}>{b.status}</span></td>
+                  <td style={S.td}>
+                    {b.isFeaturedThisWeek
+                      ? <span style={S.badge("green")}>⭐ Featured</span>
+                      : b.status === "active"
+                        ? <button type="button" style={S.btn("sm")} onClick={() => handleSetFeatured(b._id)}>Set Featured</button>
+                        : <span style={{ color: "var(--ad-text-muted,#888)", fontSize: "0.78rem" }}>Approval required</span>}
+                  </td>
                   <td style={S.td}>{b.platformFeePercent}%</td>
                   <td style={S.td}>{b.cashbackPercent}%</td>
                   <td style={S.td}>{formatPrice(b.totalRevenueMinor)}</td>
@@ -269,7 +275,13 @@ function BusinessesTab() {
                   <td style={S.td}>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                       <button type="button" style={S.btn("sm")} onClick={() => { setEditing(b); setEditForm({ platformFeePercent: b.platformFeePercent, cashbackPercent: b.cashbackPercent, payoutBankName: b.payoutBankName || "", payoutIBAN: b.payoutIBAN || "", payoutBankHolder: b.payoutBankHolder || "" }); }}>Edit</button>
-                      <button type="button" style={S.btn("sm")} onClick={() => handleStatusToggle(b)}>{b.status === "active" ? "Suspend" : "Activate"}</button>
+                      {["active", "suspended", "paused"].includes(b.status) ? (
+                        <button type="button" style={S.btn("sm")} onClick={() => handleStatusToggle(b)}>{b.status === "active" ? "Suspend" : "Activate"}</button>
+                      ) : (
+                        <span style={{ alignSelf: "center", color: "var(--ad-text-muted,#888)", fontSize: "0.78rem" }}>
+                          {b.status === "review" ? "Review in Applications" : "Owner setup in progress"}
+                        </span>
+                      )}
                     </div>
                   </td>
                 </tr>

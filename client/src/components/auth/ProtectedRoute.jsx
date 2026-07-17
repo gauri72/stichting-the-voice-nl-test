@@ -2,19 +2,23 @@ import { useCallback } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import IdleSessionGuard from "./IdleSessionGuard.jsx";
+import { rememberAuthIntent } from "../../utils/authRedirect.js";
 
 export default function ProtectedRoute({ children }) {
   const { user, loading, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
+  const fullDestination = `${location.pathname}${location.search}${location.hash}`;
+
   const handleIdleLogout = useCallback(() => {
+    rememberAuthIntent(fullDestination, "protected-route");
     logout();
     navigate("/my-account", {
       replace: true,
-      state: { sessionExpired: true, from: location.pathname },
+      state: { sessionExpired: true, from: fullDestination },
     });
-  }, [logout, navigate, location.pathname]);
+  }, [logout, navigate, fullDestination]);
 
   if (loading) {
     return (
@@ -25,7 +29,8 @@ export default function ProtectedRoute({ children }) {
   }
 
   if (!user) {
-    return <Navigate to="/my-account" replace state={{ from: location.pathname }} />;
+    rememberAuthIntent(fullDestination, "protected-route");
+    return <Navigate to="/my-account" replace state={{ from: fullDestination }} />;
   }
 
   return (

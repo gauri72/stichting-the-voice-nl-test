@@ -14,8 +14,10 @@ export async function createPayout(adminId, businessId, orderIds) {
   const orders = await BusinessOrder.find({
     _id: { $in: orderIds },
     businessId,
-    status: "paid",
+    status: { $in: ["paid", "fulfilled"] },
     payoutId: null,
+    payoutEligibleAt: { $ne: null, $lte: new Date() },
+    payoutHoldReason: { $in: ["", null] },
   }).lean();
 
   if (orders.length === 0) {
@@ -38,6 +40,7 @@ export async function createPayout(adminId, businessId, orderIds) {
     netMinor,
     currency: "eur",
     status: "pending",
+    scheduledFor: new Date(),
     ibanSnapshot: business.payoutIBAN || "",
     bankHolderSnapshot: business.payoutBankHolder || "",
     createdBy: adminId,
@@ -107,6 +110,7 @@ export async function getBusinessPendingPayoutSummary(businessId) {
         grossMinor: { $sum: "$subtotalMinor" },
         feeMinor: { $sum: "$platformFeeMinor" },
         netMinor: { $sum: "$businessAmountMinor" },
+        nextEligibleAt: { $min: "$payoutEligibleAt" },
       },
     },
   ]);
