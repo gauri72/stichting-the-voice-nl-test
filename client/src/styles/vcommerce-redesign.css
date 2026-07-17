@@ -69,6 +69,8 @@ html[data-theme="light"] .vcohp-page {
 body.vco-mobile-active .site-header,
 body.vco-mobile-active .site-footer,
 body.vco-mobile-active .pwa-install-prompt,
+body.vco-mobile-active .site-pwa-install,
+body.vco-mobile-active .language-switcher,
 body.vco-mobile-active .cookie-consent-banner {
   display: none !important;
 }

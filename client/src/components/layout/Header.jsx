@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { IconTicket, IconUser, IconUserCheck, IconUserPlus } from "@tabler/icons-react";
@@ -132,7 +132,8 @@ export default function Header() {
   const buyTicketsText = translateKnownLabel(settings.buyTicketsButtonText, t) || t("common:header.buyTickets");
   const loginText = translateKnownLabel(settings.loginButtonText, t) || t("common:header.logInSignUp");
   const loginUrl = settings.loginButtonUrl || "/my-account";
-  const accountText = isAuthenticated && user?.firstName ? user.firstName : t("common:header.myAccount");
+  const firstName = String(user?.firstName || user?.name || "").trim().split(/\s+/)[0];
+  const accountText = isAuthenticated && firstName ? firstName : t("common:header.myAccount");
   const showThemeToggle = settings.themeToggleVisible !== false;
   const stickyClass = settings.stickyHeader !== false ? " site-header--sticky" : "";
   const announcement = header?.announcementBar;
@@ -145,6 +146,20 @@ export default function Header() {
   function handleDropdownToggle(label) {
     setOpenDropdownLabel((prev) => (prev === label ? null : label));
   }
+
+  useEffect(() => {
+    if (!isMenuOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") closeMenu();
+    };
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isMenuOpen]);
 
   const navLinks = (
     <>
@@ -214,8 +229,10 @@ export default function Header() {
       to="/dashboard"
       onClick={closeMenu}
     >
-      <IconUserCheck className="nav-toolbar__cta-icon dash-welcome__badge-icon auth-button-icon" aria-hidden stroke={1.75} />
-      <span>{accountText}</span>
+      <span className="nav-toolbar__auth-content">
+        <IconUserCheck className="nav-toolbar__cta-icon dash-welcome__badge-icon auth-button-icon" aria-hidden stroke={1.75} />
+        <span>{accountText}</span>
+      </span>
     </Link>
   ) : (
     <Link
@@ -223,8 +240,10 @@ export default function Header() {
       to={loginUrl}
       onClick={closeMenu}
     >
-      <IconUser className="nav-toolbar__cta-icon dash-welcome__badge-icon auth-button-icon" aria-hidden stroke={1.75} />
-      <span>{loginText}</span>
+      <span className="nav-toolbar__auth-content">
+        <IconUser className="nav-toolbar__cta-icon dash-welcome__badge-icon auth-button-icon" aria-hidden stroke={1.75} />
+        <span>{loginText}</span>
+      </span>
     </Link>
   );
 
@@ -238,9 +257,11 @@ export default function Header() {
       <nav className="site-navbar" aria-label="Main">
         <div className="nav-toolbar">
           <div className="menu-links menu-links--desktop">{navLinks}</div>
-          {memberCta}
-          {buyTicketsCta}
-          {authCta}
+          <div className="nav-toolbar__cta-group">
+            {memberCta}
+            {buyTicketsCta}
+            {authCta}
+          </div>
           {showThemeToggle ? <ThemeToggle /> : null}
           <button
             className="menu-toggle"
@@ -255,13 +276,31 @@ export default function Header() {
           </button>
         </div>
 
-        <div className={`nav-actions ${isMenuOpen ? "open" : ""}`}>
-          <button className="menu-close" type="button" aria-label="Close navigation menu" onClick={closeMenu}>
-            <span />
-            <span />
-          </button>
+        <button
+          type="button"
+          className={`nav-actions-backdrop${isMenuOpen ? " open" : ""}`}
+          aria-label="Close navigation menu"
+          tabIndex={isMenuOpen ? 0 : -1}
+          onClick={closeMenu}
+        />
+
+        <div className={`nav-actions ${isMenuOpen ? "open" : ""}`} aria-hidden={!isMenuOpen}>
+          <div className="nav-actions__header">
+            <strong>Menu</strong>
+            <button className="menu-close" type="button" aria-label="Close navigation menu" onClick={closeMenu}>
+              <span />
+              <span />
+            </button>
+          </div>
 
           <div className="menu-links menu-links--mobile">{navLinks}</div>
+          <div className="nav-actions__vcommerce">
+            <span>V.Commerce</span>
+            <Link to="/vcommerce/businesses" onClick={closeMenu}>Explore Shops</Link>
+            <Link to="/vcommerce/categories" onClick={closeMenu}>Categories</Link>
+            <Link to="/vcommerce/apply" onClick={closeMenu}>List Your Business</Link>
+            <Link to="/dashboard" onClick={closeMenu}>My Dashboard</Link>
+          </div>
         </div>
       </nav>
     </header>

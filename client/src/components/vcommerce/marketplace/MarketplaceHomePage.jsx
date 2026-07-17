@@ -1,13 +1,15 @@
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Link } from "react-router-dom";
 import {
   IconArrowRight, IconBell, IconBriefcase, IconBuildingStore, IconCategory,
   IconGlobe, IconHeart, IconHome, IconMenu2, IconPackage, IconPlane, IconSearch,
   IconShieldCheck, IconShoppingBag, IconShoppingCart, IconSparkles,
   IconStar, IconTicket, IconUser, IconUsers, IconWallet, IconYoga,
+  IconChevronDown, IconX,
 } from "@tabler/icons-react";
 import { useMarketplaceData } from "./lib/useMarketplaceData.js";
 import { ImageWithFallback } from "./components/ui.jsx";
+import ThemeToggle from "../../layout/ThemeToggle.jsx";
 import { BUSINESS_CATEGORIES, BUSINESS_CATEGORY_LABELS } from "../shared/BUSINESS_CATEGORIES.js";
 import logo from "../../../assets/header-logo.png";
 import heroOpen from "../../../assets/VCommerce/mockup/hero-open.png";
@@ -49,7 +51,93 @@ function DesktopBrand() {
 }
 
 function MobileToolbar() {
-  return <header className="vcm-mobile-head"><button aria-label="Open menu"><IconMenu2 /></button><Brand /><div><button aria-label="Notifications"><IconBell /><i /></button><Link to="/vcommerce/checkout" aria-label="Cart"><IconShoppingCart /><em>2</em></Link></div></header>;
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [menuOpen]);
+
+  const closeMenu = () => setMenuOpen(false);
+
+  return (
+    <>
+      <header className="vcm-mobile-head">
+        <button
+          type="button"
+          aria-label="Open navigation menu"
+          aria-expanded={menuOpen}
+          aria-controls="vcm-mobile-drawer"
+          onClick={() => setMenuOpen(true)}
+        >
+          <IconMenu2 />
+        </button>
+        <Brand />
+        <div>
+          <ThemeToggle className="vcm-mobile-theme-toggle" />
+          <button type="button" aria-label="Notifications"><IconBell /><i /></button>
+          <Link to="/vcommerce/checkout" aria-label="Cart"><IconShoppingCart /><em>2</em></Link>
+        </div>
+      </header>
+
+      <button
+        type="button"
+        className={`vcm-mobile-menu-backdrop${menuOpen ? " is-open" : ""}`}
+        aria-label="Close navigation menu"
+        tabIndex={menuOpen ? 0 : -1}
+        onClick={closeMenu}
+      />
+      <nav
+        id="vcm-mobile-drawer"
+        className={`vcm-mobile-menu${menuOpen ? " is-open" : ""}`}
+        aria-label="Mobile navigation"
+        aria-hidden={!menuOpen}
+      >
+        <div className="vcm-mobile-menu__header">
+          <strong>Menu</strong>
+          <button type="button" aria-label="Close navigation menu" onClick={closeMenu}><IconX /></button>
+        </div>
+        <div className="vcm-mobile-menu__links">
+          <Link to="/" onClick={closeMenu}>Home</Link>
+          <Link to="/events" onClick={closeMenu}>Events</Link>
+          <details>
+            <summary>Our Pillars <IconChevronDown /></summary>
+            <div>
+              <Link to="/events" onClick={closeMenu}>Experience</Link>
+              <Link to="/stories" onClick={closeMenu}>Stories</Link>
+              <Link to="/impact" onClick={closeMenu}>Impact</Link>
+              <Link to="/voice-venture-studio" onClick={closeMenu}>Innovation</Link>
+            </div>
+          </details>
+          <details>
+            <summary>Partner With Us <IconChevronDown /></summary>
+            <div>
+              <Link to="/sponsorship" onClick={closeMenu}>Sponsorship</Link>
+              <Link to="/donate" onClick={closeMenu}>Donate</Link>
+              <Link to="/vcommerce" onClick={closeMenu}>V.Commerce</Link>
+            </div>
+          </details>
+          <Link to="/about-us" onClick={closeMenu}>About Us</Link>
+        </div>
+        <div className="vcm-mobile-menu__marketplace">
+          <span>V.Commerce</span>
+          <Link to="/vcommerce/businesses" onClick={closeMenu}>Explore Shops</Link>
+          <Link to="/vcommerce/categories" onClick={closeMenu}>Categories</Link>
+          <Link to="/vcommerce/apply" onClick={closeMenu}>List Your Business</Link>
+          <Link to="/dashboard" onClick={closeMenu}>My Dashboard</Link>
+        </div>
+      </nav>
+    </>
+  );
 }
 
 function Hero({ mobile = false }) {

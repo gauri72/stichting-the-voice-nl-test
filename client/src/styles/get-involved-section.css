@@ -252,6 +252,39 @@ button.get-involved-card {
   background-repeat: no-repeat;
 }
 
+/* Light theme keeps the photography, but presents it as a bright editorial
+   card so these actions match the other light homepage sections. */
+[data-theme="light"] .get-involved-card--with-image {
+  border-color: rgba(42, 142, 160, 0.34);
+  background-color: #f3f9fb;
+  background-image:
+    linear-gradient(90deg, rgba(255,255,255,.98) 0%, rgba(255,255,255,.94) 42%, rgba(244,250,252,.78) 66%, rgba(234,246,249,.22) 100%),
+    var(--get-involved-image);
+  background-position: center, center right;
+  background-size: cover, cover;
+  background-repeat: no-repeat;
+  box-shadow: 0 10px 26px rgba(32, 72, 96, 0.1);
+}
+
+[data-theme="light"] .get-involved-card--with-image::after {
+  background: linear-gradient(180deg, transparent 50%, rgba(65, 106, 128, 0.08));
+}
+
+[data-theme="light"] .get-involved-card--with-image .get-involved-card__title {
+  color: #10283b;
+  text-shadow: none;
+}
+
+[data-theme="light"] .get-involved-card--with-image .get-involved-card__description {
+  color: #496276;
+  text-shadow: none;
+}
+
+[data-theme="light"] .get-involved-card--with-image:hover {
+  border-color: rgba(0, 145, 166, 0.58);
+  box-shadow: 0 14px 34px rgba(32, 72, 96, 0.16), 0 0 22px rgba(0, 145, 166, 0.08);
+}
+
 .get-involved-card--with-image::after {
   content: "";
   position: absolute;
@@ -330,6 +363,14 @@ button.get-involved-card {
     background-size: cover, cover;
   }
 
+  [data-theme="light"] .get-involved-card--with-image {
+    background-image:
+      linear-gradient(90deg, rgba(255,255,255,.99) 0%, rgba(255,255,255,.94) 54%, rgba(244,250,252,.68) 76%, rgba(234,246,249,.12) 100%),
+      var(--get-involved-image);
+    background-position: center, center right;
+    background-size: cover, cover;
+  }
+
   .get-involved-card__icon {
     width: 44px;
     height: 44px;
@@ -357,6 +398,10 @@ button.get-involved-card {
 
   .get-involved-card--with-image .get-involved-card__title {
     color: #ffffff;
+  }
+
+  [data-theme="light"] .get-involved-card--with-image .get-involved-card__title {
+    color: #10283b;
   }
 
   .get-involved-card__arrow {

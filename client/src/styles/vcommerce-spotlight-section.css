@@ -32,6 +32,45 @@
 .vcommerce-spotlight__actions a:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(0,190,190,.2)}.vcommerce-spotlight__actions a:hover svg{transform:translateX(3px)}.vcommerce-spotlight__actions svg{width:18px;transition:transform .25s ease}
 .vcommerce-spotlight__disclosure{margin:20px 0 0;text-align:center;color:var(--color-text-secondary);font-size:.78rem;text-transform:none!important}
 [data-theme="dark"] .vcommerce-spotlight{background:#000}
-[data-theme="light"] .vcommerce-spotlight__card{border-color:rgba(0,142,174,.28);box-shadow:0 24px 60px rgba(35,70,98,.15),0 0 28px rgba(118,80,201,.06)}
+[data-theme="light"] .vcommerce-spotlight__card{
+  border-color:rgba(0,142,174,.28);
+  background:linear-gradient(145deg,#fff 0%,#f4f9fc 72%,#edf5fb 100%);
+  box-shadow:0 24px 60px rgba(35,70,98,.15),0 0 28px rgba(118,80,201,.06)
+}
+[data-theme="light"] .vcommerce-spotlight__content{color:#102236}
+[data-theme="light"] .vcommerce-spotlight__content h3{color:#102236}
+[data-theme="light"] .vcommerce-spotlight__category,
+[data-theme="light"] .vcommerce-spotlight__location,
+[data-theme="light"] .vcommerce-spotlight__rating{color:#536a7f}
+[data-theme="light"] .vcommerce-spotlight__sponsored{
+  border-color:#9fb4c5;
+  background:#f8fbfd;
+  color:#30475b
+}
+[data-theme="light"] .vcommerce-spotlight__verified{color:#176a53}
+[data-theme="light"] .vcommerce-spotlight__verified svg{color:#009b69}
+[data-theme="light"] .vcommerce-spotlight__tags span{
+  border-color:#b9cad7;
+  background:#fff;
+  color:#30475b
+}
+[data-theme="light"] .vcommerce-spotlight__cashback{color:#087d51}
+[data-theme="light"] .vcommerce-spotlight__description{color:#475f73}
+[data-theme="light"] .vcommerce-spotlight__secondary{
+  border-color:#008ca8;
+  background:#fff;
+  color:#086d83
+}
+[data-theme="light"] .vcommerce-spotlight__image-label{
+  border-color:rgba(0,153,166,.58);
+  background:rgba(255,255,255,.9);
+  color:#087884;
+  box-shadow:0 8px 24px rgba(25,62,85,.18);
+  text-shadow:none
+}
+[data-theme="light"] .vcommerce-spotlight__card:hover{
+  border-color:rgba(0,142,174,.5);
+  box-shadow:0 28px 68px rgba(35,70,98,.2),0 0 30px rgba(0,160,176,.08)
+}
 @media(max-width:760px){.vcommerce-spotlight{padding:44px 14px}.home-page .our-pillars-section + .vcommerce-spotlight{padding-top:20px}.home-page .vcommerce-spotlight:has(+ .get-involved-section){padding-bottom:20px}.vcommerce-spotlight__card{grid-template-columns:1fr;border-radius:18px}.vcommerce-spotlight__media{min-height:280px;max-height:360px}.vcommerce-spotlight__image-label{top:14px;left:14px;max-width:calc(100% - 28px);min-height:34px;padding:7px 12px;font-size:.64rem;letter-spacing:.08em}.vcommerce-spotlight__content{padding:26px 20px 28px}.vcommerce-spotlight__actions{flex-direction:column}.vcommerce-spotlight__actions a{width:100%}.vcommerce-spotlight__badges{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.vcommerce-spotlight__card,.vcommerce-spotlight__media img,.vcommerce-spotlight__actions a,.vcommerce-spotlight__actions svg{transition:none}.vcommerce-spotlight__card:hover,.vcommerce-spotlight__card:hover .vcommerce-spotlight__media img,.vcommerce-spotlight__actions a:hover{transform:none}}
