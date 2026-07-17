@@ -204,8 +204,10 @@ export default function Header() {
       to={memberUrl}
       onClick={closeMenu}
     >
-      <IconUserPlus className="nav-toolbar__cta-icon dash-welcome__badge-icon" aria-hidden stroke={1.75} />
-      <span>{memberText}</span>
+      <span className="nav-toolbar__cta-content">
+        <IconUserPlus className="nav-toolbar__cta-icon dash-welcome__badge-icon" aria-hidden stroke={1.75} />
+        <span>{memberText}</span>
+      </span>
     </Link>
   );
 
@@ -218,8 +220,10 @@ export default function Header() {
       onClick={closeMenu}
       aria-label="Buy tickets on Ticket Tailor"
     >
-      <IconTicket className="nav-toolbar__cta-icon dash-welcome__badge-icon buy-tickets-icon" aria-hidden stroke={1.75} />
-      <span>{buyTicketsText}</span>
+      <span className="nav-toolbar__cta-content">
+        <IconTicket className="nav-toolbar__cta-icon dash-welcome__badge-icon buy-tickets-icon" aria-hidden stroke={1.75} />
+        <span>{buyTicketsText}</span>
+      </span>
     </a>
   );
 
@@ -229,7 +233,7 @@ export default function Header() {
       to="/dashboard"
       onClick={closeMenu}
     >
-      <span className="nav-toolbar__auth-content">
+      <span className="nav-toolbar__cta-content nav-toolbar__auth-content">
         <IconUserCheck className="nav-toolbar__cta-icon dash-welcome__badge-icon auth-button-icon" aria-hidden stroke={1.75} />
         <span>{accountText}</span>
       </span>
@@ -240,7 +244,7 @@ export default function Header() {
       to={loginUrl}
       onClick={closeMenu}
     >
-      <span className="nav-toolbar__auth-content">
+      <span className="nav-toolbar__cta-content nav-toolbar__auth-content">
         <IconUser className="nav-toolbar__cta-icon dash-welcome__badge-icon auth-button-icon" aria-hidden stroke={1.75} />
         <span>{loginText}</span>
       </span>

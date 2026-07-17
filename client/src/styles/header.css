@@ -379,7 +379,7 @@
   flex-shrink: 0;
 }
 
-.nav-toolbar__auth-content {
+.nav-toolbar__cta-content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -708,7 +708,7 @@
   .nav-toolbar__cta-group {
     grid-column: 1;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1.16fr) minmax(0, 1fr) minmax(0, 1.08fr);
     gap: 5px;
     min-width: 0;
   }
@@ -873,8 +873,13 @@
     flex-shrink: 0;
   }
 
-  .nav-toolbar__auth-content {
+  .nav-toolbar__cta-content {
     gap: 4px;
+  }
+
+  .nav-toolbar__cta-content > span {
+    min-width: 0;
+    overflow-wrap: normal;
   }
 
   .nav-toolbar .menu-toggle,
@@ -1218,6 +1223,10 @@
   .nav-toolbar .buy-tickets-icon {
     width: 11px;
     height: 11px;
+  }
+
+  .nav-toolbar__cta-group {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.98fr) minmax(0, 1.06fr);
   }
 }
 
