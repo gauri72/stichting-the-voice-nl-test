@@ -20,6 +20,8 @@ import DashboardImpactSection from "./sections/DashboardImpactSection.jsx";
 import DashboardDiscountsSection from "./sections/DashboardDiscountsSection.jsx";
 import DashboardReferralSection from "./sections/DashboardReferralSection.jsx";
 import DashboardClosingCtaSection from "./sections/DashboardClosingCtaSection.jsx";
+import MobileDashboardCommandCenter from "./mobile/MobileDashboardCommandCenter.jsx";
+import useIsMobileViewport from "../../hooks/useIsMobileViewport.js";
 import "../../styles/dashboard-shared.css";
 import "../../styles/dashboard-desktop.css";
 import "../../styles/dashboard-mobile.css";
@@ -130,6 +132,7 @@ function LegacyMemberDashboard({ displayName, overview, activity, membership, ha
 
 export default function MemberDashboard() {
   const { user } = useAuth();
+  const isMobile = useIsMobileViewport(DASHBOARD_MOBILE_BREAKPOINT - 1);
   const [dashboard, setDashboard] = useState(null);
   const [membership, setMembership] = useState(null);
   const [dashboardConfig, setDashboardConfig] = useState(null);
@@ -256,7 +259,19 @@ export default function MemberDashboard() {
 
   return (
     <DashboardShell>
-      {dashboardConfig?.sections?.length ? (
+      {isMobile ? (
+        <MobileDashboardCommandCenter
+          displayName={displayName}
+          overview={overview}
+          membership={membership}
+          hasMembership={hasMembership}
+          planShort={planShort}
+          membershipId={membershipId}
+          memberSince={memberSince}
+          validUntil={validUntil}
+          qrSrc={qrSrc}
+        />
+      ) : dashboardConfig?.sections?.length ? (
         <CustomerDashboardRenderer
           config={dashboardConfig}
           data={mergedData}
