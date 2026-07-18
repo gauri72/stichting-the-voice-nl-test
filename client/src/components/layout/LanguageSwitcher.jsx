@@ -1,10 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconCheck, IconWorld } from "@tabler/icons-react";
+import { IconCheck } from "@tabler/icons-react";
 import { SUPPORTED_LANGUAGES } from "../../i18n/index.js";
 import "../../styles/language-switcher.css";
 
-export default function LanguageSwitcher({ embedded = false }) {
+const LANGUAGE_FLAGS = {
+  en: "🇬🇧",
+  nl: "🇳🇱",
+  de: "🇩🇪",
+};
+
+export default function LanguageSwitcher({ embedded = false, header = false }) {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
@@ -35,7 +41,7 @@ export default function LanguageSwitcher({ embedded = false }) {
   }
 
   return (
-    <div className={`language-switcher${embedded ? " language-switcher--embedded" : ""}`} ref={rootRef}>
+    <div className={`language-switcher${embedded ? " language-switcher--embedded" : ""}${header ? " language-switcher--header" : ""}`} ref={rootRef}>
       {open ? (
         <ul className="language-switcher__menu" role="menu" aria-label="Choose language">
           {SUPPORTED_LANGUAGES.map((lang) => (
@@ -47,7 +53,10 @@ export default function LanguageSwitcher({ embedded = false }) {
                 className={`language-switcher__option${lang.code === current.code ? " language-switcher__option--active" : ""}`}
                 onClick={() => selectLanguage(lang.code)}
               >
-                <span>{lang.nativeLabel}</span>
+                <span className="language-switcher__option-label">
+                  <span className="language-switcher__flag" aria-hidden>{LANGUAGE_FLAGS[lang.code] || "🌐"}</span>
+                  <span>{lang.nativeLabel}</span>
+                </span>
                 {lang.code === current.code ? <IconCheck size={16} aria-hidden /> : null}
               </button>
             </li>
@@ -63,8 +72,8 @@ export default function LanguageSwitcher({ embedded = false }) {
         title="Change language"
         onClick={() => setOpen((o) => !o)}
       >
-        <IconWorld size={20} aria-hidden stroke={1.75} />
-        <span className="language-switcher__code">{current.code.toUpperCase()}</span>
+        <span className="language-switcher__flag" aria-hidden>{LANGUAGE_FLAGS[current.code] || "🌐"}</span>
+        {!header ? <span className="language-switcher__code">{current.code.toUpperCase()}</span> : null}
       </button>
     </div>
   );

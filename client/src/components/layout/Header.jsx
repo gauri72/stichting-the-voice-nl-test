@@ -268,7 +268,8 @@ export default function Header() {
             {buyTicketsCta}
             {authCta}
           </div>
-          {showThemeToggle ? <ThemeToggle /> : null}
+          {showThemeToggle ? <ThemeToggle className="nav-toolbar__desktop-theme" /> : null}
+          <LanguageSwitcher header />
           <button
             className="menu-toggle"
             type="button"
@@ -310,7 +311,12 @@ export default function Header() {
           <div className="nav-actions__utilities">
             <span>Preferences &amp; App</span>
             <div className="nav-actions__utilities-grid">
-              <LanguageSwitcher embedded />
+              {showThemeToggle ? (
+                <div className="nav-actions__theme-control">
+                  <ThemeToggle />
+                  <span>Theme</span>
+                </div>
+              ) : null}
               <SiteInstallPwaPrompt embedded />
             </div>
           </div>

@@ -31,12 +31,29 @@ function ticketRecipients(ticket) {
   ].map((email) => String(email || "").trim().toLowerCase()).filter(Boolean))];
 }
 
-function queueTicketRevision(ticket, { reason, type = "modification", adminId } = {}) {
+function printableValue(value) {
+  if (Array.isArray(value)) return value.join(", ");
+  if (value && typeof value === "object") {
+    return Object.entries(value)
+      .filter(([, item]) => item)
+      .map(([key, item]) => `${key}: ${item}`)
+      .join(", ");
+  }
+  return value === null || value === undefined ? "" : String(value);
+}
+
+function queueTicketRevision(ticket, { reason, changes = [], type = "modification", adminId } = {}) {
   ticket.revisionNumber = Number(ticket.revisionNumber || 0) + 1;
   const revision = ticket.revisionNumber;
   ticket.documentHistory.push({
     revision,
-    reason,
+    reason: String(reason || "Ticket updated").slice(0, 240),
+    changes: changes.map((change) => ({
+      field: change.field,
+      label: change.label,
+      from: printableValue(change.from).slice(0, 1000),
+      to: printableValue(change.to).slice(0, 1000),
+    })),
     snapshot: ticketSnapshot(ticket),
     status: "pending",
     createdBy: adminId || null,
@@ -182,6 +199,15 @@ export async function updateAdminTicket(ticketId, payload, adminId) {
     throw err;
   }
 
+  const before = {
+    attendeeName: ticket.attendeeName,
+    attendeeEmail: ticket.attendeeEmail,
+    alternateEmails: [...(ticket.alternateEmails || [])],
+    partnerDetails: { ...(ticket.partnerDetails?.toObject?.() || ticket.partnerDetails || {}) },
+    ticketTypeName: ticket.ticketTypeName,
+    status: ticket.status,
+  };
+
   if (payload.attendeeName !== undefined) {
     ticket.attendeeName = String(payload.attendeeName).trim().slice(0, 160);
   }
@@ -219,8 +245,32 @@ export async function updateAdminTicket(ticketId, payload, adminId) {
     ticket.checkedIn = false;
   }
 
+  const after = {
+    attendeeName: ticket.attendeeName,
+    attendeeEmail: ticket.attendeeEmail,
+    alternateEmails: [...(ticket.alternateEmails || [])],
+    partnerDetails: ticket.partnerDetails?.toObject?.() || ticket.partnerDetails || {},
+    ticketTypeName: ticket.ticketTypeName,
+    status: ticket.status,
+  };
+  const candidates = [
+    ["attendeeName", "Ticket holder name"],
+    ["attendeeEmail", "Primary email"],
+    ["alternateEmails", "Alternate emails"],
+    ["partnerDetails", "Partner / companion details"],
+    ["ticketTypeName", "Ticket type"],
+    ["status", "Ticket status"],
+  ];
+  const changes = candidates
+    .filter(([field]) => printableValue(before[field]) !== printableValue(after[field]))
+    .map(([field, label]) => ({ field, label, from: before[field], to: after[field] }));
+  if (!changes.length) return formatTicket(ticket);
+
   queueTicketRevision(ticket, {
-    reason: payload.status === "refunded" ? "Ticket marked as refunded" : "Ticket details modified by an administrator",
+    reason: payload.status === "refunded"
+      ? "Ticket marked as refunded"
+      : changes.map((change) => `${change.label}: ${printableValue(change.from) || "—"} → ${printableValue(change.to) || "—"}`).join("; "),
+    changes,
     type: "modification",
     adminId,
   });
@@ -318,6 +368,11 @@ export async function transferAdminTicket(ticketId, payload, adminId) {
   ticket.checkedInBy = null;
   queueTicketRevision(ticket, {
     reason: `Ticket transferred from ${previous.email} to ${toEmail}`,
+    changes: [
+      { field: "attendeeName", label: "Ticket holder name", from: previous.name, to: toName },
+      { field: "attendeeEmail", label: "Primary email", from: previous.email, to: toEmail },
+      { field: "verificationToken", label: "Entry QR code", from: "Previous code", to: "New secure code" },
+    ],
     type: "transfer",
     adminId,
   });
@@ -372,6 +427,7 @@ export async function voidAdminTicket(ticketId, payload, adminId) {
     err.status = 400;
     throw err;
   }
+  const previousStatus = ticket.status;
   ticket.status = "voided";
   ticket.voidedAt = new Date();
   ticket.voidedBy = adminId || null;
@@ -381,7 +437,16 @@ export async function voidAdminTicket(ticketId, payload, adminId) {
   ticket.checkedInBy = null;
   ticket.verificationToken = crypto.randomBytes(24).toString("hex");
   ticket.qrCodeUrl = `/api/tickets/qr/${ticket.verificationToken}.png`;
-  queueTicketRevision(ticket, { reason: `Ticket voided: ${reason}`, type: "void", adminId });
+  queueTicketRevision(ticket, {
+    reason: `Ticket voided: ${reason}`,
+    changes: [
+      { field: "status", label: "Ticket status", from: previousStatus, to: "voided" },
+      { field: "voidReason", label: "Void reason", from: "", to: reason },
+      { field: "verificationToken", label: "Entry QR code", from: "Active", to: "Invalidated" },
+    ],
+    type: "void",
+    adminId,
+  });
   await ticket.save();
   await logAdminAction({
     adminId,
@@ -428,6 +493,7 @@ export async function sendPendingTicketUpdate(ticketId, notificationId, adminId)
       ticket: snapshot,
       event,
       reason: document?.reason || "Ticket details were modified.",
+      changes: document?.changes || [],
       recipients: notification.recipients,
       subject: notification.subject,
     });
@@ -491,6 +557,77 @@ export async function getTicketRevisionPdfBuffer(ticketId, documentId, adminId) 
     });
   }
   return { buffer, ticketNumber: ticket.ticketNumber, revision: document?.revision || 0 };
+}
+
+export async function bulkManageAdminTickets(payload, adminId) {
+  const ticketIds = [...new Set(
+    (Array.isArray(payload?.ticketIds) ? payload.ticketIds : [])
+      .map((id) => String(id || "").trim())
+      .filter(Boolean)
+  )].slice(0, 250);
+  if (!ticketIds.length) {
+    const err = new Error("Select at least one ticket.");
+    err.status = 400;
+    throw err;
+  }
+  const action = String(payload?.action || "update");
+  const allowed = new Set(["update", "check_in", "void", "send_update"]);
+  if (!allowed.has(action)) {
+    const err = new Error("Unsupported bulk ticket action.");
+    err.status = 400;
+    throw err;
+  }
+
+  const results = [];
+  for (const ticketId of ticketIds) {
+    try {
+      let result;
+      if (action === "update") {
+        let patch = payload.patch || {};
+        if (patch.appendAlternateEmail) {
+          const existing = await Ticket.findById(ticketId).select("alternateEmails").lean();
+          patch = {
+            ...patch,
+            alternateEmails: [...(existing?.alternateEmails || []), patch.appendAlternateEmail],
+          };
+          delete patch.appendAlternateEmail;
+        }
+        result = await updateAdminTicket(ticketId, patch, adminId);
+      } else if (action === "void") {
+        result = await voidAdminTicket(ticketId, { reason: payload.reason }, adminId);
+      } else if (action === "send_update") {
+        result = await sendPendingTicketUpdate(ticketId, null, adminId);
+      } else {
+        const ticket = await Ticket.findById(ticketId).select("verificationToken").lean();
+        if (!ticket) {
+          const err = new Error("Ticket not found.");
+          err.status = 404;
+          throw err;
+        }
+        result = await checkInTicket(ticket.verificationToken, adminId);
+      }
+      results.push({ ticketId, success: true, result });
+    } catch (error) {
+      results.push({ ticketId, success: false, error: error.message || "Action failed." });
+    }
+  }
+
+  const succeeded = results.filter((item) => item.success).length;
+  await logAdminAction({
+    adminId,
+    action: "Bulk Ticket Action",
+    targetType: "ticket_batch",
+    targetId: ticketIds[0],
+    summary: `${action} completed for ${succeeded} of ${ticketIds.length} selected tickets`,
+    detail: { action, ticketIds, succeeded, failed: ticketIds.length - succeeded },
+  });
+  return {
+    action,
+    total: ticketIds.length,
+    succeeded,
+    failed: ticketIds.length - succeeded,
+    results,
+  };
 }
 
 export async function checkInTicket(verificationToken, adminId) {

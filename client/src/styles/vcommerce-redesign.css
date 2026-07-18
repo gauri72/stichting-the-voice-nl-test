@@ -75,6 +75,12 @@ body.vco-mobile-active .cookie-consent-banner {
   display: none !important;
 }
 
+/* The marketplace owns its mobile header. Keep its embedded language flag
+   visible while suppressing only the legacy floating language control. */
+body.vco-mobile-active .vcm-mobile-head .language-switcher--header {
+  display: block !important;
+}
+
 /* ================================================================
    MOBILE LAYOUT
    ================================================================ */

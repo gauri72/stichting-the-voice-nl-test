@@ -63,12 +63,19 @@ export async function renderTicketPdf(values) {
     ["Event", values.event_name || "—"],
     ["Ticket holder", values.attendee_name || "—"],
     ["Ticket type", values.ticket_type || "—"],
+    ["Primary email", values.attendee_email || "—"],
     ["Date", values.event_date || "—"],
     ["Time", values.event_time || "—"],
     ["Venue", values.venue || "—"],
     ["Order ID", values.order_number || "—"],
     ["Ticket ID", values.ticket_number || "—"],
   ];
+  if (values.alternate_emails) rows.push(["Alternate emails", values.alternate_emails]);
+  if (values.partner_details) rows.push(["Partner / companion", values.partner_details]);
+  if (values.ticket_status && values.ticket_status !== "valid") {
+    rows.push(["Ticket status", values.ticket_status.toUpperCase()]);
+  }
+  if (values.void_reason) rows.push(["Void reason", values.void_reason]);
 
   if (values.seat_row || values.seat_number) {
     rows.splice(3, 0, ["Seat", values.seat_display || "—"]);
@@ -152,6 +159,18 @@ export function buildTicketPdfValuesFromDocs(ticket, order, event) {
     verification_token: ticket?.verificationToken || "",
     event_name: event?.title || "—",
     attendee_name: ticket?.attendeeName || "—",
+    attendee_email: ticket?.attendeeEmail || "—",
+    alternate_emails: (ticket?.alternateEmails || []).join(", "),
+    partner_details: ticket?.partnerDetails
+      ? [
+          ticket.partnerDetails.name,
+          ticket.partnerDetails.email,
+          ticket.partnerDetails.phone,
+          ticket.partnerDetails.relationship,
+        ].filter(Boolean).join(" · ")
+      : "",
+    ticket_status: ticket?.status || "valid",
+    void_reason: ticket?.voidReason || "",
     ticket_type: ticket?.ticketTypeName || "—",
     event_date: formatTicketPdfEventDate(event?.date),
     event_time: event?.startTime || "—",

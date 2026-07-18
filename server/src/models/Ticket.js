@@ -54,6 +54,14 @@ const ticketSchema = new mongoose.Schema(
       {
         revision: { type: Number, required: true },
         reason: { type: String, default: "Ticket updated", trim: true, maxlength: 240 },
+        changes: [
+          {
+            field: { type: String, required: true, trim: true, maxlength: 100 },
+            label: { type: String, required: true, trim: true, maxlength: 140 },
+            from: { type: String, default: "", maxlength: 1000 },
+            to: { type: String, default: "", maxlength: 1000 },
+          },
+        ],
         snapshot: { type: mongoose.Schema.Types.Mixed, required: true },
         status: {
           type: String,

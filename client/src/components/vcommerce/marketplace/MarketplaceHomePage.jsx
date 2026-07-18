@@ -10,6 +10,8 @@ import {
 import { useMarketplaceData } from "./lib/useMarketplaceData.js";
 import { ImageWithFallback } from "./components/ui.jsx";
 import ThemeToggle from "../../layout/ThemeToggle.jsx";
+import LanguageSwitcher from "../../layout/LanguageSwitcher.jsx";
+import SiteInstallPwaPrompt from "../../pwa/SiteInstallPwaPrompt.jsx";
 import { BUSINESS_CATEGORIES, BUSINESS_CATEGORY_LABELS } from "../shared/BUSINESS_CATEGORIES.js";
 import logo from "../../../assets/header-logo.png";
 import heroOpen from "../../../assets/VCommerce/mockup/hero-open.png";
@@ -83,7 +85,7 @@ function MobileToolbar() {
         </button>
         <Brand />
         <div>
-          <ThemeToggle className="vcm-mobile-theme-toggle" />
+          <LanguageSwitcher header />
           <button type="button" aria-label="Notifications"><IconBell /><i /></button>
           <Link to="/vcommerce/checkout" aria-label="Cart"><IconShoppingCart /><em>2</em></Link>
         </div>
@@ -134,6 +136,16 @@ function MobileToolbar() {
           <Link to="/vcommerce/categories" onClick={closeMenu}>Categories</Link>
           <Link to="/vcommerce/apply" onClick={closeMenu}>List Your Business</Link>
           <Link to="/dashboard" onClick={closeMenu}>My Dashboard</Link>
+        </div>
+        <div className="vcm-mobile-menu__preferences">
+          <span>Preferences &amp; App</span>
+          <div>
+            <div className="vcm-mobile-menu__theme">
+              <ThemeToggle />
+              <span>Theme</span>
+            </div>
+            <SiteInstallPwaPrompt embedded />
+          </div>
         </div>
       </nav>
     </>

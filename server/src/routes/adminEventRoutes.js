@@ -24,6 +24,7 @@ import {
   transferTicket,
   voidTicket,
   sendTicketUpdate,
+  bulkManageTickets,
   checkIn,
   resendEmail,
   downloadTicketPdf,
@@ -76,6 +77,7 @@ router.get("/highlights/analytics", getHighlightAnalyticsAdmin);
 router.get("/stats", ticketStats);
 router.get("/tickets", listTickets);
 router.get("/tickets/export", exportCsv);
+router.post("/tickets/bulk", bulkManageTickets);
 router.get("/tickets/:id", getTicketDetail);
 router.post("/tickets/:ticketId/change-seat", changeTicketSeat);
 router.post("/tickets/:ticketId/release-seat", releaseTicketSeat);

@@ -721,6 +721,18 @@
     grid-column: 2;
   }
 
+  .nav-toolbar .nav-toolbar__desktop-theme {
+    display: none;
+  }
+
+  .nav-toolbar .language-switcher--header {
+    grid-column: 2;
+    display: block !important;
+    position: relative;
+    right: auto;
+    bottom: auto;
+  }
+
   .nav-toolbar .menu-toggle {
     grid-column: 3;
   }
@@ -1361,6 +1373,44 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 9px;
+  }
+
+  .nav-actions__theme-control {
+    display: flex;
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 999px;
+    background: rgba(255,255,255,.035);
+    color: #f6f8fb;
+    font-size: .75rem;
+    font-weight: 750;
+  }
+
+  .nav-actions__theme-control .theme-toggle {
+    width: 25px;
+    min-width: 25px;
+    height: 25px;
+    min-height: 25px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .nav-actions__theme-control .theme-toggle__icon {
+    width: 19px;
+    height: 19px;
+  }
+
+  [data-theme="light"] .nav-actions__theme-control {
+    border-color: #c7dce5;
+    background: #ffffff;
+    color: #173344;
   }
 
   [data-theme="light"] .nav-actions__utilities {

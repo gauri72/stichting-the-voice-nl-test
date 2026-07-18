@@ -328,6 +328,16 @@ export async function sendTicketUpdate(req, res) {
   }
 }
 
+export async function bulkManageTickets(req, res) {
+  try {
+    const { bulkManageAdminTickets } = await import("../services/ticketAdminService.js");
+    const result = await bulkManageAdminTickets(req.body || {}, req.admin?.id);
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function checkIn(req, res) {
   try {
     const token = req.body?.token || req.body?.verificationToken;

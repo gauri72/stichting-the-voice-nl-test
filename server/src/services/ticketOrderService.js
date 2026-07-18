@@ -149,6 +149,10 @@ export function formatOrder(order) {
     attendeePhone: order.attendeePhone,
     attendeeName: `${order.attendeeFirstName} ${order.attendeeLastName}`.trim(),
     lineItems: order.lineItems,
+    ticketCount: (order.lineItems || []).reduce(
+      (total, item) => total + Number(item.quantity || 0),
+      0
+    ),
     membershipItems: order.membershipItems || [],
     appliedDiscounts: order.appliedDiscounts || [],
     memberStatusAtCheckout: order.memberStatusAtCheckout || "",
@@ -193,6 +197,12 @@ export function formatTicket(ticket) {
     id: entry._id?.toString?.() || entry.id,
     revision: entry.revision,
     reason: entry.reason || "",
+    changes: (entry.changes || []).map((change) => ({
+      field: change.field,
+      label: change.label,
+      from: change.from || "",
+      to: change.to || "",
+    })),
     status: entry.status || "pending",
     generatedAt: entry.generatedAt,
     downloadedAt: entry.downloadedAt,

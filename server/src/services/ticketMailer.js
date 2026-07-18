@@ -91,7 +91,7 @@ function visibleCheckoutAnswers(order, key) {
     .map((a) => ({ label: a.questionLabel, answer: a.answer }));
 }
 
-function buildTicketEmailText({ order, ticket, event, updateNotice = "" }) {
+function buildTicketEmailText({ order, ticket, event, updateNotice = "", updateChanges = [] }) {
   const eventTitle = event?.title || "Event";
   const viewUrl = `${env.clientUrl}/events/${event?.slug || event?._id || "event"}/tickets/confirmation/${order.orderNumber}`;
   const seatLines = ticket.row || ticket.seatNumber
@@ -101,7 +101,10 @@ function buildTicketEmailText({ order, ticket, event, updateNotice = "" }) {
     .slice(0, 8)
     .map((a) => `${a.label}: ${Array.isArray(a.answer) ? a.answer.join(", ") : a.answer ?? "—"}`)
     .join("\n");
-  return `${updateNotice ? `Your ticket has been updated: ${updateNotice}` : `Your ticket for ${eventTitle} is confirmed.`}
+  const changeText = updateChanges.length
+    ? `\nWhat changed:\n${updateChanges.map((change) => `- ${change.label}: ${change.from || "—"} → ${change.to || "—"}`).join("\n")}\n`
+    : "";
+  return `${updateNotice ? `Your ticket has been updated: ${updateNotice}${changeText}` : `Your ticket for ${eventTitle} is confirmed.`}
 
 Order: ${order.orderNumber}
 Ticket: ${ticket.ticketNumber}
@@ -121,7 +124,7 @@ ${WEBSITE_URL}
 Stichting The V.O.I.C.E. NL`;
 }
 
-function buildTicketEmailHtml({ order, ticket, event, updateNotice = "" }, branding = {}) {
+function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateChanges = [] }, branding = {}) {
   const qrCid = branding.qrCid || null;
   const qrSrc = qrCid ? `cid:${qrCid}` : "";
   const qrCell = qrSrc
@@ -193,6 +196,9 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "" }, brand
               <h1 class="hero-title" style="margin:0 0 12px;font-size:30px;line-height:1.2;color:#ffffff;font-family:Georgia,'Times New Roman',serif;font-weight:700;">${updateNotice ? "Your Ticket Has Been Updated" : "Your Ticket Is Confirmed!"}</h1>
               <p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:#d7e0ef;">We are excited to welcome you at <strong style="color:#ffffff;">${eventTitle}</strong>.</p>
               ${updateNotice ? `<p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:#ffffff;"><strong>Update:</strong> ${escapeHtml(updateNotice)}</p>` : ""}
+              ${updateChanges.length ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:16px;border-top:1px solid rgba(62,198,212,.2);">
+                ${updateChanges.map((change) => `<tr><td style="padding:10px 0;border-bottom:1px solid rgba(62,198,212,.12);font-size:13px;line-height:1.5;color:#d7e0ef;"><strong style="color:#3ec6d4;">${escapeHtml(change.label)}</strong><br/><span style="color:#8a9bb5;">${escapeHtml(change.from || "—")}</span> &rarr; <span style="color:#ffffff;">${escapeHtml(change.to || "—")}</span></td></tr>`).join("")}
+              </table>` : ""}
               <p style="margin:0;font-size:14px;line-height:1.6;color:#f06db3;font-weight:600;">${tagline}</p>
             </td>
           </tr>
@@ -307,6 +313,7 @@ export async function sendTicketConfirmationEmail({
   event,
   subjectOverride = "",
   updateNotice = "",
+  updateChanges = [],
   recipientsOverride = null,
 }) {
   if (!isMailerConfigured()) {
@@ -343,8 +350,8 @@ export async function sendTicketConfirmationEmail({
   }
 
   const qrCid = attachments.find((a) => a.cid)?.cid || null;
-  const html = buildTicketEmailHtml({ order, ticket, event, updateNotice }, { qrCid });
-  const text = buildTicketEmailText({ order, ticket, event, updateNotice });
+  const html = buildTicketEmailHtml({ order, ticket, event, updateNotice, updateChanges }, { qrCid });
+  const text = buildTicketEmailText({ order, ticket, event, updateNotice, updateChanges });
   const eventTitle = event?.title || "V.O.I.C.E. NL Event";
   const recipients = [...new Set((recipientsOverride || [
     ticket.attendeeEmail,
@@ -371,12 +378,13 @@ export async function sendTicketConfirmationEmail({
   return { sent: true, recipients };
 }
 
-export function sendTicketUpdateEmail({ order, ticket, event, reason, recipients, subject }) {
+export function sendTicketUpdateEmail({ order, ticket, event, reason, changes = [], recipients, subject }) {
   return sendTicketConfirmationEmail({
     order,
     ticket,
     event,
     updateNotice: reason || "Administrative details were modified.",
+    updateChanges: changes,
     recipientsOverride: recipients,
     subjectOverride: subject || `Updated ticket for ${event?.title || "V.O.I.C.E. NL Event"} — ${ticket.ticketNumber}`,
   });

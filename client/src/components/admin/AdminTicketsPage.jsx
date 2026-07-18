@@ -38,6 +38,9 @@ export default function AdminTicketsPage() {
   const [transferOpen, setTransferOpen] = useState(false);
   const [editForm, setEditForm] = useState(null);
   const [transferForm, setTransferForm] = useState({ toName: "", toEmail: "", reason: "" });
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [bulkAction, setBulkAction] = useState("");
+  const [bulkRunning, setBulkRunning] = useState(false);
   const [filters, setFilters] = useState({
     eventId: "",
     paymentStatus: "",
@@ -83,6 +86,60 @@ export default function AdminTicketsPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    const visible = new Set(tickets.map((ticket) => ticket.id));
+    setSelectedIds((current) => current.filter((id) => visible.has(id)));
+  }, [tickets]);
+
+  const allVisibleSelected = tickets.length > 0 && tickets.every((ticket) => selectedIds.includes(ticket.id));
+
+  function toggleTicketSelection(ticketId) {
+    setSelectedIds((current) => current.includes(ticketId)
+      ? current.filter((id) => id !== ticketId)
+      : [...current, ticketId]);
+  }
+
+  function toggleSelectAll() {
+    setSelectedIds(allVisibleSelected ? [] : tickets.map((ticket) => ticket.id));
+  }
+
+  async function runBulkAction() {
+    if (!selectedIds.length || !bulkAction) return;
+    let body = { ticketIds: selectedIds, action: bulkAction };
+    if (bulkAction === "void") {
+      const reason = window.prompt(`Reason for voiding ${selectedIds.length} selected ticket(s):`);
+      if (!reason?.trim()) return;
+      if (!window.confirm(`Void ${selectedIds.length} ticket(s)? Payment will not be refunded.`)) return;
+      body.reason = reason;
+    }
+    if (bulkAction === "update") {
+      const alternateEmail = window.prompt(
+        "Enter the alternate email address to apply to every selected ticket:"
+      );
+      if (!alternateEmail?.trim()) return;
+      body.patch = { appendAlternateEmail: alternateEmail.trim() };
+    }
+    if (bulkAction === "check_in" && !window.confirm(`Check in ${selectedIds.length} selected ticket(s)?`)) return;
+    if (bulkAction === "send_update" && !window.confirm(`Send pending update emails for ${selectedIds.length} selected ticket(s)?`)) return;
+
+    setBulkRunning(true);
+    try {
+      const result = await apiFetch("/api/admin/events/tickets/bulk", {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify(body),
+      });
+      window.alert(`${result.succeeded} of ${result.total} ticket actions completed.${result.failed ? ` ${result.failed} failed.` : ""}`);
+      setSelectedIds([]);
+      setBulkAction("");
+      await loadData();
+    } catch (err) {
+      window.alert(err.message || "Bulk ticket action failed.");
+    } finally {
+      setBulkRunning(false);
+    }
+  }
 
   async function handleResend(ticketId) {
     try {
@@ -302,6 +359,16 @@ export default function AdminTicketsPage() {
         className={`${readOnly ? "admin-tickets__row--tt" : "admin-tickets__row--interactive"}`}
         onClick={readOnly ? undefined : () => openTicket(t)}
       >
+        <td className="admin-tickets__select" onClick={(event) => event.stopPropagation()}>
+          {!readOnly ? (
+            <input
+              type="checkbox"
+              checked={selectedIds.includes(t.id)}
+              onChange={() => toggleTicketSelection(t.id)}
+              aria-label={`Select ticket ${t.ticketNumber}`}
+            />
+          ) : null}
+        </td>
         <td>
           <span className="admin-tickets__mono">{t.ticketNumber}</span>
           <span className="admin-tickets__sub">{t.order?.orderNumber}</span>
@@ -313,6 +380,8 @@ export default function AdminTicketsPage() {
         </td>
         <td>{t.eventTitle}</td>
         <td>{t.ticketTypeName}</td>
+        <td>{t.order?.ticketCount || 1}</td>
+        <td>{t.order?.total || "€0.00"}</td>
         <td>
           {t.section || t.row || t.seatNumber ? (
             <>
@@ -506,15 +575,43 @@ export default function AdminTicketsPage() {
 
         {tickets.length > 0 ? (
           <>
-            <h2 className="admin-tickets__section-title">Platform Tickets</h2>
+            <div className="admin-tickets__section-heading">
+              <h2 className="admin-tickets__section-title">Platform Tickets</h2>
+              {selectedIds.length ? (
+                <div className="admin-tickets__bulk" role="toolbar" aria-label="Bulk ticket actions">
+                  <strong>{selectedIds.length} selected</strong>
+                  <select value={bulkAction} onChange={(event) => setBulkAction(event.target.value)}>
+                    <option value="">Choose bulk action</option>
+                    <option value="update">Add alternate email</option>
+                    <option value="send_update">Send pending updates</option>
+                    <option value="check_in">Check in tickets</option>
+                    <option value="void">Void tickets</option>
+                  </select>
+                  <button type="button" onClick={runBulkAction} disabled={!bulkAction || bulkRunning}>
+                    {bulkRunning ? "Applying…" : "Apply"}
+                  </button>
+                  <button type="button" className="admin-tickets__bulk-clear" onClick={() => setSelectedIds([])}>Clear</button>
+                </div>
+              ) : null}
+            </div>
             <div className="admin-tickets__table-wrap">
               <table className="admin-tickets__table">
                 <thead>
                   <tr>
+                    <th className="admin-tickets__select">
+                      <input
+                        type="checkbox"
+                        checked={allVisibleSelected}
+                        onChange={toggleSelectAll}
+                        aria-label="Select all visible platform tickets"
+                      />
+                    </th>
                     <th>Ticket ID</th>
                     <th>Attendee</th>
                     <th>Event</th>
                     <th>Type</th>
+                    <th>Tickets booked</th>
+                    <th>Amount paid</th>
                     <th>Seat</th>
                     <th>Payment</th>
                     <th>Check-in</th>
@@ -541,10 +638,14 @@ export default function AdminTicketsPage() {
               <table className="admin-tickets__table">
                 <thead>
                   <tr>
+                    <th className="admin-tickets__select" />
                     <th>Ticket / Barcode</th>
                     <th>Attendee</th>
                     <th>Event</th>
                     <th>Type</th>
+                    <th>Tickets booked</th>
+                    <th>Amount paid</th>
+                    <th>Seat</th>
                     <th>Payment</th>
                     <th>Check-in</th>
                     <th>Actions</th>
