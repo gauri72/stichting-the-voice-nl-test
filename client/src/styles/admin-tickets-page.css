@@ -274,6 +274,84 @@
   box-shadow: inset 3px 0 #22c8d9;
 }
 
+.admin-tickets__row--order {
+  background: linear-gradient(90deg, rgba(9,31,47,.62), rgba(5,13,24,.28));
+}
+
+.admin-tickets__row--order > td {
+  border-bottom-color: rgba(34,200,217,.14);
+}
+
+.admin-tickets__row--order strong {
+  color: #f3f8fb;
+}
+
+.admin-tickets__order-toggle {
+  display: inline-flex;
+  padding: 0;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-tickets__order-toggle > svg {
+  width: 18px;
+  flex: 0 0 auto;
+  color: #22c8d9;
+}
+
+.admin-tickets__order-toggle span,
+.admin-tickets__order-toggle strong,
+.admin-tickets__order-toggle small {
+  display: block;
+}
+
+.admin-tickets__order-toggle strong {
+  font-family: ui-monospace, monospace;
+  font-size: .79rem;
+}
+
+.admin-tickets__order-toggle small {
+  margin-top: 3px;
+  color: #7f96a8;
+  font-size: .64rem;
+}
+
+.admin-tickets__row--child {
+  background: rgba(4,11,20,.68);
+}
+
+.admin-tickets__row--child > td:first-child {
+  box-shadow: inset 3px 0 rgba(34,200,217,.38);
+}
+
+.admin-tickets__row--child td {
+  color: #b8c7d2;
+}
+
+.admin-tickets__row--child .admin-tickets__mono {
+  padding-left: 8px;
+  color: #e9f4f8;
+}
+
+.admin-tickets__row--child:hover {
+  background: rgba(34,200,217,.06);
+}
+
+[data-theme="light"] .admin-tickets__row--order {
+  background: linear-gradient(90deg, rgba(221,241,246,.88), rgba(246,250,251,.7));
+}
+
+[data-theme="light"] .admin-tickets__row--order strong { color: #173244; }
+[data-theme="light"] .admin-tickets__row--child { background: rgba(242,248,250,.88); }
+[data-theme="light"] .admin-tickets__row--child td { color: #425d6e; }
+[data-theme="light"] .admin-tickets__row--child .admin-tickets__mono { color: #173244; }
+
 .admin-ticket-detail__backdrop {
   position: fixed;
   z-index: 5000;

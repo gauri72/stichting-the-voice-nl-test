@@ -188,3 +188,97 @@ export function buildTicketPdfValuesFromDocs(ticket, order, event) {
 export async function generateTicketPdfFromDocs(ticket, order, event) {
   return renderTicketPdf(buildTicketPdfValuesFromDocs(ticket, order, event));
 }
+
+async function drawBookingTicketPage(doc, values, pageNumber, totalPages) {
+  let qrBuffer = null;
+  if (values.verification_token) {
+    try {
+      qrBuffer = await generateTicketQrPngBuffer(values.verification_token);
+    } catch {
+      qrBuffer = null;
+    }
+  }
+
+  doc.rect(0, 0, 595.28, 100).fill(COLORS.headerBand);
+  if (fs.existsSync(LOGO_PATH)) {
+    doc.image(LOGO_PATH, PAGE_MARGIN, 24, { height: 52 });
+  } else {
+    doc.font("Helvetica-Bold").fontSize(18).fillColor(COLORS.white).text("V.O.I.C.E. NL", PAGE_MARGIN, 40);
+  }
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(20)
+    .fillColor(COLORS.white)
+    .text(`Event Ticket ${pageNumber} of ${totalPages}`, PAGE_MARGIN, 128, { width: 515 });
+
+  const rows = [
+    ["Event", values.event_name || "—"],
+    ["Ticket holder", values.attendee_name || "—"],
+    ["Primary email", values.attendee_email || "—"],
+    ["Ticket type", values.ticket_type || "—"],
+    ["Date", values.event_date || "—"],
+    ["Time", values.event_time || "—"],
+    ["Venue", values.venue || "—"],
+    ["Order ID", values.order_number || "—"],
+    ["Ticket ID", values.ticket_number || "—"],
+  ];
+  if (values.seat_section) rows.push(["Section", values.seat_section]);
+  if (values.seat_display) rows.push(["Seat", values.seat_display]);
+  if (values.alternate_emails) rows.push(["Alternate emails", values.alternate_emails]);
+  if (values.partner_details) rows.push(["Partner / companion", values.partner_details]);
+  if (values.ticket_status && values.ticket_status !== "valid") rows.push(["Ticket status", values.ticket_status.toUpperCase()]);
+  if (values.void_reason) rows.push(["Void reason", values.void_reason]);
+
+  let rowY = 178;
+  for (const [label, value] of rows) {
+    doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted).text(label.toUpperCase(), PAGE_MARGIN, rowY);
+    doc.font("Helvetica-Bold").fontSize(11).fillColor(COLORS.navy).text(value, PAGE_MARGIN, rowY + 11, { width: 285 });
+    rowY += 36;
+  }
+
+  if (qrBuffer) {
+    doc.image(qrBuffer, 370, 185, { width: 150, height: 150 });
+    doc.font("Helvetica-Bold").fontSize(10).fillColor(COLORS.teal).text(values.ticket_number || "", 370, 344, {
+      width: 150,
+      align: "center",
+    });
+    doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted).text("Present this unique QR code at entry", 360, 362, {
+      width: 170,
+      align: "center",
+    });
+  }
+
+  doc
+    .font("Helvetica")
+    .fontSize(8)
+    .fillColor(COLORS.muted)
+    .text("Each page is a separate admission ticket. Do not share its QR code.", PAGE_MARGIN, 720, {
+      width: 515,
+      align: "center",
+    });
+  doc
+    .font("Helvetica")
+    .fontSize(7)
+    .text(`© 2026 Stichting The V.O.I.C.E. NL · Page ${pageNumber} of ${totalPages}`, PAGE_MARGIN, 750, {
+      width: 515,
+      align: "center",
+    });
+}
+
+/** Generate one booking PDF containing one independently scannable ticket per page. */
+export async function generateOrderTicketsPdfFromDocs(tickets, order, event) {
+  const values = (tickets || []).map((ticket) => buildTicketPdfValuesFromDocs(ticket, order, event));
+  if (!values.length) {
+    const err = new Error("At least one ticket is required to generate a booking PDF.");
+    err.status = 400;
+    throw err;
+  }
+  const doc = new PDFDocument({ size: "A4", margin: PAGE_MARGIN, autoFirstPage: false });
+  const promise = collectDoc(doc);
+  for (let index = 0; index < values.length; index += 1) {
+    doc.addPage();
+    await drawBookingTicketPage(doc, values[index], index + 1, values.length);
+  }
+  doc.end();
+  return promise;
+}

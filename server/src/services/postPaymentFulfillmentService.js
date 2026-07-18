@@ -13,7 +13,7 @@ import DiscountRule from "../models/DiscountRule.js";
 import { getNextSequence } from "../utils/sequence.js";
 import { generateVerificationToken } from "./eventService.js";
 import { buildTicketQrPath } from "./ticketQrService.js";
-import { sendTicketConfirmationEmail } from "./ticketMailer.js";
+import { sendTicketOrderConfirmationEmail } from "./ticketMailer.js";
 import { sendMembershipEmails } from "./membershipMailer.js";
 import { buildMembershipEmailPayload } from "./membershipProvisioningService.js";
 import { buildMembershipId } from "../utils/membershipId.js";
@@ -381,18 +381,20 @@ export async function sendTicketEmailsForOrder(order, tickets, event) {
   if (emailedTicketOrders.has(key)) return;
   emailedTicketOrders.add(key);
 
-  for (const ticket of tickets) {
-    try {
-      await sendTicketConfirmationEmail({ order, ticket, event });
-      await logCheckoutAction({
-        action: CHECKOUT_AUDIT_ACTIONS.TICKET_EMAIL_SENT,
-        orderId: order.orderNumber,
-        email: order.attendeeEmail,
-        details: { ticketNumber: ticket.ticketNumber },
-      });
-    } catch (err) {
-      console.error("[fulfillment] ticket email failed:", err.message);
-    }
+  try {
+    await sendTicketOrderConfirmationEmail({ order, tickets, event });
+    await logCheckoutAction({
+      action: CHECKOUT_AUDIT_ACTIONS.TICKET_EMAIL_SENT,
+      orderId: order.orderNumber,
+      email: order.attendeeEmail,
+      details: {
+        delivery: "consolidated",
+        ticketCount: tickets.length,
+        ticketNumbers: tickets.map((ticket) => ticket.ticketNumber),
+      },
+    });
+  } catch (err) {
+    console.error("[fulfillment] booking confirmation email failed:", err.message);
   }
 }
 

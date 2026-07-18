@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   IconDownload,
   IconMail,
@@ -14,6 +14,8 @@ import {
   IconFileTypePdf,
   IconSend,
   IconHistory,
+  IconChevronDown,
+  IconChevronRight,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import AdminLayout from "./AdminLayout.jsx";
@@ -41,6 +43,7 @@ export default function AdminTicketsPage() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [bulkAction, setBulkAction] = useState("");
   const [bulkRunning, setBulkRunning] = useState(false);
+  const [expandedOrders, setExpandedOrders] = useState([]);
   const [filters, setFilters] = useState({
     eventId: "",
     paymentStatus: "",
@@ -93,6 +96,24 @@ export default function AdminTicketsPage() {
   }, [tickets]);
 
   const allVisibleSelected = tickets.length > 0 && tickets.every((ticket) => selectedIds.includes(ticket.id));
+  const groupedTickets = useMemo(() => {
+    const groups = new Map();
+    tickets.forEach((ticket) => {
+      const key = ticket.order?.id || ticket.orderId || ticket.id;
+      if (!groups.has(key)) {
+        groups.set(key, {
+          id: key,
+          order: ticket.order,
+          tickets: [],
+          attendeeName: ticket.attendeeName,
+          attendeeEmail: ticket.attendeeEmail,
+          eventTitle: ticket.eventTitle,
+        });
+      }
+      groups.get(key).tickets.push(ticket);
+    });
+    return [...groups.values()];
+  }, [tickets]);
 
   function toggleTicketSelection(ticketId) {
     setSelectedIds((current) => current.includes(ticketId)
@@ -102,6 +123,22 @@ export default function AdminTicketsPage() {
 
   function toggleSelectAll() {
     setSelectedIds(allVisibleSelected ? [] : tickets.map((ticket) => ticket.id));
+  }
+
+  function toggleOrderSelection(group) {
+    const ids = group.tickets.map((ticket) => ticket.id);
+    const allSelected = ids.every((id) => selectedIds.includes(id));
+    setSelectedIds((current) => allSelected
+      ? current.filter((id) => !ids.includes(id))
+      : [...new Set([...current, ...ids])]
+    );
+  }
+
+  function toggleOrderExpanded(orderId) {
+    setExpandedOrders((current) => current.includes(orderId)
+      ? current.filter((id) => id !== orderId)
+      : [...current, orderId]
+    );
   }
 
   async function runBulkAction() {
@@ -352,11 +389,11 @@ export default function AdminTicketsPage() {
     return "Card";
   }
 
-  function renderTicketRow(t, { readOnly = false } = {}) {
+  function renderTicketRow(t, { readOnly = false, groupedChild = false, groupSize = 1 } = {}) {
     return (
       <tr
         key={t.id}
-        className={`${readOnly ? "admin-tickets__row--tt" : "admin-tickets__row--interactive"}`}
+        className={`${readOnly ? "admin-tickets__row--tt" : "admin-tickets__row--interactive"}${groupedChild ? " admin-tickets__row--child" : ""}`}
         onClick={readOnly ? undefined : () => openTicket(t)}
       >
         <td className="admin-tickets__select" onClick={(event) => event.stopPropagation()}>
@@ -371,7 +408,7 @@ export default function AdminTicketsPage() {
         </td>
         <td>
           <span className="admin-tickets__mono">{t.ticketNumber}</span>
-          <span className="admin-tickets__sub">{t.order?.orderNumber}</span>
+          <span className="admin-tickets__sub">{groupedChild ? `Individual ticket · 1 of ${groupSize}` : t.order?.orderNumber}</span>
           {readOnly ? <span className="admin-tickets__source-badge">TicketTailor</span> : null}
         </td>
         <td>
@@ -380,8 +417,8 @@ export default function AdminTicketsPage() {
         </td>
         <td>{t.eventTitle}</td>
         <td>{t.ticketTypeName}</td>
-        <td>{t.order?.ticketCount || 1}</td>
-        <td>{t.order?.total || "€0.00"}</td>
+        <td>{groupedChild ? "1" : t.order?.ticketCount || 1}</td>
+        <td>{groupedChild ? <span className="admin-tickets__sub">Included in booking</span> : t.order?.total || "€0.00"}</td>
         <td>
           {t.section || t.row || t.seatNumber ? (
             <>
@@ -452,6 +489,61 @@ export default function AdminTicketsPage() {
         </td>
       </tr>
     );
+  }
+
+  function renderOrderGroup(group) {
+    const isExpanded = expandedOrders.includes(group.id);
+    const ids = group.tickets.map((ticket) => ticket.id);
+    const selectedCount = ids.filter((id) => selectedIds.includes(id)).length;
+    const allSelected = selectedCount === ids.length;
+    const first = group.tickets[0];
+    const checkedInCount = group.tickets.filter((ticket) => ticket.checkedIn).length;
+    const typeNames = [...new Set(group.tickets.map((ticket) => ticket.ticketTypeName).filter(Boolean))];
+    const seats = group.tickets.filter((ticket) => ticket.section || ticket.row || ticket.seatNumber || ticket.seatLabel);
+
+    return [
+      <tr key={`order-${group.id}`} className="admin-tickets__row--order">
+        <td className="admin-tickets__select">
+          <input
+            type="checkbox"
+            checked={allSelected}
+            ref={(element) => { if (element) element.indeterminate = selectedCount > 0 && !allSelected; }}
+            onChange={() => toggleOrderSelection(group)}
+            aria-label={`Select booking ${group.order?.orderNumber || group.id}`}
+          />
+        </td>
+        <td>
+          <button
+            type="button"
+            className="admin-tickets__order-toggle"
+            onClick={() => toggleOrderExpanded(group.id)}
+            aria-expanded={isExpanded}
+          >
+            {isExpanded ? <IconChevronDown /> : <IconChevronRight />}
+            <span>
+              <strong>{group.order?.orderNumber || "Booking"}</strong>
+              <small>{group.tickets.length} issued ticket{group.tickets.length === 1 ? "" : "s"}</small>
+            </span>
+          </button>
+        </td>
+        <td>{group.attendeeName}<span className="admin-tickets__sub">{group.attendeeEmail}</span></td>
+        <td>{group.eventTitle}</td>
+        <td>{typeNames.join(", ") || "—"}</td>
+        <td><strong>{group.order?.ticketCount || group.tickets.length}</strong></td>
+        <td><strong>{group.order?.total || "€0.00"}</strong></td>
+        <td>{seats.length > 1 ? `${seats.length} assigned seats` : seats.length === 1 ? seats[0].seatLabel || `Row ${seats[0].row || "—"} · Seat ${seats[0].seatNumber || "—"}` : "—"}</td>
+        <td><span className={`admin-tickets__badge admin-tickets__badge--${group.order?.paymentMethod || group.order?.paymentStatus}`}>{paymentMethodLabel(group.order)}</span></td>
+        <td>{checkedInCount}/{group.tickets.length}</td>
+        <td className="admin-tickets__actions">
+          <button type="button" onClick={() => toggleOrderExpanded(group.id)} title={isExpanded ? "Hide individual tickets" : "Show individual tickets"}>
+            {isExpanded ? <IconChevronDown size={15} /> : <IconChevronRight size={15} />}
+          </button>
+        </td>
+      </tr>,
+      ...(isExpanded
+        ? group.tickets.map((ticket) => renderTicketRow(ticket, { groupedChild: true, groupSize: group.tickets.length }))
+        : []),
+    ];
   }
 
   const ttStats = stats?.ticketTailor;
@@ -618,7 +710,7 @@ export default function AdminTicketsPage() {
                     <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody>{tickets.map((t) => renderTicketRow(t))}</tbody>
+                <tbody>{groupedTickets.flatMap((group) => renderOrderGroup(group))}</tbody>
               </table>
             </div>
           </>

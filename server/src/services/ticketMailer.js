@@ -1,7 +1,7 @@
 import env from "../config/env.js";
 import { getMailFromAddress, getSmtpTransporter, isMailerConfigured } from "./smtpTransport.js";
 import { generateTicketQrPngBuffer } from "./ticketQrService.js";
-import { generateTicketPdfFromDocs } from "./ticketPdfService.js";
+import { generateOrderTicketsPdfFromDocs, generateTicketPdfFromDocs } from "./ticketPdfService.js";
 
 const WEBSITE_URL = "https://stichtingthevoice.nl";
 const PRIVACY_URL = `${WEBSITE_URL}/privacy-policy`;
@@ -376,6 +376,156 @@ export async function sendTicketConfirmationEmail({
   }
 
   return { sent: true, recipients };
+}
+
+function buildBookingEmailText({ order, tickets, event }) {
+  const venue = [event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—";
+  const summaries = tickets.map((ticket, index) => {
+    const seat = ticket.seatLabel
+      || [ticket.section && `Section ${ticket.section}`, ticket.row && `Row ${ticket.row}`, ticket.seatNumber && `Seat ${ticket.seatNumber}`]
+        .filter(Boolean).join(" · ")
+      || "General admission";
+    return `${index + 1}. ${ticket.ticketNumber}
+   Holder: ${ticket.attendeeName || "—"}
+   Type: ${ticket.ticketTypeName || "—"}
+   Seat: ${seat}`;
+  }).join("\n\n");
+
+  return `Your booking for ${event?.title || "V.O.I.C.E. NL Event"} is confirmed.
+
+Order: ${order.orderNumber}
+Tickets: ${tickets.length}
+Date: ${formatEventDate(event?.date)}
+Time: ${formatEventTime(event?.startTime, event?.endTime)}
+Venue: ${venue}
+
+YOUR TICKETS
+
+${summaries}
+
+Each ticket has its own unique QR code. The attached PDF contains one independently scannable ticket per page. Keep every QR code secure and present the correct page for each guest at entry.
+
+Need help? ${env.org.contactEmail || "info@stichtingthevoice.nl"}
+${WEBSITE_URL}
+
+Stichting The V.O.I.C.E. NL`;
+}
+
+function buildBookingEmailHtml({ order, tickets, event }, qrCids) {
+  const eventTitle = escapeHtml(event?.title || "V.O.I.C.E. NL Event");
+  const venue = escapeHtml([event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—");
+  const ticketCards = tickets.map((ticket, index) => {
+    const seat = ticket.seatLabel
+      || [ticket.section && `Section ${ticket.section}`, ticket.row && `Row ${ticket.row}`, ticket.seatNumber && `Seat ${ticket.seatNumber}`]
+        .filter(Boolean).join(" · ")
+      || "General admission";
+    const qr = qrCids[index]
+      ? `<img src="cid:${qrCids[index]}" alt="Unique QR code for ${escapeHtml(ticket.ticketNumber)}" width="148" height="148" style="display:block;width:148px;height:148px;margin:0 auto;border:9px solid #fff;border-radius:16px;background:#fff;" />`
+      : "";
+    return `<tr><td style="padding:0 0 16px;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#081628;border:1px solid rgba(62,198,212,.24);border-radius:18px;">
+        <tr>
+          <td valign="top" style="padding:20px;">
+            <p style="margin:0 0 5px;color:#3ec6d4;font-size:11px;letter-spacing:1.3px;font-weight:800;text-transform:uppercase;">Ticket ${index + 1} of ${tickets.length}</p>
+            <p style="margin:0 0 14px;color:#fff;font-size:18px;font-weight:800;">${escapeHtml(ticket.ticketNumber)}</p>
+            <p style="margin:0 0 7px;color:#c7d3e6;font-size:13px;"><strong style="color:#fff;">Holder:</strong> ${escapeHtml(ticket.attendeeName || "—")}</p>
+            <p style="margin:0 0 7px;color:#c7d3e6;font-size:13px;"><strong style="color:#fff;">Type:</strong> ${escapeHtml(ticket.ticketTypeName || "—")}</p>
+            <p style="margin:0;color:#c7d3e6;font-size:13px;"><strong style="color:#fff;">Admission:</strong> ${escapeHtml(seat)}</p>
+          </td>
+          <td valign="middle" align="center" style="width:185px;padding:18px 18px 18px 0;">${qr}</td>
+        </tr>
+      </table>
+    </td></tr>`;
+  }).join("");
+
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><style>
+    body{margin:0;background:#030712;font-family:'Segoe UI',Arial,sans-serif;color:#fff}.shell{padding:28px 12px 40px}
+    @media(max-width:600px){.shell{padding:14px 8px 28px}.ticket-cell{display:block!important;width:auto!important}}
+  </style></head>
+  <body><table role="presentation" width="100%" class="shell" cellspacing="0" cellpadding="0"><tr><td align="center">
+    <table role="presentation" width="600" style="width:100%;max-width:600px" cellspacing="0" cellpadding="0">
+      <tr><td style="padding:26px;background:linear-gradient(135deg,#07192d,#101238);border:1px solid rgba(62,198,212,.25);border-radius:20px;">
+        <p style="margin:0 0 10px;color:#3ec6d4;font-size:11px;letter-spacing:2px;font-weight:800;text-transform:uppercase;">Booking confirmed</p>
+        <h1 style="margin:0 0 12px;color:#fff;font-size:30px;line-height:1.2;">Your ${tickets.length} ${tickets.length === 1 ? "ticket is" : "tickets are"} ready</h1>
+        <p style="margin:0;color:#c7d3e6;font-size:15px;line-height:1.6;">${eventTitle}</p>
+      </td></tr>
+      <tr><td style="height:18px">&nbsp;</td></tr>
+      <tr><td style="padding:22px;background:#06101f;border:1px solid rgba(62,198,212,.2);border-radius:18px;">
+        <p style="margin:0 0 8px;color:#fff;font-size:15px;"><strong>Order:</strong> ${escapeHtml(order.orderNumber)}</p>
+        <p style="margin:0 0 8px;color:#c7d3e6;font-size:14px;">${escapeHtml(formatEventDate(event?.date))} · ${escapeHtml(formatEventTime(event?.startTime, event?.endTime))}</p>
+        <p style="margin:0;color:#c7d3e6;font-size:14px;">${venue}</p>
+      </td></tr>
+      <tr><td style="height:18px">&nbsp;</td></tr>
+      ${ticketCards}
+      <tr><td style="padding:20px 22px;background:#06101f;border:1px solid rgba(62,198,212,.2);border-radius:18px;">
+        <p style="margin:0 0 8px;color:#3ec6d4;font-size:15px;font-weight:800;">One booking. One attachment. Every ticket included.</p>
+        <p style="margin:0;color:#c7d3e6;font-size:13px;line-height:1.7;">Each QR code is unique. Your attached PDF contains one ticket per page, ready to print, save, or share with the correct guest.</p>
+      </td></tr>
+      <tr><td align="center" style="padding:28px 12px;color:#71829a;font-size:12px;line-height:1.7;">Stichting The V.O.I.C.E. NL<br>${escapeHtml(env.org.contactEmail || "info@stichtingthevoice.nl")}</td></tr>
+    </table>
+  </td></tr></table></body></html>`;
+}
+
+export async function sendTicketOrderConfirmationEmail({ order, tickets, event }) {
+  if (!Array.isArray(tickets) || tickets.length === 0) {
+    throw new Error("At least one ticket is required for a booking confirmation.");
+  }
+  if (!isMailerConfigured()) {
+    console.log("[tickets] SMTP not configured — skipping booking confirmation for", order.orderNumber);
+    return { skipped: true };
+  }
+
+  const attachments = [];
+  const qrCids = [];
+  for (let index = 0; index < tickets.length; index += 1) {
+    const ticket = tickets[index];
+    if (!ticket.verificationToken) {
+      qrCids.push(null);
+      continue;
+    }
+    const cid = `ticketQr${index + 1}`;
+    try {
+      attachments.push({
+        filename: `ticket-${ticket.ticketNumber}-qr.png`,
+        content: await generateTicketQrPngBuffer(ticket.verificationToken),
+        cid,
+        contentDisposition: "inline",
+      });
+      qrCids.push(cid);
+    } catch (error) {
+      console.warn(`[tickets] Could not generate QR for ${ticket.ticketNumber}:`, error.message);
+      qrCids.push(null);
+    }
+  }
+
+  const pdfBuffer = await generateOrderTicketsPdfFromDocs(tickets, order, event);
+  attachments.push({
+    filename: `booking-${order.orderNumber}-tickets.pdf`,
+    content: pdfBuffer,
+    contentType: "application/pdf",
+    contentDisposition: "attachment",
+  });
+
+  // A booking confirmation belongs to the purchaser. Do not expose companion
+  // or alternate addresses to one another in a consolidated `to` header.
+  const purchaserEmail = String(order.attendeeEmail || tickets[0]?.attendeeEmail || "")
+    .trim()
+    .toLowerCase();
+  const recipients = purchaserEmail ? [purchaserEmail] : [];
+  if (!recipients.length) {
+    throw new Error(`Booking ${order.orderNumber} has no confirmation email recipient.`);
+  }
+
+  await getSmtpTransporter().sendMail({
+    from: getMailFromAddress(),
+    to: recipients,
+    subject: `${tickets.length} ${tickets.length === 1 ? "ticket" : "tickets"} for ${event?.title || "V.O.I.C.E. NL Event"} — ${order.orderNumber}`,
+    text: buildBookingEmailText({ order, tickets, event }),
+    html: buildBookingEmailHtml({ order, tickets, event }, qrCids),
+    attachments,
+  });
+
+  return { sent: true, recipients, ticketCount: tickets.length };
 }
 
 export function sendTicketUpdateEmail({ order, ticket, event, reason, changes = [], recipients, subject }) {
