@@ -189,6 +189,27 @@ export function formatTicket(ticket) {
   if (!ticket) return null;
   const verificationToken = ticket.verificationToken || "";
   const pdfFallback = buildTicketPdfUrl(ticket.ticketNumber, verificationToken);
+  const documents = (ticket.documentHistory || []).map((entry) => ({
+    id: entry._id?.toString?.() || entry.id,
+    revision: entry.revision,
+    reason: entry.reason || "",
+    status: entry.status || "pending",
+    generatedAt: entry.generatedAt,
+    downloadedAt: entry.downloadedAt,
+    deliveredAt: entry.deliveredAt,
+  }));
+  const notifications = (ticket.notificationHistory || []).map((entry) => ({
+    id: entry._id?.toString?.() || entry.id,
+    revision: entry.revision,
+    documentId: entry.documentId?.toString?.() || entry.documentId || "",
+    type: entry.type || "modification",
+    recipients: entry.recipients || [],
+    subject: entry.subject || "",
+    status: entry.status || "pending",
+    createdAt: entry.createdAt,
+    sentAt: entry.sentAt,
+    error: entry.error || "",
+  }));
   return {
     id: ticket._id?.toString() || ticket.id,
     ticketNumber: ticket.ticketNumber,
@@ -211,6 +232,11 @@ export function formatTicket(ticket) {
       reason: entry.reason || "",
       transferredAt: entry.transferredAt,
     })),
+    revisionNumber: ticket.revisionNumber || 0,
+    documentHistory: documents,
+    notificationHistory: notifications,
+    hasPendingDocument: documents.some((entry) => entry.status !== "delivered"),
+    hasPendingNotification: notifications.some((entry) => entry.status !== "sent"),
     verificationToken,
     qrCodeUrl: normalizeTicketQrPath(ticket.qrCodeUrl, verificationToken),
     // The PDF route requires ?token= to match verificationToken (see
@@ -219,6 +245,8 @@ export function formatTicket(ticket) {
     // saved before token-based access existed and 403s without it.
     pdfUrl: pdfFallback || ticket.pdfUrl,
     status: ticket.status,
+    voidedAt: ticket.voidedAt,
+    voidReason: ticket.voidReason || "",
     checkedIn: ticket.checkedIn,
     checkedInAt: ticket.checkedInAt,
     createdAt: ticket.createdAt,

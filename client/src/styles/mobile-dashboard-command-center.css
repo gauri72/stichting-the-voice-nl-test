@@ -3,7 +3,7 @@
 @media(max-width:767px){
   .member-dashboard:has(.mobile-dash){width:100%;max-width:none;padding:0;background:#030914}
   [data-theme="light"] .member-dashboard:has(.mobile-dash){background:#eef5f8}
-  .mobile-dash{--md-cyan:#20d9e8;--md-green:#35df78;--md-violet:#9a6cff;--md-gold:#ffc84a;display:block;min-height:100dvh;padding-bottom:112px;color:#f8fbff;background:radial-gradient(circle at 50% 0,rgba(21,133,170,.14),transparent 34%),#030914}
+  .mobile-dash{--md-cyan:#20d9e8;--md-green:#35df78;--md-violet:#9a6cff;--md-gold:#ffc84a;display:block;min-height:100dvh;padding-bottom:0;color:#f8fbff;background:radial-gradient(circle at 50% 0,rgba(21,133,170,.14),transparent 34%),#030914}
   [data-theme="light"] .mobile-dash{color:#10202e;background:radial-gradient(circle at 50% 0,rgba(25,159,188,.12),transparent 35%),#eef5f8}
   .mobile-dash-hero{position:relative;min-height:510px;overflow:hidden;border-radius:0 0 34px 34px;border-bottom:1px solid rgba(49,218,233,.35);isolation:isolate}
   .mobile-dash-hero__media,.mobile-dash-hero__image,.mobile-dash-hero__scrim{position:absolute;inset:0;width:100%;height:100%}
@@ -111,6 +111,12 @@
   .mobile-dash-impact small{color:var(--md-green);font-size:.63rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
   .mobile-dash-impact strong{margin-top:3px;font-size:.72rem}
   .mobile-dash-impact p{margin:4px 0 0;color:#8fa3af;font-size:.62rem;line-height:1.4}
+  .mobile-dash-movement{position:relative;display:grid;grid-template-columns:86px 1fr;min-height:170px;padding:25px 20px;align-items:center;gap:17px;overflow:hidden;border:1px solid rgba(32,217,232,.25);border-radius:24px;background:linear-gradient(145deg,rgba(2,12,23,.96),rgba(0,5,12,.98));box-shadow:inset 0 1px rgba(255,255,255,.035);isolation:isolate}
+  .mobile-dash-movement__glow{position:absolute;z-index:-1;left:-28px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(32,217,232,.18),transparent 68%);filter:blur(4px)}
+  .mobile-dash-movement img{width:82px;filter:drop-shadow(0 0 18px rgba(24,194,229,.42))}
+  .mobile-dash-movement h2{margin:0;color:#f7fbff;font-size:clamp(1.08rem,5vw,1.35rem);line-height:1.22}
+  .mobile-dash-movement h2 strong{display:block;margin-top:3px;color:#138cc8;font:inherit}
+  .mobile-dash-movement p{margin:13px 0 0;color:#9aacb9;font-size:.67rem;line-height:1.55}
   .mobile-dash-nav{position:fixed;z-index:850;right:max(8px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom));left:max(8px,env(safe-area-inset-left));display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:9px 5px 8px;border:1px solid rgba(100,181,203,.3);border-radius:23px;background:rgba(2,10,21,.88);box-shadow:0 18px 50px rgba(0,0,0,.4);backdrop-filter:blur(22px) saturate(145%)}
   .mobile-dash-nav a{display:grid;justify-items:center;gap:3px;color:#8495a3;font-size:.58rem;text-decoration:none}
   .mobile-dash-nav a svg{width:21px}
@@ -126,7 +132,7 @@
   .mobile-dash-sheet__header button{display:grid;place-items:center;width:38px;height:38px;color:#fff;border:1px solid rgba(170,207,218,.24);border-radius:50%;background:rgba(255,255,255,.04)}
   .mobile-dash-sheet__header svg{width:20px}
   .mobile-dash-sheet__body{padding:22px 18px calc(30px + env(safe-area-inset-bottom))}
-  .mobile-dash-sheet__primary{display:flex;justify-content:center;margin-top:18px;padding:14px;color:#03111c;border-radius:15px;background:linear-gradient(100deg,var(--md-cyan),var(--md-green));font-size:.78rem;font-weight:800;text-decoration:none}
+  .mobile-dash-sheet__primary{display:flex;justify-content:center;align-items:center;gap:8px;width:100%;margin-top:18px;padding:14px;color:#03111c;border:0;border-radius:15px;background:linear-gradient(100deg,var(--md-cyan),var(--md-green));font:inherit;font-size:.78rem;font-weight:800;text-decoration:none;cursor:pointer}
   .mobile-sheet-membership__card{container-type:inline-size;position:relative;isolation:isolate;aspect-ratio:1488/1058;min-height:0;overflow:hidden;padding:0;border:max(1px,.135cqw) solid #119be2;border-radius:4.45cqw;background:radial-gradient(circle at 9% 12%,rgba(12,76,147,.4),transparent 30%),radial-gradient(circle at 81% 30%,rgba(12,68,130,.2),transparent 38%),linear-gradient(135deg,#03152c 0%,#020d20 56%,#031831 100%);box-shadow:0 20px 45px rgba(0,0,0,.28)}
   .mobile-sheet-membership__card::after{position:absolute;z-index:-2;inset:0;content:"";background:linear-gradient(119deg,transparent 50.5%,rgba(20,112,222,.48) 50.65%,rgba(17,85,175,.16) 58.4%,transparent 58.55%)}
   .mobile-sheet-membership__ribbon{position:absolute;z-index:-1;left:64.5%;top:-24%;width:8.8%;height:80%;transform:rotate(29deg);background:linear-gradient(180deg,rgba(42,139,249,.42),rgba(10,59,126,.08))}
@@ -164,6 +170,13 @@
   .mobile-sheet-rewards small{margin-top:20px;color:#91a7b5;text-transform:uppercase;letter-spacing:.1em}
   .mobile-sheet-rewards strong{margin-top:8px;color:var(--md-gold);font-size:4rem;line-height:1}
   .mobile-sheet-rewards span{color:#a8bac5}.mobile-sheet-rewards p{margin:24px auto;max-width:290px;color:#9eb0bb;line-height:1.65}
+  .mobile-sheet-referral{padding:24px 8px;text-align:center}
+  .mobile-sheet-referral__icon{display:grid;width:72px;height:72px;margin:0 auto 20px;place-items:center;border:1px solid rgba(255,200,74,.34);border-radius:24px;color:var(--md-gold);background:linear-gradient(145deg,rgba(255,200,74,.18),rgba(255,101,183,.1));box-shadow:0 14px 38px rgba(255,200,74,.13)}
+  .mobile-sheet-referral__icon svg{width:34px;height:34px}
+  .mobile-sheet-referral p{margin:0 auto 26px;max-width:310px;color:#9eb0bb;line-height:1.65}
+  .mobile-sheet-referral>small{display:block;color:#91a7b5;font-size:.64rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase}
+  .mobile-sheet-referral>strong{display:block;margin:10px 0 24px;color:var(--md-gold);font-size:clamp(1.7rem,8vw,2.35rem);letter-spacing:.06em}
+  .mobile-sheet-referral .mobile-dash-sheet__primary svg{width:18px}
   .mobile-sheet-impact{display:grid;gap:10px}
   .mobile-sheet-impact>div{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:4px 14px;padding:17px;border:1px solid rgba(130,191,208,.18);border-radius:18px;background:rgba(255,255,255,.025)}
   .mobile-sheet-impact svg{grid-row:1/3;width:27px;color:var(--md-cyan)}
@@ -214,6 +227,10 @@
   [data-theme="light"] :is(.mobile-dash-wallet,.mobile-dash-card,.mobile-dash-impact){background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(230,240,244,.82));box-shadow:0 13px 35px rgba(24,63,78,.09)}
   [data-theme="light"] .mobile-dash-card{border-color:rgba(33,88,104,.16)}
   [data-theme="light"] .mobile-dash-wallet small,[data-theme="light"] .mobile-dash-next p,[data-theme="light"] .mobile-dash-impact p{color:#607887}
+  [data-theme="light"] .mobile-dash-movement{border-color:rgba(14,132,169,.2);background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(228,241,246,.9));box-shadow:0 13px 35px rgba(24,63,78,.09)}
+  [data-theme="light"] .mobile-dash-movement h2{color:#102c3d}
+  [data-theme="light"] .mobile-dash-movement h2 strong{color:#087fad}
+  [data-theme="light"] .mobile-dash-movement p{color:#607887}
   [data-theme="light"] .mobile-dash-nav{background:rgba(248,252,253,.9);border-color:rgba(24,104,123,.22);box-shadow:0 15px 40px rgba(19,53,66,.2)}
   [data-theme="light"] .mobile-dash-sheet{color:#10202e;background:#f2f8fa}
   [data-theme="light"] .mobile-dash-sheet__header{background:rgba(242,248,250,.88)}
@@ -227,6 +244,7 @@
   [data-theme="light"] .mobile-sheet-tickets__booking{background:linear-gradient(145deg,#fff,#e9f2f8);border-color:rgba(50,105,168,.2)}
   [data-theme="light"] .mobile-sheet-ticket{background:rgba(255,255,255,.78);border-color:rgba(35,93,111,.14)}
   [data-theme="light"] .mobile-sheet-ticket strong{color:#152a38}
+  [data-theme="light"] .mobile-sheet-referral p{color:#607887}
   /* Readability scale — deliberately larger than the first compact draft,
      while keeping four hero cards viable on narrow mobile screens. */
   .mobile-dash-hero__content>p{font-size:1.08rem}
@@ -257,6 +275,7 @@
   .mobile-dash-impact small{font-size:.69rem}
   .mobile-dash-impact strong{font-size:.8rem}
   .mobile-dash-impact p{font-size:.69rem}
+  .mobile-dash-movement p{font-size:.72rem}
   .mobile-dash-nav a{font-size:.64rem}
   .mobile-dash-sheet__header span{font-size:.66rem}
   .mobile-dash-sheet__header h2{font-size:1.5rem}

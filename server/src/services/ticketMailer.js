@@ -91,7 +91,7 @@ function visibleCheckoutAnswers(order, key) {
     .map((a) => ({ label: a.questionLabel, answer: a.answer }));
 }
 
-function buildTicketEmailText({ order, ticket, event }) {
+function buildTicketEmailText({ order, ticket, event, updateNotice = "" }) {
   const eventTitle = event?.title || "Event";
   const viewUrl = `${env.clientUrl}/events/${event?.slug || event?._id || "event"}/tickets/confirmation/${order.orderNumber}`;
   const seatLines = ticket.row || ticket.seatNumber
@@ -101,7 +101,7 @@ function buildTicketEmailText({ order, ticket, event }) {
     .slice(0, 8)
     .map((a) => `${a.label}: ${Array.isArray(a.answer) ? a.answer.join(", ") : a.answer ?? "—"}`)
     .join("\n");
-  return `Your ticket for ${eventTitle} is confirmed.
+  return `${updateNotice ? `Your ticket has been updated: ${updateNotice}` : `Your ticket for ${eventTitle} is confirmed.`}
 
 Order: ${order.orderNumber}
 Ticket: ${ticket.ticketNumber}
@@ -121,7 +121,7 @@ ${WEBSITE_URL}
 Stichting The V.O.I.C.E. NL`;
 }
 
-function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
+function buildTicketEmailHtml({ order, ticket, event, updateNotice = "" }, branding = {}) {
   const qrCid = branding.qrCid || null;
   const qrSrc = qrCid ? `cid:${qrCid}` : "";
   const qrCell = qrSrc
@@ -189,9 +189,10 @@ function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
 
           <tr>
             <td class="hero-pad" style="padding:28px 24px 30px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.18);">
-              <p style="margin:0 0 10px;font-size:11px;letter-spacing:2px;font-weight:800;color:#3ec6d4;text-transform:uppercase;">Ticket Confirmation</p>
-              <h1 class="hero-title" style="margin:0 0 12px;font-size:30px;line-height:1.2;color:#ffffff;font-family:Georgia,'Times New Roman',serif;font-weight:700;">Your Ticket Is Confirmed!</h1>
+              <p style="margin:0 0 10px;font-size:11px;letter-spacing:2px;font-weight:800;color:#3ec6d4;text-transform:uppercase;">${updateNotice ? "Ticket Update" : "Ticket Confirmation"}</p>
+              <h1 class="hero-title" style="margin:0 0 12px;font-size:30px;line-height:1.2;color:#ffffff;font-family:Georgia,'Times New Roman',serif;font-weight:700;">${updateNotice ? "Your Ticket Has Been Updated" : "Your Ticket Is Confirmed!"}</h1>
               <p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:#d7e0ef;">We are excited to welcome you at <strong style="color:#ffffff;">${eventTitle}</strong>.</p>
+              ${updateNotice ? `<p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:#ffffff;"><strong>Update:</strong> ${escapeHtml(updateNotice)}</p>` : ""}
               <p style="margin:0;font-size:14px;line-height:1.6;color:#f06db3;font-weight:600;">${tagline}</p>
             </td>
           </tr>
@@ -300,7 +301,14 @@ function buildTicketEmailHtml({ order, ticket, event }, branding = {}) {
 </html>`;
 }
 
-export async function sendTicketConfirmationEmail({ order, ticket, event }) {
+export async function sendTicketConfirmationEmail({
+  order,
+  ticket,
+  event,
+  subjectOverride = "",
+  updateNotice = "",
+  recipientsOverride = null,
+}) {
   if (!isMailerConfigured()) {
     console.log("[tickets] SMTP not configured — skipping confirmation email for", ticket.ticketNumber);
     return { skipped: true };
@@ -335,19 +343,19 @@ export async function sendTicketConfirmationEmail({ order, ticket, event }) {
   }
 
   const qrCid = attachments.find((a) => a.cid)?.cid || null;
-  const html = buildTicketEmailHtml({ order, ticket, event }, { qrCid });
-  const text = buildTicketEmailText({ order, ticket, event });
+  const html = buildTicketEmailHtml({ order, ticket, event, updateNotice }, { qrCid });
+  const text = buildTicketEmailText({ order, ticket, event, updateNotice });
   const eventTitle = event?.title || "V.O.I.C.E. NL Event";
-  const recipients = [...new Set([
+  const recipients = [...new Set((recipientsOverride || [
     ticket.attendeeEmail,
     ...(Array.isArray(ticket.alternateEmails) ? ticket.alternateEmails : []),
-  ].map((email) => String(email || "").trim().toLowerCase()).filter(Boolean))];
+  ]).map((email) => String(email || "").trim().toLowerCase()).filter(Boolean))];
 
   try {
     await transporter.sendMail({
       from: getMailFromAddress(),
       to: recipients,
-      subject: `Your ticket for ${eventTitle} — ${ticket.ticketNumber}`,
+      subject: subjectOverride || `Your ticket for ${eventTitle} — ${ticket.ticketNumber}`,
       text,
       html,
       attachments,
@@ -360,7 +368,18 @@ export async function sendTicketConfirmationEmail({ order, ticket, event }) {
     throw error;
   }
 
-  return { sent: true };
+  return { sent: true, recipients };
+}
+
+export function sendTicketUpdateEmail({ order, ticket, event, reason, recipients, subject }) {
+  return sendTicketConfirmationEmail({
+    order,
+    ticket,
+    event,
+    updateNotice: reason || "Administrative details were modified.",
+    recipientsOverride: recipients,
+    subjectOverride: subject || `Updated ticket for ${event?.title || "V.O.I.C.E. NL Event"} — ${ticket.ticketNumber}`,
+  });
 }
 
 export { buildTicketEmailHtml };

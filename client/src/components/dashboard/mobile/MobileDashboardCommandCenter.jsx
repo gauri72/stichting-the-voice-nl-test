@@ -19,6 +19,8 @@ import {
   IconUser,
   IconWallet,
   IconX,
+  IconShare,
+  IconCopy,
 } from "@tabler/icons-react";
 import { useAiAssistant } from "../../../contexts/AiAssistantContext.jsx";
 import { useWallet } from "../../../contexts/WalletContext.jsx";
@@ -52,6 +54,7 @@ const CARD_ICONS = {
   profile: IconUser,
   donations: IconHeartHandshake,
   sponsorships: IconSparkles,
+  referral: IconShare,
 };
 
 function formatMoney(minor = 0) {
@@ -135,6 +138,8 @@ export default function MobileDashboardCommandCenter({
   const [isBusinessOwner, setIsBusinessOwner] = useState(false);
   const [featuredBusiness, setFeaturedBusiness] = useState(null);
   const [marketplaceProducts, setMarketplaceProducts] = useState([]);
+  const [referral, setReferral] = useState(null);
+  const [referralCopied, setReferralCopied] = useState(false);
   const [membershipAction, setMembershipAction] = useState("");
   const [membershipActionMessage, setMembershipActionMessage] = useState("");
   const [membershipQrImageSrc, setMembershipQrImageSrc] = useState(() =>
@@ -174,7 +179,8 @@ export default function MobileDashboardCommandCenter({
       getMyBusiness(),
       getVCommerceFeatured(),
       getVCommercePopularProducts({ limit: 3 }),
-    ]).then(([bookingResult, eventResult, businessResult, featuredResult, productsResult]) => {
+      apiFetch("/api/dashboard/referrals", { headers: authHeaders() }),
+    ]).then(([bookingResult, eventResult, businessResult, featuredResult, productsResult, referralResult]) => {
       if (bookingResult.status === "fulfilled") setBookings(bookingResult.value?.bookings || []);
       if (eventResult.status === "fulfilled") {
         const upcoming = eventResult.value?.upcoming || [];
@@ -183,6 +189,9 @@ export default function MobileDashboardCommandCenter({
       setIsBusinessOwner(businessResult.status === "fulfilled" && Boolean(businessResult.value?.business));
       if (featuredResult.status === "fulfilled") setFeaturedBusiness(featuredResult.value?.business || null);
       if (productsResult.status === "fulfilled") setMarketplaceProducts(productsResult.value?.products || []);
+      if (referralResult.status === "fulfilled" && referralResult.value?.enabled) {
+        setReferral(referralResult.value.referral || null);
+      }
     });
   }, [loadWallet]);
 
@@ -205,6 +214,13 @@ export default function MobileDashboardCommandCenter({
     { id: "profile", title: "Profile & Settings", value: "Manage Account", tone: "cyan", to: "/dashboard/profile" },
     { id: "donations", title: "My Donations", value: donationLabel, tone: "pink", to: "/dashboard/donations" },
     { id: "sponsorships", title: "Sponsorships", value: `${sponsorshipCount} Contribution${sponsorshipCount === 1 ? "" : "s"}`, tone: "violet", to: "/dashboard/sponsorships" },
+    {
+      id: "referral",
+      title: "Referral Code",
+      value: referral?.referralCode?.code || "Invite & Earn",
+      tone: "gold",
+      onClick: () => openSheet("referral"),
+    },
     ...(isBusinessOwner ? [{ id: "business", title: "Business Hub", value: "Manage Listings", tone: "green", to: "/dashboard/vcommerce" }] : []),
   ];
 
@@ -325,7 +341,6 @@ export default function MobileDashboardCommandCenter({
         <section className="mobile-dash-section" aria-labelledby="mobile-dash-overview">
           <div className="mobile-dash-section__heading">
             <div><span>Member tools</span><h2 id="mobile-dash-overview">More for You</h2></div>
-            <small>No duplicate shortcuts</small>
           </div>
           <div className="mobile-dash-grid">
             {cards.map((card) => <SummaryCard key={card.id} {...card} />)}
@@ -341,6 +356,15 @@ export default function MobileDashboardCommandCenter({
           </div>
           <IconArrowRight aria-hidden />
         </button>
+
+        <section className="mobile-dash-movement" aria-label="Thank you for being part of the movement">
+          <span className="mobile-dash-movement__glow" aria-hidden="true" />
+          <img src={voiceVMark} alt="" aria-hidden="true" />
+          <div>
+            <h2>Thank You For Being <strong>Part Of The Movement</strong></h2>
+            <p>Together we create Experiences. Share Stories. Drive Impact. Spark Innovation.</p>
+          </div>
+        </section>
       </main>
 
       <nav className="mobile-dash-nav" aria-label="Member dashboard">
@@ -495,6 +519,34 @@ export default function MobileDashboardCommandCenter({
           </div>
           <p className="mobile-sheet-impact__thanks">Your participation helps create meaningful cultural exchange and stronger communities.</p>
           <Link className="mobile-dash-sheet__primary" to="/impact">Explore Our Impact</Link>
+        </MobileSheet>
+      ) : null}
+
+      {sheet === "referral" ? (
+        <MobileSheet title="My Referral Code" onClose={closeSheet}>
+          <div className="mobile-sheet-referral">
+            <span className="mobile-sheet-referral__icon"><IconShare aria-hidden /></span>
+            <p>Invite friends to V.O.I.C.E. NL and earn rewards when they join.</p>
+            {referral?.referralCode?.code ? (
+              <>
+                <small>Your referral code</small>
+                <strong>{referral.referralCode.code}</strong>
+                <button
+                  type="button"
+                  className="mobile-dash-sheet__primary"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(referral.referralCode.code);
+                    setReferralCopied(true);
+                    window.setTimeout(() => setReferralCopied(false), 1800);
+                  }}
+                >
+                  <IconCopy aria-hidden /> {referralCopied ? "Code Copied" : "Copy Referral Code"}
+                </button>
+              </>
+            ) : (
+              <p>Your referral code will appear here as soon as it is activated.</p>
+            )}
+          </div>
         </MobileSheet>
       ) : null}
     </div>

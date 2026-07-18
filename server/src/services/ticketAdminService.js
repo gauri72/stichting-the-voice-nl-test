@@ -6,11 +6,55 @@ import { formatOrder, formatTicket } from "./ticketOrderService.js";
 import { isOrderPaymentSettled } from "../utils/orderPaymentUtils.js";
 import { verifyTicketPdfAccess } from "../utils/ticketPdfAccess.js";
 import { formatMoney } from "./ticketPricingService.js";
-import { sendTicketConfirmationEmail } from "./ticketMailer.js";
+import { sendTicketConfirmationEmail, sendTicketUpdateEmail } from "./ticketMailer.js";
 import { escapeRegex } from "../utils/regexUtils.js";
 import crypto from "crypto";
 import User from "../models/User.js";
 import { logAdminAction, getAuditLogsForTarget } from "./adminAuditService.js";
+
+function ticketSnapshot(ticket) {
+  const source = ticket.toObject ? ticket.toObject() : ticket;
+  const {
+    documentHistory,
+    notificationHistory,
+    transferHistory,
+    ...snapshot
+  } = source;
+  return snapshot;
+}
+
+function ticketRecipients(ticket) {
+  return [...new Set([
+    ticket.attendeeEmail,
+    ...(ticket.alternateEmails || []),
+    ticket.partnerDetails?.email,
+  ].map((email) => String(email || "").trim().toLowerCase()).filter(Boolean))];
+}
+
+function queueTicketRevision(ticket, { reason, type = "modification", adminId } = {}) {
+  ticket.revisionNumber = Number(ticket.revisionNumber || 0) + 1;
+  const revision = ticket.revisionNumber;
+  ticket.documentHistory.push({
+    revision,
+    reason,
+    snapshot: ticketSnapshot(ticket),
+    status: "pending",
+    createdBy: adminId || null,
+    generatedAt: new Date(),
+  });
+  const document = ticket.documentHistory[ticket.documentHistory.length - 1];
+  ticket.notificationHistory.push({
+    revision,
+    documentId: document._id,
+    type,
+    recipients: ticketRecipients(ticket),
+    subject: `${type === "void" ? "Ticket voided" : "Updated ticket"} — ${ticket.ticketNumber}`,
+    status: "pending",
+    createdBy: adminId || null,
+    createdAt: new Date(),
+  });
+  return { revision, documentId: document._id };
+}
 
 export async function listAdminTickets(filters = {}) {
   const {
@@ -175,6 +219,11 @@ export async function updateAdminTicket(ticketId, payload, adminId) {
     ticket.checkedIn = false;
   }
 
+  queueTicketRevision(ticket, {
+    reason: payload.status === "refunded" ? "Ticket marked as refunded" : "Ticket details modified by an administrator",
+    type: "modification",
+    adminId,
+  });
   await ticket.save();
   await logAdminAction({
     adminId,
@@ -267,6 +316,11 @@ export async function transferAdminTicket(ticketId, payload, adminId) {
   ticket.checkedIn = false;
   ticket.checkedInAt = null;
   ticket.checkedInBy = null;
+  queueTicketRevision(ticket, {
+    reason: `Ticket transferred from ${previous.email} to ${toEmail}`,
+    type: "transfer",
+    adminId,
+  });
   await ticket.save();
 
   await logAdminAction({
@@ -278,19 +332,7 @@ export async function transferAdminTicket(ticketId, payload, adminId) {
     detail: { from: previous, to: { name: toName, email: toEmail }, reason: payload.reason || "" },
   });
 
-  const [order, event] = await Promise.all([
-    TicketOrder.findById(ticket.orderId).lean(),
-    Event.findById(ticket.eventId).lean(),
-  ]);
-  let emailStatus = "skipped";
-  if (order && event) {
-    try {
-      await sendTicketConfirmationEmail({ order, ticket: ticket.toObject(), event });
-      emailStatus = "sent";
-    } catch {
-      emailStatus = "failed";
-    }
-  }
+  const event = await Event.findById(ticket.eventId).lean();
   if (previous.email && previous.email !== toEmail) {
     const { sendSimpleEmail } = await import("./booking/EmailNotificationService.js");
     await sendSimpleEmail({
@@ -300,7 +342,155 @@ export async function transferAdminTicket(ticketId, payload, adminId) {
       html: `<p>Your ticket <strong>${ticket.ticketNumber}</strong> for <strong>${event?.title || "the event"}</strong> has been transferred to ${toName} (${toEmail}).</p><p>The previous QR code is no longer valid.</p>`,
     }).catch(() => {});
   }
-  return { ticket: formatTicket(ticket), recipientHasAccount: Boolean(recipient), emailStatus };
+  return {
+    ticket: formatTicket(ticket),
+    recipientHasAccount: Boolean(recipient),
+    emailStatus: "pending",
+  };
+}
+
+export async function voidAdminTicket(ticketId, payload, adminId) {
+  const ticket = await Ticket.findById(ticketId);
+  if (!ticket) {
+    const err = new Error("Ticket not found.");
+    err.status = 404;
+    throw err;
+  }
+  if (ticket.status === "voided") {
+    const err = new Error("This ticket is already voided.");
+    err.status = 409;
+    throw err;
+  }
+  if (ticket.status === "refunded") {
+    const err = new Error("A refunded ticket cannot be voided.");
+    err.status = 409;
+    throw err;
+  }
+  const reason = String(payload?.reason || "").trim().slice(0, 500);
+  if (!reason) {
+    const err = new Error("A reason is required to void a ticket.");
+    err.status = 400;
+    throw err;
+  }
+  ticket.status = "voided";
+  ticket.voidedAt = new Date();
+  ticket.voidedBy = adminId || null;
+  ticket.voidReason = reason;
+  ticket.checkedIn = false;
+  ticket.checkedInAt = null;
+  ticket.checkedInBy = null;
+  ticket.verificationToken = crypto.randomBytes(24).toString("hex");
+  ticket.qrCodeUrl = `/api/tickets/qr/${ticket.verificationToken}.png`;
+  queueTicketRevision(ticket, { reason: `Ticket voided: ${reason}`, type: "void", adminId });
+  await ticket.save();
+  await logAdminAction({
+    adminId,
+    action: "Ticket Voided",
+    targetType: "ticket",
+    targetId: ticket._id,
+    summary: `Voided ticket ${ticket.ticketNumber}`,
+    detail: { reason },
+  });
+  return formatTicket(ticket);
+}
+
+export async function sendPendingTicketUpdate(ticketId, notificationId, adminId) {
+  const ticket = await Ticket.findById(ticketId);
+  if (!ticket) {
+    const err = new Error("Ticket not found.");
+    err.status = 404;
+    throw err;
+  }
+  const notification = notificationId
+    ? ticket.notificationHistory.id(notificationId)
+    : [...ticket.notificationHistory].reverse().find((entry) => entry.status !== "sent");
+  if (!notification) {
+    const err = new Error("No pending ticket update email is available.");
+    err.status = 409;
+    throw err;
+  }
+  const document = ticket.documentHistory.id(notification.documentId)
+    || [...ticket.documentHistory].reverse().find((entry) => entry.revision === notification.revision);
+  const [order, event] = await Promise.all([
+    TicketOrder.findById(ticket.orderId).lean(),
+    Event.findById(ticket.eventId).lean(),
+  ]);
+  if (!order || !event) {
+    const err = new Error("Ticket order or event could not be loaded.");
+    err.status = 409;
+    throw err;
+  }
+  const snapshot = document?.snapshot || ticketSnapshot(ticket);
+  try {
+    notification.status = "pending";
+    const result = await sendTicketUpdateEmail({
+      order,
+      ticket: snapshot,
+      event,
+      reason: document?.reason || "Ticket details were modified.",
+      recipients: notification.recipients,
+      subject: notification.subject,
+    });
+    if (result?.skipped) {
+      const err = new Error("Email delivery is not configured.");
+      err.status = 503;
+      throw err;
+    }
+    notification.status = "sent";
+    notification.sentAt = new Date();
+    notification.error = "";
+    if (document) {
+      document.status = "delivered";
+      document.deliveredAt = notification.sentAt;
+    }
+    await ticket.save();
+    await logAdminAction({
+      adminId,
+      action: "Ticket Update Sent",
+      targetType: "ticket",
+      targetId: ticket._id,
+      summary: `Sent revision ${notification.revision} for ${ticket.ticketNumber}`,
+      detail: { recipients: notification.recipients, notificationId: notification._id },
+    });
+    return { sent: true, recipients: notification.recipients, ticket: formatTicket(ticket) };
+  } catch (error) {
+    notification.status = "failed";
+    notification.error = String(error.message || "Delivery failed").slice(0, 1000);
+    await ticket.save();
+    throw error;
+  }
+}
+
+export async function getTicketRevisionPdfBuffer(ticketId, documentId, adminId) {
+  const ticket = await Ticket.findById(ticketId);
+  if (!ticket) {
+    const err = new Error("Ticket not found.");
+    err.status = 404;
+    throw err;
+  }
+  const document = documentId
+    ? ticket.documentHistory.id(documentId)
+    : ticket.documentHistory[ticket.documentHistory.length - 1];
+  const [order, event] = await Promise.all([
+    TicketOrder.findById(ticket.orderId).lean(),
+    Event.findById(ticket.eventId).lean(),
+  ]);
+  const { generateTicketPdfFromDocs } = await import("./ticketPdfService.js");
+  const buffer = await generateTicketPdfFromDocs(document?.snapshot || ticket.toObject(), order, event);
+  if (document && document.status === "pending") {
+    document.status = "downloaded";
+    document.downloadedAt = new Date();
+    await ticket.save();
+    await logAdminAction({
+      adminId,
+      action: "Ticket Revision Downloaded",
+      targetType: "ticket",
+      targetId: ticket._id,
+      summary: `Downloaded revision ${document.revision} for ${ticket.ticketNumber}`,
+      detail: { documentId: document._id },
+    });
+  }
+  return { buffer, ticketNumber: ticket.ticketNumber, revision: document?.revision || 0 };
 }
 
 export async function checkInTicket(verificationToken, adminId) {
@@ -311,8 +501,8 @@ export async function checkInTicket(verificationToken, adminId) {
     throw err;
   }
 
-  if (ticket.status === "refunded" || ticket.status === "cancelled") {
-    const err = new Error("This ticket has been cancelled or refunded.");
+  if (ticket.status === "refunded" || ticket.status === "cancelled" || ticket.status === "voided") {
+    const err = new Error("This ticket has been cancelled, refunded, or voided.");
     err.status = 400;
     throw err;
   }

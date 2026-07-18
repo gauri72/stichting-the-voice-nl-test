@@ -22,6 +22,8 @@ import {
   updateTicket,
   getTicketDetail,
   transferTicket,
+  voidTicket,
+  sendTicketUpdate,
   checkIn,
   resendEmail,
   downloadTicketPdf,
@@ -79,10 +81,13 @@ router.post("/tickets/:ticketId/change-seat", changeTicketSeat);
 router.post("/tickets/:ticketId/release-seat", releaseTicketSeat);
 router.patch("/tickets/:id", updateTicket);
 router.post("/tickets/:id/transfer", transferTicket);
+router.post("/tickets/:id/void", voidTicket);
+router.post("/tickets/:id/send-update", sendTicketUpdate);
 router.post("/tickets/:id/check-in", markCheckedIn);
 router.post("/tickets/:id/refund", markRefunded);
 router.post("/tickets/:id/resend-email", resendEmail);
 router.get("/tickets/:id/pdf", downloadTicketPdf);
+router.get("/tickets/:id/revisions/:documentId/pdf", downloadTicketPdf);
 router.post("/check-in", checkIn);
 
 router.get("/vouchers", listVouchers);

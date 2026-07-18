@@ -304,6 +304,30 @@ export async function transferTicket(req, res) {
   }
 }
 
+export async function voidTicket(req, res) {
+  try {
+    const { voidAdminTicket } = await import("../services/ticketAdminService.js");
+    const ticket = await voidAdminTicket(req.params.id, req.body || {}, req.admin?.id);
+    return res.status(200).json({ ticket });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function sendTicketUpdate(req, res) {
+  try {
+    const { sendPendingTicketUpdate } = await import("../services/ticketAdminService.js");
+    const result = await sendPendingTicketUpdate(
+      req.params.id,
+      req.body?.notificationId,
+      req.admin?.id
+    );
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function checkIn(req, res) {
   try {
     const token = req.body?.token || req.body?.verificationToken;
@@ -338,13 +362,17 @@ export async function resendEmail(req, res) {
 
 export async function downloadTicketPdf(req, res) {
   try {
-    const Ticket = (await import("../models/Ticket.js")).default;
-    const ticket = await Ticket.findById(req.params.id).lean();
-    if (!ticket) return res.status(404).json({ error: "Ticket not found." });
-    const { getTicketPdfBuffer } = await import("../services/ticketAdminService.js");
-    const buffer = await getTicketPdfBuffer(ticket.ticketNumber);
+    const { getTicketRevisionPdfBuffer } = await import("../services/ticketAdminService.js");
+    const { buffer, ticketNumber, revision } = await getTicketRevisionPdfBuffer(
+      req.params.id,
+      req.params.documentId,
+      req.admin?.id
+    );
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="ticket-${ticket.ticketNumber}.pdf"`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="ticket-${ticketNumber}${revision ? `-revision-${revision}` : ""}.pdf"`
+    );
     return res.send(buffer);
   } catch (error) {
     return handleError(res, error);
@@ -368,6 +396,9 @@ export async function markCheckedIn(req, res) {
     const Ticket = (await import("../models/Ticket.js")).default;
     const ticket = await Ticket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: "Ticket not found." });
+    if (ticket.status !== "valid") {
+      return res.status(409).json({ error: `A ${ticket.status} ticket cannot be checked in.` });
+    }
     if (ticket.checkedIn) return res.status(409).json({ error: "Already checked in." });
     ticket.checkedIn = true;
     ticket.checkedInAt = new Date();

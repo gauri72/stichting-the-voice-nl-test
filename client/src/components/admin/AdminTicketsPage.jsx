@@ -10,6 +10,10 @@ import {
   IconTransfer,
   IconX,
   IconUser,
+  IconBan,
+  IconFileTypePdf,
+  IconSend,
+  IconHistory,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import AdminLayout from "./AdminLayout.jsx";
@@ -137,9 +141,12 @@ export default function AdminTicketsPage() {
     }
   }
 
-  async function downloadPdf(ticketId, ticketNumber) {
+  async function downloadPdf(ticketId, ticketNumber, documentId = "") {
     try {
-      const response = await fetch(apiUrl(`/api/admin/events/tickets/${ticketId}/pdf`), {
+      const path = documentId
+        ? `/api/admin/events/tickets/${ticketId}/revisions/${documentId}/pdf`
+        : `/api/admin/events/tickets/${ticketId}/pdf`;
+      const response = await fetch(apiUrl(path), {
         headers: adminAuthHeaders(),
       });
       if (!response.ok) throw new Error("Download failed.");
@@ -150,8 +157,50 @@ export default function AdminTicketsPage() {
       a.download = `ticket-${ticketNumber}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+      if (selectedTicket?.id === ticketId) await openTicket(selectedTicket);
+      await loadData();
     } catch (err) {
       window.alert(err.message || "Could not download PDF.");
+    }
+  }
+
+  async function sendPendingUpdate(notificationId = "") {
+    if (!selectedTicket) return;
+    setSaving(true);
+    try {
+      const result = await apiFetch(`/api/admin/events/tickets/${selectedTicket.id}/send-update`, {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify(notificationId ? { notificationId } : {}),
+      });
+      window.alert(`Updated ticket sent to ${result.recipients?.join(", ") || "the ticket holder"}.`);
+      await openTicket(selectedTicket);
+      await loadData();
+    } catch (err) {
+      window.alert(err.message || "Could not send ticket update.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function voidTicket() {
+    if (!selectedTicket) return;
+    const reason = window.prompt("Why is this ticket being voided? This invalidates its QR code immediately.");
+    if (!reason?.trim()) return;
+    if (!window.confirm("Void this ticket? This does not issue a refund and cannot be used for entry.")) return;
+    setSaving(true);
+    try {
+      await apiFetch(`/api/admin/events/tickets/${selectedTicket.id}/void`, {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify({ reason }),
+      });
+      await openTicket(selectedTicket);
+      await loadData();
+    } catch (err) {
+      window.alert(err.message || "Could not void ticket.");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -314,8 +363,18 @@ export default function AdminTicketsPage() {
               {!t.checkedIn && t.status === "valid" ? (
                 <button type="button" onClick={() => handleCheckIn(t.id)} title="Check in">✓</button>
               ) : null}
-              <button type="button" onClick={() => handleResend(t.id)} title="Resend email"><IconMail size={14} /></button>
-              <button type="button" onClick={() => downloadPdf(t.id, t.ticketNumber)} title="Download PDF"><IconDownload size={14} /></button>
+              <button
+                type="button"
+                className={t.hasPendingNotification ? "admin-tickets__action--pending" : ""}
+                onClick={() => t.hasPendingNotification ? openTicket(t) : handleResend(t.id)}
+                title={t.hasPendingNotification ? "Updated email ready to send" : "Resend email"}
+              ><IconMail size={14} /></button>
+              <button
+                type="button"
+                className={t.hasPendingDocument ? "admin-tickets__action--pending" : ""}
+                onClick={() => downloadPdf(t.id, t.ticketNumber)}
+                title={t.hasPendingDocument ? "Updated PDF ready" : "Download PDF"}
+              ><IconDownload size={14} /></button>
               {t.status !== "refunded" ? (
                 <button type="button" onClick={() => handleRefund(t.id)} title="Refund">↩</button>
               ) : null}
@@ -524,7 +583,29 @@ export default function AdminTicketsPage() {
                     <div><small>Event</small><strong>{ticketDetail.ticket.eventTitle}</strong></div>
                     <div><small>Ticket type</small><strong>{ticketDetail.ticket.ticketTypeName}</strong></div>
                     <div><small>Payment</small><strong>{paymentMethodLabel(ticketDetail.ticket.order)}</strong></div>
-                    <div><small>Check-in</small><strong>{ticketDetail.ticket.checkedIn ? "Checked in" : "Not checked in"}</strong></div>
+                    <div><small>Status</small><strong className={`admin-ticket-detail__status admin-ticket-detail__status--${ticketDetail.ticket.status}`}>{ticketDetail.ticket.status}</strong></div>
+                  </section>
+
+                  <section className="admin-ticket-detail__deliveries">
+                    <div>
+                      <IconFileTypePdf />
+                      <span><strong>Updated ticket PDF</strong><small>{ticketDetail.ticket.hasPendingDocument ? "A new revision is ready" : "Latest revision accessed or delivered"}</small></span>
+                      <button
+                        type="button"
+                        className={ticketDetail.ticket.hasPendingDocument ? "is-pending" : ""}
+                        onClick={() => downloadPdf(selectedTicket.id, selectedTicket.ticketNumber)}
+                      ><IconDownload /> Download</button>
+                    </div>
+                    <div>
+                      <IconMail />
+                      <span><strong>Modification email</strong><small>{ticketDetail.ticket.hasPendingNotification ? "Ready to review and send" : "No email awaiting delivery"}</small></span>
+                      <button
+                        type="button"
+                        className={ticketDetail.ticket.hasPendingNotification ? "is-pending" : ""}
+                        onClick={() => sendPendingUpdate()}
+                        disabled={!ticketDetail.ticket.hasPendingNotification || saving}
+                      ><IconSend /> Send update</button>
+                    </div>
                   </section>
 
                   <form className="admin-ticket-detail__form" onSubmit={saveTicketDetails}>
@@ -554,6 +635,50 @@ export default function AdminTicketsPage() {
                         <button type="submit" className="admin-tickets__btn admin-tickets__btn--accent" disabled={saving}>Confirm secure transfer</button>
                       </form>
                     ) : null}
+                  </section>
+
+                  {ticketDetail.ticket.status !== "voided" && ticketDetail.ticket.status !== "refunded" ? (
+                    <section className="admin-ticket-detail__void">
+                      <div><IconBan /><span><strong>Void ticket</strong><small>Immediately invalidate entry and the current QR code. This does not refund payment.</small></span></div>
+                      <button type="button" onClick={voidTicket} disabled={saving}>Void ticket</button>
+                    </section>
+                  ) : ticketDetail.ticket.status === "voided" ? (
+                    <section className="admin-ticket-detail__void admin-ticket-detail__void--complete">
+                      <div><IconBan /><span><strong>Ticket voided</strong><small>{ticketDetail.ticket.voidReason}</small></span></div>
+                    </section>
+                  ) : null}
+
+                  <section className="admin-ticket-detail__history">
+                    <h3><IconHistory /> Document and email history</h3>
+                    {[...(ticketDetail.ticket.documentHistory || [])].reverse().map((document) => {
+                      const notification = (ticketDetail.ticket.notificationHistory || [])
+                        .find((entry) => entry.documentId === document.id);
+                      return (
+                        <article key={document.id}>
+                          <div>
+                            <strong>Revision {document.revision}</strong>
+                            <small>{document.reason}</small>
+                            <time>{new Date(document.generatedAt).toLocaleString()}</time>
+                          </div>
+                          <div className="admin-ticket-detail__history-actions">
+                            <button type="button" onClick={() => downloadPdf(selectedTicket.id, selectedTicket.ticketNumber, document.id)}>
+                              <IconFileTypePdf /> PDF · {document.status}
+                            </button>
+                            {notification ? (
+                              <button
+                                type="button"
+                                className={notification.status !== "sent" ? "is-pending" : ""}
+                                disabled={notification.status === "sent" || saving}
+                                onClick={() => sendPendingUpdate(notification.id)}
+                              >
+                                <IconMail /> Email · {notification.status}
+                              </button>
+                            ) : null}
+                          </div>
+                        </article>
+                      );
+                    })}
+                    {!ticketDetail.ticket.documentHistory?.length ? <p>No modified document revisions yet.</p> : null}
                   </section>
 
                   <section className="admin-ticket-detail__activity">
