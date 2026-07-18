@@ -154,16 +154,7 @@ function MobileToolbar() {
 
 function Hero({ mobile = false }) {
   if (mobile) return <section className="vcm-mhero"><div><h1 className="vcm-page-title">V.Commerce</h1><p className="vcm-marketplace-tagline">V.O.I.C.E. NL COMMUNITY MARKETPLACE</p><h2 className="vcm-campaign-title">Shop. Support.<br /><span>Grow.</span></h2><p className="vcm-hero-description">Discover trusted businesses, products and services from our global community.</p><Link to="/vcommerce/businesses">Explore Shops <IconArrowRight /></Link></div><img className="vcm-mhero-art" src={mobileHeroGlobalCart} alt="Global online marketplace" /></section>;
-  return <section className="vcm-hero"><div className="vcm-hero-copy"><h1 className="vcm-page-title">V.Commerce</h1><p className="vcm-marketplace-tagline">V.O.I.C.E. NL COMMUNITY MARKETPLACE</p><h2 className="vcm-campaign-title">Shop. Support. <span>Grow.</span></h2><p className="vcm-hero-description">Discover trusted businesses, products and services from our global community.<br />Shop with confidence and earn V.Wallet cashback on every purchase.</p><div className="vcm-promises"><span><IconBriefcase />Earn V.Wallet<br />Cashback</span><span><IconUsers />Support Local &<br />Global Businesses</span><span><IconShieldCheck />Verified & Trusted<br />Community</span><span><IconShoppingBag />Secure & Easy<br />Shopping</span></div><div className="vcm-hero-buttons"><Link to="/vcommerce/businesses">Explore Shops <IconArrowRight /></Link><Link to="/vcommerce/apply"><IconBuildingStore /> List Your Business</Link></div></div><div className="vcm-mosaic">{[heroOpen,heroShopkeeper,heroBusinesswoman,heroWarehouse,heroGlobalCart].map((src,i)=><img key={src} src={src} alt={i === 0 ? "Community marketplace businesses" : ""} />)}</div><DesktopStats /></section>;
-}
-
-function DesktopStats() {
-  return <aside className="vcm-dstats"><span><IconUsers /><b>1,500+</b><small>Active Shops</small></span><span><IconShoppingCart /><b>10K+</b><small>Happy Customers</small></span><span><IconCategory /><b>25+</b><small>Categories</small></span><span><IconGlobe /><b>Global</b><small>Community</small></span></aside>;
-}
-
-function MobileStats({ stats }) {
-  const shops = stats?.activeBusinesses ? `${stats.activeBusinesses.toLocaleString()}+` : "1,500+";
-  return <section className="vcm-mstats"><span><IconBriefcase /><small>V.Wallet<br />Cashback</small><b>€125.50</b></span><span><IconShieldCheck /><small>Verified<br />Businesses</small><b>{shops}</b></span><span><IconUsers /><small>Active<br />Shops</small><b>{shops}</b></span><span><IconGlobe /><small>Global<br />Community</small><b>25+ Countries</b></span></section>;
+  return <section className="vcm-hero"><div className="vcm-hero-copy"><h1 className="vcm-page-title">V.Commerce</h1><p className="vcm-marketplace-tagline">V.O.I.C.E. NL COMMUNITY MARKETPLACE</p><h2 className="vcm-campaign-title">Shop. Support. <span>Grow.</span></h2><p className="vcm-hero-description">Discover trusted businesses, products and services from our global community.<br />Shop with confidence and earn V.Wallet cashback on every purchase.</p><div className="vcm-promises"><span><IconBriefcase />Earn V.Wallet<br />Cashback</span><span><IconUsers />Support Local &<br />Global Businesses</span><span><IconShieldCheck />Verified & Trusted<br />Community</span><span><IconShoppingBag />Secure & Easy<br />Shopping</span></div><div className="vcm-hero-buttons"><Link to="/vcommerce/businesses">Explore Shops <IconArrowRight /></Link><Link to="/vcommerce/apply"><IconBuildingStore /> List Your Business</Link></div></div><div className="vcm-mosaic">{[heroOpen,heroShopkeeper,heroBusinesswoman,heroWarehouse,heroGlobalCart].map((src,i)=><img key={src} src={src} alt={i === 0 ? "Community marketplace businesses" : ""} />)}</div></section>;
 }
 
 const actions = [
@@ -196,8 +187,8 @@ function BottomNav(){return <nav className="vcm-bottom">{[[IconHome,"Home","/vco
 
 export default function MarketplaceHomePage(){
   const mobile=useSyncExternalStore(subscribe,getSnapshot,()=>false);
-  const {featured,stats,products}=useMarketplaceData();
+  const {featured,products}=useMarketplaceData();
   useEffect(()=>{document.title="V.Commerce — Community Marketplace | V.O.I.C.E. NL"; document.body.classList.toggle("vco-mobile-active",mobile); return()=>document.body.classList.remove("vco-mobile-active")},[mobile]);
-  if(mobile)return <div className="vcm-page vcm-mobile"><MobileToolbar/><main><Hero mobile/><MobileStats stats={stats}/><QuickActions/><BusinessWeek business={featured}/><Popular products={products}/></main><BottomNav/></div>;
+  if(mobile)return <div className="vcm-page vcm-mobile"><MobileToolbar/><main><Hero mobile/><QuickActions/><BusinessWeek business={featured}/><Popular products={products}/></main><BottomNav/></div>;
   return <div className="vcm-page vcm-desktop"><DesktopBrand/><main><Hero/><SearchCategories/><div className="vcm-content"><BusinessWeek business={featured}/><Popular products={products}/></div><div className="vcm-lower"><BottomContent/></div></main></div>;
 }
