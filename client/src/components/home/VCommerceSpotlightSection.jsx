@@ -29,7 +29,10 @@ export default function VCommerceSpotlightSection() {
 
         <article className="vcommerce-spotlight__card">
           <div className="vcommerce-spotlight__media">
-            <img src={business.bannerUrl} alt="Knvers digital commerce and IT solutions" />
+            <picture>
+              <source media="(max-width: 760px)" srcSet={business.mobileSpotlightImageUrl} />
+              <img src={business.bannerUrl} alt="Knvers digital commerce and IT solutions" />
+            </picture>
             <span className="vcommerce-spotlight__image-label">Featured Community Business</span>
           </div>
 

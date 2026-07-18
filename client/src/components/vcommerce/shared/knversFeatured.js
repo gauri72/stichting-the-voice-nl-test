@@ -1,6 +1,7 @@
 import knversBanner from "../../../assets/VCommerce/businesses/knvers-banner.jpg";
 import knversFeatureCard from "../../../assets/VCommerce/businesses/knvers-feature-card.jpg";
 import knversFeatureCardMobile from "../../../assets/VCommerce/businesses/knvers-feature-card-mobile.jpg";
+import knversSpotlightMobile from "../../../assets/VCommerce/businesses/knvers-spotlight-mobile.jpg";
 
 export const KNVERS_FEATURED_BUSINESS = {
   id: "knvers",
@@ -14,6 +15,7 @@ export const KNVERS_FEATURED_BUSINESS = {
   reviewCount: 0,
   imageUrl: knversFeatureCard,
   mobileImageUrl: knversFeatureCardMobile,
+  mobileSpotlightImageUrl: knversSpotlightMobile,
   bannerUrl: knversBanner,
   tags: ["E-Commerce", "IT Solutions", "Digital"],
   featured: true,
