@@ -7,6 +7,7 @@ import CartDrawer from "./cart/CartDrawer.jsx";
 import { useWholesaler } from "../../contexts/WholesalerContext.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import knversBanner from "../../assets/VCommerce/businesses/knvers-banner.jpg";
+import knversItConsultation from "../../assets/VCommerce/businesses/knvers-it-consultation.jpg";
 
 function formatPrice(minor, currency = "eur") {
   return new Intl.NumberFormat("nl-NL", {
@@ -251,7 +252,15 @@ export default function VCommerceProfilePage() {
           : Array.isArray(profile.products)
             ? profile.products
             : [];
-        setData({ profile, products });
+        const isKnvers = String(profile.slug || slug).toLowerCase() === "knvers";
+        const productsWithArtwork = products.map((product) => {
+          const hasImage = Array.isArray(product.imageUrls) && product.imageUrls.some(Boolean);
+          const isItConsultation = /it\s+consult/i.test(String(product.name || ""));
+          return isKnvers && isItConsultation && !hasImage
+            ? { ...product, imageUrls: [knversItConsultation] }
+            : product;
+        });
+        setData({ profile, products: productsWithArtwork });
         if (profile.businessName) {
           document.title = `${profile.businessName} — V.Commerce`;
         }
