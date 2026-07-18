@@ -13,6 +13,7 @@ import ThemeToggle from "../../layout/ThemeToggle.jsx";
 import LanguageSwitcher from "../../layout/LanguageSwitcher.jsx";
 import SiteInstallPwaPrompt from "../../pwa/SiteInstallPwaPrompt.jsx";
 import { BUSINESS_CATEGORIES, BUSINESS_CATEGORY_LABELS } from "../shared/BUSINESS_CATEGORIES.js";
+import { useCart } from "../cart/useCart.js";
 import logo from "../../../assets/header-logo.png";
 import heroOpen from "../../../assets/VCommerce/mockup/hero-open.png";
 import heroShopkeeper from "../../../assets/VCommerce/mockup/hero-shopkeeper.png";
@@ -54,6 +55,7 @@ function DesktopBrand() {
 
 function MobileToolbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { itemCount } = useCart();
 
   useEffect(() => {
     if (!menuOpen) return undefined;
@@ -86,8 +88,14 @@ function MobileToolbar() {
         <Brand />
         <div>
           <LanguageSwitcher header />
-          <button type="button" aria-label="Notifications"><IconBell /><i /></button>
-          <Link to="/vcommerce/checkout" aria-label="Cart"><IconShoppingCart /><em>2</em></Link>
+          <Link to="/dashboard" aria-label="Open notifications and activity"><IconBell /></Link>
+          <Link
+            to="/vcommerce/checkout"
+            aria-label={`Shopping cart${itemCount > 0 ? `, ${itemCount} item${itemCount === 1 ? "" : "s"}` : ", empty"}`}
+          >
+            <IconShoppingCart />
+            {itemCount > 0 ? <em aria-hidden="true">{itemCount > 99 ? "99+" : itemCount}</em> : null}
+          </Link>
         </div>
       </header>
 
