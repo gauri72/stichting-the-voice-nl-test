@@ -16,6 +16,13 @@ import { BUSINESS_CATEGORY_LABELS } from "../vcommerce/shared/BUSINESS_CATEGORIE
 import AdminWholesalerPage from "./AdminWholesalerPage.jsx";
 
 const TABS = ["Applications", "Businesses", "Orders", "Payouts", "Analytics", "Wholesalers"];
+const APPLICATION_STATUSES = [
+  ["payment_pending", "Payment Pending"],
+  ["setup", "Storefront Setup"],
+  ["pending", "Awaiting Review"],
+  ["approved", "Approved"],
+  ["rejected", "Rejected"],
+];
 
 function formatPrice(minor, currency = "eur") {
   if (minor == null) return "—";
@@ -70,7 +77,7 @@ function ApplicationsTab() {
   const load = useCallback(() => {
     setLoading(true);
     adminGetApplications({ status: statusFilter })
-      .then((d) => setItems(d.applications || []))
+      .then((d) => setItems(d.items || []))
       .catch(() => setItems([]))
       .finally(() => setLoading(false));
   }, [statusFilter]);
@@ -92,11 +99,11 @@ function ApplicationsTab() {
   return (
     <div>
       <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-        {["pending", "approved", "rejected"].map((s) => (
-          <button key={s} type="button"
-            style={{ ...S.btn("ghost"), background: statusFilter === s ? "var(--ad-accent,#8B5CF6)" : undefined, color: statusFilter === s ? "#fff" : undefined, border: statusFilter === s ? "none" : undefined }}
-            onClick={() => setStatusFilter(s)}>
-            {s.charAt(0).toUpperCase() + s.slice(1)}
+        {APPLICATION_STATUSES.map(([value, label]) => (
+          <button key={value} type="button"
+            style={{ ...S.btn("ghost"), background: statusFilter === value ? "var(--ad-accent,#8B5CF6)" : undefined, color: statusFilter === value ? "#fff" : undefined, border: statusFilter === value ? "none" : undefined }}
+            onClick={() => setStatusFilter(value)}>
+            {label}
           </button>
         ))}
       </div>

@@ -1,6 +1,14 @@
 import mongoose from "mongoose";
 
-export const MEDIA_PUBLIC_CATEGORIES = ["cms", "events", "team", "logos", "reviews", "highlights"];
+export const MEDIA_PUBLIC_CATEGORIES = [
+  "cms",
+  "events",
+  "team",
+  "logos",
+  "reviews",
+  "highlights",
+  "business_profiles",
+];
 export const MEDIA_PRIVATE_CATEGORIES = [
   "tickets",
   "memberships",

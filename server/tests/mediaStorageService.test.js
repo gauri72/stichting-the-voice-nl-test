@@ -61,7 +61,15 @@ describe("mediaStorageService.isMediaStorageConfigured", () => {
 
 describe("MediaAsset category layout", () => {
   it("matches the spec's public/private bucket prefixes", () => {
-    expect(MEDIA_PUBLIC_CATEGORIES).toEqual(["cms", "events", "team", "logos", "reviews", "highlights"]);
+    expect(MEDIA_PUBLIC_CATEGORIES).toEqual([
+      "cms",
+      "events",
+      "team",
+      "logos",
+      "reviews",
+      "highlights",
+      "business_profiles",
+    ]);
     expect(MEDIA_PRIVATE_CATEGORIES).toEqual([
       "tickets",
       "memberships",

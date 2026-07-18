@@ -2,7 +2,10 @@ import sharp from "sharp";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import env from "../config/env.js";
 import { getNextSequence } from "../utils/sequence.js";
-import MediaAsset, { MEDIA_PUBLIC_CATEGORIES } from "../models/MediaAsset.js";
+import MediaAsset, {
+  MEDIA_PRIVATE_CATEGORIES,
+  MEDIA_PUBLIC_CATEGORIES,
+} from "../models/MediaAsset.js";
 import MediaAssetUsage from "../models/MediaAssetUsage.js";
 
 let cachedClient = null;
@@ -50,6 +53,30 @@ async function putObject(key, buffer, contentType) {
   );
 }
 
+function validateUploadCategory(category, visibility) {
+  const allowedCategories =
+    visibility === "public" ? MEDIA_PUBLIC_CATEGORIES : MEDIA_PRIVATE_CATEGORIES;
+  if (!["public", "private"].includes(visibility) || !allowedCategories.includes(category)) {
+    const err = new Error(
+      `Invalid ${visibility} media category: ${category}.`
+    );
+    err.status = 400;
+    throw err;
+  }
+}
+
+async function deleteUploadedObjects(keys) {
+  if (!keys.length) return;
+  const client = getS3Client();
+  await Promise.all(
+    keys.map((key) =>
+      client
+        .send(new DeleteObjectCommand({ Bucket: env.aws.s3Bucket, Key: key }))
+        .catch(() => {})
+    )
+  );
+}
+
 export function extensionFor(mimeType) {
   if (mimeType === "image/png") return "png";
   if (mimeType === "image/svg+xml") return "svg";
@@ -63,65 +90,82 @@ export function extensionFor(mimeType) {
  * vector, and re-rastering would defeat the point of using SVG).
  */
 export async function uploadAsset(buffer, { category, visibility = "public", alt = "", mimeType, uploadedBy = null }) {
+  validateUploadCategory(category, visibility);
+
   const assetId = await nextAssetId();
   const prefix = `${visibility}/${category}/${assetId}`;
   const ext = extensionFor(mimeType);
   const isVector = mimeType === "image/svg+xml";
+  const uploadedKeys = [];
 
   const originalKey = `${prefix}/original.${ext}`;
-  await putObject(originalKey, buffer, mimeType);
+  try {
+    await putObject(originalKey, buffer, mimeType);
+    uploadedKeys.push(originalKey);
 
-  let webpKey = "";
-  let mobileKey = "";
-  let thumbnailKey = "";
-  let width = 0;
-  let height = 0;
+    let webpKey = "";
+    let mobileKey = "";
+    let thumbnailKey = "";
+    let width = 0;
+    let height = 0;
 
-  if (!isVector) {
-    const image = sharp(buffer);
-    const metadata = await image.metadata().catch(() => ({}));
-    width = metadata.width || 0;
-    height = metadata.height || 0;
+    if (!isVector) {
+      const image = sharp(buffer);
+      const metadata = await image.metadata().catch(() => ({}));
+      width = metadata.width || 0;
+      height = metadata.height || 0;
 
-    const [webpBuffer, mobileBuffer, thumbBuffer] = await Promise.all([
-      sharp(buffer).webp({ quality: 82 }).toBuffer(),
-      sharp(buffer).resize({ width: 800, withoutEnlargement: true }).jpeg({ quality: 82 }).toBuffer(),
-      sharp(buffer).resize({ width: 300, withoutEnlargement: true }).jpeg({ quality: 80 }).toBuffer(),
-    ]);
+      const [webpBuffer, mobileBuffer, thumbBuffer] = await Promise.all([
+        sharp(buffer).webp({ quality: 82 }).toBuffer(),
+        sharp(buffer).resize({ width: 800, withoutEnlargement: true }).jpeg({ quality: 82 }).toBuffer(),
+        sharp(buffer).resize({ width: 300, withoutEnlargement: true }).jpeg({ quality: 80 }).toBuffer(),
+      ]);
 
-    webpKey = `${prefix}/webp.webp`;
-    mobileKey = `${prefix}/mobile.jpg`;
-    thumbnailKey = `${prefix}/thumbnail.jpg`;
-    await Promise.all([
-      putObject(webpKey, webpBuffer, "image/webp"),
-      putObject(mobileKey, mobileBuffer, "image/jpeg"),
-      putObject(thumbnailKey, thumbBuffer, "image/jpeg"),
-    ]);
+      webpKey = `${prefix}/webp.webp`;
+      mobileKey = `${prefix}/mobile.jpg`;
+      thumbnailKey = `${prefix}/thumbnail.jpg`;
+      const variants = [
+        [webpKey, webpBuffer, "image/webp"],
+        [mobileKey, mobileBuffer, "image/jpeg"],
+        [thumbnailKey, thumbBuffer, "image/jpeg"],
+      ];
+      const variantUploads = await Promise.allSettled(
+        variants.map(async ([key, variantBuffer, contentType]) => {
+          await putObject(key, variantBuffer, contentType);
+          uploadedKeys.push(key);
+        })
+      );
+      const failedUpload = variantUploads.find((result) => result.status === "rejected");
+      if (failedUpload) throw failedUpload.reason;
+    }
+
+    const urlFor = visibility === "public" ? buildPublicUrl : () => "";
+
+    const asset = await MediaAsset.create({
+      assetId,
+      category,
+      visibility,
+      originalKey,
+      webpKey,
+      mobileKey,
+      thumbnailKey,
+      originalUrl: urlFor(originalKey),
+      webpUrl: webpKey ? urlFor(webpKey) : "",
+      mobileUrl: mobileKey ? urlFor(mobileKey) : "",
+      thumbnailUrl: thumbnailKey ? urlFor(thumbnailKey) : "",
+      mimeType,
+      sizeBytes: buffer.length,
+      width,
+      height,
+      alt,
+      uploadedBy,
+    });
+
+    return asset.toObject();
+  } catch (error) {
+    await deleteUploadedObjects(uploadedKeys);
+    throw error;
   }
-
-  const urlFor = visibility === "public" ? buildPublicUrl : () => "";
-
-  const asset = await MediaAsset.create({
-    assetId,
-    category,
-    visibility,
-    originalKey,
-    webpKey,
-    mobileKey,
-    thumbnailKey,
-    originalUrl: urlFor(originalKey),
-    webpUrl: webpKey ? urlFor(webpKey) : "",
-    mobileUrl: mobileKey ? urlFor(mobileKey) : "",
-    thumbnailUrl: thumbnailKey ? urlFor(thumbnailKey) : "",
-    mimeType,
-    sizeBytes: buffer.length,
-    width,
-    height,
-    alt,
-    uploadedBy,
-  });
-
-  return asset.toObject();
 }
 
 export async function recordUsage(assetId, { usedInType, usedInId, label = "" }) {
