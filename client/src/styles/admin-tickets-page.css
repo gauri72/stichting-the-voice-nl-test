@@ -14,8 +14,8 @@
 }
 
 .admin-tickets__stat {
-  background: var(--ad-card, #0d111c);
-  border: 1px solid rgba(62, 207, 154, 0.15);
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
   border-radius: 12px;
   padding: 16px;
   text-align: center;
@@ -25,7 +25,7 @@
   margin: 0;
   font-size: 1.4rem;
   font-weight: 800;
-  color: var(--color-accent-teal, #3ecf9a);
+  color: var(--ad-teal);
 }
 
 .admin-tickets__stat-label {
@@ -49,7 +49,7 @@
   flex: 1;
   min-width: 200px;
   background: var(--ad-input-bg, #080d18);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--ad-border);
   border-radius: 10px;
   padding: 8px 12px;
 }
@@ -66,7 +66,7 @@
 .admin-tickets__toolbar select {
   padding: 8px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--ad-border);
   background: var(--ad-input-bg, #080d18);
   color: inherit;
   font: inherit;
@@ -78,7 +78,7 @@
   gap: 6px;
   padding: 8px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--ad-border);
   background: transparent;
   color: inherit;
   font: inherit;
@@ -103,7 +103,7 @@
 .admin-tickets__table-wrap {
   overflow-x: auto;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--ad-border);
 }
 
 .admin-tickets__table {
@@ -116,7 +116,7 @@
 .admin-tickets__table td {
   padding: 12px 14px;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--ad-border);
 }
 
 .admin-tickets__table th {
@@ -124,7 +124,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--ad-muted);
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--ad-surface-2);
 }
 
 .admin-tickets__select {
@@ -814,8 +814,8 @@
 .admin-tickets__complimentary {
   margin-bottom: 24px;
   padding: 20px;
-  background: var(--ad-card, #0d111c);
-  border: 1px solid rgba(62, 207, 154, 0.2);
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
   border-radius: 12px;
 }
 
@@ -848,6 +848,45 @@
   flex-direction: column;
   gap: 4px;
   font-size: 0.85rem;
+  color: var(--ad-text);
+}
+
+.admin-tickets__complimentary-form input,
+.admin-tickets__complimentary-form select,
+.admin-tickets__complimentary-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 11px;
+  border: 1px solid var(--ad-border);
+  border-radius: 8px;
+  background: var(--ad-input-bg);
+  color: var(--ad-text);
+  font: inherit;
+}
+
+.admin-tickets__complimentary-form input:focus,
+.admin-tickets__complimentary-form select:focus,
+.admin-tickets__complimentary-form textarea:focus {
+  border-color: var(--ad-teal);
+  outline: 2px solid color-mix(in srgb, var(--ad-teal) 22%, transparent);
+  outline-offset: 1px;
+}
+
+.admin-tickets__complimentary-form :disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.admin-tickets__complimentary-form > button {
+  justify-self: start;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--ad-purple), var(--ad-pink));
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .admin-tickets__complimentary-row {
