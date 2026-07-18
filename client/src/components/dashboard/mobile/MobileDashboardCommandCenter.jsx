@@ -224,7 +224,7 @@ export default function MobileDashboardCommandCenter({
   const featuredShopUrl = featuredBusiness?.slug
     ? `/vcommerce/${featuredBusiness.slug}`
     : featuredBusiness?.shopUrl || "/vcommerce/businesses";
-  const featuredImage = featuredBusiness.bannerUrl;
+  const featuredImage = featuredBusiness.mobileSpotlightImageUrl;
   const membershipBenefits = membership?.active?.benefits?.length
     ? membership.active.benefits
     : PREMIUM_BENEFITS;
