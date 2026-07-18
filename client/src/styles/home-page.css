@@ -146,7 +146,10 @@
 
   /* Experience, Stories, Impact, Innovation — one size level smaller */
   .home-page .our-pillars-item__title--mobile {
-    font-size: 0.92rem;
+    max-width: 100%;
+    font-size: clamp(0.62rem, 3vw, 0.78rem);
+    line-height: 1.05;
+    white-space: nowrap;
   }
 
   .home-page .our-pillars-grid {
@@ -170,8 +173,10 @@
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    min-height: 142px;
-    padding: 14px 5px 13px;
+    justify-content: center;
+    min-height: 0;
+    aspect-ratio: 0.88;
+    padding: 8px 3px 9px;
     border: 1px solid rgba(255, 255, 255, 0.7);
     border-radius: 14px;
     background:
@@ -182,6 +187,23 @@
       inset 0 -1px 0 rgba(var(--pillar-glass-rgb), 0.12);
     backdrop-filter: blur(20px) saturate(145%);
     -webkit-backdrop-filter: blur(20px) saturate(145%);
+  }
+
+  .home-page .our-pillars-item__icon {
+    width: clamp(26px, 8vw, 38px);
+    height: clamp(26px, 8vw, 38px);
+    margin-bottom: 6px;
+  }
+
+  .home-page .our-pillars-item__link {
+    gap: 2px;
+    margin-top: 6px;
+    font-size: clamp(0.48rem, 2.2vw, 0.62rem);
+  }
+
+  .home-page .our-pillars-item__link svg {
+    width: 9px;
+    height: 9px;
   }
 
   .home-page .our-pillars-item::before {
@@ -253,7 +275,8 @@
   }
 
   .home-page .our-pillars-item__title,
-  .home-page .our-pillars-item__title--desktop {
-    font-size: 0.92rem;
+  .home-page .our-pillars-item__title--desktop,
+  .home-page .our-pillars-item__title--mobile {
+    font-size: clamp(0.62rem, 3vw, 0.78rem);
   }
 }
