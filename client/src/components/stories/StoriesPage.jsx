@@ -1,5 +1,5 @@
 import heroBgLight from "../../assets/Home/hero-bg-light-v2.png";
-import heroBgDark from "../../assets/Stories/hero-bg-dark.png";
+import heroBgDark from "../../assets/Home/hero-bg-dark.png";
 import BreadcrumbPageHeader from "../layout/BreadcrumbPageHeader.jsx";
 import StoriesPillarSection from "./StoriesPillarSection";
 import { STORIES_PILLARS } from "../../data/storiesDisplay.js";
