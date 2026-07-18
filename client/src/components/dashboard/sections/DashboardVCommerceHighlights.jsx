@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { IconArrowRight, IconMapPin, IconShieldCheck, IconStar } from "@tabler/icons-react";
 import { useMarketplaceData } from "../../vcommerce/marketplace/lib/useMarketplaceData.js";
-import artisanLamp from "../../../assets/VCommerce/mockup/artisan-lamp.png";
+import { KNVERS_FEATURED_BUSINESS } from "../../vcommerce/shared/knversFeatured.js";
 import productTechnova from "../../../assets/VCommerce/mockup/product-technova.png";
 import productAaray from "../../../assets/VCommerce/mockup/product-aaray.png";
 import productSpice from "../../../assets/VCommerce/mockup/product-spice-route.png";
@@ -28,17 +28,6 @@ const fallbackProducts = [
   businessSlug: "",
 }));
 
-const fallbackBusiness = {
-  name: "The Artisan Space",
-  categoryLabel: "Home & Living",
-  location: "Rotterdam, NL",
-  rating: 4.8,
-  reviewCount: 128,
-  tags: ["Handmade", "Sustainable", "Premium"],
-  imageUrl: artisanLamp,
-  shopUrl: "/vcommerce/businesses",
-};
-
 function LoadingCard() {
   return <div className="dash-vcommerce__skeleton" aria-hidden="true" />;
 }
@@ -53,7 +42,7 @@ export default function DashboardVCommerceHighlights() {
     productsError,
   } = useMarketplaceData();
 
-  const business = featured || fallbackBusiness;
+  const business = featured || KNVERS_FEATURED_BUSINESS;
   const displayedProducts = products.length ? products.slice(0, 6) : fallbackProducts;
 
   return (
@@ -77,7 +66,7 @@ export default function DashboardVCommerceHighlights() {
 
           {featuredLoading ? <LoadingCard /> : (
             <div className="dash-vcommerce__featured-card">
-              <img src={business.imageUrl || artisanLamp} alt={business.name} />
+              <img src={business.imageUrl || KNVERS_FEATURED_BUSINESS.imageUrl} alt={business.name} />
               <div>
                 <span className="dash-vcommerce__badge">Featured</span>
                 <h4>{business.name}</h4>

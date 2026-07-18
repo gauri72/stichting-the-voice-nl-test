@@ -21,8 +21,6 @@ import heroBusinesswoman from "../../../assets/VCommerce/mockup/hero-businesswom
 import heroWarehouse from "../../../assets/VCommerce/mockup/hero-warehouse.png";
 import heroGlobalCart from "../../../assets/VCommerce/mockup/hero-global-cart.png";
 import mobileHeroGlobalCart from "../../../assets/VCommerce/mockup/mobile-hero-global-cart.png";
-import artisanLamp from "../../../assets/VCommerce/mockup/artisan-lamp.png";
-import artisanLampMobile from "../../../assets/VCommerce/mockup/artisan-lamp-mobile.png";
 import productTechnova from "../../../assets/VCommerce/mockup/product-technova.png";
 import productAaray from "../../../assets/VCommerce/mockup/product-aaray.png";
 import productSpice from "../../../assets/VCommerce/mockup/product-spice-route.png";
@@ -219,8 +217,8 @@ const actions = [
 function QuickActions(){return <nav className="vcm-actions">{actions.map(([Icon,label,to])=><Link key={label} to={to}><Icon /><span>{label}</span></Link>)}</nav>}
 
 function BusinessWeek({ business }) {
-  const biz = business || { name:"The Artisan Space", categoryLabel:"Home & Living", location:"Rotterdam, NL", rating:4.8, reviewCount:128, tags:["Handmade","Sustainable","Premium"], shopUrl:"/vcommerce/businesses" };
-  return <section className="vcm-week"><header><h2><IconStar /> BUSINESS OF THE WEEK</h2><Link to="/vcommerce/businesses">View All <IconArrowRight /></Link></header><div className="vcm-week-card"><div className="vcm-week-photo"><picture><source media="(max-width: 767px)" srcSet={artisanLampMobile} /><ImageWithFallback src={artisanLamp} alt="Handcrafted artisan lamp" /></picture></div><div className="vcm-week-info"><i>Featured</i><h3>{biz.name}</h3><p>{biz.categoryLabel}</p><p>⌖ &nbsp;{biz.location}</p><p className="vcm-rating">★ <b>{biz.rating || "4.8"}</b> ({biz.reviewCount || 128} reviews)</p><div>{(biz.tags?.length ? biz.tags : ["Handmade","Sustainable","Premium"]).slice(0,3).map(t=><span key={t}>{t}</span>)}</div><Link to={biz.shopUrl || "/vcommerce/businesses"}>Visit Shop <IconArrowRight /></Link></div></div><footer><b /><i /><i /><i /><i /><i /></footer></section>;
+  const biz = business;
+  return <section className="vcm-week"><header><h2><IconStar /> BUSINESS OF THE WEEK</h2><Link to="/vcommerce/businesses">View All <IconArrowRight /></Link></header><div className="vcm-week-card"><div className="vcm-week-photo"><picture><source media="(max-width: 767px)" srcSet={biz.mobileImageUrl || biz.imageUrl} /><ImageWithFallback src={biz.imageUrl} alt="Knvers digital commerce and IT solutions" /></picture></div><div className="vcm-week-info"><i>Featured</i><h3>{biz.name}</h3><p>{biz.categoryLabel}</p><p>⌖ &nbsp;{biz.location}</p>{biz.reviewCount > 0 && <p className="vcm-rating">★ <b>{biz.rating}</b> ({biz.reviewCount} reviews)</p>}<div>{biz.tags.slice(0,3).map(t=><span key={t}>{t}</span>)}</div><Link to={biz.shopUrl}>Visit Shop <IconArrowRight /></Link></div></div><footer><b /><i /><i /><i /><i /><i /></footer></section>;
 }
 
 function getProducts(products) {

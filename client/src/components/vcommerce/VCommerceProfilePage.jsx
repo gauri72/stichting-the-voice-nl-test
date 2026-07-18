@@ -6,6 +6,7 @@ import { useCart } from "./cart/useCart.js";
 import CartDrawer from "./cart/CartDrawer.jsx";
 import { useWholesaler } from "../../contexts/WholesalerContext.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import knversBanner from "../../assets/VCommerce/businesses/knvers-banner.jpg";
 
 function formatPrice(minor, currency = "eur") {
   return new Intl.NumberFormat("nl-NL", {
@@ -298,6 +299,8 @@ export default function VCommerceProfilePage() {
     );
   }
   const icon = CATEGORY_ICONS[profile.category] || "✨";
+  const profileBannerUrl =
+    profile.bannerUrl || (String(profile.slug).toLowerCase() === "knvers" ? knversBanner : "");
 
   return (
     <div className="vco-profile-page">
@@ -310,8 +313,8 @@ export default function VCommerceProfilePage() {
       )}
 
       <div className="vco-profile-hero">
-        {profile.bannerUrl
-          ? <img src={profile.bannerUrl} alt={`${profile.businessName} banner`} className="vco-profile-hero__banner" />
+        {profileBannerUrl
+          ? <img src={profileBannerUrl} alt={`${profile.businessName} banner`} className="vco-profile-hero__banner" />
           : null
         }
         <div className="vco-profile-hero__overlay" />

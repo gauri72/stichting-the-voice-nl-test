@@ -13,7 +13,7 @@
 .vcommerce-spotlight__card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden;border:1px solid rgba(0,194,207,.35);border-radius:24px;background:linear-gradient(135deg,#07111f,#080d1d 68%,#101035);box-shadow:0 24px 70px rgba(0,0,0,.28),0 0 30px rgba(93,56,220,.08);transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,border-color .35s ease}
 .vcommerce-spotlight__card:hover{transform:translateY(-6px);border-color:rgba(0,221,222,.58);box-shadow:0 30px 80px rgba(0,0,0,.34),0 0 38px rgba(77,49,211,.14)}
 .vcommerce-spotlight__media{position:relative;min-height:460px;overflow:hidden}
-.vcommerce-spotlight__media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s cubic-bezier(.2,.8,.2,1),filter .45s ease}
+.vcommerce-spotlight__media img{width:100%;height:100%;object-fit:cover;object-position:left center;display:block;transition:transform .8s cubic-bezier(.2,.8,.2,1),filter .45s ease}
 .vcommerce-spotlight__image-label{position:absolute;z-index:1;top:22px;left:22px;display:inline-flex;align-items:center;max-width:calc(100% - 44px);min-height:38px;padding:8px 16px;border:1px solid rgba(57,225,226,.72);border-radius:999px;color:#79f5f2;background:rgba(1,12,21,.78);box-shadow:0 8px 24px rgba(0,0,0,.3),inset 0 0 18px rgba(0,191,196,.08);backdrop-filter:blur(10px);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase!important}
 .vcommerce-spotlight__card:hover .vcommerce-spotlight__media img{transform:scale(1.035);filter:saturate(1.06)}
 .vcommerce-spotlight__content{display:flex;flex-direction:column;justify-content:center;padding:clamp(28px,4vw,58px);color:#f7f9fc}

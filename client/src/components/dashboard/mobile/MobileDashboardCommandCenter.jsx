@@ -27,9 +27,9 @@ import { useWallet } from "../../../contexts/WalletContext.jsx";
 import { apiFetch, apiUrl, authHeaders } from "../../../utils/api.js";
 import {
   getMyBusiness,
-  getVCommerceFeatured,
   getVCommercePopularProducts,
 } from "../../vcommerce/shared/vcommerceApi.js";
+import { KNVERS_FEATURED_BUSINESS } from "../../vcommerce/shared/knversFeatured.js";
 import { buildQrSrc, membershipBadgeLabel, PREMIUM_BENEFITS } from "../dashboardUtils.js";
 import {
   addMembershipToGoogleWallet,
@@ -39,7 +39,6 @@ import voiceVMark from "../../../assets/Home/voice-v-mark.png";
 import heroLight from "../../../assets/Dashboard/breadcrumb-bg-light.png";
 import heroDark from "../../../assets/Dashboard/breadcrumb-bg-dark.png";
 import eventFallback from "../../../assets/Dashboard/upcoming-event-1.png";
-import artisanFallback from "../../../assets/VCommerce/mockup/artisan-lamp-mobile.png";
 import "../../../styles/mobile-dashboard-command-center.css";
 
 const CARD_ICONS = {
@@ -136,7 +135,7 @@ export default function MobileDashboardCommandCenter({
   const [bookings, setBookings] = useState([]);
   const [events, setEvents] = useState([]);
   const [isBusinessOwner, setIsBusinessOwner] = useState(false);
-  const [featuredBusiness, setFeaturedBusiness] = useState(null);
+  const featuredBusiness = KNVERS_FEATURED_BUSINESS;
   const [marketplaceProducts, setMarketplaceProducts] = useState([]);
   const [referral, setReferral] = useState(null);
   const [referralCopied, setReferralCopied] = useState(false);
@@ -177,17 +176,15 @@ export default function MobileDashboardCommandCenter({
       apiFetch("/api/dashboard/bookings", { headers: authHeaders() }),
       apiFetch("/api/dashboard/events", { headers: authHeaders() }),
       getMyBusiness(),
-      getVCommerceFeatured(),
       getVCommercePopularProducts({ limit: 3 }),
       apiFetch("/api/dashboard/referrals", { headers: authHeaders() }),
-    ]).then(([bookingResult, eventResult, businessResult, featuredResult, productsResult, referralResult]) => {
+    ]).then(([bookingResult, eventResult, businessResult, productsResult, referralResult]) => {
       if (bookingResult.status === "fulfilled") setBookings(bookingResult.value?.bookings || []);
       if (eventResult.status === "fulfilled") {
         const upcoming = eventResult.value?.upcoming || [];
         setEvents(upcoming.length ? upcoming : eventResult.value?.events || []);
       }
       setIsBusinessOwner(businessResult.status === "fulfilled" && Boolean(businessResult.value?.business));
-      if (featuredResult.status === "fulfilled") setFeaturedBusiness(featuredResult.value?.business || null);
       if (productsResult.status === "fulfilled") setMarketplaceProducts(productsResult.value?.products || []);
       if (referralResult.status === "fulfilled" && referralResult.value?.enabled) {
         setReferral(referralResult.value.referral || null);
@@ -227,7 +224,7 @@ export default function MobileDashboardCommandCenter({
   const featuredShopUrl = featuredBusiness?.slug
     ? `/vcommerce/${featuredBusiness.slug}`
     : featuredBusiness?.shopUrl || "/vcommerce/businesses";
-  const featuredImage = featuredBusiness?.bannerUrl || featuredBusiness?.imageUrl || featuredBusiness?.logoUrl || artisanFallback;
+  const featuredImage = featuredBusiness.bannerUrl;
   const membershipBenefits = membership?.active?.benefits?.length
     ? membership.active.benefits
     : PREMIUM_BENEFITS;
@@ -321,8 +318,8 @@ export default function MobileDashboardCommandCenter({
             <span className="mobile-dash-commerce__scrim" />
             <div>
               <small>Featured community business</small>
-              <strong>{featuredBusiness?.name || "The Artisan Space"}</strong>
-              <span>{featuredBusiness?.categoryLabel || featuredBusiness?.category || "Home & Living"}</span>
+              <strong>{featuredBusiness.name}</strong>
+              <span>{featuredBusiness.categoryLabel}</span>
               <b>Visit Shop <IconArrowRight aria-hidden /></b>
             </div>
           </Link>
