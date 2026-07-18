@@ -88,9 +88,10 @@
   }
 
   .site-header--vcommerce .menu-links--desktop {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     justify-content: flex-end;
     min-width: 0;
+    margin-left: auto;
   }
 
   .site-header--vcommerce .nav-toolbar__cta-member,
@@ -513,7 +514,7 @@
 
   /* V.Commerce begins on a pale marketplace canvas rather than a dark hero.
      Use the same readable glass treatment as other split/light hero pages. */
-  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop {
+  [data-theme="light"] .site-header--vcommerce .menu-links--desktop {
     padding: 6px 14px;
     border: 1px solid rgba(177, 204, 216, 0.78);
     border-radius: 14px;
@@ -525,16 +526,16 @@
       0 8px 24px rgba(19, 54, 75, 0.12);
   }
 
-  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop > a,
-  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop > .menu-dropdown > .menu-dropdown-trigger {
+  [data-theme="light"] .site-header--vcommerce .menu-links--desktop > a,
+  [data-theme="light"] .site-header--vcommerce .menu-links--desktop > .menu-dropdown > .menu-dropdown-trigger {
     color: #17384b;
     text-shadow: none;
   }
 
-  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop > a:hover,
-  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop > a.active,
-  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop > .menu-dropdown > .menu-dropdown-trigger:hover,
-  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop > .menu-dropdown > .menu-dropdown-trigger.active {
+  [data-theme="light"] .site-header--vcommerce .menu-links--desktop > a:hover,
+  [data-theme="light"] .site-header--vcommerce .menu-links--desktop > a.active,
+  [data-theme="light"] .site-header--vcommerce .menu-links--desktop > .menu-dropdown > .menu-dropdown-trigger:hover,
+  [data-theme="light"] .site-header--vcommerce .menu-links--desktop > .menu-dropdown > .menu-dropdown-trigger.active {
     color: #08727a;
     border-bottom-color: #1599a7;
   }
