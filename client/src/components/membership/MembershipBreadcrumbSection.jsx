@@ -1,4 +1,4 @@
-import breadcrumbBgLight from "../../assets/Membership/breadcrumb-bg-light.png";
+import breadcrumbBgLight from "../../assets/Home/hero-bg-light-v2.png";
 import breadcrumbBgDark from "../../assets/Membership/breadcrumb-bg-dark.png";
 import BreadcrumbPageHeader from "../layout/BreadcrumbPageHeader.jsx";
 import { useContentOverrides } from "../../hooks/useCmsPage.js";

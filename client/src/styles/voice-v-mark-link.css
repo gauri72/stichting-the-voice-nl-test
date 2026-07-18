@@ -21,6 +21,20 @@
   pointer-events: none;
 }
 
+/* The generated home light-theme artwork has a differently positioned mark.
+   Swap in a cutout extracted from that exact banner and align it pixel-for-
+   pixel, preserving the same hover/focus interaction as the dark artwork. */
+[data-theme="light"] .page-breadcrumb-hero .voice-v-mark-link {
+  left: 2.09%;
+  top: 26.5%;
+  width: 15.48%;
+  height: 46.24%;
+}
+
+[data-theme="light"] .page-breadcrumb-hero .voice-v-mark-link__img {
+  content: url("../assets/Home/voice-v-mark-light-v2.png");
+}
+
 .voice-v-mark-link:hover,
 .voice-v-mark-link:focus-visible {
   transform: scale(1.08);

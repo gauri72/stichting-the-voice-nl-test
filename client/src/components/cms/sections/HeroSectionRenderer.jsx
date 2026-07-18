@@ -1,5 +1,5 @@
 import BreadcrumbPageHeader from "../../layout/BreadcrumbPageHeader.jsx";
-import heroBgLight from "../../../assets/Home/hero-bg-light.png";
+import heroBgLight from "../../../assets/Home/hero-bg-light-v2.png";
 import heroBgDark from "../../../assets/Home/hero-bg-dark.png";
 
 export default function HeroSectionRenderer({ section }) {

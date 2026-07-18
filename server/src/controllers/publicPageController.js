@@ -1,10 +1,21 @@
+import mongoose from "mongoose";
 import { handleError as handleErrorBase } from "../utils/handleError.js";
 
 function handleError(res, error) {
   return handleErrorBase(res, error, { logTag: "[public-cms]" });
 }
 
+function hasDatabaseConnection() {
+  return mongoose.connection.readyState === 1;
+}
+
+function sendCmsFallback(res) {
+  return res.status(404).json({ error: "CMS unavailable; use bundled page content.", fallback: true });
+}
+
 export async function getPublicPageContent(req, res) {
+  if (!hasDatabaseConnection()) return sendCmsFallback(res);
+
   try {
     const { getPublicPage } = await import("../services/pageService.js");
     const page = await getPublicPage(req.params.slug);
@@ -18,6 +29,8 @@ export async function getPublicPageContent(req, res) {
 }
 
 export async function getPublicHeader(req, res) {
+  if (!hasDatabaseConnection()) return sendCmsFallback(res);
+
   try {
     const { getPublicHeader } = await import("../services/siteNavigationService.js");
     const header = await getPublicHeader();
@@ -28,6 +41,8 @@ export async function getPublicHeader(req, res) {
 }
 
 export async function getPublicFooter(req, res) {
+  if (!hasDatabaseConnection()) return sendCmsFallback(res);
+
   try {
     const { getPublicFooter } = await import("../services/siteFooterService.js");
     const footer = await getPublicFooter();
@@ -38,6 +53,8 @@ export async function getPublicFooter(req, res) {
 }
 
 export async function getPublicContentOverrides(req, res) {
+  if (!hasDatabaseConnection()) return res.json({});
+
   try {
     const { getCategorySettings } = await import("../services/settingsService.js");
     const overrides = await getCategorySettings("content_overrides");
@@ -48,6 +65,8 @@ export async function getPublicContentOverrides(req, res) {
 }
 
 export async function getPublicDesignSystem(req, res) {
+  if (!hasDatabaseConnection()) return sendCmsFallback(res);
+
   try {
     const { getPublicDesignSystem } = await import("../services/designSystemService.js");
     const designSystem = await getPublicDesignSystem();
@@ -58,6 +77,8 @@ export async function getPublicDesignSystem(req, res) {
 }
 
 export async function getPreviewPageContent(req, res) {
+  if (!hasDatabaseConnection()) return sendCmsFallback(res);
+
   try {
     const { getPreviewPage } = await import("../services/pageService.js");
     const version = req.query.version || "draft";

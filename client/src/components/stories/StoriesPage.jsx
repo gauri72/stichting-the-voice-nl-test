@@ -1,4 +1,4 @@
-import heroBgLight from "../../assets/Stories/hero-bg-light.png";
+import heroBgLight from "../../assets/Home/hero-bg-light-v2.png";
 import heroBgDark from "../../assets/Stories/hero-bg-dark.png";
 import BreadcrumbPageHeader from "../layout/BreadcrumbPageHeader.jsx";
 import StoriesPillarSection from "./StoriesPillarSection";
