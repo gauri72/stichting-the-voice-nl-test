@@ -66,9 +66,11 @@ export default function DashboardVCommerceHighlights() {
 
           {featuredLoading ? <LoadingCard /> : (
             <div className="dash-vcommerce__featured-card">
-              <img src={business.mobileSpotlightImageUrl || KNVERS_FEATURED_BUSINESS.mobileSpotlightImageUrl} alt={business.name} />
+              <div className="dash-vcommerce__featured-media">
+                <img src={business.mobileSpotlightImageUrl || KNVERS_FEATURED_BUSINESS.mobileSpotlightImageUrl} alt={business.name} />
+                <span>Featured Community Business</span>
+              </div>
               <div>
-                <span className="dash-vcommerce__badge">Featured</span>
                 <h4>{business.name}</h4>
                 <p>{business.categoryLabel}</p>
                 <p><IconMapPin size={14} /> {business.location}</p>

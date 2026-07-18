@@ -316,8 +316,8 @@ export default function MobileDashboardCommandCenter({
           <Link className="mobile-dash-commerce__feature" to={featuredShopUrl}>
             <img src={featuredImage} alt="" />
             <span className="mobile-dash-commerce__scrim" />
+            <small className="mobile-dash-commerce__featured-badge">Featured community business</small>
             <div>
-              <small>Featured community business</small>
               <strong>{featuredBusiness.name}</strong>
               <span>{featuredBusiness.categoryLabel}</span>
               <b>Visit Shop <IconArrowRight aria-hidden /></b>

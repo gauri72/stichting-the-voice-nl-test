@@ -55,7 +55,7 @@
   .mobile-dash-commerce__feature:hover>img{transform:scale(1.035)}
   .mobile-dash-commerce__scrim{z-index:-1;background:linear-gradient(180deg,rgba(1,7,15,.02),rgba(1,7,15,.9) 84%)}
   .mobile-dash-commerce__feature>div{display:grid;gap:4px;width:100%;padding:18px}
-  .mobile-dash-commerce__feature small{width:max-content;padding:5px 8px;border:1px solid rgba(32,217,232,.45);border-radius:999px;background:rgba(2,13,23,.64);color:#83f3fb;font-size:.56rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;backdrop-filter:blur(10px)}
+  .mobile-dash-commerce__featured-badge{position:absolute;z-index:1;top:12px;right:12px;width:max-content;max-width:calc(100% - 24px);padding:5px 8px;border:1px solid rgba(32,217,232,.45);border-radius:999px;background:rgba(2,13,23,.72);color:#83f3fb;font-size:.56rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;backdrop-filter:blur(10px)}
   .mobile-dash-commerce__feature strong{margin-top:3px;font-size:1.22rem}
   .mobile-dash-commerce__feature div>span{color:#d5e2e8;font-size:.7rem}
   .mobile-dash-commerce__feature b{display:inline-flex;align-items:center;gap:5px;margin-top:5px;color:var(--md-green);font-size:.68rem}
