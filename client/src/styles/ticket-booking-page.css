@@ -7,6 +7,161 @@
   padding-bottom: 48px;
 }
 
+/* Light theme — retain the premium checkout hierarchy without carrying over
+   dark-only navy surfaces and white-alpha borders. */
+[data-theme="light"] .ticket-booking {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+[data-theme="light"] .ticket-booking__hero::after {
+  background: linear-gradient(180deg, transparent 0%, var(--color-bg) 100%);
+}
+
+[data-theme="light"] .ticket-booking__hero--placeholder {
+  background: linear-gradient(135deg, #d8edf4 0%, #eef6f8 52%, #eee7f7 100%);
+}
+
+[data-theme="light"] .ticket-booking :is(
+  .ticket-booking__meta,
+  .ticket-booking__desc,
+  .ticket-booking__ticket-desc,
+  .ticket-booking__ticket-avail,
+  .ticket-booking__ticket-status-note,
+  .ticket-booking__ticket-hint,
+  .ticket-booking__form-grid label,
+  .ticket-booking__summary div,
+  .ticket-booking__terms,
+  .ticket-booking__payment-note,
+  .ticket-booking__confirm-note,
+  .ticket-booking__mono,
+  .ticket-booking__confirm-lines,
+  .ticket-booking__qty-text,
+  .ticket-booking__hint,
+  .ticket-booking__member-details,
+  .ticket-booking__member-detail-line,
+  .ticket-booking__member-banner-body,
+  .ticket-booking__plan-price-old,
+  .ticket-booking__plan-period,
+  .ticket-booking__plan-desc,
+  .ticket-booking__plan-benefits,
+  .ticket-booking__preview-label,
+  .ticket-booking__comparison-title,
+  .ticket-booking__email-note
+) {
+  color: var(--color-text-muted);
+}
+
+[data-theme="light"] .ticket-booking__step {
+  border-color: var(--color-border);
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--color-text-muted);
+}
+
+[data-theme="light"] .ticket-booking__step--active {
+  border-color: rgba(8, 114, 122, 0.38);
+  background: rgba(8, 114, 122, 0.08);
+  color: var(--color-accent-teal);
+}
+
+[data-theme="light"] .ticket-booking :is(
+  .ticket-booking__card,
+  .ticket-booking__confirm-ticket
+) {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-elevated);
+  box-shadow: 0 12px 34px var(--color-shadow);
+}
+
+[data-theme="light"] .ticket-booking :is(
+  .ticket-booking__ticket-row,
+  .ticket-booking__line-item
+) {
+  border-bottom-color: var(--color-border);
+}
+
+[data-theme="light"] .ticket-booking :is(
+  .ticket-booking__ticket-code-input,
+  .ticket-booking__ticket-row select,
+  .ticket-booking__form-grid input,
+  .ticket-booking__membership-code input,
+  .ticket-booking__waitlist-fields input,
+  .ticket-booking__waitlist-fields select
+) {
+  border-color: var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+}
+
+[data-theme="light"] .ticket-booking :is(
+  .ticket-booking__review-vouchers,
+  .ticket-booking__plan-card,
+  .ticket-booking__waitlist-form
+) {
+  border-color: var(--color-border);
+  background: var(--color-bg-muted);
+}
+
+[data-theme="light"] .ticket-booking__summary {
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-muted);
+}
+
+[data-theme="light"] .ticket-booking__summary-total {
+  border-top-color: var(--color-border);
+  color: var(--color-heading) !important;
+}
+
+[data-theme="light"] .ticket-booking__wallet-pay-title {
+  color: #4c1d95;
+}
+
+[data-theme="light"] .ticket-booking :is(
+  .ticket-booking__wallet-pay-balance,
+  .ticket-booking__wallet-pay-points
+) {
+  color: #5b21b6;
+}
+
+[data-theme="light"] .ticket-booking__wallet-pay-points input {
+  border-color: rgba(91, 33, 182, 0.28);
+  background: #fff;
+  color: var(--color-text);
+}
+
+[data-theme="light"] .ticket-booking__wallet-pay-divider {
+  color: var(--color-text-muted);
+}
+
+[data-theme="light"] .ticket-booking__wallet-pay-divider::before,
+[data-theme="light"] .ticket-booking__wallet-pay-divider::after {
+  background: var(--color-border);
+}
+
+[data-theme="light"] .ticket-booking__summary-subtotal {
+  border-color: var(--color-border);
+}
+
+[data-theme="light"] .ticket-booking__back {
+  border-color: var(--color-border-strong);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--color-heading);
+}
+
+[data-theme="light"] .ticket-booking__plan-select {
+  border-color: var(--color-border-strong);
+  color: var(--color-heading);
+}
+
+[data-theme="light"] .ticket-booking__preview-section,
+[data-theme="light"] .ticket-booking__comparison-col {
+  background: var(--color-bg-muted);
+}
+
+[data-theme="light"] .ticket-booking__line-item-head {
+  color: var(--color-text);
+}
+
 .ticket-booking__hero {
   height: 220px;
   background-size: cover;

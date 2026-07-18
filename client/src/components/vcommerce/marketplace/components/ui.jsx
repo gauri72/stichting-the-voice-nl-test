@@ -14,11 +14,11 @@ export function ImageWithFallback({ src, alt = "", className = "", style }) {
       <div
         className={className}
         style={{
-          background: "linear-gradient(140deg,#0d1829 0%,#0a1220 100%)",
+          background: "linear-gradient(140deg,var(--mkt-surface-subtle) 0%,var(--mkt-surface-elevated) 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "rgba(255,255,255,0.12)",
+          color: "var(--mkt-border-strong)",
           fontSize: "1.5rem",
           ...style,
         }}

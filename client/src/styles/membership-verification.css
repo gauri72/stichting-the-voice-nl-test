@@ -1,0 +1,57 @@
+.membership-verification {
+  min-height: 100vh;
+  padding: 48px 16px;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.membership-verification__card {
+  max-width: 440px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 18px;
+  background: var(--color-surface-elevated);
+  box-shadow: 0 18px 54px var(--color-shadow-strong);
+}
+
+.membership-verification__header {
+  padding: 28px 24px;
+  text-align: center;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-accent-teal) 10%, var(--color-surface)), var(--color-bg-muted));
+}
+
+.membership-verification__status-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 28px;
+  line-height: 64px;
+  box-shadow: 0 8px 26px rgba(15, 53, 78, 0.18);
+}
+
+.membership-verification__status-icon.is-valid { background: #18794e; }
+.membership-verification__status-icon.is-invalid { background: #c43131; }
+.membership-verification__header h1 { margin: 0; color: var(--color-heading); font-size: 22px; }
+.membership-verification__header p { margin: 8px 0 0; color: var(--color-text-muted); font-size: 14px; }
+.membership-verification__body { padding: 22px 24px; }
+.membership-verification__body dl { margin: 0; }
+.membership-verification__body dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.membership-verification__body span,
+.membership-verification__empty,
+.membership-verification__footer { color: var(--color-text-muted); }
+.membership-verification__body strong { color: var(--color-heading); text-align: right; }
+.membership-verification__error { color: #b4232c; }
+.membership-verification__footer { margin-top: 18px; text-align: center; font-size: 12px; }
+
+[data-theme="dark"] .membership-verification__header {
+  background: linear-gradient(135deg, #06101f, #0b2447);
+}

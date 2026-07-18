@@ -20,6 +20,7 @@ import "./styles/dashboard-welcome-banner-section.css";
 import "./styles/header.css";
 import "./styles/theme-toggle.css";
 import "./styles/dark-theme-overrides.css";
+import "./styles/admin-light-consistency.css";
 import "./styles/app-splash.css";
 import "./styles/cookie-consent.css";
 import "./styles/coming-soon-page.css";

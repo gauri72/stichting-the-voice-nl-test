@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { apiFetch } from "../../utils/api.js";
+import "../../styles/public-booking-flows.css";
 
 export default function SessionsPage() {
   const { t } = useTranslation(["misc"]);

@@ -1,0 +1,140 @@
+/* Secondary admin modules historically mixed shared admin tokens with
+   white-alpha dark-mode surfaces. These scoped rules complete the light side
+   without altering the existing dark presentation. */
+[data-theme="light"] .admin-layout :is(
+  .admin-reports__filters,
+  .admin-reports__card,
+  .admin-reports__section,
+  .admin-reports__chart,
+  .admin-reports__table-wrap,
+  .admin-reports-custom__form,
+  .admin-templates__split-pane,
+  .admin-templates__library-table-wrap,
+  .admin-settings__nav,
+  .admin-settings__panel,
+  .admin-settings__table-wrap,
+  .admin-cms__panel,
+  .admin-cms__create-card,
+  .admin-cms__section-item,
+  .admin-cms__sidebar-section,
+  .admin-api-builder__panel,
+  .admin-api-builder__endpoint-card,
+  .admin-checkin__form,
+  .admin-checkin__result,
+  .admin-media__card,
+  .admin-media-picker__panel,
+  .admin-access__card,
+  .admin-access__perm-group,
+  .dash-builder__panel,
+  .dash-builder__widget-item
+) {
+  border-color: var(--ad-border);
+  background: var(--ad-surface);
+  color: var(--ad-text);
+  box-shadow: 0 8px 24px rgba(15, 53, 78, 0.06);
+}
+
+[data-theme="light"] .admin-layout :is(
+  .admin-reports__filters,
+  .admin-reports-custom__field,
+  .admin-templates__field,
+  .admin-templates__search,
+  .admin-settings__field,
+  .admin-cms,
+  .admin-checkin,
+  .dash-builder__field
+) :is(input, select, textarea) {
+  border-color: var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--ad-text);
+}
+
+[data-theme="light"] .admin-layout :is(
+  .admin-reports__table,
+  .admin-templates__library-table,
+  .admin-settings__table,
+  .admin-cms__table
+) :is(th, td) {
+  border-color: var(--ad-border);
+}
+
+[data-theme="light"] .admin-layout :is(
+  .admin-reports__table,
+  .admin-templates__library-table,
+  .admin-settings__table,
+  .admin-cms__table
+) th {
+  background: var(--color-bg-muted);
+  color: var(--ad-muted);
+}
+
+[data-theme="light"] .admin-layout :is(
+  .admin-reports__table,
+  .admin-templates__library-table,
+  .admin-settings__table,
+  .admin-cms__table
+) tbody tr:hover td {
+  background: #f3f8fa;
+}
+
+[data-theme="light"] .admin-layout :is(
+  .admin-settings__status-box,
+  .admin-reports__chart-empty,
+  .admin-templates__code-editor,
+  .admin-templates__preview-frame-wrap,
+  .admin-api-builder__test-result
+) {
+  border-color: var(--ad-border);
+  background: var(--color-bg-muted);
+  color: var(--ad-text);
+}
+
+[data-theme="light"] .admin-layout :is(
+  .admin-cms__btn,
+  .admin-settings__btn,
+  .admin-reports__btn,
+  .admin-checkin__btn,
+  .dash-builder__btn
+):not([class*="--primary"]) {
+  border-color: var(--ad-border);
+  background: var(--ad-surface);
+  color: var(--ad-text);
+}
+
+[data-theme="light"] .admin-cms__badge {
+  background: #e7eef3;
+  color: #314b5e;
+}
+
+[data-theme="light"] .admin-cms__badge--published { background: #dcfce7; color: #166534; }
+[data-theme="light"] .admin-cms__badge--draft { background: #fef3c7; color: #854d0e; }
+[data-theme="light"] .admin-cms__badge--archived { background: #e5e7eb; color: #4b5563; }
+
+/* Check-in PWA is standalone and therefore cannot inherit .admin-layout. */
+[data-theme="light"] .checkin-pwa-shell {
+  --ad-bg: var(--color-bg);
+  --ad-card: var(--color-surface-elevated);
+  --ad-input-bg: var(--color-input-bg);
+  --ad-text: var(--color-heading);
+  --ad-muted: var(--color-text-muted);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+[data-theme="light"] .checkin-pwa-shell :is(
+  .checkin-pwa-shell__header,
+  .checkin-app__scanner,
+  .checkin-app__form,
+  .checkin-app__result,
+  .checkin-app__recent
+) {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
+}
+
+[data-theme="light"] .checkin-pwa-shell :is(input, select) {
+  border-color: var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+}

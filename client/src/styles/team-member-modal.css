@@ -191,6 +191,40 @@
   margin-left: auto;
 }
 
+[data-theme="light"] .tms-modal__panel {
+  border-color: var(--color-border-strong);
+  background: linear-gradient(165deg, #ffffff, #f3f7fa);
+  color: var(--color-text);
+  box-shadow: 0 24px 70px rgba(15, 53, 78, 0.2);
+}
+
+[data-theme="light"] .tms-modal :is(.tms-modal__close, .tms-modal__nav) {
+  border-color: var(--color-border-strong);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-heading);
+}
+
+[data-theme="light"] .tms-modal :is(
+  .tms-modal__role,
+  .tms-modal__years,
+  .tms-modal__bio,
+  .tms-modal__bio--placeholder
+) {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="light"] .tms-modal__chip {
+  border-color: var(--color-border-strong);
+  background: var(--color-bg-muted);
+  color: var(--color-heading);
+}
+
+[data-theme="light"] .tms-modal__footer-btn--close {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-heading);
+}
+
 @media (min-width: 640px) {
   .tms-modal__body {
     grid-template-columns: minmax(200px, 240px) 1fr;

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import useBookingFlow from "../../hooks/useBookingFlow.js";
+import "../../styles/public-booking-flows.css";
 
 export default function SessionBookingPage() {
   const { t } = useTranslation(["misc"]);

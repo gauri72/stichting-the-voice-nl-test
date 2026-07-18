@@ -10,6 +10,43 @@
   touch-action: none;
 }
 
+[data-theme="light"] .seat-map-wrap {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
+  box-shadow: 0 12px 32px var(--color-shadow);
+}
+
+[data-theme="light"] .seat-map-stage-label {
+  background: linear-gradient(135deg, #d9edf2, #edf5f8);
+  color: var(--color-heading);
+}
+
+[data-theme="light"] .seat-map-controls,
+[data-theme="light"] .seat-map-summary,
+[data-theme="light"] .seat-map-admin__panel {
+  border-color: var(--color-border);
+  background: var(--color-bg-muted);
+  color: var(--color-text);
+}
+
+[data-theme="light"] .seat-map-controls button,
+[data-theme="light"] .seat-map-admin__toolbar button {
+  border-color: var(--color-border-strong);
+  color: var(--color-heading);
+}
+
+[data-theme="light"] .seat-map-list {
+  background: rgba(255, 255, 255, 0.97);
+  border-color: var(--color-border-strong);
+}
+
+[data-theme="light"] .seat-map-admin__field :is(input, select) {
+  border-color: var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+}
+
 .seat-map-wrap--fullscreen {
   position: fixed;
   inset: 0;

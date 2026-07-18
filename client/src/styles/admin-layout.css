@@ -5,12 +5,17 @@
   --ad-surface: #0b1220;
   --ad-surface-2: #111827;
   --ad-border: rgba(255, 255, 255, 0.1);
+  --ad-input-bg: #080d18;
   --ad-text: #f8fafc;
   --ad-muted: #94a3b8;
   --ad-purple: #a855f7;
   --ad-pink: #ec4899;
   --ad-teal: #22d3ee;
   --ad-green: #22c55e;
+  --admin-border: var(--ad-border);
+  --admin-card-bg: var(--ad-surface);
+  --admin-text-muted: var(--ad-muted);
+  --admin-navy: var(--ad-text);
   min-height: 100vh;
   min-height: 100dvh;
   width: 100%;
@@ -27,12 +32,17 @@
   --ad-surface: var(--color-surface-elevated);
   --ad-surface-2: #f8fafc;
   --ad-border: var(--color-border);
+  --ad-input-bg: var(--color-input-bg);
   --ad-text: var(--color-heading);
   --ad-muted: var(--color-text-secondary);
   --ad-purple: #7c3aed;
   --ad-pink: #db2777;
   --ad-teal: #0891b2;
   --ad-green: #16a34a;
+  --admin-border: var(--ad-border);
+  --admin-card-bg: var(--ad-surface);
+  --admin-text-muted: var(--ad-muted);
+  --admin-navy: var(--color-heading);
 }
 
 .admin-layout--no-bottom-nav {

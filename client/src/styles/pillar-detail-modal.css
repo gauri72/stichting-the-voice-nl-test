@@ -115,6 +115,27 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+[data-theme="light"] .pillar-detail-modal__panel {
+  border-color: var(--color-border-strong);
+  background: linear-gradient(165deg, #ffffff, #f3f7fa);
+  color: var(--color-text);
+  box-shadow: 0 24px 70px rgba(15, 53, 78, 0.2);
+}
+
+[data-theme="light"] .pillar-detail-modal__close {
+  border-color: var(--color-border-strong);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-heading);
+}
+
+[data-theme="light"] .pillar-detail-modal__icon {
+  background: var(--color-bg-muted);
+}
+
+[data-theme="light"] .pillar-detail-modal :is(.pillar-detail-modal__lead, .pillar-detail-modal__tags) {
+  color: var(--color-text-secondary);
+}
+
 .pillar-detail-modal__cta:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(26, 167, 196, 0.35);

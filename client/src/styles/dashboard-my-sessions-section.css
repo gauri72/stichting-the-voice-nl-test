@@ -107,3 +107,24 @@
     transform: none;
   }
 }
+
+[data-theme="light"] .dash-session-row {
+  border-color: var(--md-border);
+  background: var(--md-surface);
+  color: var(--md-text);
+  box-shadow: 0 4px 14px var(--md-shadow-soft);
+}
+
+[data-theme="light"] .dash-session-row:hover {
+  border-color: rgba(8, 114, 122, 0.35);
+  background: #f7fbfc;
+}
+
+[data-theme="light"] .dash-session-row :is(.dash-session-row__date, .dash-session-row__id),
+[data-theme="light"] .member-dashboard__panel-subtitle {
+  color: var(--md-text-soft);
+}
+
+[data-theme="light"] .dash-session-row__status {
+  background: var(--md-border-soft);
+}
