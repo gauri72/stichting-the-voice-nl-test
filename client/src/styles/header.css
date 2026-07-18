@@ -365,6 +365,34 @@
     color: #08727a;
   }
 
+  /* V.Commerce begins on a pale marketplace canvas rather than a dark hero.
+     Use the same readable glass treatment as other split/light hero pages. */
+  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop {
+    padding: 6px 14px;
+    border: 1px solid rgba(177, 204, 216, 0.78);
+    border-radius: 14px;
+    background: rgba(250, 252, 252, 0.88);
+    -webkit-backdrop-filter: blur(14px) saturate(125%);
+    backdrop-filter: blur(14px) saturate(125%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.92),
+      0 8px 24px rgba(19, 54, 75, 0.12);
+  }
+
+  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop > a,
+  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop > .menu-dropdown > .menu-dropdown-trigger {
+    color: #17384b;
+    text-shadow: none;
+  }
+
+  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop > a:hover,
+  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop > a.active,
+  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop > .menu-dropdown > .menu-dropdown-trigger:hover,
+  [data-theme="light"]:has(.vcm-page) .site-header .menu-links--desktop > .menu-dropdown > .menu-dropdown-trigger.active {
+    color: #08727a;
+    border-bottom-color: #1599a7;
+  }
+
   /* Innovation uses a split light-canvas/dark-image hero instead of the
      shared full-width banner. A glass navigation surface keeps every link
      readable as it crosses that boundary. */

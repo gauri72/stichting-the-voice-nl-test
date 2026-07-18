@@ -189,6 +189,6 @@ export default function MarketplaceHomePage(){
   const mobile=useSyncExternalStore(subscribe,getSnapshot,()=>false);
   const {featured,products}=useMarketplaceData();
   useEffect(()=>{document.title="V.Commerce — Community Marketplace | V.O.I.C.E. NL"; document.body.classList.toggle("vco-mobile-active",mobile); return()=>document.body.classList.remove("vco-mobile-active")},[mobile]);
-  if(mobile)return <div className="vcm-page vcm-mobile"><MobileToolbar/><main><Hero mobile/><QuickActions/><BusinessWeek business={featured}/><Popular products={products}/></main><BottomNav/></div>;
+  if(mobile)return <div className="vcm-page vcm-mobile"><MobileToolbar/><main><Hero mobile/><QuickActions/><BusinessWeek business={featured}/><Popular products={products}/><div className="vcm-lower"><BottomContent/></div></main><BottomNav/></div>;
   return <div className="vcm-page vcm-desktop"><DesktopBrand/><main><Hero/><SearchCategories/><div className="vcm-content"><BusinessWeek business={featured}/><Popular products={products}/></div><div className="vcm-lower"><BottomContent/></div></main></div>;
 }

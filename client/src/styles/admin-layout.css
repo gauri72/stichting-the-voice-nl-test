@@ -12,6 +12,13 @@
   --ad-pink: #ec4899;
   --ad-teal: #22d3ee;
   --ad-green: #22c55e;
+  --ae-purple: #6338c2;
+  --ae-purple-soft: rgba(99, 56, 194, 0.14);
+  --ae-card-bg: #0d111c;
+  --ae-input-bg: #080d18;
+  --ae-green: #22c55e;
+  --ae-gold: #eab308;
+  --ae-danger: #ef4444;
   --admin-border: var(--ad-border);
   --admin-card-bg: var(--ad-surface);
   --admin-text-muted: var(--ad-muted);
@@ -39,6 +46,10 @@
   --ad-pink: #db2777;
   --ad-teal: #0891b2;
   --ad-green: #16a34a;
+  --ae-purple: #7c3aed;
+  --ae-purple-soft: rgba(124, 58, 237, 0.1);
+  --ae-card-bg: #ffffff;
+  --ae-input-bg: #f8fafc;
   --admin-border: var(--ad-border);
   --admin-card-bg: var(--ad-surface);
   --admin-text-muted: var(--ad-muted);

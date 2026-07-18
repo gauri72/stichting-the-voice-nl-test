@@ -14,8 +14,8 @@
 }
 
 .admin-memberships__checkout-settings {
-  background: var(--ad-card, #0d111c);
-  border: 1px solid rgba(62, 207, 154, 0.15);
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
   border-radius: 14px;
   padding: 20px;
   margin-bottom: 20px;
@@ -38,14 +38,21 @@
   flex-direction: column;
   gap: 6px;
   font-size: 0.9rem;
+  color: var(--ad-text);
 }
 
-.admin-memberships__checkout-grid input[type="number"] {
+.admin-memberships__checkout-grid input[type="number"],
+.admin-memberships__checkout-grid input[type="text"],
+.admin-memberships__checkout-grid select,
+.admin-memberships__checkout-grid textarea {
+  width: 100%;
+  box-sizing: border-box;
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.2);
-  color: inherit;
+  border: 1px solid var(--ad-border);
+  background: var(--ad-input-bg);
+  color: var(--ad-text);
+  font: inherit;
 }
 
 .admin-memberships__tt-discount-rules {
@@ -70,14 +77,14 @@
 .admin-memberships__tt-discount-row input[type="number"] {
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.2);
-  color: inherit;
+  border: 1px solid var(--ad-border);
+  background: var(--ad-input-bg);
+  color: var(--ad-text);
 }
 
 .admin-memberships__stat {
-  background: var(--ad-card, #0d111c);
-  border: 1px solid rgba(62, 207, 154, 0.15);
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
   border-radius: 14px;
   padding: 16px;
   text-align: center;
@@ -87,7 +94,7 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: 800;
-  color: var(--color-accent-teal, #3ecf9a);
+  color: var(--ad-teal);
 }
 
 .admin-memberships__stat-label {
@@ -165,8 +172,8 @@
 .admin-memberships__table-wrap {
   overflow-x: auto;
   border-radius: 14px;
-  border: 1px solid rgba(62, 207, 154, 0.12);
-  background: var(--ad-card, #0d111c);
+  border: 1px solid var(--ad-border);
+  background: var(--ad-surface);
 }
 
 .admin-memberships__table {
@@ -256,8 +263,8 @@
 }
 
 .admin-memberships__card {
-  background: var(--ad-card, #0d111c);
-  border: 1px solid rgba(62, 207, 154, 0.12);
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
   border-radius: 14px;
   padding: 16px;
 }
@@ -395,8 +402,8 @@
   width: min(520px, 100%);
   max-height: 90vh;
   overflow-y: auto;
-  background: var(--ad-bg, #060a12);
-  border: 1px solid rgba(62, 207, 154, 0.2);
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
   border-radius: 16px;
   padding: 24px;
 }
@@ -528,6 +535,7 @@
 }
 
 [data-theme="light"] .admin-memberships__stat,
+[data-theme="light"] .admin-memberships__checkout-settings,
 [data-theme="light"] .admin-memberships__table-wrap,
 [data-theme="light"] .admin-memberships__card,
 [data-theme="light"] .admin-member-profile__header,

@@ -460,7 +460,7 @@ export default function AdminSponsorshipsPage() {
         ) : null}
 
         {!loading && items.length > 0 ? (
-        <div className="admin-finance__table-wrap">
+        <div className="admin-finance__table-wrap admin-finance__table-wrap--records">
           <table className="admin-finance__table">
             <thead>
               <tr>

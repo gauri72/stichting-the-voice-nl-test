@@ -90,7 +90,7 @@ export default function AdminRsvpsPage() {
         <div className="admin-events__card-body">
           <label>
             Filter status{" "}
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <select className="admin-events__select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
               <option value="">All</option>
               <option value="yes">Yes</option>
               <option value="maybe">Maybe</option>
