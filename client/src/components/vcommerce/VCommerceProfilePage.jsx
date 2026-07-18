@@ -241,9 +241,18 @@ export default function VCommerceProfilePage() {
     setLoading(true);
     getVCommerceProfile(slug)
       .then((d) => {
-        setData(d);
-        if (d?.profile?.businessName) {
-          document.title = `${d.profile.businessName} — V.Commerce`;
+        const profile = d?.business || d?.profile || null;
+        if (!profile) {
+          throw new Error("Business profile data is unavailable.");
+        }
+        const products = Array.isArray(d?.products)
+          ? d.products
+          : Array.isArray(profile.products)
+            ? profile.products
+            : [];
+        setData({ profile, products });
+        if (profile.businessName) {
+          document.title = `${profile.businessName} — V.Commerce`;
         }
       })
       .catch((err) => setError(err?.message || "Business not found"))
@@ -274,7 +283,20 @@ export default function VCommerceProfilePage() {
     );
   }
 
-  const { profile, products = [] } = data;
+  const profile = data?.profile;
+  const products = Array.isArray(data?.products) ? data.products : [];
+  if (!profile) {
+    return (
+      <div className="vco-error-page">
+        <div className="vco-gate-icon">🔍</div>
+        <h1 style={{ fontSize:"1.5rem",fontWeight:700 }}>Business Not Found</h1>
+        <p style={{ color:"var(--color-text-secondary,#666)" }}>
+          This business listing is not available yet.
+        </p>
+        <Link to="/vcommerce/businesses" className="vco-btn vco-btn--primary">Back to businesses</Link>
+      </div>
+    );
+  }
   const icon = CATEGORY_ICONS[profile.category] || "✨";
 
   return (
@@ -326,7 +348,7 @@ export default function VCommerceProfilePage() {
 
       <div className="vco-profile-body">
         <div>
-          <Link to="/vcommerce" style={{ fontSize:"0.85rem",color:"var(--color-text-secondary,#666)",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:4,marginBottom:20 }}>
+          <Link to="/vcommerce/businesses" style={{ fontSize:"0.85rem",color:"var(--color-text-secondary,#666)",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:4,marginBottom:20 }}>
             ← All businesses
           </Link>
 
@@ -388,7 +410,7 @@ export default function VCommerceProfilePage() {
             </>
           )}
           <div style={{ marginTop:8 }}>
-            <Link to="/vcommerce" className="vco-btn vco-btn--ghost" style={{ width:"100%",boxSizing:"border-box" }}>
+            <Link to="/vcommerce/businesses" className="vco-btn vco-btn--ghost" style={{ width:"100%",boxSizing:"border-box" }}>
               ← All businesses
             </Link>
           </div>
