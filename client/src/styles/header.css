@@ -72,6 +72,152 @@
   display: contents;
 }
 
+.vcommerce-header-tools {
+  display: none;
+}
+
+@media (min-width: 1101px) {
+  .site-header--vcommerce .site-navbar {
+    padding-left: 120px;
+  }
+
+  .site-header--vcommerce .nav-toolbar {
+    flex-wrap: nowrap;
+    gap: clamp(7px, 0.8vw, 12px);
+    max-width: none;
+  }
+
+  .site-header--vcommerce .menu-links--desktop {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+
+  .site-header--vcommerce .nav-toolbar__cta-member,
+  .site-header--vcommerce .buy-tickets-button {
+    display: none;
+  }
+
+  .site-header--vcommerce .nav-toolbar__cta-auth {
+    flex: 0 0 auto;
+    min-width: 190px;
+  }
+
+  .vcommerce-header-tools {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .vcommerce-header-tools > a,
+  .vcommerce-header-tools__notifications > button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid rgba(0, 228, 223, 0.28);
+    border-radius: 12px;
+    background: rgba(4, 16, 30, 0.74);
+    color: #f4fbff;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(12px);
+  }
+
+  .vcommerce-header-tools svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .vcommerce-header-tools > a > span {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    display: grid;
+    place-items: center;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 4px;
+    border-radius: 10px;
+    background: #7c3aed;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+  }
+
+  .vcommerce-header-tools__notifications {
+    position: relative;
+  }
+
+  .vcommerce-header-tools__panel {
+    position: absolute;
+    z-index: 1300;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 310px;
+    padding: 16px;
+    border: 1px solid #29415c;
+    border-radius: 14px;
+    background: #071223;
+    color: #f7f8fb;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.36);
+  }
+
+  .vcommerce-header-tools__panel > strong {
+    display: block;
+    font-size: 14px;
+  }
+
+  .vcommerce-header-tools__panel > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 20px 8px 8px;
+    text-align: center;
+  }
+
+  .vcommerce-header-tools__panel > div svg {
+    width: 32px;
+    height: 32px;
+    color: #00b7bd;
+  }
+
+  .vcommerce-header-tools__panel p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .vcommerce-header-tools__panel small {
+    color: #aab5c5;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+
+  [data-theme="light"] .vcommerce-header-tools > a,
+  [data-theme="light"] .vcommerce-header-tools__notifications > button {
+    border-color: #bdd3df;
+    background: rgba(255, 255, 255, 0.9);
+    color: #17384b;
+    box-shadow: 0 8px 22px rgba(19, 54, 75, 0.12);
+  }
+
+  [data-theme="light"] .vcommerce-header-tools__panel {
+    border-color: #cbdce7;
+    background: #fff;
+    color: #102033;
+    box-shadow: 0 18px 42px rgba(25, 61, 87, 0.18);
+  }
+
+  [data-theme="light"] .vcommerce-header-tools__panel small {
+    color: #5f6f82;
+  }
+}
+
 .brand-block,
 .mobile-brand-block {
   display: none !important;

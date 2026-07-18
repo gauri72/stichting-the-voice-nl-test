@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { IconTicket, IconUser, IconUserCheck, IconUserPlus } from "@tabler/icons-react";
+import { IconBell, IconShoppingCart, IconTicket, IconUser, IconUserCheck, IconUserPlus } from "@tabler/icons-react";
 import ThemeToggle from "./ThemeToggle.jsx";
 import LanguageSwitcher from "./LanguageSwitcher.jsx";
 import SiteInstallPwaPrompt from "../pwa/SiteInstallPwaPrompt.jsx";
 import { useCmsHeader } from "../../hooks/useCmsPage.js";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { translateKnownLabel, translateKnownNavLabel } from "../../i18n/navLabels.js";
+import { useCart } from "../vcommerce/cart/useCart.js";
 
 const DEFAULT_BUY_TICKETS_URL =
   "https://www.tickettailor.com/events/stichtingthevoicenl/2185529";
@@ -117,11 +118,16 @@ function addPartnerWithUsNavigation(items = [], t) {
 }
 
 export default function Header() {
+  const location = useLocation();
   const { t } = useTranslation(["common"]);
   const { header } = useCmsHeader();
   const { user, isAuthenticated } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdownLabel, setOpenDropdownLabel] = useState(null);
+  const [commerceNotificationsOpen, setCommerceNotificationsOpen] = useState(false);
+  const commerceNotificationsRef = useRef(null);
+  const { itemCount } = useCart();
+  const isVcommerce = location.pathname.startsWith("/vcommerce");
 
   const settings = header?.settings || {};
   const NAV_ITEMS = addPartnerWithUsNavigation(
@@ -162,6 +168,25 @@ export default function Header() {
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [isMenuOpen]);
+
+  useEffect(() => {
+    if (!commerceNotificationsOpen) return undefined;
+    const closeNotifications = (event) => {
+      if (event.key === "Escape") {
+        setCommerceNotificationsOpen(false);
+        return;
+      }
+      if (event.type === "pointerdown" && !commerceNotificationsRef.current?.contains(event.target)) {
+        setCommerceNotificationsOpen(false);
+      }
+    };
+    document.addEventListener("keydown", closeNotifications);
+    document.addEventListener("pointerdown", closeNotifications);
+    return () => {
+      document.removeEventListener("keydown", closeNotifications);
+      document.removeEventListener("pointerdown", closeNotifications);
+    };
+  }, [commerceNotificationsOpen]);
 
   const navLinks = (
     <>
@@ -254,7 +279,7 @@ export default function Header() {
   );
 
   return (
-    <header className={`site-header${stickyClass}`}>
+    <header className={`site-header${stickyClass}${isVcommerce ? " site-header--vcommerce" : ""}`}>
       {announcement?.visible && announcement.text ? (
         <div className="site-header__announcement">
           {announcement.url ? <a href={announcement.url}>{announcement.text}</a> : announcement.text}
@@ -268,6 +293,42 @@ export default function Header() {
             {buyTicketsCta}
             {authCta}
           </div>
+          {isVcommerce ? (
+            <div className="vcommerce-header-tools" aria-label="V.Commerce utilities">
+              <div className="vcommerce-header-tools__notifications" ref={commerceNotificationsRef}>
+                <button
+                  type="button"
+                  aria-label="Open notifications"
+                  aria-expanded={commerceNotificationsOpen}
+                  aria-controls="vcommerce-desktop-notifications-panel"
+                  onClick={() => setCommerceNotificationsOpen((open) => !open)}
+                >
+                  <IconBell aria-hidden="true" />
+                </button>
+                {commerceNotificationsOpen ? (
+                  <section
+                    id="vcommerce-desktop-notifications-panel"
+                    className="vcommerce-header-tools__panel"
+                    aria-label="Notifications"
+                  >
+                    <strong>Notifications</strong>
+                    <div>
+                      <IconBell aria-hidden="true" />
+                      <p>No new notifications</p>
+                      <small>Updates about your orders and marketplace activity will appear here.</small>
+                    </div>
+                  </section>
+                ) : null}
+              </div>
+              <Link
+                to="/vcommerce/checkout"
+                aria-label={`Shopping cart${itemCount > 0 ? `, ${itemCount} item${itemCount === 1 ? "" : "s"}` : ", empty"}`}
+              >
+                <IconShoppingCart aria-hidden="true" />
+                {itemCount > 0 ? <span aria-hidden="true">{itemCount > 99 ? "99+" : itemCount}</span> : null}
+              </Link>
+            </div>
+          ) : null}
           {showThemeToggle ? <ThemeToggle className="nav-toolbar__desktop-theme" /> : null}
           <LanguageSwitcher header />
           <button

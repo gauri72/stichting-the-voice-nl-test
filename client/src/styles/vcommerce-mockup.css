@@ -822,11 +822,41 @@
 [data-theme="light"] .vcm-mobile-menu__marketplace a{background:#fff;color:#20384d}
 [data-theme="light"] .vcm-mobile-menu__theme{border-color:#d6e3eb;background:#fff;color:#20384d}
 
-.vcm-mobile-notifications{position:relative;display:flex;align-items:center}
-.vcm-mobile-notifications>button{display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
+.vcm-mobile-head{
+  position:relative;
+  z-index:1100;
+  overflow:visible;
+  isolation:isolate;
+}
+.vcm-mobile-head>div{
+  align-items:center;
+}
+.vcm-mobile-head>div>a,
+.vcm-mobile-notifications,
+.vcm-mobile-notifications>button{
+  width:36px;
+  height:36px;
+  min-width:36px;
+}
+.vcm-mobile-head>div>a,
+.vcm-mobile-notifications>button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0;
+  padding:0;
+  line-height:1;
+}
+.vcm-mobile-head>div>a>svg,
+.vcm-mobile-notifications>button>svg{
+  display:block;
+  flex:none;
+}
+.vcm-mobile-notifications{position:relative;display:flex;align-items:center;justify-content:center}
+.vcm-mobile-notifications>button{cursor:pointer}
 .vcm-mobile-notifications__panel{
   position:absolute;
-  z-index:120;
+  z-index:1201;
   top:calc(100% + 16px);
   right:-48px;
   width:min(310px,calc(100vw - 24px));
