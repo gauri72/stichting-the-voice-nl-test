@@ -14,6 +14,21 @@ import {
   postCreatePayout,
   patchMarkPayoutPaid,
   getAnalytics,
+  postAdminProduct,
+  deleteAdminProductController,
+  getBusinessActivity,
+  getChargeRules,
+  postChargeRule,
+  patchChargeRule,
+  getAdjustments,
+  postAdjustment,
+  getLedger,
+  patchOrderPayoutHold,
+  getRiskFlags,
+  postRiskFlag,
+  patchRiskFlag,
+  getOperations,
+  postRiskScan,
 } from "../controllers/adminVcommerceController.js";
 
 const router = Router();
@@ -27,11 +42,16 @@ router.get("/businesses", getBusinesses);
 router.get("/businesses/:id", getOneBusiness);
 router.patch("/businesses/:id", patchBusiness);
 router.post("/businesses/:id/feature", postSetFeatured);
+router.post("/businesses/:id/featured", postSetFeatured);
+router.get("/businesses/:id/activity", getBusinessActivity);
+router.post("/businesses/:id/products", postAdminProduct);
 router.patch("/businesses/:id/products/:productId", patchAdminProduct);
+router.delete("/businesses/:id/products/:productId", deleteAdminProductController);
 
 // Orders
 router.get("/orders", getOrders);
 router.get("/orders/:id", getOneOrder);
+router.patch("/orders/:id/payout-hold", patchOrderPayoutHold);
 
 // Payouts
 router.get("/payouts", getPayouts);
@@ -41,5 +61,20 @@ router.patch("/payouts/:id/mark-paid", patchMarkPayoutPaid);
 
 // Analytics
 router.get("/analytics", getAnalytics);
+
+// Commercial controls and immutable finance operations
+router.get("/charge-rules", getChargeRules);
+router.post("/charge-rules", postChargeRule);
+router.patch("/charge-rules/:id", patchChargeRule);
+router.get("/adjustments", getAdjustments);
+router.post("/adjustments", postAdjustment);
+router.get("/ledger", getLedger);
+
+// Risk, automation and operations
+router.get("/risk-flags", getRiskFlags);
+router.post("/risk-flags", postRiskFlag);
+router.patch("/risk-flags/:id", patchRiskFlag);
+router.get("/operations", getOperations);
+router.post("/operations/risk-scan", postRiskScan);
 
 export default router;

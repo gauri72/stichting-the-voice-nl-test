@@ -7,6 +7,11 @@ import {
 } from "../src/config/vcommercePlans.js";
 import BusinessApplication from "../src/models/BusinessApplication.js";
 import BusinessProfile from "../src/models/BusinessProfile.js";
+import BusinessOrder from "../src/models/BusinessOrder.js";
+import VCommerceAdjustment from "../src/models/VCommerceAdjustment.js";
+import VCommerceChargeRule from "../src/models/VCommerceChargeRule.js";
+import VCommerceLedgerEntry from "../src/models/VCommerceLedgerEntry.js";
+import VCommerceRiskFlag from "../src/models/VCommerceRiskFlag.js";
 
 describe("V.Commerce commercial rules", () => {
   it("uses the agreed affordable package prices", () => {
@@ -38,6 +43,24 @@ describe("V.Commerce commercial rules", () => {
     ]);
     expect(BusinessProfile.schema.path("status").enumValues).toEqual([
       "setup", "review", "active", "suspended", "paused",
+    ]);
+  });
+
+  it("supports auditable charges, waivers, credits and deductions", () => {
+    expect(VCommerceChargeRule.schema.path("chargeType").enumValues).toContain("platform_fee");
+    expect(VCommerceAdjustment.schema.path("kind").enumValues).toEqual([
+      "waiver", "credit", "deduction", "refund", "manual_charge",
+    ]);
+    expect(VCommerceLedgerEntry.schema.path("direction").enumValues).toEqual(["credit", "debit"]);
+    expect(BusinessOrder.schema.path("calculationSnapshot")).toBeTruthy();
+  });
+
+  it("supports operational risk and compliance workflows", () => {
+    expect(VCommerceRiskFlag.schema.path("severity").enumValues).toEqual([
+      "low", "medium", "high", "critical",
+    ]);
+    expect(VCommerceRiskFlag.schema.path("status").enumValues).toEqual([
+      "open", "reviewing", "resolved", "dismissed",
     ]);
   });
 });

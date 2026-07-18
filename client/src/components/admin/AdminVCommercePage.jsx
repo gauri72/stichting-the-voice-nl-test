@@ -11,11 +11,17 @@ import {
   adminCreatePayout,
   adminMarkPayoutPaid,
   adminGetAnalytics,
+  adminGetOneBusiness,
+  adminCreateProduct,
+  adminPatchProduct,
+  adminDeleteProduct,
+  adminSetOrderPayoutHold,
 } from "../vcommerce/shared/vcommerceApi.js";
 import { BUSINESS_CATEGORY_LABELS } from "../vcommerce/shared/BUSINESS_CATEGORIES.js";
 import AdminWholesalerPage from "./AdminWholesalerPage.jsx";
+import { CommercialControlsTab, LedgerTab, OperationsTab } from "./AdminVCommerceOperations.jsx";
 
-const TABS = ["Applications", "Businesses", "Orders", "Payouts", "Analytics", "Wholesalers"];
+const TABS = ["Applications", "Businesses", "Orders", "Payouts", "Commercial", "Ledger", "Operations", "Analytics", "Wholesalers"];
 const APPLICATION_STATUSES = [
   ["payment_pending", "Payment Pending"],
   ["setup", "Storefront Setup"],
@@ -190,17 +196,67 @@ function BusinessesTab() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [products, setProducts] = useState([]);
+  const [productEditing, setProductEditing] = useState(null);
+  const [productForm, setProductForm] = useState({});
   const [msg, setMsg] = useState("");
 
   const load = useCallback(() => {
     setLoading(true);
     adminGetBusinesses()
-      .then((d) => setItems(d.businesses || []))
+      .then((d) => setItems(d.businesses || d.items || []))
       .catch(() => setItems([]))
       .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  async function openWorkspace(business) {
+    try {
+      const detail = await adminGetOneBusiness(business._id);
+      setEditing(detail.business);
+      setProducts(detail.products || []);
+      const b = detail.business;
+      setEditForm({
+        businessName: b.businessName || "", tagline: b.tagline || "", description: b.description || "",
+        category: b.category || "", logoUrl: b.logoUrl || "", bannerUrl: b.bannerUrl || "",
+        galleryUrls: (b.galleryUrls || []).join("\n"), contactEmail: b.contactEmail || "",
+        contactPhone: b.contactPhone || "", website: b.website || "", status: b.status || "setup",
+        platformFeePercent: b.platformFeePercent, cashbackPercent: b.cashbackPercent,
+        payoutBankName: b.payoutBankName || "", payoutIBAN: b.payoutIBAN || "", payoutBankHolder: b.payoutBankHolder || "",
+        city: b.location?.city || "", country: b.location?.country || "NL",
+      });
+    } catch (err) { setMsg(err.message || "Could not open business workspace."); }
+  }
+
+  function openProduct(product = null) {
+    setProductEditing(product || {});
+    setProductForm(product ? {
+      ...product, imageUrls: (product.imageUrls || []).join("\n"), tags: (product.tags || []).join(", "),
+    } : { name: "", description: "", type: "service", imageUrls: "", priceMinor: 0, stockCount: "", isAvailable: true, isFeatured: false, tags: "", deliveryInfo: "", sortOrder: 0 });
+  }
+
+  async function saveProduct(e) {
+    e.preventDefault();
+    try {
+      const payload = { ...productForm, priceMinor: Number(productForm.priceMinor), stockCount: productForm.stockCount === "" ? null : Number(productForm.stockCount), sortOrder: Number(productForm.sortOrder || 0), imageUrls: productForm.imageUrls.split("\n").map((x) => x.trim()).filter(Boolean), tags: productForm.tags.split(",").map((x) => x.trim()).filter(Boolean) };
+      if (productEditing?._id) await adminPatchProduct(editing._id, productEditing._id, payload);
+      else await adminCreateProduct(editing._id, payload);
+      setProductEditing(null);
+      const detail = await adminGetOneBusiness(editing._id);
+      setProducts(detail.products || []);
+      setMsg("Product catalogue updated.");
+    } catch (err) { setMsg(err.message || "Could not save product."); }
+  }
+
+  async function removeProduct(product) {
+    if (!window.confirm(`Archive or delete “${product.name}”? Existing order history will be preserved.`)) return;
+    try {
+      await adminDeleteProduct(editing._id, product._id);
+      const detail = await adminGetOneBusiness(editing._id);
+      setProducts(detail.products || []);
+    } catch (err) { setMsg(err.message || "Could not remove product."); }
+  }
 
   async function handleSetFeatured(id) {
     try {
@@ -226,6 +282,18 @@ function BusinessesTab() {
     e.preventDefault();
     try {
       await adminPatchBusiness(editing._id, {
+        businessName: editForm.businessName,
+        tagline: editForm.tagline,
+        description: editForm.description,
+        category: editForm.category,
+        logoUrl: editForm.logoUrl,
+        bannerUrl: editForm.bannerUrl,
+        galleryUrls: editForm.galleryUrls.split("\n").map((x) => x.trim()).filter(Boolean),
+        contactEmail: editForm.contactEmail,
+        contactPhone: editForm.contactPhone,
+        website: editForm.website,
+        status: editForm.status,
+        location: { city: editForm.city, country: editForm.country },
         platformFeePercent: Number(editForm.platformFeePercent),
         cashbackPercent: Number(editForm.cashbackPercent),
         payoutBankName: editForm.payoutBankName,
@@ -281,7 +349,7 @@ function BusinessesTab() {
                   <td style={S.td}>{formatPrice(b.pendingPayoutMinor)}</td>
                   <td style={S.td}>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                      <button type="button" style={S.btn("sm")} onClick={() => { setEditing(b); setEditForm({ platformFeePercent: b.platformFeePercent, cashbackPercent: b.cashbackPercent, payoutBankName: b.payoutBankName || "", payoutIBAN: b.payoutIBAN || "", payoutBankHolder: b.payoutBankHolder || "" }); }}>Edit</button>
+                      <button type="button" style={S.btn("sm")} onClick={() => openWorkspace(b)}>Manage</button>
                       {["active", "suspended", "paused"].includes(b.status) ? (
                         <button type="button" style={S.btn("sm")} onClick={() => handleStatusToggle(b)}>{b.status === "active" ? "Suspend" : "Activate"}</button>
                       ) : (
@@ -301,6 +369,25 @@ function BusinessesTab() {
       {editing && (
         <Modal title={`Edit: ${editing.businessName}`} onClose={() => setEditing(null)}>
           <form onSubmit={submitEdit}>
+            <p style={{ fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--ad-text-muted,#888)", margin: "0 0 12px" }}>Storefront content</p>
+            <p style={{ margin: "0 0 12px", fontSize: ".8rem" }}>Upload, optimize and reuse storefront assets in the <a href="/admin/cms/media-library" style={{ color: "var(--ad-accent,#8B5CF6)", fontWeight: 700 }}>Media Library</a>, then assign the generated URL below.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+              <div><label style={S.label}>Business name</label><input style={{ ...S.input, width: "100%" }} value={editForm.businessName} onChange={(e) => setEditForm((f) => ({ ...f, businessName: e.target.value }))}/></div>
+              <div><label style={S.label}>Status</label><select style={{ ...S.input, width: "100%" }} value={editForm.status} onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))}>{["setup","review","active","paused","suspended"].map((x) => <option key={x}>{x}</option>)}</select></div>
+              <div style={{ gridColumn: "1/-1" }}><label style={S.label}>Tagline</label><input style={{ ...S.input, width: "100%" }} value={editForm.tagline} onChange={(e) => setEditForm((f) => ({ ...f, tagline: e.target.value }))}/></div>
+              <div style={{ gridColumn: "1/-1" }}><label style={S.label}>Description</label><textarea style={{ ...S.input, width: "100%", minHeight: 85 }} value={editForm.description} onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}/></div>
+              <div><label style={S.label}>Logo URL</label><input style={{ ...S.input, width: "100%" }} value={editForm.logoUrl} onChange={(e) => setEditForm((f) => ({ ...f, logoUrl: e.target.value }))}/></div>
+              <div><label style={S.label}>Banner URL</label><input style={{ ...S.input, width: "100%" }} value={editForm.bannerUrl} onChange={(e) => setEditForm((f) => ({ ...f, bannerUrl: e.target.value }))}/></div>
+              <div style={{ gridColumn: "1/-1" }}><label style={S.label}>Gallery image URLs (one per line)</label><textarea style={{ ...S.input, width: "100%", minHeight: 65 }} value={editForm.galleryUrls} onChange={(e) => setEditForm((f) => ({ ...f, galleryUrls: e.target.value }))}/></div>
+              <div><label style={S.label}>Email</label><input style={{ ...S.input, width: "100%" }} value={editForm.contactEmail} onChange={(e) => setEditForm((f) => ({ ...f, contactEmail: e.target.value }))}/></div>
+              <div><label style={S.label}>Phone</label><input style={{ ...S.input, width: "100%" }} value={editForm.contactPhone} onChange={(e) => setEditForm((f) => ({ ...f, contactPhone: e.target.value }))}/></div>
+              <div><label style={S.label}>Website</label><input style={{ ...S.input, width: "100%" }} value={editForm.website} onChange={(e) => setEditForm((f) => ({ ...f, website: e.target.value }))}/></div>
+              <div><label style={S.label}>City / Country</label><div style={{ display: "flex", gap: 6 }}><input style={{ ...S.input, width: "70%" }} value={editForm.city} onChange={(e) => setEditForm((f) => ({ ...f, city: e.target.value }))}/><input style={{ ...S.input, width: "30%" }} value={editForm.country} onChange={(e) => setEditForm((f) => ({ ...f, country: e.target.value }))}/></div></div>
+            </div>
+            <div style={{ borderTop: "1px solid var(--ad-border)", borderBottom: "1px solid var(--ad-border)", padding: "16px 0", marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><p style={{ margin: 0, fontWeight: 700 }}>Products & services ({products.length})</p><button type="button" style={S.btn("sm")} onClick={() => openProduct()}>+ Add product</button></div>
+              {products.map((p) => <div key={p._id} style={{ display: "flex", justifyContent: "space-between", gap: 8, padding: "9px 0", borderBottom: "1px solid var(--ad-border,rgba(128,128,128,.1))" }}><span><strong>{p.name}</strong><br/><small>{formatPrice(p.priceMinor,p.currency)} · {p.isAvailable ? "Published" : "Hidden"}</small></span><span><button type="button" style={S.btn("sm")} onClick={() => openProduct(p)}>Edit</button> <button type="button" style={S.btn("sm")} onClick={() => removeProduct(p)}>Remove</button></span></div>)}
+            </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
               <div>
                 <label style={S.label}>Platform Fee %</label>
@@ -338,6 +425,20 @@ function BusinessesTab() {
           </form>
         </Modal>
       )}
+
+      {productEditing && (
+        <Modal title={productEditing._id ? `Edit: ${productEditing.name}` : "Add product or service"} onClose={() => setProductEditing(null)}>
+          <form onSubmit={saveProduct} style={{ display: "grid", gap: 12 }}>
+            <div><label style={S.label}>Name</label><input required style={{ ...S.input, width: "100%" }} value={productForm.name} onChange={(e) => setProductForm((f) => ({ ...f, name: e.target.value }))}/></div>
+            <div><label style={S.label}>Description</label><textarea style={{ ...S.input, width: "100%", minHeight: 80 }} value={productForm.description} onChange={(e) => setProductForm((f) => ({ ...f, description: e.target.value }))}/></div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}><div><label style={S.label}>Type</label><select style={{ ...S.input, width: "100%" }} value={productForm.type} onChange={(e) => setProductForm((f) => ({ ...f, type: e.target.value }))}>{["service","physical","digital"].map((x) => <option key={x}>{x}</option>)}</select></div><div><label style={S.label}>Price (cents)</label><input required type="number" min="0" style={{ ...S.input, width: "100%" }} value={productForm.priceMinor} onChange={(e) => setProductForm((f) => ({ ...f, priceMinor: e.target.value }))}/></div></div>
+            <div><label style={S.label}>Image URLs (one per line)</label><textarea style={{ ...S.input, width: "100%", minHeight: 65 }} value={productForm.imageUrls} onChange={(e) => setProductForm((f) => ({ ...f, imageUrls: e.target.value }))}/><small>Use URLs from Admin → CMS → Media Library, where images can be uploaded, compressed, archived and reused.</small></div>
+            <div><label style={S.label}>Tags (comma separated)</label><input style={{ ...S.input, width: "100%" }} value={productForm.tags} onChange={(e) => setProductForm((f) => ({ ...f, tags: e.target.value }))}/></div>
+            <div style={{ display: "flex", gap: 16 }}><label><input type="checkbox" checked={productForm.isAvailable} onChange={(e) => setProductForm((f) => ({ ...f, isAvailable: e.target.checked }))}/> Published</label><label><input type="checkbox" checked={productForm.isFeatured} onChange={(e) => setProductForm((f) => ({ ...f, isFeatured: e.target.checked }))}/> Featured</label></div>
+            <button style={S.btn()} type="submit">Save product</button>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }
@@ -351,12 +452,21 @@ function OrdersTab() {
   const load = useCallback(() => {
     setLoading(true);
     adminGetOrders(statusFilter ? { status: statusFilter } : {})
-      .then((d) => setItems(d.orders || []))
+      .then((d) => setItems(d.orders || d.items || []))
       .catch(() => setItems([]))
       .finally(() => setLoading(false));
   }, [statusFilter]);
 
   useEffect(() => { load(); }, [load]);
+
+  async function toggleHold(order) {
+    const reason = order.payoutHoldReason
+      ? ""
+      : window.prompt("Reason for placing this seller payout on hold:");
+    if (reason === null) return;
+    try { await adminSetOrderPayoutHold(order._id, reason); load(); }
+    catch (err) { window.alert(err.message || "Could not update payout hold."); }
+  }
 
   return (
     <div>
@@ -385,11 +495,12 @@ function OrdersTab() {
                 <th style={S.th}>Cashback</th>
                 <th style={S.th}>Status</th>
                 <th style={S.th}>Date</th>
+                <th style={S.th}>Payout Control</th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0
-                ? <tr><td colSpan={8} style={{ ...S.td, textAlign: "center", color: "var(--ad-text-muted,#888)", padding: 40 }}>No orders found.</td></tr>
+                ? <tr><td colSpan={9} style={{ ...S.td, textAlign: "center", color: "var(--ad-text-muted,#888)", padding: 40 }}>No orders found.</td></tr>
                 : items.map((o) => (
                   <tr key={o._id}>
                     <td style={S.td}><code style={{ fontSize: "0.78rem" }}>{o._id?.slice(-8)}</code></td>
@@ -400,6 +511,7 @@ function OrdersTab() {
                     <td style={S.td}>{formatPrice(o.cashbackMinor, o.currency)}</td>
                     <td style={S.td}><span style={S.badge(o.status === "paid" || o.status === "fulfilled" ? "green" : o.status === "cancelled" || o.status === "refunded" ? "red" : "yellow")}>{o.status}</span></td>
                     <td style={S.td}>{formatDate(o.createdAt)}</td>
+                    <td style={S.td}><button type="button" style={S.btn("sm")} onClick={() => toggleHold(o)}>{o.payoutHoldReason ? "Release hold" : "Hold payout"}</button>{o.payoutHoldReason && <small style={{ display: "block", color: "#ef4444", marginTop: 4 }}>{o.payoutHoldReason}</small>}</td>
                   </tr>
                 ))
               }
@@ -425,7 +537,7 @@ function PayoutsTab() {
   const load = useCallback(() => {
     setLoading(true);
     Promise.all([adminGetPayouts(), adminGetBusinesses()])
-      .then(([p, b]) => { setPayouts(p.payouts || []); setBusinesses(b.businesses || []); })
+      .then(([p, b]) => { setPayouts(p.payouts || p.items || []); setBusinesses(b.businesses || b.items || []); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -693,8 +805,11 @@ export default function AdminVCommercePage() {
         {activeTab === 1 && <BusinessesTab />}
         {activeTab === 2 && <OrdersTab />}
         {activeTab === 3 && <PayoutsTab />}
-        {activeTab === 4 && <AnalyticsTab />}
-        {activeTab === 5 && <AdminWholesalerPage />}
+        {activeTab === 4 && <CommercialControlsTab />}
+        {activeTab === 5 && <LedgerTab />}
+        {activeTab === 6 && <OperationsTab />}
+        {activeTab === 7 && <AnalyticsTab />}
+        {activeTab === 8 && <AdminWholesalerPage />}
       </div>
     </AdminLayout>
   );

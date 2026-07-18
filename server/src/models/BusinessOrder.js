@@ -43,6 +43,8 @@ const businessOrderSchema = new mongoose.Schema(
     payoutEligibleAt: { type: Date, default: null, index: true },
     payoutHoldReason: { type: String, default: "", trim: true, maxlength: 500 },
     processingFeeMinor: { type: Number, default: 0, min: 0 },
+    calculationSnapshot: { type: mongoose.Schema.Types.Mixed, default: null },
+    adjustmentTotalMinor: { type: Number, default: 0 },
     status: {
       type: String,
       enum: ["pending", "paid", "fulfilled", "cancelled", "refunded"],

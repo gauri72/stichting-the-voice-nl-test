@@ -1,6 +1,7 @@
 import BusinessOrder from "../models/BusinessOrder.js";
 import BusinessPayout from "../models/BusinessPayout.js";
 import BusinessProfile from "../models/BusinessProfile.js";
+import VCommerceLedgerEntry from "../models/VCommerceLedgerEntry.js";
 
 export async function createPayout(adminId, businessId, orderIds) {
   const business = await BusinessProfile.findById(businessId).lean();
@@ -78,6 +79,21 @@ export async function markPayoutPaid(payoutId, { paymentReference, notes }) {
   await BusinessProfile.findByIdAndUpdate(payout.businessId, {
     $inc: { totalPayoutsMinor: payout.netMinor, pendingPayoutMinor: -payout.netMinor },
   });
+
+  await VCommerceLedgerEntry.updateOne(
+    { idempotencyKey: `payout:${payout._id}:paid` },
+    { $setOnInsert: {
+      businessId: payout.businessId,
+      payoutId: payout._id,
+      entryType: "payout",
+      direction: "debit",
+      amountMinor: payout.netMinor,
+      currency: payout.currency,
+      description: `Payout ${payout.paymentReference || payout._id}`,
+      idempotencyKey: `payout:${payout._id}:paid`,
+    } },
+    { upsert: true }
+  );
 
   return payout;
 }

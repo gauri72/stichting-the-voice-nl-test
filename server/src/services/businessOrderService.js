@@ -7,6 +7,8 @@ import {
   VCOMMERCE_PLATFORM_FEE_PERCENT,
   VCOMMERCE_PAYOUT_DELAY_BUSINESS_DAYS,
 } from "../config/vcommercePlans.js";
+import VCommerceLedgerEntry from "../models/VCommerceLedgerEntry.js";
+import { resolveOrderChargeRules } from "./vcommerceAdminOperationsService.js";
 
 export function addBusinessDays(date, count) {
   const result = new Date(date);
@@ -97,9 +99,13 @@ export async function createOrderIntent(customerId, customerData, businessId, it
 
   // Orders paid on V.Commerce use one clear marketplace rate. Businesses that
   // send customers to an external site don't create a platform order.
-  const effectiveFeePercent = business.platformFeePercent ?? VCOMMERCE_PLATFORM_FEE_PERCENT;
-
-  const cashbackPercent = business.cashbackPercent ?? 5;
+  const configuredRules = await resolveOrderChargeRules(business);
+  const effectiveFeePercent = configuredRules.platformFee?.calculation === "percentage"
+    ? configuredRules.platformFee.percent
+    : business.platformFeePercent ?? VCOMMERCE_PLATFORM_FEE_PERCENT;
+  const cashbackPercent = configuredRules.cashback?.calculation === "percentage"
+    ? configuredRules.cashback.percent
+    : business.cashbackPercent ?? 5;
 
   const platformFeeMinor = Math.round((subtotalMinor * effectiveFeePercent) / 100);
   const businessAmountMinor = subtotalMinor - platformFeeMinor;
@@ -126,6 +132,17 @@ export async function createOrderIntent(customerId, customerData, businessId, it
     poNumber: poNumber || "",
     customerNote: customerData.note || "",
     status: "pending",
+    calculationSnapshot: {
+      version: 1,
+      subtotalMinor,
+      platformFeePercent: effectiveFeePercent,
+      platformFeeMinor,
+      cashbackPercent,
+      cashbackMinor,
+      businessAmountMinor,
+      calculatedAt: new Date(),
+      chargeRuleIds: [configuredRules.platformFee?._id, configuredRules.cashback?._id].filter(Boolean),
+    },
   });
 
   const paymentIntent = await stripe.paymentIntents.create({
@@ -194,6 +211,26 @@ export async function fulfillOrder(paymentIntentId) {
       pendingPayoutMinor: order.businessAmountMinor,
       totalOrders: 1,
     },
+  });
+
+  await VCommerceLedgerEntry.insertMany([
+    {
+      businessId: order.businessId, orderId: order._id, entryType: "sale", direction: "credit",
+      amountMinor: order.subtotalMinor, currency: order.currency, description: `Sale ${order._id}`,
+      idempotencyKey: `order:${order._id}:sale`,
+    },
+    {
+      businessId: order.businessId, orderId: order._id, entryType: "fee", direction: "debit",
+      amountMinor: order.platformFeeMinor, currency: order.currency, description: `Platform fee for ${order._id}`,
+      idempotencyKey: `order:${order._id}:platform-fee`,
+    },
+    {
+      businessId: order.businessId, orderId: order._id, entryType: "cashback", direction: "debit",
+      amountMinor: order.cashbackMinor, currency: order.currency, description: `Customer cashback for ${order._id}`,
+      idempotencyKey: `order:${order._id}:cashback`,
+    },
+  ], { ordered: false }).catch((error) => {
+    if (error?.code !== 11000) console.error("[vcommerce] Ledger write failed:", error.message);
   });
 
   return order;

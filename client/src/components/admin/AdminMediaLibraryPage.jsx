@@ -5,7 +5,7 @@ import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
 import { readImageFile, validateImageFile } from "../../utils/pagesAdmin.js";
 import "../../styles/admin-media-library.css";
 
-const CATEGORIES = ["cms", "events", "team", "logos", "reviews", "highlights"];
+const CATEGORIES = ["cms", "events", "team", "logos", "reviews", "highlights", "business_profiles"];
 
 export default function AdminMediaLibraryPage() {
   const [assets, setAssets] = useState([]);

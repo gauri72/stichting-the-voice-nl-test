@@ -3,7 +3,7 @@ import env from "../config/env.js";
 const CAPTCHA_ERROR_MESSAGE = "Please complete the security check and try again.";
 
 export function isCaptchaVerificationEnabled() {
-  return Boolean(env.captcha.turnstileSecretKey);
+  return env.nodeEnv === "production" && Boolean(env.captcha.turnstileSecretKey);
 }
 
 export async function verifyTurnstileToken({ token, ip } = {}) {

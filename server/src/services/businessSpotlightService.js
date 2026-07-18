@@ -179,7 +179,7 @@ export async function getAdminBusinessList({ status, category, search, page = 1,
   return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
 }
 
-export async function updateBusinessProfile(businessId, data) {
+export async function updateBusinessProfile(businessId, data, { allowLifecycleOverride = false } = {}) {
   const allowed = [
     "businessName", "tagline", "description", "category",
     "logoUrl", "bannerUrl", "galleryUrls",
@@ -200,7 +200,7 @@ export async function updateBusinessProfile(businessId, data) {
     throw err;
   }
 
-  if (update.status === "active" && ["setup", "review"].includes(existing.status)) {
+  if (!allowLifecycleOverride && update.status === "active" && ["setup", "review"].includes(existing.status)) {
     const err = new Error("Complete application approval before activating this business.");
     err.status = 409;
     throw err;

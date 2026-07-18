@@ -301,6 +301,26 @@ export function adminSetFeatured(businessId) {
   return adminFetch(`/api/admin/vcommerce/businesses/${businessId}/featured`, { method: "POST" });
 }
 
+export function adminCreateProduct(businessId, data) {
+  return adminFetch(`/api/admin/vcommerce/businesses/${businessId}/products`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
+  });
+}
+
+export function adminPatchProduct(businessId, productId, data) {
+  return adminFetch(`/api/admin/vcommerce/businesses/${businessId}/products/${productId}`, {
+    method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
+  });
+}
+
+export function adminDeleteProduct(businessId, productId) {
+  return adminFetch(`/api/admin/vcommerce/businesses/${businessId}/products/${productId}`, { method: "DELETE" });
+}
+
+export function adminGetBusinessActivity(businessId) {
+  return adminFetch(`/api/admin/vcommerce/businesses/${businessId}/activity`);
+}
+
 export function adminGetOrders(params = {}) {
   const qs = new URLSearchParams(params).toString();
   return adminFetch(`/api/admin/vcommerce/orders${qs ? `?${qs}` : ""}`);
@@ -333,4 +353,45 @@ export function adminMarkPayoutPaid(payoutId, data) {
 
 export function adminGetAnalytics() {
   return adminFetch("/api/admin/vcommerce/analytics");
+}
+
+export function adminGetChargeRules(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return adminFetch(`/api/admin/vcommerce/charge-rules${qs ? `?${qs}` : ""}`);
+}
+export function adminCreateChargeRule(data) {
+  return adminFetch("/api/admin/vcommerce/charge-rules", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+}
+export function adminPatchChargeRule(id, data) {
+  return adminFetch(`/api/admin/vcommerce/charge-rules/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+}
+export function adminGetAdjustments(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return adminFetch(`/api/admin/vcommerce/adjustments${qs ? `?${qs}` : ""}`);
+}
+export function adminCreateAdjustment(data) {
+  return adminFetch("/api/admin/vcommerce/adjustments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+}
+export function adminGetLedger(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return adminFetch(`/api/admin/vcommerce/ledger${qs ? `?${qs}` : ""}`);
+}
+export function adminSetOrderPayoutHold(id, reason) {
+  return adminFetch(`/api/admin/vcommerce/orders/${id}/payout-hold`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reason }) });
+}
+export function adminGetRiskFlags(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return adminFetch(`/api/admin/vcommerce/risk-flags${qs ? `?${qs}` : ""}`);
+}
+export function adminCreateRiskFlag(data) {
+  return adminFetch("/api/admin/vcommerce/risk-flags", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+}
+export function adminPatchRiskFlag(id, data) {
+  return adminFetch(`/api/admin/vcommerce/risk-flags/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+}
+export function adminGetOperationsOverview() {
+  return adminFetch("/api/admin/vcommerce/operations");
+}
+export function adminRunRiskScan() {
+  return adminFetch("/api/admin/vcommerce/operations/risk-scan", { method: "POST" });
 }

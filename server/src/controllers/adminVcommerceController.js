@@ -18,6 +18,22 @@ import {
 } from "../services/businessPayoutService.js";
 import BusinessProfile from "../models/BusinessProfile.js";
 import BusinessOrder from "../models/BusinessOrder.js";
+import {
+  createAdminProduct,
+  deleteAdminProduct,
+  listChargeRules,
+  saveChargeRule,
+  createAdjustment,
+  listAdjustments,
+  listLedger,
+  setOrderPayoutHold,
+  createRiskFlag,
+  listRiskFlags,
+  updateRiskFlag,
+  getOperationsOverview,
+  runAutomatedRiskScan,
+} from "../services/vcommerceAdminOperationsService.js";
+import { getAuditLogsForTarget, logAdminAction } from "../services/adminAuditService.js";
 
 function ok(res, data, status = 200) {
   return res.status(status).json(data);
@@ -26,6 +42,10 @@ function ok(res, data, status = 200) {
 function fail(res, err) {
   const status = err.status || 500;
   return res.status(status).json({ error: err.message || "Unexpected error" });
+}
+
+function adminId(req) {
+  return req.admin?._id || req.admin?.id || null;
 }
 
 // --- Applications ---
@@ -51,7 +71,7 @@ export async function patchApplication(req, res) {
     if (!["approve", "reject"].includes(action)) {
       return res.status(400).json({ error: "action must be approve or reject" });
     }
-    const application = await reviewApplication(req.params.id, req.admin._id, { action, note });
+    const application = await reviewApplication(req.params.id, adminId(req), { action, note });
     ok(res, { application });
   } catch (e) {
     fail(res, e);
@@ -70,7 +90,7 @@ export async function getBusinesses(req, res) {
       page: page ? Number(page) : 1,
       pageSize: pageSize ? Math.min(Number(pageSize), 50) : 20,
     });
-    ok(res, result);
+    ok(res, { ...result, businesses: result.items });
   } catch (e) {
     fail(res, e);
   }
@@ -91,7 +111,15 @@ export async function getOneBusiness(req, res) {
 
 export async function patchBusiness(req, res) {
   try {
-    const business = await updateBusinessProfile(req.params.id, req.body);
+    const business = await updateBusinessProfile(req.params.id, req.body, { allowLifecycleOverride: true });
+    await logAdminAction({
+      adminId: adminId(req),
+      action: "vcommerce.business.update",
+      targetType: "vcommerce_business",
+      targetId: business._id,
+      summary: `Updated ${business.businessName}`,
+      detail: { fields: Object.keys(req.body || {}) },
+    });
     ok(res, { business });
   } catch (e) {
     fail(res, e);
@@ -116,6 +144,24 @@ export async function patchAdminProduct(req, res) {
   }
 }
 
+export async function postAdminProduct(req, res) {
+  try {
+    ok(res, { product: await createAdminProduct(adminId(req), req.params.id, req.body) }, 201);
+  } catch (e) { fail(res, e); }
+}
+
+export async function deleteAdminProductController(req, res) {
+  try {
+    ok(res, await deleteAdminProduct(adminId(req), req.params.id, req.params.productId));
+  } catch (e) { fail(res, e); }
+}
+
+export async function getBusinessActivity(req, res) {
+  try {
+    ok(res, { activity: await getAuditLogsForTarget(req.params.id, 100) });
+  } catch (e) { fail(res, e); }
+}
+
 // --- Orders ---
 
 export async function getOrders(req, res) {
@@ -127,7 +173,7 @@ export async function getOrders(req, res) {
       page: page ? Number(page) : 1,
       pageSize: pageSize ? Math.min(Number(pageSize), 50) : 20,
     });
-    ok(res, result);
+    ok(res, { ...result, orders: result.items });
   } catch (e) {
     fail(res, e);
   }
@@ -154,7 +200,7 @@ export async function getPayouts(req, res) {
       page: page ? Number(page) : 1,
       pageSize: pageSize ? Math.min(Number(pageSize), 50) : 20,
     });
-    ok(res, result);
+    ok(res, { ...result, payouts: result.items });
   } catch (e) {
     fail(res, e);
   }
@@ -172,7 +218,7 @@ export async function getPayoutSummary(req, res) {
 export async function postCreatePayout(req, res) {
   try {
     const { businessId, orderIds } = req.body;
-    const payout = await createPayout(req.admin._id, businessId, orderIds);
+    const payout = await createPayout(adminId(req), businessId, orderIds);
     ok(res, { payout }, 201);
   } catch (e) {
     fail(res, e);
@@ -198,4 +244,41 @@ export async function getAnalytics(req, res) {
   } catch (e) {
     fail(res, e);
   }
+}
+
+export async function getChargeRules(req, res) {
+  try { ok(res, { rules: await listChargeRules(req.query) }); } catch (e) { fail(res, e); }
+}
+export async function postChargeRule(req, res) {
+  try { ok(res, { rule: await saveChargeRule(adminId(req), req.body) }, 201); } catch (e) { fail(res, e); }
+}
+export async function patchChargeRule(req, res) {
+  try { ok(res, { rule: await saveChargeRule(adminId(req), req.body, req.params.id) }); } catch (e) { fail(res, e); }
+}
+export async function getAdjustments(req, res) {
+  try { ok(res, { adjustments: await listAdjustments(req.query) }); } catch (e) { fail(res, e); }
+}
+export async function postAdjustment(req, res) {
+  try { ok(res, { adjustment: await createAdjustment(adminId(req), req.body) }, 201); } catch (e) { fail(res, e); }
+}
+export async function getLedger(req, res) {
+  try { ok(res, { entries: await listLedger(req.query) }); } catch (e) { fail(res, e); }
+}
+export async function patchOrderPayoutHold(req, res) {
+  try { ok(res, { order: await setOrderPayoutHold(adminId(req), req.params.id, req.body.reason || "") }); } catch (e) { fail(res, e); }
+}
+export async function getRiskFlags(req, res) {
+  try { ok(res, { flags: await listRiskFlags(req.query) }); } catch (e) { fail(res, e); }
+}
+export async function postRiskFlag(req, res) {
+  try { ok(res, { flag: await createRiskFlag(adminId(req), req.body) }, 201); } catch (e) { fail(res, e); }
+}
+export async function patchRiskFlag(req, res) {
+  try { ok(res, { flag: await updateRiskFlag(adminId(req), req.params.id, req.body) }); } catch (e) { fail(res, e); }
+}
+export async function getOperations(req, res) {
+  try { ok(res, await getOperationsOverview()); } catch (e) { fail(res, e); }
+}
+export async function postRiskScan(req, res) {
+  try { ok(res, await runAutomatedRiskScan(adminId(req))); } catch (e) { fail(res, e); }
 }
