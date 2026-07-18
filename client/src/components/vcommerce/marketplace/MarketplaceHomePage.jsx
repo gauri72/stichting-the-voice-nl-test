@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Link } from "react-router-dom";
 import {
   IconArrowRight, IconBell, IconBriefcase, IconBuildingStore, IconCategory,
@@ -55,6 +55,8 @@ function DesktopBrand() {
 
 function MobileToolbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const notificationsRef = useRef(null);
   const { itemCount } = useCart();
 
   useEffect(() => {
@@ -70,6 +72,25 @@ function MobileToolbar() {
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (!notificationsOpen) return undefined;
+    const closeNotifications = (event) => {
+      if (event.key === "Escape") {
+        setNotificationsOpen(false);
+        return;
+      }
+      if (event.type === "pointerdown" && !notificationsRef.current?.contains(event.target)) {
+        setNotificationsOpen(false);
+      }
+    };
+    document.addEventListener("keydown", closeNotifications);
+    document.addEventListener("pointerdown", closeNotifications);
+    return () => {
+      document.removeEventListener("keydown", closeNotifications);
+      document.removeEventListener("pointerdown", closeNotifications);
+    };
+  }, [notificationsOpen]);
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -88,7 +109,31 @@ function MobileToolbar() {
         <Brand />
         <div>
           <LanguageSwitcher header />
-          <Link to="/dashboard" aria-label="Open notifications and activity"><IconBell /></Link>
+          <div className="vcm-mobile-notifications" ref={notificationsRef}>
+            <button
+              type="button"
+              aria-label="Open notifications"
+              aria-expanded={notificationsOpen}
+              aria-controls="vcm-mobile-notifications-panel"
+              onClick={() => setNotificationsOpen((open) => !open)}
+            >
+              <IconBell />
+            </button>
+            {notificationsOpen ? (
+              <section
+                id="vcm-mobile-notifications-panel"
+                className="vcm-mobile-notifications__panel"
+                aria-label="Notifications"
+              >
+                <strong>Notifications</strong>
+                <div>
+                  <IconBell aria-hidden="true" />
+                  <p>No new notifications</p>
+                  <small>Updates about your orders and marketplace activity will appear here.</small>
+                </div>
+              </section>
+            ) : null}
+          </div>
           <Link
             to="/vcommerce/checkout"
             aria-label={`Shopping cart${itemCount > 0 ? `, ${itemCount} item${itemCount === 1 ? "" : "s"}` : ", empty"}`}

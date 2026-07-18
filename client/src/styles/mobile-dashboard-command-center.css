@@ -232,6 +232,10 @@
   [data-theme="light"] .mobile-dash-movement h2 strong{color:#087fad}
   [data-theme="light"] .mobile-dash-movement p{color:#607887}
   [data-theme="light"] .mobile-dash-nav{background:rgba(248,252,253,.9);border-color:rgba(24,104,123,.22);box-shadow:0 15px 40px rgba(19,53,66,.2)}
+  [data-theme="light"] .mobile-dash-nav a{color:#5a6b78}
+  [data-theme="light"] .mobile-dash-nav a.active{color:#087f93}
+  [data-theme="light"] .mobile-dash-nav__commerce span{color:#087f93;font-weight:700}
+  [data-theme="light"] .mobile-dash-nav__commerce:not(.active) span{color:#365a68}
   [data-theme="light"] .mobile-dash-sheet{color:#10202e;background:#f2f8fa}
   [data-theme="light"] .mobile-dash-sheet__header{background:rgba(242,248,250,.88)}
   [data-theme="light"] .mobile-dash-sheet__header button{color:#18313e;border-color:rgba(44,87,103,.2)}
