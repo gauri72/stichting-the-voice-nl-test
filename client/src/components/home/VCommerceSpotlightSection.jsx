@@ -31,7 +31,7 @@ export default function VCommerceSpotlightSection() {
           <div className="vcommerce-spotlight__media">
             <picture>
               <source media="(max-width: 760px)" srcSet={business.mobileSpotlightImageUrl} />
-              <img src={business.bannerUrl} alt="Knvers digital commerce and IT solutions" />
+              <img src={business.mobileSpotlightImageUrl} alt="Knvers digital commerce and IT solutions" />
             </picture>
             <span className="vcommerce-spotlight__image-label">Featured Community Business</span>
           </div>
