@@ -5,8 +5,34 @@ const STORAGE_KEY = "vco_cart";
 function readCart() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.items)) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+
+    const items = parsed.items
+      .filter((item) => item && typeof item === "object")
+      .map((item) => ({
+        ...item,
+        quantity: Math.max(1, Number(item.quantity) || 1),
+        priceMinor: Math.max(0, Number(item.priceMinor) || 0),
+      }));
+
+    if (!parsed.businessId || items.length === 0) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+
+    return { ...parsed, items };
   } catch {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Storage may be unavailable.
+    }
     return null;
   }
 }
@@ -111,14 +137,15 @@ export function useCart() {
     setCart(null);
   }, []);
 
-  const subtotalMinor = (cart?.items || []).reduce(
+  const cartItems = Array.isArray(cart?.items) ? cart.items : [];
+  const subtotalMinor = cartItems.reduce(
     (sum, i) => sum + i.priceMinor * i.quantity,
     0
   );
   const cashbackMinor = cart
     ? Math.round((subtotalMinor * (cart.cashbackPercent || 0)) / 100)
     : 0;
-  const itemCount = (cart?.items || []).reduce((s, i) => s + i.quantity, 0);
+  const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return {
     cart,
