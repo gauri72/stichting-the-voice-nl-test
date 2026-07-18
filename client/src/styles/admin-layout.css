@@ -145,6 +145,13 @@
 }
 
 .admin-layout .admin-layout__theme-toggle {
+  width: auto;
+  height: auto;
+  border: 0;
+  background: transparent;
+}
+
+.admin-layout .admin-layout__theme-toggle > .theme-toggle {
   width: 40px;
   height: 40px;
   border-radius: 12px;
@@ -153,7 +160,7 @@
   color: var(--ad-text);
 }
 
-.admin-layout .admin-layout__theme-toggle:hover {
+.admin-layout .admin-layout__theme-toggle > .theme-toggle:hover {
   border-color: var(--ad-purple);
   color: var(--ad-purple);
 }
@@ -163,7 +170,7 @@
   height: 20px;
 }
 
-[data-theme="light"] .admin-layout .admin-layout__theme-toggle {
+[data-theme="light"] .admin-layout .admin-layout__theme-toggle > .theme-toggle {
   border-color: var(--ad-border);
   background: transparent;
   color: var(--ad-text);

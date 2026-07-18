@@ -27,10 +27,12 @@
         var prefKey = "voice-theme-preference";
         var legacyKey = "voice-theme";
         var pref = localStorage.getItem(prefKey);
-        if (pref !== "light" && pref !== "dark") {
+        if (pref !== "light" && pref !== "dark" && pref !== "auto") {
           var legacy = localStorage.getItem(legacyKey);
           pref = legacy === "light" || legacy === "dark" ? legacy : "dark";
         }
+        document.documentElement.setAttribute("data-theme-preference", pref);
+        /* Auto resolves after location is available; dark prevents a bright startup flash. */
         document.documentElement.setAttribute("data-theme", pref === "light" ? "light" : "dark");
       })();
       document.documentElement.classList.add("splash-open");
