@@ -1309,11 +1309,26 @@ export default function VCommercePortalPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
+  const hasLoadedOnce = useRef(false);
 
   const loadBusiness = useCallback(() => {
     getMyBusiness()
-      .then((d) => setBusiness(d.business || null))
-      .catch((err) => setError(err?.message || "Could not load your business."))
+      .then((d) => {
+        setBusiness(d.business || null);
+        setError(null);
+        hasLoadedOnce.current = true;
+      })
+      .catch((err) => {
+        // A refresh after saving (Settings, adding a product, etc.) can fail
+        // transiently — don't wipe out the page the user is already on and
+        // drop them into the "No business found" gate for that. Only treat
+        // it as fatal if we've never successfully loaded anything yet.
+        if (!hasLoadedOnce.current) {
+          setError(err?.message || "Could not load your business.");
+        } else {
+          console.warn("[vcommerce] Could not refresh business data:", err?.message);
+        }
+      })
       .finally(() => setLoading(false));
   }, []);
 
