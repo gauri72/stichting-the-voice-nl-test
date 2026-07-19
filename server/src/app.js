@@ -49,6 +49,12 @@ app.post(
 app.use("/api/admin", express.json({ limit: "15mb" }));
 app.use("/api/admin", express.urlencoded({ extended: true, limit: "15mb" }));
 
+// V.Commerce business logo/banner uploads embed base64 image data in the JSON
+// body — a 5MB image is ~6.7MB once base64-encoded, so this needs more room
+// than the public default below.
+app.use("/api/vcommerce-portal", express.json({ limit: "8mb" }));
+app.use("/api/vcommerce-portal", express.urlencoded({ extended: true, limit: "8mb" }));
+
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
