@@ -22,6 +22,7 @@ import {
   getConnectStatus,
   getConnectOverview,
   postConnectDashboard,
+  patchMyPayoutRegistration,
   postPackageCheckout,
   postSubmitForReview,
 } from "../controllers/vcommercePortalController.js";
@@ -41,6 +42,7 @@ router.get("/me/connect/status", getConnectStatus);
 router.get("/me/connect/overview", getConnectOverview);
 router.post("/me/connect/onboarding", postConnectOnboarding);
 router.post("/me/connect/dashboard", postConnectDashboard);
+router.patch("/me/payout-registration", patchMyPayoutRegistration);
 router.post("/me/package/checkout", postPackageCheckout);
 router.post("/me/submit-review", postSubmitForReview);
 

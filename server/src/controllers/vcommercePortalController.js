@@ -25,6 +25,7 @@ import {
   refreshSellerConnectStatus,
   getSellerConnectOverview,
   createSellerDashboardLink,
+  updatePayoutRegistration,
 } from "../services/businessConnectService.js";
 import { createPackageCheckout } from "../services/vcommercePackageService.js";
 import { submitBusinessForReview } from "../services/businessApplicationService.js";
@@ -267,6 +268,14 @@ export async function getMyReferralLink(req, res) {
     const code = business.directReferralCode || "";
     const url = code ? `${host}/vcommerce?ref=${code}` : null;
     ok(res, { code, url });
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function patchMyPayoutRegistration(req, res) {
+  try {
+    ok(res, await updatePayoutRegistration(req.user.id, req.body));
   } catch (e) {
     fail(res, e);
   }

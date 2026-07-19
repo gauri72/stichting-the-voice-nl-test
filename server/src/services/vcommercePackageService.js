@@ -112,6 +112,8 @@ export async function activateApplicationFromCheckout(session, expectedUserId = 
         platformFeePercent: VCOMMERCE_PLATFORM_FEE_PERCENT,
         socialLinks: application.socialLinks,
         vatNumber: application.vatNumber || "",
+        companyRegistrationNumber: application.companyRegistrationNumber || "",
+        payoutRegistration: application.payoutRegistration,
         directReferralCode: await uniqueReferralCode(),
         stripeSubscriptionId: String(session.subscription || ""),
         status: "setup",

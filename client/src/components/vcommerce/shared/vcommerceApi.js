@@ -185,6 +185,14 @@ export function openMyConnectDashboard() {
   });
 }
 
+export function updateMyPayoutRegistration(data) {
+  return apiFetch("/api/vcommerce-portal/me/payout-registration", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(data),
+  });
+}
+
 export function startMyPackageCheckout() {
   return apiFetch("/api/vcommerce-portal/me/package/checkout", {
     method: "POST",

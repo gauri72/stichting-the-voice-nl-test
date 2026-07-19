@@ -4,10 +4,11 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { confirmApplicationPackagePayment, getApplyStatus, postApply } from "./shared/vcommerceApi.js";
 import { BUSINESS_CATEGORIES, BUSINESS_CATEGORY_LABELS } from "./shared/BUSINESS_CATEGORIES.js";
 import { SELLING_MODES, VCOMMERCE_PLANS } from "./shared/VCOMMERCE_PLANS.js";
+import PayoutRegistrationForm from "./shared/PayoutRegistrationForm.jsx";
 import "../../styles/vcommerce-marketplace.css";
 import { buildLoginUrl } from "../../utils/authRedirect.js";
 
-const STEPS = ["Your Business", "Selling Setup", "Contact & Links", "Review"];
+const STEPS = ["Your Business", "Selling Setup", "Contact & Links", "Payout & Identity", "Review"];
 const APPLICATION_DRAFT_KEY = "vcommerce_application_draft";
 
 function readApplicationDraft() {
@@ -83,6 +84,9 @@ export default function VCommerceApplicationPage() {
     companyRegistrationNumber: "",
     vatNumber: "",
     applicationMessage: "",
+    // Never contains a raw IBAN — PayoutRegistrationForm tokenizes bank details locally
+    // and only ever hands back a Stripe token id + last 4 digits.
+    payoutRegistration: {},
     ...readApplicationDraft(),
   }));
 
@@ -112,6 +116,9 @@ export default function VCommerceApplicationPage() {
       linkedin: draft.socialLinks?.linkedin || current.linkedin,
       tiktok: draft.socialLinks?.tiktok || current.tiktok,
       whatsapp: draft.socialLinks?.whatsapp || current.whatsapp,
+      // Bank token/last-4 are never sent back by the server for a resumed draft — the
+      // IBAN always needs to be re-entered and re-tokenized.
+      payoutRegistration: draft.payoutRegistration || current.payoutRegistration,
     }));
   }, [statusData?.applicationDraft]);
 
@@ -180,6 +187,7 @@ export default function VCommerceApplicationPage() {
         companyRegistrationNumber: form.companyRegistrationNumber,
         vatNumber: form.vatNumber,
         applicationMessage: form.applicationMessage,
+        payoutRegistration: { ...form.payoutRegistration, consentAcceptedAt: true },
       });
       if (!result?.url) throw new Error("Secure package checkout could not be started.");
       window.location.assign(result.url);
@@ -418,38 +426,6 @@ export default function VCommerceApplicationPage() {
                 <span className="vco-field__hint">{form.description.length}/2000</span>
               </div>
 
-              {/* Sponsor-only extra fields */}
-              {form.applicantType === "sponsor" && (
-                <div className="vco-apply-form__sponsor-fields">
-                  <p className="vco-apply-form__subsection-label">Business Registration (optional but recommended for faster approval)</p>
-                  <div className="vco-field-grid">
-                    <div className="vco-field">
-                      <label className="vco-label" htmlFor="companyReg">Company Registration / KvK</label>
-                      <input
-                        id="companyReg"
-                        className="vco-input"
-                        type="text"
-                        value={form.companyRegistrationNumber}
-                        onChange={set("companyRegistrationNumber")}
-                        maxLength={100}
-                        placeholder="e.g. 12345678"
-                      />
-                    </div>
-                    <div className="vco-field">
-                      <label className="vco-label" htmlFor="vatNumber">VAT Number</label>
-                      <input
-                        id="vatNumber"
-                        className="vco-input"
-                        type="text"
-                        value={form.vatNumber}
-                        onChange={set("vatNumber")}
-                        maxLength={50}
-                        placeholder="e.g. NL123456789B01"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
@@ -566,6 +542,26 @@ export default function VCommerceApplicationPage() {
           )}
 
           {step === 3 && (
+            <>
+              <div className="vco-apply-form__section">
+                <span className="vco-kicker">Almost there</span>
+                <h2 className="vco-commercial-step__title">How should we pay you?</h2>
+                <p className="vco-commercial-step__intro">
+                  This is used to set up your marketplace payouts with Stripe, our payment partner.
+                  Everything here stays private and is never shown on your storefront.
+                </p>
+              </div>
+              <PayoutRegistrationForm
+                value={form.payoutRegistration}
+                onChange={(reg) => setForm((f) => ({ ...f, payoutRegistration: reg }))}
+                companyRegistrationNumber={form.companyRegistrationNumber}
+                vatNumber={form.vatNumber}
+                onChangeCompanyFields={(fields) => setForm((f) => ({ ...f, ...fields }))}
+              />
+            </>
+          )}
+
+          {step === 4 && (
             <div className="vco-apply-form__section">
               <div className="vco-field">
                 <label className="vco-label" htmlFor="applicationMessage">

@@ -610,6 +610,89 @@
   border: 1px solid rgba(139, 92, 246, 0.12);
 }
 
+/* Payout & Identity step */
+
+.vco-apply-form__payout-fields {
+  padding: 16px;
+  border-radius: 10px;
+  background: rgba(139, 92, 246, 0.04);
+  border: 1px solid rgba(139, 92, 246, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vco-payout-note {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, #666);
+  line-height: 1.5;
+  background: rgba(20, 184, 166, 0.06);
+  border: 1px solid rgba(20, 184, 166, 0.18);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.vco-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* CSS-only help icon + tooltip — no JS state, matches the rest of this form's conventions */
+.vco-help {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--vco-accent, #8B5CF6);
+  cursor: help;
+  outline: none;
+}
+
+.vco-help__icon {
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.vco-help__bubble {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  width: 220px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--color-card-bg, #1f2937);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 20;
+}
+
+.vco-help__bubble em {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: normal;
+}
+
+.vco-help:hover .vco-help__bubble,
+.vco-help:focus .vco-help__bubble,
+.vco-help:focus-visible .vco-help__bubble {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* Dark mode adjustments */
 
 @media (prefers-color-scheme: dark) {

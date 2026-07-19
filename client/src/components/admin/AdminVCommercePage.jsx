@@ -168,6 +168,34 @@ function ApplicationsTab() {
             <p style={{ margin: "0 0 4px", fontSize: "0.875rem" }}><strong>Description:</strong> {reviewing.description}</p>
             {reviewing.applicationMessage && <p style={{ margin: "0 0 4px", fontSize: "0.875rem" }}><strong>Message:</strong> {reviewing.applicationMessage}</p>}
           </div>
+          {reviewing.payoutRegistration?.entityType ? (
+            <div style={{ marginBottom: 16, padding: 14, borderRadius: 10, background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.15)" }}>
+              <p style={{ margin: "0 0 8px", fontSize: "0.78rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--ad-text-muted,#888)" }}>Payout registration</p>
+              <p style={{ margin: "0 0 4px", fontSize: "0.875rem" }}><strong>Entity type:</strong> {reviewing.payoutRegistration.entityType === "company" ? "Registered company" : "Sole trader / freelancer"}</p>
+              {reviewing.payoutRegistration.entityType === "company" && (
+                <>
+                  <p style={{ margin: "0 0 4px", fontSize: "0.875rem" }}><strong>Legal company name:</strong> {reviewing.payoutRegistration.companyLegalName || "—"}</p>
+                  <p style={{ margin: "0 0 4px", fontSize: "0.875rem" }}><strong>KvK:</strong> {reviewing.companyRegistrationNumber || "—"} · <strong>VAT:</strong> {reviewing.vatNumber || "—"}</p>
+                  <p style={{ margin: "0 0 4px", fontSize: "0.875rem" }}><strong>Representative:</strong> {reviewing.payoutRegistration.representative?.legalName || "—"}</p>
+                </>
+              )}
+              {reviewing.payoutRegistration.entityType === "individual" && (
+                <p style={{ margin: "0 0 4px", fontSize: "0.875rem" }}><strong>Legal name:</strong> {reviewing.payoutRegistration.legalName || "—"}</p>
+              )}
+              <p style={{ margin: "0 0 4px", fontSize: "0.875rem" }}>
+                <strong>Address:</strong>{" "}
+                {(() => {
+                  const a = (reviewing.payoutRegistration.entityType === "company" ? reviewing.payoutRegistration.representative?.address : reviewing.payoutRegistration.address) || {};
+                  return [a.street, a.houseNumber, a.postalCode, a.city, a.country].filter(Boolean).join(" ") || "—";
+                })()}
+              </p>
+              <p style={{ margin: 0, fontSize: "0.875rem" }}>
+                <strong>IBAN:</strong> {reviewing.payoutRegistration.ibanLast4 ? `•••• ${reviewing.payoutRegistration.ibanLast4}` : "Not yet verified"}
+              </p>
+            </div>
+          ) : (
+            <p style={{ margin: "0 0 16px", fontSize: "0.8rem", color: "var(--ad-text-muted,#888)" }}>No payout registration details were submitted with this application.</p>
+          )}
           <form onSubmit={submitReview}>
             <div style={{ marginBottom: 16 }}>
               <label style={S.label}>Decision</label>

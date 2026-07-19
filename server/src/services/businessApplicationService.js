@@ -24,6 +24,44 @@ async function makeUniqueSlug(base) {
   return slug;
 }
 
+function sanitizeAddress(address) {
+  const a = address || {};
+  return {
+    street: String(a.street || "").trim(),
+    houseNumber: String(a.houseNumber || "").trim(),
+    postalCode: String(a.postalCode || "").trim(),
+    city: String(a.city || "").trim(),
+    country: String(a.country || "NL").trim().toUpperCase().slice(0, 2) || "NL",
+  };
+}
+
+// Shared by application submission and the post-approval backfill flow (businessConnectService.updatePayoutRegistration).
+// Deliberately whitelists every field and never accepts a raw IBAN — only a pre-tokenized
+// Stripe bank token + the last 4 digits the client derived locally before discarding the rest.
+export function sanitizePayoutRegistration(data) {
+  const reg = data || {};
+  const entityType = ["individual", "company"].includes(reg.entityType) ? reg.entityType : "";
+  const dob = reg.dateOfBirth ? new Date(reg.dateOfBirth) : null;
+  const repDob = reg.representative?.dateOfBirth ? new Date(reg.representative.dateOfBirth) : null;
+  return {
+    entityType,
+    legalName: String(reg.legalName || "").trim().slice(0, 200),
+    dateOfBirth: Number.isNaN(dob?.getTime()) ? null : dob,
+    nationality: String(reg.nationality || "").trim().slice(0, 60),
+    address: sanitizeAddress(reg.address),
+    companyLegalName: entityType === "company" ? String(reg.companyLegalName || "").trim().slice(0, 200) : "",
+    representative: entityType === "company" ? {
+      legalName: String(reg.representative?.legalName || "").trim().slice(0, 200),
+      dateOfBirth: Number.isNaN(repDob?.getTime()) ? null : repDob,
+      address: sanitizeAddress(reg.representative?.address),
+    } : { legalName: "", dateOfBirth: null, address: sanitizeAddress(null) },
+    bankAccountHolderName: String(reg.bankAccountHolderName || "").trim().slice(0, 200),
+    stripeBankToken: String(reg.stripeBankToken || "").trim(),
+    ibanLast4: String(reg.ibanLast4 || "").trim().slice(0, 4),
+    consentAcceptedAt: reg.consentAcceptedAt ? new Date() : null,
+  };
+}
+
 export async function getApplicationStatus(userId) {
   const [application, business] = await Promise.all([
     BusinessApplication.findOne({ userId }).sort({ createdAt: -1 }).lean(),
@@ -54,6 +92,18 @@ export async function getApplicationStatus(userId) {
       companyRegistrationNumber: application?.companyRegistrationNumber,
       vatNumber: application?.vatNumber,
       applicationMessage: application?.applicationMessage,
+      // Bank token/last-4 are deliberately excluded: tokens are short-lived, so a resumed
+      // draft always requires the IBAN to be re-entered and re-tokenized.
+      payoutRegistration: application?.payoutRegistration ? {
+        entityType: application.payoutRegistration.entityType,
+        legalName: application.payoutRegistration.legalName,
+        dateOfBirth: application.payoutRegistration.dateOfBirth,
+        nationality: application.payoutRegistration.nationality,
+        address: application.payoutRegistration.address,
+        companyLegalName: application.payoutRegistration.companyLegalName,
+        representative: application.payoutRegistration.representative,
+        bankAccountHolderName: application.payoutRegistration.bankAccountHolderName,
+      } : null,
     } : null,
   };
 }
@@ -109,6 +159,7 @@ export async function createApplication(userId, data) {
     applicationMessage: data.applicationMessage || "",
     companyRegistrationNumber: data.companyRegistrationNumber || "",
     vatNumber: data.vatNumber || "",
+    payoutRegistration: sanitizePayoutRegistration(data.payoutRegistration),
     status: "payment_pending",
   };
 
@@ -184,6 +235,8 @@ export async function reviewApplication(applicationId, adminId, { action, note }
         platformFeePercent: VCOMMERCE_PLATFORM_FEE_PERCENT,
         socialLinks: application.socialLinks,
         vatNumber: application.vatNumber || "",
+        companyRegistrationNumber: application.companyRegistrationNumber || "",
+        payoutRegistration: application.payoutRegistration,
         directReferralCode,
         status: "active",
       });

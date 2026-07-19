@@ -10,6 +10,7 @@ import { startPastDataSyncScheduler } from "./services/pastDataSyncScheduler.js"
 import { startDiscountExpiryReminderScheduler } from "./services/discountExpiryReminderScheduler.js";
 import { startAiSchedulerService } from "./services/aiSchedulerService.js";
 import { startWalletPointsExpiryScheduler } from "./services/walletPointsExpiryScheduler.js";
+import { startApplicationDataPurgeScheduler } from "./services/applicationDataPurgeScheduler.js";
 import { logMailConfiguration, verifySmtpConnection, loadEmailSecretsFromSettings } from "./services/smtpTransport.js";
 import { cleanupExpiredSeatHolds } from "./services/seatService.js";
 import { ensureDefaultTeamMembers } from "./services/teamMemberService.js";
@@ -68,6 +69,7 @@ if (shouldConnectDb) {
       startDiscountExpiryReminderScheduler();
       startAiSchedulerService();
       startWalletPointsExpiryScheduler();
+      startApplicationDataPurgeScheduler();
       setInterval(() => {
         cleanupExpiredSeatHolds().catch((err) =>
           console.warn("[seats] hold cleanup failed:", err.message)

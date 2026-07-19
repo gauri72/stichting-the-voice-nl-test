@@ -1,6 +1,8 @@
 import BusinessProfile from "../models/BusinessProfile.js";
 import BusinessStripePayout from "../models/BusinessStripePayout.js";
 import { getStripe } from "./stripe.js";
+import { sanitizePayoutRegistration } from "./businessApplicationService.js";
+import env from "../config/env.js";
 
 async function getOwnedBusiness(userId) {
   const business = await BusinessProfile.findOne({ userId });
@@ -47,6 +49,79 @@ function normalizeCountry(value) {
   return aliases[country] || (/^[A-Z]{2}$/.test(country) ? country : "NL");
 }
 
+function splitLegalName(legalName) {
+  const parts = String(legalName || "").trim().split(/\s+/);
+  if (!parts[0]) return { first_name: undefined, last_name: undefined };
+  const first_name = parts.shift();
+  const last_name = parts.join(" ") || undefined;
+  return { first_name, last_name };
+}
+
+function toStripeDob(date) {
+  if (!date) return undefined;
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return undefined;
+  return { day: d.getUTCDate(), month: d.getUTCMonth() + 1, year: d.getUTCFullYear() };
+}
+
+function toStripeAddress(address) {
+  if (!address) return undefined;
+  const line1 = [address.street, address.houseNumber].filter(Boolean).join(" ").trim();
+  if (!line1 && !address.city && !address.postalCode) return undefined;
+  return {
+    line1: line1 || undefined,
+    postal_code: address.postalCode || undefined,
+    city: address.city || undefined,
+    country: normalizeCountry(address.country),
+  };
+}
+
+// Builds the Stripe accounts.create() payload's prefillable fields from data already
+// collected during application, so the hosted onboarding step only has to ask for the
+// ID document photo and final review. Field shapes should be re-validated against
+// Stripe's current NL Connect requirements — see server-side implementation notes.
+function buildStripeAccountPrefill(business) {
+  const reg = business.payoutRegistration || {};
+  const isCompany = reg.entityType === "company";
+  const person = isCompany ? reg.representative : reg;
+  const { first_name, last_name } = splitLegalName(person?.legalName);
+
+  const prefill = {
+    business_type: isCompany ? "company" : "individual",
+    business_profile: {
+      name: business.businessName || undefined,
+      url: business.website || undefined,
+      support_email: business.contactEmail || undefined,
+      support_phone: business.contactPhone || undefined,
+    },
+  };
+
+  if (first_name) {
+    prefill.individual = {
+      first_name,
+      last_name,
+      dob: toStripeDob(person?.dateOfBirth),
+      address: toStripeAddress(person?.address),
+      email: business.contactEmail || undefined,
+      phone: business.contactPhone || undefined,
+    };
+  }
+
+  if (isCompany && reg.companyLegalName) {
+    prefill.company = {
+      name: reg.companyLegalName,
+      registration_number: business.companyRegistrationNumber || undefined,
+      tax_id: business.vatNumber || undefined,
+    };
+  }
+
+  if (reg.stripeBankToken) {
+    prefill.external_account = reg.stripeBankToken;
+  }
+
+  return prefill;
+}
+
 export async function syncConnectedAccount(account) {
   const business = await BusinessProfile.findOne({ stripeConnectedAccountId: account.id });
   if (!business) return null;
@@ -71,6 +146,15 @@ export async function syncConnectedAccount(account) {
 }
 
 export async function createSellerOnboardingLink(userId, { returnUrl, refreshUrl }) {
+  if (!env.stripe.connectEnabled) {
+    const err = new Error(
+      "Marketplace payouts aren't switched on yet. Please contact support — we're finishing setup on our end."
+    );
+    err.status = 503;
+    err.code = "CONNECT_NOT_ENABLED";
+    throw err;
+  }
+
   const business = await getOwnedBusiness(userId);
   const stripe = getStripe();
 
@@ -84,9 +168,14 @@ export async function createSellerOnboardingLink(userId, { returnUrl, refreshUrl
         vcommerceBusinessId: business._id.toString(),
         vcommercePackage: business.packageId || "starter",
       },
+      ...buildStripeAccountPrefill(business),
     });
     business.stripeConnectedAccountId = account.id;
     business.stripeConnectStatus = "pending";
+    // The bank token is single-use and was just consumed by accounts.create — don't let it linger.
+    if (business.payoutRegistration?.stripeBankToken) {
+      business.payoutRegistration.stripeBankToken = "";
+    }
     await business.save();
   }
 
@@ -97,6 +186,22 @@ export async function createSellerOnboardingLink(userId, { returnUrl, refreshUrl
     type: "account_onboarding",
   });
   return { url: link.url };
+}
+
+// Lets an already-approved business (one that predates this feature, or wants to update
+// its details before starting/retrying Stripe onboarding) submit payout registration data
+// directly, outside the application flow.
+export async function updatePayoutRegistration(userId, data) {
+  const business = await getOwnedBusiness(userId);
+  business.payoutRegistration = sanitizePayoutRegistration(data);
+  if (data?.companyRegistrationNumber !== undefined) {
+    business.companyRegistrationNumber = String(data.companyRegistrationNumber || "").trim().slice(0, 100);
+  }
+  if (data?.vatNumber !== undefined) {
+    business.vatNumber = String(data.vatNumber || "").trim().slice(0, 50);
+  }
+  await business.save();
+  return business.payoutRegistration;
 }
 
 export async function createSellerDashboardLink(userId) {
@@ -134,6 +239,7 @@ export async function refreshSellerConnectStatus(userId) {
 export async function getSellerConnectOverview(userId) {
   const status = await refreshSellerConnectStatus(userId);
   const business = await getOwnedBusiness(userId);
+  status.connectPlatformEnabled = env.stripe.connectEnabled;
   if (!business.stripeConnectedAccountId) {
     return {
       ...status,

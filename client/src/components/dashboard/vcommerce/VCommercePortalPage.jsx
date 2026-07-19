@@ -22,8 +22,10 @@ import {
   openMyConnectDashboard,
   startMyPackageCheckout,
   submitMyBusinessForReview,
+  updateMyPayoutRegistration,
 } from "../../vcommerce/shared/vcommerceApi.js";
 import { PROMOTION_OPTIONS, SELLING_MODES, VCOMMERCE_PLANS } from "../../vcommerce/shared/VCOMMERCE_PLANS.js";
+import PayoutRegistrationForm from "../../vcommerce/shared/PayoutRegistrationForm.jsx";
 import "../../../styles/vcommerce-marketplace.css";
 
 const TABS = ["Overview", "Products", "Orders", "Payouts", "Promote", "Settings", "Import"];
@@ -638,11 +640,44 @@ function OrdersTab() {
 }
 
 // ── Payouts tab ──
-function PayoutsTab() {
+function PayoutsTab({ business, onRefresh }) {
   const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [connect, setConnect] = useState(null);
   const [connecting, setConnecting] = useState(false);
+  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+  const [registration, setRegistration] = useState(business?.payoutRegistration || {});
+  const [companyRegistrationNumber, setCompanyRegistrationNumber] = useState(business?.companyRegistrationNumber || "");
+  const [vatNumber, setVatNumber] = useState(business?.vatNumber || "");
+  const [savingRegistration, setSavingRegistration] = useState(false);
+  const [registrationError, setRegistrationError] = useState("");
+
+  const needsRegistration = !business?.payoutRegistration?.entityType;
+
+  useEffect(() => {
+    setRegistration(business?.payoutRegistration || {});
+    setCompanyRegistrationNumber(business?.companyRegistrationNumber || "");
+    setVatNumber(business?.vatNumber || "");
+  }, [business]);
+
+  async function saveRegistration() {
+    setSavingRegistration(true);
+    setRegistrationError("");
+    try {
+      await updateMyPayoutRegistration({
+        ...registration,
+        companyRegistrationNumber,
+        vatNumber,
+        consentAcceptedAt: true,
+      });
+      setShowRegistrationForm(false);
+      onRefresh?.();
+    } catch (err) {
+      setRegistrationError(err?.message || "Could not save your payout details.");
+    } finally {
+      setSavingRegistration(false);
+    }
+  }
 
   useEffect(() => {
     Promise.all([getMyConnectOverview(), getMyPayouts()])
@@ -681,23 +716,62 @@ function PayoutsTab() {
 
   return (
     <div>
-      <div className="vco-connect-card">
-        <div>
-          <span className="vco-kicker">Secure seller payouts</span>
-          <h3>{connect?.payoutsEnabled ? "Your payout account is ready" : "Connect your bank account"}</h3>
-          <p>{connect?.payoutsEnabled ? "Identity and payout details are verified through Stripe." : "Complete secure identity and bank verification before receiving marketplace earnings."}</p>
-          {connect?.error && <small>{connect.error}</small>}
+      {needsRegistration ? (
+        <div className="vco-connect-card">
+          <div>
+            <span className="vco-kicker">Secure seller payouts</span>
+            <h3>Complete your payout details</h3>
+            <p>We need a few identity and bank details before you can set up payouts with Stripe.</p>
+          </div>
+          <button type="button" onClick={() => setShowRegistrationForm((v) => !v)}>
+            {showRegistrationForm ? "Hide" : "Complete your details"}
+          </button>
         </div>
-        {connect?.payoutsEnabled ? (
-          <button type="button" onClick={openStripeDashboard} disabled={connecting}>
-            {connecting ? "Opening…" : "Manage in Stripe ↗"}
+      ) : connect?.connectPlatformEnabled === false && !connect?.connectedAccountId ? (
+        <div className="vco-connect-card">
+          <div>
+            <span className="vco-kicker">Secure seller payouts</span>
+            <h3>Payouts are almost ready</h3>
+            <p>Your details are saved. We're finishing setup with our payment partner on our end — we'll email you as soon as you can complete verification and start receiving payouts.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="vco-connect-card">
+          <div>
+            <span className="vco-kicker">Secure seller payouts</span>
+            <h3>{connect?.payoutsEnabled ? "Your payout account is ready" : "Connect your bank account"}</h3>
+            <p>{connect?.payoutsEnabled ? "Identity and payout details are verified through Stripe." : "Complete secure identity and bank verification before receiving marketplace earnings."}</p>
+            {connect?.error && <small>{connect.error}</small>}
+          </div>
+          {connect?.payoutsEnabled ? (
+            <button type="button" onClick={openStripeDashboard} disabled={connecting}>
+              {connecting ? "Opening…" : "Manage in Stripe ↗"}
+            </button>
+          ) : (
+            <button type="button" onClick={beginConnect} disabled={connecting}>
+              {connecting ? "Opening…" : connect?.status === "pending" ? "Continue verification" : "Set up payouts"}
+            </button>
+          )}
+        </div>
+      )}
+      {showRegistrationForm && (
+        <div className="vco-apply-form__payout-fields" style={{ margin: "16px 0" }}>
+          <PayoutRegistrationForm
+            value={registration}
+            onChange={setRegistration}
+            companyRegistrationNumber={companyRegistrationNumber}
+            vatNumber={vatNumber}
+            onChangeCompanyFields={(fields) => {
+              if (fields.companyRegistrationNumber !== undefined) setCompanyRegistrationNumber(fields.companyRegistrationNumber);
+              if (fields.vatNumber !== undefined) setVatNumber(fields.vatNumber);
+            }}
+          />
+          {registrationError && <p className="vco-apply-form__error">{registrationError}</p>}
+          <button type="button" onClick={saveRegistration} disabled={savingRegistration}>
+            {savingRegistration ? "Saving…" : "Save payout details"}
           </button>
-        ) : (
-          <button type="button" onClick={beginConnect} disabled={connecting}>
-            {connecting ? "Opening…" : connect?.status === "pending" ? "Continue verification" : "Set up payouts"}
-          </button>
-        )}
-      </div>
+        </div>
+      )}
       {connect?.connectedAccountId && (
         <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(170px,1fr))",gap:12,margin:"16px 0" }}>
           <div style={S.card}><small>Available in Stripe</small><strong style={{display:"block",fontSize:"1.25rem",marginTop:6}}>{formatPrice(connect.balance?.available?.find((x) => x.currency === "eur")?.amount || 0)}</strong></div>
@@ -1279,7 +1353,7 @@ export default function VCommercePortalPage() {
       {activeTab === 0 && <OverviewTab business={business} onRefresh={loadBusiness} />}
       {activeTab === 1 && <ProductsTab businessId={business._id} />}
       {activeTab === 2 && <OrdersTab />}
-      {activeTab === 3 && <PayoutsTab />}
+      {activeTab === 3 && <PayoutsTab business={business} onRefresh={loadBusiness} />}
       {activeTab === 4 && <PromotionsTab />}
       {activeTab === 5 && <SettingsTab business={business} onRefresh={loadBusiness} />}
       {activeTab === 6 && <ImportTab businessId={business._id} />}
