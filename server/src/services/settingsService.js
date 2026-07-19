@@ -433,6 +433,9 @@ export async function getSecret(category, key) {
   if (!doc?.value) {
     if (category === "stripe" && key === "secretKey") return env.stripe.secretKey || "";
     if (category === "stripe" && key === "webhookSecret") return env.stripe.webhookSecret || "";
+    if (category === "stripe" && key === "connectWebhookSecret") {
+      return env.stripe.connectWebhookSecret || "";
+    }
     if (category === "email_provider" && key === "smtpPassword") return env.email.pass || "";
     return "";
   }
@@ -448,7 +451,13 @@ export async function getCategorySettings(category, { maskSecrets = true } = {})
     if (doc.isSecret && doc.encrypted) {
       if (maskSecrets) {
         defaults[doc.key] = doc.value ? maskSecret(decryptSecret(doc.value)) : "";
-        if (doc.key === "secretKey" || doc.key === "smtpPassword" || doc.key === "apiKey" || doc.key === "webhookSecret") {
+        if (
+          doc.key === "secretKey" ||
+          doc.key === "smtpPassword" ||
+          doc.key === "apiKey" ||
+          doc.key === "webhookSecret" ||
+          doc.key === "connectWebhookSecret"
+        ) {
           defaults[`${doc.key}Set`] = Boolean(doc.value);
         }
       } else {
@@ -462,6 +471,9 @@ export async function getCategorySettings(category, { maskSecrets = true } = {})
   if (category === "stripe") {
     if (!defaults.secretKeySet) defaults.secretKeySet = Boolean(env.stripe.secretKey);
     if (!defaults.webhookSecretSet) defaults.webhookSecretSet = Boolean(env.stripe.webhookSecret);
+    if (!defaults.connectWebhookSecretSet) {
+      defaults.connectWebhookSecretSet = Boolean(env.stripe.connectWebhookSecret);
+    }
     if (!defaults.publishableKey && process.env.STRIPE_PUBLISHABLE_KEY) {
       defaults.publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
     }

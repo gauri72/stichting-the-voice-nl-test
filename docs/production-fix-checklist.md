@@ -96,7 +96,7 @@ Legend: ✅ Done · 🔄 In progress · ⬜ Todo · ⚠️ Risk accepted
 
 - [ ] `cd server && npm test`
 - [ ] `cd client && npm run build`
-- [ ] Verify `JWT_SECRET`, `STRIPE_WEBHOOK_SECRET`, `TURNSTILE_SECRET_KEY` set in production
+- [ ] Verify `JWT_SECRET`, `STRIPE_WEBHOOK_SECRET`, `TURNSTILE_SECRET_KEY` set in production; when `STRIPE_CONNECT_ENABLED=true`, also verify `STRIPE_CONNECT_WEBHOOK_SECRET`
 - [ ] Smoke test: free ticket checkout
 - [ ] Smoke test: paid ticket checkout (Stripe test mode)
 - [ ] Smoke test: admin login + create draft event

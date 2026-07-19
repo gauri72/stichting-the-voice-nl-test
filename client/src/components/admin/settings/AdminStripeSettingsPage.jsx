@@ -53,9 +53,9 @@ export default function AdminStripeSettingsPage() {
     }
   }
 
-  async function verifyWebhook() {
+  async function checkWebhookConfiguration() {
     try {
-      const result = await apiFetch("/api/admin/settings/stripe/verify-webhook", {
+      const result = await apiFetch("/api/admin/settings/stripe/check-webhook-configuration", {
         method: "POST",
         headers: adminAuthHeaders(),
       });
@@ -98,8 +98,12 @@ export default function AdminStripeSettingsPage() {
             <input type="password" placeholder={form.secretKeySet ? "••••••••••••" : "sk_test_..."} onChange={(e) => setForm((f) => ({ ...f, secretKey: e.target.value }))} disabled={!canWrite} />
           </label>
           <label className="admin-settings__field admin-settings__field--full">
-            Webhook secret {form.webhookSecretSet ? "(set — enter to replace)" : ""}
+            Platform webhook secret {form.webhookSecretSet ? "(set — enter to replace)" : ""}
             <input type="password" placeholder="whsec_..." onChange={(e) => setForm((f) => ({ ...f, webhookSecret: e.target.value }))} disabled={!canWrite} />
+          </label>
+          <label className="admin-settings__field admin-settings__field--full">
+            Connected-account webhook secret {form.connectWebhookSecretSet ? "(set — enter to replace)" : ""}
+            <input type="password" placeholder="whsec_..." onChange={(e) => setForm((f) => ({ ...f, connectWebhookSecret: e.target.value }))} disabled={!canWrite} />
           </label>
           <label className="admin-settings__field">
             Account ID
@@ -131,7 +135,7 @@ export default function AdminStripeSettingsPage() {
             </button>
           ) : null}
           <button type="button" className="admin-settings__btn" onClick={testConnection}>Test connection</button>
-          <button type="button" className="admin-settings__btn" onClick={verifyWebhook}>Verify webhook</button>
+          <button type="button" className="admin-settings__btn" onClick={checkWebhookConfiguration}>Check webhook configuration</button>
         </div>
       </form>
     </section>

@@ -16,6 +16,57 @@ export async function getEffectiveWebhookSecret() {
   return dbSecret || env.stripe.webhookSecret || "";
 }
 
+export async function getEffectiveConnectWebhookSecret() {
+  const dbSecret = await settingsService.getSecret("stripe", "connectWebhookSecret");
+  return dbSecret || env.stripe.connectWebhookSecret || "";
+}
+
+export function buildStripeWebhookConfigurationStatus({
+  platformSecret = "",
+  connectSecret = "",
+  connectRequired = false,
+} = {}) {
+  const normalizedPlatformSecret = String(platformSecret || "").trim();
+  const normalizedConnectSecret = String(connectSecret || "").trim();
+  const platformConfigured = Boolean(normalizedPlatformSecret);
+  const connectConfigured = Boolean(normalizedConnectSecret);
+  const secretsDistinct =
+    !platformConfigured ||
+    !connectConfigured ||
+    normalizedPlatformSecret !== normalizedConnectSecret;
+  const configured =
+    platformConfigured &&
+    (!connectRequired || connectConfigured) &&
+    secretsDistinct;
+
+  let message;
+  if (!platformConfigured) {
+    message = "Platform webhook secret is not configured.";
+  } else if (!secretsDistinct) {
+    message =
+      "Platform and connected-account destinations must use different signing secrets.";
+  } else if (connectRequired && !connectConfigured) {
+    message =
+      "Stripe Connect is enabled, but its connected-account webhook secret is not configured.";
+  } else if (connectConfigured) {
+    message =
+      "Platform and connected-account webhook secrets are configured. Webhook delivery has not been tested.";
+  } else {
+    message =
+      "Platform webhook secret is configured. Stripe Connect is not enabled; webhook delivery has not been tested.";
+  }
+
+  return {
+    configured,
+    platformConfigured,
+    connectConfigured,
+    connectRequired: Boolean(connectRequired),
+    secretsDistinct,
+    deliveryVerification: "not_performed",
+    message,
+  };
+}
+
 export async function testStripeConnection() {
   const secretKey = await getEffectiveStripeSecretKey();
   if (!secretKey) {
@@ -49,14 +100,18 @@ export async function testStripeConnection() {
   };
 }
 
-export async function verifyStripeWebhook() {
-  const secret = await getEffectiveWebhookSecret();
-  return {
-    configured: Boolean(secret),
-    verified: Boolean(secret),
-    message: secret ? "Webhook secret is configured." : "Webhook secret is not set.",
-  };
+export async function checkStripeWebhookConfiguration() {
+  const platformSecret = await getEffectiveWebhookSecret();
+  const connectSecret = await getEffectiveConnectWebhookSecret();
+  return buildStripeWebhookConfigurationStatus({
+    platformSecret,
+    connectSecret,
+    connectRequired: env.stripe.connectEnabled,
+  });
 }
+
+// Backwards-compatible service alias for callers using the original name.
+export const verifyStripeWebhook = checkStripeWebhookConfiguration;
 
 export async function syncStripeBankAccount(adminId) {
   const secretKey = await getEffectiveStripeSecretKey();

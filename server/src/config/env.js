@@ -3,6 +3,12 @@ import { stripEnv } from "./stripEnv.js";
 
 dotenv.config();
 
+function envFlag(value) {
+  return ["1", "true", "yes", "on"].includes(
+    String(stripEnv(value) || "").toLowerCase()
+  );
+}
+
 const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   port: Number(process.env.PORT) || 5000,
@@ -19,6 +25,8 @@ const env = {
   stripe: {
     secretKey: process.env.STRIPE_SECRET_KEY || "",
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
+    connectEnabled: envFlag(process.env.STRIPE_CONNECT_ENABLED),
+    connectWebhookSecret: process.env.STRIPE_CONNECT_WEBHOOK_SECRET || "",
     currency: (process.env.PAYMENT_CURRENCY || "eur").toLowerCase()
   },
   email: {

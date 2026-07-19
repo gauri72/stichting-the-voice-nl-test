@@ -47,6 +47,12 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+      # Optional for platform-only installations. Set to true when V.Commerce
+      # Stripe Connect onboarding and payouts are enabled.
+      - key: STRIPE_CONNECT_ENABLED
+        sync: false
+      - key: STRIPE_CONNECT_WEBHOOK_SECRET
+        sync: false
       - key: EMAIL_USER
         sync: false
       - key: EMAIL_PASS

@@ -57,7 +57,7 @@ A full codebase audit was performed across revenue-critical flows, admin operati
 
 | Issue | Fix |
 |-------|-----|
-| Stripe unsigned webhooks in production | Reject when `STRIPE_WEBHOOK_SECRET` missing in production |
+| Stripe unsigned webhooks in production | Reject when `STRIPE_WEBHOOK_SECRET` is missing; also require `STRIPE_CONNECT_WEBHOOK_SECRET` when `STRIPE_CONNECT_ENABLED=true` |
 | Smart API webhooks accept unsigned when no secret | Reject in production if integration active without `webhookSecret` |
 | No Stripe event idempotency | `stripe_webhook_events` collection + duplicate skip |
 
@@ -129,7 +129,7 @@ A full codebase audit was performed across revenue-critical flows, admin operati
 
 - **Error boundaries:** `RouteErrorBoundary` on admin layout content and ticket checkout route.
 - **Fulfillment rollback:** Failed ticket generation no longer leaves orders in `processing`.
-- **Production env validation:** Fail fast on missing `JWT_SECRET`, `TURNSTILE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (when Stripe configured).
+- **Production env validation:** Fail fast on missing `JWT_SECRET`, `TURNSTILE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (when Stripe is configured), or `STRIPE_CONNECT_WEBHOOK_SECRET` when Stripe Connect is explicitly enabled.
 - **Static uploads:** `/uploads` served from API for document/ticket assets.
 
 ---

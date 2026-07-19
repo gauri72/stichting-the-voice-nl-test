@@ -48,7 +48,7 @@ export const SETTINGS_PERMISSIONS = {
 };
 
 export const SECRET_KEYS = {
-  stripe: ["secretKey", "webhookSecret"],
+  stripe: ["secretKey", "webhookSecret", "connectWebhookSecret"],
   email_provider: ["smtpPassword", "apiKey"],
   integrations: ["ticketTailorApiKey", "googleAnalyticsId"],
 };
@@ -183,6 +183,7 @@ export const DEFAULT_STRIPE = {
   publishableKey: "",
   secretKeySet: false,
   webhookSecretSet: false,
+  connectWebhookSecretSet: false,
   accountId: "",
   connectedAccountId: "",
   cardPaymentsEnabled: true,

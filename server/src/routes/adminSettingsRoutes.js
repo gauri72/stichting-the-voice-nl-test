@@ -6,6 +6,7 @@ import {
   getStripeSettings,
   patchStripeSettings,
   testStripeConnection,
+  checkStripeWebhookConfiguration,
   verifyStripeWebhook,
   syncStripeBank,
   getBankSettings,
@@ -41,6 +42,11 @@ router.get("/stripe", requireSettingsRead("stripe"), getStripeSettings);
 router.patch("/stripe", requireFinanceSettingsWrite, patchStripeSettings);
 router.post("/stripe/test", requireFinanceSettingsWrite, testStripeConnection);
 router.post("/stripe/sync-bank", requireFinanceSettingsWrite, syncStripeBank);
+router.post(
+  "/stripe/check-webhook-configuration",
+  requireFinanceSettingsWrite,
+  checkStripeWebhookConfiguration
+);
 router.post("/stripe/verify-webhook", requireFinanceSettingsWrite, verifyStripeWebhook);
 
 router.get("/bank", requireSettingsRead("bank"), getBankSettings);

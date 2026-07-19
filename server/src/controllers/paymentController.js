@@ -5,7 +5,14 @@ import { getPlan } from "../config/membershipPlans.js";
 import { getTier } from "../config/sponsorshipTiers.js";
 import DiscountCode from "../models/DiscountCode.js";
 import User from "../models/User.js";
-import { getStripe, isStripeConfigured, getActiveWebhookSecret } from "../services/stripe.js";
+import {
+  assertStripeWebhookScope,
+  constructStripeWebhookEventWithScope,
+  getActiveWebhookSecretCandidates,
+  getStripe,
+  isStripeConfigured,
+  STRIPE_WEBHOOK_SCOPE,
+} from "../services/stripe.js";
 import { getActivePaymentProvider } from "../services/stripeSettingsService.js";
 import { sendDonationEmails, sendSponsorshipEmails } from "../services/mailer.js";
 import { sendMembershipEmails } from "../services/membershipMailer.js";
@@ -412,11 +419,11 @@ export async function stripeWebhook(req, res) {
 
   const stripe = getStripe();
   const signature = req.headers["stripe-signature"];
-  const webhookSecret = getActiveWebhookSecret();
+  const webhookCandidates = getActiveWebhookSecretCandidates();
 
-  if (!webhookSecret) {
+  if (!webhookCandidates.length) {
     if (env.nodeEnv === "production") {
-      console.error("[payments] STRIPE_WEBHOOK_SECRET is required in production.");
+      console.error("[payments] A Stripe webhook signing secret is required in production.");
       return res.status(503).send("Webhook not configured.");
     }
     console.warn("[payments] Webhook signature verification skipped (dev only).");
@@ -424,8 +431,19 @@ export async function stripeWebhook(req, res) {
 
   let event;
   try {
-    if (webhookSecret) {
-      event = stripe.webhooks.constructEvent(req.body, signature, webhookSecret);
+    if (webhookCandidates.length) {
+      const verified = constructStripeWebhookEventWithScope(
+        stripe,
+        req.body,
+        signature,
+        webhookCandidates
+      );
+      event = verified.event;
+      assertStripeWebhookScope(event, verified.scope, {
+        connectSecretConfigured: webhookCandidates.some(
+          ({ scope }) => scope === STRIPE_WEBHOOK_SCOPE.CONNECTED
+        ),
+      });
     } else {
       event = JSON.parse(req.body.toString());
     }

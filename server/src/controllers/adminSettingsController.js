@@ -87,15 +87,18 @@ export async function testStripeConnection(req, res) {
   }
 }
 
-export async function verifyStripeWebhook(req, res) {
+export async function checkStripeWebhookConfiguration(req, res) {
   try {
-    const { verifyStripeWebhook } = await import("../services/stripeSettingsService.js");
-    const result = await verifyStripeWebhook();
+    const { checkStripeWebhookConfiguration } = await import("../services/stripeSettingsService.js");
+    const result = await checkStripeWebhookConfiguration();
     return res.json(result);
   } catch (error) {
     return handleError(res, error);
   }
 }
+
+// Backwards-compatible controller alias for the original admin route.
+export const verifyStripeWebhook = checkStripeWebhookConfiguration;
 
 export async function syncStripeBank(req, res) {
   try {

@@ -48,13 +48,18 @@ Payments use **live** API keys from your production Stripe account. Test keys (`
 4. Go to **Developers → API keys** (<https://dashboard.stripe.com/apikeys>) and copy:
    - **Publishable key** → `pk_live_...`
    - **Secret key** → `sk_live_...` (click **Reveal**)
-5. Add a **live** webhook: **Developers → Webhooks → Add endpoint**
+5. Add a **live platform** event destination under **Developers → Webhooks**:
    - URL: `https://<your-api-host>/api/payments/webhook`
-   - Events: `payment_intent.succeeded`, `payment_intent.payment_failed`,
-     `payment_intent.canceled`, `charge.refunded`, and `charge.dispute.*`
-   - Enable **events on connected accounts** for `account.updated`,
+   - Platform destination events: `payment_intent.succeeded`, `payment_intent.payment_failed`,
+     `payment_intent.canceled`, `checkout.session.completed`, `charge.refunded`,
+     and `charge.dispute.*`
+   - Copy its signing secret into `STRIPE_WEBHOOK_SECRET`
+6. If V.Commerce Stripe Connect is enabled, add a second destination using the
+   same URL. Stripe assigns it a distinct signing secret:
+   - Connected-account events: `account.updated`,
      `capability.*`, `account.external_account.*`, and `payout.*`
-   - Copy the **Signing secret** (`whsec_...`) into `STRIPE_WEBHOOK_SECRET`
+   - Set `STRIPE_CONNECT_ENABLED=true`
+   - Copy its signing secret into `STRIPE_CONNECT_WEBHOOK_SECRET`
 
 Both keys must come from the **same** Stripe account. The publishable and secret keys must both be live (or both test for local experiments only).
 
@@ -121,7 +126,9 @@ CLIENT_URL=http://localhost:5173
 NODE_ENV=development
 
 STRIPE_SECRET_KEY=sk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...     # required in production; optional locally with Stripe CLI
+STRIPE_WEBHOOK_SECRET=whsec_...             # platform-event destination
+STRIPE_CONNECT_ENABLED=false                # true only when Stripe Connect is enabled
+STRIPE_CONNECT_WEBHOOK_SECRET=              # required when STRIPE_CONNECT_ENABLED=true
 PAYMENT_CURRENCY=eur
 
 EMAIL_HOST=smtp.gmail.com
@@ -181,10 +188,19 @@ Steps:
 2. Sign up / log in at <https://render.com> (free tier).
 3. Click **New -> Blueprint** and connect the GitHub repo. Render reads `render.yaml` and proposes both services - click **Apply**.
 4. The first build of the API will succeed but the static build will fail (Vite needs the publishable key). Open each service in the Render dashboard and fill in the env vars marked `sync: false`:
-   - **voice-nl-api**: `STRIPE_SECRET_KEY` (`sk_live_...`), `STRIPE_WEBHOOK_SECRET` (live `whsec_...`), `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM`, `ORG_NOTIFY_EMAIL` (optional), `CLIENT_URL` (paste the static-site URL Render assigned).
+   - **voice-nl-api**: `STRIPE_SECRET_KEY` (`sk_live_...`), `STRIPE_WEBHOOK_SECRET`
+     (platform destination `whsec_...`), `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM`,
+     `ORG_NOTIFY_EMAIL` (optional), `CLIENT_URL` (paste the static-site URL Render
+     assigned). If V.Commerce Stripe Connect is enabled, also set
+     `STRIPE_CONNECT_ENABLED=true` and `STRIPE_CONNECT_WEBHOOK_SECRET` to the
+     connected-account destination's distinct `whsec_...`.
    - **voice-nl-web**: `VITE_STRIPE_PUBLISHABLE_KEY` (`pk_live_...` from the **same** account), `VITE_API_BASE_URL` (paste the API service URL Render assigned).
 5. Trigger **Manual Deploy -> Clear build cache & deploy** on each service so Vite re-bakes the new env values into the static bundle.
-6. Add a **live-mode** Stripe webhook pointing to `https://<api-service>.onrender.com/api/payments/webhook`, copy its `whsec_...` into `STRIPE_WEBHOOK_SECRET`, redeploy the API.
+6. Add the live-mode Stripe platform destination described above, including
+   `checkout.session.completed`, and point it to
+   `https://<api-service>.onrender.com/api/payments/webhook`. Add the separate
+   connected-account destination only when Stripe Connect is enabled, then
+   redeploy the API.
 7. Open the static-site URL and run a small real charge to confirm emails and receipts.
 
 Free tier caveat: the API spins down after ~15 min of inactivity; first request after sleep takes ~30 s. Use UptimeRobot ping `/api/health` every 14 min to keep it warm, or upgrade to the Starter plan ($7/mo) when ready.
