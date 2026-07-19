@@ -36,8 +36,8 @@ import {
   downloadMembershipEcard,
 } from "../../../utils/membershipEcard.js";
 import voiceVMark from "../../../assets/Home/voice-v-mark.png";
-import heroLight from "../../../assets/Home/hero-bg-light-v2.png";
-import heroDark from "../../../assets/Home/hero-bg-dark.png";
+import heroLight from "../../../assets/Dashboard/breadcrumb-bg-light.png";
+import heroDark from "../../../assets/Dashboard/breadcrumb-bg-dark.png";
 import eventFallback from "../../../assets/Dashboard/upcoming-event-1.png";
 import "../../../styles/mobile-dashboard-command-center.css";
 
