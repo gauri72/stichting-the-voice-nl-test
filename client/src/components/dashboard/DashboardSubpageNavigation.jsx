@@ -3,17 +3,17 @@ import { Link, useLocation } from "react-router-dom";
 import "../../styles/dashboard-subpage-navigation.css";
 
 const LABELS = [
-  [/^\/dashboard\/events\/[^/]+\/tickets/, "Event Tickets"],
-  [/^\/dashboard\/events/, "My Events"],
-  [/^\/dashboard\/donations/, "My Donations"],
-  [/^\/dashboard\/sponsorships/, "My Sponsorships"],
-  [/^\/dashboard\/profile/, "My Profile"],
-  [/^\/dashboard\/wallet/, "V.Wallet"],
-  [/^\/dashboard\/vcommerce-buyer/, "Buyer Portal"],
-  [/^\/dashboard\/vcommerce/, "Business Hub"],
-  [/^\/dashboard\/ai-assistant\/prompts/, "Prompt Library"],
-  [/^\/dashboard\/ai-assistant\/schedule/, "Scheduled Prompts"],
-  [/^\/dashboard\/ai-assistant/, "V.Assist"],
+  [/^\/dashboard\/events\/[^/]+\/tickets/, "Event Tickets", "/dashboard/events"],
+  [/^\/dashboard\/events/, "My Events", "/dashboard/events"],
+  [/^\/dashboard\/donations/, "My Donations", "/dashboard/donations"],
+  [/^\/dashboard\/sponsorships/, "My Sponsorships", "/dashboard/sponsorships"],
+  [/^\/dashboard\/profile/, "My Profile", "/dashboard/profile"],
+  [/^\/dashboard\/wallet/, "V.Wallet", "/dashboard/wallet"],
+  [/^\/dashboard\/vcommerce-buyer/, "Buyer Portal", "/dashboard/vcommerce-buyer"],
+  [/^\/dashboard\/vcommerce/, "Business Hub", "/dashboard/vcommerce"],
+  [/^\/dashboard\/ai-assistant\/prompts/, "Prompt Library", "/dashboard/ai-assistant/prompts"],
+  [/^\/dashboard\/ai-assistant\/schedule/, "Scheduled Prompts", "/dashboard/ai-assistant/schedule"],
+  [/^\/dashboard\/ai-assistant/, "V.Assist", "/dashboard/ai-assistant"],
 ];
 
 export default function DashboardSubpageNavigation() {
@@ -21,18 +21,18 @@ export default function DashboardSubpageNavigation() {
   if (pathname === "/dashboard" || !pathname.startsWith("/dashboard/")) return null;
   if (pathname.startsWith("/dashboard/ai-assistant")) return null;
 
-  const pageLabel = LABELS.find(([pattern]) => pattern.test(pathname))?.[1] || "Dashboard";
+  const [, pageLabel, pageTarget] = LABELS.find(([pattern]) => pattern.test(pathname)) || [null, "Dashboard", pathname];
 
   return (
-    <nav className="dashboard-subpage-nav" aria-label="Dashboard navigation">
-      <Link to="/dashboard" className="dashboard-subpage-nav__back">
+    <div className="dashboard-subpage-nav" aria-label="Dashboard navigation">
+      <Link to="/dashboard" className="dashboard-subpage-nav__btn">
         <IconArrowLeft aria-hidden stroke={2} />
         <span>Back to Dashboard</span>
       </Link>
-      <span className="dashboard-subpage-nav__context" aria-current="page">
+      <Link to={pageTarget} className="dashboard-subpage-nav__btn" aria-current="page">
         <IconHome aria-hidden stroke={1.8} />
-        {pageLabel}
-      </span>
-    </nav>
+        <span>{pageLabel}</span>
+      </Link>
+    </div>
   );
 }
