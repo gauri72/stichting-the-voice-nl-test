@@ -162,7 +162,10 @@ export async function createSellerOnboardingLink(userId, { returnUrl, refreshUrl
       type: "express",
       country: normalizeCountry(business.location?.country),
       email: business.contactEmail || undefined,
-      capabilities: { transfers: { requested: true } },
+      // Requesting transfers alone (without card_payments) needs manual Stripe approval —
+      // requesting both is the standard, pre-approved combination for new platforms, even
+      // though our destination-charge flow only actually uses the transfers capability.
+      capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
       metadata: {
         vcommerceBusinessId: business._id.toString(),
         vcommercePackage: business.packageId || "starter",

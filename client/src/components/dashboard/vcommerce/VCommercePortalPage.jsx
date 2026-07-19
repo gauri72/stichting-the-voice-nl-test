@@ -1258,15 +1258,24 @@ function SettingsTab({ business, onRefresh }) {
         </div>
       </div>
 
-      <div style={S.card}>
-        <h3 style={{ margin: "0 0 4px", fontSize: "0.95rem", fontWeight: 700 }}>Bank Details for Payouts</h3>
-        <p style={{ margin: "0 0 16px", fontSize: "0.8rem", color: "var(--color-text-muted,#888)" }}>Required to receive manual SEPA transfers from V.O.I.C.E. NL.</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div><label style={S.label}>Account Holder Name</label><input style={S.input} type="text" value={form.payoutBankHolder} onChange={setField("payoutBankHolder")} placeholder="Legal name as on bank account" /></div>
-          <div><label style={S.label}>IBAN</label><input style={S.input} type="text" value={form.payoutIBAN} onChange={setField("payoutIBAN")} placeholder="NL00 BANK 0000 0000 00" /></div>
-          <div><label style={S.label}>Bank Name</label><input style={S.input} type="text" value={form.payoutBankName} onChange={setField("payoutBankName")} placeholder="ING, Rabobank, ABN AMRO…" /></div>
+      {business.stripeConnectedAccountId || business.connectCheckoutEnabled ? (
+        <div style={S.card}>
+          <h3 style={{ margin: "0 0 4px", fontSize: "0.95rem", fontWeight: 700 }}>Bank Details for Payouts</h3>
+          <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--color-text-secondary,#666)" }}>
+            Your payouts are handled automatically through Stripe — manage your bank account from the <strong>Payouts</strong> tab instead.
+          </p>
         </div>
-      </div>
+      ) : (
+        <div style={S.card}>
+          <h3 style={{ margin: "0 0 4px", fontSize: "0.95rem", fontWeight: 700 }}>Bank Details for Payouts</h3>
+          <p style={{ margin: "0 0 16px", fontSize: "0.8rem", color: "var(--color-text-muted,#888)" }}>Required to receive manual SEPA transfers from V.O.I.C.E. NL, until you complete Stripe payout setup in the Payouts tab.</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div><label style={S.label}>Account Holder Name</label><input style={S.input} type="text" value={form.payoutBankHolder} onChange={setField("payoutBankHolder")} placeholder="Legal name as on bank account" /></div>
+            <div><label style={S.label}>IBAN</label><input style={S.input} type="text" value={form.payoutIBAN} onChange={setField("payoutIBAN")} placeholder="NL00 BANK 0000 0000 00" /></div>
+            <div><label style={S.label}>Bank Name</label><input style={S.input} type="text" value={form.payoutBankName} onChange={setField("payoutBankName")} placeholder="ING, Rabobank, ABN AMRO…" /></div>
+          </div>
+        </div>
+      )}
 
       <button type="submit" disabled={saving} style={{ ...S.btn(), padding: "11px 24px" }}>
         {saving ? "Saving…" : "Save Changes"}

@@ -443,24 +443,32 @@ function BusinessesTab() {
                   value={editForm.cashbackPercent} onChange={(e) => setEditForm((f) => ({ ...f, cashbackPercent: e.target.value }))} />
               </div>
             </div>
-            <p style={{ fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--ad-text-muted,#888)", margin: "0 0 12px" }}>Payout Bank Details</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
-              <div>
-                <label style={S.label}>Account Holder</label>
-                <input type="text" style={{ ...S.input, width: "100%" }} value={editForm.payoutBankHolder}
-                  onChange={(e) => setEditForm((f) => ({ ...f, payoutBankHolder: e.target.value }))} placeholder="Full legal name" />
-              </div>
-              <div>
-                <label style={S.label}>IBAN</label>
-                <input type="text" style={{ ...S.input, width: "100%" }} value={editForm.payoutIBAN}
-                  onChange={(e) => setEditForm((f) => ({ ...f, payoutIBAN: e.target.value }))} placeholder="NL00 BANK 0000 0000 00" />
-              </div>
-              <div>
-                <label style={S.label}>Bank Name</label>
-                <input type="text" style={{ ...S.input, width: "100%" }} value={editForm.payoutBankName}
-                  onChange={(e) => setEditForm((f) => ({ ...f, payoutBankName: e.target.value }))} placeholder="ING, Rabobank, etc." />
-              </div>
-            </div>
+            {editing.stripeConnectedAccountId || editing.connectCheckoutEnabled ? (
+              <p style={{ fontSize: "0.8rem", color: "var(--ad-text-muted,#888)", margin: "0 0 20px", padding: "10px 12px", background: "rgba(139,92,246,0.06)", borderRadius: 8 }}>
+                This business is connected via Stripe — payouts are handled automatically there. Manual bank details are hidden to avoid storing a second, unmanaged copy of their IBAN.
+              </p>
+            ) : (
+              <>
+                <p style={{ fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--ad-text-muted,#888)", margin: "0 0 12px" }}>Payout Bank Details (manual, pre-Stripe-Connect only)</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+                  <div>
+                    <label style={S.label}>Account Holder</label>
+                    <input type="text" style={{ ...S.input, width: "100%" }} value={editForm.payoutBankHolder}
+                      onChange={(e) => setEditForm((f) => ({ ...f, payoutBankHolder: e.target.value }))} placeholder="Full legal name" />
+                  </div>
+                  <div>
+                    <label style={S.label}>IBAN</label>
+                    <input type="text" style={{ ...S.input, width: "100%" }} value={editForm.payoutIBAN}
+                      onChange={(e) => setEditForm((f) => ({ ...f, payoutIBAN: e.target.value }))} placeholder="NL00 BANK 0000 0000 00" />
+                  </div>
+                  <div>
+                    <label style={S.label}>Bank Name</label>
+                    <input type="text" style={{ ...S.input, width: "100%" }} value={editForm.payoutBankName}
+                      onChange={(e) => setEditForm((f) => ({ ...f, payoutBankName: e.target.value }))} placeholder="ING, Rabobank, etc." />
+                  </div>
+                </div>
+              </>
+            )}
             <div style={{ display: "flex", gap: 10 }}>
               <button type="submit" style={S.btn()}>Save Changes</button>
               <button type="button" style={S.btn("ghost")} onClick={() => setEditing(null)}>Cancel</button>
