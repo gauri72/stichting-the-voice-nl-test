@@ -16,6 +16,7 @@
     "migrate:discount-event-scopes": "node scripts/migrate-discount-event-scopes.js",
     "migrate:event-budget-lines": "node scripts/migrate-event-budget-lines.js",
     "migrate:vcommerce-ledger": "node scripts/backfill-vcommerce-ledger.js",
+    "migrate:vcommerce-connect": "node scripts/migrate-vcommerce-connect.js",
     "seed:featured-herbeats": "node scripts/seed-featured-herbeats.js",
     "seed:cms": "node scripts/seed-cms-pages.js",
     "test": "vitest run",

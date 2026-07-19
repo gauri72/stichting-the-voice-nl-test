@@ -82,6 +82,7 @@ import BusinessProfile from "../models/BusinessProfile.js";
 import BusinessProduct from "../models/BusinessProduct.js";
 import BusinessOrder from "../models/BusinessOrder.js";
 import BusinessPayout from "../models/BusinessPayout.js";
+import BusinessStripePayout from "../models/BusinessStripePayout.js";
 
 /**
  * Every model maps to exactly one explicitly-named collection in the active
@@ -175,6 +176,7 @@ const MODELS = [
   ["business_products", BusinessProduct],
   ["business_orders", BusinessOrder],
   ["business_payouts", BusinessPayout],
+  ["business_stripe_payouts", BusinessStripePayout],
 ];
 
 export async function ensureIndexes() {

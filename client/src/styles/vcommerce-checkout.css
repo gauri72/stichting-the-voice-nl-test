@@ -1,0 +1,22 @@
+.vco-checkout-page{min-height:100vh;padding:40px 16px}
+.vco-checkout-shell{max-width:900px;margin:0 auto}
+.vco-checkout-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px;align-items:start}
+.vco-checkout-summary{background:var(--color-card-bg,#fff);border-radius:16px;border:1px solid var(--color-border,rgba(128,128,128,.15));padding:24px;position:sticky;top:24px;min-width:0}
+.vco-checkout-consent{display:flex;gap:10px;align-items:flex-start;font-size:.82rem;line-height:1.45;color:var(--color-text-secondary,#667)}
+.vco-checkout-consent input{margin-top:3px;flex:0 0 auto}
+.vco-checkout-guest-note,.vco-checkout-cashback-note{font-size:.78rem;line-height:1.45;color:var(--color-text-muted,#7c8a96);background:rgba(14,165,164,.08);border-radius:10px;padding:10px 12px;margin:0}
+.vco-checkout-cashback-note{margin-top:10px}
+@media(max-width:760px){
+  .vco-checkout-page{padding:24px 14px 120px}
+  .vco-checkout-shell{width:100%}
+  .vco-checkout-layout{grid-template-columns:1fr;gap:20px}
+  .vco-checkout-summary{grid-row:1;position:static;padding:18px}
+  .vco-checkout-layout form,.vco-checkout-layout>div>div{max-width:100%}
+  .vco-checkout-layout .vco-input{width:100%;min-width:0}
+  .vco-checkout-layout h1{font-size:1.35rem!important}
+  .vco-checkout-layout form{padding:20px!important}
+}
+@media(max-width:390px){
+  .vco-checkout-page{padding-left:10px;padding-right:10px}
+  .vco-checkout-summary{padding:15px}
+}

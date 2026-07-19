@@ -10,6 +10,11 @@ export async function createPayout(adminId, businessId, orderIds) {
     err.status = 404;
     throw err;
   }
+  if (business.stripeConnectedAccountId || business.connectCheckoutEnabled) {
+    const err = new Error("Stripe Connect manages this seller's payouts automatically. Manual payout creation is disabled.");
+    err.status = 409;
+    throw err;
+  }
 
   // Validate all orders exist, belong to business, are paid, and not yet in a payout
   const orders = await BusinessOrder.find({
@@ -19,6 +24,7 @@ export async function createPayout(adminId, businessId, orderIds) {
     payoutId: null,
     payoutEligibleAt: { $ne: null, $lte: new Date() },
     payoutHoldReason: { $in: ["", null] },
+    stripeConnectedAccountId: { $in: ["", null] },
   }).lean();
 
   if (orders.length === 0) {

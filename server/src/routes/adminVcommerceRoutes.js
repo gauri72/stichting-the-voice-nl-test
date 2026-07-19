@@ -9,6 +9,9 @@ import {
   patchAdminProduct,
   getOrders,
   getOneOrder,
+  downloadOrderReceipt,
+  resendOrderReceipt,
+  patchOrderStatus,
   getPayouts,
   getPayoutSummary,
   postCreatePayout,
@@ -51,6 +54,9 @@ router.delete("/businesses/:id/products/:productId", deleteAdminProductControlle
 // Orders
 router.get("/orders", getOrders);
 router.get("/orders/:id", getOneOrder);
+router.get("/orders/:id/receipt", downloadOrderReceipt);
+router.post("/orders/:id/resend-receipt", resendOrderReceipt);
+router.patch("/orders/:id/status", patchOrderStatus);
 router.patch("/orders/:id/payout-hold", patchOrderPayoutHold);
 
 // Payouts

@@ -23,6 +23,8 @@ import {
 import {
   createSellerOnboardingLink,
   refreshSellerConnectStatus,
+  getSellerConnectOverview,
+  createSellerDashboardLink,
 } from "../services/businessConnectService.js";
 import { createPackageCheckout } from "../services/vcommercePackageService.js";
 import { submitBusinessForReview } from "../services/businessApplicationService.js";
@@ -188,6 +190,22 @@ export async function getMyPayouts(req, res) {
       pageSize: pageSize ? Math.min(Number(pageSize), 50) : 20,
     });
     ok(res, { ...result, payouts: result.items });
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function getConnectOverview(req, res) {
+  try {
+    ok(res, await getSellerConnectOverview(req.user.id));
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function postConnectDashboard(req, res) {
+  try {
+    ok(res, await createSellerDashboardLink(req.user.id));
   } catch (e) {
     fail(res, e);
   }

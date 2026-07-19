@@ -1043,6 +1043,24 @@
     grid-template-columns: 1fr;
   }
 
+  .vco-profile-products {
+    margin-top: 28px;
+  }
+
+  .vco-product-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .vco-product-card__image {
+    aspect-ratio: 16 / 10;
+    max-height: 260px;
+  }
+
+  .vco-product-card__body {
+    padding: 18px;
+  }
+
   .vco-field-grid {
     grid-template-columns: 1fr;
   }

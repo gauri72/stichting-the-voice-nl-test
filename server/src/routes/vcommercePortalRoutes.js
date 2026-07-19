@@ -20,6 +20,8 @@ import {
   getMyReferralLink,
   postConnectOnboarding,
   getConnectStatus,
+  getConnectOverview,
+  postConnectDashboard,
   postPackageCheckout,
   postSubmitForReview,
 } from "../controllers/vcommercePortalController.js";
@@ -36,7 +38,9 @@ router.patch("/me", patchMyBusiness);
 router.post("/me/upload/:field", uploadBusinessImage);
 router.get("/me/referral-link", getMyReferralLink);
 router.get("/me/connect/status", getConnectStatus);
+router.get("/me/connect/overview", getConnectOverview);
 router.post("/me/connect/onboarding", postConnectOnboarding);
+router.post("/me/connect/dashboard", postConnectDashboard);
 router.post("/me/package/checkout", postPackageCheckout);
 router.post("/me/submit-review", postSubmitForReview);
 

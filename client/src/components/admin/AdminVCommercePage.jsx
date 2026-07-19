@@ -16,6 +16,10 @@ import {
   adminPatchProduct,
   adminDeleteProduct,
   adminSetOrderPayoutHold,
+  adminGetOrder,
+  adminResendOrderReceipt,
+  adminDownloadOrderReceipt,
+  adminPatchOrderStatus,
 } from "../vcommerce/shared/vcommerceApi.js";
 import { BUSINESS_CATEGORY_LABELS } from "../vcommerce/shared/BUSINESS_CATEGORIES.js";
 import AdminWholesalerPage from "./AdminWholesalerPage.jsx";
@@ -130,6 +134,7 @@ function ApplicationsTab() {
                 <th style={S.th}>Applicant</th>
                 <th style={S.th}>Submitted</th>
                 <th style={S.th}>Status</th>
+                <th style={S.th}>Stripe payouts</th>
                 <th style={S.th}>Actions</th>
               </tr>
             </thead>
@@ -337,6 +342,16 @@ function BusinessesTab() {
                   <td style={S.td}>{BUSINESS_CATEGORY_LABELS[b.category] || b.category}</td>
                   <td style={S.td}><span style={S.badge(b.status === "active" ? "green" : b.status === "review" ? "orange" : "red")}>{b.status}</span></td>
                   <td style={S.td}>
+                    <span style={S.badge(b.connectCheckoutEnabled ? "green" : b.stripeConnectedAccountId ? "orange" : "red")}>
+                      {b.connectCheckoutEnabled ? "Ready" : b.stripeConnectedAccountId ? "Restricted" : "Not connected"}
+                    </span>
+                    {b.stripeRequirementsCurrentlyDue?.length > 0 && (
+                      <div style={{fontSize:".72rem",marginTop:4,color:"var(--ad-text-muted,#888)"}}>
+                        {b.stripeRequirementsCurrentlyDue.length} requirement(s) due
+                      </div>
+                    )}
+                  </td>
+                  <td style={S.td}>
                     {b.isFeaturedThisWeek
                       ? <span style={S.badge("green")}>⭐ Featured</span>
                       : b.status === "active"
@@ -346,7 +361,7 @@ function BusinessesTab() {
                   <td style={S.td}>{b.platformFeePercent}%</td>
                   <td style={S.td}>{b.cashbackPercent}%</td>
                   <td style={S.td}>{formatPrice(b.totalRevenueMinor)}</td>
-                  <td style={S.td}>{formatPrice(b.pendingPayoutMinor)}</td>
+                  <td style={S.td}>{b.connectCheckoutEnabled ? "Managed by Stripe" : formatPrice(b.pendingPayoutMinor)}</td>
                   <td style={S.td}>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                       <button type="button" style={S.btn("sm")} onClick={() => openWorkspace(b)}>Manage</button>
@@ -448,6 +463,8 @@ function OrdersTab() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
+  const [selected, setSelected] = useState(null);
+  const [actionMessage, setActionMessage] = useState("");
 
   const load = useCallback(() => {
     setLoading(true);
@@ -468,10 +485,36 @@ function OrdersTab() {
     catch (err) { window.alert(err.message || "Could not update payout hold."); }
   }
 
+  async function openOrder(order) {
+    try { setSelected((await adminGetOrder(order._id)).order); }
+    catch (err) { setActionMessage(err.message || "Could not load order."); }
+  }
+
+  async function resendReceipt(order) {
+    try {
+      await adminResendOrderReceipt(order._id);
+      setActionMessage(`Receipt sent to ${order.customerEmail}.`);
+      setSelected((await adminGetOrder(order._id)).order);
+    } catch (err) { setActionMessage(err.message || "Could not send receipt."); }
+  }
+
+  async function changeOrderStatus(order, status) {
+    const label = status === "refunded" ? "refund this payment" : `mark this order ${status}`;
+    if (!window.confirm(`Are you sure you want to ${label}?`)) return;
+    const note = window.prompt("Administrative note (optional):") || "";
+    try {
+      const result = await adminPatchOrderStatus(order._id, { status, note });
+      setSelected(result.order);
+      setActionMessage(`Order marked ${status}.`);
+      load();
+    } catch (err) { setActionMessage(err.message || "Could not update order."); }
+  }
+
   return (
     <div>
+      {actionMessage && <p style={{ padding: "10px 14px", background: "rgba(16,185,129,.1)", borderRadius: 8 }}>{actionMessage}</p>}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        {["", "pending", "paid", "fulfilled", "cancelled", "refunded"].map((s) => (
+        {["", "pending", "processing", "paid", "fulfilled", "failed", "cancelled", "expired", "refunded"].map((s) => (
           <button key={s} type="button"
             style={{ ...S.btn("ghost"), background: statusFilter === s ? "var(--ad-accent,#8B5CF6)" : undefined, color: statusFilter === s ? "#fff" : undefined, border: statusFilter === s ? "none" : undefined }}
             onClick={() => setStatusFilter(s)}>
@@ -495,7 +538,7 @@ function OrdersTab() {
                 <th style={S.th}>Cashback</th>
                 <th style={S.th}>Status</th>
                 <th style={S.th}>Date</th>
-                <th style={S.th}>Payout Control</th>
+                <th style={S.th}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -503,7 +546,7 @@ function OrdersTab() {
                 ? <tr><td colSpan={9} style={{ ...S.td, textAlign: "center", color: "var(--ad-text-muted,#888)", padding: 40 }}>No orders found.</td></tr>
                 : items.map((o) => (
                   <tr key={o._id}>
-                    <td style={S.td}><code style={{ fontSize: "0.78rem" }}>{o._id?.slice(-8)}</code></td>
+                    <td style={S.td}><code style={{ fontSize: "0.78rem" }}>{o.orderNumber || o._id?.slice(-8)}</code></td>
                     <td style={S.td}>{o.businessName}</td>
                     <td style={S.td}>{o.customerName}<br/><span style={{ fontSize:"0.78rem",color:"var(--ad-text-muted,#888)" }}>{o.customerEmail}</span></td>
                     <td style={S.td}>{formatPrice(o.subtotalMinor, o.currency)}</td>
@@ -511,13 +554,31 @@ function OrdersTab() {
                     <td style={S.td}>{formatPrice(o.cashbackMinor, o.currency)}</td>
                     <td style={S.td}><span style={S.badge(o.status === "paid" || o.status === "fulfilled" ? "green" : o.status === "cancelled" || o.status === "refunded" ? "red" : "yellow")}>{o.status}</span></td>
                     <td style={S.td}>{formatDate(o.createdAt)}</td>
-                    <td style={S.td}><button type="button" style={S.btn("sm")} onClick={() => toggleHold(o)}>{o.payoutHoldReason ? "Release hold" : "Hold payout"}</button>{o.payoutHoldReason && <small style={{ display: "block", color: "#ef4444", marginTop: 4 }}>{o.payoutHoldReason}</small>}</td>
+                    <td style={S.td}><div style={{display:"flex",gap:6,flexWrap:"wrap"}}><button type="button" style={S.btn("sm")} onClick={() => openOrder(o)}>View</button><button type="button" style={S.btn("sm")} onClick={() => toggleHold(o)}>{o.payoutHoldReason ? "Release hold" : "Hold payout"}</button></div>{o.payoutHoldReason && <small style={{ display: "block", color: "#ef4444", marginTop: 4 }}>{o.payoutHoldReason}</small>}</td>
                   </tr>
                 ))
               }
             </tbody>
           </table>
         </div>
+      )}
+      {selected && (
+        <Modal title={`Order ${selected.orderNumber || selected._id.slice(-8)}`} onClose={() => setSelected(null)}>
+          <div style={{display:"grid",gap:10,fontSize:".88rem"}}>
+            <p><strong>Customer:</strong> {selected.customerName}<br/>{selected.customerEmail}<br/>{selected.customerPhone}</p>
+            <p><strong>Checkout:</strong> {selected.checkoutMode} · <strong>Payment:</strong> {selected.paymentStatus}</p>
+            <p><strong>Receipt:</strong> {selected.receiptNumber || "Not generated"} · {selected.receiptEmailStatus}</p>
+            <div>{(selected.items || []).map((item) => <p key={`${item.productId}-${item.variant}`} style={{display:"flex",justifyContent:"space-between"}}><span>{item.productName} × {item.quantity}</span><strong>{formatPrice(item.lineTotalMinor,selected.currency)}</strong></p>)}</div>
+            <p style={{textAlign:"right",fontSize:"1rem"}}><strong>Total {formatPrice(selected.subtotalMinor,selected.currency)}</strong></p>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              <button type="button" style={S.btn()} disabled={!["paid","fulfilled","refunded"].includes(selected.status)} onClick={() => adminDownloadOrderReceipt(selected._id, `${selected.receiptNumber || selected.orderNumber}.pdf`).catch((e) => setActionMessage(e.message))}>Download PDF</button>
+              <button type="button" style={S.btn("ghost")} disabled={!["paid","fulfilled","refunded"].includes(selected.status)} onClick={() => resendReceipt(selected)}>Resend email</button>
+              {selected.status === "paid" && <button type="button" style={S.btn("ghost")} onClick={() => changeOrderStatus(selected, "fulfilled")}>Mark fulfilled</button>}
+              {["paid","fulfilled"].includes(selected.status) && <button type="button" style={{...S.btn("ghost"),color:"#dc2626"}} onClick={() => changeOrderStatus(selected, "refunded")}>Refund payment</button>}
+              {["pending","failed"].includes(selected.status) && <button type="button" style={S.btn("ghost")} onClick={() => changeOrderStatus(selected, "cancelled")}>Cancel order</button>}
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   );

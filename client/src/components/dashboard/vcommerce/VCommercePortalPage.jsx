@@ -17,8 +17,9 @@ import {
   getProductsTemplate,
   getMyImportHistory,
   getMyReferralLink,
-  getMyConnectStatus,
+  getMyConnectOverview,
   startMyConnectOnboarding,
+  openMyConnectDashboard,
   startMyPackageCheckout,
   submitMyBusinessForReview,
 } from "../../vcommerce/shared/vcommerceApi.js";
@@ -644,11 +645,16 @@ function PayoutsTab() {
   const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
-    getMyPayouts()
-      .then((d) => setPayouts(d.payouts || []))
-      .catch(() => setPayouts([]))
+    Promise.all([getMyConnectOverview(), getMyPayouts()])
+      .then(([overview, legacy]) => {
+        setConnect(overview);
+        setPayouts(overview.connectedAccountId ? (overview.payouts || []) : (legacy.payouts || []));
+      })
+      .catch(() => {
+        setConnect({ status: "not_started", payoutsEnabled: false });
+        setPayouts([]);
+      })
       .finally(() => setLoading(false));
-    getMyConnectStatus().then(setConnect).catch(() => setConnect({ status: "not_started", payoutsEnabled: false }));
   }, []);
 
   async function beginConnect() {
@@ -662,6 +668,17 @@ function PayoutsTab() {
     }
   }
 
+  async function openStripeDashboard() {
+    setConnecting(true);
+    try {
+      const { url } = await openMyConnectDashboard();
+      window.location.assign(url);
+    } catch (err) {
+      setConnect((current) => ({ ...current, error: err?.message || "Could not open Stripe." }));
+      setConnecting(false);
+    }
+  }
+
   return (
     <div>
       <div className="vco-connect-card">
@@ -671,12 +688,30 @@ function PayoutsTab() {
           <p>{connect?.payoutsEnabled ? "Identity and payout details are verified through Stripe." : "Complete secure identity and bank verification before receiving marketplace earnings."}</p>
           {connect?.error && <small>{connect.error}</small>}
         </div>
-        <button type="button" onClick={beginConnect} disabled={connecting || connect?.payoutsEnabled}>
-          {connect?.payoutsEnabled ? "Verified ✓" : connecting ? "Opening…" : connect?.status === "pending" ? "Continue verification" : "Set up payouts"}
-        </button>
+        {connect?.payoutsEnabled ? (
+          <button type="button" onClick={openStripeDashboard} disabled={connecting}>
+            {connecting ? "Opening…" : "Manage in Stripe ↗"}
+          </button>
+        ) : (
+          <button type="button" onClick={beginConnect} disabled={connecting}>
+            {connecting ? "Opening…" : connect?.status === "pending" ? "Continue verification" : "Set up payouts"}
+          </button>
+        )}
       </div>
+      {connect?.connectedAccountId && (
+        <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(170px,1fr))",gap:12,margin:"16px 0" }}>
+          <div style={S.card}><small>Available in Stripe</small><strong style={{display:"block",fontSize:"1.25rem",marginTop:6}}>{formatPrice(connect.balance?.available?.find((x) => x.currency === "eur")?.amount || 0)}</strong></div>
+          <div style={S.card}><small>Pending in Stripe</small><strong style={{display:"block",fontSize:"1.25rem",marginTop:6}}>{formatPrice(connect.balance?.pending?.find((x) => x.currency === "eur")?.amount || 0)}</strong></div>
+          <div style={S.card}><small>Payout schedule</small><strong style={{display:"block",fontSize:"1.05rem",marginTop:6,textTransform:"capitalize"}}>{connect.payoutScheduleInterval || "Stripe default"}</strong></div>
+        </div>
+      )}
+      {connect?.requirementsCurrentlyDue?.length > 0 && (
+        <p style={{padding:"12px 16px",background:"rgba(245,158,11,.12)",borderRadius:8}}>
+          Stripe requires more information: {connect.requirementsCurrentlyDue.join(", ")}.
+        </p>
+      )}
       <p style={{ fontSize:"0.875rem",color:"var(--color-text-secondary,#666)",marginBottom:20,padding:"12px 16px",background:"rgba(139,92,246,0.06)",borderRadius:8 }}>
-        💡 Seller payouts are normally initiated on the fifth business day after successful payment. Verification, refunds, disputes, fraud reviews or unfulfilled orders can temporarily place a payout on hold.
+        💡 Stripe automatically sends eligible earnings to your verified bank account using your Stripe payout schedule. Refunds, disputes, verification or fraud reviews can delay a payout.
       </p>
       {loading ? (
         <p style={{ color:"var(--color-text-muted,#888)",padding:40,textAlign:"center" }}>Loading…</p>
@@ -687,25 +722,21 @@ function PayoutsTab() {
           <table style={S.table}>
             <thead>
               <tr>
-                <th style={S.th}>Period</th>
-                <th style={S.th}>Orders</th>
-                <th style={S.th}>Gross</th>
-                <th style={S.th}>Platform Fee</th>
-                <th style={S.th}>You Receive</th>
+                <th style={S.th}>Created</th>
+                <th style={S.th}>Arrival</th>
+                <th style={S.th}>Amount</th>
                 <th style={S.th}>Status</th>
-                <th style={S.th}>Reference</th>
+                <th style={S.th}>Reference / bank</th>
               </tr>
             </thead>
             <tbody>
               {payouts.map((p) => (
                 <tr key={p._id}>
                   <td style={S.td}>{formatDate(p.createdAt)}</td>
-                  <td style={S.td}>{p.orderCount}</td>
-                  <td style={S.td}>{formatPrice(p.grossMinor, p.currency)}</td>
-                  <td style={S.td}>{formatPrice(p.platformFeeMinor, p.currency)}</td>
-                  <td style={S.td}><strong>{formatPrice(p.netMinor, p.currency)}</strong></td>
+                  <td style={S.td}>{p.arrivalDate ? formatDate(p.arrivalDate) : "—"}</td>
+                  <td style={S.td}><strong>{formatPrice(p.amountMinor ?? p.netMinor, p.currency)}</strong></td>
                   <td style={S.td}><span style={S.badge(p.status==="paid"?"green":p.status==="failed"?"red":"yellow")}>{p.status}</span></td>
-                  <td style={S.td}><span style={{ fontSize:"0.78rem",color:"var(--color-text-muted,#888)" }}>{p.paymentReference || "—"}</span></td>
+                  <td style={S.td}><span style={{ fontSize:"0.78rem",color:"var(--color-text-muted,#888)" }}>{p.stripePayoutId || p.paymentReference || "—"}{p.bankLast4 ? ` · •••• ${p.bankLast4}` : ""}</span></td>
                 </tr>
               ))}
             </tbody>

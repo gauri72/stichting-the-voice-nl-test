@@ -134,7 +134,7 @@ async function handleSucceededPayment(intent) {
 
   if (meta.payment_kind === "business_order") {
     const { fulfillOrder } = await import("../services/businessOrderService.js");
-    await fulfillOrder(intent.id);
+    await fulfillOrder(intent);
     return;
   }
 
@@ -444,6 +444,28 @@ export async function stripeWebhook(req, res) {
     console.warn("[payments] Webhook idempotency check skipped:", idempotencyErr.message);
   }
 
+  try {
+    const {
+      handleConnectedAccountEvent,
+      handleConnectedPayoutEvent,
+      handleBusinessDisputeEvent,
+      handleExternalBusinessRefund,
+    } = await import("../services/businessStripeEventService.js");
+    if (event.type === "account.updated" || event.type.startsWith("capability.")
+        || event.type.startsWith("account.external_account.")) {
+      await handleConnectedAccountEvent(event);
+    } else if (event.type.startsWith("payout.")) {
+      await handleConnectedPayoutEvent(event);
+    } else if (event.type.startsWith("charge.dispute.")) {
+      await handleBusinessDisputeEvent(event);
+    } else if (event.type === "charge.refunded") {
+      await handleExternalBusinessRefund(event);
+    }
+  } catch (connectEventError) {
+    console.error("[payments] Stripe Connect event processing failed:", connectEventError.message);
+    return res.status(500).json({ error: "Stripe Connect event processing failed." });
+  }
+
   if (
     event.type === "checkout.session.completed" &&
     ["vcommerce_package", "vcommerce_application_package"].includes(event.data.object?.metadata?.payment_kind)
@@ -510,6 +532,31 @@ export async function stripeWebhook(req, res) {
       }
       return res.status(500).json({ error: "Fulfillment failed." });
     }
+  }
+
+  if (["payment_intent.payment_failed", "payment_intent.canceled"].includes(event.type)) {
+    const intent = event.data.object;
+    if (intent?.metadata?.payment_kind === "business_order") {
+      const { markOrderPaymentFailed } = await import("../services/businessOrderService.js");
+      await markOrderPaymentFailed(intent.id, intent.last_payment_error?.message || event.type);
+    }
+  }
+
+  try {
+    const StripeWebhookEvent = (await import("../models/StripeWebhookEvent.js")).default;
+    await StripeWebhookEvent.findOneAndUpdate(
+      { eventId: event.id },
+      {
+        eventId: event.id,
+        eventType: event.type,
+        paymentIntentId: event.data.object?.object === "payment_intent" ? event.data.object.id : "",
+        processed: true,
+        error: "",
+      },
+      { upsert: true }
+    );
+  } catch (idempotencyWriteError) {
+    console.warn("[payments] Webhook idempotency record failed:", idempotencyWriteError.message);
   }
 
   return res.json({ received: true });

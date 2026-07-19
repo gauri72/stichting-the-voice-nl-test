@@ -63,4 +63,28 @@ describe("V.Commerce commercial rules", () => {
       "open", "reviewing", "resolved", "dismissed",
     ]);
   });
+
+  it("supports guest checkout, payment lifecycle and receipt tracking", () => {
+    expect(BusinessOrder.schema.path("customerId").options.required).not.toBe(true);
+    expect(BusinessOrder.schema.path("checkoutMode").enumValues).toEqual(["account", "guest"]);
+    expect(BusinessOrder.schema.path("status").enumValues).toEqual([
+      "pending", "processing", "paid", "fulfilled", "failed", "cancelled", "expired", "refunded",
+    ]);
+    expect(BusinessOrder.schema.path("receiptEmailStatus").enumValues).toEqual([
+      "not_sent", "sent", "failed",
+    ]);
+    expect(BusinessOrder.schema.path("guestAccessTokenHash").options.select).toBe(false);
+  });
+
+  it("stores Stripe Connect settlement and dispute references", () => {
+    expect(BusinessProfile.schema.path("stripeConnectedAccountId")).toBeTruthy();
+    expect(BusinessProfile.schema.path("connectCheckoutEnabled")).toBeTruthy();
+    expect(BusinessProfile.schema.path("stripeRequirementsCurrentlyDue")).toBeTruthy();
+    expect(BusinessOrder.schema.path("stripeTransferId")).toBeTruthy();
+    expect(BusinessOrder.schema.path("stripeApplicationFeeId")).toBeTruthy();
+    expect(BusinessOrder.schema.path("stripeProcessingFeeMinor")).toBeTruthy();
+    expect(BusinessOrder.schema.path("disputeStatus").enumValues).toEqual([
+      "none", "open", "won", "lost",
+    ]);
+  });
 });

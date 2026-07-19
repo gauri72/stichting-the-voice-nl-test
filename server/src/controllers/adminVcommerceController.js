@@ -8,7 +8,7 @@ import {
   setFeaturedBusiness,
 } from "../services/businessSpotlightService.js";
 import { adminListProducts, adminUpdateProduct } from "../services/businessProductService.js";
-import { adminListAllOrders } from "../services/businessOrderService.js";
+import { adminListAllOrders, adminUpdateOrderStatus, refundBusinessOrder } from "../services/businessOrderService.js";
 import {
   listPayouts,
   createPayout,
@@ -18,6 +18,7 @@ import {
 } from "../services/businessPayoutService.js";
 import BusinessProfile from "../models/BusinessProfile.js";
 import BusinessOrder from "../models/BusinessOrder.js";
+import { renderBusinessOrderReceipt, sendBusinessOrderEmails } from "../services/businessOrderReceiptService.js";
 import {
   createAdminProduct,
   deleteAdminProduct,
@@ -187,6 +188,43 @@ export async function getOneOrder(req, res) {
   } catch (e) {
     fail(res, e);
   }
+}
+
+export async function downloadOrderReceipt(req, res) {
+  try {
+    const order = await BusinessOrder.findById(req.params.id);
+    if (!order) return res.status(404).json({ error: "Order not found" });
+    if (!["paid", "fulfilled", "refunded"].includes(order.status)) {
+      return res.status(400).json({ error: "A receipt is only available after payment." });
+    }
+    if (!order.receiptNumber) {
+      order.receiptNumber = `VCR-${new Date().getUTCFullYear()}-${order._id.toString().slice(-8).toUpperCase()}`;
+      order.receiptGeneratedAt = new Date();
+      await order.save();
+    }
+    const pdf = await renderBusinessOrderReceipt(order);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${order.receiptNumber}.pdf"`);
+    return res.send(pdf);
+  } catch (e) { return fail(res, e); }
+}
+
+export async function resendOrderReceipt(req, res) {
+  try {
+    const order = await BusinessOrder.findById(req.params.id);
+    if (!order) return res.status(404).json({ error: "Order not found" });
+    await sendBusinessOrderEmails(order, { force: true });
+    return ok(res, { order });
+  } catch (e) { return fail(res, e); }
+}
+
+export async function patchOrderStatus(req, res) {
+  try {
+    const order = req.body.status === "refunded"
+      ? await refundBusinessOrder(req.params.id, req.body.note || "")
+      : await adminUpdateOrderStatus(req.params.id, req.body.status, req.body.note || "");
+    return ok(res, { order });
+  } catch (e) { return fail(res, e); }
 }
 
 // --- Payouts ---

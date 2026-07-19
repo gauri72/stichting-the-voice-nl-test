@@ -1,4 +1,4 @@
-import { apiFetch, authHeaders, adminAuthHeaders } from "../../../utils/api.js";
+import { apiFetch, apiUrl, authHeaders, adminAuthHeaders } from "../../../utils/api.js";
 
 // --- Public ---
 
@@ -55,8 +55,9 @@ export function postCreateOrder(businessId, data) {
   });
 }
 
-export function getOrderStatus(orderId) {
-  return apiFetch(`/api/vcommerce/order/${orderId}/status`, { headers: authHeaders() });
+export function getOrderStatus(orderId, accessToken = "") {
+  const qs = accessToken ? `?accessToken=${encodeURIComponent(accessToken)}` : "";
+  return apiFetch(`/api/vcommerce/order/${orderId}/status${qs}`, { headers: authHeaders() });
 }
 
 // --- Business Portal ---
@@ -166,8 +167,19 @@ export function getMyConnectStatus() {
   return apiFetch("/api/vcommerce-portal/me/connect/status", { headers: authHeaders() });
 }
 
+export function getMyConnectOverview() {
+  return apiFetch("/api/vcommerce-portal/me/connect/overview", { headers: authHeaders() });
+}
+
 export function startMyConnectOnboarding() {
   return apiFetch("/api/vcommerce-portal/me/connect/onboarding", {
+    method: "POST",
+    headers: authHeaders(),
+  });
+}
+
+export function openMyConnectDashboard() {
+  return apiFetch("/api/vcommerce-portal/me/connect/dashboard", {
     method: "POST",
     headers: authHeaders(),
   });
@@ -324,6 +336,33 @@ export function adminGetBusinessActivity(businessId) {
 export function adminGetOrders(params = {}) {
   const qs = new URLSearchParams(params).toString();
   return adminFetch(`/api/admin/vcommerce/orders${qs ? `?${qs}` : ""}`);
+}
+
+export function adminGetOrder(orderId) {
+  return adminFetch(`/api/admin/vcommerce/orders/${orderId}`);
+}
+
+export function adminResendOrderReceipt(orderId) {
+  return adminFetch(`/api/admin/vcommerce/orders/${orderId}/resend-receipt`, { method: "POST" });
+}
+
+export function adminPatchOrderStatus(orderId, data) {
+  return adminFetch(`/api/admin/vcommerce/orders/${orderId}/status`, {
+    method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
+  });
+}
+
+export async function adminDownloadOrderReceipt(orderId, filename = "vcommerce-receipt.pdf") {
+  const response = await fetch(apiUrl(`/api/admin/vcommerce/orders/${orderId}/receipt`), { headers: adminAuthHeaders() });
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    throw new Error(data?.error || "Could not download receipt.");
+  }
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url; link.download = filename; link.click();
+  URL.revokeObjectURL(url);
 }
 
 export function adminGetPayouts(params = {}) {

@@ -117,18 +117,33 @@ export async function confirmApplicationPayment(req, res) {
 
 export async function postCreateOrder(req, res) {
   try {
-    const rl = checkRateLimit(`vco_order:${req.user.id}`, { maxAttempts: 10, windowMs: 60_000 });
+    const actorKey = req.user?.id || req.ip || "guest";
+    const rl = checkRateLimit(`vco_order:${actorKey}`, { maxAttempts: 10, windowMs: 60_000 });
     if (!rl.allowed) {
       return res.status(429).json({ error: "Too many order requests. Please wait a moment." });
     }
-    const { items, shippingAddress, referralCode, poNumber } = req.body;
+    const { items, shippingAddress, billingAddress, referralCode, poNumber } = req.body;
+    const guest = !req.user;
+    const email = String(req.body.email || req.user?.email || "").trim().toLowerCase();
+    const name = String(req.body.name || `${req.user?.firstName || ""} ${req.user?.lastName || ""}`.trim()).trim();
+    if (!Array.isArray(items) || !items.length) return res.status(400).json({ error: "Your cart is empty." });
+    if (!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: "A valid full name and email address are required." });
+    }
+    if (!String(req.body.phone || "").trim()) return res.status(400).json({ error: "A phone number is required." });
+    if (!req.body.termsAccepted) return res.status(400).json({ error: "Please accept the terms and privacy policy." });
     const customerData = {
-      name: `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim(),
-      email: req.user.email || "",
+      name,
+      email,
+      phone: req.body.phone || "",
+      companyName: req.body.companyName || "",
+      vatNumber: req.body.vatNumber || "",
+      billingAddress,
+      termsAccepted: true,
       note: req.body.customerNote || "",
     };
     const result = await createOrderIntent(
-      req.user.id,
+      req.user?.id || null,
       customerData,
       req.params.businessId,
       items,
@@ -168,7 +183,7 @@ export async function getReviewsHandler(req, res) {
 
 export async function getOrderStatusHandler(req, res) {
   try {
-    const order = await getOrderStatus(req.params.orderId, req.user.id);
+    const order = await getOrderStatus(req.params.orderId, req.user?.id || null, req.query.accessToken || "");
     ok(res, { order });
   } catch (e) {
     fail(res, e);

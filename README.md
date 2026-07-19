@@ -50,10 +50,20 @@ Payments use **live** API keys from your production Stripe account. Test keys (`
    - **Secret key** → `sk_live_...` (click **Reveal**)
 5. Add a **live** webhook: **Developers → Webhooks → Add endpoint**
    - URL: `https://<your-api-host>/api/payments/webhook`
-   - Event: `payment_intent.succeeded`
+   - Events: `payment_intent.succeeded`, `payment_intent.payment_failed`,
+     `payment_intent.canceled`, `charge.refunded`, and `charge.dispute.*`
+   - Enable **events on connected accounts** for `account.updated`,
+     `capability.*`, `account.external_account.*`, and `payout.*`
    - Copy the **Signing secret** (`whsec_...`) into `STRIPE_WEBHOOK_SECRET`
 
 Both keys must come from the **same** Stripe account. The publishable and secret keys must both be live (or both test for local experiments only).
+
+For V.Commerce, activate Stripe Connect and configure the platform branding in
+**Settings → Connect**. Sellers complete hosted Stripe Express onboarding from
+their V.Commerce dashboard; V.O.I.C.E. never stores their bank account details.
+V.Commerce uses destination charges: the seller receives the order amount less
+the configured application fee, while the platform Stripe account pays Stripe
+processing, refund, and dispute fees.
 
 #### 1b. (Optional) Local development with test keys
 
