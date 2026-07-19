@@ -209,6 +209,51 @@ export function isStripeConfigured() {
   return Boolean(getActiveSecretKey());
 }
 
+// ── V.Commerce Stripe account (marketplace checkout + Connect) ──
+// Deliberately separate from everything above: destination charges require the
+// charge and the connected account to live on the same Stripe account, and this
+// account is not the same one used for ticketing/donations/memberships/wallet.
+
+let vcommerceStripeInstance = null;
+let vcommerceCachedSecretKey = null;
+
+export function isVCommerceStripeConfigured() {
+  return Boolean(env.vcommerceStripe.secretKey);
+}
+
+export function getVCommerceStripe() {
+  const secretKey = env.vcommerceStripe.secretKey;
+  if (!secretKey) {
+    throw new Error(
+      "STRIPE_CONNECT_SECRET_KEY is not configured. Add the V.Commerce Stripe account's secret key to server/.env."
+    );
+  }
+
+  if (vcommerceStripeInstance && vcommerceCachedSecretKey === secretKey) {
+    return vcommerceStripeInstance;
+  }
+
+  vcommerceStripeInstance = new Stripe(secretKey, {
+    apiVersion: "2024-06-20",
+  });
+  vcommerceCachedSecretKey = secretKey;
+
+  return vcommerceStripeInstance;
+}
+
+export function getActiveVCommerceWebhookSecretCandidates() {
+  return [
+    {
+      scope: STRIPE_WEBHOOK_SCOPE.PLATFORM,
+      secret: String(env.vcommerceStripe.webhookSecret || "").trim(),
+    },
+    {
+      scope: STRIPE_WEBHOOK_SCOPE.CONNECTED,
+      secret: String(env.vcommerceStripe.connectWebhookSecret || "").trim(),
+    },
+  ].filter((candidate) => candidate.secret);
+}
+
 export function logStripeConfiguration() {
   if (!isStripeConfigured()) {
     console.warn("[stripe] STRIPE_SECRET_KEY is not set — payments are disabled.");
@@ -238,5 +283,16 @@ export function logStripeConfiguration() {
     console.warn(
       "[stripe] Stripe Connect is enabled but STRIPE_CONNECT_WEBHOOK_SECRET is not set."
     );
+  }
+
+  if (!isVCommerceStripeConfigured()) {
+    console.warn("[stripe] STRIPE_CONNECT_SECRET_KEY is not set — V.Commerce marketplace payments are disabled.");
+  } else {
+    console.log(`[stripe] V.Commerce account: using ${getStripeKeyMode(env.vcommerceStripe.secretKey)} secret key.`);
+    if (env.nodeEnv === "production" && !getActiveVCommerceWebhookSecretCandidates().length) {
+      console.warn(
+        "[stripe] V.Commerce webhook signing secret is not set. Add STRIPE_VCOMMERCE_WEBHOOK_SECRET (and STRIPE_VCOMMERCE_CONNECT_WEBHOOK_SECRET if issued) from the V.Commerce Stripe account."
+      );
+    }
   }
 }

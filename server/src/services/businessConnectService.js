@@ -1,8 +1,7 @@
 import BusinessProfile from "../models/BusinessProfile.js";
 import BusinessStripePayout from "../models/BusinessStripePayout.js";
-import { getStripe } from "./stripe.js";
+import { getVCommerceStripe, isVCommerceStripeConfigured } from "./stripe.js";
 import { sanitizePayoutRegistration } from "./businessApplicationService.js";
-import env from "../config/env.js";
 
 async function getOwnedBusiness(userId) {
   const business = await BusinessProfile.findOne({ userId });
@@ -146,7 +145,7 @@ export async function syncConnectedAccount(account) {
 }
 
 export async function createSellerOnboardingLink(userId, { returnUrl, refreshUrl }) {
-  if (!env.stripe.connectEnabled) {
+  if (!isVCommerceStripeConfigured()) {
     const err = new Error(
       "Marketplace payouts aren't switched on yet. Please contact support — we're finishing setup on our end."
     );
@@ -156,7 +155,7 @@ export async function createSellerOnboardingLink(userId, { returnUrl, refreshUrl
   }
 
   const business = await getOwnedBusiness(userId);
-  const stripe = getStripe();
+  const stripe = getVCommerceStripe();
 
   if (!business.stripeConnectedAccountId) {
     const account = await stripe.accounts.create({
@@ -211,7 +210,7 @@ export async function createSellerDashboardLink(userId) {
     err.status = 409;
     throw err;
   }
-  const link = await getStripe().accounts.createLoginLink(business.stripeConnectedAccountId);
+  const link = await getVCommerceStripe().accounts.createLoginLink(business.stripeConnectedAccountId);
   return { url: link.url };
 }
 
@@ -221,7 +220,7 @@ export async function refreshSellerConnectStatus(userId) {
     return { status: "not_started", payoutsEnabled: false, detailsSubmitted: false };
   }
 
-  const account = await getStripe().accounts.retrieve(business.stripeConnectedAccountId);
+  const account = await getVCommerceStripe().accounts.retrieve(business.stripeConnectedAccountId);
   const synced = await syncConnectedAccount(account);
   return {
     status: synced.status,
@@ -239,7 +238,7 @@ export async function refreshSellerConnectStatus(userId) {
 export async function getSellerConnectOverview(userId) {
   const status = await refreshSellerConnectStatus(userId);
   const business = await getOwnedBusiness(userId);
-  status.connectPlatformEnabled = env.stripe.connectEnabled;
+  status.connectPlatformEnabled = isVCommerceStripeConfigured();
   if (!business.stripeConnectedAccountId) {
     return {
       ...status,
@@ -250,7 +249,7 @@ export async function getSellerConnectOverview(userId) {
 
   let balance = { available: [], pending: [] };
   try {
-    const stripeBalance = await getStripe().balance.retrieve(
+    const stripeBalance = await getVCommerceStripe().balance.retrieve(
       {},
       { stripeAccount: business.stripeConnectedAccountId }
     );

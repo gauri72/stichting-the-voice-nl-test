@@ -6,12 +6,9 @@ import { getTier } from "../config/sponsorshipTiers.js";
 import DiscountCode from "../models/DiscountCode.js";
 import User from "../models/User.js";
 import {
-  assertStripeWebhookScope,
-  constructStripeWebhookEventWithScope,
-  getActiveWebhookSecretCandidates,
+  getActiveWebhookSecret,
   getStripe,
   isStripeConfigured,
-  STRIPE_WEBHOOK_SCOPE,
 } from "../services/stripe.js";
 import { getActivePaymentProvider } from "../services/stripeSettingsService.js";
 import { sendDonationEmails, sendSponsorshipEmails } from "../services/mailer.js";
@@ -136,12 +133,6 @@ async function handleSucceededPayment(intent) {
 
     const { fulfillOrder } = await import("../services/postPaymentFulfillmentService.js");
     await fulfillOrder(orderId, intent.id);
-    return;
-  }
-
-  if (meta.payment_kind === "business_order") {
-    const { fulfillOrder } = await import("../services/businessOrderService.js");
-    await fulfillOrder(intent);
     return;
   }
 
@@ -419,9 +410,9 @@ export async function stripeWebhook(req, res) {
 
   const stripe = getStripe();
   const signature = req.headers["stripe-signature"];
-  const webhookCandidates = getActiveWebhookSecretCandidates();
+  const webhookSecret = getActiveWebhookSecret();
 
-  if (!webhookCandidates.length) {
+  if (!webhookSecret) {
     if (env.nodeEnv === "production") {
       console.error("[payments] A Stripe webhook signing secret is required in production.");
       return res.status(503).send("Webhook not configured.");
@@ -431,22 +422,9 @@ export async function stripeWebhook(req, res) {
 
   let event;
   try {
-    if (webhookCandidates.length) {
-      const verified = constructStripeWebhookEventWithScope(
-        stripe,
-        req.body,
-        signature,
-        webhookCandidates
-      );
-      event = verified.event;
-      assertStripeWebhookScope(event, verified.scope, {
-        connectSecretConfigured: webhookCandidates.some(
-          ({ scope }) => scope === STRIPE_WEBHOOK_SCOPE.CONNECTED
-        ),
-      });
-    } else {
-      event = JSON.parse(req.body.toString());
-    }
+    event = webhookSecret
+      ? stripe.webhooks.constructEvent(req.body, signature, webhookSecret)
+      : JSON.parse(req.body.toString());
   } catch (error) {
     console.error("[payments] Webhook signature verification failed:", error.message);
     return res.status(400).send(`Webhook Error: ${error.message}`);
@@ -460,41 +438,6 @@ export async function stripeWebhook(req, res) {
     }
   } catch (idempotencyErr) {
     console.warn("[payments] Webhook idempotency check skipped:", idempotencyErr.message);
-  }
-
-  try {
-    const {
-      handleConnectedAccountEvent,
-      handleConnectedPayoutEvent,
-      handleBusinessDisputeEvent,
-      handleExternalBusinessRefund,
-    } = await import("../services/businessStripeEventService.js");
-    if (event.type === "account.updated" || event.type.startsWith("capability.")
-        || event.type.startsWith("account.external_account.")) {
-      await handleConnectedAccountEvent(event);
-    } else if (event.type.startsWith("payout.")) {
-      await handleConnectedPayoutEvent(event);
-    } else if (event.type.startsWith("charge.dispute.")) {
-      await handleBusinessDisputeEvent(event);
-    } else if (event.type === "charge.refunded") {
-      await handleExternalBusinessRefund(event);
-    }
-  } catch (connectEventError) {
-    console.error("[payments] Stripe Connect event processing failed:", connectEventError.message);
-    return res.status(500).json({ error: "Stripe Connect event processing failed." });
-  }
-
-  if (
-    event.type === "checkout.session.completed" &&
-    ["vcommerce_package", "vcommerce_application_package"].includes(event.data.object?.metadata?.payment_kind)
-  ) {
-    try {
-      const { activatePackageFromCheckout } = await import("../services/vcommercePackageService.js");
-      await activatePackageFromCheckout(event.data.object);
-    } catch (packageError) {
-      console.error("[payments] V.Commerce package activation failed:", packageError.message);
-      return res.status(500).json({ error: "Package activation failed." });
-    }
   }
 
   if (event.type === "payment_intent.succeeded") {
@@ -549,14 +492,6 @@ export async function stripeWebhook(req, res) {
         /* non-blocking */
       }
       return res.status(500).json({ error: "Fulfillment failed." });
-    }
-  }
-
-  if (["payment_intent.payment_failed", "payment_intent.canceled"].includes(event.type)) {
-    const intent = event.data.object;
-    if (intent?.metadata?.payment_kind === "business_order") {
-      const { markOrderPaymentFailed } = await import("../services/businessOrderService.js");
-      await markOrderPaymentFailed(intent.id, intent.last_payment_error?.message || event.type);
     }
   }
 

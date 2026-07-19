@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getStripePromise } from "../../../utils/stripeClient.js";
+import { getVCommerceStripePromise } from "../../../utils/stripeClient.js";
 import FieldHelp from "./FieldHelp.jsx";
 
 const COUNTRIES = [
@@ -64,7 +64,7 @@ export default function PayoutRegistrationForm({ value, onChange, companyRegistr
     if (!iban.trim()) return;
     setIbanStatus("checking");
     setIbanError("");
-    const stripe = await getStripePromise();
+    const stripe = await getVCommerceStripePromise();
     if (!stripe) {
       setIbanStatus("error");
       setIbanError("Secure payments are not configured right now — try again shortly.");

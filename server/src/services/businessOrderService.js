@@ -2,7 +2,7 @@ import BusinessProfile from "../models/BusinessProfile.js";
 import BusinessProduct from "../models/BusinessProduct.js";
 import BusinessOrder from "../models/BusinessOrder.js";
 import { creditWallet } from "./walletService.js";
-import { getStripe } from "./stripe.js";
+import { getVCommerceStripe } from "./stripe.js";
 import {
   VCOMMERCE_PLATFORM_FEE_PERCENT,
   VCOMMERCE_PAYOUT_DELAY_BUSINESS_DAYS,
@@ -128,7 +128,7 @@ export async function createOrderIntent(customerId, customerData, businessId, it
   const requiresShipping = resolvedItems.some((item) => item.productType !== "service");
 
   // Create the Stripe PaymentIntent
-  const stripe = getStripe();
+  const stripe = getVCommerceStripe();
 
   // Create the BusinessOrder first to get its ID for metadata
   const order = await BusinessOrder.create({
@@ -220,7 +220,7 @@ export async function fulfillOrder(paymentIntentOrId) {
   order.status = "paid";
   order.paymentStatus = "succeeded";
   order.paidAt = new Date();
-  const stripe = getStripe();
+  const stripe = getVCommerceStripe();
   try {
     const intent = typeof paymentIntentOrId === "string"
       ? await stripe.paymentIntents.retrieve(paymentIntentId, { expand: ["latest_charge"] })
@@ -426,7 +426,7 @@ export async function refundBusinessOrder(orderId, reason = "") {
     const err = new Error("This order is already included in a payout. Resolve the seller payout before refunding."); err.status = 409; throw err;
   }
 
-  const stripe = getStripe();
+  const stripe = getVCommerceStripe();
   await stripe.refunds.create({
     payment_intent: order.stripePaymentIntentId,
     reason: "requested_by_customer",

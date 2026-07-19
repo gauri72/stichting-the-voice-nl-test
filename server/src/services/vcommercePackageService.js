@@ -2,7 +2,7 @@ import BusinessProfile from "../models/BusinessProfile.js";
 import BusinessApplication from "../models/BusinessApplication.js";
 import { resolveVCommercePlan } from "../config/vcommercePlans.js";
 import { VCOMMERCE_PLATFORM_FEE_PERCENT } from "../config/vcommercePlans.js";
-import { getStripe } from "./stripe.js";
+import { getVCommerceStripe } from "./stripe.js";
 import crypto from "crypto";
 
 function slugify(name) {
@@ -36,7 +36,7 @@ export async function createApplicationPackageCheckout(userId, application, orig
   }
   const plan = resolveVCommercePlan(application.packageId);
   const annual = application.billingCycle === "annual";
-  const session = await getStripe().checkout.sessions.create({
+  const session = await getVCommerceStripe().checkout.sessions.create({
     mode: "subscription",
     customer_email: application.contactEmail || undefined,
     line_items: [{
@@ -142,7 +142,7 @@ export async function confirmApplicationPackageCheckout(userId, sessionId) {
     err.status = 400;
     throw err;
   }
-  const session = await getStripe().checkout.sessions.retrieve(sessionId);
+  const session = await getVCommerceStripe().checkout.sessions.retrieve(sessionId);
   return activateApplicationFromCheckout(session, userId);
 }
 
@@ -157,7 +157,7 @@ export async function createPackageCheckout(userId, origin) {
   const plan = resolveVCommercePlan(business.packageId);
   const annual = business.billingCycle === "annual";
   const amountMinor = annual ? plan.annualMinor : plan.monthlyMinor;
-  const stripe = getStripe();
+  const stripe = getVCommerceStripe();
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer_email: business.contactEmail || undefined,

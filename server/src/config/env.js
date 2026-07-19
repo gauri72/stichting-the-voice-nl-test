@@ -29,6 +29,14 @@ const env = {
     connectWebhookSecret: process.env.STRIPE_CONNECT_WEBHOOK_SECRET || "",
     currency: (process.env.PAYMENT_CURRENCY || "eur").toLowerCase()
   },
+  // Separate Stripe account dedicated to V.Commerce (marketplace checkout + Connect
+  // payouts). Kept distinct from `stripe` above because destination charges require
+  // the charge and the connected account to live on the same Stripe account.
+  vcommerceStripe: {
+    secretKey: process.env.STRIPE_CONNECT_SECRET_KEY || "",
+    webhookSecret: process.env.STRIPE_VCOMMERCE_WEBHOOK_SECRET || "",
+    connectWebhookSecret: process.env.STRIPE_VCOMMERCE_CONNECT_WEBHOOK_SECRET || "",
+  },
   email: {
     host: stripEnv(process.env.EMAIL_HOST),
     port: Number(stripEnv(process.env.EMAIL_PORT)) || 587,

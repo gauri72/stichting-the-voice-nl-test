@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { getStripePromise } from "../../../utils/stripeClient.js";
+import { getVCommerceStripePromise } from "../../../utils/stripeClient.js";
 import { getStripeElementsAppearance } from "../../../utils/stripePayment.js";
 import { useAuth } from "../../../contexts/AuthContext.jsx";
 import { useCart } from "../cart/useCart.js";
@@ -151,7 +151,7 @@ export default function VCommerceCheckoutPage() {
   const [confirmed, setConfirmed] = useState(false);
   const [step, setStep] = useState(isPaymentReturn ? "paying" : "shipping"); // shipping | paying | done
 
-  const stripePromise = useMemo(() => getStripePromise(), []);
+  const stripePromise = useMemo(() => getVCommerceStripePromise(), []);
   const isDark = document.documentElement.getAttribute("data-theme") === "dark";
   const appearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
 

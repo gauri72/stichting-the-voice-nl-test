@@ -7,6 +7,7 @@ import morgan from "morgan";
 import env from "./config/env.js";
 import apiRoutes from "./routes/index.js";
 import { stripeWebhook } from "./controllers/paymentController.js";
+import { stripeVCommerceWebhook } from "./controllers/vcommerceWebhookController.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const walletAssetsDir = path.join(__dirname, "assets", "wallet");
@@ -27,11 +28,17 @@ app.use(
 );
 app.use(morgan("dev"));
 
-// Stripe webhook MUST receive the raw request body (before express.json()).
+// Stripe webhooks MUST receive the raw request body (before express.json()).
+// Two separate Stripe accounts, two separate endpoints/secrets.
 app.post(
   "/api/payments/webhook",
   express.raw({ type: "application/json" }),
   stripeWebhook
+);
+app.post(
+  "/api/payments/webhook/vcommerce",
+  express.raw({ type: "application/json" }),
+  stripeVCommerceWebhook
 );
 
 // Admin routes embed base64 file/image uploads (media library, event
