@@ -36,8 +36,13 @@ export default function ProtectedRoute({ children }) {
 
   return (
     <IdleSessionGuard enabled onIdle={handleIdleLogout}>
-      <DashboardSubpageNavigation />
-      {children}
+      {/* CSS hook only (display: contents = zero layout impact) — dashboard pages
+          have a plain flat background, not a hero image, so the header needs
+          dark text here instead of the white-on-hero-photo default. */}
+      <div className="dashboard-shell" style={{ display: "contents" }}>
+        <DashboardSubpageNavigation />
+        {children}
+      </div>
     </IdleSessionGuard>
   );
 }

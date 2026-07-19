@@ -568,6 +568,23 @@
     color: #08727a;
     border-bottom-color: #1599a7;
   }
+
+  /* Dashboard pages (Events, Donations, Wallet, V.Commerce Business Hub, etc.)
+     have a plain flat background, not a hero image — same readable dark-text
+     treatment as the other flat-background pages above. */
+  [data-theme="light"]:has(.dashboard-shell) .site-header .menu-links--desktop > a,
+  [data-theme="light"]:has(.dashboard-shell) .site-header .menu-links--desktop > .menu-dropdown > .menu-dropdown-trigger {
+    color: #17384b;
+    text-shadow: none;
+  }
+
+  [data-theme="light"]:has(.dashboard-shell) .site-header .menu-links--desktop > a:hover,
+  [data-theme="light"]:has(.dashboard-shell) .site-header .menu-links--desktop > a.active,
+  [data-theme="light"]:has(.dashboard-shell) .site-header .menu-links--desktop > .menu-dropdown > .menu-dropdown-trigger:hover,
+  [data-theme="light"]:has(.dashboard-shell) .site-header .menu-links--desktop > .menu-dropdown > .menu-dropdown-trigger.active {
+    color: #08727a;
+    border-bottom-color: #1599a7;
+  }
 }
 
 .donate-button {
