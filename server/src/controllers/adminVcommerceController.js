@@ -6,6 +6,7 @@ import {
   getAdminBusinessList,
   updateBusinessProfile,
   setFeaturedBusiness,
+  unsetFeaturedBusiness,
 } from "../services/businessSpotlightService.js";
 import { adminListProducts, adminUpdateProduct } from "../services/businessProductService.js";
 import { adminListAllOrders, adminUpdateOrderStatus, refundBusinessOrder } from "../services/businessOrderService.js";
@@ -130,6 +131,15 @@ export async function patchBusiness(req, res) {
 export async function postSetFeatured(req, res) {
   try {
     const business = await setFeaturedBusiness(req.params.id);
+    ok(res, { business });
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function postUnsetFeatured(req, res) {
+  try {
+    const business = await unsetFeaturedBusiness(req.params.id);
     ok(res, { business });
   } catch (e) {
     fail(res, e);

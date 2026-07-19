@@ -321,6 +321,10 @@ export function adminSetFeatured(businessId) {
   return adminFetch(`/api/admin/vcommerce/businesses/${businessId}/featured`, { method: "POST" });
 }
 
+export function adminUnsetFeatured(businessId) {
+  return adminFetch(`/api/admin/vcommerce/businesses/${businessId}/unfeature`, { method: "POST" });
+}
+
 export function adminCreateProduct(businessId, data) {
   return adminFetch(`/api/admin/vcommerce/businesses/${businessId}/products`, {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),

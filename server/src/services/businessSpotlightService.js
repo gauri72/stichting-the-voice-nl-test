@@ -159,6 +159,21 @@ export async function setFeaturedBusiness(businessId) {
   return business;
 }
 
+export async function unsetFeaturedBusiness(businessId) {
+  const business = await BusinessProfile.findByIdAndUpdate(
+    businessId,
+    { $set: { isFeaturedThisWeek: false, featuredWeekStartDate: null } },
+    { new: true }
+  );
+  if (!business) {
+    const err = new Error("Business not found.");
+    err.status = 404;
+    throw err;
+  }
+
+  return business;
+}
+
 export async function getAdminBusinessList({ status, category, search, page = 1, pageSize = 20 } = {}) {
   const filter = {};
   if (status) filter.status = status;

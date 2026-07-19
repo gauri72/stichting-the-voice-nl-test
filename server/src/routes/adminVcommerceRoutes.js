@@ -6,6 +6,7 @@ import {
   getOneBusiness,
   patchBusiness,
   postSetFeatured,
+  postUnsetFeatured,
   patchAdminProduct,
   getOrders,
   getOneOrder,
@@ -46,6 +47,7 @@ router.get("/businesses/:id", getOneBusiness);
 router.patch("/businesses/:id", patchBusiness);
 router.post("/businesses/:id/feature", postSetFeatured);
 router.post("/businesses/:id/featured", postSetFeatured);
+router.post("/businesses/:id/unfeature", postUnsetFeatured);
 router.get("/businesses/:id/activity", getBusinessActivity);
 router.post("/businesses/:id/products", postAdminProduct);
 router.patch("/businesses/:id/products/:productId", patchAdminProduct);

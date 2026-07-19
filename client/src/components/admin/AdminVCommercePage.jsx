@@ -6,6 +6,7 @@ import {
   adminGetBusinesses,
   adminPatchBusiness,
   adminSetFeatured,
+  adminUnsetFeatured,
   adminGetOrders,
   adminGetPayouts,
   adminCreatePayout,
@@ -301,6 +302,16 @@ function BusinessesTab() {
     }
   }
 
+  async function handleUnsetFeatured(id) {
+    try {
+      await adminUnsetFeatured(id);
+      setMsg("Business removed from featured spotlight.");
+      load();
+    } catch (err) {
+      setMsg(err?.message || "Error.");
+    }
+  }
+
   async function handleStatusToggle(b) {
     try {
       const newStatus = b.status === "active" ? "suspended" : "active";
@@ -355,6 +366,7 @@ function BusinessesTab() {
                 <th style={S.th}>Business</th>
                 <th style={S.th}>Category</th>
                 <th style={S.th}>Status</th>
+                <th style={S.th}>Payouts</th>
                 <th style={S.th}>Featured</th>
                 <th style={S.th}>Fee %</th>
                 <th style={S.th}>Cashback %</th>
@@ -381,7 +393,12 @@ function BusinessesTab() {
                   </td>
                   <td style={S.td}>
                     {b.isFeaturedThisWeek
-                      ? <span style={S.badge("green")}>⭐ Featured</span>
+                      ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                          <span style={S.badge("green")}>⭐ Featured</span>
+                          <button type="button" style={S.btn("sm")} onClick={() => handleUnsetFeatured(b._id)}>Unfeature</button>
+                        </div>
+                      )
                       : b.status === "active"
                         ? <button type="button" style={S.btn("sm")} onClick={() => handleSetFeatured(b._id)}>Set Featured</button>
                         : <span style={{ color: "var(--ad-text-muted,#888)", fontSize: "0.78rem" }}>Approval required</span>}
