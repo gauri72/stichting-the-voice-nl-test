@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
+import { IconArrowLeft, IconHome } from "@tabler/icons-react";
 import { useAuth } from "../../../contexts/AuthContext.jsx";
+import "../../../styles/dashboard-subpage-navigation.css";
 import {
   getMyBusiness,
   getMyProducts,
@@ -1364,15 +1366,22 @@ export default function VCommercePortalPage() {
 
   return (
     <div className="vco-portal-shell" style={{ maxWidth:1040,margin:"0 auto",padding:"clamp(48px,8vw,72px) 24px 60px" }}>
-      <div style={{ marginBottom:8 }}>
-        <Link to="/dashboard" style={{ fontSize:"0.85rem",color:"var(--color-text-secondary,#666)",textDecoration:"none" }}>
-          ← Dashboard
-        </Link>
-      </div>
       <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:28,flexWrap:"wrap",gap:12 }}>
-        <div>
-          <h1 style={{ margin:"0 0 4px",fontSize:"1.4rem",fontWeight:800 }}>My Business</h1>
-          <p style={{ margin:0,fontSize:"0.9rem",color:"var(--color-text-secondary,#666)" }}>{business.businessName}</p>
+        <div style={{ display:"flex",alignItems:"center",gap:16,flexWrap:"wrap" }}>
+          <div>
+            <h1 style={{ margin:"0 0 4px",fontSize:"1.4rem",fontWeight:800 }}>My Business</h1>
+            <p style={{ margin:0,fontSize:"0.9rem",color:"var(--color-text-secondary,#666)" }}>{business.businessName}</p>
+          </div>
+          <div className="dashboard-subpage-nav" style={{ margin:0,width:"auto" }}>
+            <Link to="/dashboard" className="dashboard-subpage-nav__btn">
+              <IconArrowLeft aria-hidden stroke={2} />
+              <span>Back to Dashboard</span>
+            </Link>
+            <Link to="/dashboard/vcommerce" className="dashboard-subpage-nav__btn" aria-current="page">
+              <IconHome aria-hidden stroke={1.8} />
+              <span>Business Hub</span>
+            </Link>
+          </div>
         </div>
         {business.status === "active" && (
           <a href={`/vcommerce/${business.slug}`} target="_blank" rel="noopener noreferrer"

@@ -20,6 +20,9 @@ export default function DashboardSubpageNavigation() {
   const { pathname } = useLocation();
   if (pathname === "/dashboard" || !pathname.startsWith("/dashboard/")) return null;
   if (pathname.startsWith("/dashboard/ai-assistant")) return null;
+  // The V.Commerce business hub renders these same two buttons itself, inline
+  // next to its own "My Business" heading — skip the shared bar there.
+  if (pathname === "/dashboard/vcommerce") return null;
 
   const [, pageLabel, pageTarget] = LABELS.find(([pattern]) => pattern.test(pathname)) || [null, "Dashboard", pathname];
 
