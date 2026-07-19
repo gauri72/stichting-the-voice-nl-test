@@ -1,7 +1,7 @@
 .dashboard-subpage-nav {
   position: sticky;
   z-index: 780;
-  top: 8px;
+  top: calc(var(--site-header-height, 140px) + 8px);
   display: flex;
   width: min(1180px, calc(100% - 32px));
   min-height: 52px;
@@ -78,7 +78,7 @@
 
 @media (max-width: 767px) {
   .dashboard-subpage-nav {
-    top: 6px;
+    top: calc(var(--site-header-height, 90px) + 6px);
     width: calc(100% - 20px);
     min-height: 48px;
     margin: 8px 10px 10px;
