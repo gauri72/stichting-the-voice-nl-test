@@ -1119,6 +1119,22 @@
 .vco-onboarding-check div { display: grid; gap: 2px; }
 .vco-onboarding-check strong { font-size: .78rem; }
 .vco-onboarding-check small { color: var(--color-text-secondary,#657184); font-size: .68rem; line-height: 1.35; }
+
+.vco-onboarding-check.is-clickable {
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.vco-onboarding-check.is-clickable:hover,
+.vco-onboarding-check.is-clickable:focus-visible {
+  border-color: var(--vco-accent, #8B5CF6);
+  background: rgba(139, 92, 246, 0.05);
+  outline: none;
+}
+.vco-onboarding-check__arrow {
+  margin-left: auto;
+  color: var(--color-text-secondary, #657184);
+  font-size: 0.9rem;
+}
 .vco-onboarding-panel__submit {
   display: flex;
   align-items: center;

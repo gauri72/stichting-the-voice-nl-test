@@ -57,7 +57,7 @@ const S = {
 };
 
 // ── Overview tab ──
-function OverviewTab({ business, onRefresh }) {
+function OverviewTab({ business, onRefresh, onNavigateTab }) {
   const [refLink, setRefLink] = useState(null);
   const [refCopied, setRefCopied] = useState(false);
   const [productCount, setProductCount] = useState(0);
@@ -145,16 +145,34 @@ function OverviewTab({ business, onRefresh }) {
           )}
           <div className="vco-onboarding-checklist">
             {[
-              ["Package payment", business.packageStatus === "active", "Secure subscription active"],
-              ["Logo and brand", Boolean(business.logoUrl && business.description), "Add your logo and brand story in Settings"],
-              ["Contact and selling setup", Boolean(business.contactEmail && business.sellingMode), "Confirm how customers buy from you"],
-              ["Products or services", !["hosted", "hybrid"].includes(business.sellingMode) || productCount > 0, `${productCount} available listing${productCount === 1 ? "" : "s"}`],
-            ].map(([label, complete, detail]) => (
-              <div className={`vco-onboarding-check${complete ? " is-complete" : ""}`} key={label}>
-                <span aria-hidden="true">{complete ? "✓" : "○"}</span>
-                <div><strong>{label}</strong><small>{detail}</small></div>
-              </div>
-            ))}
+              ["Package payment", business.packageStatus === "active", "Secure subscription active", null],
+              ["Logo and brand", Boolean(business.logoUrl && business.description), "Add your logo and brand story in Settings", 5],
+              ["Contact and selling setup", Boolean(business.contactEmail && business.sellingMode), "Confirm how customers buy from you", 5],
+              ["Products or services", !["hosted", "hybrid"].includes(business.sellingMode) || productCount > 0, `${productCount} available listing${productCount === 1 ? "" : "s"}`, 1],
+            ].map(([label, complete, detail, tabIndex]) => {
+              const clickable = tabIndex != null && typeof onNavigateTab === "function";
+              return (
+                <div
+                  className={`vco-onboarding-check${complete ? " is-complete" : ""}${clickable ? " is-clickable" : ""}`}
+                  key={label}
+                  {...(clickable ? {
+                    role: "button",
+                    tabIndex: 0,
+                    onClick: () => onNavigateTab(tabIndex),
+                    onKeyDown: (e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onNavigateTab(tabIndex);
+                      }
+                    },
+                  } : {})}
+                >
+                  <span aria-hidden="true">{complete ? "✓" : "○"}</span>
+                  <div><strong>{label}</strong><small>{detail}</small></div>
+                  {clickable && <span aria-hidden="true" className="vco-onboarding-check__arrow">→</span>}
+                </div>
+              );
+            })}
           </div>
           {reviewMessage && <p className="vco-onboarding-panel__message" role="status">{reviewMessage}</p>}
           <button type="button" className="vco-onboarding-panel__submit" onClick={submitForReview} disabled={submittingReview}>
@@ -1359,7 +1377,7 @@ export default function VCommercePortalPage() {
         ))}
       </div>
 
-      {activeTab === 0 && <OverviewTab business={business} onRefresh={loadBusiness} />}
+      {activeTab === 0 && <OverviewTab business={business} onRefresh={loadBusiness} onNavigateTab={setActiveTab} />}
       {activeTab === 1 && <ProductsTab businessId={business._id} />}
       {activeTab === 2 && <OrdersTab />}
       {activeTab === 3 && <PayoutsTab business={business} onRefresh={loadBusiness} />}
