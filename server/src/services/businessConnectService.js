@@ -119,9 +119,15 @@ function buildStripeAccountPrefill(business) {
     };
   }
 
-  if (reg.stripeBankToken) {
-    prefill.external_account = reg.stripeBankToken;
-  }
+  // Deliberately not prefilling `external_account` from a stored bank token here.
+  // Bank tokens are single-use/short-lived, and a business's account.create attempt
+  // can fail for unrelated reasons (as happened here) and never consume the token —
+  // leaving a stale one in the database that gets silently resent on every retry,
+  // failing with a bare "No such token" once it expires or (as also happened here)
+  // once the token was created against a different Stripe account than the one now
+  // creating the connected account. Stripe's hosted onboarding link this account is
+  // about to be redirected to always asks for bank details directly regardless of
+  // whether we prefill them, so skipping this avoids the whole failure class.
 
   return prefill;
 }
