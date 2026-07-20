@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { IconArrowRight, IconPackage } from "@tabler/icons-react";
-import { getMyOrders } from "../../vcommerce/shared/vcommerceApi.js";
+import { getMyPurchases } from "../../vcommerce/shared/vcommerceApi.js";
 import "../../../styles/dashboard-my-orders.css";
 
 const STATUS_TONE = {
@@ -23,7 +23,7 @@ export default function DashboardMyOrdersSection() {
 
   useEffect(() => {
     let cancelled = false;
-    getMyOrders({ page: 1, pageSize: 4 })
+    getMyPurchases({ page: 1, pageSize: 4 })
       .then((data) => { if (!cancelled) setOrders(data.items || []); })
       .catch(() => { if (!cancelled) setOrders([]); })
       .finally(() => { if (!cancelled) setLoading(false); });

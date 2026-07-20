@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { IconPackage } from "@tabler/icons-react";
-import { getMyOrders } from "./shared/vcommerceApi.js";
+import { getMyPurchases } from "./shared/vcommerceApi.js";
 import "../../styles/vcommerce.css";
 import "../../styles/vcommerce-redesign.css";
 import "../../styles/vcommerce-mkt-tokens.css";
@@ -70,7 +70,7 @@ export default function VCommerceMyOrdersPage() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    getMyOrders({ page, pageSize })
+    getMyPurchases({ page, pageSize })
       .then((data) => {
         if (cancelled) return;
         setOrders(data.items || []);

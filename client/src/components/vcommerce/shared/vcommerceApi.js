@@ -60,7 +60,9 @@ export function getOrderStatus(orderId, accessToken = "") {
   return apiFetch(`/api/vcommerce/order/${orderId}/status${qs}`, { headers: authHeaders() });
 }
 
-export function getMyOrders(params = {}) {
+// A buyer's own purchase history — distinct from getMyOrders() below, which is a
+// seller's view of orders placed on their business (via the vcommerce-portal API).
+export function getMyPurchases(params = {}) {
   const qs = new URLSearchParams(params).toString();
   return apiFetch(`/api/vcommerce/my-orders${qs ? `?${qs}` : ""}`, { headers: authHeaders() });
 }
