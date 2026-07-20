@@ -38,6 +38,7 @@ import adminWalletRoutes from "./adminWalletRoutes.js";
 import { syncTicketTailor } from "../controllers/adminMembershipController.js";
 import adminVcommerceRoutes from "./adminVcommerceRoutes.js";
 import adminWholesalerRoutes from "./adminWholesalerRoutes.js";
+import adminI18nReviewRoutes from "./adminI18nReviewRoutes.js";
 
 const router = Router();
 
@@ -79,5 +80,6 @@ router.use("/personal-ai", requireAdmin, adminPersonalAiRoutes);
 router.use("/wallet", requireAdmin, adminWalletRoutes);
 router.use("/vcommerce", requireAdmin, adminVcommerceRoutes);
 router.use("/wholesalers", requireAdmin, adminWholesalerRoutes);
+router.use("/i18n-review", adminI18nReviewRoutes);
 
 export default router;

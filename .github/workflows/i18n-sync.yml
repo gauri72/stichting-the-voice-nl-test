@@ -45,13 +45,39 @@ jobs:
         run: npm run i18n:check --workspace server
 
       - name: Commit and push translations
+        id: commit
         run: |
           git config user.name "i18n-sync-bot"
           git config user.email "actions@github.com"
           git add client/src/i18n/locales
           if git diff --cached --quiet; then
             echo "Nothing to commit."
+            echo "committed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "Auto-fill missing NL/DE translations [skip ci]"
           git push
+          echo "committed=true" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Notify admin review queue
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          API_URL: https://voice-nl-api-p9ey.onrender.com
+          INGEST_SECRET: ${{ secrets.I18N_INGEST_SECRET }}
+          COMMIT_SHA: ${{ steps.commit.outputs.sha }}
+        run: |
+          if [ ! -f batch.json ]; then
+            echo "No batch.json produced — nothing to notify."
+            exit 0
+          fi
+          node -e '
+            const fs = require("fs");
+            const batch = JSON.parse(fs.readFileSync("batch.json", "utf8"));
+            batch.commitSha = process.env.COMMIT_SHA;
+            fs.writeFileSync("batch.json", JSON.stringify(batch));
+          '
+          curl -sf -X POST "$API_URL/api/webhooks/i18n-batch" \
+            -H "Content-Type: application/json" \
+            -H "x-i18n-ingest-secret: $INGEST_SECRET" \
+            -d @batch.json

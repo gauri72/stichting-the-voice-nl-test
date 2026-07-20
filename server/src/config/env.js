@@ -37,6 +37,18 @@ const env = {
     webhookSecret: process.env.STRIPE_VCOMMERCE_WEBHOOK_SECRET || "",
     connectWebhookSecret: process.env.STRIPE_VCOMMERCE_CONNECT_WEBHOOK_SECRET || "",
   },
+  // Lets the server write approved/rejected translation edits back to the repo via
+  // GitHub's Contents API (the server itself has no git push access in production).
+  githubContents: {
+    token: process.env.GITHUB_CONTENTS_TOKEN || "",
+    owner: process.env.GITHUB_REPO_OWNER || "gauri72",
+    repo: process.env.GITHUB_REPO_NAME || "stichting-the-voice-nl-test",
+  },
+  // Shared secret the i18n-sync GitHub Actions workflow presents when posting
+  // newly auto-translated batches in for admin review.
+  i18nIngest: {
+    secret: process.env.I18N_INGEST_SECRET || "",
+  },
   email: {
     host: stripEnv(process.env.EMAIL_HOST),
     port: Number(stripEnv(process.env.EMAIL_PORT)) || 587,

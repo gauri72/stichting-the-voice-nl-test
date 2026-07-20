@@ -120,6 +120,7 @@ import AdminAiAssistantPage from "./components/admin/AdminAiAssistantPage.jsx";
 import AdminWalletPage from "./components/admin/AdminWalletPage.jsx";
 import AdminIconLibraryPage from "./components/admin/icon-library/AdminIconLibraryPage.jsx";
 import AdminVCommercePage from "./components/admin/AdminVCommercePage.jsx";
+import AdminI18nReviewPage from "./components/admin/AdminI18nReviewPage.jsx";
 import AdminApiBuilderLogsPage from "./components/admin/AdminApiBuilderLogsPage.jsx";
 import AccessManagementLayout from "./components/admin/access/AccessManagementLayout.jsx";
 import AccessTeamMembersPage from "./components/admin/access/AccessTeamMembersPage.jsx";
@@ -621,6 +622,14 @@ export default function App() {
             element={
               <AdminProtectedRoute>
                 <AdminVCommercePage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/i18n-review"
+            element={
+              <AdminProtectedRoute>
+                <AdminI18nReviewPage />
               </AdminProtectedRoute>
             }
           />

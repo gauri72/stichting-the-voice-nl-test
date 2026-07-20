@@ -114,6 +114,7 @@ async function main() {
   nsLangPairs.forEach(([ns, lang]) => console.log(`  ${ns} [${lang}]: ${Object.keys(missing[ns][lang]).length} keys`));
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const batch = [];
 
   for (const [ns, lang] of nsLangPairs) {
     const keyValues = missing[ns][lang];
@@ -125,6 +126,17 @@ async function main() {
     const merged = { ...flatten(current), ...translations };
     writeNamespaceFile(lang, ns, unflatten(merged));
     console.log(`  ✓ wrote ${Object.keys(translations).length} translations to ${path.relative(process.cwd(), file)}`);
+
+    for (const [key, translatedText] of Object.entries(translations)) {
+      batch.push({ namespace: ns, lang, key, englishText: keyValues[key], translatedText });
+    }
+  }
+
+  // In CI, hand the batch off to i18n-sync.yml, which posts it to the server's
+  // admin-review ingest endpoint so a human can double-check what just went live.
+  if (process.env.CI && batch.length) {
+    fs.writeFileSync(path.join(__dirname, "../../batch.json"), JSON.stringify({ items: batch }, null, 2));
+    console.log(`\nWrote ${batch.length}-item batch.json for admin-review ingest.`);
   }
 
   console.log("\nDone. Re-run i18n:check to confirm everything is in sync.");
