@@ -30,6 +30,7 @@ function connectState(account) {
     country: account.country || "",
     defaultCurrency: account.default_currency || "eur",
     payoutScheduleInterval: account.settings?.payouts?.schedule?.interval || "",
+    payoutScheduleDelayDays: account.settings?.payouts?.schedule?.delay_days ?? null,
     checkoutEnabled: enabled,
   };
 }
@@ -148,6 +149,7 @@ export async function syncConnectedAccount(account) {
     stripeCountry: state.country,
     stripeDefaultCurrency: state.defaultCurrency,
     payoutScheduleInterval: state.payoutScheduleInterval,
+    payoutScheduleDelayDays: state.payoutScheduleDelayDays,
     connectCheckoutEnabled: state.checkoutEnabled,
     stripeLastSyncedAt: new Date(),
   });

@@ -461,9 +461,22 @@ function BusinessesTab() {
               </div>
             </div>
             {editing.stripeConnectedAccountId || editing.connectCheckoutEnabled ? (
-              <p style={{ fontSize: "0.8rem", color: "var(--ad-text-muted,#888)", margin: "0 0 20px", padding: "10px 12px", background: "rgba(139,92,246,0.06)", borderRadius: 8 }}>
-                This business is connected via Stripe — payouts are handled automatically there. Manual bank details are hidden to avoid storing a second, unmanaged copy of their IBAN.
-              </p>
+              <>
+                <p style={{ fontSize: "0.8rem", color: "var(--ad-text-muted,#888)", margin: "0 0 12px", padding: "10px 12px", background: "rgba(139,92,246,0.06)", borderRadius: 8 }}>
+                  This business is connected via Stripe — payouts are handled automatically there. Manual bank details are hidden to avoid storing a second, unmanaged copy of their IBAN.
+                </p>
+                <div style={{ margin: "0 0 20px", padding: "10px 12px", border: "1px solid var(--ad-border,rgba(128,128,128,0.15))", borderRadius: 8 }}>
+                  <p style={{ margin: "0 0 4px", fontSize: "0.78rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--ad-text-muted,#888)" }}>Payout Schedule (from Stripe)</p>
+                  <p style={{ margin: 0, fontSize: "0.85rem" }}>
+                    {editing.payoutScheduleInterval
+                      ? `${editing.payoutScheduleInterval.charAt(0).toUpperCase()}${editing.payoutScheduleInterval.slice(1)} payouts${editing.payoutScheduleDelayDays != null ? `, ${editing.payoutScheduleDelayDays} day${editing.payoutScheduleDelayDays === 1 ? "" : "s"} after each charge clears` : ""}.`
+                      : "Not yet available — Stripe reports this once the seller's account details are fully submitted."}
+                  </p>
+                  <p style={{ margin: "6px 0 0", fontSize: "0.72rem", color: "var(--ad-text-muted,#888)" }}>
+                    Set and changed by the seller in their own Stripe dashboard — not editable here.
+                  </p>
+                </div>
+              </>
             ) : (
               <>
                 <p style={{ fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--ad-text-muted,#888)", margin: "0 0 12px" }}>Payout Bank Details (manual, pre-Stripe-Connect only)</p>

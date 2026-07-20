@@ -67,6 +67,10 @@ const businessProfileSchema = new mongoose.Schema(
     stripeLastSyncedAt: { type: Date, default: null },
     connectCheckoutEnabled: { type: Boolean, default: false, index: true },
     payoutScheduleInterval: { type: String, enum: ["daily", "weekly", "monthly", "manual", ""], default: "" },
+    // Days Stripe holds a charge before it's eligible for payout, per this account's
+    // own Stripe Connect settings (distinct from payoutScheduleInterval, which is how
+    // often payouts run once eligible).
+    payoutScheduleDelayDays: { type: Number, default: null },
     // Global marketplace fields
     vatNumber: { type: String, default: "", trim: true },
     companyRegistrationNumber: { type: String, default: "", trim: true, maxlength: 100 },
