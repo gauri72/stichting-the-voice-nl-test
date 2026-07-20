@@ -30,10 +30,10 @@ export default function CartDrawer({ cart, drawerOpen, closeDrawer, removeFromCa
           position: "fixed",
           top: 0,
           right: 0,
-          bottom: 0,
           zIndex: 901,
           width: "100%",
           maxWidth: 400,
+          maxHeight: "100vh",
           background: "var(--color-card-bg,var(--color-surface,#fff))",
           boxShadow: "-8px 0 32px rgba(0,0,0,0.15)",
           display: "flex",
@@ -53,7 +53,7 @@ export default function CartDrawer({ cart, drawerOpen, closeDrawer, removeFromCa
         </div>
 
         {/* Items */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px" }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "16px 20px" }}>
           {items.length === 0 ? (
             <div style={{ textAlign: "center", padding: "60px 0", color: "var(--color-text-muted,#aaa)" }}>
               <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>🛒</div>
