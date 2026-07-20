@@ -1,0 +1,173 @@
+{
+  "closingCtaSection": {
+    "titleLine1": "Danke, Dass Du Teil",
+    "titleLine2": "Der Bewegung Bist",
+    "text": "Gemeinsam schaffen wir Erlebnisse. Teilen wir Geschichten. Bewirken wir Wirkung. Wecken wir Innovation.",
+    "myProfile": "Mein Profil",
+    "discoverMore": "Mehr Entdecken"
+  },
+  "discountsSection": {
+    "title": "Verfügbare Rabatte",
+    "empty": "Derzeit sind keine aktiven Rabatte verfügbar.",
+    "amountOff": "€{{amount}} Rabatt",
+    "percentOff": "{{percent}}% RABATT",
+    "validUntil": "Gültig bis {{date}}",
+    "copied": "Kopiert!",
+    "copyCode": "Code Kopieren"
+  },
+  "impactSection": {
+    "title": "Deine V.O.I.C.E. NL Wirkung",
+    "experiences": { "line1": "Erlebnisse", "line2": "Besucht" },
+    "stories": { "line1": "Geschichten", "line2": "Geteilt" },
+    "contributions": { "line1": "Wirkung", "line2": "Beiträge" },
+    "innovation": { "line1": "Innovation", "line2": "Projekte" }
+  },
+  "membershipCardSection": {
+    "genericError": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+    "title": "Deine Mitgliedskarte",
+    "actionsAriaLabel": "Mitgliedskarte Aktionen",
+    "downloadEcard": "E-Card Herunterladen",
+    "preparing": "Wird vorbereitet…",
+    "addToGoogleWallet": "Zu Google Wallet hinzufügen",
+    "opening": "Wird geöffnet…",
+    "googleWalletAvailableTitle": "Diese Mitgliedschaft in Google Wallet speichern",
+    "googleWalletUnavailableTitle": "Google Wallet ist auf dem Server noch nicht konfiguriert",
+    "walletNote": "Lade deine E-Card jederzeit herunter. Google Wallet wird verfügbar, sobald die Zugangsdaten für diese Umgebung konfiguriert sind.",
+    "benefitsAriaLabel": "Deine Premium-Vorteile",
+    "benefitsTitle": "Deine Premium-Vorteile",
+    "benefits": {
+      "entry": { "line1": "Kostenloser Event", "line2": "Eintritt" },
+      "seats": { "line1": "Reservierte Premium", "line2": "Sitzplätze" },
+      "lounge": { "line1": "VIP-Lounge", "line2": "Zugang" },
+      "artist": { "line1": "Künstler", "line2": "Meet & Greet" },
+      "partner": { "line1": "Partner", "line2": "Rabatte" },
+      "merch": { "line1": "Merchandise", "line2": "Rabatte" },
+      "priority": { "line1": "Priorität", "line2": "Anmeldung" }
+    }
+  },
+  "myBookingsSection": {
+    "title": "Meine Buchungen",
+    "viewTicketDetailsAriaLabel": "Ticketdetails ansehen für {{ticketType}} — {{attendeeName}}",
+    "downloadPdfAriaLabel": "PDF für Ticket {{ticketNumber}} herunterladen",
+    "ticketCount_one": "{{count}} Ticket",
+    "ticketCount_other": "{{count}} Tickets",
+    "viewAllTickets": "Alle Tickets Ansehen",
+    "viewMoreTickets": "+{{count}} weitere — Alle Tickets Ansehen"
+  },
+  "myEventsWidget": {
+    "title": "Kommende Erlebnisse",
+    "subtitle": "Entdecke kommende Erlebnisse und greife auf deine Tickets zu.",
+    "viewAll": "Alle Anzeigen",
+    "empty": "Derzeit sind keine kommenden Veranstaltungen verfügbar.",
+    "browseExperiences": "Erlebnisse Entdecken"
+  },
+  "mySessionsSection": {
+    "title": "Meine Sitzungen & Zusagen",
+    "subtitle": "Workshops und Community-Sitzungen, die du gebucht hast, sowie deine Zusagen.",
+    "upcomingSessions": "Kommende Sitzungen",
+    "myRsvps": "Meine Zusagen"
+  },
+  "recentActivitySection": {
+    "ariaLabel": "Letzte Aktivität und Schnellaktionen",
+    "title": "Letzte Aktivität",
+    "empty": "Deine Mitgliedschaft, Spenden, Sponsoring und Event-Tickets werden hier angezeigt.",
+    "quickActionsTitle": "Schnellaktionen"
+  },
+  "referralSection": {
+    "title": "Mein Empfehlungscode",
+    "copied": "Kopiert!",
+    "copyCode": "Code Kopieren",
+    "share": "Teilen",
+    "referralUses": "Empfehlungen Genutzt",
+    "rewardsEarned": "Verdiente Prämien",
+    "pendingRewards": "Ausstehende Prämien",
+    "empty": "Lade Freunde zu V.O.I.C.E. NL ein und verdiene Prämien, wenn sie beitreten — kontaktiere uns für deinen Empfehlungscode.",
+    "recentRewards": "Letzte Prämien",
+    "anonymousBuyer": "Anonymer Käufer",
+    "noRewardsYet": "Noch keine Empfehlungsaktivität — teile deinen Code, um loszulegen.",
+    "shareTitle": "Werde Mitglied der Stichting The V.O.I.C.E. NL",
+    "shareText": "Nutze meinen Empfehlungscode {{code}} für einen Rabatt!"
+  },
+  "statCardsSection": {
+    "title": "Deine V.O.I.C.E. NL Wirkung",
+    "membership": { "line1": "Aktive", "line2": "Mitgliedschaft" },
+    "events": { "line1": "Events", "line2": "Besucht" },
+    "donations": { "line1": "Spenden", "line2": "Getätigt" },
+    "sponsorships": { "line1": "Sponsoring", "line2": "" },
+    "activeCount": "{{count}} Aktiv"
+  },
+  "upcomingEventsSection": {
+    "title": "Kommende Veranstaltungen",
+    "viewAll": "Alle Anzeigen",
+    "registered": "Registriert",
+    "viewTicket": "Ticket Ansehen",
+    "comingSoon": "Demnächst",
+    "moreEventsOnTheWay": "Weitere V.O.I.C.E. NL Veranstaltungen sind bald verfügbar."
+  },
+  "vcommerceHighlights": {
+    "eyebrow": "V.O.I.C.E. NL Community-Marktplatz",
+    "title": "V.Commerce Entdecken",
+    "exploreMarketplace": "Marktplatz Erkunden",
+    "businessOfTheWeek": "Unternehmen der Woche",
+    "viewAll": "Alle Anzeigen",
+    "featuredCommunityBusiness": "Vorgestelltes Community-Unternehmen",
+    "newRatingFallback": "Neu",
+    "reviewCount": "({{count}} Bewertungen)",
+    "visitShop": "Shop Besuchen",
+    "featuredErrorNotice": "Wir zeigen unser neuestes Marktplatz-Highlight.",
+    "popularPicks": "Beliebte Empfehlungen Für Dich",
+    "productsErrorNotice": "Wir zeigen eine kuratierte Auswahl aus dem Marktplatz.",
+    "cashback": "{{percent}}% Cashback"
+  },
+  "welcomeBannerSection": {
+    "greetingDefault": "Willkommen,",
+    "membershipCodeLabel": "Mitgliedscode",
+    "copyMembershipCodeAriaLabel": "Mitgliedscode {{code}} kopieren",
+    "openAssistantAriaLabel": "V.Assist Öffnen",
+    "assistantLabel": "V.Assist",
+    "tooltipLine1": "Dein smarter KI-Begleiter für alles.",
+    "tooltipLine2": "Tickets buchen, Mitgliedschaften verwalten, Vorteile entdecken und handeln — alles im Gespräch.",
+    "tooltipLine3": "Fragen. Entdecken. Erleben..",
+    "walletAriaLabel": "V.Wallet",
+    "walletLabel": "V.Wallet",
+    "myProfileAriaLabel": "Mein Profil",
+    "myProfileLabel": "Mein Profil",
+    "logOutAriaLabel": "Abmelden",
+    "logOutLabel": "Abmelden",
+    "pointsChipAriaLabel": "{{points}} Punkte — einlösen in V.Wallet",
+    "redeemPoints": "Punkte Einlösen"
+  },
+  "ticketDetailModal": {
+    "closeAriaLabel": "Schließen",
+    "qrAltText": "QR-Code für {{ticketNumber}}",
+    "checkedIn": "Eingecheckt",
+    "valid": "Gültig",
+    "seatLabel": "Sitzplatz {{seat}}",
+    "downloadPdf": "PDF Herunterladen"
+  },
+  "genericWidgets": {
+    "support": {
+      "defaultTitle": "Brauchst du Hilfe?",
+      "contactSupport": "Support Kontaktieren"
+    },
+    "profile": {
+      "defaultTitle": "Profildetails",
+      "name": "Name",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "updateProfile": "Profil Aktualisieren"
+    },
+    "membershipStatus": {
+      "defaultTitle": "Mitgliedschaftsstatus",
+      "status": "Status",
+      "plan": "Tarif",
+      "validUntil": "Gültig bis",
+      "activeDefault": "Aktiv",
+      "notAMember": "Kein Mitglied"
+    },
+    "myTickets": {
+      "defaultTitle": "Meine Tickets",
+      "viewTickets": "Tickets Ansehen"
+    }
+  }
+}

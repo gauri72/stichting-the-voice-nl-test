@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   IconSend2,
   IconPlus,
@@ -23,14 +24,21 @@ import UsageRing from "./UsageRing.jsx";
 import vAssistOrb from "../../../assets/Dashboard/v-assist-orb.png";
 import "../../../styles/ai-assistant-premium.css";
 
-const STARTERS = [
-  { title: "Find an event", subtitle: "Discover what’s on", prompt: "What events are coming up?", icon: IconCalendarEvent },
-  { title: "Explore V.Commerce", subtitle: "Shop curated offers", prompt: "Show me featured V.Commerce offers", icon: IconShoppingBag },
-  { title: "Check my benefits", subtitle: "See what you’re entitled to", prompt: "What membership benefits can I use?", icon: IconShieldCheck },
-  { title: "Use my V.Wallet", subtitle: "View balance & history", prompt: "Help me with my V.Wallet", icon: IconWallet },
+const STARTER_DEFS = [
+  { key: "findEvent", icon: IconCalendarEvent },
+  { key: "exploreCommerce", icon: IconShoppingBag },
+  { key: "checkBenefits", icon: IconShieldCheck },
+  { key: "useWallet", icon: IconWallet },
 ];
 
 export default function AiChatPage() {
+  const { t } = useTranslation(["dashboardMain"]);
+  const STARTERS = STARTER_DEFS.map(({ key, icon }) => ({
+    title: t(`dashboardMain:aiAssistant.chat.starters.${key}.title`),
+    subtitle: t(`dashboardMain:aiAssistant.chat.starters.${key}.subtitle`),
+    prompt: t(`dashboardMain:aiAssistant.chat.starters.${key}.prompt`),
+    icon,
+  }));
   const {
     messages,
     streaming,
@@ -50,7 +58,7 @@ export default function AiChatPage() {
   const [input, setInput] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState("");
-  const [membershipLabel, setMembershipLabel] = useState("Member");
+  const [membershipLabel, setMembershipLabel] = useState(t("dashboardMain:aiAssistant.chat.defaultMembershipLabel"));
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -60,10 +68,10 @@ export default function AiChatPage() {
     apiFetch("/api/dashboard/memberships", { headers: authHeaders() })
       .then((data) => {
         const active = data?.active;
-        setMembershipLabel(active?.planNameAccent || active?.planName || "Member");
+        setMembershipLabel(active?.planNameAccent || active?.planName || t("dashboardMain:aiAssistant.chat.defaultMembershipLabel"));
       })
       .catch(() => {});
-  }, [loadChatHistory, loadUsage, loadWallet]);
+  }, [loadChatHistory, loadUsage, loadWallet, t]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -82,7 +90,7 @@ export default function AiChatPage() {
     const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
     if (!lastUserMessage) return;
     await savePrompt(lastUserMessage.content, "general");
-    setSaveFeedback("Saved to your prompt library!");
+    setSaveFeedback(t("dashboardMain:aiAssistant.chat.savePromptFeedback"));
     setTimeout(() => setSaveFeedback(""), 2500);
   }
 
@@ -96,16 +104,16 @@ export default function AiChatPage() {
       <header className="ai-premium-chat__tools">
         <div>
           <IconSparkles aria-hidden="true" />
-          <span>Your personal AI concierge</span>
+          <span>{t("dashboardMain:aiAssistant.chat.header.tagline")}</span>
         </div>
         <div>
           {usage && <UsageRing used={usage.todayCount} limit={usage.dailyLimit} />}
-          <button type="button" onClick={() => setHistoryOpen(true)} aria-label="Chat history">
+          <button type="button" onClick={() => setHistoryOpen(true)} aria-label={t("dashboardMain:aiAssistant.chat.header.chatHistoryAriaLabel")}>
             <IconHistory />
           </button>
-          <button type="button" onClick={startNewChat} aria-label="Start a new chat">
+          <button type="button" onClick={startNewChat} aria-label={t("dashboardMain:aiAssistant.chat.header.newChatAriaLabel")}>
             <IconPlus />
-            <span>New chat</span>
+            <span>{t("dashboardMain:aiAssistant.chat.header.newChat")}</span>
           </button>
         </div>
       </header>
@@ -116,18 +124,18 @@ export default function AiChatPage() {
             <div className="ai-premium-orb" aria-hidden="true">
               <img src={vAssistOrb} alt="" />
             </div>
-            <h2>Your Community Concierge</h2>
-            <p>How can I help you today?</p>
-            <span className="ai-premium-welcome__online"><i /> Online</span>
+            <h2>{t("dashboardMain:aiAssistant.chat.welcome.heading")}</h2>
+            <p>{t("dashboardMain:aiAssistant.chat.welcome.subheading")}</p>
+            <span className="ai-premium-welcome__online"><i /> {t("dashboardMain:aiAssistant.chat.welcome.online")}</span>
 
             <div className="ai-premium-context">
-              <div><IconUsers aria-hidden="true" /><span><small>Member context</small><strong>{membershipLabel}</strong></span></div>
-              <div><IconWallet aria-hidden="true" /><span><small>V.Wallet</small><strong>{walletBalance}</strong></span></div>
+              <div><IconUsers aria-hidden="true" /><span><small>{t("dashboardMain:aiAssistant.chat.welcome.memberContextLabel")}</small><strong>{membershipLabel}</strong></span></div>
+              <div><IconWallet aria-hidden="true" /><span><small>{t("dashboardMain:aiAssistant.chat.welcome.walletLabel")}</small><strong>{walletBalance}</strong></span></div>
             </div>
 
             <div className="ai-premium-welcome__intro">
-              <strong>Welcome back.</strong>
-              <span>Here are a few things I can help you with.</span>
+              <strong>{t("dashboardMain:aiAssistant.chat.welcome.introTitle")}</strong>
+              <span>{t("dashboardMain:aiAssistant.chat.welcome.introSubtitle")}</span>
             </div>
 
             <div className="ai-premium-starters">
@@ -141,8 +149,8 @@ export default function AiChatPage() {
             </div>
 
             <div className="ai-premium-suggestions">
-              <button type="button" onClick={() => setInput("What’s happening this week?")}><IconSparkles /> What’s happening this week?</button>
-              <button type="button" onClick={() => setInput("Show me member discounts")}><IconShieldCheck /> Show member discounts</button>
+              <button type="button" onClick={() => setInput(t("dashboardMain:aiAssistant.chat.suggestions.weekAheadPrompt"))}><IconSparkles /> {t("dashboardMain:aiAssistant.chat.suggestions.weekAheadLabel")}</button>
+              <button type="button" onClick={() => setInput(t("dashboardMain:aiAssistant.chat.suggestions.discountsPrompt"))}><IconShieldCheck /> {t("dashboardMain:aiAssistant.chat.suggestions.discountsLabel")}</button>
             </div>
           </div>
         )}
@@ -163,15 +171,15 @@ export default function AiChatPage() {
         >
           {error}
           <button type="button" onClick={() => setError("")} className="ml-2 underline">
-            Dismiss
+            {t("dashboardMain:aiAssistant.chat.errorDismiss")}
           </button>
         </motion.p>
       )}
 
       <footer className="ai-premium-composer-wrap">
-        <p><IconLock /> Private <i /> Personalised <i /> Available 24/7</p>
+        <p><IconLock /> {t("dashboardMain:aiAssistant.chat.footerTags.private")} <i /> {t("dashboardMain:aiAssistant.chat.footerTags.personalised")} <i /> {t("dashboardMain:aiAssistant.chat.footerTags.available247")}</p>
         <form onSubmit={handleSubmit} className="ai-premium-composer">
-          <button type="button" onClick={handleSavePrompt} disabled={!messages.some((m) => m.role === "user")} aria-label="Save last prompt">
+          <button type="button" onClick={handleSavePrompt} disabled={!messages.some((m) => m.role === "user")} aria-label={t("dashboardMain:aiAssistant.chat.composer.saveLastPromptAriaLabel")}>
             <IconBookmarkPlus />
           </button>
           <textarea
@@ -183,12 +191,12 @@ export default function AiChatPage() {
                 handleSubmit(e);
               }
             }}
-            placeholder="Ask V.Assist anything…"
+            placeholder={t("dashboardMain:aiAssistant.chat.composer.placeholder")}
             rows={1}
-            aria-label="Message"
+            aria-label={t("dashboardMain:aiAssistant.chat.composer.messageAriaLabel")}
           />
-          <button type="button" className="ai-premium-composer__mic" aria-label="Voice input"><IconMicrophone /></button>
-          <button type="submit" disabled={!input.trim() || streaming} aria-label="Send message"><IconSend2 /></button>
+          <button type="button" className="ai-premium-composer__mic" aria-label={t("dashboardMain:aiAssistant.chat.composer.voiceInputAriaLabel")}><IconMicrophone /></button>
+          <button type="submit" disabled={!input.trim() || streaming} aria-label={t("dashboardMain:aiAssistant.chat.composer.sendAriaLabel")}><IconSend2 /></button>
         </form>
       </footer>
 
@@ -223,17 +231,17 @@ export default function AiChatPage() {
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
               role="dialog"
-              aria-label="Chat history"
+              aria-label={t("dashboardMain:aiAssistant.chat.history.heading")}
               className="ai-chat-history-panel ai-nested-modal-panel fixed inset-x-0 bottom-0 overflow-y-auto rounded-t-2xl bg-slate-900 p-4 ring-1 ring-white/10 sm:absolute sm:inset-x-auto sm:right-0 sm:top-14 sm:bottom-auto sm:w-72 sm:rounded-xl"
             >
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-white">Chat History</h3>
-                <button type="button" onClick={() => setHistoryOpen(false)} aria-label="Close" className="text-slate-400 hover:text-white">
+                <h3 className="text-sm font-semibold text-white">{t("dashboardMain:aiAssistant.chat.history.heading")}</h3>
+                <button type="button" onClick={() => setHistoryOpen(false)} aria-label={t("dashboardMain:aiAssistant.chat.history.closeAriaLabel")} className="text-slate-400 hover:text-white">
                   <IconX size={18} />
                 </button>
               </div>
               {chatHistory.length === 0 ? (
-                <p className="text-xs text-slate-500">No previous chats yet.</p>
+                <p className="text-xs text-slate-500">{t("dashboardMain:aiAssistant.chat.history.empty")}</p>
               ) : (
                 <ul className="space-y-1.5">
                   {chatHistory.map((s) => (

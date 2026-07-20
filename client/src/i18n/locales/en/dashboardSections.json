@@ -1,0 +1,173 @@
+{
+  "closingCtaSection": {
+    "titleLine1": "Thank You For Being",
+    "titleLine2": "Part Of The Movement",
+    "text": "Together we create Experiences. Share Stories. Drive Impact. Spark Innovation.",
+    "myProfile": "My Profile",
+    "discoverMore": "Discover More"
+  },
+  "discountsSection": {
+    "title": "Available Discounts",
+    "empty": "No active discounts available right now.",
+    "amountOff": "€{{amount}} off",
+    "percentOff": "{{percent}}% OFF",
+    "validUntil": "Valid until {{date}}",
+    "copied": "Copied!",
+    "copyCode": "Copy Code"
+  },
+  "impactSection": {
+    "title": "Your V.O.I.C.E. NL Impact",
+    "experiences": { "line1": "Experiences", "line2": "Attended" },
+    "stories": { "line1": "Stories", "line2": "Shared" },
+    "contributions": { "line1": "Impact", "line2": "Contributions" },
+    "innovation": { "line1": "Innovation", "line2": "Projects" }
+  },
+  "membershipCardSection": {
+    "genericError": "Something went wrong. Please try again.",
+    "title": "Your Membership Card",
+    "actionsAriaLabel": "Membership card actions",
+    "downloadEcard": "Download E-Card",
+    "preparing": "Preparing…",
+    "addToGoogleWallet": "Add to Google Wallet",
+    "opening": "Opening…",
+    "googleWalletAvailableTitle": "Save this membership to Google Wallet",
+    "googleWalletUnavailableTitle": "Google Wallet is not configured on the server yet",
+    "walletNote": "Download your e-card anytime. Google Wallet becomes available once credentials are configured for this environment.",
+    "benefitsAriaLabel": "Your Premium Benefits",
+    "benefitsTitle": "Your Premium Benefits",
+    "benefits": {
+      "entry": { "line1": "Free Event", "line2": "Entry" },
+      "seats": { "line1": "Reserved Premium", "line2": "Seats" },
+      "lounge": { "line1": "VIP Lounge", "line2": "Access" },
+      "artist": { "line1": "Artist Meet", "line2": "& Greet" },
+      "partner": { "line1": "Partner", "line2": "Discounts" },
+      "merch": { "line1": "Merchandise", "line2": "Discounts" },
+      "priority": { "line1": "Priority", "line2": "Registration" }
+    }
+  },
+  "myBookingsSection": {
+    "title": "My Bookings",
+    "viewTicketDetailsAriaLabel": "View ticket details for {{ticketType}} — {{attendeeName}}",
+    "downloadPdfAriaLabel": "Download PDF for ticket {{ticketNumber}}",
+    "ticketCount_one": "{{count}} ticket",
+    "ticketCount_other": "{{count}} tickets",
+    "viewAllTickets": "View All Tickets",
+    "viewMoreTickets": "+{{count}} more — View All Tickets"
+  },
+  "myEventsWidget": {
+    "title": "Upcoming Experiences",
+    "subtitle": "Discover upcoming experiences and access your tickets.",
+    "viewAll": "View All",
+    "empty": "No upcoming events available right now.",
+    "browseExperiences": "Browse Experiences"
+  },
+  "mySessionsSection": {
+    "title": "My Sessions & RSVPs",
+    "subtitle": "Workshops and community sessions you've booked, and your RSVP replies.",
+    "upcomingSessions": "Upcoming Sessions",
+    "myRsvps": "My RSVPs"
+  },
+  "recentActivitySection": {
+    "ariaLabel": "Recent activity and quick actions",
+    "title": "Recent Activity",
+    "empty": "Your membership, donations, sponsorships and event tickets will appear here.",
+    "quickActionsTitle": "Quick Actions"
+  },
+  "referralSection": {
+    "title": "My Referral Code",
+    "copied": "Copied!",
+    "copyCode": "Copy Code",
+    "share": "Share",
+    "referralUses": "Referral Uses",
+    "rewardsEarned": "Rewards Earned",
+    "pendingRewards": "Pending Rewards",
+    "empty": "Invite friends to V.O.I.C.E. NL and earn rewards when they join — contact us to get your referral code.",
+    "recentRewards": "Recent Rewards",
+    "anonymousBuyer": "Anonymous buyer",
+    "noRewardsYet": "No referral activity yet — share your code to get started.",
+    "shareTitle": "Join Stichting The V.O.I.C.E. NL",
+    "shareText": "Use my referral code {{code}} for a discount!"
+  },
+  "statCardsSection": {
+    "title": "Your V.O.I.C.E. NL Impact",
+    "membership": { "line1": "Active", "line2": "Membership" },
+    "events": { "line1": "Events", "line2": "Attended" },
+    "donations": { "line1": "Donations", "line2": "Made" },
+    "sponsorships": { "line1": "Sponsorships", "line2": "" },
+    "activeCount": "{{count}} Active"
+  },
+  "upcomingEventsSection": {
+    "title": "Upcoming Events",
+    "viewAll": "View All",
+    "registered": "Registered",
+    "viewTicket": "View Ticket",
+    "comingSoon": "Coming Soon",
+    "moreEventsOnTheWay": "More V.O.I.C.E. NL events are on the way."
+  },
+  "vcommerceHighlights": {
+    "eyebrow": "V.O.I.C.E. NL Community Marketplace",
+    "title": "Discover V.Commerce",
+    "exploreMarketplace": "Explore Marketplace",
+    "businessOfTheWeek": "Business of the Week",
+    "viewAll": "View All",
+    "featuredCommunityBusiness": "Featured Community Business",
+    "newRatingFallback": "New",
+    "reviewCount": "({{count}} reviews)",
+    "visitShop": "Visit Shop",
+    "featuredErrorNotice": "Showing our latest marketplace spotlight.",
+    "popularPicks": "Popular Picks For You",
+    "productsErrorNotice": "Showing a curated marketplace selection.",
+    "cashback": "{{percent}}% Cashback"
+  },
+  "welcomeBannerSection": {
+    "greetingDefault": "Welcome,",
+    "membershipCodeLabel": "Membership code",
+    "copyMembershipCodeAriaLabel": "Copy membership code {{code}}",
+    "openAssistantAriaLabel": "Open V.Assist",
+    "assistantLabel": "V.Assist",
+    "tooltipLine1": "Your Smart AI companion For Everything.",
+    "tooltipLine2": "Book tickets, manage memberships, explore benefits and take action — all through conversation.",
+    "tooltipLine3": "Ask. Explore. Experience..",
+    "walletAriaLabel": "V.Wallet",
+    "walletLabel": "V.Wallet",
+    "myProfileAriaLabel": "My Profile",
+    "myProfileLabel": "My Profile",
+    "logOutAriaLabel": "Log Out",
+    "logOutLabel": "Log Out",
+    "pointsChipAriaLabel": "{{points}} points — redeem in V.Wallet",
+    "redeemPoints": "Redeem Points"
+  },
+  "ticketDetailModal": {
+    "closeAriaLabel": "Close",
+    "qrAltText": "QR code for {{ticketNumber}}",
+    "checkedIn": "Checked in",
+    "valid": "Valid",
+    "seatLabel": "Seat {{seat}}",
+    "downloadPdf": "Download PDF"
+  },
+  "genericWidgets": {
+    "support": {
+      "defaultTitle": "Need Help?",
+      "contactSupport": "Contact Support"
+    },
+    "profile": {
+      "defaultTitle": "Profile Details",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "updateProfile": "Update Profile"
+    },
+    "membershipStatus": {
+      "defaultTitle": "Membership Status",
+      "status": "Status",
+      "plan": "Plan",
+      "validUntil": "Valid until",
+      "activeDefault": "Active",
+      "notAMember": "Not a member"
+    },
+    "myTickets": {
+      "defaultTitle": "My Tickets",
+      "viewTickets": "View Tickets"
+    }
+  }
+}

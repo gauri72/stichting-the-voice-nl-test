@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconSearch, IconStar, IconMapPin, IconShieldCheck, IconX } from "@tabler/icons-react";
 import { getVCommerceList } from "./shared/vcommerceApi.js";
 import { mapBusiness } from "./marketplace/lib/mappers.js";
@@ -9,20 +10,21 @@ import "../../styles/vcommerce-redesign.css";
 import "../../styles/vcommerce-mkt-tokens.css";
 
 const CATEGORIES = [
-  { slug: "",          label: "All" },
-  { slug: "food",      label: "Food" },
-  { slug: "fashion",   label: "Fashion" },
-  { slug: "beauty",    label: "Beauty" },
-  { slug: "health",    label: "Health" },
-  { slug: "yoga",      label: "Yoga" },
-  { slug: "home",      label: "Home" },
-  { slug: "arts",      label: "Arts" },
-  { slug: "travel",    label: "Travel & Stay" },
-  { slug: "grocery",   label: "Grocery" },
-  { slug: "cosmetics", label: "Cosmetics" },
+  { slug: "",          key: "all" },
+  { slug: "food",      key: "food" },
+  { slug: "fashion",   key: "fashion" },
+  { slug: "beauty",    key: "beauty" },
+  { slug: "health",    key: "health" },
+  { slug: "yoga",      key: "yoga" },
+  { slug: "home",      key: "home" },
+  { slug: "arts",      key: "arts" },
+  { slug: "travel",    key: "travel" },
+  { slug: "grocery",   key: "grocery" },
+  { slug: "cosmetics", key: "cosmetics" },
 ];
 
 function BusinessCard({ business }) {
+  const { t } = useTranslation(["vcommerceShop"]);
   return (
     <Link
       to={`/vcommerce/${business.slug}`}
@@ -50,7 +52,7 @@ function BusinessCard({ business }) {
         </div>
         {business.cashbackPercent > 0 && (
           <p style={{ fontSize: "0.72rem", color: "var(--mkt-green)", display: "flex", alignItems: "center", gap: 4 }}>
-            <IconShieldCheck size={12} aria-hidden="true" /> {business.cashbackPercent}% V.Cashback
+            <IconShieldCheck size={12} aria-hidden="true" /> {business.cashbackPercent}% {t("vcommerceShop:businessesList.cashbackSuffix")}
           </p>
         )}
       </div>
@@ -59,6 +61,7 @@ function BusinessCard({ business }) {
 }
 
 export default function BusinessesListPage() {
+  const { t } = useTranslation(["vcommerceShop"]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +87,7 @@ export default function BusinessesListPage() {
         setBusinesses(raw.map(mapBusiness).filter(Boolean));
         setTotal(data?.total ?? raw.length);
       })
-      .catch((err) => setError(err.message || "Could not load businesses."))
+      .catch((err) => setError(err.message || t("vcommerceShop:businessesList.loadError")))
       .finally(() => setLoading(false));
   }, [q, cat, sort]);
 
@@ -100,8 +103,8 @@ export default function BusinessesListPage() {
     <div className="vcohp-page vco-mkt" style={{ minHeight: "100vh", background: "var(--mkt-bg)", padding: "24px 20px" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <header style={{ marginBottom: 24 }}>
-          <h1 style={{ color: "var(--mkt-text)", fontWeight: 800, fontSize: "1.6rem", marginBottom: 4 }}>All Businesses</h1>
-          {!loading && <p style={{ color: "var(--mkt-text-muted)", fontSize: "0.83rem" }}>{total} result{total !== 1 ? "s" : ""}</p>}
+          <h1 style={{ color: "var(--mkt-text)", fontWeight: 800, fontSize: "1.6rem", marginBottom: 4 }}>{t("vcommerceShop:businessesList.title")}</h1>
+          {!loading && <p style={{ color: "var(--mkt-text-muted)", fontSize: "0.83rem" }}>{t("vcommerceShop:businessesList.resultCount", { count: total })}</p>}
         </header>
 
         {/* Search + filters */}
@@ -115,19 +118,19 @@ export default function BusinessesListPage() {
               type="search"
               value={q}
               onChange={(e) => setFilter("q", e.target.value)}
-              placeholder="Search businesses…"
-              aria-label="Search businesses"
+              placeholder={t("vcommerceShop:businessesList.searchPlaceholder")}
+              aria-label={t("vcommerceShop:businessesList.searchAriaLabel")}
               style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: "var(--mkt-text)", fontSize: "0.85rem" }}
             />
             {q && (
-              <button type="button" onClick={() => setFilter("q", "")} aria-label="Clear search" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--mkt-text-muted)", display: "flex", padding: 0 }}>
+              <button type="button" onClick={() => setFilter("q", "")} aria-label={t("vcommerceShop:businessesList.clearSearchAriaLabel")} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--mkt-text-muted)", display: "flex", padding: 0 }}>
                 <IconX size={14} />
               </button>
             )}
           </form>
 
-          <div role="group" aria-label="Filter by category" style={{ display: "flex", gap: 6, overflowX: "auto", flex: 1 }}>
-            {CATEGORIES.map(({ slug, label }) => (
+          <div role="group" aria-label={t("vcommerceShop:businessesList.categoryFilterAriaLabel")} style={{ display: "flex", gap: 6, overflowX: "auto", flex: 1 }}>
+            {CATEGORIES.map(({ slug, key }) => (
               <button
                 key={slug}
                 type="button"
@@ -135,7 +138,7 @@ export default function BusinessesListPage() {
                 aria-pressed={cat === slug}
                 style={{ padding: "6px 14px", borderRadius: 20, border: `1px solid ${cat === slug ? "var(--mkt-cyan)" : "var(--mkt-border)"}`, background: cat === slug ? "var(--mkt-cyan)" : "transparent", color: cat === slug ? "#071426" : "var(--mkt-text)", fontWeight: cat === slug ? 700 : 400, fontSize: "0.78rem", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}
               >
-                {label}
+                {t(`vcommerceShop:businessesList.categories.${key}`)}
               </button>
             ))}
           </div>
@@ -154,7 +157,13 @@ export default function BusinessesListPage() {
 
         {!loading && !error && businesses.length === 0 && (
           <p style={{ color: "var(--mkt-text-muted)", textAlign: "center", padding: "40px 0" }}>
-            No businesses found{q ? ` for "${q}"` : ""}{cat ? ` in ${cat}` : ""}.
+            {q && cat
+              ? t("vcommerceShop:businessesList.noResultsQueryCategory", { query: q, category: cat })
+              : q
+                ? t("vcommerceShop:businessesList.noResultsQuery", { query: q })
+                : cat
+                  ? t("vcommerceShop:businessesList.noResultsCategory", { category: cat })
+                  : t("vcommerceShop:businessesList.noResults")}
           </p>
         )}
 

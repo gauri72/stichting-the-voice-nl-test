@@ -1,0 +1,456 @@
+{
+  "businessesList": {
+    "title": "All Businesses",
+    "resultCount_one": "{{count}} result",
+    "resultCount_other": "{{count}} results",
+    "searchPlaceholder": "Search businesses…",
+    "searchAriaLabel": "Search businesses",
+    "clearSearchAriaLabel": "Clear search",
+    "categoryFilterAriaLabel": "Filter by category",
+    "categories": {
+      "all": "All",
+      "food": "Food",
+      "fashion": "Fashion",
+      "beauty": "Beauty",
+      "health": "Health",
+      "yoga": "Yoga",
+      "home": "Home",
+      "arts": "Arts",
+      "travel": "Travel & Stay",
+      "grocery": "Grocery",
+      "cosmetics": "Cosmetics"
+    },
+    "loadError": "Could not load businesses.",
+    "cashbackSuffix": "V.Cashback",
+    "noResults": "No businesses found.",
+    "noResultsQuery": "No businesses found for \"{{query}}\".",
+    "noResultsCategory": "No businesses found in {{category}}.",
+    "noResultsQueryCategory": "No businesses found for \"{{query}}\" in {{category}}."
+  },
+  "categoriesPage": {
+    "title": "Browse Categories",
+    "subtitle": "Find businesses by category",
+    "categories": {
+      "food": "Food & Drink",
+      "fashion": "Fashion",
+      "beauty": "Beauty",
+      "health": "Health & Wellness",
+      "yoga": "Yoga",
+      "home": "Home & Living",
+      "arts": "Arts & Crafts",
+      "travel": "Travel & Stay",
+      "grocery": "Grocery",
+      "cosmetics": "Cosmetics",
+      "electronics": "Electronics",
+      "beverages": "Beverages",
+      "household": "Household"
+    }
+  },
+  "favouritesPage": {
+    "title": "Favourites",
+    "savedCount_one": "{{count}} saved item",
+    "savedCount_other": "{{count}} saved items",
+    "clearAll": "Clear All",
+    "removeAriaLabel": "Remove {{name}} from favourites",
+    "remove": "Remove",
+    "empty": "No favourites saved yet.",
+    "browseBusinesses": "Browse Businesses"
+  },
+  "profilePage": {
+    "social": {
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "linkedin": "LinkedIn",
+      "tiktok": "TikTok",
+      "whatsapp": "WhatsApp"
+    },
+    "productCard": {
+      "bulkPricingAvailable": "Bulk pricing available",
+      "wholesalePricingLocked": "Wholesale pricing — register to unlock",
+      "cashback": "+{{amount}} cashback",
+      "selectOptions": "Select options",
+      "addToCart": "Add to Cart"
+    },
+    "productModal": {
+      "noDescription": "No description provided.",
+      "wholesalePricingTitle": "Wholesale Pricing",
+      "tableMinQty": "Min. Qty",
+      "tableUnitPrice": "Unit Price",
+      "tableVsRetail": "vs. Retail",
+      "currentTier": "← current",
+      "retail": "Retail",
+      "wholesaleCtaTitle": "Wholesale pricing available",
+      "wholesaleCtaBody": "Register as a wholesaler to unlock tiered bulk pricing on this product.",
+      "registerAsWholesaler": "Register as Wholesaler",
+      "cashback": "{{percent}}% cashback",
+      "minQty": "Min. {{count}}",
+      "addToCart": "Add to Cart",
+      "close": "Close"
+    },
+    "titleSuffix": "V.Commerce",
+    "notFoundTitle": "Business Not Found",
+    "notFoundDefault": "This business listing isn't available.",
+    "notFoundGeneric": "This business listing is not available yet.",
+    "loadErrorFallback": "Business not found",
+    "backToVCommerce": "Back to V.Commerce",
+    "backToBusinesses": "Back to businesses",
+    "cartButton_one": "{{count}} item · {{price}}",
+    "cartButton_other": "{{count}} items · {{price}}",
+    "bannerAlt": "{{name}} banner",
+    "logoAlt": "{{name}} logo",
+    "cashbackBadge": "{{percent}}% V.Wallet cashback on every purchase",
+    "allBusinesses": "← All businesses",
+    "aboutTitle": "About this business",
+    "productsTitle": "Products & Services ({{count}})",
+    "contactLabel": "Contact",
+    "websiteLabel": "Website",
+    "socialLabel": "Social"
+  },
+  "cartDrawer": {
+    "ariaLabel": "Shopping cart",
+    "title": "Your Cart",
+    "closeAriaLabel": "Close cart",
+    "empty": "Your cart is empty",
+    "remove": "Remove",
+    "subtotal": "Subtotal",
+    "cashback": "V.Wallet cashback",
+    "checkout": "Checkout — {{price}}",
+    "continueShopping": "Continue Shopping",
+    "priceEach": "{{price}} each"
+  },
+  "checkoutPage": {
+    "confirmation": {
+      "title": "Order Placed!",
+      "body": "Your payment is confirmed. A branded receipt has been emailed to you, and the business will be in touch to fulfil the order.",
+      "cashbackAdded": "{{price}} added to your V.Wallet",
+      "cashbackNote": "Cashback credited after payment confirmation",
+      "backToVCommerce": "Back to V.Commerce",
+      "myDashboard": "My Dashboard"
+    },
+    "payment": {
+      "genericError": "Payment could not be completed. Please try again.",
+      "failedFallback": "Payment failed. Please try again.",
+      "processing": "Processing…",
+      "payNow": "Pay Now"
+    },
+    "documentTitle": "Checkout — V.Commerce",
+    "confirmingStillProcessing": "Payment is still being confirmed. Please refresh in a moment.",
+    "confirmingTitle": "Confirming your payment",
+    "confirmingSubtitle": "Please keep this page open while we verify your order.",
+    "emptyCart": {
+      "title": "Your cart is empty",
+      "browse": "Browse V.Commerce"
+    },
+    "createOrderError": "Could not start checkout. Please try again.",
+    "backToBusiness": "← Back to {{businessName}}",
+    "stepTitleShipping": "Customer & Billing Details",
+    "stepTitlePayment": "Payment",
+    "form": {
+      "fullName": "Full Name *",
+      "fullNamePlaceholder": "Your full name",
+      "email": "Email *",
+      "emailPlaceholder": "you@example.com",
+      "phone": "Phone *",
+      "phonePlaceholder": "+31 6 12345678",
+      "company": "Company (optional)",
+      "vat": "VAT number (optional)",
+      "address": "Address *",
+      "addressPlaceholder": "Street and number",
+      "consent": "I agree to the terms, privacy policy, and the seller's cancellation and refund conditions.",
+      "guestNote": "Guest checkout is enabled. Sign in before ordering only if you want this purchase to earn V.Wallet cashback.",
+      "apartment": "Apt / Suite",
+      "apartmentPlaceholder": "Optional",
+      "city": "City *",
+      "cityPlaceholder": "Amsterdam",
+      "postcode": "Postcode *",
+      "postcodePlaceholder": "1234 AB",
+      "country": "Country",
+      "countries": {
+        "nl": "Netherlands",
+        "be": "Belgium",
+        "de": "Germany",
+        "fr": "France",
+        "gb": "United Kingdom",
+        "other": "Other"
+      },
+      "note": "Note to seller (optional)",
+      "notePlaceholder": "Any special instructions…"
+    },
+    "settingUpPayment": "Setting up payment…",
+    "continueToPayment": "Continue to Payment →",
+    "editCustomerDetails": "← Edit customer details",
+    "orderSummary": "Order Summary",
+    "subtotal": "Subtotal",
+    "cashback": "V.Wallet cashback",
+    "cashbackSignInNote": "Sign in before ordering to earn {{price}} V.Wallet cashback.",
+    "total": "Total"
+  },
+  "marketplaceHome": {
+    "desktopBrandAriaLabel": "Stichting The V.O.I.C.E. NL — go to homepage",
+    "menuOpenAriaLabel": "Open navigation menu",
+    "notificationsOpenAriaLabel": "Open notifications",
+    "notificationsPanelAriaLabel": "Notifications",
+    "notificationsHeading": "Notifications",
+    "noNotifications": "No new notifications",
+    "notificationsHint": "Updates about your orders and marketplace activity will appear here.",
+    "cartAriaLabelWithCount_one": "Shopping cart, {{count}} item",
+    "cartAriaLabelWithCount_other": "Shopping cart, {{count}} items",
+    "cartAriaLabelEmpty": "Shopping cart, empty",
+    "closeMenuAriaLabel": "Close navigation menu",
+    "mobileNavAriaLabel": "Mobile navigation",
+    "menuHeading": "Menu",
+    "nav": {
+      "home": "Home",
+      "events": "Events",
+      "ourPillars": "Our Pillars",
+      "experience": "Experience",
+      "stories": "Stories",
+      "impact": "Impact",
+      "innovation": "Innovation",
+      "partnerWithUs": "Partner With Us",
+      "sponsorship": "Sponsorship",
+      "donate": "Donate",
+      "vcommerce": "V.Commerce",
+      "aboutUs": "About Us"
+    },
+    "marketplaceMenu": {
+      "heading": "V.Commerce",
+      "exploreShops": "Explore Shops",
+      "categories": "Categories",
+      "listYourBusiness": "List Your Business",
+      "myDashboard": "My Dashboard"
+    },
+    "preferences": {
+      "heading": "Preferences & App",
+      "theme": "Theme"
+    },
+    "hero": {
+      "tagline": "V.O.I.C.E. NL COMMUNITY MARKETPLACE",
+      "titlePart1": "Shop. Support.",
+      "titlePart2": "Grow.",
+      "descriptionMobile": "Discover trusted businesses, products and services from our global community.",
+      "descriptionDesktopLine1": "Discover trusted businesses, products and services from our global community.",
+      "descriptionDesktopLine2": "Shop with confidence and earn V.Wallet cashback on every purchase.",
+      "exploreShops": "Explore Shops",
+      "listYourBusiness": "List Your Business",
+      "promises": {
+        "cashback": { "line1": "Earn V.Wallet", "line2": "Cashback" },
+        "support": { "line1": "Support Local &", "line2": "Global Businesses" },
+        "verified": { "line1": "Verified & Trusted", "line2": "Community" },
+        "secure": { "line1": "Secure & Easy", "line2": "Shopping" }
+      },
+      "mosaicAlt": "Community marketplace businesses",
+      "mobileHeroArtAlt": "Global online marketplace"
+    },
+    "quickActions": {
+      "exploreShops": "Explore Shops",
+      "myOrders": "My Orders",
+      "vWallet": "V.Wallet",
+      "listYourBusiness": "List Your Business",
+      "categories": "Categories",
+      "deals": "Deals",
+      "favourites": "Favourites",
+      "vAssist": "V.Assist"
+    },
+    "businessOfWeek": {
+      "heading": "Business of the Week",
+      "viewAll": "View All",
+      "featured": "Featured",
+      "knversAlt": "Knvers digital commerce and IT solutions",
+      "visitShop": "Visit Shop",
+      "reviewsCount_one": "({{count}} review)",
+      "reviewsCount_other": "({{count}} reviews)"
+    },
+    "popular": {
+      "heading": "POPULAR PICKS FOR YOU",
+      "viewAll": "View All",
+      "addToFavouritesAriaLabel": "Add {{name}} to favourites",
+      "cashback": "{{percent}}% Cashback"
+    },
+    "search": {
+      "ariaLabel": "Search marketplace",
+      "placeholder": "Search businesses, products, services...",
+      "categoryAriaLabel": "Category",
+      "allCategories": "All Categories",
+      "searchButtonAriaLabel": "Search",
+      "shortcuts": {
+        "travel": "Travel & Stay",
+        "yoga": "Yoga",
+        "fashion": "Fashion",
+        "beauty": "Beauty",
+        "home": "Home & Living",
+        "food": "Food & Drink",
+        "tech": "Tech & Digital",
+        "health": "Health & Wellness",
+        "more": "More"
+      }
+    },
+    "why": {
+      "heading": "Why Shop on V.Commerce?",
+      "benefits": {
+        "cashback": { "title": "Cashback Rewards", "body": "Earn V.Wallet cashback on every purchase" },
+        "verified": { "title": "Verified Businesses", "body": "Every shop is verified for your protection" },
+        "selection": { "title": "Wide Selection", "body": "Thousands of quality products & services" },
+        "community": { "title": "Community Driven", "body": "Empowering local, national & global sellers" },
+        "payments": { "title": "Secure Payments", "body": "Safe, encrypted & trusted checkout" }
+      }
+    },
+    "impact": {
+      "heading": "Make an Impact",
+      "body": "Every purchase you make helps strengthen our community and support meaningful initiatives.",
+      "learnMore": "Learn More"
+    },
+    "owner": {
+      "shopGlobally": { "title": "Shop Globally", "line1": "From a trusted community", "line2": "across the world" },
+      "supportRealPeople": { "title": "Support Real People", "line1": "Your purchase empowers", "line2": "entrepreneurs" },
+      "growTogether": { "title": "Grow Together", "line1": "Stronger community,", "line2": "stronger future" },
+      "businessOwner": { "title": "Are you a business owner?", "body": "List your business and reach thousands of potential customers." },
+      "applyNow": "Apply Now"
+    },
+    "bottomNav": {
+      "home": "Home",
+      "categories": "Categories",
+      "orders": "Orders",
+      "wallet": "V.Wallet",
+      "profile": "Profile"
+    },
+    "documentTitle": "V.Commerce — Community Marketplace | V.O.I.C.E. NL"
+  },
+  "businessOfWeek": {
+    "featuredAriaLabel": "Featured business",
+    "featuredBadge": "Featured",
+    "addToFavourites": "Add {{name}} from favourites",
+    "removeFromFavourites": "Remove {{name}} from favourites",
+    "ratingWithCount_one": "{{rating}} ({{count}} review)",
+    "ratingWithCount_other": "{{rating}} ({{count}} reviews)",
+    "noReviewsYet": "No reviews yet",
+    "sectionTitle": "Business of the Week",
+    "viewAll": "View All ›",
+    "carouselAriaLabel": "Business spotlight carousel",
+    "showBusinessAriaLabel": "Show business {{n}}",
+    "visitShop": "Visit Shop",
+    "mobileUnavailable": "Business spotlight unavailable right now.",
+    "mobileNoneYet": "No featured businesses yet — check back soon!",
+    "desktopUnavailable": "Spotlight unavailable.",
+    "desktopNoneYet": "No featured businesses yet.",
+    "desktopReviewCount_one": " ({{count}} review)",
+    "desktopReviewCount_other": " ({{count}} reviews)"
+  },
+  "businessOwnerCta": {
+    "ariaLabel": "Business owner call-to-action",
+    "desktop": {
+      "heading": "Are you a business owner?",
+      "body": "Join V.Commerce and reach thousands of buyers who are actively looking to support community businesses.",
+      "cta": "Apply to Sell"
+    },
+    "mobile": {
+      "heading": "Are you a business owner?",
+      "body": "Join V.Commerce and reach buyers who want to support community businesses.",
+      "cta": "Apply to Sell"
+    }
+  },
+  "impactCard": {
+    "ariaLabel": "Community impact",
+    "eyebrow": "Make an Impact",
+    "desktopTitle": "Every Purchase Supports a Community Business",
+    "desktopBody": "Shopping on V.Commerce funds real women-led businesses, creates local jobs, and builds thriving communities — globally.",
+    "learnMore": "Learn More",
+    "mobileBody": "Every purchase supports a community business.",
+    "mobileLearnMoreAriaLabel": "Learn more about community impact"
+  },
+  "marketplaceBenefits": {
+    "desktopTitle": "Why Shop on V.Commerce?",
+    "mobileTitle": "Why V.Commerce?",
+    "items": {
+      "cashback": { "title": "V.Wallet Cashback", "body": "Earn real cashback on every purchase, automatically credited to your V.Wallet." },
+      "verified": { "title": "Verified Businesses", "body": "Every seller is reviewed and verified before they can list products on V.Commerce." },
+      "delivery": { "title": "Reliable Delivery", "body": "Track your orders from checkout to doorstep — local and international shipping supported." },
+      "community": { "title": "Community Impact", "body": "Shopping on V.Commerce supports women-led and community-run businesses across the globe." },
+      "sustainable": { "title": "Sustainable Choices", "body": "Discover eco-conscious businesses committed to ethical and sustainable practices." }
+    }
+  },
+  "marketplaceMobileToolbar": {
+    "toolbarAriaLabel": "Marketplace utilities",
+    "notificationsAriaLabel": "Notifications",
+    "cartAriaLabelWithCount_one": "Shopping cart, {{count}} item",
+    "cartAriaLabelWithCount_other": "Shopping cart, {{count}} items",
+    "cartAriaLabelEmpty": "Shopping cart"
+  },
+  "marketplaceSearch": {
+    "formAriaLabel": "Search V.Commerce marketplace",
+    "placeholder": "Search businesses, products…",
+    "queryAriaLabel": "Search query",
+    "clearAriaLabel": "Clear search",
+    "categoryAriaLabel": "Browse by category",
+    "allCategoriesAriaLabel": "View all categories",
+    "allCategories": "All categories →",
+    "shortcuts": {
+      "food": "Food",
+      "fashion": "Fashion",
+      "beauty": "Beauty",
+      "health": "Health",
+      "home": "Home",
+      "arts": "Arts",
+      "travel": "Travel",
+      "grocery": "Grocery"
+    }
+  },
+  "marketplaceStats": {
+    "ariaLabel": "Marketplace statistics",
+    "active": "Active",
+    "global": "Global",
+    "countriesCount": "{{count}}+ Countries",
+    "labels": {
+      "walletCashback": "V.Wallet Cashback",
+      "verifiedBusinesses": "Verified Businesses",
+      "activeShops": "Active Shops",
+      "countries": "Global Community"
+    },
+    "desktopLabels": {
+      "activeShops": "Active Shops",
+      "customers": "Happy Customers",
+      "categories": "Categories",
+      "community": "Community"
+    }
+  },
+  "mobileBottomNav": {
+    "navAriaLabel": "Marketplace navigation",
+    "tabs": {
+      "home": "Home",
+      "categories": "Categories",
+      "orders": "Orders",
+      "wallet": "V.Wallet",
+      "profile": "Profile"
+    }
+  },
+  "popularPicks": {
+    "addToFavourites": "Add {{name}} from favourites",
+    "removeFromFavourites": "Remove {{name}} from favourites",
+    "desktopTitle": "Popular Picks For You",
+    "mobileTitle": "Popular Picks For You",
+    "viewAll": "View All",
+    "unavailable": "Products unavailable right now.",
+    "none": "No products listed yet.",
+    "cashbackDesktop": "V.Cashback",
+    "cashbackMobile": "Cashback",
+    "scrollableAriaLabel": "Popular picks, horizontally scrollable"
+  },
+  "quickActionsGrid": {
+    "navAriaLabel": "Quick marketplace actions",
+    "actions": {
+      "shops": "All Shops",
+      "categories": "Categories",
+      "favourites": "Favourites",
+      "wallet": "V.Wallet",
+      "deals": "Deals",
+      "deliver": "Delivery",
+      "cashback": "Cashback",
+      "top": "Top Rated"
+    }
+  },
+  "ui": {
+    "toggleFavourite": "Toggle favourite",
+    "outOfFive": "{{rating}} out of 5",
+    "viewAll": "View All"
+  }
+}

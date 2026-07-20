@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import { apiFetch, authHeaders } from "../../../utils/api.js";
 import { DASHBOARD_ROUTES } from "../dashboardUtils.js";
 import DashboardEventCard from "../DashboardEventCard.jsx";
 import "../../../styles/dashboard-my-events.css";
 
 export default function DashboardMyEventsWidget({ compact = false }) {
+  const { t } = useTranslation(["dashboardSections"]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,24 +35,24 @@ export default function DashboardMyEventsWidget({ compact = false }) {
       <div className="dash-my-events-widget__head">
         <div>
           <h2 id="dash-my-events-widget-title" className="dash-my-events-widget__title">
-            Upcoming Experiences
+            {t("dashboardSections:myEventsWidget.title")}
           </h2>
           {!compact ? (
             <p className="dash-my-events-widget__subtitle">
-              Discover upcoming experiences and access your tickets.
+              {t("dashboardSections:myEventsWidget.subtitle")}
             </p>
           ) : null}
         </div>
         <Link to={DASHBOARD_ROUTES.myEvents} className="dash-events__viewall">
-          View All <FaArrowRight aria-hidden />
+          {t("dashboardSections:myEventsWidget.viewAll")} <FaArrowRight aria-hidden />
         </Link>
       </div>
 
       {visibleEvents.length === 0 ? (
         <div className="dash-my-events-widget__empty">
-          <p>No upcoming events available right now.</p>
+          <p>{t("dashboardSections:myEventsWidget.empty")}</p>
           <Link to={DASHBOARD_ROUTES.events} className="dash-my-events__btn dash-my-events__btn--secondary">
-            Browse Experiences
+            {t("dashboardSections:myEventsWidget.browseExperiences")}
           </Link>
         </div>
       ) : (

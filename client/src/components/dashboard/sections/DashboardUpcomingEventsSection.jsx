@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { FaArrowRight, FaMapMarkerAlt, FaRegCheckCircle } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import featuredEventImage from "../../../assets/Dashboard/upcoming-event-1.png";
 import { DASHBOARD_ROUTES, UPCOMING_EVENTS } from "../dashboardUtils.js";
 import "../../../styles/dashboard-upcoming-events-section.css";
@@ -7,16 +8,17 @@ import "../../../styles/dashboard-upcoming-events-section.css";
 const COMING_SOON_COUNT = 3;
 
 export default function DashboardUpcomingEventsSection() {
+  const { t } = useTranslation(["dashboardSections"]);
   const featuredEvent = UPCOMING_EVENTS[0];
 
   return (
     <section className="dash-events-section" aria-labelledby="dash-events-title">
       <div className="dash-events-section__head">
         <h2 id="dash-events-title" className="dash-events-section__title">
-          Upcoming Events
+          {t("dashboardSections:upcomingEventsSection.title")}
         </h2>
         <Link to={DASHBOARD_ROUTES.events} className="dash-events__viewall">
-          View All <FaArrowRight aria-hidden />
+          {t("dashboardSections:upcomingEventsSection.viewAll")} <FaArrowRight aria-hidden />
         </Link>
       </div>
 
@@ -37,7 +39,7 @@ export default function DashboardUpcomingEventsSection() {
             </p>
             <p className="dash-events__status">
               <FaRegCheckCircle aria-hidden />
-              Registered
+              {t("dashboardSections:upcomingEventsSection.registered")}
             </p>
             <a
               href={featuredEvent.ticketUrl || DASHBOARD_ROUTES.events}
@@ -45,7 +47,7 @@ export default function DashboardUpcomingEventsSection() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              View Ticket
+              {t("dashboardSections:upcomingEventsSection.viewTicket")}
             </a>
           </div>
         </article>
@@ -53,10 +55,10 @@ export default function DashboardUpcomingEventsSection() {
         {Array.from({ length: COMING_SOON_COUNT }, (_, index) => (
           <article key={`coming-soon-${index + 1}`} className="dash-events__card dash-events__card--soon">
             <div className="dash-events__media dash-events__media--soon" aria-hidden>
-              <span className="dash-events__soon-badge">Coming Soon</span>
+              <span className="dash-events__soon-badge">{t("dashboardSections:upcomingEventsSection.comingSoon")}</span>
             </div>
             <div className="dash-events__body dash-events__body--soon">
-              <p className="dash-events__soon-copy">More V.O.I.C.E. NL events are on the way.</p>
+              <p className="dash-events__soon-copy">{t("dashboardSections:upcomingEventsSection.moreEventsOnTheWay")}</p>
             </div>
           </article>
         ))}

@@ -1,12 +1,14 @@
 import { motion, useReducedMotion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const DOT_DELAYS = [0, 0.15, 0.3];
 
 export default function TypingIndicator() {
+  const { t } = useTranslation(["dashboardMain"]);
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="flex items-center gap-1 px-4 py-3" role="status" aria-label="Assistant is typing">
+    <div className="flex items-center gap-1 px-4 py-3" role="status" aria-label={t("dashboardMain:aiAssistant.typingIndicator.ariaLabel")}>
       {DOT_DELAYS.map((delay, i) => (
         <motion.span
           key={i}

@@ -1,0 +1,212 @@
+{
+  "commandCenter": {
+    "hero": {
+      "welcomeBack": "Willkommen zurück",
+      "assist": "V.Assist",
+      "assistAria": "V.Assist öffnen, deinen KI-Community-Concierge",
+      "metricsAria": "Übersicht deines Mitgliedskontos",
+      "rewardsAria": "Prämiencenter öffnen, {{count}} Punkte",
+      "pointsLabel": "Punkte",
+      "walletAria": "V.Wallet öffnen, Guthaben {{balance}}",
+      "walletLabel": "V.Wallet",
+      "ticketsAria": "Meine Tickets öffnen, {{count}} Tickets",
+      "ticketsLabel": "Tickets",
+      "membershipAria": "{{label}} öffnen",
+      "membershipLabel": "Mitgliedschaft",
+      "planSuffix": "{{variant}}-Tarif",
+      "memberFallback": "Mitglied"
+    },
+    "sheet": {
+      "closeAria": "{{title}} schließen"
+    },
+    "nextEvent": {
+      "badge": "Empfohlene Veranstaltung",
+      "dateTba": "Termin wird noch bekannt gegeben",
+      "buyTickets": "Tickets kaufen",
+      "discoverTitle": "Entdecke dein nächstes Erlebnis",
+      "discoverBody": "Es werden regelmäßig neue Community-Veranstaltungen hinzugefügt.",
+      "exploreEvents": "Veranstaltungen entdecken"
+    },
+    "commerce": {
+      "eyebrow": "Marktplatz für Mitglieder",
+      "title": "V.Commerce im Fokus",
+      "exploreAll": "Alle entdecken",
+      "featuredBadge": "Empfohlenes Community-Unternehmen",
+      "visitShop": "Shop besuchen",
+      "cashback": "{{percent}}% Cashback",
+      "offersAria": "V.Commerce-Angebote"
+    },
+    "moreForYou": {
+      "eyebrow": "Mitglieder-Tools",
+      "title": "Mehr für dich"
+    },
+    "cards": {
+      "profile": { "title": "Profil & Einstellungen", "value": "Konto verwalten" },
+      "donations": { "title": "Meine Spenden" },
+      "sponsorships": {
+        "title": "Sponsorings",
+        "value_one": "{{count}} Beitrag",
+        "value_other": "{{count}} Beiträge"
+      },
+      "referral": { "title": "Empfehlungscode", "value": "Einladen & verdienen" },
+      "business": { "title": "Business-Hub", "value": "Angebote verwalten" }
+    },
+    "impactBanner": {
+      "label": "Deine Wirkung",
+      "summary": "{{eventCount}} Erlebnisse · {{donationLabel}} gespendet · {{sponsorshipCount}} Sponsorings",
+      "thanks": "Danke, dass du die Mission von V.O.I.C.E. NL unterstützt."
+    },
+    "movement": {
+      "ariaLabel": "Danke, dass du Teil der Bewegung bist",
+      "titleLead": "Danke, Dass Du",
+      "titleAccent": "Teil Der Bewegung Bist",
+      "tagline": "Gemeinsam schaffen wir Erlebnisse. Teilen wir Geschichten. Bewirken wir Veränderung. Wecken wir Innovation."
+    },
+    "nav": {
+      "ariaLabel": "Mitglieder-Dashboard",
+      "home": "Start",
+      "events": "Veranstaltungen",
+      "commerce": "V.Commerce",
+      "wallet": "Wallet",
+      "profile": "Profil"
+    },
+    "membershipSheet": {
+      "title": "Mitgliedskarte",
+      "passLabel": "Mitgliedsausweis",
+      "idLabel": "Mitglieds-ID",
+      "memberSinceLabel": "Mitglied seit",
+      "validUntilLabel": "Gültig bis",
+      "preparing": "Wird vorbereitet…",
+      "downloadCard": "E-Karte herunterladen",
+      "opening": "Wird geöffnet…",
+      "addGoogleWallet": "Zu Google Wallet hinzufügen",
+      "googleWalletAvailableTitle": "Diese Mitgliedschaft in Google Wallet speichern",
+      "googleWalletUnavailableTitle": "Google Wallet ist noch nicht eingerichtet",
+      "googleWalletComingSoon": "Der Download der E-Karte ist jetzt verfügbar. Google Wallet erscheint, sobald es eingerichtet ist.",
+      "actionUnavailable": "Diese Mitgliedschaftsaktion ist vorübergehend nicht verfügbar.",
+      "benefitsEyebrow": "In deinem Tarif enthalten",
+      "benefitsTitle": "Mitgliedschaftsvorteile",
+      "manageMembership": "Mitgliedschaft verwalten",
+      "qrAlt": "Mitglieds-QR-Code {{membershipId}}",
+      "actionsAria": "Aktionen für Mitgliedskarte"
+    },
+    "ticketsSheet": {
+      "title": "Meine Tickets",
+      "bookedExperience": "Gebuchtes Erlebnis",
+      "ticketCount_one": "{{count}} Ticket",
+      "ticketCount_other": "{{count}} Tickets",
+      "emptyTitle": "Noch keine gebuchten Tickets",
+      "emptyBody": "Deine Ticket-QR-Codes erscheinen hier nach der Buchung.",
+      "eventTicketFallback": "Veranstaltungsticket",
+      "qrAlt": "QR-Code für {{ticketType}}",
+      "download": "Herunterladen",
+      "downloadAria": "{{ticketType}} herunterladen",
+      "genericTicket": "Ticket",
+      "viewAll": "Alle bevorstehenden Erlebnisse ansehen"
+    },
+    "rewardsSheet": {
+      "title": "Prämiencenter",
+      "availableLabel": "Verfügbar zum Einlösen",
+      "pointsUnit": "Prämienpunkte",
+      "description": "Nutze deine Punkte für Mitgliedervorteile, Veranstaltungsrabatte und ausgewählte V.Commerce-Prämien.",
+      "openInWallet": "Prämien in V.Wallet öffnen"
+    },
+    "impactSheet": {
+      "title": "Deine Wirkung",
+      "experiencesAttended": "Besuchte Erlebnisse",
+      "donationsMade": "Getätigte Spenden",
+      "sponsorshipContributions": "Sponsoring-Beiträge",
+      "thanksParagraph": "Deine Teilnahme trägt zu einem bedeutungsvollen kulturellen Austausch und stärkeren Gemeinschaften bei.",
+      "exploreLink": "Unsere Wirkung entdecken"
+    },
+    "referralSheet": {
+      "title": "Mein Empfehlungscode",
+      "intro": "Lade Freunde zu V.O.I.C.E. NL ein und verdiene Prämien, wenn sie beitreten.",
+      "yourCodeLabel": "Dein Empfehlungscode",
+      "copied": "Code kopiert",
+      "copyCode": "Empfehlungscode kopieren",
+      "pendingActivation": "Dein Empfehlungscode erscheint hier, sobald er aktiviert ist."
+    }
+  },
+  "wallet": {
+    "card": {
+      "flipAria": "Wallet-Karte umdrehen",
+      "availableBalance": "Verfügbares Guthaben",
+      "lowBalanceWarning": "Niedriges Guthaben — jetzt aufladen, um Unterbrechungen zu vermeiden",
+      "rewardPointsLabel": "Prämienpunkte",
+      "pointsAvailable": "Punkte verfügbar",
+      "tapToFlipBack": "Tippen zum Zurückdrehen"
+    },
+    "lowBalanceAlert": {
+      "message": "Dein V.Wallet-Guthaben liegt unter deinem Warnschwellenwert.",
+      "topUpNow": "Jetzt aufladen"
+    },
+    "pointsProgress": {
+      "toFirstRedemption": "Noch {{count}} Punkte bis zu deiner ersten Einlösung",
+      "toNextDiscount": "Noch {{count}} Punkte bis zu deinem nächsten Rabatt von 1 €",
+      "ptsUnit": "{{count}} Pkt."
+    },
+    "topUpModal": {
+      "title": "V.Wallet aufladen",
+      "closeAria": "Schließen",
+      "dialogAria": "V.Wallet aufladen",
+      "customAmountPlaceholder": "Individueller Betrag (€)",
+      "pleaseWait": "Bitte warten…",
+      "continueWith": "Weiter mit €{{amount}}",
+      "otpIntro": "Diese Aufladung liegt über deinem Sicherheitslimit — gib den Bestätigungscode ein, den wir dir gerade per E-Mail geschickt haben.",
+      "otpPlaceholder": "6-stelliger Code",
+      "verifying": "Wird überprüft…",
+      "verifyAndContinue": "Überprüfen und fortfahren",
+      "processing": "Wird verarbeitet…",
+      "paySecurely": "€{{amount}} sicher bezahlen",
+      "topUpSuccessful": "Aufladung erfolgreich!",
+      "close": "Schließen",
+      "errors": {
+        "checkPaymentDetails": "Bitte überprüfe deine Zahlungsdaten.",
+        "paymentIncomplete": "Die Zahlung konnte nicht abgeschlossen werden.",
+        "couldNotStartTopUp": "Aufladung konnte nicht gestartet werden.",
+        "incorrectCode": "Dieser Code ist falsch."
+      }
+    },
+    "transactionHistory": {
+      "empty": "Noch keine Transaktionen.",
+      "types": {
+        "topup": "Aufladung",
+        "purchase": "Kauf",
+        "refund": "Rückerstattung",
+        "pointsEarned": "Punkte verdient",
+        "pointsRedeemed": "Punkte eingelöst",
+        "pointsExpired": "Punkte verfallen",
+        "adminCredit": "Admin-Gutschrift",
+        "adminDebit": "Admin-Belastung"
+      },
+      "aiBadge": "KI",
+      "ptsSuffix": "Pkt."
+    },
+    "walletPage": {
+      "loading": "Deine Wallet wird geladen…",
+      "unavailable": "V.Wallet ist derzeit nicht verfügbar. Bitte schau später wieder vorbei.",
+      "backToAccount": "Zurück zu Mein Konto",
+      "title": "V.Wallet",
+      "subtitle": "Lade auf, sammle Prämienpunkte und lass V.Assist für dich buchen.",
+      "confirmingTopUp": "Deine Aufladung wird bestätigt…",
+      "topUpReceived": "Deine Aufladung ist eingegangen — dein Guthaben ist jetzt aktuell.",
+      "topUpButton": "V.Wallet aufladen",
+      "tabs": { "overview": "Übersicht", "history": "Verlauf", "settings": "Einstellungen" },
+      "sectionsAria": "Wallet-Bereiche",
+      "recentActivity": "Letzte Aktivitäten"
+    },
+    "settingsPanel": {
+      "aiBookingTitle": "KI-Buchungsberechtigung",
+      "aiBookingDescription": "Lass V.Assist mit deiner Wallet Tickets für dich buchen",
+      "maxSpendPerBooking": "Maximale Ausgabe pro KI-Buchung",
+      "dailySpendLimit": "Tägliches KI-Ausgabenlimit",
+      "requireConfirmation": "Bestätigung erforderlich, bevor die KI etwas bucht",
+      "revokePermission": "KI-Buchungsberechtigung widerrufen",
+      "lowBalanceThreshold": "Schwellenwert für Warnung bei niedrigem Guthaben",
+      "defaultTopUpAmount": "Standard-Aufladebetrag",
+      "saving": "Wird gespeichert…",
+      "saved": "Gespeichert"
+    }
+  }
+}

@@ -1,0 +1,456 @@
+{
+  "businessesList": {
+    "title": "Alle Bedrijven",
+    "resultCount_one": "{{count}} resultaat",
+    "resultCount_other": "{{count}} resultaten",
+    "searchPlaceholder": "Zoek bedrijven…",
+    "searchAriaLabel": "Zoek bedrijven",
+    "clearSearchAriaLabel": "Zoekopdracht wissen",
+    "categoryFilterAriaLabel": "Filter op categorie",
+    "categories": {
+      "all": "Alle",
+      "food": "Eten",
+      "fashion": "Mode",
+      "beauty": "Beauty",
+      "health": "Gezondheid",
+      "yoga": "Yoga",
+      "home": "Wonen",
+      "arts": "Kunst",
+      "travel": "Reizen & Verblijf",
+      "grocery": "Boodschappen",
+      "cosmetics": "Cosmetica"
+    },
+    "loadError": "Bedrijven konden niet worden geladen.",
+    "cashbackSuffix": "V.Cashback",
+    "noResults": "Geen bedrijven gevonden.",
+    "noResultsQuery": "Geen bedrijven gevonden voor \"{{query}}\".",
+    "noResultsCategory": "Geen bedrijven gevonden in {{category}}.",
+    "noResultsQueryCategory": "Geen bedrijven gevonden voor \"{{query}}\" in {{category}}."
+  },
+  "categoriesPage": {
+    "title": "Categorieën Bekijken",
+    "subtitle": "Vind bedrijven per categorie",
+    "categories": {
+      "food": "Eten & Drinken",
+      "fashion": "Mode",
+      "beauty": "Beauty",
+      "health": "Gezondheid & Welzijn",
+      "yoga": "Yoga",
+      "home": "Wonen & Huis",
+      "arts": "Kunst & Ambacht",
+      "travel": "Reizen & Verblijf",
+      "grocery": "Boodschappen",
+      "cosmetics": "Cosmetica",
+      "electronics": "Elektronica",
+      "beverages": "Dranken",
+      "household": "Huishouden"
+    }
+  },
+  "favouritesPage": {
+    "title": "Favorieten",
+    "savedCount_one": "{{count}} opgeslagen item",
+    "savedCount_other": "{{count}} opgeslagen items",
+    "clearAll": "Alles Wissen",
+    "removeAriaLabel": "{{name}} verwijderen uit favorieten",
+    "remove": "Verwijderen",
+    "empty": "Nog geen favorieten opgeslagen.",
+    "browseBusinesses": "Bedrijven Bekijken"
+  },
+  "profilePage": {
+    "social": {
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "linkedin": "LinkedIn",
+      "tiktok": "TikTok",
+      "whatsapp": "WhatsApp"
+    },
+    "productCard": {
+      "bulkPricingAvailable": "Groothandelsprijzen beschikbaar",
+      "wholesalePricingLocked": "Groothandelsprijzen — registreer om te ontgrendelen",
+      "cashback": "+{{amount}} cashback",
+      "selectOptions": "Opties Kiezen",
+      "addToCart": "In Winkelwagen"
+    },
+    "productModal": {
+      "noDescription": "Geen beschrijving beschikbaar.",
+      "wholesalePricingTitle": "Groothandelsprijzen",
+      "tableMinQty": "Min. Aantal",
+      "tableUnitPrice": "Stukprijs",
+      "tableVsRetail": "t.o.v. Winkelprijs",
+      "currentTier": "← huidig",
+      "retail": "Winkelprijs",
+      "wholesaleCtaTitle": "Groothandelsprijzen beschikbaar",
+      "wholesaleCtaBody": "Registreer als groothandelaar om gestaffelde bulkprijzen voor dit product te ontgrendelen.",
+      "registerAsWholesaler": "Registreren als Groothandelaar",
+      "cashback": "{{percent}}% cashback",
+      "minQty": "Min. {{count}}",
+      "addToCart": "In Winkelwagen",
+      "close": "Sluiten"
+    },
+    "titleSuffix": "V.Commerce",
+    "notFoundTitle": "Bedrijf Niet Gevonden",
+    "notFoundDefault": "Deze bedrijfspagina is niet beschikbaar.",
+    "notFoundGeneric": "Deze bedrijfspagina is nog niet beschikbaar.",
+    "loadErrorFallback": "Bedrijf niet gevonden",
+    "backToVCommerce": "Terug naar V.Commerce",
+    "backToBusinesses": "Terug naar bedrijven",
+    "cartButton_one": "{{count}} item · {{price}}",
+    "cartButton_other": "{{count}} items · {{price}}",
+    "bannerAlt": "{{name}} banner",
+    "logoAlt": "{{name}} logo",
+    "cashbackBadge": "{{percent}}% V.Wallet cashback op elke aankoop",
+    "allBusinesses": "← Alle bedrijven",
+    "aboutTitle": "Over dit bedrijf",
+    "productsTitle": "Producten & Diensten ({{count}})",
+    "contactLabel": "Contact",
+    "websiteLabel": "Website",
+    "socialLabel": "Sociale media"
+  },
+  "cartDrawer": {
+    "ariaLabel": "Winkelwagen",
+    "title": "Jouw Winkelwagen",
+    "closeAriaLabel": "Winkelwagen sluiten",
+    "empty": "Je winkelwagen is leeg",
+    "remove": "Verwijderen",
+    "subtotal": "Subtotaal",
+    "cashback": "V.Wallet cashback",
+    "checkout": "Afrekenen — {{price}}",
+    "continueShopping": "Verder Winkelen",
+    "priceEach": "{{price}} per stuk"
+  },
+  "checkoutPage": {
+    "confirmation": {
+      "title": "Bestelling Geplaatst!",
+      "body": "Je betaling is bevestigd. Er is een ontvangstbewijs naar je gemaild en het bedrijf neemt contact met je op om de bestelling af te handelen.",
+      "cashbackAdded": "{{price}} toegevoegd aan je V.Wallet",
+      "cashbackNote": "Cashback wordt bijgeschreven na bevestiging van betaling",
+      "backToVCommerce": "Terug naar V.Commerce",
+      "myDashboard": "Mijn Dashboard"
+    },
+    "payment": {
+      "genericError": "Betaling kon niet worden voltooid. Probeer het opnieuw.",
+      "failedFallback": "Betaling mislukt. Probeer het opnieuw.",
+      "processing": "Bezig met verwerken…",
+      "payNow": "Nu Betalen"
+    },
+    "documentTitle": "Afrekenen — V.Commerce",
+    "confirmingStillProcessing": "Je betaling wordt nog bevestigd. Ververs de pagina over een moment.",
+    "confirmingTitle": "Betaling bevestigen",
+    "confirmingSubtitle": "Houd deze pagina open terwijl we je bestelling verifiëren.",
+    "emptyCart": {
+      "title": "Je winkelwagen is leeg",
+      "browse": "Bekijk V.Commerce"
+    },
+    "createOrderError": "Afrekenen kon niet worden gestart. Probeer het opnieuw.",
+    "backToBusiness": "← Terug naar {{businessName}}",
+    "stepTitleShipping": "Klant- en Factuurgegevens",
+    "stepTitlePayment": "Betaling",
+    "form": {
+      "fullName": "Volledige naam *",
+      "fullNamePlaceholder": "Je volledige naam",
+      "email": "E-mail *",
+      "emailPlaceholder": "jij@voorbeeld.com",
+      "phone": "Telefoon *",
+      "phonePlaceholder": "+31 6 12345678",
+      "company": "Bedrijf (optioneel)",
+      "vat": "Btw-nummer (optioneel)",
+      "address": "Adres *",
+      "addressPlaceholder": "Straat en huisnummer",
+      "consent": "Ik ga akkoord met de voorwaarden, het privacybeleid en de annulerings- en retourvoorwaarden van de verkoper.",
+      "guestNote": "Afrekenen als gast is mogelijk. Log alleen in voordat je bestelt als je met deze aankoop V.Wallet cashback wilt verdienen.",
+      "apartment": "Appartement / Suite",
+      "apartmentPlaceholder": "Optioneel",
+      "city": "Stad *",
+      "cityPlaceholder": "Amsterdam",
+      "postcode": "Postcode *",
+      "postcodePlaceholder": "1234 AB",
+      "country": "Land",
+      "countries": {
+        "nl": "Nederland",
+        "be": "België",
+        "de": "Duitsland",
+        "fr": "Frankrijk",
+        "gb": "Verenigd Koninkrijk",
+        "other": "Overig"
+      },
+      "note": "Opmerking voor verkoper (optioneel)",
+      "notePlaceholder": "Eventuele bijzondere instructies…"
+    },
+    "settingUpPayment": "Betaling wordt voorbereid…",
+    "continueToPayment": "Doorgaan naar Betaling →",
+    "editCustomerDetails": "← Klantgegevens bewerken",
+    "orderSummary": "Besteloverzicht",
+    "subtotal": "Subtotaal",
+    "cashback": "V.Wallet cashback",
+    "cashbackSignInNote": "Log in voordat je bestelt om {{price}} V.Wallet cashback te verdienen.",
+    "total": "Totaal"
+  },
+  "marketplaceHome": {
+    "desktopBrandAriaLabel": "Stichting The V.O.I.C.E. NL — ga naar de homepage",
+    "menuOpenAriaLabel": "Navigatiemenu openen",
+    "notificationsOpenAriaLabel": "Meldingen openen",
+    "notificationsPanelAriaLabel": "Meldingen",
+    "notificationsHeading": "Meldingen",
+    "noNotifications": "Geen nieuwe meldingen",
+    "notificationsHint": "Updates over je bestellingen en marktplaatsactiviteit verschijnen hier.",
+    "cartAriaLabelWithCount_one": "Winkelwagen, {{count}} item",
+    "cartAriaLabelWithCount_other": "Winkelwagen, {{count}} items",
+    "cartAriaLabelEmpty": "Winkelwagen, leeg",
+    "closeMenuAriaLabel": "Navigatiemenu sluiten",
+    "mobileNavAriaLabel": "Mobiele navigatie",
+    "menuHeading": "Menu",
+    "nav": {
+      "home": "Home",
+      "events": "Evenementen",
+      "ourPillars": "Onze Pijlers",
+      "experience": "Ervaring",
+      "stories": "Verhalen",
+      "impact": "Impact",
+      "innovation": "Innovatie",
+      "partnerWithUs": "Samenwerken",
+      "sponsorship": "Sponsoring",
+      "donate": "Doneren",
+      "vcommerce": "V.Commerce",
+      "aboutUs": "Over Ons"
+    },
+    "marketplaceMenu": {
+      "heading": "V.Commerce",
+      "exploreShops": "Winkels Ontdekken",
+      "categories": "Categorieën",
+      "listYourBusiness": "Registreer Je Bedrijf",
+      "myDashboard": "Mijn Dashboard"
+    },
+    "preferences": {
+      "heading": "Voorkeuren & App",
+      "theme": "Thema"
+    },
+    "hero": {
+      "tagline": "V.O.I.C.E. NL GEMEENSCHAPSMARKTPLAATS",
+      "titlePart1": "Winkel. Steun.",
+      "titlePart2": "Groei.",
+      "descriptionMobile": "Ontdek betrouwbare bedrijven, producten en diensten van onze wereldwijde gemeenschap.",
+      "descriptionDesktopLine1": "Ontdek betrouwbare bedrijven, producten en diensten van onze wereldwijde gemeenschap.",
+      "descriptionDesktopLine2": "Winkel met vertrouwen en verdien V.Wallet cashback bij elke aankoop.",
+      "exploreShops": "Winkels Ontdekken",
+      "listYourBusiness": "Registreer Je Bedrijf",
+      "promises": {
+        "cashback": { "line1": "Verdien V.Wallet", "line2": "Cashback" },
+        "support": { "line1": "Steun Lokale &", "line2": "Wereldwijde Bedrijven" },
+        "verified": { "line1": "Geverifieerde &", "line2": "Vertrouwde Gemeenschap" },
+        "secure": { "line1": "Veilig &", "line2": "Eenvoudig Winkelen" }
+      },
+      "mosaicAlt": "Bedrijven van de community marktplaats",
+      "mobileHeroArtAlt": "Wereldwijde online marktplaats"
+    },
+    "quickActions": {
+      "exploreShops": "Winkels Ontdekken",
+      "myOrders": "Mijn Bestellingen",
+      "vWallet": "V.Wallet",
+      "listYourBusiness": "Registreer Je Bedrijf",
+      "categories": "Categorieën",
+      "deals": "Aanbiedingen",
+      "favourites": "Favorieten",
+      "vAssist": "V.Assist"
+    },
+    "businessOfWeek": {
+      "heading": "Bedrijf van de Week",
+      "viewAll": "Alles Bekijken",
+      "featured": "Uitgelicht",
+      "knversAlt": "Knvers digitale handel en IT-oplossingen",
+      "visitShop": "Bezoek Winkel",
+      "reviewsCount_one": "({{count}} review)",
+      "reviewsCount_other": "({{count}} reviews)"
+    },
+    "popular": {
+      "heading": "POPULAIRE KEUZES VOOR JOU",
+      "viewAll": "Alles Bekijken",
+      "addToFavouritesAriaLabel": "{{name}} toevoegen aan favorieten",
+      "cashback": "{{percent}}% Cashback"
+    },
+    "search": {
+      "ariaLabel": "Zoek marktplaats",
+      "placeholder": "Zoek bedrijven, producten, diensten...",
+      "categoryAriaLabel": "Categorie",
+      "allCategories": "Alle Categorieën",
+      "searchButtonAriaLabel": "Zoeken",
+      "shortcuts": {
+        "travel": "Reizen & Verblijf",
+        "yoga": "Yoga",
+        "fashion": "Mode",
+        "beauty": "Beauty",
+        "home": "Wonen & Huis",
+        "food": "Eten & Drinken",
+        "tech": "Tech & Digitaal",
+        "health": "Gezondheid & Welzijn",
+        "more": "Meer"
+      }
+    },
+    "why": {
+      "heading": "Waarom Winkelen op V.Commerce?",
+      "benefits": {
+        "cashback": { "title": "Cashback Beloningen", "body": "Verdien V.Wallet cashback bij elke aankoop" },
+        "verified": { "title": "Geverifieerde Bedrijven", "body": "Elke winkel wordt gecontroleerd en geverifieerd ter bescherming" },
+        "selection": { "title": "Ruim Aanbod", "body": "Duizenden kwaliteitsproducten & diensten" },
+        "community": { "title": "Community Gedreven", "body": "We versterken lokale, nationale & wereldwijde verkopers" },
+        "payments": { "title": "Veilig Betalen", "body": "Veilig, versleuteld & vertrouwd afrekenen" }
+      }
+    },
+    "impact": {
+      "heading": "Maak Impact",
+      "body": "Elke aankoop die je doet, helpt onze gemeenschap te versterken en zinvolle initiatieven te ondersteunen.",
+      "learnMore": "Meer Weten"
+    },
+    "owner": {
+      "shopGlobally": { "title": "Winkel Wereldwijd", "line1": "Van een vertrouwde gemeenschap", "line2": "over de hele wereld" },
+      "supportRealPeople": { "title": "Steun Echte Mensen", "line1": "Jouw aankoop stimuleert", "line2": "ondernemers" },
+      "growTogether": { "title": "Samen Groeien", "line1": "Sterkere gemeenschap,", "line2": "sterkere toekomst" },
+      "businessOwner": { "title": "Ben jij een ondernemer?", "body": "Registreer je bedrijf en bereik duizenden potentiële klanten." },
+      "applyNow": "Nu Aanmelden"
+    },
+    "bottomNav": {
+      "home": "Home",
+      "categories": "Categorieën",
+      "orders": "Bestellingen",
+      "wallet": "V.Wallet",
+      "profile": "Profiel"
+    },
+    "documentTitle": "V.Commerce — Community Marktplaats | V.O.I.C.E. NL"
+  },
+  "businessOfWeek": {
+    "featuredAriaLabel": "Uitgelicht bedrijf",
+    "featuredBadge": "Uitgelicht",
+    "addToFavourites": "{{name}} toevoegen aan favorieten",
+    "removeFromFavourites": "{{name}} verwijderen uit favorieten",
+    "ratingWithCount_one": "{{rating}} ({{count}} review)",
+    "ratingWithCount_other": "{{rating}} ({{count}} reviews)",
+    "noReviewsYet": "Nog geen reviews",
+    "sectionTitle": "Bedrijf van de Week",
+    "viewAll": "Alles Bekijken ›",
+    "carouselAriaLabel": "Carrousel met uitgelichte bedrijven",
+    "showBusinessAriaLabel": "Toon bedrijf {{n}}",
+    "visitShop": "Bezoek Winkel",
+    "mobileUnavailable": "Uitgelicht bedrijf momenteel niet beschikbaar.",
+    "mobileNoneYet": "Nog geen uitgelichte bedrijven — kom snel terug!",
+    "desktopUnavailable": "Uitlichting niet beschikbaar.",
+    "desktopNoneYet": "Nog geen uitgelichte bedrijven.",
+    "desktopReviewCount_one": " ({{count}} review)",
+    "desktopReviewCount_other": " ({{count}} reviews)"
+  },
+  "businessOwnerCta": {
+    "ariaLabel": "Oproep tot actie voor ondernemers",
+    "desktop": {
+      "heading": "Ben jij een ondernemer?",
+      "body": "Sluit je aan bij V.Commerce en bereik duizenden kopers die actief op zoek zijn naar community-bedrijven om te steunen.",
+      "cta": "Aanmelden als Verkoper"
+    },
+    "mobile": {
+      "heading": "Ben jij een ondernemer?",
+      "body": "Sluit je aan bij V.Commerce en bereik kopers die community-bedrijven willen steunen.",
+      "cta": "Aanmelden als Verkoper"
+    }
+  },
+  "impactCard": {
+    "ariaLabel": "Impact van de community",
+    "eyebrow": "Maak Impact",
+    "desktopTitle": "Elke Aankoop Steunt een Community-bedrijf",
+    "desktopBody": "Winkelen op V.Commerce financiert echte, door vrouwen geleide bedrijven, creëert lokale banen en bouwt bloeiende gemeenschappen op — wereldwijd.",
+    "learnMore": "Meer Weten",
+    "mobileBody": "Elke aankoop steunt een community-bedrijf.",
+    "mobileLearnMoreAriaLabel": "Meer weten over community impact"
+  },
+  "marketplaceBenefits": {
+    "desktopTitle": "Waarom Winkelen op V.Commerce?",
+    "mobileTitle": "Waarom V.Commerce?",
+    "items": {
+      "cashback": { "title": "V.Wallet Cashback", "body": "Verdien echte cashback bij elke aankoop, automatisch bijgeschreven op je V.Wallet." },
+      "verified": { "title": "Geverifieerde Bedrijven", "body": "Elke verkoper wordt gecontroleerd en geverifieerd voordat producten op V.Commerce mogen worden aangeboden." },
+      "delivery": { "title": "Betrouwbare Levering", "body": "Volg je bestellingen van afrekenen tot aan de deur — lokale en internationale verzending mogelijk." },
+      "community": { "title": "Community Impact", "body": "Winkelen op V.Commerce steunt wereldwijd door vrouwen geleide en community-gerunde bedrijven." },
+      "sustainable": { "title": "Duurzame Keuzes", "body": "Ontdek milieubewuste bedrijven die zich inzetten voor ethische en duurzame praktijken." }
+    }
+  },
+  "marketplaceMobileToolbar": {
+    "toolbarAriaLabel": "Marktplaatsfuncties",
+    "notificationsAriaLabel": "Meldingen",
+    "cartAriaLabelWithCount_one": "Winkelwagen, {{count}} item",
+    "cartAriaLabelWithCount_other": "Winkelwagen, {{count}} items",
+    "cartAriaLabelEmpty": "Winkelwagen"
+  },
+  "marketplaceSearch": {
+    "formAriaLabel": "Zoek in V.Commerce marktplaats",
+    "placeholder": "Zoek bedrijven, producten…",
+    "queryAriaLabel": "Zoekopdracht",
+    "clearAriaLabel": "Zoekopdracht wissen",
+    "categoryAriaLabel": "Bladeren op categorie",
+    "allCategoriesAriaLabel": "Bekijk alle categorieën",
+    "allCategories": "Alle categorieën →",
+    "shortcuts": {
+      "food": "Eten",
+      "fashion": "Mode",
+      "beauty": "Beauty",
+      "health": "Gezondheid",
+      "home": "Wonen",
+      "arts": "Kunst",
+      "travel": "Reizen",
+      "grocery": "Boodschappen"
+    }
+  },
+  "marketplaceStats": {
+    "ariaLabel": "Marktplaatsstatistieken",
+    "active": "Actief",
+    "global": "Wereldwijd",
+    "countriesCount": "{{count}}+ Landen",
+    "labels": {
+      "walletCashback": "V.Wallet Cashback",
+      "verifiedBusinesses": "Geverifieerde Bedrijven",
+      "activeShops": "Actieve Winkels",
+      "countries": "Wereldwijde Gemeenschap"
+    },
+    "desktopLabels": {
+      "activeShops": "Actieve Winkels",
+      "customers": "Tevreden Klanten",
+      "categories": "Categorieën",
+      "community": "Gemeenschap"
+    }
+  },
+  "mobileBottomNav": {
+    "navAriaLabel": "Marktplaatsnavigatie",
+    "tabs": {
+      "home": "Home",
+      "categories": "Categorieën",
+      "orders": "Bestellingen",
+      "wallet": "V.Wallet",
+      "profile": "Profiel"
+    }
+  },
+  "popularPicks": {
+    "addToFavourites": "{{name}} toevoegen aan favorieten",
+    "removeFromFavourites": "{{name}} verwijderen uit favorieten",
+    "desktopTitle": "Populaire Keuzes Voor Jou",
+    "mobileTitle": "Populaire Keuzes Voor Jou",
+    "viewAll": "Alles Bekijken",
+    "unavailable": "Producten momenteel niet beschikbaar.",
+    "none": "Nog geen producten vermeld.",
+    "cashbackDesktop": "V.Cashback",
+    "cashbackMobile": "Cashback",
+    "scrollableAriaLabel": "Populaire keuzes, horizontaal scrollbaar"
+  },
+  "quickActionsGrid": {
+    "navAriaLabel": "Snelle marktplaatsacties",
+    "actions": {
+      "shops": "Alle Winkels",
+      "categories": "Categorieën",
+      "favourites": "Favorieten",
+      "wallet": "V.Wallet",
+      "deals": "Aanbiedingen",
+      "deliver": "Levering",
+      "cashback": "Cashback",
+      "top": "Best Beoordeeld"
+    }
+  },
+  "ui": {
+    "toggleFavourite": "Favoriet wisselen",
+    "outOfFive": "{{rating}} van de 5",
+    "viewAll": "Alles Bekijken"
+  }
+}

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import {
   BOOKING_STATUS_LABELS,
@@ -13,6 +14,7 @@ export default function DashboardEventCard({
   onViewTickets,
   linkToDetail = false,
 }) {
+  const { t } = useTranslation(["dashboardMain"]);
   const statusLabel = BOOKING_STATUS_LABELS[event.bookingStatus];
   const imageSrc = event.heroImage || upcomingFallback;
   const ticketsEnabled = canViewTickets(event);
@@ -28,11 +30,11 @@ export default function DashboardEventCard({
           </span>
         ) : null}
         {event.isFeatured ? (
-          <span className="dash-my-events__badge dash-my-events__badge--featured">Featured Event</span>
+          <span className="dash-my-events__badge dash-my-events__badge--featured">{t("dashboardMain:eventCard.featuredBadge")}</span>
         ) : null}
         {event.daysRemaining != null && event.daysRemaining <= 14 ? (
           <span className="dash-my-events__badge dash-my-events__badge--days">
-            {event.daysRemaining} day{event.daysRemaining === 1 ? "" : "s"} left
+            {t("dashboardMain:eventCard.daysLeft", { count: event.daysRemaining })}
           </span>
         ) : null}
       </div>
@@ -55,7 +57,7 @@ export default function DashboardEventCard({
         {event.hasMembershipBenefit ? (
           <div className="dash-my-events__membership">
             <span className="dash-my-events__membership-badge">
-              {event.membershipBenefitDescription || "Membership Benefit Available"}
+              {event.membershipBenefitDescription || t("dashboardMain:eventCard.membershipBenefitDefault")}
             </span>
             {event.membershipBenefitLabel ? (
               <span className="dash-my-events__membership-value">{event.membershipBenefitLabel}</span>
@@ -90,7 +92,7 @@ export default function DashboardEventCard({
             </Link>
           )}
           <Link to={event.bookingUrl} className="dash-my-events__btn dash-my-events__btn--secondary">
-            Buy Tickets
+            {t("dashboardMain:eventCard.buyTickets")}
           </Link>
         </div>
       </div>

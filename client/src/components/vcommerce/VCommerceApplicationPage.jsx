@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { confirmApplicationPackagePayment, getApplyStatus, postApply } from "./shared/vcommerceApi.js";
 import { BUSINESS_CATEGORIES, BUSINESS_CATEGORY_LABELS } from "./shared/BUSINESS_CATEGORIES.js";
@@ -8,7 +9,7 @@ import PayoutRegistrationForm from "./shared/PayoutRegistrationForm.jsx";
 import "../../styles/vcommerce-marketplace.css";
 import { buildLoginUrl } from "../../utils/authRedirect.js";
 
-const STEPS = ["Your Business", "Selling Setup", "Contact & Links", "Payout & Identity", "Review"];
+const STEP_KEYS = ["business", "selling", "contact", "payout", "review"];
 const APPLICATION_DRAFT_KEY = "vcommerce_application_draft";
 
 function readApplicationDraft() {
@@ -19,20 +20,15 @@ function readApplicationDraft() {
   }
 }
 
-const STATUS_LABELS = {
-  pending: "Under Review",
-  approved: "Approved",
-  rejected: "Not Approved",
-};
-
 function StepIndicator({ current }) {
+  const { t } = useTranslation(["vcommercePortal"]);
   return (
     <div className="vco-apply-steps">
-      {STEPS.map((label, i) => (
-        <div key={label} className={`vco-apply-steps__step${i === current ? " vco-apply-steps__step--active" : i < current ? " vco-apply-steps__step--done" : ""}`}>
+      {STEP_KEYS.map((key, i) => (
+        <div key={key} className={`vco-apply-steps__step${i === current ? " vco-apply-steps__step--active" : i < current ? " vco-apply-steps__step--done" : ""}`}>
           <div className="vco-apply-steps__dot">{i < current ? "✓" : i + 1}</div>
-          <span>{label}</span>
-          {i < STEPS.length - 1 && <div className="vco-apply-steps__line" />}
+          <span>{t(`vcommercePortal:application.steps.${key}`)}</span>
+          {i < STEP_KEYS.length - 1 && <div className="vco-apply-steps__line" />}
         </div>
       ))}
     </div>
@@ -40,19 +36,26 @@ function StepIndicator({ current }) {
 }
 
 function StatusBadge({ status }) {
+  const { t } = useTranslation(["vcommercePortal"]);
   const colors = {
     pending: "vco-badge--warning",
     approved: "vco-badge--success",
     rejected: "vco-badge--error",
   };
+  const statusLabels = {
+    pending: t("vcommercePortal:application.status.pending"),
+    approved: t("vcommercePortal:application.status.approved"),
+    rejected: t("vcommercePortal:application.status.rejected"),
+  };
   return (
     <span className={`vco-badge ${colors[status] || ""}`}>
-      {STATUS_LABELS[status] || status}
+      {statusLabels[status] || status}
     </span>
   );
 }
 
 export default function VCommerceApplicationPage() {
+  const { t } = useTranslation(["vcommercePortal"]);
   const { user, loading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -91,9 +94,9 @@ export default function VCommerceApplicationPage() {
   }));
 
   useEffect(() => {
-    document.title = "Apply to V.Commerce — V.O.I.C.E. NL";
+    document.title = t("vcommercePortal:application.meta.pageTitle");
     return () => { document.title = "V.O.I.C.E. NL"; };
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!user) return;
@@ -146,10 +149,10 @@ export default function VCommerceApplicationPage() {
         navigate("/dashboard/vcommerce?onboarding=1&payment=success", { replace: true });
       })
       .catch((err) => {
-        setError(err?.message || "We could not verify your package payment.");
+        setError(err?.message || t("vcommercePortal:application.errors.paymentNotVerified"));
         setConfirmingPayment(false);
       });
-  }, [navigate, searchParams, user]);
+  }, [navigate, searchParams, user, t]);
 
   function set(field) {
     return (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -189,10 +192,10 @@ export default function VCommerceApplicationPage() {
         applicationMessage: form.applicationMessage,
         payoutRegistration: { ...form.payoutRegistration, consentAcceptedAt: true },
       });
-      if (!result?.url) throw new Error("Secure package checkout could not be started.");
+      if (!result?.url) throw new Error(t("vcommercePortal:application.errors.checkoutNotStarted"));
       window.location.assign(result.url);
     } catch (err) {
-      setError(err?.message || "Something went wrong. Please try again.");
+      setError(err?.message || t("vcommercePortal:application.errors.genericSubmit"));
       setSubmitting(false);
     }
   }
@@ -201,7 +204,7 @@ export default function VCommerceApplicationPage() {
     return (
       <div className="vco-apply-page">
         <div className="vco-apply-page__inner">
-          <p className="vco-apply-page__loading">Loading…</p>
+          <p className="vco-apply-page__loading">{t("vcommercePortal:application.loading")}</p>
         </div>
       </div>
     );
@@ -212,8 +215,8 @@ export default function VCommerceApplicationPage() {
       <div className="vco-apply-page">
         <div className="vco-apply-page__inner vco-apply-page__gate">
           <div className="vco-payment-orbit" aria-hidden="true"><span /><span /><span /></div>
-          <h1 className="vco-apply-page__title">Preparing your business workspace</h1>
-          <p className="vco-apply-page__subtitle">Payment received. We’re securely creating your private V.Commerce setup area.</p>
+          <h1 className="vco-apply-page__title">{t("vcommercePortal:application.confirmingPayment.title")}</h1>
+          <p className="vco-apply-page__subtitle">{t("vcommercePortal:application.confirmingPayment.subtitle")}</p>
         </div>
       </div>
     );
@@ -225,9 +228,9 @@ export default function VCommerceApplicationPage() {
       <div className="vco-apply-page">
         <div className="vco-apply-page__inner vco-apply-page__gate">
           <div className="vco-gate-icon">🔒</div>
-          <h1 className="vco-apply-page__title">Sign in to Apply</h1>
+          <h1 className="vco-apply-page__title">{t("vcommercePortal:application.authGate.title")}</h1>
           <p className="vco-apply-page__subtitle">
-            You need a V.O.I.C.E. NL account to apply for a V.Commerce business listing.
+            {t("vcommercePortal:application.authGate.subtitle")}
           </p>
           <Link
             to={buildLoginUrl(
@@ -238,10 +241,10 @@ export default function VCommerceApplicationPage() {
             )}
             className="vco-btn vco-btn--primary"
           >
-            Sign in or Create Account
+            {t("vcommercePortal:application.authGate.signInButton")}
           </Link>
           <Link to="/vcommerce" className="vco-btn vco-btn--ghost">
-            Back to V.Commerce
+            {t("vcommercePortal:application.authGate.backButton")}
           </Link>
         </div>
       </div>
@@ -252,7 +255,7 @@ export default function VCommerceApplicationPage() {
     return (
       <div className="vco-apply-page">
         <div className="vco-apply-page__inner">
-          <p className="vco-apply-page__loading">Preparing your business setup…</p>
+          <p className="vco-apply-page__loading">{t("vcommercePortal:application.statusLoading")}</p>
         </div>
       </div>
     );
@@ -264,20 +267,20 @@ export default function VCommerceApplicationPage() {
       <div className="vco-apply-page">
         <div className="vco-apply-page__inner vco-apply-page__gate">
           <div className="vco-gate-icon">📋</div>
-          <h1 className="vco-apply-page__title">Application Status</h1>
+          <h1 className="vco-apply-page__title">{t("vcommercePortal:application.alreadyApplied.title")}</h1>
           <p className="vco-apply-page__subtitle">
-            We've received your application. Here's where things stand:
+            {t("vcommercePortal:application.alreadyApplied.subtitle")}
           </p>
           <div className="vco-status-tracker">
             <StatusBadge status={statusData.applicationStatus} />
             {statusData.applicationStatus === "pending" && (
               <p className="vco-status-tracker__note">
-                Our team reviews applications within 5 business days. We'll send you an email once a decision is made.
+                {t("vcommercePortal:application.alreadyApplied.pendingNote")}
               </p>
             )}
             {statusData.applicationStatus === "approved" && (
               <p className="vco-status-tracker__note">
-                Congratulations! Your business has been approved. Go to your dashboard to set up your storefront.
+                {t("vcommercePortal:application.alreadyApplied.approvedNote")}
               </p>
             )}
           </div>
@@ -287,25 +290,24 @@ export default function VCommerceApplicationPage() {
                 {(user?.firstName || user?.email || "A").charAt(0).toUpperCase()}
               </span>
               <span>
-                <small>Signed in as</small>
-                <strong>{user?.email || "Your account"}</strong>
+                <small>{t("vcommercePortal:application.alreadyApplied.signedInAs")}</small>
+                <strong>{user?.email || t("vcommercePortal:application.alreadyApplied.yourAccount")}</strong>
               </span>
             </div>
             <p>
-              One application can be under review per account. To apply for a different business using another
-              account, sign out and continue with that account.
+              {t("vcommercePortal:application.alreadyApplied.oneApplicationNote")}
             </p>
             <button type="button" className="vco-btn vco-btn--switch-account" onClick={handleSwitchAccount}>
-              <span aria-hidden="true">↪</span> Sign out and use another account
+              <span aria-hidden="true">↪</span> {t("vcommercePortal:application.alreadyApplied.switchAccountButton")}
             </button>
           </div>
           {statusData.applicationStatus === "approved" && (
             <Link to="/dashboard/vcommerce" className="vco-btn vco-btn--primary">
-              Go to My Business Dashboard
+              {t("vcommercePortal:application.alreadyApplied.goToDashboard")}
             </Link>
           )}
           <Link to="/vcommerce" className="vco-btn vco-btn--ghost">
-            Back to V.Commerce
+            {t("vcommercePortal:application.alreadyApplied.backToVCommerce")}
           </Link>
         </div>
       </div>
@@ -317,15 +319,15 @@ export default function VCommerceApplicationPage() {
       <div className="vco-apply-page__inner">
         <div className="vco-apply-page__header">
           <Link to="/vcommerce" className="vco-apply-page__back">
-            ← Back to V.Commerce
+            {t("vcommercePortal:application.header.backLink")}
           </Link>
-          <h1 className="vco-apply-page__title">Apply to Join V.Commerce</h1>
+          <h1 className="vco-apply-page__title">{t("vcommercePortal:application.header.title")}</h1>
           <p className="vco-apply-page__subtitle">
-            List your business, sell products and services, and reach the V.O.I.C.E. NL community. Weekly featured spots available.
+            {t("vcommercePortal:application.header.subtitle")}
           </p>
           {statusData?.alreadyApplied && statusData.applicationStatus === "rejected" && statusData.reviewNote && (
             <div className="vco-apply-page__rejected-note">
-              <strong>Previous application note:</strong> {statusData.reviewNote}
+              <strong>{t("vcommercePortal:application.header.previousNote")}</strong> {statusData.reviewNote}
             </div>
           )}
         </div>
@@ -337,20 +339,20 @@ export default function VCommerceApplicationPage() {
             <div className="vco-apply-form__section">
               {/* Applicant type selector */}
               <div className="vco-field">
-                <label className="vco-label">I am applying as…</label>
+                <label className="vco-label">{t("vcommercePortal:application.step0.applicantTypeLabel")}</label>
                 <div className="vco-applicant-type-grid">
                   {[
                     {
                       value: "community_member",
                       icon: "👩",
-                      title: "Community Member",
-                      desc: "Independent, local and community-led businesses. No membership is required.",
+                      title: t("vcommercePortal:application.step0.communityMember.title"),
+                      desc: t("vcommercePortal:application.step0.communityMember.desc"),
                     },
                     {
                       value: "sponsor",
                       icon: "🏢",
-                      title: "Sponsor / Business",
-                      desc: "Brands, distributors, and businesses selling to our community (no membership required)",
+                      title: t("vcommercePortal:application.step0.sponsor.title"),
+                      desc: t("vcommercePortal:application.step0.sponsor.desc"),
                     },
                   ].map((opt) => (
                     <button
@@ -368,21 +370,21 @@ export default function VCommerceApplicationPage() {
               </div>
 
               <div className="vco-field">
-                <label className="vco-label" htmlFor="businessName">Business Name *</label>
+                <label className="vco-label" htmlFor="businessName">{t("vcommercePortal:application.step0.businessName.label")}</label>
                 <input
                   id="businessName"
                   className="vco-input"
                   type="text"
                   value={form.businessName}
                   onChange={set("businessName")}
-                  placeholder="e.g. Aisha's Artisan Skincare"
+                  placeholder={t("vcommercePortal:application.step0.businessName.placeholder")}
                   maxLength={120}
                   required
                 />
               </div>
 
               <div className="vco-field">
-                <label className="vco-label" htmlFor="category">Category *</label>
+                <label className="vco-label" htmlFor="category">{t("vcommercePortal:application.step0.category.label")}</label>
                 <select
                   id="category"
                   className="vco-input vco-input--select"
@@ -390,7 +392,7 @@ export default function VCommerceApplicationPage() {
                   onChange={set("category")}
                   required
                 >
-                  <option value="">Select a category…</option>
+                  <option value="">{t("vcommercePortal:application.step0.category.placeholder")}</option>
                   {BUSINESS_CATEGORIES.map((c) => (
                     <option key={c} value={c}>{BUSINESS_CATEGORY_LABELS[c]}</option>
                   ))}
@@ -398,27 +400,27 @@ export default function VCommerceApplicationPage() {
               </div>
 
               <div className="vco-field">
-                <label className="vco-label" htmlFor="tagline">Tagline</label>
+                <label className="vco-label" htmlFor="tagline">{t("vcommercePortal:application.step0.tagline.label")}</label>
                 <input
                   id="tagline"
                   className="vco-input"
                   type="text"
                   value={form.tagline}
                   onChange={set("tagline")}
-                  placeholder="One sentence that captures your brand"
+                  placeholder={t("vcommercePortal:application.step0.tagline.placeholder")}
                   maxLength={160}
                 />
                 <span className="vco-field__hint">{form.tagline.length}/160</span>
               </div>
 
               <div className="vco-field">
-                <label className="vco-label" htmlFor="description">Business Description *</label>
+                <label className="vco-label" htmlFor="description">{t("vcommercePortal:application.step0.description.label")}</label>
                 <textarea
                   id="description"
                   className="vco-input vco-input--textarea"
                   value={form.description}
                   onChange={set("description")}
-                  placeholder="Tell us about your business, what you offer, and what makes it special…"
+                  placeholder={t("vcommercePortal:application.step0.description.placeholder")}
                   maxLength={2000}
                   rows={5}
                   required
@@ -432,9 +434,9 @@ export default function VCommerceApplicationPage() {
           {step === 1 && (
             <div className="vco-apply-form__section vco-commercial-step">
               <div>
-                <span className="vco-kicker">Choose how you sell</span>
-                <h2 className="vco-commercial-step__title">Your shop, your way</h2>
-                <p className="vco-commercial-step__intro">No website? No problem. V.Commerce can become your complete online storefront.</p>
+                <span className="vco-kicker">{t("vcommercePortal:application.step1.kicker")}</span>
+                <h2 className="vco-commercial-step__title">{t("vcommercePortal:application.step1.title")}</h2>
+                <p className="vco-commercial-step__intro">{t("vcommercePortal:application.step1.intro")}</p>
               </div>
               <div className="vco-selling-grid">
                 {SELLING_MODES.map((mode) => (
@@ -447,11 +449,11 @@ export default function VCommerceApplicationPage() {
                   </button>
                 ))}
               </div>
-              <div className="vco-billing-toggle" aria-label="Billing cycle">
+              <div className="vco-billing-toggle" aria-label={t("vcommercePortal:application.step1.billingAriaLabel")}>
                 {["monthly", "annual"].map((cycle) => (
                   <button key={cycle} type="button" className={form.billingCycle === cycle ? "is-active" : ""}
                     onClick={() => setForm((f) => ({ ...f, billingCycle: cycle }))}>
-                    {cycle === "monthly" ? "Monthly" : "Annual · save more"}
+                    {cycle === "monthly" ? t("vcommercePortal:application.step1.monthly") : t("vcommercePortal:application.step1.annual")}
                   </button>
                 ))}
               </div>
@@ -460,16 +462,16 @@ export default function VCommerceApplicationPage() {
                   <button key={plan.id} type="button"
                     className={`vco-plan-card vco-plan-card--${plan.accent}${form.packageId === plan.id ? " is-selected" : ""}`}
                     onClick={() => setForm((f) => ({ ...f, packageId: plan.id }))}>
-                    {plan.id === "growth" && <span className="vco-plan-card__flag">Most popular</span>}
+                    {plan.id === "growth" && <span className="vco-plan-card__flag">{t("vcommercePortal:application.step1.mostPopular")}</span>}
                     <span className="vco-plan-card__name">{plan.name}</span>
-                    <span className="vco-plan-card__price">{form.billingCycle === "annual" ? plan.annual : plan.monthly}<small>/{form.billingCycle === "annual" ? "year" : "month"}</small></span>
-                    <span className="vco-plan-card__founding">Founding offer from {plan.founding}/month</span>
+                    <span className="vco-plan-card__price">{form.billingCycle === "annual" ? plan.annual : plan.monthly}<small>{form.billingCycle === "annual" ? t("vcommercePortal:application.step1.perYear") : t("vcommercePortal:application.step1.perMonth")}</small></span>
+                    <span className="vco-plan-card__founding">{t("vcommercePortal:application.step1.foundingOffer", { amount: plan.founding })}</span>
                     <ul>{plan.features.map((feature) => <li key={feature}>✓ {feature}</li>)}</ul>
                   </button>
                 ))}
               </div>
               <div className="vco-fee-notice">
-                <strong>Simple and transparent:</strong> V.Commerce retains 5% only on sales completed through our checkout. Seller payouts are normally initiated on the fifth business day after successful payment.
+                <strong>{t("vcommercePortal:application.step1.feeNoticeStrong")}</strong> {t("vcommercePortal:application.step1.feeNoticeText")}
               </div>
             </div>
           )}
@@ -477,55 +479,55 @@ export default function VCommerceApplicationPage() {
           {step === 2 && (
             <div className="vco-apply-form__section">
               <div className="vco-field">
-                <label className="vco-label" htmlFor="contactEmail">Contact Email *</label>
+                <label className="vco-label" htmlFor="contactEmail">{t("vcommercePortal:application.step2.contactEmail.label")}</label>
                 <input
                   id="contactEmail"
                   className="vco-input"
                   type="email"
                   value={form.contactEmail}
                   onChange={set("contactEmail")}
-                  placeholder="business@example.com"
+                  placeholder={t("vcommercePortal:application.step2.contactEmail.placeholder")}
                   required
                 />
               </div>
 
               <div className="vco-field">
-                <label className="vco-label" htmlFor="contactPhone">Phone / WhatsApp</label>
+                <label className="vco-label" htmlFor="contactPhone">{t("vcommercePortal:application.step2.contactPhone.label")}</label>
                 <input
                   id="contactPhone"
                   className="vco-input"
                   type="tel"
                   value={form.contactPhone}
                   onChange={set("contactPhone")}
-                  placeholder="+31 6 12345678"
+                  placeholder={t("vcommercePortal:application.step2.contactPhone.placeholder")}
                 />
               </div>
 
               <div className="vco-field">
-                <label className="vco-label" htmlFor="website">Website</label>
+                <label className="vco-label" htmlFor="website">{t("vcommercePortal:application.step2.website.label")}</label>
                 <input
                   id="website"
                   className="vco-input"
                   type="url"
                   value={form.website}
                   onChange={set("website")}
-                  placeholder="https://yourwebsite.com"
+                  placeholder={t("vcommercePortal:application.step2.website.placeholder")}
                 />
               </div>
 
-              <p className="vco-apply-form__subsection-label">Social Media (optional)</p>
+              <p className="vco-apply-form__subsection-label">{t("vcommercePortal:application.step2.socialMediaLabel")}</p>
 
               <div className="vco-field-grid">
                 {[
-                  { key: "instagram", placeholder: "instagram.com/yourbusiness" },
-                  { key: "facebook", placeholder: "facebook.com/yourbusiness" },
-                  { key: "linkedin", placeholder: "linkedin.com/in/you" },
-                  { key: "tiktok", placeholder: "tiktok.com/@you" },
-                  { key: "whatsapp", placeholder: "+31 6 12345678" },
-                ].map(({ key, placeholder }) => (
+                  { key: "instagram", labelKey: "instagram", placeholder: t("vcommercePortal:application.step2.social.instagram.placeholder") },
+                  { key: "facebook", labelKey: "facebook", placeholder: t("vcommercePortal:application.step2.social.facebook.placeholder") },
+                  { key: "linkedin", labelKey: "linkedin", placeholder: t("vcommercePortal:application.step2.social.linkedin.placeholder") },
+                  { key: "tiktok", labelKey: "tiktok", placeholder: t("vcommercePortal:application.step2.social.tiktok.placeholder") },
+                  { key: "whatsapp", labelKey: "whatsapp", placeholder: t("vcommercePortal:application.step2.social.whatsapp.placeholder") },
+                ].map(({ key, labelKey, placeholder }) => (
                   <div key={key} className="vco-field">
                     <label className="vco-label" htmlFor={key}>
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                      {t(`vcommercePortal:application.step2.social.${labelKey}.label`)}
                     </label>
                     <input
                       id={key}
@@ -544,11 +546,10 @@ export default function VCommerceApplicationPage() {
           {step === 3 && (
             <>
               <div className="vco-apply-form__section">
-                <span className="vco-kicker">Almost there</span>
-                <h2 className="vco-commercial-step__title">How should we pay you?</h2>
+                <span className="vco-kicker">{t("vcommercePortal:application.step3.kicker")}</span>
+                <h2 className="vco-commercial-step__title">{t("vcommercePortal:application.step3.title")}</h2>
                 <p className="vco-commercial-step__intro">
-                  This is used to set up your marketplace payouts with Stripe, our payment partner.
-                  Everything here stays private and is never shown on your storefront.
+                  {t("vcommercePortal:application.step3.intro")}
                 </p>
               </div>
               <PayoutRegistrationForm
@@ -565,14 +566,14 @@ export default function VCommerceApplicationPage() {
             <div className="vco-apply-form__section">
               <div className="vco-field">
                 <label className="vco-label" htmlFor="applicationMessage">
-                  Why do you want to join V.Commerce? *
+                  {t("vcommercePortal:application.step4.messageLabel")}
                 </label>
                 <textarea
                   id="applicationMessage"
                   className="vco-input vco-input--textarea"
                   value={form.applicationMessage}
                   onChange={set("applicationMessage")}
-                  placeholder="Tell us about your goals, your community connection, and what you hope to achieve through V.Commerce…"
+                  placeholder={t("vcommercePortal:application.step4.messagePlaceholder")}
                   maxLength={1000}
                   rows={6}
                   required
@@ -581,20 +582,20 @@ export default function VCommerceApplicationPage() {
               </div>
 
               <div className="vco-apply-form__summary">
-                <h3 className="vco-apply-form__summary-title">Review your application</h3>
+                <h3 className="vco-apply-form__summary-title">{t("vcommercePortal:application.step4.summary.title")}</h3>
                 <div className="vco-apply-form__summary-grid">
-                  <div><span>Business:</span> <strong>{form.businessName || "—"}</strong></div>
-                  <div><span>Category:</span> <strong>{BUSINESS_CATEGORY_LABELS[form.category] || "—"}</strong></div>
-                  <div><span>Email:</span> <strong>{form.contactEmail || "—"}</strong></div>
-                  <div><span>Selling:</span> <strong>{SELLING_MODES.find((m) => m.id === form.sellingMode)?.name}</strong></div>
-                  <div><span>Package:</span> <strong>{VCOMMERCE_PLANS.find((p) => p.id === form.packageId)?.name}</strong></div>
+                  <div><span>{t("vcommercePortal:application.step4.summary.business")}</span> <strong>{form.businessName || "—"}</strong></div>
+                  <div><span>{t("vcommercePortal:application.step4.summary.category")}</span> <strong>{BUSINESS_CATEGORY_LABELS[form.category] || "—"}</strong></div>
+                  <div><span>{t("vcommercePortal:application.step4.summary.email")}</span> <strong>{form.contactEmail || "—"}</strong></div>
+                  <div><span>{t("vcommercePortal:application.step4.summary.selling")}</span> <strong>{SELLING_MODES.find((m) => m.id === form.sellingMode)?.name}</strong></div>
+                  <div><span>{t("vcommercePortal:application.step4.summary.package")}</span> <strong>{VCOMMERCE_PLANS.find((p) => p.id === form.packageId)?.name}</strong></div>
                 </div>
               </div>
 
               <p className="vco-apply-form__terms">
-                By submitting, you agree to the{" "}
-                <Link to="/terms-and-conditions" target="_blank">V.Commerce Terms &amp; Conditions</Link>.
-                {" "}Our team normally reviews complete applications within 5 business days. Hosted V.Commerce sales carry a transparent 5% platform fee.
+                {t("vcommercePortal:application.step4.termsPrefix")}{" "}
+                <Link to="/terms-and-conditions" target="_blank">{t("vcommercePortal:application.step4.termsLink")}</Link>.
+                {" "}{t("vcommercePortal:application.step4.termsSuffix")}
               </p>
 
               {error && <p className="vco-apply-form__error">{error}</p>}
@@ -609,25 +610,25 @@ export default function VCommerceApplicationPage() {
                 onClick={() => setStep((s) => s - 1)}
                 disabled={submitting}
               >
-                ← Back
+                {t("vcommercePortal:application.nav.back")}
               </button>
             )}
-            {step < STEPS.length - 1 && (
+            {step < STEP_KEYS.length - 1 && (
               <button
                 type="button"
                 className="vco-btn vco-btn--primary"
                 onClick={() => setStep((s) => s + 1)}
               >
-                Continue →
+                {t("vcommercePortal:application.nav.continue")}
               </button>
             )}
-            {step === STEPS.length - 1 && (
+            {step === STEP_KEYS.length - 1 && (
               <button
                 type="submit"
                 className="vco-btn vco-btn--primary"
                 disabled={submitting}
               >
-                {submitting ? "Opening secure checkout…" : "Continue to Secure Payment"}
+                {submitting ? t("vcommercePortal:application.nav.submitting") : t("vcommercePortal:application.nav.submit")}
               </button>
             )}
           </div>

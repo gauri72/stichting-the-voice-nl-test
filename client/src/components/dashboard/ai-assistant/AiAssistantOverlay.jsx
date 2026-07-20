@@ -1,21 +1,24 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { IconMessageCircle2, IconBooks, IconCalendarTime, IconX } from "@tabler/icons-react";
 import { useAiAssistant } from "../../../contexts/AiAssistantContext.jsx";
 import AiChatPage from "./AiChatPage.jsx";
 import AiPromptLibraryPage from "./AiPromptLibraryPage.jsx";
 import AiScheduledPromptsPage from "./AiScheduledPromptsPage.jsx";
 
-const TABS = [
-  { id: "chat", label: "Chat", icon: IconMessageCircle2 },
-  { id: "prompts", label: "Prompt Library", icon: IconBooks },
-  { id: "schedule", label: "Scheduled Prompts", icon: IconCalendarTime },
+const TAB_DEFS = [
+  { id: "chat", labelKey: "chat", icon: IconMessageCircle2 },
+  { id: "prompts", labelKey: "promptLibrary", icon: IconBooks },
+  { id: "schedule", labelKey: "scheduledPrompts", icon: IconCalendarTime },
 ];
 
 export default function AiAssistantOverlay() {
+  const { t } = useTranslation(["dashboardMain"]);
   const { isOverlayOpen, closeAssistant } = useAiAssistant();
   const [activeTab, setActiveTab] = useState("chat");
   const reduceMotion = useReducedMotion();
+  const TABS = TAB_DEFS.map((tab) => ({ ...tab, label: t(`dashboardMain:aiAssistant.tabs.${tab.labelKey}`) }));
 
   useEffect(() => {
     if (!isOverlayOpen) return;
@@ -54,7 +57,7 @@ export default function AiAssistantOverlay() {
             transition={{ type: "spring", damping: 30, stiffness: 320 }}
             role="dialog"
             aria-modal="true"
-            aria-label="V Assist"
+            aria-label={t("dashboardMain:aiAssistant.common.dialogLabel")}
             className="ai-overlay-panel ai-premium-panel"
           >
             <header className="ai-premium-panel__header">
@@ -62,7 +65,7 @@ export default function AiAssistantOverlay() {
                 <span>V</span>
                 <strong>V.Assist</strong>
               </div>
-              <button type="button" onClick={closeAssistant} aria-label="Close V Assist" className="ai-premium-panel__close">
+              <button type="button" onClick={closeAssistant} aria-label={t("dashboardMain:aiAssistant.common.closeVAssist")} className="ai-premium-panel__close">
                 <IconX />
               </button>
             </header>

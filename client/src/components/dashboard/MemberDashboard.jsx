@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { BookTickets, ExportCsv, ManageMembership } from "../icons/icons/index.js";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { apiFetch, authHeaders } from "../../utils/api.js";
@@ -131,6 +132,7 @@ function LegacyMemberDashboard({ displayName, overview, activity, membership, ha
 }
 
 export default function MemberDashboard() {
+  const { t } = useTranslation(["dashboardMain"]);
   const { user } = useAuth();
   const isMobile = useIsMobileViewport(DASHBOARD_MOBILE_BREAKPOINT - 1);
   const [dashboard, setDashboard] = useState(null);
@@ -155,11 +157,11 @@ export default function MemberDashboard() {
       setDashboardConfig(configRes?.sections ? configRes : null);
       setDashboardData(dataRes);
     } catch (e) {
-      setLoadError(e.message || "Could not load your dashboard.");
+      setLoadError(e.message || t("dashboardMain:memberDashboard.loadError"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     load();
@@ -192,14 +194,14 @@ export default function MemberDashboard() {
   const quickActions = [
     {
       id: "explore",
-      label: "Explore Events",
+      label: t("dashboardMain:common.quickActions.exploreEvents"),
       icon: <BookTickets width={20} height={20} />,
       to: DASHBOARD_ROUTES.myEvents,
       tone: "teal",
     },
     {
       id: "download",
-      label: "Download Card",
+      label: t("dashboardMain:common.quickActions.downloadCard"),
       icon: <ExportCsv width={20} height={20} />,
       tone: "blue",
       onClick: () => {
@@ -211,14 +213,14 @@ export default function MemberDashboard() {
     },
     {
       id: "renew",
-      label: "Renew Membership",
+      label: t("dashboardMain:common.quickActions.renewMembership"),
       icon: <ManageMembership width={20} height={20} />,
       to: DASHBOARD_ROUTES.membershipMatrix,
       tone: "green",
     },
     {
       id: "upgrade",
-      label: "Upgrade Membership",
+      label: t("dashboardMain:common.quickActions.upgradeMembership"),
       icon: <ManageMembership width={20} height={20} />,
       to: DASHBOARD_ROUTES.membershipMatrix,
       tone: "teal-dark",
@@ -239,7 +241,7 @@ export default function MemberDashboard() {
   if (loading) {
     return (
       <DashboardShell>
-        <div className="member-dashboard__status">Loading your dashboard…</div>
+        <div className="member-dashboard__status">{t("dashboardMain:memberDashboard.loading")}</div>
       </DashboardShell>
     );
   }
@@ -250,7 +252,7 @@ export default function MemberDashboard() {
         <div className="member-dashboard__status member-dashboard__status--error" role="alert">
           <p>{loadError}</p>
           <button type="button" className="member-dashboard__retry" onClick={load}>
-            Try again
+            {t("dashboardMain:common.tryAgain")}
           </button>
         </div>
       </DashboardShell>

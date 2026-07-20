@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useWholesaler } from "../../../contexts/WholesalerContext.jsx";
 import { getMyWholesalerProfile, postReorderFromPastOrder } from "../../vcommerce/shared/vcommerceApi.js";
 import { apiFetch, authHeaders } from "../../../utils/api.js";
 import "../../../styles/vcommerce-marketplace.css";
 
-const STATUS_LABELS = { pending: "Pending Review", approved: "Approved", suspended: "Suspended" };
 const STATUS_CLASS = { pending: "vco-badge--warning", approved: "vco-badge--success", suspended: "vco-badge--error" };
 
 function euro(minor) {
@@ -17,9 +17,8 @@ function formatDate(d) {
   return new Date(d).toLocaleDateString("nl-NL", { day: "numeric", month: "short", year: "numeric" });
 }
 
-const TABS = ["Overview", "Order History"];
-
 export default function WholesalerPortalPage() {
+  const { t } = useTranslation(["vcommercePortal"]);
   const { status: wsStatus, loaded } = useWholesaler();
   const [profile, setProfile] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -28,6 +27,13 @@ export default function WholesalerPortalPage() {
   const [activeTab, setActiveTab] = useState(0);
   const [reordering, setReordering] = useState(null);
   const [reorderMsg, setReorderMsg] = useState("");
+
+  const STATUS_LABELS = {
+    pending: t("vcommercePortal:wholesalerPortal.status.pending"),
+    approved: t("vcommercePortal:wholesalerPortal.status.approved"),
+    suspended: t("vcommercePortal:wholesalerPortal.status.suspended"),
+  };
+  const TABS = [t("vcommercePortal:wholesalerPortal.tabs.overview"), t("vcommercePortal:wholesalerPortal.tabs.orderHistory")];
 
   useEffect(() => {
     if (wsStatus?.registered) {
@@ -51,9 +57,9 @@ export default function WholesalerPortalPage() {
       // Merge items into vco_cart localStorage
       const cart = { businessId: data.cart.businessId, businessName: data.cart.businessName, cashbackPercent: 5, items: data.cart.items };
       localStorage.setItem("vco_cart", JSON.stringify(cart));
-      setReorderMsg("Cart loaded — go to marketplace to checkout.");
+      setReorderMsg(t("vcommercePortal:wholesalerPortal.reorder.success"));
     } catch (e) {
-      setReorderMsg(e.message || "Could not load reorder.");
+      setReorderMsg(e.message || t("vcommercePortal:wholesalerPortal.reorder.error"));
     } finally {
       setReordering(null);
     }
@@ -65,9 +71,9 @@ export default function WholesalerPortalPage() {
     return (
       <div className="vco-page vco-page--center">
         <div className="vco-auth-gate">
-          <h2 className="vco-auth-gate__title">Wholesaler Account Required</h2>
-          <p className="vco-auth-gate__text">Register as a wholesaler to access bulk pricing and the wholesaler portal.</p>
-          <Link to="/vcommerce/wholesaler/register" className="vco-btn vco-btn--primary">Register as Wholesaler</Link>
+          <h2 className="vco-auth-gate__title">{t("vcommercePortal:wholesalerPortal.registrationRequired.title")}</h2>
+          <p className="vco-auth-gate__text">{t("vcommercePortal:wholesalerPortal.registrationRequired.text")}</p>
+          <Link to="/vcommerce/wholesaler/register" className="vco-btn vco-btn--primary">{t("vcommercePortal:wholesalerPortal.registrationRequired.button")}</Link>
         </div>
       </div>
     );
@@ -78,12 +84,11 @@ export default function WholesalerPortalPage() {
       <div className="vco-page vco-page--center">
         <div className="vco-auth-gate">
           <div className="mkt-success-card__icon" aria-hidden>⏳</div>
-          <h2 className="vco-auth-gate__title">Application Under Review</h2>
+          <h2 className="vco-auth-gate__title">{t("vcommercePortal:wholesalerPortal.pendingReview.title")}</h2>
           <p className="vco-auth-gate__text">
-            Your wholesaler application for <strong>{wsStatus.companyName}</strong> is being reviewed.
-            You will receive an email when it is approved.
+            {t("vcommercePortal:wholesalerPortal.pendingReview.text", { companyName: wsStatus.companyName })}
           </p>
-          <Link to="/vcommerce" className="vco-btn vco-btn--primary">Browse Marketplace</Link>
+          <Link to="/vcommerce" className="vco-btn vco-btn--primary">{t("vcommercePortal:wholesalerPortal.pendingReview.button")}</Link>
         </div>
       </div>
     );
@@ -104,7 +109,7 @@ export default function WholesalerPortalPage() {
             </div>
           </div>
           <div className="mkt-portal__header-actions">
-            <Link to="/vcommerce" className="vco-btn vco-btn--secondary">Browse Marketplace</Link>
+            <Link to="/vcommerce" className="vco-btn vco-btn--secondary">{t("vcommercePortal:wholesalerPortal.browseMarketplace")}</Link>
           </div>
         </div>
 
@@ -127,23 +132,23 @@ export default function WholesalerPortalPage() {
         {activeTab === 0 && profile && (
           <div className="mkt-portal__overview">
             <div className="mkt-info-card">
-              <h3 className="mkt-info-card__title">Company Details</h3>
+              <h3 className="mkt-info-card__title">{t("vcommercePortal:wholesalerPortal.companyDetails.title")}</h3>
               <dl className="mkt-info-card__dl">
-                <dt>Company Name</dt><dd>{profile.companyName}</dd>
-                <dt>Type</dt><dd>{profile.companyType?.replace(/_/g, " ")}</dd>
-                {profile.kvkNumber && <><dt>KvK / Registration</dt><dd>{profile.kvkNumber}</dd></>}
-                {profile.vatNumber && <><dt>VAT Number</dt><dd>{profile.vatNumber}</dd></>}
-                <dt>Status</dt><dd><span className={`vco-badge ${STATUS_CLASS[profile.status]}`}>{STATUS_LABELS[profile.status]}</span></dd>
-                <dt>Member Since</dt><dd>{formatDate(profile.createdAt)}</dd>
+                <dt>{t("vcommercePortal:wholesalerPortal.companyDetails.companyName")}</dt><dd>{profile.companyName}</dd>
+                <dt>{t("vcommercePortal:wholesalerPortal.companyDetails.type")}</dt><dd>{profile.companyType?.replace(/_/g, " ")}</dd>
+                {profile.kvkNumber && <><dt>{t("vcommercePortal:wholesalerPortal.companyDetails.kvk")}</dt><dd>{profile.kvkNumber}</dd></>}
+                {profile.vatNumber && <><dt>{t("vcommercePortal:wholesalerPortal.companyDetails.vat")}</dt><dd>{profile.vatNumber}</dd></>}
+                <dt>{t("vcommercePortal:wholesalerPortal.companyDetails.status")}</dt><dd><span className={`vco-badge ${STATUS_CLASS[profile.status]}`}>{STATUS_LABELS[profile.status]}</span></dd>
+                <dt>{t("vcommercePortal:wholesalerPortal.companyDetails.memberSince")}</dt><dd>{formatDate(profile.createdAt)}</dd>
               </dl>
             </div>
             <div className="mkt-info-card">
-              <h3 className="mkt-info-card__title">Contact &amp; Address</h3>
+              <h3 className="mkt-info-card__title">{t("vcommercePortal:wholesalerPortal.contactAddress.title")}</h3>
               <dl className="mkt-info-card__dl">
-                {profile.contactEmail && <><dt>Email</dt><dd>{profile.contactEmail}</dd></>}
-                {profile.contactPhone && <><dt>Phone</dt><dd>{profile.contactPhone}</dd></>}
-                {profile.website && <><dt>Website</dt><dd><a href={profile.website} target="_blank" rel="noopener noreferrer">{profile.website}</a></dd></>}
-                {profile.address?.city && <><dt>Location</dt><dd>{[profile.address.street, profile.address.city, profile.address.postcode, profile.address.country].filter(Boolean).join(", ")}</dd></>}
+                {profile.contactEmail && <><dt>{t("vcommercePortal:wholesalerPortal.contactAddress.email")}</dt><dd>{profile.contactEmail}</dd></>}
+                {profile.contactPhone && <><dt>{t("vcommercePortal:wholesalerPortal.contactAddress.phone")}</dt><dd>{profile.contactPhone}</dd></>}
+                {profile.website && <><dt>{t("vcommercePortal:wholesalerPortal.contactAddress.website")}</dt><dd><a href={profile.website} target="_blank" rel="noopener noreferrer">{profile.website}</a></dd></>}
+                {profile.address?.city && <><dt>{t("vcommercePortal:wholesalerPortal.contactAddress.location")}</dt><dd>{[profile.address.street, profile.address.city, profile.address.postcode, profile.address.country].filter(Boolean).join(", ")}</dd></>}
               </dl>
             </div>
           </div>
@@ -155,20 +160,20 @@ export default function WholesalerPortalPage() {
             {reorderMsg && <div className="vco-success-banner" role="status">{reorderMsg}</div>}
             {orders.length === 0 ? (
               <div className="vco-empty-state">
-                <p>No orders yet.</p>
-                <Link to="/vcommerce" className="vco-btn vco-btn--primary">Browse Marketplace</Link>
+                <p>{t("vcommercePortal:wholesalerPortal.orders.empty")}</p>
+                <Link to="/vcommerce" className="vco-btn vco-btn--primary">{t("vcommercePortal:wholesalerPortal.browseMarketplace")}</Link>
               </div>
             ) : (
               <div className="mkt-order-table-wrap">
                 <table className="mkt-order-table">
                   <thead>
                     <tr>
-                      <th>Order</th>
-                      <th>Seller</th>
-                      <th>Items</th>
-                      <th>Total</th>
-                      <th>Status</th>
-                      <th>Date</th>
+                      <th>{t("vcommercePortal:wholesalerPortal.orders.table.order")}</th>
+                      <th>{t("vcommercePortal:wholesalerPortal.orders.table.seller")}</th>
+                      <th>{t("vcommercePortal:wholesalerPortal.orders.table.items")}</th>
+                      <th>{t("vcommercePortal:wholesalerPortal.orders.table.total")}</th>
+                      <th>{t("vcommercePortal:wholesalerPortal.orders.table.status")}</th>
+                      <th>{t("vcommercePortal:wholesalerPortal.orders.table.date")}</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -188,7 +193,7 @@ export default function WholesalerPortalPage() {
                               onClick={() => handleReorder(o._id)}
                               disabled={reordering === o._id}
                             >
-                              {reordering === o._id ? "…" : "Reorder"}
+                              {reordering === o._id ? "…" : t("vcommercePortal:wholesalerPortal.orders.reorderButton")}
                             </button>
                           )}
                         </td>
@@ -198,9 +203,9 @@ export default function WholesalerPortalPage() {
                 </table>
                 {ordersTotal > 10 && (
                   <div className="mkt-pagination">
-                    <button className="vco-btn vco-btn--ghost vco-btn--sm" onClick={() => setOrdersPage((p) => Math.max(1, p - 1))} disabled={ordersPage === 1}>← Prev</button>
-                    <span>Page {ordersPage}</span>
-                    <button className="vco-btn vco-btn--ghost vco-btn--sm" onClick={() => setOrdersPage((p) => p + 1)} disabled={ordersPage * 10 >= ordersTotal}>Next →</button>
+                    <button className="vco-btn vco-btn--ghost vco-btn--sm" onClick={() => setOrdersPage((p) => Math.max(1, p - 1))} disabled={ordersPage === 1}>{t("vcommercePortal:wholesalerPortal.pagination.prev")}</button>
+                    <span>{t("vcommercePortal:wholesalerPortal.pagination.page", { page: ordersPage })}</span>
+                    <button className="vco-btn vco-btn--ghost vco-btn--sm" onClick={() => setOrdersPage((p) => p + 1)} disabled={ordersPage * 10 >= ordersTotal}>{t("vcommercePortal:wholesalerPortal.pagination.next")}</button>
                   </div>
                 )}
               </div>

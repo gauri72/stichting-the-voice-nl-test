@@ -1,0 +1,334 @@
+{
+  "common": {
+    "tryAgain": "Erneut versuchen",
+    "dashboardLink": "Dashboard",
+    "quickActions": {
+      "exploreEvents": "Veranstaltungen entdecken",
+      "downloadCard": "Karte herunterladen",
+      "renewMembership": "Mitgliedschaft verlängern",
+      "upgradeMembership": "Mitgliedschaft upgraden"
+    }
+  },
+  "customerDashboardRenderer": {
+    "defaultCtas": {
+      "donateNow": "Jetzt spenden",
+      "becomeSponsor": "Sponsor werden",
+      "volunteerWithUs": "Ehrenamtlich mitwirken"
+    },
+    "welcomeBanner": {
+      "defaultGreeting": "Willkommen,"
+    },
+    "paymentMethods": {
+      "title": "Zahlungsmethoden",
+      "body": "Hier erscheinen die Zahlungsmethoden für das angemeldete Mitglied."
+    }
+  },
+  "eventCard": {
+    "featuredBadge": "Empfohlene Veranstaltung",
+    "daysLeft_one": "Noch {{count}} Tag",
+    "daysLeft_other": "Noch {{count}} Tage",
+    "membershipBenefitDefault": "Mitgliedschaftsvorteil verfügbar",
+    "buyTickets": "Tickets kaufen"
+  },
+  "eventTickets": {
+    "loading": "Deine Tickets werden geladen…",
+    "loadError": "Tickets konnten nicht geladen werden.",
+    "backToMyEvents": "Zurück zu Meine Veranstaltungen",
+    "backLink": "Meine Veranstaltungen",
+    "subtitle": "Deine Tickets für dieses Erlebnis",
+    "summary": {
+      "heading": "Ticketübersicht",
+      "ticketType": "Tickettyp",
+      "quantity": "Anzahl",
+      "orderNumber": "Bestellnummer",
+      "purchaseDate": "Kaufdatum",
+      "status": "Status",
+      "totalPaid": "Gesamt bezahlt",
+      "paymentMethod": "Zahlungsmethode",
+      "paymentMethodValues": {
+        "wallet": "V.Wallet",
+        "walletSplit": "V.Wallet + Karte",
+        "free": "Kostenlose Buchung",
+        "card": "Karte"
+      }
+    },
+    "ticketCard": {
+      "checkedIn": "Eingecheckt",
+      "valid": "Gültig",
+      "orderRef": "Bestellung {{orderNumber}}",
+      "downloadPdf": "PDF herunterladen",
+      "downloadQrPng": "QR-Code herunterladen (PNG)",
+      "downloadQrSvg": "QR-Code herunterladen (SVG)",
+      "addToWallet": "Zu Wallet hinzufügen",
+      "comingSoon": "Demnächst verfügbar",
+      "viewFullTicket": "Vollständiges Ticket ansehen"
+    },
+    "list": {
+      "heading": "Deine Tickets"
+    },
+    "buyMoreTickets": "Weitere Tickets kaufen"
+  },
+  "giving": {
+    "donations": {
+      "title": "Meine Spenden",
+      "subtitle": "Ein Verlauf jeder Spende, die du für unsere Mission geleistet hast.",
+      "summaryHeading": "Insgesamt gespendet",
+      "emptyTitle": "Noch keine Spenden.",
+      "emptyBody": "Jeder Beitrag — groß oder klein — unterstützt unsere Mission.",
+      "ctaLabel": "Jetzt spenden",
+      "loading": "Dein Spendenverlauf wird geladen…",
+      "countLabel_one": "{{count}} Spende",
+      "countLabel_other": "{{count}} Spenden"
+    },
+    "sponsorships": {
+      "title": "Meine Sponsorings",
+      "subtitle": "Ein Verlauf jedes Sponsorings, das du unterstützt hast.",
+      "summaryHeading": "Insgesamt gesponsert",
+      "emptyTitle": "Noch keine Sponsorings.",
+      "emptyBody": "Sponsere eine Veranstaltung oder Kampagne, damit sie hier erscheint.",
+      "ctaLabel": "Sponsor werden",
+      "loading": "Dein Sponsoring-Verlauf wird geladen…",
+      "countLabel_one": "{{count}} Sponsoring",
+      "countLabel_other": "{{count}} Sponsorings"
+    },
+    "loadError": "Dieser Verlauf konnte nicht geladen werden.",
+    "historyHeading": "Verlauf"
+  },
+  "myEvents": {
+    "loading": "Deine Veranstaltungen werden geladen…",
+    "loadError": "Veranstaltungen konnten nicht geladen werden.",
+    "header": {
+      "title": "Meine Veranstaltungen",
+      "subtitle": "Entdecke kommende Erlebnisse und rufe deine Tickets ab."
+    },
+    "search": {
+      "placeholder": "Suche nach Veranstaltung, Ort oder Location…",
+      "ariaLabel": "Veranstaltungen suchen"
+    },
+    "filtersAriaLabel": "Veranstaltungen filtern",
+    "featuredEventsHeading": "Empfohlene Veranstaltungen",
+    "history": {
+      "heading": "Mein Veranstaltungsverlauf",
+      "empty": "Du hast noch keine Veranstaltungen gebucht.",
+      "exploreEvents": "Veranstaltungen entdecken",
+      "viewTicket": "Ticket ansehen",
+      "downloadPdf": "PDF herunterladen",
+      "ticketCount_one": "{{count}} Ticket",
+      "ticketCount_other": "{{count}} Tickets"
+    },
+    "emptyState": {
+      "title": "Derzeit sind keine bevorstehenden Veranstaltungen verfügbar.",
+      "body": "Schau bald wieder vorbei für neue V.O.I.C.E. NL-Erlebnisse.",
+      "cta": "Erlebnisse entdecken"
+    },
+    "upcomingEventsHeading": "Bevorstehende Veranstaltungen",
+    "allEventsHeading": "Alle Veranstaltungen",
+    "resultsHeading": "Ergebnisse",
+    "noResults": "Keine Veranstaltungen entsprechen deiner Suche oder deinem Filter."
+  },
+  "subpageNav": {
+    "ariaLabel": "Dashboard-Navigation",
+    "backToDashboard": "Zurück zum Dashboard",
+    "labels": {
+      "eventTickets": "Veranstaltungstickets",
+      "myEvents": "Meine Veranstaltungen",
+      "myDonations": "Meine Spenden",
+      "mySponsorships": "Meine Sponsorings",
+      "myProfile": "Mein Profil",
+      "vWallet": "V.Wallet",
+      "buyerPortal": "Käuferportal",
+      "businessHub": "Business Hub",
+      "promptLibrary": "Prompt-Bibliothek",
+      "scheduledPrompts": "Geplante Prompts",
+      "vAssist": "V.Assist",
+      "dashboard": "Dashboard"
+    }
+  },
+  "memberDashboard": {
+    "loading": "Dein Dashboard wird geladen…",
+    "loadError": "Dein Dashboard konnte nicht geladen werden."
+  },
+  "membershipEcard": {
+    "noActiveMembership": {
+      "title": "Keine aktive Mitgliedschaft",
+      "body": "Tritt einem Mitgliedschaftsplan bei, um deine digitale Karte, QR-Verifizierung und Wallet-Pass freizuschalten."
+    },
+    "ariaLabel": "Digitale Mitgliedskarte",
+    "qrAlt": "QR-Code der Mitgliedschaft für {{membershipId}}",
+    "copyIdAriaLabel": "Mitglieds-ID {{membershipId}} kopieren"
+  },
+  "aiAssistant": {
+    "common": {
+      "backToDashboard": "Zurück zum Dashboard",
+      "closeVAssist": "V Assist schließen",
+      "dialogLabel": "V Assist"
+    },
+    "tabs": {
+      "chat": "Chat",
+      "promptLibrary": "Prompt-Bibliothek",
+      "scheduledPrompts": "Geplante Prompts"
+    },
+    "pageShell": {
+      "navAriaLabel": "Bereiche des KI-Assistenten"
+    },
+    "chat": {
+      "header": {
+        "tagline": "Dein persönlicher KI-Concierge",
+        "chatHistoryAriaLabel": "Chatverlauf",
+        "newChatAriaLabel": "Neuen Chat starten",
+        "newChat": "Neuer Chat"
+      },
+      "welcome": {
+        "heading": "Dein Community Concierge",
+        "subheading": "Wie kann ich dir heute helfen?",
+        "online": "Online",
+        "memberContextLabel": "Mitgliedskontext",
+        "walletLabel": "V.Wallet",
+        "introTitle": "Willkommen zurück.",
+        "introSubtitle": "Hier sind ein paar Dinge, bei denen ich dir helfen kann."
+      },
+      "starters": {
+        "findEvent": { "title": "Veranstaltung finden", "subtitle": "Entdecke, was los ist", "prompt": "Welche Veranstaltungen stehen an?" },
+        "exploreCommerce": { "title": "V.Commerce entdecken", "subtitle": "Kuratierte Angebote shoppen", "prompt": "Zeig mir ausgewählte V.Commerce-Angebote" },
+        "checkBenefits": { "title": "Meine Vorteile prüfen", "subtitle": "Sieh, worauf du Anspruch hast", "prompt": "Welche Mitgliedschaftsvorteile kann ich nutzen?" },
+        "useWallet": { "title": "Meine V.Wallet nutzen", "subtitle": "Guthaben & Verlauf ansehen", "prompt": "Hilf mir mit meiner V.Wallet" }
+      },
+      "suggestions": {
+        "weekAheadLabel": "Was steht diese Woche an?",
+        "weekAheadPrompt": "Was steht diese Woche an?",
+        "discountsLabel": "Mitgliederrabatte anzeigen",
+        "discountsPrompt": "Zeig mir Mitgliederrabatte"
+      },
+      "errorDismiss": "Schließen",
+      "footerTags": {
+        "private": "Privat",
+        "personalised": "Personalisiert",
+        "available247": "Rund um die Uhr verfügbar"
+      },
+      "composer": {
+        "placeholder": "Frag V.Assist irgendetwas…",
+        "messageAriaLabel": "Nachricht",
+        "voiceInputAriaLabel": "Spracheingabe",
+        "sendAriaLabel": "Nachricht senden",
+        "saveLastPromptAriaLabel": "Letzten Prompt speichern"
+      },
+      "savePromptFeedback": "In deiner Prompt-Bibliothek gespeichert!",
+      "history": {
+        "heading": "Chatverlauf",
+        "closeAriaLabel": "Schließen",
+        "empty": "Noch keine früheren Chats."
+      },
+      "defaultMembershipLabel": "Mitglied"
+    },
+    "promptLibrary": {
+      "heading": "Prompt-Bibliothek",
+      "subtitle": "Speichere häufig genutzte Prompts oder führe einen der vorgefertigten Prompts unten aus.",
+      "newPromptPlaceholder": "Schreibe einen neuen Prompt zum Speichern…",
+      "newPromptAriaLabel": "Neuer Prompt-Text",
+      "addButton": "Hinzufügen",
+      "allCategory": "Alle",
+      "prebuiltHeading": "Vorgefertigte Prompts",
+      "yourPromptsHeading": "Deine Prompts",
+      "emptySaved": "Noch keine gespeicherten Prompts in dieser Kategorie."
+    },
+    "scheduledPrompts": {
+      "heading": "Geplante Prompts",
+      "subtitle": "Automatische Check-ins, geliefert genau wie du es möchtest.",
+      "newScheduleButton": "Neuer Zeitplan",
+      "empty": "Noch keine geplanten Prompts. Erstelle einen für automatische Updates."
+    },
+    "chatBubble": {
+      "yourMessageAriaLabel": "Deine Nachricht",
+      "assistantMessageAriaLabel": "Nachricht des Assistenten"
+    },
+    "countdown": {
+      "dueNow": "jetzt fällig",
+      "daysHours": "{{days}} T {{hours}} Std.",
+      "hoursMinutes": "{{hours}} Std. {{minutes}} Min.",
+      "minutes": "{{minutes}} Min."
+    },
+    "promptCard": {
+      "removeFavouriteAriaLabel": "Aus Favoriten entfernen",
+      "addFavouriteAriaLabel": "Zu Favoriten hinzufügen",
+      "deletePromptAriaLabel": "Prompt löschen",
+      "runPromptAriaLabel": "Diesen Prompt ausführen",
+      "runButton": "Ausführen"
+    },
+    "scheduleModal": {
+      "ariaLabel": "Einen Prompt planen",
+      "heading": "Prompt planen",
+      "closeAriaLabel": "Schließen",
+      "weekdays": {
+        "sun": "So",
+        "mon": "Mo",
+        "tue": "Di",
+        "wed": "Mi",
+        "thu": "Do",
+        "fri": "Fr",
+        "sat": "Sa"
+      },
+      "delivery": {
+        "dashboard": "Im Dashboard",
+        "email": "E-Mail",
+        "push": "Push"
+      },
+      "fields": {
+        "prompt": "Prompt",
+        "promptPlaceholder": "z. B. Gib mir eine Zusammenfassung der heutigen Nachrichten",
+        "frequency": "Häufigkeit",
+        "time": "Uhrzeit",
+        "days": "Tage",
+        "dateTime": "Datum & Uhrzeit",
+        "deliveryMethod": "Zustellmethode"
+      },
+      "frequencyOptions": {
+        "daily": "Täglich",
+        "weekly": "Wöchentlich",
+        "once": "Einmalig"
+      },
+      "pushBlocked": "Benachrichtigungen wurden blockiert — aktiviere sie in deinen Browsereinstellungen, um Push-Zustellung zu nutzen.",
+      "errors": {
+        "promptRequired": "Prompt-Text ist erforderlich.",
+        "pickDay": "Wähle mindestens einen Tag.",
+        "pickDateTime": "Wähle ein Datum und eine Uhrzeit.",
+        "createFailed": "Der geplante Prompt konnte nicht erstellt werden."
+      },
+      "submit": {
+        "saving": "Wird gespeichert…",
+        "default": "Prompt planen"
+      }
+    },
+    "scheduleTimelineItem": {
+      "dailyAt": "Täglich um {{time}}",
+      "weeklyAt": "Wöchentlich ({{days}}) um {{time}}",
+      "onceOn": "Einmalig am {{datetime}}",
+      "active": "Aktiv",
+      "paused": "Pausiert",
+      "nextIn": "nächstes in",
+      "lastRun": "Letzte Ausführung: {{value}}",
+      "nextRun": "Nächste Ausführung: {{value}}",
+      "never": "nie",
+      "pause": "Pausieren",
+      "resume": "Fortsetzen",
+      "delete": "Löschen"
+    },
+    "typingIndicator": {
+      "ariaLabel": "Assistent tippt"
+    },
+    "usageRing": {
+      "unlimitedTitle": "{{used}} Prompts heute genutzt (unbegrenzter Plan)",
+      "limitedTitle": "{{used}} von {{limit}} Prompts heute genutzt"
+    },
+    "walletBadge": {
+      "toolLabels": {
+        "findEvents": "Veranstaltungen werden gesucht…",
+        "prepareBooking": "Buchungsangebot wird vorbereitet…",
+        "executeBooking": "Buchung über V.Wallet…",
+        "working": "Wird bearbeitet…"
+      },
+      "bookedTitle": "Über V.Wallet gebucht",
+      "summary": "{{quantity}}× {{eventTitle}} — €{{amount}}",
+      "pointsEarned": "+{{points}} Pkt."
+    }
+  }
+}

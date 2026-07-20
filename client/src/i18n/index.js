@@ -17,6 +17,11 @@ import enAuth from "./locales/en/auth.json";
 import enCheckout from "./locales/en/checkout.json";
 import enMisc from "./locales/en/misc.json";
 import enCookies from "./locales/en/cookies.json";
+import enVcommerceShop from "./locales/en/vcommerceShop.json";
+import enVcommercePortal from "./locales/en/vcommercePortal.json";
+import enDashboardMobile from "./locales/en/dashboardMobile.json";
+import enDashboardMain from "./locales/en/dashboardMain.json";
+import enDashboardSections from "./locales/en/dashboardSections.json";
 
 import nlCommon from "./locales/nl/common.json";
 import nlHome from "./locales/nl/home.json";
@@ -33,6 +38,11 @@ import nlAuth from "./locales/nl/auth.json";
 import nlCheckout from "./locales/nl/checkout.json";
 import nlMisc from "./locales/nl/misc.json";
 import nlCookies from "./locales/nl/cookies.json";
+import nlVcommerceShop from "./locales/nl/vcommerceShop.json";
+import nlVcommercePortal from "./locales/nl/vcommercePortal.json";
+import nlDashboardMobile from "./locales/nl/dashboardMobile.json";
+import nlDashboardMain from "./locales/nl/dashboardMain.json";
+import nlDashboardSections from "./locales/nl/dashboardSections.json";
 
 import deCommon from "./locales/de/common.json";
 import deHome from "./locales/de/home.json";
@@ -49,6 +59,11 @@ import deAuth from "./locales/de/auth.json";
 import deCheckout from "./locales/de/checkout.json";
 import deMisc from "./locales/de/misc.json";
 import deCookies from "./locales/de/cookies.json";
+import deVcommerceShop from "./locales/de/vcommerceShop.json";
+import deVcommercePortal from "./locales/de/vcommercePortal.json";
+import deDashboardMobile from "./locales/de/dashboardMobile.json";
+import deDashboardMain from "./locales/de/dashboardMain.json";
+import deDashboardSections from "./locales/de/dashboardSections.json";
 
 export const SUPPORTED_LANGUAGES = [
   { code: "en", label: "English", nativeLabel: "English" },
@@ -79,6 +94,11 @@ i18next
         checkout: enCheckout,
         misc: enMisc,
         cookies: enCookies,
+        vcommerceShop: enVcommerceShop,
+        vcommercePortal: enVcommercePortal,
+        dashboardMobile: enDashboardMobile,
+        dashboardMain: enDashboardMain,
+        dashboardSections: enDashboardSections,
       },
       nl: {
         common: nlCommon,
@@ -96,6 +116,11 @@ i18next
         checkout: nlCheckout,
         misc: nlMisc,
         cookies: nlCookies,
+        vcommerceShop: nlVcommerceShop,
+        vcommercePortal: nlVcommercePortal,
+        dashboardMobile: nlDashboardMobile,
+        dashboardMain: nlDashboardMain,
+        dashboardSections: nlDashboardSections,
       },
       de: {
         common: deCommon,
@@ -113,6 +138,11 @@ i18next
         checkout: deCheckout,
         misc: deMisc,
         cookies: deCookies,
+        vcommerceShop: deVcommerceShop,
+        vcommercePortal: deVcommercePortal,
+        dashboardMobile: deDashboardMobile,
+        dashboardMain: deDashboardMain,
+        dashboardSections: deDashboardSections,
       },
     },
     fallbackLng: "en",
@@ -134,6 +164,11 @@ i18next
       "checkout",
       "misc",
       "cookies",
+      "vcommerceShop",
+      "vcommercePortal",
+      "dashboardMobile",
+      "dashboardMain",
+      "dashboardSections",
     ],
     defaultNS: "common",
     interpolation: { escapeValue: false },

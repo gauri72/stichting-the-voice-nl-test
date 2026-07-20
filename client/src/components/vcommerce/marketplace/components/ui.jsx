@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 
 /* ── Skeleton block ── */
@@ -69,12 +70,14 @@ export function Badge({ children, color = "purple" }) {
 }
 
 /* ── Favourite button ── */
-export function FavouriteButton({ active, onToggle, size = 14, "aria-label": label = "Toggle favourite" }) {
+export function FavouriteButton({ active, onToggle, size = 14, "aria-label": label }) {
+  const { t } = useTranslation(["vcommerceShop"]);
+  const resolvedLabel = label ?? t("vcommerceShop:ui.toggleFavourite");
   return (
     <button
       type="button"
       onClick={(e) => { e.preventDefault(); onToggle(); }}
-      aria-label={label}
+      aria-label={resolvedLabel}
       aria-pressed={active}
       style={{
         background: "none",
@@ -95,9 +98,10 @@ export function FavouriteButton({ active, onToggle, size = 14, "aria-label": lab
 
 /* ── Star rating ── */
 export function StarRating({ rating }) {
+  const { t } = useTranslation(["vcommerceShop"]);
   const full = Math.round(rating ?? 0);
   return (
-    <span style={{ color: "var(--mkt-gold)", letterSpacing: 1 }} aria-label={`${rating ?? 0} out of 5`}>
+    <span style={{ color: "var(--mkt-gold)", letterSpacing: 1 }} aria-label={t("vcommerceShop:ui.outOfFive", { rating: rating ?? 0 })}>
       {"★".repeat(full)}{"☆".repeat(Math.max(0, 5 - full))}
     </span>
   );
@@ -105,6 +109,7 @@ export function StarRating({ rating }) {
 
 /* ── Section header ── */
 export function SectionHeader({ title, linkLabel, linkHref }) {
+  const { t } = useTranslation(["vcommerceShop"]);
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
       <h2 style={{ fontSize: "0.85rem", fontWeight: 800, color: "var(--mkt-text)", textTransform: "uppercase", letterSpacing: "0.04em", margin: 0 }}>
@@ -112,7 +117,7 @@ export function SectionHeader({ title, linkLabel, linkHref }) {
       </h2>
       {linkHref && (
         <a href={linkHref} style={{ fontSize: "0.73rem", color: "var(--mkt-cyan)", textDecoration: "none", fontWeight: 700, display: "flex", alignItems: "center", gap: 3 }}>
-          {linkLabel || "View All"} ›
+          {linkLabel || t("vcommerceShop:ui.viewAll")} ›
         </a>
       )}
     </div>

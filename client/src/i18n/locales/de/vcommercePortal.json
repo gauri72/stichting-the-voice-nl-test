@@ -1,0 +1,680 @@
+{
+  "application": {
+    "steps": {
+      "business": "Ihr Unternehmen",
+      "selling": "Verkaufseinrichtung",
+      "contact": "Kontakt & Links",
+      "payout": "Auszahlung & Identität",
+      "review": "Überprüfung"
+    },
+    "status": {
+      "pending": "In Prüfung",
+      "approved": "Genehmigt",
+      "rejected": "Nicht genehmigt"
+    },
+    "meta": {
+      "pageTitle": "Bei V.Commerce bewerben — V.O.I.C.E. NL"
+    },
+    "loading": "Wird geladen…",
+    "confirmingPayment": {
+      "title": "Ihr Unternehmensbereich wird vorbereitet",
+      "subtitle": "Zahlung erhalten. Wir richten gerade sicher Ihren privaten V.Commerce-Einrichtungsbereich ein."
+    },
+    "errors": {
+      "paymentNotVerified": "Wir konnten Ihre Paketzahlung nicht verifizieren.",
+      "checkoutNotStarted": "Der sichere Paket-Checkout konnte nicht gestartet werden.",
+      "genericSubmit": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+    },
+    "authGate": {
+      "title": "Zum Bewerben anmelden",
+      "subtitle": "Sie benötigen ein V.O.I.C.E. NL-Konto, um sich für einen V.Commerce-Unternehmenseintrag zu bewerben.",
+      "signInButton": "Anmelden oder Konto erstellen",
+      "backButton": "Zurück zu V.Commerce"
+    },
+    "statusLoading": "Ihre Unternehmenseinrichtung wird vorbereitet…",
+    "alreadyApplied": {
+      "title": "Status Ihrer Bewerbung",
+      "subtitle": "Wir haben Ihre Bewerbung erhalten. So ist der aktuelle Stand:",
+      "pendingNote": "Unser Team prüft Bewerbungen innerhalb von 5 Werktagen. Wir senden Ihnen eine E-Mail, sobald eine Entscheidung getroffen wurde.",
+      "approvedNote": "Herzlichen Glückwunsch! Ihr Unternehmen wurde genehmigt. Gehen Sie zu Ihrem Dashboard, um Ihren Shop einzurichten.",
+      "signedInAs": "Angemeldet als",
+      "yourAccount": "Ihr Konto",
+      "oneApplicationNote": "Pro Konto kann jeweils nur eine Bewerbung geprüft werden. Um sich mit einem anderen Konto für ein anderes Unternehmen zu bewerben, melden Sie sich ab und fahren Sie mit diesem Konto fort.",
+      "switchAccountButton": "Abmelden und anderes Konto verwenden",
+      "goToDashboard": "Zu meinem Unternehmens-Dashboard",
+      "backToVCommerce": "Zurück zu V.Commerce"
+    },
+    "header": {
+      "backLink": "← Zurück zu V.Commerce",
+      "title": "Bei V.Commerce bewerben",
+      "subtitle": "Listen Sie Ihr Unternehmen, verkaufen Sie Produkte und Dienstleistungen und erreichen Sie die V.O.I.C.E. NL-Gemeinschaft. Wöchentlich verfügbare Empfehlungsplätze.",
+      "previousNote": "Hinweis zur vorherigen Bewerbung:"
+    },
+    "step0": {
+      "applicantTypeLabel": "Ich bewerbe mich als…",
+      "communityMember": {
+        "title": "Community-Mitglied",
+        "desc": "Unabhängige, lokale und gemeinschaftlich geführte Unternehmen. Eine Mitgliedschaft ist nicht erforderlich."
+      },
+      "sponsor": {
+        "title": "Sponsor / Unternehmen",
+        "desc": "Marken, Vertriebspartner und Unternehmen, die an unsere Gemeinschaft verkaufen (keine Mitgliedschaft erforderlich)"
+      },
+      "businessName": { "label": "Firmenname *", "placeholder": "z. B. Aisha's Artisan Skincare" },
+      "category": { "label": "Kategorie *", "placeholder": "Kategorie auswählen…" },
+      "tagline": { "label": "Slogan", "placeholder": "Ein Satz, der Ihre Marke auf den Punkt bringt" },
+      "description": { "label": "Unternehmensbeschreibung *", "placeholder": "Erzählen Sie uns von Ihrem Unternehmen, Ihrem Angebot und was es besonders macht…" }
+    },
+    "step1": {
+      "kicker": "Wählen Sie Ihre Verkaufsart",
+      "title": "Ihr Shop, auf Ihre Art",
+      "intro": "Keine Website? Kein Problem. V.Commerce kann Ihr vollständiger Online-Shop werden.",
+      "billingAriaLabel": "Abrechnungszyklus",
+      "monthly": "Monatlich",
+      "annual": "Jährlich · mehr sparen",
+      "mostPopular": "Am beliebtesten",
+      "perMonth": "/Monat",
+      "perYear": "/Jahr",
+      "foundingOffer": "Gründungsangebot ab {{amount}}/Monat",
+      "feeNoticeStrong": "Einfach und transparent:",
+      "feeNoticeText": "V.Commerce behält 5 % nur bei Verkäufen ein, die über unseren Checkout abgeschlossen werden. Auszahlungen an Verkäufer werden in der Regel am fünften Werktag nach erfolgreicher Zahlung veranlasst."
+    },
+    "step2": {
+      "contactEmail": { "label": "Kontakt-E-Mail *", "placeholder": "unternehmen@beispiel.com" },
+      "contactPhone": { "label": "Telefon / WhatsApp", "placeholder": "+31 6 12345678" },
+      "website": { "label": "Website", "placeholder": "https://ihrewebsite.com" },
+      "socialMediaLabel": "Soziale Medien (optional)",
+      "social": {
+        "instagram": { "label": "Instagram", "placeholder": "instagram.com/ihrunternehmen" },
+        "facebook": { "label": "Facebook", "placeholder": "facebook.com/ihrunternehmen" },
+        "linkedin": { "label": "LinkedIn", "placeholder": "linkedin.com/in/sie" },
+        "tiktok": { "label": "TikTok", "placeholder": "tiktok.com/@sie" },
+        "whatsapp": { "label": "WhatsApp", "placeholder": "+31 6 12345678" }
+      }
+    },
+    "step3": {
+      "kicker": "Fast geschafft",
+      "title": "Wie sollen wir Sie bezahlen?",
+      "intro": "Diese Angaben dienen der Einrichtung Ihrer Marktplatz-Auszahlungen über Stripe, unseren Zahlungspartner. Alles hier bleibt privat und wird nie auf Ihrer Shop-Seite angezeigt."
+    },
+    "step4": {
+      "messageLabel": "Warum möchten Sie sich V.Commerce anschließen? *",
+      "messagePlaceholder": "Erzählen Sie uns von Ihren Zielen, Ihrer Verbindung zur Gemeinschaft und was Sie mit V.Commerce erreichen möchten…",
+      "summary": {
+        "title": "Überprüfen Sie Ihre Bewerbung",
+        "business": "Unternehmen:",
+        "category": "Kategorie:",
+        "email": "E-Mail:",
+        "selling": "Verkauf:",
+        "package": "Paket:"
+      },
+      "termsPrefix": "Mit dem Absenden stimmen Sie den",
+      "termsLink": "V.Commerce-Allgemeinen Geschäftsbedingungen",
+      "termsSuffix": "zu. Unser Team prüft vollständige Bewerbungen in der Regel innerhalb von 5 Werktagen. Gehostete V.Commerce-Verkäufe unterliegen einer transparenten Plattformgebühr von 5 %."
+    },
+    "nav": {
+      "back": "← Zurück",
+      "continue": "Weiter →",
+      "submitting": "Sicherer Checkout wird geöffnet…",
+      "submit": "Weiter zur sicheren Zahlung"
+    }
+  },
+  "applicationSuccess": {
+    "title": "Bewerbung eingereicht!",
+    "subtitlePrefix": "Vielen Dank für Ihre Bewerbung bei V.Commerce — V.O.I.C.E. NL Business Spotlight. Unser Team prüft Ihre Bewerbung und meldet sich innerhalb von",
+    "subtitleStrong": "5 Werktagen",
+    "steps": {
+      "reviewed": "Bewerbung von unserem Team geprüft",
+      "approvalEmail": "Sie erhalten eine Genehmigungs-E-Mail",
+      "setupStorefront": "Richten Sie Ihren Shop ein & fügen Sie Produkte hinzu",
+      "startSelling": "Beginnen Sie, an die V.O.I.C.E. NL-Gemeinschaft zu verkaufen"
+    },
+    "exploreButton": "V.Commerce entdecken",
+    "dashboardButton": "Zu meinem Dashboard"
+  },
+  "payoutForm": {
+    "countries": {
+      "NL": "Niederlande",
+      "BE": "Belgien",
+      "DE": "Deutschland"
+    },
+    "address": {
+      "street": { "label": "Straße", "placeholder": "Prinsengracht" },
+      "houseNumber": { "label": "Hausnummer", "placeholder": "12" },
+      "postalCode": { "label": "Postleitzahl", "placeholder": "1015 DX" },
+      "city": { "label": "Stadt", "placeholder": "Amsterdam" },
+      "country": { "label": "Land" }
+    },
+    "entityQuestion": {
+      "label": "Wie sind Sie registriert? *",
+      "help": "Dies bestimmt, was Stripe (unser Zahlungspartner) benötigt, um Sie zu verifizieren und Ihre Auszahlungen korrekt weiterzuleiten."
+    },
+    "entityOptions": {
+      "individual": { "title": "Einzelunternehmer / Freiberufler", "desc": "Kein eingetragenes Unternehmen — Sie handeln unter Ihrem eigenen Namen." },
+      "company": { "title": "Eingetragenes Unternehmen", "desc": "Sie verfügen über eine KvK-Registrierung (niederländische Handelskammer)." }
+    },
+    "companyDetailsLabel": "Unternehmensangaben",
+    "identityDetailsLabel": "Ihre Identitätsangaben",
+    "representativeLabel": "Die Person, die dieses Konto verwaltet (in der Regel Sie selbst)",
+    "companyLegalName": {
+      "label": "Rechtlicher Firmenname *",
+      "help": "Der eingetragene Name auf Ihrem KvK-Auszug — kann vom Anzeigenamen Ihres Shops abweichen.",
+      "example": "De Groene Winkel B.V."
+    },
+    "kvkNumber": {
+      "label": "KvK-Nummer *",
+      "help": "Ihre 8-stellige Handelskammernummer. Zu finden auf Ihrem KvK-Auszug oder unter kvk.nl/zoeken.",
+      "example": "68750110"
+    },
+    "vatNumber": {
+      "label": "USt-IdNr.",
+      "help": "Beginnt mit NL, endet mit B + 2 Ziffern. Zu finden auf Ihrem KvK-Auszug oder in Steuerunterlagen. Leer lassen, falls von der USt. befreit.",
+      "example": "NL123456789B01"
+    },
+    "legalName": {
+      "label": "Rechtlicher vollständiger Name *",
+      "help": "Ihr Name genau wie auf Ihrem Ausweisdokument — kein Spitzname oder Handelsname.",
+      "example": "Fatima El Amrani"
+    },
+    "dob": {
+      "label": "Geburtsdatum *",
+      "help": "Wird ausschließlich zur Identitätsprüfung bei unserem Zahlungspartner Stripe verwendet. Nie öffentlich sichtbar."
+    },
+    "nationality": {
+      "label": "Staatsangehörigkeit",
+      "help": "Wie auf Ihrem Ausweisdokument angegeben.",
+      "example": "Niederländisch"
+    },
+    "addressSection": {
+      "representativeLabel": "Adresse des Vertreters *",
+      "homeLabel": "Wohnadresse *",
+      "help": "Wo Sie gemeldet sind — muss mit Ihrem Ausweisdokument übereinstimmen, nicht mit der Adresse Ihres Shops.",
+      "example": "Prinsengracht 12, 1015 DX Amsterdam"
+    },
+    "bankSectionLabel": "Bankkonto für Auszahlungen",
+    "bankHolder": {
+      "label": "Name des Kontoinhabers *",
+      "help": "Muss exakt mit dem oben genannten rechtlichen Namen übereinstimmen, sonst lehnt Stripe das Konto ab."
+    },
+    "iban": {
+      "label": "IBAN *",
+      "help": "Ihr geschäftliches oder privates Bankkonto. Wir speichern die vollständige Nummer nie — das tut nur Stripe.",
+      "example": "NL91 ABNA 0417 1643 00",
+      "placeholder": "NL91 ABNA 0417 1643 00"
+    },
+    "ibanStatus": {
+      "verifying": "Wird bei Stripe überprüft…",
+      "verified": "Verifiziert ✓ — klicken, um ein anderes Konto einzugeben"
+    },
+    "errors": {
+      "stripeNotConfigured": "Sichere Zahlungen sind gerade nicht verfügbar — bitte versuchen Sie es in Kürze erneut.",
+      "ibanVerificationFailed": "Diese IBAN konnte nicht verifiziert werden."
+    },
+    "payoutNote": "💡 Das ist alles, was wir benötigen. Nach der Genehmigung schließen Sie einen letzten Schritt direkt bei Stripe ab — ein Foto Ihres Ausweisdokuments — der Rest ist dann bereits für Sie ausgefüllt."
+  },
+  "wholesalerRegister": {
+    "companyTypes": {
+      "groceryStore": "Lebensmittelgeschäft / Supermarkt",
+      "distributor": "Vertriebspartner / Großhändler",
+      "retailer": "Einzelhändler / Geschäft",
+      "restaurant": "Restaurant / Catering",
+      "hotel": "Hotel / Gastgewerbe",
+      "other": "Sonstiges"
+    },
+    "countries": {
+      "NL": "Niederlande",
+      "BE": "Belgien",
+      "DE": "Deutschland",
+      "FR": "Frankreich",
+      "GB": "Vereinigtes Königreich",
+      "OTHER": "Sonstiges"
+    },
+    "validation": {
+      "companyNameRequired": "Firmenname ist erforderlich.",
+      "companyTypeRequired": "Bitte wählen Sie einen Unternehmenstyp aus.",
+      "contactEmailRequired": "Kontakt-E-Mail ist erforderlich.",
+      "cityRequired": "Stadt ist erforderlich."
+    },
+    "registrationFailed": "Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "authGate": {
+      "title": "Zur Registrierung als Großhändler anmelden",
+      "text": "Sie benötigen ein Konto, um sich für ein Großhändlerkonto zu bewerben.",
+      "signInButton": "Anmelden & fortfahren"
+    },
+    "steps": {
+      "businessInfo": "Unternehmensangaben",
+      "contactAddress": "Kontakt & Adresse"
+    },
+    "title": "Als Großhändler registrieren",
+    "subtitle": "Treten Sie dem V.O.I.C.E. NL-Marktplatz bei, um Zugang zu Großhandelspreisen und Großhandelskatalogen unserer Sponsoren zu erhalten.",
+    "step0": {
+      "companyName": "Firmenname",
+      "companyType": "Unternehmenstyp",
+      "selectType": "Typ auswählen…",
+      "kvkNumber": "Handelskammer / KvK-Nummer",
+      "vatNumber": "USt-IdNr.",
+      "vatNumberPlaceholder": "z. B. NL123456789B01",
+      "website": "Website (optional)",
+      "nextButton": "Weiter: Kontakt & Adresse"
+    },
+    "step1": {
+      "contactEmail": "Kontakt-E-Mail",
+      "contactPhone": "Telefon",
+      "street": "Straße und Hausnummer",
+      "city": "Stadt",
+      "postcode": "Postleitzahl",
+      "country": "Land",
+      "backButton": "Zurück",
+      "submitButton": "Bewerbung einreichen",
+      "submitting": "Wird gesendet…"
+    }
+  },
+  "wholesalerRegisterSuccess": {
+    "title": "Bewerbung eingegangen!",
+    "text": "Ihre Bewerbung für ein Großhändlerkonto wurde eingereicht. Unser Team prüft diese und meldet sich innerhalb von 1–2 Werktagen bei Ihnen.",
+    "steps": {
+      "underReview": "Bewerbung wird geprüft",
+      "approvalEmail": "Genehmigungsbenachrichtigung per E-Mail",
+      "accessPricing": "Zugang zu Großhandelspreisen & Sammelbestellungen"
+    },
+    "browseMarketplace": "Marktplatz durchsuchen",
+    "goToDashboard": "Zum Dashboard"
+  },
+  "portal": {
+    "tabs": {
+      "overview": "Übersicht",
+      "products": "Produkte",
+      "orders": "Bestellungen",
+      "payouts": "Auszahlungen",
+      "promote": "Bewerben",
+      "settings": "Einstellungen",
+      "import": "Import"
+    },
+    "main": {
+      "loadError": "Ihr Unternehmen konnte nicht geladen werden.",
+      "noBusiness": {
+        "title": "Kein Unternehmen gefunden",
+        "fallbackText": "Sie haben noch keinen genehmigten V.Commerce-Eintrag.",
+        "applyButton": "Jetzt bewerben",
+        "backButton": "Zurück zum Dashboard"
+      },
+      "title": "Mein Unternehmen",
+      "backToDashboard": "Zurück zum Dashboard",
+      "businessHub": "Unternehmens-Hub",
+      "viewPublicPage": "Öffentliche Seite ansehen ↗"
+    },
+    "overview": {
+      "kicker": "V.Commerce Verkäufer-Studio",
+      "defaultSellingModeName": "Gehostet von V.Commerce",
+      "heroTextWithWebsite": "Nutzen Sie Ihren V.Commerce-Shop zusätzlich zu Ihrer bestehenden Website.",
+      "heroTextNoWebsite": "Ihr vollständiger Shop, Checkout und Bestellbereich — keine separate Website nötig.",
+      "defaultPlanName": "Starter",
+      "packageSuffix": "Paket",
+      "feePerSale": "5 % pro gehostetem Verkauf",
+      "payoutTarget": "Auszahlungsziel: 5 Werktage",
+      "packageAction": {
+        "activateTitle": "Aktivieren Sie Ihr {{plan}}-Paket",
+        "activateText": "Ihr Eintrag kann während der Testphase vorbereitet werden; die Paketzahlung aktiviert den fortlaufenden Marktplatzzugang.",
+        "activateButton": "Weiter zur sicheren Zahlung →",
+        "checkoutError": "Der Paket-Checkout konnte nicht gestartet werden."
+      },
+      "reviewPending": {
+        "title": "Zur Verifizierung eingereicht",
+        "text": "Ihr Arbeitsbereich bleibt privat, während unser Team die vollständigen Unternehmensangaben prüft."
+      },
+      "onboarding": {
+        "kicker": "Bezahlter Arbeitsbereich · private Einrichtung",
+        "title": "Vervollständigen Sie Ihren Shop vor der Verifizierung",
+        "text": "Ihr Unternehmen wird erst öffentlich sichtbar, nachdem Sie diese Angaben eingereicht haben und ein Administrator sie genehmigt hat.",
+        "progress": "{{count}}/4 bereit",
+        "reviewFeedback": "Rückmeldung zur Prüfung:",
+        "checklist": {
+          "packagePaymentLabel": "Paketzahlung",
+          "packagePaymentDetail": "Sicheres Abonnement aktiv",
+          "logoLabel": "Logo und Marke",
+          "logoDetail": "Fügen Sie Ihr Logo und Ihre Markengeschichte in den Einstellungen hinzu",
+          "contactLabel": "Kontakt- und Verkaufseinrichtung",
+          "contactDetail": "Bestätigen Sie, wie Kunden bei Ihnen kaufen",
+          "productsLabel": "Produkte oder Dienstleistungen"
+        },
+        "availableListings_one": "{{count}} verfügbarer Eintrag",
+        "availableListings_other": "{{count}} verfügbare Einträge",
+        "submitButton": "Vollständiges Unternehmen zur Verifizierung einreichen",
+        "submitting": "Ihr Shop wird überprüft…",
+        "submitSuccess": "Ihr vollständiges Unternehmen wurde zur Verifizierung eingereicht.",
+        "submitError": "Ihr Unternehmen konnte nicht zur Prüfung eingereicht werden."
+      },
+      "stats": {
+        "totalRevenue": "Gesamtumsatz",
+        "pendingPayout": "Ausstehende Auszahlung",
+        "totalPaidOut": "Gesamt ausgezahlt",
+        "totalOrders": "Bestellungen gesamt"
+      },
+      "businessCard": {
+        "title": "Ihr Unternehmen",
+        "featuredThisWeek": "⭐ Diese Woche hervorgehoben",
+        "reviewsBadge": "★ {{rating}} ({{count}} Bewertungen)",
+        "viewPublicPage": "Öffentliche Seite ansehen ↗"
+      },
+      "cards": {
+        "feeTitle": "V.Commerce-Gebühr",
+        "feeSub": "Nur bei gehosteten Checkout-Verkäufen",
+        "scheduleTitle": "Auszahlungsplan",
+        "scheduleValue": "5 Tage",
+        "scheduleSub": "Wird normalerweise nach Zahlungseingang veranlasst",
+        "cashbackTitle": "Kunden-Cashback",
+        "cashbackSub": "Gutgeschrieben auf V.Wallet",
+        "minOrderTitle": "Mindestbestellwert",
+        "minOrderSub": "Mindestwarenkorb pro Bestellung"
+      },
+      "referral": {
+        "title": "Ihr V.Commerce-Shop-Link",
+        "text": "Teilen Sie diesen Link, damit Kunden Ihre Produkte entdecken und sicher über Ihren gehosteten Shop kaufen können.",
+        "copyButton": "Kopieren",
+        "copiedButton": "Kopiert!"
+      }
+    },
+    "bulkPricing": {
+      "toggleLabel": "Mengenpreisstaffeln",
+      "tierCount_one": "({{count}} Staffel)",
+      "tierCount_other": "({{count}} Staffeln)",
+      "minOrderQty": "Mindestbestellmenge",
+      "maxOrderQty": "Maximale Bestellmenge (leer = unbegrenzt)",
+      "tiersLabel": "Preisstaffeln (niedrigerer Stückpreis bei höherer Menge)",
+      "noTiers": "Noch keine Staffeln. Käufer zahlen den regulären Verkaufspreis.",
+      "minQtyPlaceholder": "Mindestmenge",
+      "pricePlaceholder": "Preis (€)",
+      "addTier": "+ Staffel hinzufügen",
+      "saveButton": "Mengenpreise speichern",
+      "saving": "Wird gespeichert…",
+      "saveSuccess": "Mengenpreise gespeichert.",
+      "saveError": "Fehler beim Speichern der Preise."
+    },
+    "products": {
+      "title": "Ihre Produkte & Dienstleistungen",
+      "addButton": "+ Produkt hinzufügen",
+      "addSuccess": "Produkt hinzugefügt.",
+      "updateSuccess": "Produkt aktualisiert.",
+      "saveError": "Fehler beim Speichern des Produkts.",
+      "deleteConfirm": "Dieses Produkt löschen? Dies kann nicht rückgängig gemacht werden.",
+      "deleteSuccess": "Produkt gelöscht.",
+      "deleteError": "Fehler beim Löschen des Produkts.",
+      "loading": "Wird geladen…",
+      "empty": {
+        "text": "Noch keine Produkte. Fügen Sie Ihr erstes Produkt hinzu!",
+        "button": "Produkt hinzufügen"
+      },
+      "table": {
+        "name": "Name",
+        "type": "Typ",
+        "price": "Preis",
+        "bulkTiers": "Mengenstaffeln",
+        "stock": "Bestand",
+        "available": "Verfügbar",
+        "actions": "Aktionen"
+      },
+      "bulkTiersBadge_one": "🏷️ {{count}} Staffel",
+      "bulkTiersBadge_other": "🏷️ {{count}} Staffeln",
+      "yes": "Ja",
+      "no": "Nein",
+      "editButton": "Bearbeiten",
+      "deleteButton": "Löschen",
+      "modal": {
+        "addTitle": "Produkt hinzufügen",
+        "editTitle": "Produkt bearbeiten",
+        "nameLabel": "Name *",
+        "typeLabel": "Typ *",
+        "typeService": "Dienstleistung",
+        "typePhysical": "Physisches Produkt",
+        "typeDigital": "Digitales Produkt",
+        "descriptionLabel": "Beschreibung",
+        "priceLabel": "Preis (€) *",
+        "stockLabel": "Bestand (leer = unbegrenzt)",
+        "deliveryLabel": "Lieferinformationen",
+        "deliveryPlaceholder": "z. B. Versand innerhalb von 3–5 Tagen",
+        "availableCheckbox": "Zum Kauf verfügbar",
+        "saveButton": "Speichern",
+        "cancelButton": "Abbrechen"
+      }
+    },
+    "orders": {
+      "filters": {
+        "all": "Alle",
+        "paid": "Bezahlt",
+        "fulfilled": "Abgeschlossen",
+        "pending": "In Bearbeitung",
+        "cancelled": "Storniert"
+      },
+      "fulfillSuccess": "Bestellung als abgeschlossen markiert.",
+      "genericError": "Fehler.",
+      "loading": "Wird geladen…",
+      "empty": "Keine Bestellungen gefunden.",
+      "itemCount_one": "{{count}} Artikel",
+      "itemCount_other": "{{count}} Artikel",
+      "youReceive": "Sie erhalten {{amount}}",
+      "markFulfilledButton": "Als abgeschlossen markieren",
+      "modal": {
+        "title": "Bestellung als abgeschlossen markieren",
+        "subtitle": "Bestellung #{{id}} · {{amount}}",
+        "noteLabel": "Notiz an Kunde (optional)",
+        "notePlaceholder": "z. B. Versand über PostNL, Sendungsverfolgung: ...",
+        "confirmButton": "Bestätigen",
+        "cancelButton": "Abbrechen"
+      },
+      "table": {
+        "order": "Bestellung",
+        "customer": "Kunde",
+        "items": "Artikel",
+        "total": "Gesamt",
+        "status": "Status",
+        "date": "Datum",
+        "actions": "Aktionen"
+      }
+    },
+    "payouts": {
+      "kicker": "Sichere Verkäuferauszahlungen",
+      "needsRegistration": {
+        "title": "Vervollständigen Sie Ihre Auszahlungsangaben",
+        "text": "Wir benötigen einige Identitäts- und Bankangaben, bevor Sie Auszahlungen über Stripe einrichten können.",
+        "showButton": "Angaben vervollständigen",
+        "hideButton": "Ausblenden"
+      },
+      "almostReady": {
+        "title": "Auszahlungen sind fast bereit",
+        "text": "Ihre Angaben sind gespeichert. Wir schließen die Einrichtung mit unserem Zahlungspartner auf unserer Seite ab — wir informieren Sie per E-Mail, sobald Sie die Verifizierung abschließen und Auszahlungen erhalten können."
+      },
+      "ready": {
+        "titleReady": "Ihr Auszahlungskonto ist bereit",
+        "titleNotReady": "Verbinden Sie Ihr Bankkonto",
+        "textReady": "Identitäts- und Auszahlungsangaben sind über Stripe verifiziert.",
+        "textNotReady": "Schließen Sie die sichere Identitäts- und Bankverifizierung ab, bevor Sie Marktplatzeinnahmen erhalten.",
+        "manageButton": "In Stripe verwalten ↗",
+        "continueVerificationButton": "Verifizierung fortsetzen",
+        "setupButton": "Auszahlungen einrichten",
+        "opening": "Wird geöffnet…"
+      },
+      "errors": {
+        "connectStartFailed": "Die sichere Einrichtung der Auszahlung konnte nicht gestartet werden.",
+        "dashboardOpenFailed": "Stripe konnte nicht geöffnet werden.",
+        "registrationSaveFailed": "Ihre Auszahlungsangaben konnten nicht gespeichert werden."
+      },
+      "saveButton": "Auszahlungsangaben speichern",
+      "saving": "Wird gespeichert…",
+      "balance": {
+        "available": "Verfügbar bei Stripe",
+        "pending": "Ausstehend bei Stripe",
+        "schedule": "Auszahlungsplan",
+        "scheduleDefault": "Stripe-Standard"
+      },
+      "requirementsDue": "Stripe benötigt weitere Informationen: {{list}}.",
+      "infoNote": "💡 Stripe überweist berechtigte Einnahmen automatisch gemäß Ihrem Stripe-Auszahlungsplan auf Ihr verifiziertes Bankkonto. Rückerstattungen, Streitfälle, Verifizierungen oder Betrugsprüfungen können eine Auszahlung verzögern.",
+      "loading": "Wird geladen…",
+      "empty": "Noch keine Auszahlungen.",
+      "table": {
+        "created": "Erstellt",
+        "arrival": "Ankunft",
+        "amount": "Betrag",
+        "status": "Status",
+        "reference": "Referenz / Bank"
+      }
+    },
+    "promotions": {
+      "kicker": "Erschwingliche Sichtbarkeit",
+      "title": "Bringen Sie Ihr Unternehmen vor mehr Kunden",
+      "text": "Wählen Sie einen gezielten Boost, wenn er Ihrem Unternehmen hilft. Keine Newsletter-Pakete und keine langfristige Bindung.",
+      "requestButton": "Promotion anfragen →",
+      "requestTooltip": "Der Promotion-Checkout wird nach Genehmigung durch einen Administrator aktiviert"
+    },
+    "import": {
+      "genericFailure": "Import fehlgeschlagen.",
+      "fileTooLarge": "Datei zu groß (max. 10 MB).",
+      "readError": "Datei konnte nicht gelesen werden: {{error}}",
+      "templateDownloadError": "Vorlage konnte nicht heruntergeladen werden: {{error}}",
+      "title": "Massen-Produktimport",
+      "subtitle": "Laden Sie eine Excel-Datei hoch, um Produkte im Massenimport zu erstellen oder zu aktualisieren.",
+      "templateButton": "↓ Vorlage herunterladen",
+      "downloading": "Wird heruntergeladen…",
+      "dropzone": {
+        "placeholder": ".xlsx oder .csv hierher ziehen",
+        "hint": "oder klicken zum Durchsuchen · max. 10 MB"
+      },
+      "rowsDetected_one": "{{count}} Zeile erkannt",
+      "rowsDetected_other": "{{count}} Zeilen erkannt",
+      "clearButton": "Löschen",
+      "importButton_one": "{{count}} Produkt importieren",
+      "importButton_other": "{{count}} Produkte importieren",
+      "importing": "Wird importiert…",
+      "result": {
+        "failed": "Import fehlgeschlagen: {{error}}",
+        "complete": "Import abgeschlossen — {{imported}} Produkt(e) importiert, {{skipped}} übersprungen",
+        "rowError": "Zeile {{row}}: {{message}}"
+      },
+      "history": {
+        "title": "Importverlauf",
+        "loading": "Wird geladen…",
+        "empty": "Noch keine Importe.",
+        "table": {
+          "file": "Datei",
+          "imported": "Importiert",
+          "errors": "Fehler",
+          "date": "Datum"
+        }
+      }
+    },
+    "settings": {
+      "saveSuccess": "Profil erfolgreich aktualisiert.",
+      "saveError": "Fehler beim Speichern.",
+      "brandImages": {
+        "title": "Markenbilder",
+        "logoLabel": "Logo (quadratisch, 1:1)",
+        "bannerLabel": "Banner (breit, 3:1 empfohlen)"
+      },
+      "imageUpload": {
+        "uploading": "Wird hochgeladen…",
+        "changeImage": "Bild ändern",
+        "uploadImage": "Bild hochladen",
+        "removeButton": "Entfernen",
+        "noBanner": "🖼️ Kein Banner",
+        "uploadError": "Hochladen fehlgeschlagen."
+      },
+      "publicProfile": {
+        "title": "Öffentliches Profil",
+        "taglineLabel": "Slogan",
+        "descriptionLabel": "Beschreibung",
+        "contactEmailLabel": "Kontakt-E-Mail",
+        "contactPhoneLabel": "Kontakttelefon",
+        "websiteLabel": "Website",
+        "websitePlaceholder": "https://ihrewebsite.com",
+        "sellingModeLabel": "Verkaufseinrichtung"
+      },
+      "socialLinks": {
+        "title": "Social-Media-Links",
+        "text": "Geben Sie vollständige URLs oder nur Benutzernamen ein (wir fügen bei Bedarf https:// hinzu).",
+        "instagram": "Instagram",
+        "instagramPlaceholder": "@ihrname",
+        "facebook": "Facebook",
+        "facebookPlaceholder": "facebook.com/ihreseite",
+        "linkedin": "LinkedIn",
+        "linkedinPlaceholder": "linkedin.com/in/sie",
+        "tiktok": "TikTok",
+        "tiktokPlaceholder": "@ihrtiktok",
+        "whatsapp": "WhatsApp",
+        "whatsappPlaceholder": "+31 6 12345678"
+      },
+      "bankDetails": {
+        "title": "Bankangaben für Auszahlungen",
+        "connectedTextPrefix": "Ihre Auszahlungen werden automatisch über Stripe abgewickelt — verwalten Sie Ihr Bankkonto stattdessen über den Tab",
+        "connectedTextStrong": "Auszahlungen",
+        "connectedTextSuffix": ".",
+        "notConnectedText": "Erforderlich für den Erhalt manueller SEPA-Überweisungen von V.O.I.C.E. NL, bis Sie die Stripe-Auszahlungseinrichtung im Tab Auszahlungen abgeschlossen haben.",
+        "accountHolderLabel": "Name des Kontoinhabers",
+        "accountHolderPlaceholder": "Rechtlicher Name wie auf dem Bankkonto",
+        "ibanLabel": "IBAN",
+        "ibanPlaceholder": "NL00 BANK 0000 0000 00",
+        "bankNameLabel": "Bankname",
+        "bankNamePlaceholder": "ING, Rabobank, ABN AMRO…"
+      },
+      "saveButton": "Änderungen speichern",
+      "saving": "Wird gespeichert…"
+    }
+  },
+  "wholesalerPortal": {
+    "status": {
+      "pending": "In Prüfung",
+      "approved": "Genehmigt",
+      "suspended": "Gesperrt"
+    },
+    "tabs": {
+      "overview": "Übersicht",
+      "orderHistory": "Bestellverlauf"
+    },
+    "reorder": {
+      "success": "Warenkorb geladen — gehen Sie zum Marktplatz, um zur Kasse zu gehen.",
+      "error": "Nachbestellung konnte nicht geladen werden."
+    },
+    "registrationRequired": {
+      "title": "Großhändlerkonto erforderlich",
+      "text": "Registrieren Sie sich als Großhändler, um Zugang zu Großhandelspreisen und dem Großhändlerportal zu erhalten.",
+      "button": "Als Großhändler registrieren"
+    },
+    "pendingReview": {
+      "title": "Bewerbung wird geprüft",
+      "text": "Ihre Großhändlerbewerbung für {{companyName}} wird geprüft. Sie erhalten eine E-Mail, sobald diese genehmigt wurde.",
+      "button": "Marktplatz durchsuchen"
+    },
+    "browseMarketplace": "Marktplatz durchsuchen",
+    "companyDetails": {
+      "title": "Unternehmensangaben",
+      "companyName": "Firmenname",
+      "type": "Typ",
+      "kvk": "KvK / Registrierung",
+      "vat": "USt-IdNr.",
+      "status": "Status",
+      "memberSince": "Mitglied seit"
+    },
+    "contactAddress": {
+      "title": "Kontakt & Adresse",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "website": "Website",
+      "location": "Standort"
+    },
+    "orders": {
+      "empty": "Noch keine Bestellungen.",
+      "table": {
+        "order": "Bestellung",
+        "seller": "Verkäufer",
+        "items": "Artikel",
+        "total": "Gesamt",
+        "status": "Status",
+        "date": "Datum"
+      },
+      "reorderButton": "Erneut bestellen"
+    },
+    "pagination": {
+      "prev": "← Zurück",
+      "page": "Seite {{page}}",
+      "next": "Weiter →"
+    }
+  }
+}

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { IconWalletOff, IconHistory, IconSettings, IconHome2, IconArrowLeft } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { TopUp } from "../../icons/icons/index.js";
 import { getStripePromise } from "../../../utils/stripeClient.js";
 import { isPaymentReturnUrl, completePaymentReturn } from "../../../utils/stripePayment.js";
@@ -16,12 +17,13 @@ import TopUpModal from "./TopUpModal.jsx";
 import ConfettiBurst from "./ConfettiBurst.jsx";
 
 const TABS = [
-  { id: "overview", label: "Overview", icon: IconHome2 },
-  { id: "history", label: "History", icon: IconHistory },
-  { id: "settings", label: "Settings", icon: IconSettings },
+  { id: "overview", icon: IconHome2 },
+  { id: "history", icon: IconHistory },
+  { id: "settings", icon: IconSettings },
 ];
 
 export default function WalletPage() {
+  const { t } = useTranslation(["dashboardMobile"]);
   const { wallet, transactions, loadWallet, loadTransactions, error } = useWallet();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
@@ -42,9 +44,9 @@ export default function WalletPage() {
     // just needs to refresh so the now-correct balance shows up.
     await loadWallet();
     await loadTransactions();
-    setReturnNotice("Your top-up was received — your balance is now up to date.");
+    setReturnNotice(t("dashboardMobile:wallet.walletPage.topUpReceived"));
     setTimeout(() => setReturnNotice(""), 6000);
-  }, [loadWallet, loadTransactions]);
+  }, [loadWallet, loadTransactions, t]);
 
   // Redirect-based methods (iDEAL, Bancontact) leave the page entirely to
   // authenticate, then land back here — TopUpModal's own state is gone by
@@ -75,7 +77,7 @@ export default function WalletPage() {
   if (!wallet) {
     return (
       <div className="mx-auto max-w-3xl px-4 pb-10 text-center text-slate-600 dark:text-slate-400" style={{ paddingTop: "clamp(72px, 10vw, 96px)" }}>
-        Loading your wallet…
+        {t("dashboardMobile:wallet.walletPage.loading")}
       </div>
     );
   }
@@ -84,9 +86,9 @@ export default function WalletPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 pb-16 text-center text-slate-600 dark:text-slate-400" style={{ paddingTop: "clamp(72px, 10vw, 96px)" }}>
         <IconWalletOff size={40} className="mx-auto mb-3 text-slate-500 dark:text-slate-600" />
-        <p className="mb-4">V.Wallet is currently unavailable. Please check back later.</p>
+        <p className="mb-4">{t("dashboardMobile:wallet.walletPage.unavailable")}</p>
         <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200">
-          <IconArrowLeft size={16} /> Back to My Account
+          <IconArrowLeft size={16} /> {t("dashboardMobile:wallet.walletPage.backToAccount")}
         </Link>
       </div>
     );
@@ -98,14 +100,14 @@ export default function WalletPage() {
         to="/dashboard"
         className="mb-3 inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
       >
-        <IconArrowLeft size={16} /> Back to My Account
+        <IconArrowLeft size={16} /> {t("dashboardMobile:wallet.walletPage.backToAccount")}
       </Link>
-      <h1 className="mb-1 text-xl font-bold text-slate-900 dark:text-white">V.Wallet</h1>
-      <p className="mb-5 text-sm text-slate-600 dark:text-slate-400">Top up, earn reward points, and let V.Assist book for you.</p>
+      <h1 className="mb-1 text-xl font-bold text-slate-900 dark:text-white">{t("dashboardMobile:wallet.walletPage.title")}</h1>
+      <p className="mb-5 text-sm text-slate-600 dark:text-slate-400">{t("dashboardMobile:wallet.walletPage.subtitle")}</p>
 
       {error && <p className="mb-4 rounded-lg bg-red-950/50 px-3 py-2 text-sm text-red-300" role="alert">{error}</p>}
       {handlingReturn && (
-        <p className="mb-4 rounded-lg bg-purple-950/50 px-3 py-2 text-sm text-purple-200" role="status">Confirming your top-up…</p>
+        <p className="mb-4 rounded-lg bg-purple-950/50 px-3 py-2 text-sm text-purple-200" role="status">{t("dashboardMobile:wallet.walletPage.confirmingTopUp")}</p>
       )}
       {returnNotice && (
         <p className="mb-4 rounded-lg bg-emerald-950/50 px-3 py-2 text-sm text-emerald-300" role="status">{returnNotice}</p>
@@ -127,7 +129,7 @@ export default function WalletPage() {
         onClick={() => setTopUpOpen(true)}
         className="mb-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-900/30 transition active:scale-95"
       >
-        <TopUp className="h-5 w-5" aria-hidden="true" /> Top up V.Wallet
+        <TopUp className="h-5 w-5" aria-hidden="true" /> {t("dashboardMobile:wallet.walletPage.topUpButton")}
       </button>
 
       {wallet.lowBalance && (
@@ -136,8 +138,8 @@ export default function WalletPage() {
         </div>
       )}
 
-      <nav className="mb-5 flex gap-1 overflow-x-auto rounded-xl bg-slate-900/60 p-1 ring-1 ring-white/10" aria-label="Wallet sections">
-        {TABS.map(({ id, label, icon: Icon }) => (
+      <nav className="mb-5 flex gap-1 overflow-x-auto rounded-xl bg-slate-900/60 p-1 ring-1 ring-white/10" aria-label={t("dashboardMobile:wallet.walletPage.sectionsAria")}>
+        {TABS.map(({ id, icon: Icon }) => (
           <button
             key={id}
             type="button"
@@ -146,7 +148,7 @@ export default function WalletPage() {
               activeTab === id ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white" : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
             }`}
           >
-            <Icon size={16} /> {label}
+            <Icon size={16} /> {t(`dashboardMobile:wallet.walletPage.tabs.${id}`)}
           </button>
         ))}
       </nav>
@@ -160,7 +162,7 @@ export default function WalletPage() {
               pointsNeededPerEuroDiscount={wallet.pointsProgram.pointsNeededPerEuroDiscount}
             />
             <div>
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Recent activity</h3>
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{t("dashboardMobile:wallet.walletPage.recentActivity")}</h3>
               <TransactionHistoryList transactions={transactions.slice(0, 5)} />
             </div>
           </div>

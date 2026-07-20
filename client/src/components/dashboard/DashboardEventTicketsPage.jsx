@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   IconArrowLeft,
   IconDownload,
@@ -35,7 +36,7 @@ async function downloadFile(url, filename) {
   URL.revokeObjectURL(objectUrl);
 }
 
-function TicketCard({ ticket, eventTitle, orderNumber }) {
+function TicketCard({ ticket, eventTitle, orderNumber, t }) {
   const qrPng = ticket.verificationToken
     ? `/api/tickets/qr/${ticket.verificationToken}.png`
     : ticket.qrCodeUrl;
@@ -49,8 +50,11 @@ function TicketCard({ ticket, eventTitle, orderNumber }) {
       : "");
   const baseName = `${slugifyFilename(eventTitle)}-${ticket.ticketNumber}`;
 
-  const statusLabel =
-    ticket.checkedIn ? "Checked in" : ticket.status === "valid" ? "Valid" : ticket.status;
+  const statusLabel = ticket.checkedIn
+    ? t("dashboardMain:eventTickets.ticketCard.checkedIn")
+    : ticket.status === "valid"
+    ? t("dashboardMain:eventTickets.ticketCard.valid")
+    : ticket.status;
 
   return (
     <article className="dash-event-tickets__card">
@@ -75,7 +79,7 @@ function TicketCard({ ticket, eventTitle, orderNumber }) {
         <span className={`dash-event-tickets__pill dash-event-tickets__pill--${ticket.status}`}>
           {statusLabel}
         </span>
-        <span className="dash-event-tickets__order-ref">Order {orderNumber}</span>
+        <span className="dash-event-tickets__order-ref">{t("dashboardMain:eventTickets.ticketCard.orderRef", { orderNumber })}</span>
       </div>
 
       <div className="dash-event-tickets__actions">
@@ -85,14 +89,14 @@ function TicketCard({ ticket, eventTitle, orderNumber }) {
           target="_blank"
           rel="noreferrer"
         >
-          <IconDownload size={16} /> Download PDF
+          <IconDownload size={16} /> {t("dashboardMain:eventTickets.ticketCard.downloadPdf")}
         </a>
         <button
           type="button"
           className="dash-my-events__btn dash-my-events__btn--secondary"
           onClick={() => downloadFile(qrPng, `${baseName}.png`)}
         >
-          <IconQrcode size={16} /> Download QR (PNG)
+          <IconQrcode size={16} /> {t("dashboardMain:eventTickets.ticketCard.downloadQrPng")}
         </button>
         {qrSvg ? (
           <button
@@ -100,11 +104,11 @@ function TicketCard({ ticket, eventTitle, orderNumber }) {
             className="dash-my-events__btn dash-my-events__btn--secondary"
             onClick={() => downloadFile(qrSvg, `${baseName}.svg`)}
           >
-            <IconQrcode size={16} /> Download QR (SVG)
+            <IconQrcode size={16} /> {t("dashboardMain:eventTickets.ticketCard.downloadQrSvg")}
           </button>
         ) : null}
-        <button type="button" className="dash-my-events__btn dash-my-events__btn--ghost" disabled title="Coming soon">
-          <IconWallet size={16} /> Add to Wallet
+        <button type="button" className="dash-my-events__btn dash-my-events__btn--ghost" disabled title={t("dashboardMain:eventTickets.ticketCard.comingSoon")}>
+          <IconWallet size={16} /> {t("dashboardMain:eventTickets.ticketCard.addToWallet")}
         </button>
         <a
           href={apiUrl(pdfUrl)}
@@ -112,7 +116,7 @@ function TicketCard({ ticket, eventTitle, orderNumber }) {
           target="_blank"
           rel="noreferrer"
         >
-          <IconTicket size={16} /> View Full Ticket
+          <IconTicket size={16} /> {t("dashboardMain:eventTickets.ticketCard.viewFullTicket")}
         </a>
       </div>
     </article>
@@ -120,6 +124,7 @@ function TicketCard({ ticket, eventTitle, orderNumber }) {
 }
 
 export default function DashboardEventTicketsPage() {
+  const { t } = useTranslation(["dashboardMain"]);
   const { eventId } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -134,7 +139,7 @@ export default function DashboardEventTicketsPage() {
       });
       setData(result);
     } catch (e) {
-      setError(e.message || "Could not load tickets.");
+      setError(e.message || t("dashboardMain:eventTickets.loadError"));
     } finally {
       setLoading(false);
     }
@@ -147,7 +152,7 @@ export default function DashboardEventTicketsPage() {
   if (loading) {
     return (
       <DashboardShell>
-        <div className="member-dashboard__status">Loading your tickets…</div>
+        <div className="member-dashboard__status">{t("dashboardMain:eventTickets.loading")}</div>
       </DashboardShell>
     );
   }
@@ -158,7 +163,7 @@ export default function DashboardEventTicketsPage() {
         <div className="member-dashboard__status member-dashboard__status--error" role="alert">
           <p>{error}</p>
           <Link to={DASHBOARD_ROUTES.myEvents} className="dash-my-events__back">
-            <IconArrowLeft size={18} /> Back to My Events
+            <IconArrowLeft size={18} /> {t("dashboardMain:eventTickets.backToMyEvents")}
           </Link>
         </div>
       </DashboardShell>
@@ -171,51 +176,51 @@ export default function DashboardEventTicketsPage() {
     <DashboardShell>
       <header className="dash-my-events__hero">
         <Link to={DASHBOARD_ROUTES.myEvents} className="dash-my-events__back">
-          <IconArrowLeft size={18} aria-hidden /> My Events
+          <IconArrowLeft size={18} aria-hidden /> {t("dashboardMain:eventTickets.backLink")}
         </Link>
         <h1 className="dash-my-events__page-title">{event.title}</h1>
-        <p className="dash-my-events__page-subtitle">Your tickets for this experience</p>
+        <p className="dash-my-events__page-subtitle">{t("dashboardMain:eventTickets.subtitle")}</p>
       </header>
 
       <section className="dash-event-tickets__summary" aria-labelledby="ticket-summary-title">
-        <h2 id="ticket-summary-title" className="dash-my-events__section-title">Ticket Summary</h2>
+        <h2 id="ticket-summary-title" className="dash-my-events__section-title">{t("dashboardMain:eventTickets.summary.heading")}</h2>
         <dl className="dash-event-tickets__summary-grid">
           <div>
-            <dt>Ticket Type</dt>
+            <dt>{t("dashboardMain:eventTickets.summary.ticketType")}</dt>
             <dd>
               {summary.ticketTypes?.map((line) => `${line.quantity}× ${line.ticketTypeName}`).join(", ") || "—"}
             </dd>
           </div>
           <div>
-            <dt>Quantity</dt>
+            <dt>{t("dashboardMain:eventTickets.summary.quantity")}</dt>
             <dd>{summary.quantity}</dd>
           </div>
           <div>
-            <dt>Order Number</dt>
+            <dt>{t("dashboardMain:eventTickets.summary.orderNumber")}</dt>
             <dd>{summary.orderNumber}</dd>
           </div>
           <div>
-            <dt>Purchase Date</dt>
+            <dt>{t("dashboardMain:eventTickets.summary.purchaseDate")}</dt>
             <dd>{summary.purchaseDateLabel}</dd>
           </div>
           <div>
-            <dt>Status</dt>
+            <dt>{t("dashboardMain:eventTickets.summary.status")}</dt>
             <dd>{summary.status?.replace(/_/g, " ")}</dd>
           </div>
           <div>
-            <dt>Total Paid</dt>
+            <dt>{t("dashboardMain:eventTickets.summary.totalPaid")}</dt>
             <dd>€{((summary.totalAmountMinor || 0) / 100).toFixed(2)}</dd>
           </div>
           <div>
-            <dt>Payment Method</dt>
+            <dt>{t("dashboardMain:eventTickets.summary.paymentMethod")}</dt>
             <dd>
               {summary.paymentMethod === "wallet"
-                ? "V.Wallet"
+                ? t("dashboardMain:eventTickets.summary.paymentMethodValues.wallet")
                 : summary.paymentMethod === "wallet_split"
-                ? "V.Wallet + Card"
+                ? t("dashboardMain:eventTickets.summary.paymentMethodValues.walletSplit")
                 : summary.paymentStatus === "free"
-                ? "Free Booking"
-                : "Card"}
+                ? t("dashboardMain:eventTickets.summary.paymentMethodValues.free")
+                : t("dashboardMain:eventTickets.summary.paymentMethodValues.card")}
               {summary.bookedVia === "V.Assist" ? (
                 <span className="dash-event-tickets__pill dash-event-tickets__pill--ai">V.Assist</span>
               ) : null}
@@ -230,7 +235,7 @@ export default function DashboardEventTicketsPage() {
       </section>
 
       <section className="dash-event-tickets__list" aria-labelledby="your-tickets-title">
-        <h2 id="your-tickets-title" className="dash-my-events__section-title">Your Tickets</h2>
+        <h2 id="your-tickets-title" className="dash-my-events__section-title">{t("dashboardMain:eventTickets.list.heading")}</h2>
         <div className="dash-event-tickets__cards">
           {tickets.map((ticket) => (
             <TicketCard
@@ -238,6 +243,7 @@ export default function DashboardEventTicketsPage() {
               ticket={ticket}
               eventTitle={event.title}
               orderNumber={summary.orderNumber}
+              t={t}
             />
           ))}
         </div>
@@ -245,7 +251,7 @@ export default function DashboardEventTicketsPage() {
 
       <div className="dash-event-tickets__footer">
         <Link to={event.slug ? `/events/${event.slug}/tickets` : `/events/${event.id}/tickets`} className="dash-my-events__btn dash-my-events__btn--secondary">
-          Buy More Tickets
+          {t("dashboardMain:eventTickets.buyMoreTickets")}
         </Link>
       </div>
     </DashboardShell>

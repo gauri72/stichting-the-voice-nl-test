@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { IconRobot, IconUser } from "@tabler/icons-react";
 import TypingIndicator from "./TypingIndicator.jsx";
 import WalletBookingBadge, { WalletToolIndicator } from "./WalletBookingBadge.jsx";
@@ -9,6 +10,7 @@ function formatTime(iso) {
 }
 
 export default function ChatMessageBubble({ message }) {
+  const { t } = useTranslation(["dashboardMain"]);
   const reduceMotion = useReducedMotion();
   const isUser = message.role === "user";
   const isEmpty = !message.content && message.streaming;
@@ -29,7 +31,7 @@ export default function ChatMessageBubble({ message }) {
       <div className={`ai-bubble-max-width flex flex-col ${isUser ? "items-end" : "items-start"}`}>
         <div
           role="article"
-          aria-label={isUser ? "Your message" : "Assistant message"}
+          aria-label={isUser ? t("dashboardMain:aiAssistant.chatBubble.yourMessageAriaLabel") : t("dashboardMain:aiAssistant.chatBubble.assistantMessageAriaLabel")}
           className={
             isUser
               ? "rounded-2xl rounded-br-sm bg-gradient-to-br from-purple-600 to-purple-500 px-4 py-2.5 text-white shadow-lg shadow-purple-900/20"

@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { IconX, IconLock } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { getStripePromise } from "../../../utils/stripeClient.js";
 import { getStripeElementsAppearance, PAYMENT_ELEMENT_OPTIONS, buildPaymentReturnUrl } from "../../../utils/stripePayment.js";
 import { useWallet } from "../../../contexts/WalletContext.jsx";
@@ -10,6 +11,7 @@ import { useTheme } from "../../../contexts/ThemeContext.jsx";
 const PRESETS_MINOR = [1000, 2000, 5000, 10000];
 
 function InnerPaymentStep({ amountMinor, onSuccess, onError }) {
+  const { t } = useTranslation(["dashboardMobile"]);
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -22,7 +24,7 @@ function InnerPaymentStep({ amountMinor, onSuccess, onError }) {
     setError("");
     const { error: submitError } = await elements.submit();
     if (submitError) {
-      setError(submitError.message || "Please check your payment details.");
+      setError(submitError.message || t("dashboardMobile:wallet.topUpModal.errors.checkPaymentDetails"));
       setSubmitting(false);
       return;
     }
@@ -36,7 +38,7 @@ function InnerPaymentStep({ amountMinor, onSuccess, onError }) {
       redirect: "if_required",
     });
     if (confirmError) {
-      setError(confirmError.message || "Payment could not be completed.");
+      setError(confirmError.message || t("dashboardMobile:wallet.topUpModal.errors.paymentIncomplete"));
       setSubmitting(false);
       onError?.(confirmError.message);
       return;
@@ -44,7 +46,7 @@ function InnerPaymentStep({ amountMinor, onSuccess, onError }) {
     if (paymentIntent?.status === "succeeded" || paymentIntent?.status === "processing") {
       onSuccess?.();
     } else {
-      setError("Payment could not be completed.");
+      setError(t("dashboardMobile:wallet.topUpModal.errors.paymentIncomplete"));
     }
     setSubmitting(false);
   }
@@ -58,13 +60,14 @@ function InnerPaymentStep({ amountMinor, onSuccess, onError }) {
         disabled={submitting || !stripe}
         className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 px-4 py-3 text-sm font-semibold text-white transition active:scale-95 disabled:opacity-50"
       >
-        <IconLock size={16} /> {submitting ? "Processing…" : `Pay €${(amountMinor / 100).toFixed(2)} securely`}
+        <IconLock size={16} /> {submitting ? t("dashboardMobile:wallet.topUpModal.processing") : t("dashboardMobile:wallet.topUpModal.paySecurely", { amount: (amountMinor / 100).toFixed(2) })}
       </button>
     </form>
   );
 }
 
 export default function TopUpModal({ onClose }) {
+  const { t } = useTranslation(["dashboardMobile"]);
   const { startTopUp, loadWallet, wallet } = useWallet();
   const { isDark } = useTheme();
   const [amountMinor, setAmountMinor] = useState(wallet?.settings?.defaultTopUpAmountMinor || 2000);
@@ -90,7 +93,7 @@ export default function TopUpModal({ onClose }) {
         setStep("pay");
       }
     } catch (e) {
-      setError(e.message || "Could not start top-up.");
+      setError(e.message || t("dashboardMobile:wallet.topUpModal.errors.couldNotStartTopUp"));
     } finally {
       setSubmitting(false);
     }
@@ -106,7 +109,7 @@ export default function TopUpModal({ onClose }) {
         setStep("pay");
       }
     } catch (e) {
-      setError(e.message || "That code is incorrect.");
+      setError(e.message || t("dashboardMobile:wallet.topUpModal.errors.incorrectCode"));
     } finally {
       setSubmitting(false);
     }
@@ -126,12 +129,12 @@ export default function TopUpModal({ onClose }) {
         exit={{ y: "100%" }}
         transition={{ type: "spring", damping: 28, stiffness: 280 }}
         role="dialog"
-        aria-label="Top up V.Wallet"
+        aria-label={t("dashboardMobile:wallet.topUpModal.dialogAria")}
         className="ai-modal-max-height ai-modal-width ai-modal-centered ai-nested-modal-panel fixed inset-x-0 bottom-0 overflow-y-auto rounded-t-2xl bg-slate-900 p-5 text-slate-100 ring-1 ring-white/10 sm:rounded-2xl"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-semibold">Top up V.Wallet</h3>
-          <button type="button" onClick={onClose} aria-label="Close" className="text-slate-400 hover:text-white">
+          <h3 className="text-base font-semibold">{t("dashboardMobile:wallet.topUpModal.title")}</h3>
+          <button type="button" onClick={onClose} aria-label={t("dashboardMobile:wallet.topUpModal.closeAria")} className="text-slate-400 hover:text-white">
             <IconX size={20} />
           </button>
         </div>
@@ -157,7 +160,7 @@ export default function TopUpModal({ onClose }) {
             <input
               type="number"
               min="1"
-              placeholder="Custom amount (€)"
+              placeholder={t("dashboardMobile:wallet.topUpModal.customAmountPlaceholder")}
               value={customAmount}
               onChange={(e) => {
                 setCustomAmount(e.target.value);
@@ -173,7 +176,7 @@ export default function TopUpModal({ onClose }) {
               disabled={submitting || amountMinor < 100}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 px-4 py-3 text-sm font-semibold text-white transition active:scale-95 disabled:opacity-50"
             >
-              {submitting ? "Please wait…" : `Continue with €${(amountMinor / 100).toFixed(2)}`}
+              {submitting ? t("dashboardMobile:wallet.topUpModal.pleaseWait") : t("dashboardMobile:wallet.topUpModal.continueWith", { amount: (amountMinor / 100).toFixed(2) })}
             </button>
           </div>
         )}
@@ -181,13 +184,13 @@ export default function TopUpModal({ onClose }) {
         {step === "otp" && (
           <div className="space-y-4">
             <p className="text-sm text-slate-300">
-              This top-up is above your security threshold — enter the confirmation code we just emailed you.
+              {t("dashboardMobile:wallet.topUpModal.otpIntro")}
             </p>
             <input
               type="text"
               inputMode="numeric"
               maxLength={6}
-              placeholder="6-digit code"
+              placeholder={t("dashboardMobile:wallet.topUpModal.otpPlaceholder")}
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               className="w-full rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2.5 text-center text-lg tracking-widest text-white placeholder:tracking-normal placeholder:text-slate-500 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/40"
@@ -199,7 +202,7 @@ export default function TopUpModal({ onClose }) {
               disabled={submitting || otp.length !== 6}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 px-4 py-3 text-sm font-semibold text-white transition active:scale-95 disabled:opacity-50"
             >
-              {submitting ? "Verifying…" : "Verify and continue"}
+              {submitting ? t("dashboardMobile:wallet.topUpModal.verifying") : t("dashboardMobile:wallet.topUpModal.verifyAndContinue")}
             </button>
           </div>
         )}
@@ -231,9 +234,9 @@ export default function TopUpModal({ onClose }) {
                 />
               </svg>
             </motion.div>
-            <p className="text-sm font-medium text-slate-200">Top-up successful!</p>
+            <p className="text-sm font-medium text-slate-200">{t("dashboardMobile:wallet.topUpModal.topUpSuccessful")}</p>
             <button type="button" onClick={onClose} className="rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20">
-              Close
+              {t("dashboardMobile:wallet.topUpModal.close")}
             </button>
           </div>
         )}

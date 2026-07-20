@@ -1,11 +1,12 @@
 import { Link, NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconArrowLeft, IconMessageCircle2, IconBooks, IconCalendarTime, IconX } from "@tabler/icons-react";
 import "../../../styles/ai-assistant-premium.css";
 
-const TABS = [
-  { to: "/dashboard/ai-assistant", label: "Chat", icon: IconMessageCircle2, end: true },
-  { to: "/dashboard/ai-assistant/prompts", label: "Prompt Library", icon: IconBooks },
-  { to: "/dashboard/ai-assistant/schedule", label: "Scheduled Prompts", icon: IconCalendarTime },
+const TAB_DEFS = [
+  { to: "/dashboard/ai-assistant", labelKey: "chat", icon: IconMessageCircle2, end: true },
+  { to: "/dashboard/ai-assistant/prompts", labelKey: "promptLibrary", icon: IconBooks },
+  { to: "/dashboard/ai-assistant/schedule", labelKey: "scheduledPrompts", icon: IconCalendarTime },
 ];
 
 /**
@@ -17,14 +18,16 @@ const TABS = [
  * visual size).
  */
 export default function AiAssistantPageShell({ children }) {
+  const { t } = useTranslation(["dashboardMain"]);
+  const TABS = TAB_DEFS.map((tab) => ({ ...tab, label: t(`dashboardMain:aiAssistant.tabs.${tab.labelKey}`) }));
   return (
     <div className="ai-standalone-premium">
       <header className="ai-premium-page-header">
-        <Link to="/dashboard" aria-label="Back to dashboard"><IconArrowLeft /><span>Back to dashboard</span></Link>
+        <Link to="/dashboard" aria-label={t("dashboardMain:aiAssistant.common.backToDashboard")}><IconArrowLeft /><span>{t("dashboardMain:aiAssistant.common.backToDashboard")}</span></Link>
         <div><i>V</i><strong>V.Assist</strong></div>
-        <Link to="/dashboard" aria-label="Close V Assist"><IconX /></Link>
+        <Link to="/dashboard" aria-label={t("dashboardMain:aiAssistant.common.closeVAssist")}><IconX /></Link>
       </header>
-      <nav className="ai-premium-page-tabs" aria-label="AI Assistant sections">
+      <nav className="ai-premium-page-tabs" aria-label={t("dashboardMain:aiAssistant.pageShell.navAriaLabel")}>
         {TABS.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}

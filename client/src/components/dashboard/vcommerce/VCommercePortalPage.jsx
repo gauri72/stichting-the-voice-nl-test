@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconArrowLeft, IconHome } from "@tabler/icons-react";
 import { useAuth } from "../../../contexts/AuthContext.jsx";
 import "../../../styles/dashboard-subpage-navigation.css";
@@ -30,7 +31,7 @@ import { PROMOTION_OPTIONS, SELLING_MODES, VCOMMERCE_PLANS } from "../../vcommer
 import PayoutRegistrationForm from "../../vcommerce/shared/PayoutRegistrationForm.jsx";
 import "../../../styles/vcommerce-marketplace.css";
 
-const TABS = ["Overview", "Products", "Orders", "Payouts", "Promote", "Settings", "Import"];
+const TAB_KEYS = ["overview", "products", "orders", "payouts", "promote", "settings", "import"];
 
 function formatPrice(minor, currency = "eur") {
   if (minor == null) return "—";
@@ -60,6 +61,7 @@ const S = {
 
 // ── Overview tab ──
 function OverviewTab({ business, onRefresh, onNavigateTab }) {
+  const { t } = useTranslation(["vcommercePortal"]);
   const [refLink, setRefLink] = useState(null);
   const [refCopied, setRefCopied] = useState(false);
   const [productCount, setProductCount] = useState(0);
@@ -84,7 +86,7 @@ function OverviewTab({ business, onRefresh, onNavigateTab }) {
       const { url } = await startMyPackageCheckout();
       window.location.assign(url);
     } catch (err) {
-      window.alert(err?.message || "Package checkout could not be started.");
+      window.alert(err?.message || t("vcommercePortal:portal.overview.packageAction.checkoutError"));
     }
   }
 
@@ -93,64 +95,66 @@ function OverviewTab({ business, onRefresh, onNavigateTab }) {
     setReviewMessage("");
     try {
       await submitMyBusinessForReview();
-      setReviewMessage("Your completed business has been submitted for verification.");
+      setReviewMessage(t("vcommercePortal:portal.overview.onboarding.submitSuccess"));
       onRefresh?.();
     } catch (err) {
-      setReviewMessage(err?.message || "Your business could not be submitted for review.");
+      setReviewMessage(err?.message || t("vcommercePortal:portal.overview.onboarding.submitError"));
     } finally {
       setSubmittingReview(false);
     }
   }
 
+  const planName = VCOMMERCE_PLANS.find((plan) => plan.id === business.packageId)?.name || t("vcommercePortal:portal.overview.defaultPlanName");
+
   return (
     <div className="vco-portal-motion">
       <div className="vco-seller-hero">
         <div>
-          <span className="vco-kicker">V.Commerce seller studio</span>
-          <h2>{SELLING_MODES.find((mode) => mode.id === business.sellingMode)?.name || "Hosted by V.Commerce"}</h2>
-          <p>{business.website ? "Use your V.Commerce shop alongside your existing website." : "Your complete storefront, checkout and order desk—no separate website needed."}</p>
+          <span className="vco-kicker">{t("vcommercePortal:portal.overview.kicker")}</span>
+          <h2>{SELLING_MODES.find((mode) => mode.id === business.sellingMode)?.name || t("vcommercePortal:portal.overview.defaultSellingModeName")}</h2>
+          <p>{business.website ? t("vcommercePortal:portal.overview.heroTextWithWebsite") : t("vcommercePortal:portal.overview.heroTextNoWebsite")}</p>
         </div>
         <div className="vco-seller-hero__chips">
-          <span>{VCOMMERCE_PLANS.find((plan) => plan.id === business.packageId)?.name || "Starter"} package</span>
-          <span>5% per hosted sale</span>
-          <span>5-business-day payout target</span>
+          <span>{planName} {t("vcommercePortal:portal.overview.packageSuffix")}</span>
+          <span>{t("vcommercePortal:portal.overview.feePerSale")}</span>
+          <span>{t("vcommercePortal:portal.overview.payoutTarget")}</span>
         </div>
       </div>
       {business.packageStatus !== "active" && (
         <div className="vco-package-action">
-          <div><strong>Activate your {VCOMMERCE_PLANS.find((plan) => plan.id === business.packageId)?.name || "Starter"} package</strong><span>Your listing can be prepared during the trial; package payment activates ongoing marketplace access.</span></div>
-          <button type="button" onClick={activatePackage}>Continue to secure payment <span>→</span></button>
+          <div><strong>{t("vcommercePortal:portal.overview.packageAction.activateTitle", { plan: planName })}</strong><span>{t("vcommercePortal:portal.overview.packageAction.activateText")}</span></div>
+          <button type="button" onClick={activatePackage}>{t("vcommercePortal:portal.overview.packageAction.activateButton")}</button>
         </div>
       )}
       {business.applicationStatus === "pending" || business.status === "review" ? (
         <div className="vco-review-state vco-review-state--pending">
           <span aria-hidden="true">✓</span>
           <div>
-            <strong>Submitted for verification</strong>
-            <p>Your workspace remains private while our team reviews the completed business details.</p>
+            <strong>{t("vcommercePortal:portal.overview.reviewPending.title")}</strong>
+            <p>{t("vcommercePortal:portal.overview.reviewPending.text")}</p>
           </div>
         </div>
       ) : business.status !== "active" ? (
         <section className="vco-onboarding-panel">
           <div className="vco-onboarding-panel__heading">
             <div>
-              <span className="vco-kicker">Paid workspace · private setup</span>
-              <h2>Complete your storefront before verification</h2>
-              <p>Your business will only appear publicly after you submit these details and an administrator approves them.</p>
+              <span className="vco-kicker">{t("vcommercePortal:portal.overview.onboarding.kicker")}</span>
+              <h2>{t("vcommercePortal:portal.overview.onboarding.title")}</h2>
+              <p>{t("vcommercePortal:portal.overview.onboarding.text")}</p>
             </div>
             <span className="vco-onboarding-panel__progress">
-              {[business.packageStatus === "active", Boolean(business.logoUrl), Boolean(business.description), !["hosted", "hybrid"].includes(business.sellingMode) || productCount > 0].filter(Boolean).length}/4 ready
+              {t("vcommercePortal:portal.overview.onboarding.progress", { count: [business.packageStatus === "active", Boolean(business.logoUrl), Boolean(business.description), !["hosted", "hybrid"].includes(business.sellingMode) || productCount > 0].filter(Boolean).length })}
             </span>
           </div>
           {business.applicationReviewNote && (
-            <div className="vco-review-note"><strong>Review feedback:</strong> {business.applicationReviewNote}</div>
+            <div className="vco-review-note"><strong>{t("vcommercePortal:portal.overview.onboarding.reviewFeedback")}</strong> {business.applicationReviewNote}</div>
           )}
           <div className="vco-onboarding-checklist">
             {[
-              ["Package payment", business.packageStatus === "active", "Secure subscription active", null],
-              ["Logo and brand", Boolean(business.logoUrl && business.description), "Add your logo and brand story in Settings", 5],
-              ["Contact and selling setup", Boolean(business.contactEmail && business.sellingMode), "Confirm how customers buy from you", 5],
-              ["Products or services", !["hosted", "hybrid"].includes(business.sellingMode) || productCount > 0, `${productCount} available listing${productCount === 1 ? "" : "s"}`, 1],
+              [t("vcommercePortal:portal.overview.onboarding.checklist.packagePaymentLabel"), business.packageStatus === "active", t("vcommercePortal:portal.overview.onboarding.checklist.packagePaymentDetail"), null],
+              [t("vcommercePortal:portal.overview.onboarding.checklist.logoLabel"), Boolean(business.logoUrl && business.description), t("vcommercePortal:portal.overview.onboarding.checklist.logoDetail"), 5],
+              [t("vcommercePortal:portal.overview.onboarding.checklist.contactLabel"), Boolean(business.contactEmail && business.sellingMode), t("vcommercePortal:portal.overview.onboarding.checklist.contactDetail"), 5],
+              [t("vcommercePortal:portal.overview.onboarding.checklist.productsLabel"), !["hosted", "hybrid"].includes(business.sellingMode) || productCount > 0, t("vcommercePortal:portal.overview.onboarding.availableListings", { count: productCount }), 1],
             ].map(([label, complete, detail, tabIndex]) => {
               const clickable = tabIndex != null && typeof onNavigateTab === "function";
               return (
@@ -178,16 +182,16 @@ function OverviewTab({ business, onRefresh, onNavigateTab }) {
           </div>
           {reviewMessage && <p className="vco-onboarding-panel__message" role="status">{reviewMessage}</p>}
           <button type="button" className="vco-onboarding-panel__submit" onClick={submitForReview} disabled={submittingReview}>
-            {submittingReview ? "Checking your storefront…" : "Submit completed business for verification"} <span>→</span>
+            {submittingReview ? t("vcommercePortal:portal.overview.onboarding.submitting") : t("vcommercePortal:portal.overview.onboarding.submitButton")} <span>→</span>
           </button>
         </section>
       ) : null}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(160px,1fr))", gap: 16, marginBottom: 24 }}>
         {[
-          { label: "Total Revenue", value: formatPrice(business.totalRevenueMinor) },
-          { label: "Pending Payout", value: formatPrice(business.pendingPayoutMinor) },
-          { label: "Total Paid Out", value: formatPrice(business.totalPayoutsMinor) },
-          { label: "Total Orders", value: business.totalOrders ?? 0 },
+          { label: t("vcommercePortal:portal.overview.stats.totalRevenue"), value: formatPrice(business.totalRevenueMinor) },
+          { label: t("vcommercePortal:portal.overview.stats.pendingPayout"), value: formatPrice(business.pendingPayoutMinor) },
+          { label: t("vcommercePortal:portal.overview.stats.totalPaidOut"), value: formatPrice(business.totalPayoutsMinor) },
+          { label: t("vcommercePortal:portal.overview.stats.totalOrders"), value: business.totalOrders ?? 0 },
         ].map(({ label, value }) => (
           <div key={label} style={S.statCard}>
             <p style={{ margin: "0 0 4px", fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-muted,#888)" }}>{label}</p>
@@ -197,7 +201,7 @@ function OverviewTab({ business, onRefresh, onNavigateTab }) {
       </div>
 
       <div style={S.card}>
-        <h3 style={{ margin: "0 0 12px", fontSize: "0.95rem", fontWeight: 700 }}>Your Business</h3>
+        <h3 style={{ margin: "0 0 12px", fontSize: "0.95rem", fontWeight: 700 }}>{t("vcommercePortal:portal.overview.businessCard.title")}</h3>
         <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
           {business.logoUrl && (
             <img src={business.logoUrl} alt="logo" style={{ width: 56, height: 56, borderRadius: 10, objectFit: "cover" }} />
@@ -207,12 +211,12 @@ function OverviewTab({ business, onRefresh, onNavigateTab }) {
             <p style={{ margin: "0 0 8px", fontSize: "0.85rem", color: "var(--color-text-secondary,#666)" }}>{business.tagline}</p>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <span style={{ ...(S.badge(business.status === "active" ? "green" : "red")) }}>{business.status}</span>
-              {business.isFeaturedThisWeek && <span style={S.badge("green")}>⭐ Featured this week</span>}
-              {business.avgRating && <span style={S.badge("yellow")}>★ {business.avgRating} ({business.reviewCount} reviews)</span>}
+              {business.isFeaturedThisWeek && <span style={S.badge("green")}>{t("vcommercePortal:portal.overview.businessCard.featuredThisWeek")}</span>}
+              {business.avgRating && <span style={S.badge("yellow")}>{t("vcommercePortal:portal.overview.businessCard.reviewsBadge", { rating: business.avgRating, count: business.reviewCount })}</span>}
               {business.status === "active" && (
                 <a href={`/vcommerce/${business.slug}`} target="_blank" rel="noopener noreferrer"
                   style={{ fontSize: "0.8rem", color: "var(--color-accent,#8B5CF6)" }}>
-                  View public page ↗
+                  {t("vcommercePortal:portal.overview.businessCard.viewPublicPage")}
                 </a>
               )}
             </div>
@@ -222,38 +226,38 @@ function OverviewTab({ business, onRefresh, onNavigateTab }) {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 16 }}>
         <div style={S.card}>
-          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>V.Commerce Fee</p>
+          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>{t("vcommercePortal:portal.overview.cards.feeTitle")}</p>
           <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>{business.platformFeePercent}%</p>
-          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>Only on hosted checkout sales</p>
+          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>{t("vcommercePortal:portal.overview.cards.feeSub")}</p>
         </div>
         <div style={S.card}>
-          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>Payout Schedule</p>
-          <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>5 days</p>
-          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>Normally initiated after payment</p>
+          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>{t("vcommercePortal:portal.overview.cards.scheduleTitle")}</p>
+          <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>{t("vcommercePortal:portal.overview.cards.scheduleValue")}</p>
+          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>{t("vcommercePortal:portal.overview.cards.scheduleSub")}</p>
         </div>
         <div style={S.card}>
-          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>Customer Cashback</p>
+          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>{t("vcommercePortal:portal.overview.cards.cashbackTitle")}</p>
           <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>{business.cashbackPercent}%</p>
-          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>Credited to V.Wallet</p>
+          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>{t("vcommercePortal:portal.overview.cards.cashbackSub")}</p>
         </div>
         {business.minOrderValueMinor > 0 && (
           <div style={S.card}>
-            <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>Min. Order Value</p>
+            <p style={{ margin: "0 0 4px", fontSize: "0.8rem", fontWeight: 700, color: "var(--color-text-muted,#888)", textTransform: "uppercase" }}>{t("vcommercePortal:portal.overview.cards.minOrderTitle")}</p>
             <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 700 }}>{formatPrice(business.minOrderValueMinor)}</p>
-            <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>Minimum basket per order</p>
+            <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--color-text-muted,#aaa)" }}>{t("vcommercePortal:portal.overview.cards.minOrderSub")}</p>
           </div>
         )}
       </div>
 
       {refLink?.url && (
         <div style={{ ...S.card, marginTop: 16 }}>
-          <h3 style={{ margin: "0 0 8px", fontSize: "0.95rem", fontWeight: 700 }}>Your V.Commerce shop link</h3>
+          <h3 style={{ margin: "0 0 8px", fontSize: "0.95rem", fontWeight: 700 }}>{t("vcommercePortal:portal.overview.referral.title")}</h3>
           <p style={{ margin: "0 0 12px", fontSize: "0.82rem", color: "var(--color-text-secondary,#666)" }}>
-            Share this link so customers can discover your products and buy securely through your hosted storefront.
+            {t("vcommercePortal:portal.overview.referral.text")}
           </p>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <code style={{ fontSize: "0.82rem", background: "var(--color-bg-muted,rgba(128,128,128,0.08))", padding: "6px 10px", borderRadius: 6, wordBreak: "break-all", flex: 1 }}>{refLink.url}</code>
-            <button type="button" style={S.btn("sm")} onClick={copyRef}>{refCopied ? "Copied!" : "Copy"}</button>
+            <button type="button" style={S.btn("sm")} onClick={copyRef}>{refCopied ? t("vcommercePortal:portal.overview.referral.copiedButton") : t("vcommercePortal:portal.overview.referral.copyButton")}</button>
           </div>
         </div>
       )}
@@ -263,12 +267,14 @@ function OverviewTab({ business, onRefresh, onNavigateTab }) {
 
 // ── Bulk pricing accordion (used inside ProductsTab modal) ──
 function BulkPricingSection({ productId, initialTiers = [], initialMinQty = 1, initialMaxQty = null }) {
+  const { t } = useTranslation(["vcommercePortal"]);
   const [open, setOpen] = useState(false);
   const [tiers, setTiers] = useState(initialTiers.map((t) => ({ minQty: t.minQty, priceEUR: (t.priceMinor / 100).toFixed(2) })));
   const [minOrderQty, setMinOrderQty] = useState(initialMinQty ?? 1);
   const [maxOrderQty, setMaxOrderQty] = useState(initialMaxQty ?? "");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const [msgIsError, setMsgIsError] = useState(false);
 
   function addTier() {
     setTiers((t) => [...t, { minQty: "", priceEUR: "" }]);
@@ -294,9 +300,11 @@ function BulkPricingSection({ productId, initialTiers = [], initialMinQty = 1, i
         minOrderQty: Number(minOrderQty) || 1,
         maxOrderQty: maxOrderQty === "" ? null : Number(maxOrderQty),
       });
-      setMsg("Bulk pricing saved.");
+      setMsg(t("vcommercePortal:portal.bulkPricing.saveSuccess"));
+      setMsgIsError(false);
     } catch (err) {
-      setMsg(err?.message || "Error saving pricing.");
+      setMsg(err?.message || t("vcommercePortal:portal.bulkPricing.saveError"));
+      setMsgIsError(true);
     } finally {
       setSaving(false);
     }
@@ -310,50 +318,50 @@ function BulkPricingSection({ productId, initialTiers = [], initialMinQty = 1, i
         style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", width: "100%", padding: "10px 0", fontSize: "0.88rem", fontWeight: 700, color: "var(--color-accent,#8B5CF6)" }}
         onClick={() => setOpen((o) => !o)}>
         <span style={{ fontSize: "0.7rem" }}>{open ? "▼" : "▶"}</span>
-        Bulk Pricing Tiers {tiers.length > 0 && `(${tiers.length} tier${tiers.length !== 1 ? "s" : ""})`}
+        {t("vcommercePortal:portal.bulkPricing.toggleLabel")} {tiers.length > 0 && t("vcommercePortal:portal.bulkPricing.tierCount", { count: tiers.length })}
       </button>
 
       {open && (
         <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingBottom: 8 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
-              <label style={S.label}>Min. Order Qty</label>
+              <label style={S.label}>{t("vcommercePortal:portal.bulkPricing.minOrderQty")}</label>
               <input style={S.input} type="number" min="1" value={minOrderQty}
                 onChange={(e) => setMinOrderQty(e.target.value)} />
             </div>
             <div>
-              <label style={S.label}>Max. Order Qty (blank = unlimited)</label>
+              <label style={S.label}>{t("vcommercePortal:portal.bulkPricing.maxOrderQty")}</label>
               <input style={S.input} type="number" min="1" value={maxOrderQty}
                 onChange={(e) => setMaxOrderQty(e.target.value)} placeholder="—" />
             </div>
           </div>
 
           <div>
-            <label style={{ ...S.label, marginBottom: 8 }}>Price tiers (lower unit price at higher qty)</label>
+            <label style={{ ...S.label, marginBottom: 8 }}>{t("vcommercePortal:portal.bulkPricing.tiersLabel")}</label>
             {tiers.length === 0 && (
               <p style={{ fontSize: "0.8rem", color: "var(--color-text-muted,#aaa)", margin: "0 0 8px" }}>
-                No tiers yet. Buyers pay the base retail price.
+                {t("vcommercePortal:portal.bulkPricing.noTiers")}
               </p>
             )}
             {tiers.map((tier, i) => (
               <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 8, marginBottom: 8, alignItems: "center" }}>
-                <input style={S.input} type="number" min="1" placeholder="Min qty" value={tier.minQty}
+                <input style={S.input} type="number" min="1" placeholder={t("vcommercePortal:portal.bulkPricing.minQtyPlaceholder")} value={tier.minQty}
                   onChange={(e) => updateTier(i, "minQty", e.target.value)} />
-                <input style={S.input} type="number" min="0.01" step="0.01" placeholder="Price (€)" value={tier.priceEUR}
+                <input style={S.input} type="number" min="0.01" step="0.01" placeholder={t("vcommercePortal:portal.bulkPricing.pricePlaceholder")} value={tier.priceEUR}
                   onChange={(e) => updateTier(i, "priceEUR", e.target.value)} />
                 <button type="button" onClick={() => removeTier(i)}
                   style={{ background: "none", border: "none", cursor: "pointer", color: "#DC2626", fontSize: "1rem", padding: "0 4px" }}>✕</button>
               </div>
             ))}
             <button type="button" onClick={addTier}
-              style={{ ...S.btn("sm"), marginTop: 4 }}>+ Add tier</button>
+              style={{ ...S.btn("sm"), marginTop: 4 }}>{t("vcommercePortal:portal.bulkPricing.addTier")}</button>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button type="button" onClick={savePricing} disabled={saving} style={S.btn("sm")}>
-              {saving ? "Saving…" : "Save Bulk Pricing"}
+              {saving ? t("vcommercePortal:portal.bulkPricing.saving") : t("vcommercePortal:portal.bulkPricing.saveButton")}
             </button>
-            {msg && <span style={{ fontSize: "0.8rem", color: msg.startsWith("Error") ? "#DC2626" : "#059669" }}>{msg}</span>}
+            {msg && <span style={{ fontSize: "0.8rem", color: msgIsError ? "#DC2626" : "#059669" }}>{msg}</span>}
           </div>
         </div>
       )}
@@ -363,6 +371,7 @@ function BulkPricingSection({ productId, initialTiers = [], initialMinQty = 1, i
 
 // ── Products tab ──
 function ProductsTab({ businessId }) {
+  const { t } = useTranslation(["vcommercePortal"]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null); // null | "new" | product
@@ -403,58 +412,58 @@ function ProductsTab({ businessId }) {
     try {
       if (editing === "new") {
         await postMyProduct(payload);
-        setMsg("Product added.");
+        setMsg(t("vcommercePortal:portal.products.addSuccess"));
       } else {
         await patchMyProduct(editing._id, payload);
-        setMsg("Product updated.");
+        setMsg(t("vcommercePortal:portal.products.updateSuccess"));
       }
       setEditing(null);
       load();
     } catch (err) {
-      setMsg(err?.message || "Error saving product.");
+      setMsg(err?.message || t("vcommercePortal:portal.products.saveError"));
     }
   }
 
   async function handleDelete(productId) {
-    if (!window.confirm("Delete this product? This cannot be undone.")) return;
+    if (!window.confirm(t("vcommercePortal:portal.products.deleteConfirm"))) return;
     try {
       await deleteMyProduct(productId);
-      setMsg("Product deleted.");
+      setMsg(t("vcommercePortal:portal.products.deleteSuccess"));
       load();
     } catch (err) {
-      setMsg(err?.message || "Error deleting product.");
+      setMsg(err?.message || t("vcommercePortal:portal.products.deleteError"));
     }
   }
 
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-        <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700 }}>Your Products & Services</h3>
-        <button type="button" style={S.btn()} onClick={openNew}>+ Add Product</button>
+        <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700 }}>{t("vcommercePortal:portal.products.title")}</h3>
+        <button type="button" style={S.btn()} onClick={openNew}>{t("vcommercePortal:portal.products.addButton")}</button>
       </div>
 
       {msg && <p style={{ padding: "10px 14px", background: "rgba(16,185,129,0.1)", borderRadius: 8, marginBottom: 16, fontSize: "0.875rem", color: "#059669" }}>{msg}</p>}
 
       {loading ? (
-        <p style={{ color: "var(--color-text-muted,#888)", padding: 40, textAlign: "center" }}>Loading…</p>
+        <p style={{ color: "var(--color-text-muted,#888)", padding: 40, textAlign: "center" }}>{t("vcommercePortal:portal.products.loading")}</p>
       ) : products.length === 0 ? (
         <div style={{ textAlign: "center", padding: "48px 24px", background: "var(--color-card-bg,#fff)", borderRadius: 12, border: "1px dashed var(--color-border,rgba(128,128,128,0.2))" }}>
           <div style={{ fontSize: "2rem", marginBottom: 12 }}>📦</div>
-          <p style={{ margin: "0 0 16px", color: "var(--color-text-secondary,#666)" }}>No products yet. Add your first one!</p>
-          <button type="button" style={S.btn()} onClick={openNew}>Add Product</button>
+          <p style={{ margin: "0 0 16px", color: "var(--color-text-secondary,#666)" }}>{t("vcommercePortal:portal.products.empty.text")}</p>
+          <button type="button" style={S.btn()} onClick={openNew}>{t("vcommercePortal:portal.products.empty.button")}</button>
         </div>
       ) : (
         <div style={{ overflowX: "auto" }}>
           <table style={S.table}>
             <thead>
               <tr>
-                <th style={S.th}>Name</th>
-                <th style={S.th}>Type</th>
-                <th style={S.th}>Price</th>
-                <th style={S.th}>Bulk Tiers</th>
-                <th style={S.th}>Stock</th>
-                <th style={S.th}>Available</th>
-                <th style={S.th}>Actions</th>
+                <th style={S.th}>{t("vcommercePortal:portal.products.table.name")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.products.table.type")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.products.table.price")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.products.table.bulkTiers")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.products.table.stock")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.products.table.available")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.products.table.actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -465,15 +474,15 @@ function ProductsTab({ businessId }) {
                   <td style={S.td}>{formatPrice(p.priceMinor, p.currency)}</td>
                   <td style={S.td}>
                     {p.bulkPricingTiers?.length > 0
-                      ? <span style={S.badge("yellow")}>🏷️ {p.bulkPricingTiers.length} tier{p.bulkPricingTiers.length !== 1 ? "s" : ""}</span>
+                      ? <span style={S.badge("yellow")}>{t("vcommercePortal:portal.products.bulkTiersBadge", { count: p.bulkPricingTiers.length })}</span>
                       : <span style={{ color: "var(--color-text-muted,#aaa)", fontSize: "0.8rem" }}>—</span>}
                   </td>
                   <td style={S.td}>{p.stockCount ?? "∞"}</td>
-                  <td style={S.td}><span style={S.badge(p.isAvailable ? "green" : "red")}>{p.isAvailable ? "Yes" : "No"}</span></td>
+                  <td style={S.td}><span style={S.badge(p.isAvailable ? "green" : "red")}>{p.isAvailable ? t("vcommercePortal:portal.products.yes") : t("vcommercePortal:portal.products.no")}</span></td>
                   <td style={S.td}>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <button type="button" style={S.btn("sm")} onClick={() => openEdit(p)}>Edit</button>
-                      <button type="button" style={{ ...S.btn("sm"), color: "#DC2626", borderColor: "rgba(220,38,38,0.3)" }} onClick={() => handleDelete(p._id)}>Delete</button>
+                      <button type="button" style={S.btn("sm")} onClick={() => openEdit(p)}>{t("vcommercePortal:portal.products.editButton")}</button>
+                      <button type="button" style={{ ...S.btn("sm"), color: "#DC2626", borderColor: "rgba(220,38,38,0.3)" }} onClick={() => handleDelete(p._id)}>{t("vcommercePortal:portal.products.deleteButton")}</button>
                     </div>
                   </td>
                 </tr>
@@ -489,34 +498,34 @@ function ProductsTab({ businessId }) {
           onClick={(e) => e.target === e.currentTarget && setEditing(null)}>
           <div style={{ background:"var(--color-card-bg,#fff)",borderRadius:16,maxWidth:520,width:"100%",overflow:"auto",maxHeight:"92vh" }}>
             <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",padding:"20px 24px",borderBottom:"1px solid var(--color-border,rgba(128,128,128,0.15))" }}>
-              <h3 style={{ margin:0,fontSize:"1rem",fontWeight:700 }}>{editing === "new" ? "Add Product" : "Edit Product"}</h3>
+              <h3 style={{ margin:0,fontSize:"1rem",fontWeight:700 }}>{editing === "new" ? t("vcommercePortal:portal.products.modal.addTitle") : t("vcommercePortal:portal.products.modal.editTitle")}</h3>
               <button type="button" style={{ background:"none",border:"none",cursor:"pointer",fontSize:"1.2rem",color:"var(--color-text-muted,#888)" }} onClick={() => setEditing(null)}>✕</button>
             </div>
             <form onSubmit={handleSave} style={{ padding:24,display:"flex",flexDirection:"column",gap:14 }}>
-              <div><label style={S.label}>Name *</label><input style={S.input} type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required /></div>
+              <div><label style={S.label}>{t("vcommercePortal:portal.products.modal.nameLabel")}</label><input style={S.input} type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required /></div>
               <div>
-                <label style={S.label}>Type *</label>
+                <label style={S.label}>{t("vcommercePortal:portal.products.modal.typeLabel")}</label>
                 <select style={S.input} value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
-                  <option value="service">Service</option>
-                  <option value="physical">Physical Product</option>
-                  <option value="digital">Digital Product</option>
+                  <option value="service">{t("vcommercePortal:portal.products.modal.typeService")}</option>
+                  <option value="physical">{t("vcommercePortal:portal.products.modal.typePhysical")}</option>
+                  <option value="digital">{t("vcommercePortal:portal.products.modal.typeDigital")}</option>
                 </select>
               </div>
-              <div><label style={S.label}>Description</label><textarea style={{ ...S.input, minHeight:80, resize:"vertical" }} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} /></div>
+              <div><label style={S.label}>{t("vcommercePortal:portal.products.modal.descriptionLabel")}</label><textarea style={{ ...S.input, minHeight:80, resize:"vertical" }} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} /></div>
               <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:12 }}>
                 <div>
-                  <label style={S.label}>Price (€) *</label>
+                  <label style={S.label}>{t("vcommercePortal:portal.products.modal.priceLabel")}</label>
                   <input style={S.input} type="number" min="0" step="0.01" value={form.priceMinor} onChange={(e) => setForm((f) => ({ ...f, priceMinor: e.target.value }))} required />
                 </div>
                 <div>
-                  <label style={S.label}>Stock (blank = unlimited)</label>
+                  <label style={S.label}>{t("vcommercePortal:portal.products.modal.stockLabel")}</label>
                   <input style={S.input} type="number" min="0" value={form.stockCount} onChange={(e) => setForm((f) => ({ ...f, stockCount: e.target.value }))} />
                 </div>
               </div>
-              <div><label style={S.label}>Delivery Info</label><input style={S.input} type="text" value={form.deliveryInfo} onChange={(e) => setForm((f) => ({ ...f, deliveryInfo: e.target.value }))} placeholder="e.g. Ships within 3-5 days" /></div>
+              <div><label style={S.label}>{t("vcommercePortal:portal.products.modal.deliveryLabel")}</label><input style={S.input} type="text" value={form.deliveryInfo} onChange={(e) => setForm((f) => ({ ...f, deliveryInfo: e.target.value }))} placeholder={t("vcommercePortal:portal.products.modal.deliveryPlaceholder")} /></div>
               <div style={{ display:"flex",alignItems:"center",gap:8 }}>
                 <input type="checkbox" id="avail" checked={form.isAvailable} onChange={(e) => setForm((f) => ({ ...f, isAvailable: e.target.checked }))} />
-                <label htmlFor="avail" style={{ fontSize:"0.9rem" }}>Available for purchase</label>
+                <label htmlFor="avail" style={{ fontSize:"0.9rem" }}>{t("vcommercePortal:portal.products.modal.availableCheckbox")}</label>
               </div>
 
               {/* Bulk pricing accordion — only shown when editing existing product */}
@@ -530,8 +539,8 @@ function ProductsTab({ businessId }) {
               )}
 
               <div style={{ display:"flex",gap:10,marginTop:8 }}>
-                <button type="submit" style={S.btn()}>Save</button>
-                <button type="button" style={S.btn("ghost")} onClick={() => setEditing(null)}>Cancel</button>
+                <button type="submit" style={S.btn()}>{t("vcommercePortal:portal.products.modal.saveButton")}</button>
+                <button type="button" style={S.btn("ghost")} onClick={() => setEditing(null)}>{t("vcommercePortal:portal.products.modal.cancelButton")}</button>
               </div>
             </form>
           </div>
@@ -543,6 +552,7 @@ function ProductsTab({ businessId }) {
 
 // ── Orders tab ──
 function OrdersTab() {
+  const { t } = useTranslation(["vcommercePortal"]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
@@ -564,14 +574,22 @@ function OrdersTab() {
     e.preventDefault();
     try {
       await markOrderFulfilled(fulfilling._id, note);
-      setMsg("Order marked as fulfilled.");
+      setMsg(t("vcommercePortal:portal.orders.fulfillSuccess"));
       setFulfilling(null);
       setNote("");
       load();
     } catch (err) {
-      setMsg(err?.message || "Error.");
+      setMsg(err?.message || t("vcommercePortal:portal.orders.genericError"));
     }
   }
+
+  const filterLabels = {
+    "": t("vcommercePortal:portal.orders.filters.all"),
+    paid: t("vcommercePortal:portal.orders.filters.paid"),
+    fulfilled: t("vcommercePortal:portal.orders.filters.fulfilled"),
+    pending: t("vcommercePortal:portal.orders.filters.pending"),
+    cancelled: t("vcommercePortal:portal.orders.filters.cancelled"),
+  };
 
   return (
     <div>
@@ -580,7 +598,7 @@ function OrdersTab() {
           <button key={s} type="button"
             style={{ ...S.btn("ghost"), background: statusFilter===s ? "var(--color-accent,#8B5CF6)" : undefined, color: statusFilter===s ? "#fff" : undefined, border: statusFilter===s ? "none" : undefined }}
             onClick={() => setStatusFilter(s)}>
-            {s === "" ? "All" : s.charAt(0).toUpperCase()+s.slice(1)}
+            {filterLabels[s]}
           </button>
         ))}
       </div>
@@ -588,36 +606,36 @@ function OrdersTab() {
       {msg && <p style={{ padding:"10px 14px",background:"rgba(16,185,129,0.1)",borderRadius:8,marginBottom:16,fontSize:"0.875rem",color:"#059669" }}>{msg}</p>}
 
       {loading ? (
-        <p style={{ color:"var(--color-text-muted,#888)",padding:40,textAlign:"center" }}>Loading…</p>
+        <p style={{ color:"var(--color-text-muted,#888)",padding:40,textAlign:"center" }}>{t("vcommercePortal:portal.orders.loading")}</p>
       ) : (
         <div style={{ overflowX:"auto" }}>
           <table style={S.table}>
             <thead>
               <tr>
-                <th style={S.th}>Order</th>
-                <th style={S.th}>Customer</th>
-                <th style={S.th}>Items</th>
-                <th style={S.th}>Total</th>
-                <th style={S.th}>Status</th>
-                <th style={S.th}>Date</th>
-                <th style={S.th}>Actions</th>
+                <th style={S.th}>{t("vcommercePortal:portal.orders.table.order")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.orders.table.customer")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.orders.table.items")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.orders.table.total")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.orders.table.status")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.orders.table.date")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.orders.table.actions")}</th>
               </tr>
             </thead>
             <tbody>
               {orders.length === 0
-                ? <tr><td colSpan={7} style={{ ...S.td,textAlign:"center",color:"var(--color-text-muted,#888)",padding:40 }}>No orders found.</td></tr>
+                ? <tr><td colSpan={7} style={{ ...S.td,textAlign:"center",color:"var(--color-text-muted,#888)",padding:40 }}>{t("vcommercePortal:portal.orders.empty")}</td></tr>
                 : orders.map((o) => (
                   <tr key={o._id}>
                     <td style={S.td}><code style={{ fontSize:"0.78rem" }}>{o._id?.slice(-8)}</code></td>
                     <td style={S.td}>{o.customerName}<br/><span style={{ fontSize:"0.78rem",color:"var(--color-text-muted,#888)" }}>{o.customerEmail}</span></td>
-                    <td style={S.td}>{o.items?.length ?? 0} item{o.items?.length !== 1 ? "s" : ""}</td>
-                    <td style={S.td}><strong>{formatPrice(o.subtotalMinor, o.currency)}</strong><br/><span style={{ fontSize:"0.75rem",color:"var(--color-text-muted,#aaa)" }}>You receive {formatPrice(o.businessAmountMinor, o.currency)}</span></td>
+                    <td style={S.td}>{t("vcommercePortal:portal.orders.itemCount", { count: o.items?.length ?? 0 })}</td>
+                    <td style={S.td}><strong>{formatPrice(o.subtotalMinor, o.currency)}</strong><br/><span style={{ fontSize:"0.75rem",color:"var(--color-text-muted,#aaa)" }}>{t("vcommercePortal:portal.orders.youReceive", { amount: formatPrice(o.businessAmountMinor, o.currency) })}</span></td>
                     <td style={S.td}><span style={S.badge(o.status==="paid"||o.status==="fulfilled"?"green":o.status==="cancelled"?"red":"yellow")}>{o.status}</span></td>
                     <td style={S.td}>{formatDate(o.createdAt)}</td>
                     <td style={S.td}>
                       {o.status === "paid" && (
                         <button type="button" style={S.btn("sm")} onClick={() => { setFulfilling(o); setNote(""); }}>
-                          Mark Fulfilled
+                          {t("vcommercePortal:portal.orders.markFulfilledButton")}
                         </button>
                       )}
                       {o.shippingAddress?.line1 && (
@@ -638,18 +656,18 @@ function OrdersTab() {
         <div style={{ position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.45)",display:"flex",alignItems:"center",justifyContent:"center",padding:24 }}
           onClick={(e) => e.target === e.currentTarget && setFulfilling(null)}>
           <div style={{ background:"var(--color-card-bg,#fff)",borderRadius:16,maxWidth:440,width:"100%",padding:28 }}>
-            <h3 style={{ margin:"0 0 8px",fontSize:"1rem",fontWeight:700 }}>Mark Order as Fulfilled</h3>
+            <h3 style={{ margin:"0 0 8px",fontSize:"1rem",fontWeight:700 }}>{t("vcommercePortal:portal.orders.modal.title")}</h3>
             <p style={{ margin:"0 0 16px",fontSize:"0.875rem",color:"var(--color-text-secondary,#666)" }}>
-              Order #{fulfilling._id?.slice(-8)} · {formatPrice(fulfilling.subtotalMinor, fulfilling.currency)}
+              {t("vcommercePortal:portal.orders.modal.subtitle", { id: fulfilling._id?.slice(-8), amount: formatPrice(fulfilling.subtotalMinor, fulfilling.currency) })}
             </p>
             <form onSubmit={handleFulfil}>
               <div style={{ marginBottom:16 }}>
-                <label style={S.label}>Note to customer (optional)</label>
-                <textarea style={{ ...S.input,minHeight:70,resize:"vertical" }} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Shipped via PostNL, tracking: ..." />
+                <label style={S.label}>{t("vcommercePortal:portal.orders.modal.noteLabel")}</label>
+                <textarea style={{ ...S.input,minHeight:70,resize:"vertical" }} value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("vcommercePortal:portal.orders.modal.notePlaceholder")} />
               </div>
               <div style={{ display:"flex",gap:10 }}>
-                <button type="submit" style={S.btn()}>Confirm</button>
-                <button type="button" style={S.btn("ghost")} onClick={() => setFulfilling(null)}>Cancel</button>
+                <button type="submit" style={S.btn()}>{t("vcommercePortal:portal.orders.modal.confirmButton")}</button>
+                <button type="button" style={S.btn("ghost")} onClick={() => setFulfilling(null)}>{t("vcommercePortal:portal.orders.modal.cancelButton")}</button>
               </div>
             </form>
           </div>
@@ -661,6 +679,7 @@ function OrdersTab() {
 
 // ── Payouts tab ──
 function PayoutsTab({ business, onRefresh }) {
+  const { t } = useTranslation(["vcommercePortal"]);
   const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [connect, setConnect] = useState(null);
@@ -693,7 +712,7 @@ function PayoutsTab({ business, onRefresh }) {
       setShowRegistrationForm(false);
       onRefresh?.();
     } catch (err) {
-      setRegistrationError(err?.message || "Could not save your payout details.");
+      setRegistrationError(err?.message || t("vcommercePortal:portal.payouts.errors.registrationSaveFailed"));
     } finally {
       setSavingRegistration(false);
     }
@@ -718,7 +737,7 @@ function PayoutsTab({ business, onRefresh }) {
       const { url } = await startMyConnectOnboarding();
       window.location.assign(url);
     } catch (err) {
-      setConnect((current) => ({ ...current, error: err?.message || "Could not start secure payout setup." }));
+      setConnect((current) => ({ ...current, error: err?.message || t("vcommercePortal:portal.payouts.errors.connectStartFailed") }));
       setConnecting(false);
     }
   }
@@ -729,7 +748,7 @@ function PayoutsTab({ business, onRefresh }) {
       const { url } = await openMyConnectDashboard();
       window.location.assign(url);
     } catch (err) {
-      setConnect((current) => ({ ...current, error: err?.message || "Could not open Stripe." }));
+      setConnect((current) => ({ ...current, error: err?.message || t("vcommercePortal:portal.payouts.errors.dashboardOpenFailed") }));
       setConnecting(false);
     }
   }
@@ -739,37 +758,37 @@ function PayoutsTab({ business, onRefresh }) {
       {needsRegistration ? (
         <div className="vco-connect-card">
           <div>
-            <span className="vco-kicker">Secure seller payouts</span>
-            <h3>Complete your payout details</h3>
-            <p>We need a few identity and bank details before you can set up payouts with Stripe.</p>
+            <span className="vco-kicker">{t("vcommercePortal:portal.payouts.kicker")}</span>
+            <h3>{t("vcommercePortal:portal.payouts.needsRegistration.title")}</h3>
+            <p>{t("vcommercePortal:portal.payouts.needsRegistration.text")}</p>
           </div>
           <button type="button" onClick={() => setShowRegistrationForm((v) => !v)}>
-            {showRegistrationForm ? "Hide" : "Complete your details"}
+            {showRegistrationForm ? t("vcommercePortal:portal.payouts.needsRegistration.hideButton") : t("vcommercePortal:portal.payouts.needsRegistration.showButton")}
           </button>
         </div>
       ) : connect?.connectPlatformEnabled === false && !connect?.connectedAccountId ? (
         <div className="vco-connect-card">
           <div>
-            <span className="vco-kicker">Secure seller payouts</span>
-            <h3>Payouts are almost ready</h3>
-            <p>Your details are saved. We're finishing setup with our payment partner on our end — we'll email you as soon as you can complete verification and start receiving payouts.</p>
+            <span className="vco-kicker">{t("vcommercePortal:portal.payouts.kicker")}</span>
+            <h3>{t("vcommercePortal:portal.payouts.almostReady.title")}</h3>
+            <p>{t("vcommercePortal:portal.payouts.almostReady.text")}</p>
           </div>
         </div>
       ) : (
         <div className="vco-connect-card">
           <div>
-            <span className="vco-kicker">Secure seller payouts</span>
-            <h3>{connect?.payoutsEnabled ? "Your payout account is ready" : "Connect your bank account"}</h3>
-            <p>{connect?.payoutsEnabled ? "Identity and payout details are verified through Stripe." : "Complete secure identity and bank verification before receiving marketplace earnings."}</p>
+            <span className="vco-kicker">{t("vcommercePortal:portal.payouts.kicker")}</span>
+            <h3>{connect?.payoutsEnabled ? t("vcommercePortal:portal.payouts.ready.titleReady") : t("vcommercePortal:portal.payouts.ready.titleNotReady")}</h3>
+            <p>{connect?.payoutsEnabled ? t("vcommercePortal:portal.payouts.ready.textReady") : t("vcommercePortal:portal.payouts.ready.textNotReady")}</p>
             {connect?.error && <small>{connect.error}</small>}
           </div>
           {connect?.payoutsEnabled ? (
             <button type="button" onClick={openStripeDashboard} disabled={connecting}>
-              {connecting ? "Opening…" : "Manage in Stripe ↗"}
+              {connecting ? t("vcommercePortal:portal.payouts.ready.opening") : t("vcommercePortal:portal.payouts.ready.manageButton")}
             </button>
           ) : (
             <button type="button" onClick={beginConnect} disabled={connecting}>
-              {connecting ? "Opening…" : connect?.status === "pending" ? "Continue verification" : "Set up payouts"}
+              {connecting ? t("vcommercePortal:portal.payouts.ready.opening") : connect?.status === "pending" ? t("vcommercePortal:portal.payouts.ready.continueVerificationButton") : t("vcommercePortal:portal.payouts.ready.setupButton")}
             </button>
           )}
         </div>
@@ -788,39 +807,39 @@ function PayoutsTab({ business, onRefresh }) {
           />
           {registrationError && <p className="vco-apply-form__error">{registrationError}</p>}
           <button type="button" onClick={saveRegistration} disabled={savingRegistration}>
-            {savingRegistration ? "Saving…" : "Save payout details"}
+            {savingRegistration ? t("vcommercePortal:portal.payouts.saving") : t("vcommercePortal:portal.payouts.saveButton")}
           </button>
         </div>
       )}
       {connect?.connectedAccountId && (
         <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(170px,1fr))",gap:12,margin:"16px 0" }}>
-          <div style={S.card}><small>Available in Stripe</small><strong style={{display:"block",fontSize:"1.25rem",marginTop:6}}>{formatPrice(connect.balance?.available?.find((x) => x.currency === "eur")?.amount || 0)}</strong></div>
-          <div style={S.card}><small>Pending in Stripe</small><strong style={{display:"block",fontSize:"1.25rem",marginTop:6}}>{formatPrice(connect.balance?.pending?.find((x) => x.currency === "eur")?.amount || 0)}</strong></div>
-          <div style={S.card}><small>Payout schedule</small><strong style={{display:"block",fontSize:"1.05rem",marginTop:6,textTransform:"capitalize"}}>{connect.payoutScheduleInterval || "Stripe default"}</strong></div>
+          <div style={S.card}><small>{t("vcommercePortal:portal.payouts.balance.available")}</small><strong style={{display:"block",fontSize:"1.25rem",marginTop:6}}>{formatPrice(connect.balance?.available?.find((x) => x.currency === "eur")?.amount || 0)}</strong></div>
+          <div style={S.card}><small>{t("vcommercePortal:portal.payouts.balance.pending")}</small><strong style={{display:"block",fontSize:"1.25rem",marginTop:6}}>{formatPrice(connect.balance?.pending?.find((x) => x.currency === "eur")?.amount || 0)}</strong></div>
+          <div style={S.card}><small>{t("vcommercePortal:portal.payouts.balance.schedule")}</small><strong style={{display:"block",fontSize:"1.05rem",marginTop:6,textTransform:"capitalize"}}>{connect.payoutScheduleInterval || t("vcommercePortal:portal.payouts.balance.scheduleDefault")}</strong></div>
         </div>
       )}
       {connect?.requirementsCurrentlyDue?.length > 0 && (
         <p style={{padding:"12px 16px",background:"rgba(245,158,11,.12)",borderRadius:8}}>
-          Stripe requires more information: {connect.requirementsCurrentlyDue.join(", ")}.
+          {t("vcommercePortal:portal.payouts.requirementsDue", { list: connect.requirementsCurrentlyDue.join(", ") })}
         </p>
       )}
       <p style={{ fontSize:"0.875rem",color:"var(--color-text-secondary,#666)",marginBottom:20,padding:"12px 16px",background:"rgba(139,92,246,0.06)",borderRadius:8 }}>
-        💡 Stripe automatically sends eligible earnings to your verified bank account using your Stripe payout schedule. Refunds, disputes, verification or fraud reviews can delay a payout.
+        {t("vcommercePortal:portal.payouts.infoNote")}
       </p>
       {loading ? (
-        <p style={{ color:"var(--color-text-muted,#888)",padding:40,textAlign:"center" }}>Loading…</p>
+        <p style={{ color:"var(--color-text-muted,#888)",padding:40,textAlign:"center" }}>{t("vcommercePortal:portal.payouts.loading")}</p>
       ) : payouts.length === 0 ? (
-        <p style={{ color:"var(--color-text-muted,#888)",textAlign:"center",padding:40 }}>No payouts yet.</p>
+        <p style={{ color:"var(--color-text-muted,#888)",textAlign:"center",padding:40 }}>{t("vcommercePortal:portal.payouts.empty")}</p>
       ) : (
         <div style={{ overflowX:"auto" }}>
           <table style={S.table}>
             <thead>
               <tr>
-                <th style={S.th}>Created</th>
-                <th style={S.th}>Arrival</th>
-                <th style={S.th}>Amount</th>
-                <th style={S.th}>Status</th>
-                <th style={S.th}>Reference / bank</th>
+                <th style={S.th}>{t("vcommercePortal:portal.payouts.table.created")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.payouts.table.arrival")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.payouts.table.amount")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.payouts.table.status")}</th>
+                <th style={S.th}>{t("vcommercePortal:portal.payouts.table.reference")}</th>
               </tr>
             </thead>
             <tbody>
@@ -842,12 +861,13 @@ function PayoutsTab({ business, onRefresh }) {
 }
 
 function PromotionsTab() {
+  const { t } = useTranslation(["vcommercePortal"]);
   return (
     <section className="vco-promotions" aria-labelledby="vco-promotions-title">
       <div className="vco-promotions__intro">
-        <span className="vco-kicker">Affordable visibility</span>
-        <h2 id="vco-promotions-title">Put your business in front of more customers</h2>
-        <p>Choose a focused boost when it helps your business. No newsletter bundles and no long commitment.</p>
+        <span className="vco-kicker">{t("vcommercePortal:portal.promotions.kicker")}</span>
+        <h2 id="vco-promotions-title">{t("vcommercePortal:portal.promotions.title")}</h2>
+        <p>{t("vcommercePortal:portal.promotions.text")}</p>
       </div>
       <div className="vco-promotion-grid">
         {PROMOTION_OPTIONS.map(([name, duration, price], index) => (
@@ -855,7 +875,7 @@ function PromotionsTab() {
             <span className="vco-promotion-card__eyebrow">{duration}</span>
             <h3>{name}</h3>
             <strong>{price}</strong>
-            <button type="button" disabled title="Promotion checkout will be enabled after admin approval">Request promotion <span>→</span></button>
+            <button type="button" disabled title={t("vcommercePortal:portal.promotions.requestTooltip")}>{t("vcommercePortal:portal.promotions.requestButton")}</button>
           </article>
         ))}
       </div>
@@ -867,6 +887,7 @@ function PromotionsTab() {
 const TEMPLATE_COLS = ["name","description","type","priceEUR","stockCount","deliveryInfo","isAvailable","minOrderQty","tier1_minQty","tier1_priceEUR","tier2_minQty","tier2_priceEUR","tags"];
 
 function ImportTab({ businessId }) {
+  const { t } = useTranslation(["vcommercePortal"]);
   const dropRef = useRef(null);
   const fileInputRef = useRef(null);
   const [preview, setPreview] = useState(null); // [{ row, cols... }]
@@ -888,7 +909,7 @@ function ImportTab({ businessId }) {
 
   async function parseFile(file) {
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) { alert("File too large (max 10 MB)."); return; }
+    if (file.size > 10 * 1024 * 1024) { alert(t("vcommercePortal:portal.import.fileTooLarge")); return; }
     setFileName(file.name);
     setFileObj(file);
     setResult(null);
@@ -907,7 +928,7 @@ function ImportTab({ businessId }) {
       });
       setPreview(data);
     } catch (err) {
-      alert("Could not read file: " + (err?.message || "unknown error"));
+      alert(t("vcommercePortal:portal.import.readError", { error: err?.message || "unknown error" }));
     }
   }
 
@@ -938,7 +959,7 @@ function ImportTab({ businessId }) {
       const h = await getMyImportHistory().catch(() => ({ logs: [] }));
       setHistory(h.logs || []);
     } catch (err) {
-      setResult({ error: err?.message || "Import failed." });
+      setResult({ error: err?.message || t("vcommercePortal:portal.import.genericFailure") });
     } finally {
       setImporting(false);
     }
@@ -955,7 +976,7 @@ function ImportTab({ businessId }) {
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      alert("Could not download template: " + (err?.message || "error"));
+      alert(t("vcommercePortal:portal.import.templateDownloadError", { error: err?.message || "error" }));
     } finally {
       setDownloadingTemplate(false);
     }
@@ -977,13 +998,13 @@ function ImportTab({ businessId }) {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h3 style={{ margin: "0 0 4px", fontSize: "1rem", fontWeight: 700 }}>Bulk Product Import</h3>
+          <h3 style={{ margin: "0 0 4px", fontSize: "1rem", fontWeight: 700 }}>{t("vcommercePortal:portal.import.title")}</h3>
           <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--color-text-secondary,#666)" }}>
-            Upload an Excel file to create or update products in bulk.
+            {t("vcommercePortal:portal.import.subtitle")}
           </p>
         </div>
         <button type="button" style={S.btn("ghost")} onClick={handleTemplateDownload} disabled={downloadingTemplate}>
-          {downloadingTemplate ? "Downloading…" : "↓ Download Template"}
+          {downloadingTemplate ? t("vcommercePortal:portal.import.downloading") : t("vcommercePortal:portal.import.templateButton")}
         </button>
       </div>
 
@@ -998,8 +1019,8 @@ function ImportTab({ businessId }) {
           onDrop={onDrop}
         >
           <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>📂</div>
-          <p style={{ margin: "0 0 8px", fontWeight: 600 }}>{fileName || "Drop .xlsx or .csv here"}</p>
-          <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--color-text-muted,#888)" }}>or click to browse · max 10 MB</p>
+          <p style={{ margin: "0 0 8px", fontWeight: 600 }}>{fileName || t("vcommercePortal:portal.import.dropzone.placeholder")}</p>
+          <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--color-text-muted,#888)" }}>{t("vcommercePortal:portal.import.dropzone.hint")}</p>
           <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" style={{ display: "none" }} onChange={onFileChange} />
         </div>
       )}
@@ -1011,15 +1032,15 @@ function ImportTab({ businessId }) {
             <div>
               <strong style={{ fontSize: "0.9rem" }}>{fileName}</strong>
               <span style={{ marginLeft: 8, fontSize: "0.82rem", color: "var(--color-text-muted,#888)" }}>
-                {preview.length} row{preview.length !== 1 ? "s" : ""} detected
+                {t("vcommercePortal:portal.import.rowsDetected", { count: preview.length })}
               </span>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <button type="button" style={S.btn("ghost")} onClick={() => { setPreview(null); setFileName(""); setFileObj(null); }}>
-                Clear
+                {t("vcommercePortal:portal.import.clearButton")}
               </button>
               <button type="button" style={S.btn()} onClick={handleImport} disabled={importing || preview.length === 0}>
-                {importing ? "Importing…" : `Import ${preview.length} product${preview.length !== 1 ? "s" : ""}`}
+                {importing ? t("vcommercePortal:portal.import.importing") : t("vcommercePortal:portal.import.importButton", { count: preview.length })}
               </button>
             </div>
           </div>
@@ -1052,15 +1073,15 @@ function ImportTab({ businessId }) {
       {result && (
         <div style={{ ...S.card, background: result.error ? "rgba(239,68,68,0.06)" : "rgba(16,185,129,0.06)", border: `1px solid ${result.error ? "rgba(239,68,68,0.2)" : "rgba(16,185,129,0.2)"}` }}>
           {result.error ? (
-            <p style={{ margin: 0, color: "#DC2626", fontWeight: 600 }}>Import failed: {result.error}</p>
+            <p style={{ margin: 0, color: "#DC2626", fontWeight: 600 }}>{t("vcommercePortal:portal.import.result.failed", { error: result.error })}</p>
           ) : (
             <>
               <p style={{ margin: "0 0 6px", fontWeight: 700, color: "#059669" }}>
-                Import complete — {result.imported} product{result.imported !== 1 ? "s" : ""} imported, {result.skipped ?? 0} skipped
+                {t("vcommercePortal:portal.import.result.complete", { imported: result.imported, skipped: result.skipped ?? 0 })}
               </p>
               {result.errors?.length > 0 && (
                 <ul style={{ margin: 0, paddingLeft: 20, fontSize: "0.82rem", color: "#B45309" }}>
-                  {result.errors.map((e, i) => <li key={i}>Row {e.row}: {e.message}</li>)}
+                  {result.errors.map((e, i) => <li key={i}>{t("vcommercePortal:portal.import.result.rowError", { row: e.row, message: e.message })}</li>)}
                 </ul>
               )}
             </>
@@ -1070,20 +1091,20 @@ function ImportTab({ businessId }) {
 
       {/* Import history */}
       <div style={{ marginTop: 28 }}>
-        <h4 style={{ margin: "0 0 12px", fontSize: "0.9rem", fontWeight: 700 }}>Import History</h4>
+        <h4 style={{ margin: "0 0 12px", fontSize: "0.9rem", fontWeight: 700 }}>{t("vcommercePortal:portal.import.history.title")}</h4>
         {histLoading ? (
-          <p style={{ color: "var(--color-text-muted,#888)", fontSize: "0.875rem" }}>Loading…</p>
+          <p style={{ color: "var(--color-text-muted,#888)", fontSize: "0.875rem" }}>{t("vcommercePortal:portal.import.history.loading")}</p>
         ) : history.length === 0 ? (
-          <p style={{ color: "var(--color-text-muted,#888)", fontSize: "0.875rem" }}>No imports yet.</p>
+          <p style={{ color: "var(--color-text-muted,#888)", fontSize: "0.875rem" }}>{t("vcommercePortal:portal.import.history.empty")}</p>
         ) : (
           <div style={{ overflowX: "auto" }}>
             <table style={S.table}>
               <thead>
                 <tr>
-                  <th style={S.th}>File</th>
-                  <th style={S.th}>Imported</th>
-                  <th style={S.th}>Errors</th>
-                  <th style={S.th}>Date</th>
+                  <th style={S.th}>{t("vcommercePortal:portal.import.history.table.file")}</th>
+                  <th style={S.th}>{t("vcommercePortal:portal.import.history.table.imported")}</th>
+                  <th style={S.th}>{t("vcommercePortal:portal.import.history.table.errors")}</th>
+                  <th style={S.th}>{t("vcommercePortal:portal.import.history.table.date")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1119,6 +1140,7 @@ function readFileAsDataUrl(file) {
 }
 
 function ImageUploadField({ label, currentUrl, field, onUploaded }) {
+  const { t } = useTranslation(["vcommercePortal"]);
   const inputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(currentUrl || "");
@@ -1136,7 +1158,7 @@ function ImageUploadField({ label, currentUrl, field, onUploaded }) {
       setPreview(url);
       onUploaded(url);
     } catch (uploadErr) {
-      setErr(uploadErr?.message || "Upload failed.");
+      setErr(uploadErr?.message || t("vcommercePortal:portal.settings.imageUpload.uploadError"));
       setPreview(currentUrl || "");
     } finally {
       setUploading(false);
@@ -1156,19 +1178,19 @@ function ImageUploadField({ label, currentUrl, field, onUploaded }) {
         {preview
           ? <img src={preview} alt={label} style={previewStyle} />
           : <div style={{ ...previewStyle, background: "var(--color-bg-muted,rgba(128,128,128,0.08))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: isLogo ? "1.5rem" : "1rem", color: "var(--color-text-muted,#aaa)", width: isLogo ? 80 : "100%" }}>
-              {isLogo ? "🏪" : "🖼️ No banner"}
+              {isLogo ? "🏪" : t("vcommercePortal:portal.settings.imageUpload.noBanner")}
             </div>
         }
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: "none" }} onChange={handleFile} />
           <button type="button" onClick={() => inputRef.current?.click()} disabled={uploading}
             style={{ ...S.btn("sm"), opacity: uploading ? 0.6 : 1 }}>
-            {uploading ? "Uploading…" : preview ? "Change image" : "Upload image"}
+            {uploading ? t("vcommercePortal:portal.settings.imageUpload.uploading") : preview ? t("vcommercePortal:portal.settings.imageUpload.changeImage") : t("vcommercePortal:portal.settings.imageUpload.uploadImage")}
           </button>
           {preview && (
             <button type="button" onClick={() => { setPreview(""); onUploaded(""); }}
               style={{ ...S.btn("ghost"), fontSize: "0.75rem", padding: "4px 10px" }}>
-              Remove
+              {t("vcommercePortal:portal.settings.imageUpload.removeButton")}
             </button>
           )}
         </div>
@@ -1179,6 +1201,7 @@ function ImageUploadField({ label, currentUrl, field, onUploaded }) {
 }
 
 function SettingsTab({ business, onRefresh }) {
+  const { t } = useTranslation(["vcommercePortal"]);
   const [form, setForm] = useState({
     tagline: business.tagline || "",
     description: business.description || "",
@@ -1214,10 +1237,10 @@ function SettingsTab({ business, onRefresh }) {
     setMsg({ text: "", type: "success" });
     try {
       await patchMyBusiness({ ...form, ...images });
-      setMsg({ text: "Profile updated successfully.", type: "success" });
+      setMsg({ text: t("vcommercePortal:portal.settings.saveSuccess"), type: "success" });
       onRefresh();
     } catch (err) {
-      setMsg({ text: err?.message || "Error saving.", type: "error" });
+      setMsg({ text: err?.message || t("vcommercePortal:portal.settings.saveError"), type: "error" });
     } finally {
       setSaving(false);
     }
@@ -1230,16 +1253,16 @@ function SettingsTab({ business, onRefresh }) {
       {msg.text && <p style={{ padding: "10px 14px", borderRadius: 8, marginBottom: 16, fontSize: "0.875rem", ...msgColor }}>{msg.text}</p>}
 
       <div style={S.card}>
-        <h3 style={{ margin: "0 0 16px", fontSize: "0.95rem", fontWeight: 700 }}>Brand Images</h3>
+        <h3 style={{ margin: "0 0 16px", fontSize: "0.95rem", fontWeight: 700 }}>{t("vcommercePortal:portal.settings.brandImages.title")}</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <ImageUploadField
-            label="Logo (square, 1:1)"
+            label={t("vcommercePortal:portal.settings.brandImages.logoLabel")}
             currentUrl={images.logoUrl}
             field="logo"
             onUploaded={(url) => setImages((i) => ({ ...i, logoUrl: url }))}
           />
           <ImageUploadField
-            label="Banner (wide, 3:1 recommended)"
+            label={t("vcommercePortal:portal.settings.brandImages.bannerLabel")}
             currentUrl={images.bannerUrl}
             field="banner"
             onUploaded={(url) => setImages((i) => ({ ...i, bannerUrl: url }))}
@@ -1248,27 +1271,27 @@ function SettingsTab({ business, onRefresh }) {
       </div>
 
       <div style={S.card}>
-        <h3 style={{ margin: "0 0 16px", fontSize: "0.95rem", fontWeight: 700 }}>Public Profile</h3>
+        <h3 style={{ margin: "0 0 16px", fontSize: "0.95rem", fontWeight: 700 }}>{t("vcommercePortal:portal.settings.publicProfile.title")}</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div><label style={S.label}>Tagline <span style={{ fontWeight: 400, fontSize: "0.75rem" }}>({form.tagline.length}/160)</span></label><input style={S.input} type="text" maxLength={160} value={form.tagline} onChange={setField("tagline")} /></div>
-          <div><label style={S.label}>Description</label><textarea style={{ ...S.input, minHeight: 100, resize: "vertical" }} maxLength={3000} value={form.description} onChange={setField("description")} /></div>
-          <div><label style={S.label}>Contact Email</label><input style={S.input} type="email" value={form.contactEmail} onChange={setField("contactEmail")} /></div>
-          <div><label style={S.label}>Contact Phone</label><input style={S.input} type="tel" value={form.contactPhone} onChange={setField("contactPhone")} /></div>
-          <div><label style={S.label}>Website</label><input style={S.input} type="url" value={form.website} onChange={setField("website")} placeholder="https://yourwebsite.com" /></div>
-          <div><label style={S.label}>Selling setup</label><select style={S.input} value={form.sellingMode} onChange={setField("sellingMode")}>{SELLING_MODES.map((mode) => <option key={mode.id} value={mode.id}>{mode.name}</option>)}</select></div>
+          <div><label style={S.label}>{t("vcommercePortal:portal.settings.publicProfile.taglineLabel")} <span style={{ fontWeight: 400, fontSize: "0.75rem" }}>({form.tagline.length}/160)</span></label><input style={S.input} type="text" maxLength={160} value={form.tagline} onChange={setField("tagline")} /></div>
+          <div><label style={S.label}>{t("vcommercePortal:portal.settings.publicProfile.descriptionLabel")}</label><textarea style={{ ...S.input, minHeight: 100, resize: "vertical" }} maxLength={3000} value={form.description} onChange={setField("description")} /></div>
+          <div><label style={S.label}>{t("vcommercePortal:portal.settings.publicProfile.contactEmailLabel")}</label><input style={S.input} type="email" value={form.contactEmail} onChange={setField("contactEmail")} /></div>
+          <div><label style={S.label}>{t("vcommercePortal:portal.settings.publicProfile.contactPhoneLabel")}</label><input style={S.input} type="tel" value={form.contactPhone} onChange={setField("contactPhone")} /></div>
+          <div><label style={S.label}>{t("vcommercePortal:portal.settings.publicProfile.websiteLabel")}</label><input style={S.input} type="url" value={form.website} onChange={setField("website")} placeholder={t("vcommercePortal:portal.settings.publicProfile.websitePlaceholder")} /></div>
+          <div><label style={S.label}>{t("vcommercePortal:portal.settings.publicProfile.sellingModeLabel")}</label><select style={S.input} value={form.sellingMode} onChange={setField("sellingMode")}>{SELLING_MODES.map((mode) => <option key={mode.id} value={mode.id}>{mode.name}</option>)}</select></div>
         </div>
       </div>
 
       <div style={S.card}>
-        <h3 style={{ margin: "0 0 4px", fontSize: "0.95rem", fontWeight: 700 }}>Social Links</h3>
-        <p style={{ margin: "0 0 14px", fontSize: "0.8rem", color: "var(--color-text-muted,#888)" }}>Enter full URLs or just usernames (we'll add https:// if needed).</p>
+        <h3 style={{ margin: "0 0 4px", fontSize: "0.95rem", fontWeight: 700 }}>{t("vcommercePortal:portal.settings.socialLinks.title")}</h3>
+        <p style={{ margin: "0 0 14px", fontSize: "0.8rem", color: "var(--color-text-muted,#888)" }}>{t("vcommercePortal:portal.settings.socialLinks.text")}</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {[
-            { key: "instagram", label: "Instagram", placeholder: "@yourhandle" },
-            { key: "facebook", label: "Facebook", placeholder: "facebook.com/yourpage" },
-            { key: "linkedin", label: "LinkedIn", placeholder: "linkedin.com/in/you" },
-            { key: "tiktok", label: "TikTok", placeholder: "@yourtiktok" },
-            { key: "whatsapp", label: "WhatsApp", placeholder: "+31 6 12345678" },
+            { key: "instagram", label: t("vcommercePortal:portal.settings.socialLinks.instagram"), placeholder: t("vcommercePortal:portal.settings.socialLinks.instagramPlaceholder") },
+            { key: "facebook", label: t("vcommercePortal:portal.settings.socialLinks.facebook"), placeholder: t("vcommercePortal:portal.settings.socialLinks.facebookPlaceholder") },
+            { key: "linkedin", label: t("vcommercePortal:portal.settings.socialLinks.linkedin"), placeholder: t("vcommercePortal:portal.settings.socialLinks.linkedinPlaceholder") },
+            { key: "tiktok", label: t("vcommercePortal:portal.settings.socialLinks.tiktok"), placeholder: t("vcommercePortal:portal.settings.socialLinks.tiktokPlaceholder") },
+            { key: "whatsapp", label: t("vcommercePortal:portal.settings.socialLinks.whatsapp"), placeholder: t("vcommercePortal:portal.settings.socialLinks.whatsappPlaceholder") },
           ].map(({ key, label, placeholder }) => (
             <div key={key}>
               <label style={S.label}>{label}</label>
@@ -1280,25 +1303,25 @@ function SettingsTab({ business, onRefresh }) {
 
       {business.stripeConnectedAccountId || business.connectCheckoutEnabled ? (
         <div style={S.card}>
-          <h3 style={{ margin: "0 0 4px", fontSize: "0.95rem", fontWeight: 700 }}>Bank Details for Payouts</h3>
+          <h3 style={{ margin: "0 0 4px", fontSize: "0.95rem", fontWeight: 700 }}>{t("vcommercePortal:portal.settings.bankDetails.title")}</h3>
           <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--color-text-secondary,#666)" }}>
-            Your payouts are handled automatically through Stripe — manage your bank account from the <strong>Payouts</strong> tab instead.
+            {t("vcommercePortal:portal.settings.bankDetails.connectedTextPrefix")} <strong>{t("vcommercePortal:portal.settings.bankDetails.connectedTextStrong")}</strong> {t("vcommercePortal:portal.settings.bankDetails.connectedTextSuffix")}
           </p>
         </div>
       ) : (
         <div style={S.card}>
-          <h3 style={{ margin: "0 0 4px", fontSize: "0.95rem", fontWeight: 700 }}>Bank Details for Payouts</h3>
-          <p style={{ margin: "0 0 16px", fontSize: "0.8rem", color: "var(--color-text-muted,#888)" }}>Required to receive manual SEPA transfers from V.O.I.C.E. NL, until you complete Stripe payout setup in the Payouts tab.</p>
+          <h3 style={{ margin: "0 0 4px", fontSize: "0.95rem", fontWeight: 700 }}>{t("vcommercePortal:portal.settings.bankDetails.title")}</h3>
+          <p style={{ margin: "0 0 16px", fontSize: "0.8rem", color: "var(--color-text-muted,#888)" }}>{t("vcommercePortal:portal.settings.bankDetails.notConnectedText")}</p>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div><label style={S.label}>Account Holder Name</label><input style={S.input} type="text" value={form.payoutBankHolder} onChange={setField("payoutBankHolder")} placeholder="Legal name as on bank account" /></div>
-            <div><label style={S.label}>IBAN</label><input style={S.input} type="text" value={form.payoutIBAN} onChange={setField("payoutIBAN")} placeholder="NL00 BANK 0000 0000 00" /></div>
-            <div><label style={S.label}>Bank Name</label><input style={S.input} type="text" value={form.payoutBankName} onChange={setField("payoutBankName")} placeholder="ING, Rabobank, ABN AMRO…" /></div>
+            <div><label style={S.label}>{t("vcommercePortal:portal.settings.bankDetails.accountHolderLabel")}</label><input style={S.input} type="text" value={form.payoutBankHolder} onChange={setField("payoutBankHolder")} placeholder={t("vcommercePortal:portal.settings.bankDetails.accountHolderPlaceholder")} /></div>
+            <div><label style={S.label}>{t("vcommercePortal:portal.settings.bankDetails.ibanLabel")}</label><input style={S.input} type="text" value={form.payoutIBAN} onChange={setField("payoutIBAN")} placeholder={t("vcommercePortal:portal.settings.bankDetails.ibanPlaceholder")} /></div>
+            <div><label style={S.label}>{t("vcommercePortal:portal.settings.bankDetails.bankNameLabel")}</label><input style={S.input} type="text" value={form.payoutBankName} onChange={setField("payoutBankName")} placeholder={t("vcommercePortal:portal.settings.bankDetails.bankNamePlaceholder")} /></div>
           </div>
         </div>
       )}
 
       <button type="submit" disabled={saving} style={{ ...S.btn(), padding: "11px 24px" }}>
-        {saving ? "Saving…" : "Save Changes"}
+        {saving ? t("vcommercePortal:portal.settings.saving") : t("vcommercePortal:portal.settings.saveButton")}
       </button>
     </form>
   );
@@ -1306,6 +1329,7 @@ function SettingsTab({ business, onRefresh }) {
 
 // ── Main portal page ──
 export default function VCommercePortalPage() {
+  const { t } = useTranslation(["vcommercePortal"]);
   const { user } = useAuth();
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -1326,13 +1350,13 @@ export default function VCommercePortalPage() {
         // drop them into the "No business found" gate for that. Only treat
         // it as fatal if we've never successfully loaded anything yet.
         if (!hasLoadedOnce.current) {
-          setError(err?.message || "Could not load your business.");
+          setError(err?.message || t("vcommercePortal:portal.main.loadError"));
         } else {
           console.warn("[vcommerce] Could not refresh business data:", err?.message);
         }
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   useEffect(() => { loadBusiness(); }, [loadBusiness]);
 
@@ -1352,13 +1376,13 @@ export default function VCommercePortalPage() {
     return (
       <div style={{ maxWidth:560,margin:"0 auto",padding:"60px 24px",textAlign:"center" }}>
         <div style={{ fontSize:"3rem",marginBottom:16 }}>🏪</div>
-        <h2 style={{ fontSize:"1.5rem",fontWeight:700,marginBottom:12 }}>No Business Found</h2>
+        <h2 style={{ fontSize:"1.5rem",fontWeight:700,marginBottom:12 }}>{t("vcommercePortal:portal.main.noBusiness.title")}</h2>
         <p style={{ color:"var(--color-text-secondary,#666)",marginBottom:24 }}>
-          {error || "You don't have an approved V.Commerce listing yet."}
+          {error || t("vcommercePortal:portal.main.noBusiness.fallbackText")}
         </p>
         <div style={{ display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap" }}>
-          <Link to="/vcommerce/apply" className="vco-btn vco-btn--primary">Apply Now</Link>
-          <Link to="/dashboard" className="vco-btn vco-btn--ghost">Back to Dashboard</Link>
+          <Link to="/vcommerce/apply" className="vco-btn vco-btn--primary">{t("vcommercePortal:portal.main.noBusiness.applyButton")}</Link>
+          <Link to="/dashboard" className="vco-btn vco-btn--ghost">{t("vcommercePortal:portal.main.noBusiness.backButton")}</Link>
         </div>
       </div>
     );
@@ -1369,34 +1393,34 @@ export default function VCommercePortalPage() {
       <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:28,flexWrap:"wrap",gap:12 }}>
         <div style={{ display:"flex",alignItems:"center",gap:16,flexWrap:"wrap" }}>
           <div>
-            <h1 style={{ margin:"0 0 4px",fontSize:"1.4rem",fontWeight:800 }}>My Business</h1>
+            <h1 style={{ margin:"0 0 4px",fontSize:"1.4rem",fontWeight:800 }}>{t("vcommercePortal:portal.main.title")}</h1>
             <p style={{ margin:0,fontSize:"0.9rem",color:"var(--color-text-secondary,#666)" }}>{business.businessName}</p>
           </div>
           <div className="dashboard-subpage-nav" style={{ margin:0,width:"auto" }}>
             <Link to="/dashboard" className="dashboard-subpage-nav__btn">
               <IconArrowLeft aria-hidden stroke={2} />
-              <span>Back to Dashboard</span>
+              <span>{t("vcommercePortal:portal.main.backToDashboard")}</span>
             </Link>
             <Link to="/dashboard/vcommerce" className="dashboard-subpage-nav__btn" aria-current="page">
               <IconHome aria-hidden stroke={1.8} />
-              <span>Business Hub</span>
+              <span>{t("vcommercePortal:portal.main.businessHub")}</span>
             </Link>
           </div>
         </div>
         {business.status === "active" && (
           <a href={`/vcommerce/${business.slug}`} target="_blank" rel="noopener noreferrer"
             style={{ fontSize:"0.85rem",color:"var(--color-accent,#8B5CF6)",textDecoration:"none",display:"flex",alignItems:"center",gap:4 }}>
-            View public page ↗
+            {t("vcommercePortal:portal.main.viewPublicPage")}
           </a>
         )}
       </div>
 
       {/* Tabs */}
       <div style={{ display:"flex",gap:4,borderBottom:"1px solid var(--color-border,rgba(128,128,128,0.15))",marginBottom:28,overflowX:"auto" }}>
-        {TABS.map((tab, i) => (
-          <button key={tab} type="button" onClick={() => setActiveTab(i)}
+        {TAB_KEYS.map((key, i) => (
+          <button key={key} type="button" onClick={() => setActiveTab(i)}
             style={{ padding:"10px 18px",background:"none",border:"none",cursor:"pointer",fontWeight:activeTab===i?700:400,color:activeTab===i?"var(--color-accent,#8B5CF6)":"var(--color-text-secondary,#666)",borderBottom:activeTab===i?"2px solid var(--color-accent,#8B5CF6)":"2px solid transparent",fontSize:"0.9rem",whiteSpace:"nowrap",marginBottom:-1 }}>
-            {tab}
+            {t(`vcommercePortal:portal.tabs.${key}`)}
           </button>
         ))}
       </div>

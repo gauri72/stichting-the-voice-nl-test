@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { IconAlertTriangle } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 export default function LowBalanceAlert({ onTopUp }) {
+  const { t } = useTranslation(["dashboardMobile"]);
   return (
     <motion.div
       initial={{ opacity: 0, y: -8 }}
@@ -12,14 +14,14 @@ export default function LowBalanceAlert({ onTopUp }) {
         <motion.span animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 1.4, repeat: Infinity }}>
           <IconAlertTriangle size={18} className="text-amber-400" />
         </motion.span>
-        Your V.Wallet balance is below your alert threshold.
+        {t("dashboardMobile:wallet.lowBalanceAlert.message")}
       </div>
       <button
         type="button"
         onClick={onTopUp}
         className="shrink-0 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-slate-950 transition hover:bg-amber-400"
       >
-        Top up now
+        {t("dashboardMobile:wallet.lowBalanceAlert.topUpNow")}
       </button>
     </motion.div>
   );

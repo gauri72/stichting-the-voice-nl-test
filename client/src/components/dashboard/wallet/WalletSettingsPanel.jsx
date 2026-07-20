@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { IconRobot, IconShieldX } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { useWallet } from "../../../contexts/WalletContext.jsx";
 
 function EuroInput({ label, valueMinor, onChange }) {
@@ -21,6 +22,7 @@ function EuroInput({ label, valueMinor, onChange }) {
 }
 
 export default function WalletSettingsPanel() {
+  const { t } = useTranslation(["dashboardMobile"]);
   const { wallet, updateSettings, revokeAiBooking } = useWallet();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -47,8 +49,8 @@ export default function WalletSettingsPanel() {
             <IconRobot size={18} />
           </span>
           <div>
-            <p className="text-sm font-semibold text-white">AI booking permission</p>
-            <p className="ai-text-11 text-slate-500">Let V.Assist book tickets for you using your wallet</p>
+            <p className="text-sm font-semibold text-white">{t("dashboardMobile:wallet.settingsPanel.aiBookingTitle")}</p>
+            <p className="ai-text-11 text-slate-500">{t("dashboardMobile:wallet.settingsPanel.aiBookingDescription")}</p>
           </div>
         </div>
         <button
@@ -66,19 +68,19 @@ export default function WalletSettingsPanel() {
         <>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <EuroInput
-              label="Max spend per AI booking"
+              label={t("dashboardMobile:wallet.settingsPanel.maxSpendPerBooking")}
               valueMinor={settings.maxAISpendPerTransactionMinor}
               onChange={(v) => handleUpdate({ maxAISpendPerTransactionMinor: v })}
             />
             <EuroInput
-              label="Daily AI spend limit"
+              label={t("dashboardMobile:wallet.settingsPanel.dailySpendLimit")}
               valueMinor={settings.dailyAISpendLimitMinor}
               onChange={(v) => handleUpdate({ dailyAISpendLimitMinor: v })}
             />
           </div>
 
           <label className="flex items-center justify-between rounded-xl bg-white/5 p-4 text-sm ring-1 ring-white/5">
-            <span className="text-slate-200">Require confirmation before AI books anything</span>
+            <span className="text-slate-200">{t("dashboardMobile:wallet.settingsPanel.requireConfirmation")}</span>
             <input
               type="checkbox"
               checked={settings.confirmationStepEnabled}
@@ -92,24 +94,24 @@ export default function WalletSettingsPanel() {
             onClick={revokeAiBooking}
             className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-2 text-sm font-medium text-red-300 transition hover:bg-red-500/10"
           >
-            <IconShieldX size={16} /> Revoke AI booking permission
+            <IconShieldX size={16} /> {t("dashboardMobile:wallet.settingsPanel.revokePermission")}
           </button>
         </>
       )}
 
       <EuroInput
-        label="Low balance alert threshold"
+        label={t("dashboardMobile:wallet.settingsPanel.lowBalanceThreshold")}
         valueMinor={settings.lowBalanceThresholdMinor}
         onChange={(v) => handleUpdate({ lowBalanceThresholdMinor: v })}
       />
       <EuroInput
-        label="Default top-up amount"
+        label={t("dashboardMobile:wallet.settingsPanel.defaultTopUpAmount")}
         valueMinor={settings.defaultTopUpAmountMinor}
         onChange={(v) => handleUpdate({ defaultTopUpAmountMinor: v })}
       />
 
       {(saving || saved) && (
-        <p className="ai-text-11 text-emerald-400">{saving ? "Saving…" : "Saved"}</p>
+        <p className="ai-text-11 text-emerald-400">{saving ? t("dashboardMobile:wallet.settingsPanel.saving") : t("dashboardMobile:wallet.settingsPanel.saved")}</p>
       )}
     </div>
   );

@@ -1,0 +1,334 @@
+{
+  "common": {
+    "tryAgain": "Opnieuw proberen",
+    "dashboardLink": "Dashboard",
+    "quickActions": {
+      "exploreEvents": "Evenementen ontdekken",
+      "downloadCard": "Kaart downloaden",
+      "renewMembership": "Lidmaatschap verlengen",
+      "upgradeMembership": "Lidmaatschap upgraden"
+    }
+  },
+  "customerDashboardRenderer": {
+    "defaultCtas": {
+      "donateNow": "Nu doneren",
+      "becomeSponsor": "Word sponsor",
+      "volunteerWithUs": "Word vrijwilliger"
+    },
+    "welcomeBanner": {
+      "defaultGreeting": "Welkom,"
+    },
+    "paymentMethods": {
+      "title": "Betaalmethoden",
+      "body": "Betaalmethoden verschijnen hier voor het ingelogde lid."
+    }
+  },
+  "eventCard": {
+    "featuredBadge": "Uitgelicht evenement",
+    "daysLeft_one": "Nog {{count}} dag",
+    "daysLeft_other": "Nog {{count}} dagen",
+    "membershipBenefitDefault": "Lidmaatschapsvoordeel beschikbaar",
+    "buyTickets": "Tickets kopen"
+  },
+  "eventTickets": {
+    "loading": "Je tickets worden geladen…",
+    "loadError": "Tickets konden niet worden geladen.",
+    "backToMyEvents": "Terug naar Mijn Evenementen",
+    "backLink": "Mijn Evenementen",
+    "subtitle": "Jouw tickets voor deze ervaring",
+    "summary": {
+      "heading": "Ticketoverzicht",
+      "ticketType": "Tickettype",
+      "quantity": "Aantal",
+      "orderNumber": "Bestelnummer",
+      "purchaseDate": "Aankoopdatum",
+      "status": "Status",
+      "totalPaid": "Totaal betaald",
+      "paymentMethod": "Betaalmethode",
+      "paymentMethodValues": {
+        "wallet": "V.Wallet",
+        "walletSplit": "V.Wallet + kaart",
+        "free": "Gratis boeking",
+        "card": "Kaart"
+      }
+    },
+    "ticketCard": {
+      "checkedIn": "Ingecheckt",
+      "valid": "Geldig",
+      "orderRef": "Bestelling {{orderNumber}}",
+      "downloadPdf": "PDF downloaden",
+      "downloadQrPng": "QR downloaden (PNG)",
+      "downloadQrSvg": "QR downloaden (SVG)",
+      "addToWallet": "Toevoegen aan Wallet",
+      "comingSoon": "Binnenkort beschikbaar",
+      "viewFullTicket": "Volledig ticket bekijken"
+    },
+    "list": {
+      "heading": "Jouw tickets"
+    },
+    "buyMoreTickets": "Meer tickets kopen"
+  },
+  "giving": {
+    "donations": {
+      "title": "Mijn Donaties",
+      "subtitle": "Een overzicht van elke bijdrage die je aan onze missie hebt geleverd.",
+      "summaryHeading": "Totaal gedoneerd",
+      "emptyTitle": "Nog geen donaties.",
+      "emptyBody": "Elke bijdrage — groot of klein — ondersteunt onze missie.",
+      "ctaLabel": "Doneer nu",
+      "loading": "Je donatiegeschiedenis wordt geladen…",
+      "countLabel_one": "{{count}} donatie",
+      "countLabel_other": "{{count}} donaties"
+    },
+    "sponsorships": {
+      "title": "Mijn Sponsorships",
+      "subtitle": "Een overzicht van elk sponsorship dat je hebt gesteund.",
+      "summaryHeading": "Totaal gesponsord",
+      "emptyTitle": "Nog geen sponsorships.",
+      "emptyBody": "Sponsor een evenement of campagne om het hier te zien verschijnen.",
+      "ctaLabel": "Word sponsor",
+      "loading": "Je sponsorgeschiedenis wordt geladen…",
+      "countLabel_one": "{{count}} sponsorship",
+      "countLabel_other": "{{count}} sponsorships"
+    },
+    "loadError": "Deze geschiedenis kon niet worden geladen.",
+    "historyHeading": "Geschiedenis"
+  },
+  "myEvents": {
+    "loading": "Je evenementen worden geladen…",
+    "loadError": "Evenementen konden niet worden geladen.",
+    "header": {
+      "title": "Mijn Evenementen",
+      "subtitle": "Ontdek aankomende ervaringen en bekijk je tickets."
+    },
+    "search": {
+      "placeholder": "Zoek op evenement, locatie of plaats…",
+      "ariaLabel": "Evenementen zoeken"
+    },
+    "filtersAriaLabel": "Evenementen filteren",
+    "featuredEventsHeading": "Uitgelichte evenementen",
+    "history": {
+      "heading": "Mijn evenementgeschiedenis",
+      "empty": "Je hebt nog geen evenementen geboekt.",
+      "exploreEvents": "Evenementen ontdekken",
+      "viewTicket": "Ticket bekijken",
+      "downloadPdf": "PDF downloaden",
+      "ticketCount_one": "{{count}} ticket",
+      "ticketCount_other": "{{count}} tickets"
+    },
+    "emptyState": {
+      "title": "Er zijn op dit moment geen aankomende evenementen beschikbaar.",
+      "body": "Kom binnenkort terug voor nieuwe V.O.I.C.E. NL-ervaringen.",
+      "cta": "Ervaringen bekijken"
+    },
+    "upcomingEventsHeading": "Aankomende evenementen",
+    "allEventsHeading": "Alle evenementen",
+    "resultsHeading": "Resultaten",
+    "noResults": "Geen evenementen komen overeen met je zoekopdracht of filter."
+  },
+  "subpageNav": {
+    "ariaLabel": "Dashboardnavigatie",
+    "backToDashboard": "Terug naar dashboard",
+    "labels": {
+      "eventTickets": "Evenementtickets",
+      "myEvents": "Mijn Evenementen",
+      "myDonations": "Mijn Donaties",
+      "mySponsorships": "Mijn Sponsorships",
+      "myProfile": "Mijn Profiel",
+      "vWallet": "V.Wallet",
+      "buyerPortal": "Koperportaal",
+      "businessHub": "Business Hub",
+      "promptLibrary": "Promptbibliotheek",
+      "scheduledPrompts": "Geplande prompts",
+      "vAssist": "V.Assist",
+      "dashboard": "Dashboard"
+    }
+  },
+  "memberDashboard": {
+    "loading": "Je dashboard wordt geladen…",
+    "loadError": "Je dashboard kon niet worden geladen."
+  },
+  "membershipEcard": {
+    "noActiveMembership": {
+      "title": "Geen actief lidmaatschap",
+      "body": "Sluit je aan bij een lidmaatschapsplan om je digitale kaart, QR-verificatie en walletpas te ontgrendelen."
+    },
+    "ariaLabel": "Digitale lidmaatschapskaart",
+    "qrAlt": "QR-code lidmaatschap voor {{membershipId}}",
+    "copyIdAriaLabel": "Lidmaatschaps-ID {{membershipId}} kopiëren"
+  },
+  "aiAssistant": {
+    "common": {
+      "backToDashboard": "Terug naar dashboard",
+      "closeVAssist": "V Assist sluiten",
+      "dialogLabel": "V Assist"
+    },
+    "tabs": {
+      "chat": "Chat",
+      "promptLibrary": "Promptbibliotheek",
+      "scheduledPrompts": "Geplande prompts"
+    },
+    "pageShell": {
+      "navAriaLabel": "AI-assistent onderdelen"
+    },
+    "chat": {
+      "header": {
+        "tagline": "Je persoonlijke AI-conciërge",
+        "chatHistoryAriaLabel": "Chatgeschiedenis",
+        "newChatAriaLabel": "Nieuwe chat starten",
+        "newChat": "Nieuwe chat"
+      },
+      "welcome": {
+        "heading": "Jouw Community Concierge",
+        "subheading": "Waar kan ik je vandaag mee helpen?",
+        "online": "Online",
+        "memberContextLabel": "Lidcontext",
+        "walletLabel": "V.Wallet",
+        "introTitle": "Welkom terug.",
+        "introSubtitle": "Hier zijn een paar dingen waarmee ik je kan helpen."
+      },
+      "starters": {
+        "findEvent": { "title": "Vind een evenement", "subtitle": "Ontdek wat er te doen is", "prompt": "Welke evenementen komen eraan?" },
+        "exploreCommerce": { "title": "Ontdek V.Commerce", "subtitle": "Shop uitgelichte aanbiedingen", "prompt": "Laat me uitgelichte V.Commerce-aanbiedingen zien" },
+        "checkBenefits": { "title": "Bekijk mijn voordelen", "subtitle": "Zie waar je recht op hebt", "prompt": "Welke lidmaatschapsvoordelen kan ik gebruiken?" },
+        "useWallet": { "title": "Gebruik mijn V.Wallet", "subtitle": "Bekijk saldo en geschiedenis", "prompt": "Help me met mijn V.Wallet" }
+      },
+      "suggestions": {
+        "weekAheadLabel": "Wat staat er deze week op de agenda?",
+        "weekAheadPrompt": "Wat staat er deze week op de agenda?",
+        "discountsLabel": "Ledenkortingen tonen",
+        "discountsPrompt": "Laat me ledenkortingen zien"
+      },
+      "errorDismiss": "Sluiten",
+      "footerTags": {
+        "private": "Privé",
+        "personalised": "Persoonlijk",
+        "available247": "24/7 beschikbaar"
+      },
+      "composer": {
+        "placeholder": "Vraag V.Assist iets…",
+        "messageAriaLabel": "Bericht",
+        "voiceInputAriaLabel": "Spraakinvoer",
+        "sendAriaLabel": "Bericht verzenden",
+        "saveLastPromptAriaLabel": "Laatste prompt opslaan"
+      },
+      "savePromptFeedback": "Opgeslagen in je promptbibliotheek!",
+      "history": {
+        "heading": "Chatgeschiedenis",
+        "closeAriaLabel": "Sluiten",
+        "empty": "Nog geen eerdere chats."
+      },
+      "defaultMembershipLabel": "Lid"
+    },
+    "promptLibrary": {
+      "heading": "Promptbibliotheek",
+      "subtitle": "Sla prompts op die je vaak gebruikt, of voer een van de kant-en-klare prompts hieronder uit.",
+      "newPromptPlaceholder": "Schrijf een nieuwe prompt om op te slaan…",
+      "newPromptAriaLabel": "Nieuwe prompttekst",
+      "addButton": "Toevoegen",
+      "allCategory": "Alle",
+      "prebuiltHeading": "Kant-en-klare prompts",
+      "yourPromptsHeading": "Jouw prompts",
+      "emptySaved": "Nog geen opgeslagen prompts in deze categorie."
+    },
+    "scheduledPrompts": {
+      "heading": "Geplande prompts",
+      "subtitle": "Automatische check-ins, geleverd zoals jij dat wilt.",
+      "newScheduleButton": "Nieuw schema",
+      "empty": "Nog geen geplande prompts. Maak er een aan voor automatische updates."
+    },
+    "chatBubble": {
+      "yourMessageAriaLabel": "Jouw bericht",
+      "assistantMessageAriaLabel": "Bericht van assistent"
+    },
+    "countdown": {
+      "dueNow": "nu verschuldigd",
+      "daysHours": "{{days}}d {{hours}}u",
+      "hoursMinutes": "{{hours}}u {{minutes}}m",
+      "minutes": "{{minutes}}m"
+    },
+    "promptCard": {
+      "removeFavouriteAriaLabel": "Verwijderen uit favorieten",
+      "addFavouriteAriaLabel": "Toevoegen aan favorieten",
+      "deletePromptAriaLabel": "Prompt verwijderen",
+      "runPromptAriaLabel": "Deze prompt uitvoeren",
+      "runButton": "Uitvoeren"
+    },
+    "scheduleModal": {
+      "ariaLabel": "Een prompt inplannen",
+      "heading": "Prompt inplannen",
+      "closeAriaLabel": "Sluiten",
+      "weekdays": {
+        "sun": "Zo",
+        "mon": "Ma",
+        "tue": "Di",
+        "wed": "Wo",
+        "thu": "Do",
+        "fri": "Vr",
+        "sat": "Za"
+      },
+      "delivery": {
+        "dashboard": "In dashboard",
+        "email": "E-mail",
+        "push": "Push"
+      },
+      "fields": {
+        "prompt": "Prompt",
+        "promptPlaceholder": "bijv. Geef me een samenvatting van het nieuws van vandaag",
+        "frequency": "Frequentie",
+        "time": "Tijd",
+        "days": "Dagen",
+        "dateTime": "Datum en tijd",
+        "deliveryMethod": "Bezorgmethode"
+      },
+      "frequencyOptions": {
+        "daily": "Dagelijks",
+        "weekly": "Wekelijks",
+        "once": "Eenmalig"
+      },
+      "pushBlocked": "Meldingen zijn geblokkeerd — schakel ze in via je browserinstellingen om push-bezorging te gebruiken.",
+      "errors": {
+        "promptRequired": "Prompttekst is verplicht.",
+        "pickDay": "Kies ten minste één dag.",
+        "pickDateTime": "Kies een datum en tijd.",
+        "createFailed": "De geplande prompt kon niet worden aangemaakt."
+      },
+      "submit": {
+        "saving": "Opslaan…",
+        "default": "Prompt inplannen"
+      }
+    },
+    "scheduleTimelineItem": {
+      "dailyAt": "Dagelijks om {{time}}",
+      "weeklyAt": "Wekelijks ({{days}}) om {{time}}",
+      "onceOn": "Eenmalig op {{datetime}}",
+      "active": "Actief",
+      "paused": "Gepauzeerd",
+      "nextIn": "volgende over",
+      "lastRun": "Laatst uitgevoerd: {{value}}",
+      "nextRun": "Volgende keer: {{value}}",
+      "never": "nooit",
+      "pause": "Pauzeren",
+      "resume": "Hervatten",
+      "delete": "Verwijderen"
+    },
+    "typingIndicator": {
+      "ariaLabel": "Assistent is aan het typen"
+    },
+    "usageRing": {
+      "unlimitedTitle": "{{used}} prompts vandaag gebruikt (onbeperkt abonnement)",
+      "limitedTitle": "{{used}} van {{limit}} prompts vandaag gebruikt"
+    },
+    "walletBadge": {
+      "toolLabels": {
+        "findEvents": "Evenementen zoeken…",
+        "prepareBooking": "Boekingsofferte voorbereiden…",
+        "executeBooking": "Boeken via V.Wallet…",
+        "working": "Bezig…"
+      },
+      "bookedTitle": "Geboekt via V.Wallet",
+      "summary": "{{quantity}}× {{eventTitle}} — €{{amount}}",
+      "pointsEarned": "+{{points}} pt"
+    }
+  }
+}

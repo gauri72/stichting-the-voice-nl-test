@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconArrowRight } from "@tabler/icons-react";
 
 function ImpactIllustration({ size = 80 }) {
@@ -34,20 +35,21 @@ function ImpactIllustration({ size = 80 }) {
 }
 
 export function DesktopImpactCard() {
+  const { t } = useTranslation(["vcommerceShop"]);
   return (
     <aside
-      aria-label="Community impact"
+      aria-label={t("vcommerceShop:impactCard.ariaLabel")}
       className="vcohp-desk__impact"
       style={{ background: "linear-gradient(135deg, var(--mkt-surface) 0%, rgba(0,212,255,0.06) 100%)", border: "1px solid var(--mkt-border)", borderRadius: 16, padding: 24, display: "flex", flexDirection: "column", gap: 14, alignItems: "center", textAlign: "center" }}
     >
       <ImpactIllustration size={88} />
       <div>
-        <p style={{ color: "var(--mkt-green)", fontWeight: 700, fontSize: "0.78rem", letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>Make an Impact</p>
+        <p style={{ color: "var(--mkt-green)", fontWeight: 700, fontSize: "0.78rem", letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>{t("vcommerceShop:impactCard.eyebrow")}</p>
         <h3 style={{ color: "var(--mkt-text)", fontWeight: 700, fontSize: "1rem", lineHeight: 1.3, marginBottom: 8 }}>
-          Every Purchase Supports a Community Business
+          {t("vcommerceShop:impactCard.desktopTitle")}
         </h3>
         <p style={{ color: "var(--mkt-text-muted)", fontSize: "0.78rem", lineHeight: 1.6 }}>
-          Shopping on V.Commerce funds real women-led businesses, creates local jobs, and builds thriving communities — globally.
+          {t("vcommerceShop:impactCard.desktopBody")}
         </p>
       </div>
       <Link
@@ -55,31 +57,32 @@ export function DesktopImpactCard() {
         className="vcohp-desk__impact-cta"
         style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 8, background: "var(--mkt-green)", color: "#fff", fontWeight: 600, fontSize: "0.8rem", textDecoration: "none" }}
       >
-        Learn More <IconArrowRight size={14} aria-hidden="true" />
+        {t("vcommerceShop:impactCard.learnMore")} <IconArrowRight size={14} aria-hidden="true" />
       </Link>
     </aside>
   );
 }
 
 export function MobileImpactCard() {
+  const { t } = useTranslation(["vcommerceShop"]);
   return (
     <section
-      aria-label="Community impact"
+      aria-label={t("vcommerceShop:impactCard.ariaLabel")}
       className="vcohp-mob__impact"
       style={{ background: "linear-gradient(135deg, var(--mkt-surface) 0%, rgba(0,212,255,0.06) 100%)", border: "1px solid var(--mkt-border)", borderRadius: 14, padding: 18, display: "flex", gap: 14, alignItems: "center" }}
     >
       <ImpactIllustration size={62} />
       <div style={{ flex: 1 }}>
-        <p style={{ color: "var(--mkt-green)", fontWeight: 700, fontSize: "0.67rem", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>Make an Impact</p>
+        <p style={{ color: "var(--mkt-green)", fontWeight: 700, fontSize: "0.67rem", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>{t("vcommerceShop:impactCard.eyebrow")}</p>
         <p style={{ color: "var(--mkt-text)", fontWeight: 700, fontSize: "0.82rem", lineHeight: 1.3, marginBottom: 8 }}>
-          Every purchase supports a community business.
+          {t("vcommerceShop:impactCard.mobileBody")}
         </p>
         <Link
           to="/about"
           style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--mkt-cyan)", fontSize: "0.75rem", fontWeight: 600, textDecoration: "none" }}
-          aria-label="Learn more about community impact"
+          aria-label={t("vcommerceShop:impactCard.mobileLearnMoreAriaLabel")}
         >
-          Learn More <IconArrowRight size={12} aria-hidden="true" />
+          {t("vcommerceShop:impactCard.learnMore")} <IconArrowRight size={12} aria-hidden="true" />
         </Link>
       </div>
     </section>

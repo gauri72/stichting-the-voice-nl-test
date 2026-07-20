@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IconCheck, IconCopy } from "@tabler/icons-react";
 import membershipLogo from "../../assets/Dashboard/logo.png";
 import memberPassLight from "../../assets/Dashboard/member-pass-light-theme.png";
@@ -20,6 +21,7 @@ const MembershipEcard = forwardRef(function MembershipEcard(
   },
   ref,
 ) {
+  const { t } = useTranslation(["dashboardMain"]);
   const level = memberLevelLabel(planShort, planId);
   const untilDisplay = formatEcardDate(validUntil);
   const [qrImageSrc, setQrImageSrc] = useState(() =>
@@ -46,10 +48,9 @@ const MembershipEcard = forwardRef(function MembershipEcard(
       <article className="voice-ecard voice-ecard--empty" ref={ref}>
         <div className="voice-ecard__empty-body">
           <img className="voice-ecard__logo" src={membershipLogo} alt="" decoding="async" />
-          <p className="voice-ecard__empty-title">No Active Membership</p>
+          <p className="voice-ecard__empty-title">{t("dashboardMain:membershipEcard.noActiveMembership.title")}</p>
           <p className="voice-ecard__empty-copy">
-            Join a membership plan to unlock your digital card, QR verification, and wallet
-            pass.
+            {t("dashboardMain:membershipEcard.noActiveMembership.body")}
           </p>
         </div>
       </article>
@@ -64,7 +65,7 @@ const MembershipEcard = forwardRef(function MembershipEcard(
   };
 
   return (
-    <article className="voice-ecard voice-ecard--template" ref={ref} aria-label="Membership e-card">
+    <article className="voice-ecard voice-ecard--template" ref={ref} aria-label={t("dashboardMain:membershipEcard.ariaLabel")}>
       <div className="voice-ecard__canvas">
         <img
           className="voice-ecard__template"
@@ -77,7 +78,7 @@ const MembershipEcard = forwardRef(function MembershipEcard(
         <div className="voice-ecard__qr-slot">
           <img
             src={qrImageSrc}
-            alt={`Membership QR code for ${membershipId}`}
+            alt={t("dashboardMain:membershipEcard.qrAlt", { membershipId })}
             decoding="async"
             onError={handleQrError}
           />
@@ -87,7 +88,7 @@ const MembershipEcard = forwardRef(function MembershipEcard(
           type="button"
           className="voice-ecard__field voice-ecard__field--id voice-ecard__field--copyable"
           onClick={handleCopyMembershipId}
-          aria-label={`Copy membership ID ${membershipId}`}
+          aria-label={t("dashboardMain:membershipEcard.copyIdAriaLabel", { membershipId })}
         >
           {membershipId}
           <span className="voice-ecard__copy-icon" aria-hidden="true">

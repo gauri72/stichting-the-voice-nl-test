@@ -1,0 +1,680 @@
+{
+  "application": {
+    "steps": {
+      "business": "Your Business",
+      "selling": "Selling Setup",
+      "contact": "Contact & Links",
+      "payout": "Payout & Identity",
+      "review": "Review"
+    },
+    "status": {
+      "pending": "Under Review",
+      "approved": "Approved",
+      "rejected": "Not Approved"
+    },
+    "meta": {
+      "pageTitle": "Apply to V.Commerce — V.O.I.C.E. NL"
+    },
+    "loading": "Loading…",
+    "confirmingPayment": {
+      "title": "Preparing your business workspace",
+      "subtitle": "Payment received. We’re securely creating your private V.Commerce setup area."
+    },
+    "errors": {
+      "paymentNotVerified": "We could not verify your package payment.",
+      "checkoutNotStarted": "Secure package checkout could not be started.",
+      "genericSubmit": "Something went wrong. Please try again."
+    },
+    "authGate": {
+      "title": "Sign in to Apply",
+      "subtitle": "You need a V.O.I.C.E. NL account to apply for a V.Commerce business listing.",
+      "signInButton": "Sign in or Create Account",
+      "backButton": "Back to V.Commerce"
+    },
+    "statusLoading": "Preparing your business setup…",
+    "alreadyApplied": {
+      "title": "Application Status",
+      "subtitle": "We've received your application. Here's where things stand:",
+      "pendingNote": "Our team reviews applications within 5 business days. We'll send you an email once a decision is made.",
+      "approvedNote": "Congratulations! Your business has been approved. Go to your dashboard to set up your storefront.",
+      "signedInAs": "Signed in as",
+      "yourAccount": "Your account",
+      "oneApplicationNote": "One application can be under review per account. To apply for a different business using another account, sign out and continue with that account.",
+      "switchAccountButton": "Sign out and use another account",
+      "goToDashboard": "Go to My Business Dashboard",
+      "backToVCommerce": "Back to V.Commerce"
+    },
+    "header": {
+      "backLink": "← Back to V.Commerce",
+      "title": "Apply to Join V.Commerce",
+      "subtitle": "List your business, sell products and services, and reach the V.O.I.C.E. NL community. Weekly featured spots available.",
+      "previousNote": "Previous application note:"
+    },
+    "step0": {
+      "applicantTypeLabel": "I am applying as…",
+      "communityMember": {
+        "title": "Community Member",
+        "desc": "Independent, local and community-led businesses. No membership is required."
+      },
+      "sponsor": {
+        "title": "Sponsor / Business",
+        "desc": "Brands, distributors, and businesses selling to our community (no membership required)"
+      },
+      "businessName": { "label": "Business Name *", "placeholder": "e.g. Aisha's Artisan Skincare" },
+      "category": { "label": "Category *", "placeholder": "Select a category…" },
+      "tagline": { "label": "Tagline", "placeholder": "One sentence that captures your brand" },
+      "description": { "label": "Business Description *", "placeholder": "Tell us about your business, what you offer, and what makes it special…" }
+    },
+    "step1": {
+      "kicker": "Choose how you sell",
+      "title": "Your shop, your way",
+      "intro": "No website? No problem. V.Commerce can become your complete online storefront.",
+      "billingAriaLabel": "Billing cycle",
+      "monthly": "Monthly",
+      "annual": "Annual · save more",
+      "mostPopular": "Most popular",
+      "perMonth": "/month",
+      "perYear": "/year",
+      "foundingOffer": "Founding offer from {{amount}}/month",
+      "feeNoticeStrong": "Simple and transparent:",
+      "feeNoticeText": "V.Commerce retains 5% only on sales completed through our checkout. Seller payouts are normally initiated on the fifth business day after successful payment."
+    },
+    "step2": {
+      "contactEmail": { "label": "Contact Email *", "placeholder": "business@example.com" },
+      "contactPhone": { "label": "Phone / WhatsApp", "placeholder": "+31 6 12345678" },
+      "website": { "label": "Website", "placeholder": "https://yourwebsite.com" },
+      "socialMediaLabel": "Social Media (optional)",
+      "social": {
+        "instagram": { "label": "Instagram", "placeholder": "instagram.com/yourbusiness" },
+        "facebook": { "label": "Facebook", "placeholder": "facebook.com/yourbusiness" },
+        "linkedin": { "label": "LinkedIn", "placeholder": "linkedin.com/in/you" },
+        "tiktok": { "label": "TikTok", "placeholder": "tiktok.com/@you" },
+        "whatsapp": { "label": "WhatsApp", "placeholder": "+31 6 12345678" }
+      }
+    },
+    "step3": {
+      "kicker": "Almost there",
+      "title": "How should we pay you?",
+      "intro": "This is used to set up your marketplace payouts with Stripe, our payment partner. Everything here stays private and is never shown on your storefront."
+    },
+    "step4": {
+      "messageLabel": "Why do you want to join V.Commerce? *",
+      "messagePlaceholder": "Tell us about your goals, your community connection, and what you hope to achieve through V.Commerce…",
+      "summary": {
+        "title": "Review your application",
+        "business": "Business:",
+        "category": "Category:",
+        "email": "Email:",
+        "selling": "Selling:",
+        "package": "Package:"
+      },
+      "termsPrefix": "By submitting, you agree to the",
+      "termsLink": "V.Commerce Terms & Conditions",
+      "termsSuffix": "Our team normally reviews complete applications within 5 business days. Hosted V.Commerce sales carry a transparent 5% platform fee."
+    },
+    "nav": {
+      "back": "← Back",
+      "continue": "Continue →",
+      "submitting": "Opening secure checkout…",
+      "submit": "Continue to Secure Payment"
+    }
+  },
+  "applicationSuccess": {
+    "title": "Application Submitted!",
+    "subtitlePrefix": "Thank you for applying to V.Commerce — V.O.I.C.E. NL Business Spotlight. Our team will review your application and get back to you within",
+    "subtitleStrong": "5 business days",
+    "steps": {
+      "reviewed": "Application reviewed by our team",
+      "approvalEmail": "You receive an approval email",
+      "setupStorefront": "Set up your storefront & add products",
+      "startSelling": "Start selling to the V.O.I.C.E. NL community"
+    },
+    "exploreButton": "Explore V.Commerce",
+    "dashboardButton": "Go to My Dashboard"
+  },
+  "payoutForm": {
+    "countries": {
+      "NL": "Netherlands",
+      "BE": "Belgium",
+      "DE": "Germany"
+    },
+    "address": {
+      "street": { "label": "Street", "placeholder": "Prinsengracht" },
+      "houseNumber": { "label": "House number", "placeholder": "12" },
+      "postalCode": { "label": "Postal code", "placeholder": "1015 DX" },
+      "city": { "label": "City", "placeholder": "Amsterdam" },
+      "country": { "label": "Country" }
+    },
+    "entityQuestion": {
+      "label": "How are you registered? *",
+      "help": "This determines what Stripe (our payment partner) needs to verify you and route your payouts correctly."
+    },
+    "entityOptions": {
+      "individual": { "title": "Sole trader / freelancer", "desc": "No registered company — you trade under your own name." },
+      "company": { "title": "Registered company", "desc": "You have a KvK (Chamber of Commerce) registration." }
+    },
+    "companyDetailsLabel": "Company details",
+    "identityDetailsLabel": "Your identity details",
+    "representativeLabel": "The person managing this account (usually you)",
+    "companyLegalName": {
+      "label": "Legal company name *",
+      "help": "The registered name on your KvK extract — may differ from your shop's display name.",
+      "example": "De Groene Winkel B.V."
+    },
+    "kvkNumber": {
+      "label": "KvK number *",
+      "help": "Your 8-digit Chamber of Commerce number. Find it on your KvK extract or at kvk.nl/zoeken.",
+      "example": "68750110"
+    },
+    "vatNumber": {
+      "label": "VAT number",
+      "help": "Starts with NL, ends in B + 2 digits. On your KvK extract or tax correspondence. Leave blank if VAT-exempt.",
+      "example": "NL123456789B01"
+    },
+    "legalName": {
+      "label": "Legal full name *",
+      "help": "Your name exactly as it appears on your ID document — not a nickname or trade name.",
+      "example": "Fatima El Amrani"
+    },
+    "dob": {
+      "label": "Date of birth *",
+      "help": "Used only for identity verification with our payment partner, Stripe. Never shown publicly."
+    },
+    "nationality": {
+      "label": "Nationality",
+      "help": "As shown on your ID document.",
+      "example": "Dutch"
+    },
+    "addressSection": {
+      "representativeLabel": "Representative's address *",
+      "homeLabel": "Home address *",
+      "help": "Where you're registered to live — must match your ID document, not your shop's address.",
+      "example": "Prinsengracht 12, 1015 DX Amsterdam"
+    },
+    "bankSectionLabel": "Payout bank account",
+    "bankHolder": {
+      "label": "Account holder name *",
+      "help": "Must match the legal name above exactly, or Stripe will reject the account."
+    },
+    "iban": {
+      "label": "IBAN *",
+      "help": "Your business or personal bank account. We never store the full number — only Stripe does.",
+      "example": "NL91 ABNA 0417 1643 00",
+      "placeholder": "NL91 ABNA 0417 1643 00"
+    },
+    "ibanStatus": {
+      "verifying": "Verifying with Stripe…",
+      "verified": "Verified ✓ — click to enter a different account"
+    },
+    "errors": {
+      "stripeNotConfigured": "Secure payments are not configured right now — try again shortly.",
+      "ibanVerificationFailed": "That IBAN could not be verified."
+    },
+    "payoutNote": "💡 That's everything we need. After approval, you'll complete one last step directly with Stripe — a photo of your ID — and everything else here will already be filled in for you."
+  },
+  "wholesalerRegister": {
+    "companyTypes": {
+      "groceryStore": "Grocery Store / Supermarket",
+      "distributor": "Distributor / Wholesaler",
+      "retailer": "Retailer / Shop",
+      "restaurant": "Restaurant / Catering",
+      "hotel": "Hotel / Hospitality",
+      "other": "Other"
+    },
+    "countries": {
+      "NL": "Netherlands",
+      "BE": "Belgium",
+      "DE": "Germany",
+      "FR": "France",
+      "GB": "United Kingdom",
+      "OTHER": "Other"
+    },
+    "validation": {
+      "companyNameRequired": "Company name is required.",
+      "companyTypeRequired": "Please select a company type.",
+      "contactEmailRequired": "Contact email is required.",
+      "cityRequired": "City is required."
+    },
+    "registrationFailed": "Registration failed. Please try again.",
+    "authGate": {
+      "title": "Sign in to register as a wholesaler",
+      "text": "You need an account to apply for a wholesaler account.",
+      "signInButton": "Sign In & Continue"
+    },
+    "steps": {
+      "businessInfo": "Business Info",
+      "contactAddress": "Contact & Address"
+    },
+    "title": "Register as a Wholesaler",
+    "subtitle": "Join the V.O.I.C.E. NL marketplace to access bulk pricing and wholesale catalogues from our sponsors.",
+    "step0": {
+      "companyName": "Company Name",
+      "companyType": "Company Type",
+      "selectType": "Select type…",
+      "kvkNumber": "Chamber of Commerce / KvK Number",
+      "vatNumber": "VAT Number",
+      "vatNumberPlaceholder": "e.g. NL123456789B01",
+      "website": "Website (optional)",
+      "nextButton": "Next: Contact & Address"
+    },
+    "step1": {
+      "contactEmail": "Contact Email",
+      "contactPhone": "Phone",
+      "street": "Street Address",
+      "city": "City",
+      "postcode": "Postcode",
+      "country": "Country",
+      "backButton": "Back",
+      "submitButton": "Submit Application",
+      "submitting": "Submitting…"
+    }
+  },
+  "wholesalerRegisterSuccess": {
+    "title": "Application Received!",
+    "text": "Your wholesaler account application has been submitted. Our team will review it and get back to you within 1–2 business days.",
+    "steps": {
+      "underReview": "Application under review",
+      "approvalEmail": "Approval notification by email",
+      "accessPricing": "Access wholesale pricing & bulk ordering"
+    },
+    "browseMarketplace": "Browse Marketplace",
+    "goToDashboard": "Go to Dashboard"
+  },
+  "portal": {
+    "tabs": {
+      "overview": "Overview",
+      "products": "Products",
+      "orders": "Orders",
+      "payouts": "Payouts",
+      "promote": "Promote",
+      "settings": "Settings",
+      "import": "Import"
+    },
+    "main": {
+      "loadError": "Could not load your business.",
+      "noBusiness": {
+        "title": "No Business Found",
+        "fallbackText": "You don't have an approved V.Commerce listing yet.",
+        "applyButton": "Apply Now",
+        "backButton": "Back to Dashboard"
+      },
+      "title": "My Business",
+      "backToDashboard": "Back to Dashboard",
+      "businessHub": "Business Hub",
+      "viewPublicPage": "View public page ↗"
+    },
+    "overview": {
+      "kicker": "V.Commerce seller studio",
+      "defaultSellingModeName": "Hosted by V.Commerce",
+      "heroTextWithWebsite": "Use your V.Commerce shop alongside your existing website.",
+      "heroTextNoWebsite": "Your complete storefront, checkout and order desk—no separate website needed.",
+      "defaultPlanName": "Starter",
+      "packageSuffix": "package",
+      "feePerSale": "5% per hosted sale",
+      "payoutTarget": "5-business-day payout target",
+      "packageAction": {
+        "activateTitle": "Activate your {{plan}} package",
+        "activateText": "Your listing can be prepared during the trial; package payment activates ongoing marketplace access.",
+        "activateButton": "Continue to secure payment →",
+        "checkoutError": "Package checkout could not be started."
+      },
+      "reviewPending": {
+        "title": "Submitted for verification",
+        "text": "Your workspace remains private while our team reviews the completed business details."
+      },
+      "onboarding": {
+        "kicker": "Paid workspace · private setup",
+        "title": "Complete your storefront before verification",
+        "text": "Your business will only appear publicly after you submit these details and an administrator approves them.",
+        "progress": "{{count}}/4 ready",
+        "reviewFeedback": "Review feedback:",
+        "checklist": {
+          "packagePaymentLabel": "Package payment",
+          "packagePaymentDetail": "Secure subscription active",
+          "logoLabel": "Logo and brand",
+          "logoDetail": "Add your logo and brand story in Settings",
+          "contactLabel": "Contact and selling setup",
+          "contactDetail": "Confirm how customers buy from you",
+          "productsLabel": "Products or services"
+        },
+        "availableListings_one": "{{count}} available listing",
+        "availableListings_other": "{{count}} available listings",
+        "submitButton": "Submit completed business for verification",
+        "submitting": "Checking your storefront…",
+        "submitSuccess": "Your completed business has been submitted for verification.",
+        "submitError": "Your business could not be submitted for review."
+      },
+      "stats": {
+        "totalRevenue": "Total Revenue",
+        "pendingPayout": "Pending Payout",
+        "totalPaidOut": "Total Paid Out",
+        "totalOrders": "Total Orders"
+      },
+      "businessCard": {
+        "title": "Your Business",
+        "featuredThisWeek": "⭐ Featured this week",
+        "reviewsBadge": "★ {{rating}} ({{count}} reviews)",
+        "viewPublicPage": "View public page ↗"
+      },
+      "cards": {
+        "feeTitle": "V.Commerce Fee",
+        "feeSub": "Only on hosted checkout sales",
+        "scheduleTitle": "Payout Schedule",
+        "scheduleValue": "5 days",
+        "scheduleSub": "Normally initiated after payment",
+        "cashbackTitle": "Customer Cashback",
+        "cashbackSub": "Credited to V.Wallet",
+        "minOrderTitle": "Min. Order Value",
+        "minOrderSub": "Minimum basket per order"
+      },
+      "referral": {
+        "title": "Your V.Commerce shop link",
+        "text": "Share this link so customers can discover your products and buy securely through your hosted storefront.",
+        "copyButton": "Copy",
+        "copiedButton": "Copied!"
+      }
+    },
+    "bulkPricing": {
+      "toggleLabel": "Bulk Pricing Tiers",
+      "tierCount_one": "({{count}} tier)",
+      "tierCount_other": "({{count}} tiers)",
+      "minOrderQty": "Min. Order Qty",
+      "maxOrderQty": "Max. Order Qty (blank = unlimited)",
+      "tiersLabel": "Price tiers (lower unit price at higher qty)",
+      "noTiers": "No tiers yet. Buyers pay the base retail price.",
+      "minQtyPlaceholder": "Min qty",
+      "pricePlaceholder": "Price (€)",
+      "addTier": "+ Add tier",
+      "saveButton": "Save Bulk Pricing",
+      "saving": "Saving…",
+      "saveSuccess": "Bulk pricing saved.",
+      "saveError": "Error saving pricing."
+    },
+    "products": {
+      "title": "Your Products & Services",
+      "addButton": "+ Add Product",
+      "addSuccess": "Product added.",
+      "updateSuccess": "Product updated.",
+      "saveError": "Error saving product.",
+      "deleteConfirm": "Delete this product? This cannot be undone.",
+      "deleteSuccess": "Product deleted.",
+      "deleteError": "Error deleting product.",
+      "loading": "Loading…",
+      "empty": {
+        "text": "No products yet. Add your first one!",
+        "button": "Add Product"
+      },
+      "table": {
+        "name": "Name",
+        "type": "Type",
+        "price": "Price",
+        "bulkTiers": "Bulk Tiers",
+        "stock": "Stock",
+        "available": "Available",
+        "actions": "Actions"
+      },
+      "bulkTiersBadge_one": "🏷️ {{count}} tier",
+      "bulkTiersBadge_other": "🏷️ {{count}} tiers",
+      "yes": "Yes",
+      "no": "No",
+      "editButton": "Edit",
+      "deleteButton": "Delete",
+      "modal": {
+        "addTitle": "Add Product",
+        "editTitle": "Edit Product",
+        "nameLabel": "Name *",
+        "typeLabel": "Type *",
+        "typeService": "Service",
+        "typePhysical": "Physical Product",
+        "typeDigital": "Digital Product",
+        "descriptionLabel": "Description",
+        "priceLabel": "Price (€) *",
+        "stockLabel": "Stock (blank = unlimited)",
+        "deliveryLabel": "Delivery Info",
+        "deliveryPlaceholder": "e.g. Ships within 3-5 days",
+        "availableCheckbox": "Available for purchase",
+        "saveButton": "Save",
+        "cancelButton": "Cancel"
+      }
+    },
+    "orders": {
+      "filters": {
+        "all": "All",
+        "paid": "Paid",
+        "fulfilled": "Fulfilled",
+        "pending": "Pending",
+        "cancelled": "Cancelled"
+      },
+      "fulfillSuccess": "Order marked as fulfilled.",
+      "genericError": "Error.",
+      "loading": "Loading…",
+      "empty": "No orders found.",
+      "itemCount_one": "{{count}} item",
+      "itemCount_other": "{{count}} items",
+      "youReceive": "You receive {{amount}}",
+      "markFulfilledButton": "Mark Fulfilled",
+      "modal": {
+        "title": "Mark Order as Fulfilled",
+        "subtitle": "Order #{{id}} · {{amount}}",
+        "noteLabel": "Note to customer (optional)",
+        "notePlaceholder": "e.g. Shipped via PostNL, tracking: ...",
+        "confirmButton": "Confirm",
+        "cancelButton": "Cancel"
+      },
+      "table": {
+        "order": "Order",
+        "customer": "Customer",
+        "items": "Items",
+        "total": "Total",
+        "status": "Status",
+        "date": "Date",
+        "actions": "Actions"
+      }
+    },
+    "payouts": {
+      "kicker": "Secure seller payouts",
+      "needsRegistration": {
+        "title": "Complete your payout details",
+        "text": "We need a few identity and bank details before you can set up payouts with Stripe.",
+        "showButton": "Complete your details",
+        "hideButton": "Hide"
+      },
+      "almostReady": {
+        "title": "Payouts are almost ready",
+        "text": "Your details are saved. We're finishing setup with our payment partner on our end — we'll email you as soon as you can complete verification and start receiving payouts."
+      },
+      "ready": {
+        "titleReady": "Your payout account is ready",
+        "titleNotReady": "Connect your bank account",
+        "textReady": "Identity and payout details are verified through Stripe.",
+        "textNotReady": "Complete secure identity and bank verification before receiving marketplace earnings.",
+        "manageButton": "Manage in Stripe ↗",
+        "continueVerificationButton": "Continue verification",
+        "setupButton": "Set up payouts",
+        "opening": "Opening…"
+      },
+      "errors": {
+        "connectStartFailed": "Could not start secure payout setup.",
+        "dashboardOpenFailed": "Could not open Stripe.",
+        "registrationSaveFailed": "Could not save your payout details."
+      },
+      "saveButton": "Save payout details",
+      "saving": "Saving…",
+      "balance": {
+        "available": "Available in Stripe",
+        "pending": "Pending in Stripe",
+        "schedule": "Payout schedule",
+        "scheduleDefault": "Stripe default"
+      },
+      "requirementsDue": "Stripe requires more information: {{list}}.",
+      "infoNote": "💡 Stripe automatically sends eligible earnings to your verified bank account using your Stripe payout schedule. Refunds, disputes, verification or fraud reviews can delay a payout.",
+      "loading": "Loading…",
+      "empty": "No payouts yet.",
+      "table": {
+        "created": "Created",
+        "arrival": "Arrival",
+        "amount": "Amount",
+        "status": "Status",
+        "reference": "Reference / bank"
+      }
+    },
+    "promotions": {
+      "kicker": "Affordable visibility",
+      "title": "Put your business in front of more customers",
+      "text": "Choose a focused boost when it helps your business. No newsletter bundles and no long commitment.",
+      "requestButton": "Request promotion →",
+      "requestTooltip": "Promotion checkout will be enabled after admin approval"
+    },
+    "import": {
+      "genericFailure": "Import failed.",
+      "fileTooLarge": "File too large (max 10 MB).",
+      "readError": "Could not read file: {{error}}",
+      "templateDownloadError": "Could not download template: {{error}}",
+      "title": "Bulk Product Import",
+      "subtitle": "Upload an Excel file to create or update products in bulk.",
+      "templateButton": "↓ Download Template",
+      "downloading": "Downloading…",
+      "dropzone": {
+        "placeholder": "Drop .xlsx or .csv here",
+        "hint": "or click to browse · max 10 MB"
+      },
+      "rowsDetected_one": "{{count}} row detected",
+      "rowsDetected_other": "{{count}} rows detected",
+      "clearButton": "Clear",
+      "importButton_one": "Import {{count}} product",
+      "importButton_other": "Import {{count}} products",
+      "importing": "Importing…",
+      "result": {
+        "failed": "Import failed: {{error}}",
+        "complete": "Import complete — {{imported}} product(s) imported, {{skipped}} skipped",
+        "rowError": "Row {{row}}: {{message}}"
+      },
+      "history": {
+        "title": "Import History",
+        "loading": "Loading…",
+        "empty": "No imports yet.",
+        "table": {
+          "file": "File",
+          "imported": "Imported",
+          "errors": "Errors",
+          "date": "Date"
+        }
+      }
+    },
+    "settings": {
+      "saveSuccess": "Profile updated successfully.",
+      "saveError": "Error saving.",
+      "brandImages": {
+        "title": "Brand Images",
+        "logoLabel": "Logo (square, 1:1)",
+        "bannerLabel": "Banner (wide, 3:1 recommended)"
+      },
+      "imageUpload": {
+        "uploading": "Uploading…",
+        "changeImage": "Change image",
+        "uploadImage": "Upload image",
+        "removeButton": "Remove",
+        "noBanner": "🖼️ No banner",
+        "uploadError": "Upload failed."
+      },
+      "publicProfile": {
+        "title": "Public Profile",
+        "taglineLabel": "Tagline",
+        "descriptionLabel": "Description",
+        "contactEmailLabel": "Contact Email",
+        "contactPhoneLabel": "Contact Phone",
+        "websiteLabel": "Website",
+        "websitePlaceholder": "https://yourwebsite.com",
+        "sellingModeLabel": "Selling setup"
+      },
+      "socialLinks": {
+        "title": "Social Links",
+        "text": "Enter full URLs or just usernames (we'll add https:// if needed).",
+        "instagram": "Instagram",
+        "instagramPlaceholder": "@yourhandle",
+        "facebook": "Facebook",
+        "facebookPlaceholder": "facebook.com/yourpage",
+        "linkedin": "LinkedIn",
+        "linkedinPlaceholder": "linkedin.com/in/you",
+        "tiktok": "TikTok",
+        "tiktokPlaceholder": "@yourtiktok",
+        "whatsapp": "WhatsApp",
+        "whatsappPlaceholder": "+31 6 12345678"
+      },
+      "bankDetails": {
+        "title": "Bank Details for Payouts",
+        "connectedTextPrefix": "Your payouts are handled automatically through Stripe — manage your bank account from the",
+        "connectedTextStrong": "Payouts",
+        "connectedTextSuffix": "tab instead.",
+        "notConnectedText": "Required to receive manual SEPA transfers from V.O.I.C.E. NL, until you complete Stripe payout setup in the Payouts tab.",
+        "accountHolderLabel": "Account Holder Name",
+        "accountHolderPlaceholder": "Legal name as on bank account",
+        "ibanLabel": "IBAN",
+        "ibanPlaceholder": "NL00 BANK 0000 0000 00",
+        "bankNameLabel": "Bank Name",
+        "bankNamePlaceholder": "ING, Rabobank, ABN AMRO…"
+      },
+      "saveButton": "Save Changes",
+      "saving": "Saving…"
+    }
+  },
+  "wholesalerPortal": {
+    "status": {
+      "pending": "Pending Review",
+      "approved": "Approved",
+      "suspended": "Suspended"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "orderHistory": "Order History"
+    },
+    "reorder": {
+      "success": "Cart loaded — go to marketplace to checkout.",
+      "error": "Could not load reorder."
+    },
+    "registrationRequired": {
+      "title": "Wholesaler Account Required",
+      "text": "Register as a wholesaler to access bulk pricing and the wholesaler portal.",
+      "button": "Register as Wholesaler"
+    },
+    "pendingReview": {
+      "title": "Application Under Review",
+      "text": "Your wholesaler application for {{companyName}} is being reviewed. You will receive an email when it is approved.",
+      "button": "Browse Marketplace"
+    },
+    "browseMarketplace": "Browse Marketplace",
+    "companyDetails": {
+      "title": "Company Details",
+      "companyName": "Company Name",
+      "type": "Type",
+      "kvk": "KvK / Registration",
+      "vat": "VAT Number",
+      "status": "Status",
+      "memberSince": "Member Since"
+    },
+    "contactAddress": {
+      "title": "Contact & Address",
+      "email": "Email",
+      "phone": "Phone",
+      "website": "Website",
+      "location": "Location"
+    },
+    "orders": {
+      "empty": "No orders yet.",
+      "table": {
+        "order": "Order",
+        "seller": "Seller",
+        "items": "Items",
+        "total": "Total",
+        "status": "Status",
+        "date": "Date"
+      },
+      "reorderButton": "Reorder"
+    },
+    "pagination": {
+      "prev": "← Prev",
+      "page": "Page {{page}}",
+      "next": "Next →"
+    }
+  }
+}

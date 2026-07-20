@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { IconCheck, IconCopy } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { apiFetch, authHeaders } from "../../../utils/api.js";
 import "../../../styles/dashboard-discounts-section.css";
 import { devWarn } from "../../../utils/devLog.js";
@@ -12,6 +13,7 @@ function formatExpiry(iso) {
 }
 
 export default function DashboardDiscountsSection() {
+  const { t } = useTranslation(["dashboardSections"]);
   const [discounts, setDiscounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState(null);
@@ -56,12 +58,12 @@ export default function DashboardDiscountsSection() {
     <section className="dash-discounts-section" aria-labelledby="dash-discounts-title">
       <div className="dash-discounts-section__head">
         <h2 id="dash-discounts-title" className="dash-discounts-section__title">
-          Available Discounts
+          {t("dashboardSections:discountsSection.title")}
         </h2>
       </div>
 
       {discounts.length === 0 ? (
-        <p className="dash-discounts-section__empty">No active discounts available right now.</p>
+        <p className="dash-discounts-section__empty">{t("dashboardSections:discountsSection.empty")}</p>
       ) : (
         <div className="dash-discounts__scroll-container">
           {discounts.map((discount) => {
@@ -70,8 +72,10 @@ export default function DashboardDiscountsSection() {
             const valueLabel =
               discount.discountLabel ||
               (discount.discountType === "fixed_amount"
-                ? `€${Number(discount.discountValue).toFixed(2)} off`
-                : `${discount.discountValue}% OFF`);
+                ? t("dashboardSections:discountsSection.amountOff", {
+                    amount: Number(discount.discountValue).toFixed(2),
+                  })
+                : t("dashboardSections:discountsSection.percentOff", { percent: discount.discountValue }));
 
             return (
               <article key={discount.id} className="dash-discounts__card">
@@ -86,7 +90,9 @@ export default function DashboardDiscountsSection() {
                     </p>
                   ) : null}
                   {expiryLabel ? (
-                    <p className="dash-discounts__expiry">Valid until {expiryLabel}</p>
+                    <p className="dash-discounts__expiry">
+                      {t("dashboardSections:discountsSection.validUntil", { date: expiryLabel })}
+                    </p>
                   ) : null}
                   <button
                     type="button"
@@ -99,12 +105,12 @@ export default function DashboardDiscountsSection() {
                     {isCopied ? (
                       <>
                         <IconCheck size={16} aria-hidden />
-                        <span>Copied!</span>
+                        <span>{t("dashboardSections:discountsSection.copied")}</span>
                       </>
                     ) : (
                       <>
                         <IconCopy size={16} aria-hidden />
-                        <span>Copy Code</span>
+                        <span>{t("dashboardSections:discountsSection.copyCode")}</span>
                       </>
                     )}
                   </button>

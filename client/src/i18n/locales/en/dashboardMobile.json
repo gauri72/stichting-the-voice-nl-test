@@ -1,0 +1,212 @@
+{
+  "commandCenter": {
+    "hero": {
+      "welcomeBack": "Welcome back",
+      "assist": "V.Assist",
+      "assistAria": "Open V.Assist, your AI community concierge",
+      "metricsAria": "Member account summary",
+      "rewardsAria": "Open Rewards Center, {{count}} points",
+      "pointsLabel": "Points",
+      "walletAria": "Open V.Wallet, balance {{balance}}",
+      "walletLabel": "V.Wallet",
+      "ticketsAria": "Open My Tickets, {{count}} tickets",
+      "ticketsLabel": "Tickets",
+      "membershipAria": "Open {{label}}",
+      "membershipLabel": "Membership",
+      "planSuffix": "{{variant}} Plan",
+      "memberFallback": "Member"
+    },
+    "sheet": {
+      "closeAria": "Close {{title}}"
+    },
+    "nextEvent": {
+      "badge": "Featured Event",
+      "dateTba": "Date to be announced",
+      "buyTickets": "Buy Tickets",
+      "discoverTitle": "Discover your next experience",
+      "discoverBody": "New community events are added regularly.",
+      "exploreEvents": "Explore Events"
+    },
+    "commerce": {
+      "eyebrow": "Member marketplace",
+      "title": "V.Commerce Spotlight",
+      "exploreAll": "Explore All",
+      "featuredBadge": "Featured community business",
+      "visitShop": "Visit Shop",
+      "cashback": "{{percent}}% cashback",
+      "offersAria": "V.Commerce offers"
+    },
+    "moreForYou": {
+      "eyebrow": "Member tools",
+      "title": "More for You"
+    },
+    "cards": {
+      "profile": { "title": "Profile & Settings", "value": "Manage Account" },
+      "donations": { "title": "My Donations" },
+      "sponsorships": {
+        "title": "Sponsorships",
+        "value_one": "{{count}} Contribution",
+        "value_other": "{{count}} Contributions"
+      },
+      "referral": { "title": "Referral Code", "value": "Invite & Earn" },
+      "business": { "title": "Business Hub", "value": "Manage Listings" }
+    },
+    "impactBanner": {
+      "label": "Your Impact",
+      "summary": "{{eventCount}} experiences · {{donationLabel}} donated · {{sponsorshipCount}} sponsorships",
+      "thanks": "Thank you for supporting the V.O.I.C.E. NL mission."
+    },
+    "movement": {
+      "ariaLabel": "Thank you for being part of the movement",
+      "titleLead": "Thank You For Being",
+      "titleAccent": "Part Of The Movement",
+      "tagline": "Together we create Experiences. Share Stories. Drive Impact. Spark Innovation."
+    },
+    "nav": {
+      "ariaLabel": "Member dashboard",
+      "home": "Home",
+      "events": "Events",
+      "commerce": "V.Commerce",
+      "wallet": "Wallet",
+      "profile": "Profile"
+    },
+    "membershipSheet": {
+      "title": "Membership Card",
+      "passLabel": "Member pass",
+      "idLabel": "Membership ID",
+      "memberSinceLabel": "Member since",
+      "validUntilLabel": "Valid until",
+      "preparing": "Preparing…",
+      "downloadCard": "Download E-Card",
+      "opening": "Opening…",
+      "addGoogleWallet": "Add to Google Wallet",
+      "googleWalletAvailableTitle": "Save this membership to Google Wallet",
+      "googleWalletUnavailableTitle": "Google Wallet is not configured yet",
+      "googleWalletComingSoon": "E-card download is available now. Google Wallet will appear when it is configured.",
+      "actionUnavailable": "This membership action is temporarily unavailable.",
+      "benefitsEyebrow": "Included with your plan",
+      "benefitsTitle": "Membership Benefits",
+      "manageMembership": "Manage Membership",
+      "qrAlt": "Membership QR code {{membershipId}}",
+      "actionsAria": "Membership card actions"
+    },
+    "ticketsSheet": {
+      "title": "My Tickets",
+      "bookedExperience": "Booked experience",
+      "ticketCount_one": "{{count}} ticket",
+      "ticketCount_other": "{{count}} tickets",
+      "emptyTitle": "No booked tickets yet",
+      "emptyBody": "Your ticket QR codes will appear here after booking.",
+      "eventTicketFallback": "Event Ticket",
+      "qrAlt": "QR code for {{ticketType}}",
+      "download": "Download",
+      "downloadAria": "Download {{ticketType}}",
+      "genericTicket": "ticket",
+      "viewAll": "View All Upcoming Experiences"
+    },
+    "rewardsSheet": {
+      "title": "Rewards Center",
+      "availableLabel": "Available to redeem",
+      "pointsUnit": "reward points",
+      "description": "Use your points for member benefits, event discounts and selected V.Commerce rewards.",
+      "openInWallet": "Open Rewards in V.Wallet"
+    },
+    "impactSheet": {
+      "title": "Your Impact",
+      "experiencesAttended": "Experiences attended",
+      "donationsMade": "Donations made",
+      "sponsorshipContributions": "Sponsorship contributions",
+      "thanksParagraph": "Your participation helps create meaningful cultural exchange and stronger communities.",
+      "exploreLink": "Explore Our Impact"
+    },
+    "referralSheet": {
+      "title": "My Referral Code",
+      "intro": "Invite friends to V.O.I.C.E. NL and earn rewards when they join.",
+      "yourCodeLabel": "Your referral code",
+      "copied": "Code Copied",
+      "copyCode": "Copy Referral Code",
+      "pendingActivation": "Your referral code will appear here as soon as it is activated."
+    }
+  },
+  "wallet": {
+    "card": {
+      "flipAria": "Flip wallet card",
+      "availableBalance": "Available balance",
+      "lowBalanceWarning": "Low balance — top up to avoid interruptions",
+      "rewardPointsLabel": "Reward Points",
+      "pointsAvailable": "points available",
+      "tapToFlipBack": "Tap to flip back"
+    },
+    "lowBalanceAlert": {
+      "message": "Your V.Wallet balance is below your alert threshold.",
+      "topUpNow": "Top up now"
+    },
+    "pointsProgress": {
+      "toFirstRedemption": "{{count}} points to your first redemption",
+      "toNextDiscount": "{{count}} points to your next €1 discount",
+      "ptsUnit": "{{count}} pts"
+    },
+    "topUpModal": {
+      "title": "Top up V.Wallet",
+      "closeAria": "Close",
+      "dialogAria": "Top up V.Wallet",
+      "customAmountPlaceholder": "Custom amount (€)",
+      "pleaseWait": "Please wait…",
+      "continueWith": "Continue with €{{amount}}",
+      "otpIntro": "This top-up is above your security threshold — enter the confirmation code we just emailed you.",
+      "otpPlaceholder": "6-digit code",
+      "verifying": "Verifying…",
+      "verifyAndContinue": "Verify and continue",
+      "processing": "Processing…",
+      "paySecurely": "Pay €{{amount}} securely",
+      "topUpSuccessful": "Top-up successful!",
+      "close": "Close",
+      "errors": {
+        "checkPaymentDetails": "Please check your payment details.",
+        "paymentIncomplete": "Payment could not be completed.",
+        "couldNotStartTopUp": "Could not start top-up.",
+        "incorrectCode": "That code is incorrect."
+      }
+    },
+    "transactionHistory": {
+      "empty": "No transactions yet.",
+      "types": {
+        "topup": "Top-up",
+        "purchase": "Purchase",
+        "refund": "Refund",
+        "pointsEarned": "Points earned",
+        "pointsRedeemed": "Points redeemed",
+        "pointsExpired": "Points expired",
+        "adminCredit": "Admin credit",
+        "adminDebit": "Admin debit"
+      },
+      "aiBadge": "AI",
+      "ptsSuffix": "pts"
+    },
+    "walletPage": {
+      "loading": "Loading your wallet…",
+      "unavailable": "V.Wallet is currently unavailable. Please check back later.",
+      "backToAccount": "Back to My Account",
+      "title": "V.Wallet",
+      "subtitle": "Top up, earn reward points, and let V.Assist book for you.",
+      "confirmingTopUp": "Confirming your top-up…",
+      "topUpReceived": "Your top-up was received — your balance is now up to date.",
+      "topUpButton": "Top up V.Wallet",
+      "tabs": { "overview": "Overview", "history": "History", "settings": "Settings" },
+      "sectionsAria": "Wallet sections",
+      "recentActivity": "Recent activity"
+    },
+    "settingsPanel": {
+      "aiBookingTitle": "AI booking permission",
+      "aiBookingDescription": "Let V.Assist book tickets for you using your wallet",
+      "maxSpendPerBooking": "Max spend per AI booking",
+      "dailySpendLimit": "Daily AI spend limit",
+      "requireConfirmation": "Require confirmation before AI books anything",
+      "revokePermission": "Revoke AI booking permission",
+      "lowBalanceThreshold": "Low balance alert threshold",
+      "defaultTopUpAmount": "Default top-up amount",
+      "saving": "Saving…",
+      "saved": "Saved"
+    }
+  }
+}

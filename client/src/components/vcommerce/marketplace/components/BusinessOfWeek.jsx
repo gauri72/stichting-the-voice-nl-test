@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconStar, IconMapPin, IconArrowRight, IconCrown } from "@tabler/icons-react";
 import { useState } from "react";
 import { Badge, FavouriteButton, StarRating, SkeletonBlock, ImageWithFallback } from "./ui.jsx";
 import { useFavourites } from "../lib/useFavourites.js";
 
 function BOTWCard({ business, isFeatured }) {
+  const { t } = useTranslation(["vcommerceShop"]);
   const { isFavourite, toggleFavourite } = useFavourites();
   const fav = isFavourite(business.id);
 
@@ -13,7 +15,7 @@ function BOTWCard({ business, isFeatured }) {
       <div className="vcohp-mob__botw-img" style={{ position: "relative" }}>
         <ImageWithFallback src={business.imageUrl} alt={business.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         {isFeatured && (
-          <div className="vcohp-mob__botw-crown" aria-label="Featured business" style={{ background: "rgba(0,0,0,0.55)", color: "var(--mkt-gold)" }}>
+          <div className="vcohp-mob__botw-crown" aria-label={t("vcommerceShop:businessOfWeek.featuredAriaLabel")} style={{ background: "rgba(0,0,0,0.55)", color: "var(--mkt-gold)" }}>
             <IconCrown size={14} aria-hidden="true" />
           </div>
         )}
@@ -22,13 +24,15 @@ function BOTWCard({ business, isFeatured }) {
             active={fav}
             onToggle={() => toggleFavourite({ id: business.id, name: business.name, imageUrl: business.imageUrl, shopUrl: business.shopUrl })}
             size={14}
-            aria-label={`${fav ? "Remove" : "Add"} ${business.name} from favourites`}
+            aria-label={fav
+              ? t("vcommerceShop:businessOfWeek.removeFromFavourites", { name: business.name })
+              : t("vcommerceShop:businessOfWeek.addToFavourites", { name: business.name })}
           />
         </div>
       </div>
 
       <div className="vcohp-mob__botw-content">
-        {isFeatured && <Badge color="purple">Featured</Badge>}
+        {isFeatured && <Badge color="purple">{t("vcommerceShop:businessOfWeek.featuredBadge")}</Badge>}
         <p className="vcohp-mob__botw-name" style={{ color: "var(--mkt-text)" }}>{business.name}</p>
         <p className="vcohp-mob__botw-cat" style={{ color: "var(--mkt-text-muted)" }}>{business.categoryLabel}</p>
         <p className="vcohp-mob__botw-loc" style={{ color: "var(--mkt-text-muted)" }}>
@@ -37,18 +41,20 @@ function BOTWCard({ business, isFeatured }) {
         <p className="vcohp-mob__botw-rating">
           <StarRating rating={business.rating} />
           <span style={{ color: "var(--mkt-text)", fontSize: "0.75rem" }}>
-            {business.rating > 0 ? `${business.rating.toFixed(1)} (${business.reviewCount} reviews)` : "No reviews yet"}
+            {business.rating > 0
+              ? t("vcommerceShop:businessOfWeek.ratingWithCount", { rating: business.rating.toFixed(1), count: business.reviewCount })
+              : t("vcommerceShop:businessOfWeek.noReviewsYet")}
           </span>
         </p>
         {business.tags.length > 0 && (
           <div className="vcohp-mob__botw-tags">
-            {business.tags.map((t) => (
-              <span key={t} className="vcohp-mob__botw-tag" style={{ background: "var(--mkt-border)", borderColor: "var(--mkt-border-md)", color: "var(--mkt-text-2)" }}>{t}</span>
+            {business.tags.map((tag) => (
+              <span key={tag} className="vcohp-mob__botw-tag" style={{ background: "var(--mkt-border)", borderColor: "var(--mkt-border-md)", color: "var(--mkt-text-2)" }}>{tag}</span>
             ))}
           </div>
         )}
         <Link to={business.shopUrl} className="vcohp-mob__botw-visit" style={{ borderColor: "var(--mkt-border-strong)", color: "var(--mkt-cyan)" }}>
-          Visit Shop <IconArrowRight size={15} aria-hidden="true" />
+          {t("vcommerceShop:businessOfWeek.visitShop")} <IconArrowRight size={15} aria-hidden="true" />
         </Link>
       </div>
     </div>
@@ -57,6 +63,7 @@ function BOTWCard({ business, isFeatured }) {
 
 /** Mobile Business of the Week section. */
 export function MobileBOTW({ featured, alternates, loading, error }) {
+  const { t } = useTranslation(["vcommerceShop"]);
   const [activeIdx, setActiveIdx] = useState(0);
 
   const allCards = featured
@@ -77,7 +84,7 @@ export function MobileBOTW({ featured, alternates, loading, error }) {
     return (
       <section>
         <p style={{ color: "var(--mkt-text-muted)", fontSize: "0.8rem", textAlign: "center", padding: "20px 0" }}>
-          Business spotlight unavailable right now.
+          {t("vcommerceShop:businessOfWeek.mobileUnavailable")}
         </p>
       </section>
     );
@@ -87,7 +94,7 @@ export function MobileBOTW({ featured, alternates, loading, error }) {
     return (
       <section>
         <p style={{ color: "var(--mkt-text-muted)", fontSize: "0.8rem", textAlign: "center", padding: "20px 0" }}>
-          No featured businesses yet — check back soon!
+          {t("vcommerceShop:businessOfWeek.mobileNoneYet")}
         </p>
       </section>
     );
@@ -97,24 +104,24 @@ export function MobileBOTW({ featured, alternates, loading, error }) {
     <section aria-labelledby="vcohp-mob-botw-title">
       <div className="vcohp-mob__sec-hdr">
         <h2 className="vcohp-mob__sec-title" id="vcohp-mob-botw-title" style={{ color: "var(--mkt-text)" }}>
-          Business of the Week
+          {t("vcommerceShop:businessOfWeek.sectionTitle")}
         </h2>
         <Link to="/vcommerce/businesses" className="vcohp-mob__sec-link" style={{ color: "var(--mkt-cyan)" }}>
-          View All ›
+          {t("vcommerceShop:businessOfWeek.viewAll")}
         </Link>
       </div>
 
       <BOTWCard business={current} isFeatured={current._isFeatured} />
 
       {allCards.length > 1 && (
-        <div className="vcohp-mob__botw-dots" role="tablist" aria-label="Business spotlight carousel">
+        <div className="vcohp-mob__botw-dots" role="tablist" aria-label={t("vcommerceShop:businessOfWeek.carouselAriaLabel")}>
           {allCards.map((_, i) => (
             <button
               key={i}
               type="button"
               role="tab"
               aria-selected={i === activeIdx}
-              aria-label={`Show business ${i + 1}`}
+              aria-label={t("vcommerceShop:businessOfWeek.showBusinessAriaLabel", { n: i + 1 })}
               onClick={() => setActiveIdx(i)}
               className={`vcohp-mob__botw-dot${i === activeIdx ? " vcohp-mob__botw-dot--active" : ""}`}
               style={{ background: i === activeIdx ? "var(--mkt-cyan)" : "var(--mkt-border-md)", border: "none", cursor: "pointer" }}
@@ -128,6 +135,7 @@ export function MobileBOTW({ featured, alternates, loading, error }) {
 
 /** Desktop Business of the Week card. */
 export function DesktopBOTW({ featured, alternates, loading, error }) {
+  const { t } = useTranslation(["vcommerceShop"]);
   const [activeIdx, setActiveIdx] = useState(0);
   const { isFavourite, toggleFavourite } = useFavourites();
 
@@ -150,7 +158,7 @@ export function DesktopBOTW({ featured, alternates, loading, error }) {
       <aside>
         <div className="vcohp-desk__botw" style={{ background: "var(--mkt-surface)", borderColor: "var(--mkt-border)", padding: "32px 16px", textAlign: "center" }}>
           <p style={{ color: "var(--mkt-text-muted)", fontSize: "0.82rem" }}>
-            {error ? "Spotlight unavailable." : "No featured businesses yet."}
+            {error ? t("vcommerceShop:businessOfWeek.desktopUnavailable") : t("vcommerceShop:businessOfWeek.desktopNoneYet")}
           </p>
         </div>
       </aside>
@@ -163,7 +171,7 @@ export function DesktopBOTW({ featured, alternates, loading, error }) {
     <aside aria-labelledby="vcohp-desk-botw-label">
       <div className="vcohp-desk__botw" style={{ background: "var(--mkt-surface)", borderColor: "var(--mkt-border)" }}>
         <div className="vcohp-desk__botw-label" id="vcohp-desk-botw-label" style={{ borderBottomColor: "var(--mkt-border)", color: "var(--mkt-gold)" }}>
-          <IconStar size={14} aria-hidden="true" /> Business of the Week
+          <IconStar size={14} aria-hidden="true" /> {t("vcommerceShop:businessOfWeek.sectionTitle")}
         </div>
 
         <div className="vcohp-desk__botw-img" style={{ position: "relative" }}>
@@ -172,11 +180,13 @@ export function DesktopBOTW({ featured, alternates, loading, error }) {
 
         <div className="vcohp-desk__botw-body" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-            {biz._isFeatured && <Badge color="purple">Featured</Badge>}
+            {biz._isFeatured && <Badge color="purple">{t("vcommerceShop:businessOfWeek.featuredBadge")}</Badge>}
             <FavouriteButton
               active={fav}
               onToggle={() => toggleFavourite({ id: biz.id, name: biz.name, imageUrl: biz.imageUrl, shopUrl: biz.shopUrl })}
-              aria-label={`${fav ? "Remove" : "Add"} ${biz.name} from favourites`}
+              aria-label={fav
+                ? t("vcommerceShop:businessOfWeek.removeFromFavourites", { name: biz.name })
+                : t("vcommerceShop:businessOfWeek.addToFavourites", { name: biz.name })}
             />
           </div>
           <p className="vcohp-desk__botw-name" style={{ color: "var(--mkt-text)" }}>{biz.name}</p>
@@ -187,29 +197,29 @@ export function DesktopBOTW({ featured, alternates, loading, error }) {
           <p className="vcohp-desk__botw-rating">
             <StarRating rating={biz.rating} />
             <span style={{ color: "var(--mkt-text)", marginLeft: 4 }}>{biz.rating > 0 ? biz.rating.toFixed(1) : ""}</span>
-            <span style={{ color: "var(--mkt-text-muted)" }}>{biz.reviewCount > 0 ? ` (${biz.reviewCount} reviews)` : ""}</span>
+            <span style={{ color: "var(--mkt-text-muted)" }}>{biz.reviewCount > 0 ? t("vcommerceShop:businessOfWeek.desktopReviewCount", { count: biz.reviewCount }) : ""}</span>
           </p>
           {biz.tags.length > 0 && (
             <div className="vcohp-desk__botw-tags">
-              {biz.tags.map((t) => (
-                <span key={t} className="vcohp-desk__botw-tag" style={{ background: "var(--mkt-border)", borderColor: "var(--mkt-border-md)", color: "var(--mkt-text-2)" }}>{t}</span>
+              {biz.tags.map((tag) => (
+                <span key={tag} className="vcohp-desk__botw-tag" style={{ background: "var(--mkt-border)", borderColor: "var(--mkt-border-md)", color: "var(--mkt-text-2)" }}>{tag}</span>
               ))}
             </div>
           )}
           <Link to={biz.shopUrl} className="vcohp-desk__botw-visit" style={{ borderColor: "var(--mkt-border-strong)", color: "var(--mkt-cyan)" }}>
-            Visit Shop <IconArrowRight size={16} aria-hidden="true" />
+            {t("vcommerceShop:businessOfWeek.visitShop")} <IconArrowRight size={16} aria-hidden="true" />
           </Link>
         </div>
 
         {allCards.length > 1 && (
-          <div className="vcohp-desk__botw-dots" role="tablist" aria-label="Business spotlight carousel">
+          <div className="vcohp-desk__botw-dots" role="tablist" aria-label={t("vcommerceShop:businessOfWeek.carouselAriaLabel")}>
             {allCards.map((_, i) => (
               <button
                 key={i}
                 type="button"
                 role="tab"
                 aria-selected={i === activeIdx}
-                aria-label={`Show business ${i + 1}`}
+                aria-label={t("vcommerceShop:businessOfWeek.showBusinessAriaLabel", { n: i + 1 })}
                 onClick={() => setActiveIdx(i)}
                 className={`vcohp-desk__botw-dot${i === activeIdx ? " vcohp-desk__botw-dot--active" : ""}`}
                 style={{ background: i === activeIdx ? "var(--mkt-cyan)" : "var(--mkt-border-md)", border: "none", cursor: "pointer" }}

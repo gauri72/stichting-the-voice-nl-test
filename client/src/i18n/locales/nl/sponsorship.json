@@ -5,7 +5,7 @@
     "selected": "Geselecteerd — scroll naar beneden",
     "becomeASponsor": "Word Sponsor",
     "associate": {
-      "name": "Associate Sponsor",
+      "name": "Geassocieerd Sponsor",
       "description": "Steun cultuur en gemeenschap met merkbekendheid op instapniveau.",
       "features": [
         "Logo/naam in de sponsorsectie van de website",
@@ -16,7 +16,7 @@
       ]
     },
     "silver": {
-      "name": "Silver Sponsor",
+      "name": "Zilveren Sponsor",
       "description": "Vergroot je zichtbaarheid terwijl je onze culturele evenementen steunt.",
       "features": [
         "Alle Associate-voordelen",
@@ -28,7 +28,7 @@
       ]
     },
     "gold": {
-      "name": "Gold Sponsor",
+      "name": "Gouden Sponsor",
       "description": "Presenteer je merk als een belangrijke ondersteuner van culturele excellentie.",
       "features": [
         "Alle Silver-voordelen",
@@ -41,7 +41,7 @@
       ]
     },
     "platinum": {
-      "name": "Platinum Sponsor",
+      "name": "Platina Sponsor",
       "description": "Maximale zichtbaarheid. Word een toonaangevende partner in onze culturele missie.",
       "features": [
         "Alle Gold-voordelen",

@@ -1,38 +1,36 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getVCommerceStripePromise } from "../../../utils/stripeClient.js";
 import FieldHelp from "./FieldHelp.jsx";
 
-const COUNTRIES = [
-  { value: "NL", label: "Netherlands" },
-  { value: "BE", label: "Belgium" },
-  { value: "DE", label: "Germany" },
-];
+const COUNTRY_CODES = ["NL", "BE", "DE"];
 
 function AddressFields({ prefix, value, onChange }) {
+  const { t } = useTranslation(["vcommercePortal"]);
   const addr = value || {};
   const set = (field) => (e) => onChange({ ...addr, [field]: e.target.value });
   return (
     <div className="vco-field-grid">
       <div className="vco-field">
-        <label className="vco-label" htmlFor={`${prefix}-street`}>Street</label>
-        <input id={`${prefix}-street`} className="vco-input" type="text" value={addr.street || ""} onChange={set("street")} placeholder="Prinsengracht" />
+        <label className="vco-label" htmlFor={`${prefix}-street`}>{t("vcommercePortal:payoutForm.address.street.label")}</label>
+        <input id={`${prefix}-street`} className="vco-input" type="text" value={addr.street || ""} onChange={set("street")} placeholder={t("vcommercePortal:payoutForm.address.street.placeholder")} />
       </div>
       <div className="vco-field">
-        <label className="vco-label" htmlFor={`${prefix}-houseNumber`}>House number</label>
-        <input id={`${prefix}-houseNumber`} className="vco-input" type="text" value={addr.houseNumber || ""} onChange={set("houseNumber")} placeholder="12" />
+        <label className="vco-label" htmlFor={`${prefix}-houseNumber`}>{t("vcommercePortal:payoutForm.address.houseNumber.label")}</label>
+        <input id={`${prefix}-houseNumber`} className="vco-input" type="text" value={addr.houseNumber || ""} onChange={set("houseNumber")} placeholder={t("vcommercePortal:payoutForm.address.houseNumber.placeholder")} />
       </div>
       <div className="vco-field">
-        <label className="vco-label" htmlFor={`${prefix}-postalCode`}>Postal code</label>
-        <input id={`${prefix}-postalCode`} className="vco-input" type="text" value={addr.postalCode || ""} onChange={set("postalCode")} placeholder="1015 DX" />
+        <label className="vco-label" htmlFor={`${prefix}-postalCode`}>{t("vcommercePortal:payoutForm.address.postalCode.label")}</label>
+        <input id={`${prefix}-postalCode`} className="vco-input" type="text" value={addr.postalCode || ""} onChange={set("postalCode")} placeholder={t("vcommercePortal:payoutForm.address.postalCode.placeholder")} />
       </div>
       <div className="vco-field">
-        <label className="vco-label" htmlFor={`${prefix}-city`}>City</label>
-        <input id={`${prefix}-city`} className="vco-input" type="text" value={addr.city || ""} onChange={set("city")} placeholder="Amsterdam" />
+        <label className="vco-label" htmlFor={`${prefix}-city`}>{t("vcommercePortal:payoutForm.address.city.label")}</label>
+        <input id={`${prefix}-city`} className="vco-input" type="text" value={addr.city || ""} onChange={set("city")} placeholder={t("vcommercePortal:payoutForm.address.city.placeholder")} />
       </div>
       <div className="vco-field">
-        <label className="vco-label" htmlFor={`${prefix}-country`}>Country</label>
+        <label className="vco-label" htmlFor={`${prefix}-country`}>{t("vcommercePortal:payoutForm.address.country.label")}</label>
         <select id={`${prefix}-country`} className="vco-input vco-input--select" value={addr.country || "NL"} onChange={set("country")}>
-          {COUNTRIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+          {COUNTRY_CODES.map((code) => <option key={code} value={code}>{t(`vcommercePortal:payoutForm.countries.${code}`)}</option>)}
         </select>
       </div>
     </div>
@@ -51,6 +49,7 @@ function AddressFields({ prefix, value, onChange }) {
  * bankAccountHolderName) plus companyRegistrationNumber/vatNumber passed alongside it.
  */
 export default function PayoutRegistrationForm({ value, onChange, companyRegistrationNumber, vatNumber, onChangeCompanyFields }) {
+  const { t } = useTranslation(["vcommercePortal"]);
   const reg = value || {};
   const isCompany = reg.entityType === "company";
   const [iban, setIban] = useState("");
@@ -67,7 +66,7 @@ export default function PayoutRegistrationForm({ value, onChange, companyRegistr
     const stripe = await getVCommerceStripePromise();
     if (!stripe) {
       setIbanStatus("error");
-      setIbanError("Secure payments are not configured right now — try again shortly.");
+      setIbanError(t("vcommercePortal:payoutForm.errors.stripeNotConfigured"));
       return;
     }
     const { token, error } = await stripe.createToken("bank_account", {
@@ -79,7 +78,7 @@ export default function PayoutRegistrationForm({ value, onChange, companyRegistr
     });
     if (error) {
       setIbanStatus("error");
-      setIbanError(error.message || "That IBAN could not be verified.");
+      setIbanError(error.message || t("vcommercePortal:payoutForm.errors.ibanVerificationFailed"));
       return;
     }
     setIbanStatus("saved");
@@ -91,13 +90,13 @@ export default function PayoutRegistrationForm({ value, onChange, companyRegistr
     <div className="vco-apply-form__section">
       <div className="vco-field">
         <div className="vco-label-row">
-          <label className="vco-label">How are you registered? *</label>
-          <FieldHelp text="This determines what Stripe (our payment partner) needs to verify you and route your payouts correctly." />
+          <label className="vco-label">{t("vcommercePortal:payoutForm.entityQuestion.label")}</label>
+          <FieldHelp text={t("vcommercePortal:payoutForm.entityQuestion.help")} />
         </div>
         <div className="vco-applicant-type-grid">
           {[
-            { value: "individual", icon: "🧑", title: "Sole trader / freelancer", desc: "No registered company — you trade under your own name." },
-            { value: "company", icon: "🏢", title: "Registered company", desc: "You have a KvK (Chamber of Commerce) registration." },
+            { value: "individual", icon: "🧑", title: t("vcommercePortal:payoutForm.entityOptions.individual.title"), desc: t("vcommercePortal:payoutForm.entityOptions.individual.desc") },
+            { value: "company", icon: "🏢", title: t("vcommercePortal:payoutForm.entityOptions.company.title"), desc: t("vcommercePortal:payoutForm.entityOptions.company.desc") },
           ].map((opt) => (
             <button
               key={opt.value}
@@ -116,29 +115,29 @@ export default function PayoutRegistrationForm({ value, onChange, companyRegistr
       {reg.entityType && (
         <div className="vco-apply-form__payout-fields">
           <p className="vco-apply-form__subsection-label">
-            {isCompany ? "Company details" : "Your identity details"}
+            {isCompany ? t("vcommercePortal:payoutForm.companyDetailsLabel") : t("vcommercePortal:payoutForm.identityDetailsLabel")}
           </p>
 
           {isCompany && (
             <div className="vco-field-grid">
               <div className="vco-field">
                 <div className="vco-label-row">
-                  <label className="vco-label" htmlFor="companyLegalName">Legal company name *</label>
-                  <FieldHelp text="The registered name on your KvK extract — may differ from your shop's display name." example="De Groene Winkel B.V." />
+                  <label className="vco-label" htmlFor="companyLegalName">{t("vcommercePortal:payoutForm.companyLegalName.label")}</label>
+                  <FieldHelp text={t("vcommercePortal:payoutForm.companyLegalName.help")} example={t("vcommercePortal:payoutForm.companyLegalName.example")} />
                 </div>
                 <input id="companyLegalName" className="vco-input" type="text" value={reg.companyLegalName || ""} onChange={set("companyLegalName")} required />
               </div>
               <div className="vco-field">
                 <div className="vco-label-row">
-                  <label className="vco-label" htmlFor="companyReg2">KvK number *</label>
-                  <FieldHelp text="Your 8-digit Chamber of Commerce number. Find it on your KvK extract or at kvk.nl/zoeken." example="68750110" />
+                  <label className="vco-label" htmlFor="companyReg2">{t("vcommercePortal:payoutForm.kvkNumber.label")}</label>
+                  <FieldHelp text={t("vcommercePortal:payoutForm.kvkNumber.help")} example={t("vcommercePortal:payoutForm.kvkNumber.example")} />
                 </div>
                 <input id="companyReg2" className="vco-input" type="text" value={companyRegistrationNumber || ""} onChange={(e) => onChangeCompanyFields({ companyRegistrationNumber: e.target.value })} maxLength={100} required />
               </div>
               <div className="vco-field">
                 <div className="vco-label-row">
-                  <label className="vco-label" htmlFor="vatNumber2">VAT number</label>
-                  <FieldHelp text="Starts with NL, ends in B + 2 digits. On your KvK extract or tax correspondence. Leave blank if VAT-exempt." example="NL123456789B01" />
+                  <label className="vco-label" htmlFor="vatNumber2">{t("vcommercePortal:payoutForm.vatNumber.label")}</label>
+                  <FieldHelp text={t("vcommercePortal:payoutForm.vatNumber.help")} example={t("vcommercePortal:payoutForm.vatNumber.example")} />
                 </div>
                 <input id="vatNumber2" className="vco-input" type="text" value={vatNumber || ""} onChange={(e) => onChangeCompanyFields({ vatNumber: e.target.value })} maxLength={50} />
               </div>
@@ -146,14 +145,14 @@ export default function PayoutRegistrationForm({ value, onChange, companyRegistr
           )}
 
           <p className="vco-apply-form__subsection-label">
-            {isCompany ? "The person managing this account (usually you)" : null}
+            {isCompany ? t("vcommercePortal:payoutForm.representativeLabel") : null}
           </p>
 
           <div className="vco-field-grid">
             <div className="vco-field">
               <div className="vco-label-row">
-                <label className="vco-label" htmlFor="legalName">Legal full name *</label>
-                <FieldHelp text="Your name exactly as it appears on your ID document — not a nickname or trade name." example="Fatima El Amrani" />
+                <label className="vco-label" htmlFor="legalName">{t("vcommercePortal:payoutForm.legalName.label")}</label>
+                <FieldHelp text={t("vcommercePortal:payoutForm.legalName.help")} example={t("vcommercePortal:payoutForm.legalName.example")} />
               </div>
               <input
                 id="legalName"
@@ -168,8 +167,8 @@ export default function PayoutRegistrationForm({ value, onChange, companyRegistr
             </div>
             <div className="vco-field">
               <div className="vco-label-row">
-                <label className="vco-label" htmlFor="dob">Date of birth *</label>
-                <FieldHelp text="Used only for identity verification with our payment partner, Stripe. Never shown publicly." />
+                <label className="vco-label" htmlFor="dob">{t("vcommercePortal:payoutForm.dob.label")}</label>
+                <FieldHelp text={t("vcommercePortal:payoutForm.dob.help")} />
               </div>
               <input
                 id="dob"
@@ -185,8 +184,8 @@ export default function PayoutRegistrationForm({ value, onChange, companyRegistr
             {!isCompany && (
               <div className="vco-field">
                 <div className="vco-label-row">
-                  <label className="vco-label" htmlFor="nationality">Nationality</label>
-                  <FieldHelp text="As shown on your ID document." example="Dutch" />
+                  <label className="vco-label" htmlFor="nationality">{t("vcommercePortal:payoutForm.nationality.label")}</label>
+                  <FieldHelp text={t("vcommercePortal:payoutForm.nationality.help")} example={t("vcommercePortal:payoutForm.nationality.example")} />
                 </div>
                 <input id="nationality" className="vco-input" type="text" value={reg.nationality || ""} onChange={set("nationality")} />
               </div>
@@ -195,8 +194,8 @@ export default function PayoutRegistrationForm({ value, onChange, companyRegistr
 
           <div className="vco-field">
             <div className="vco-label-row">
-              <label className="vco-label">{isCompany ? "Representative's address *" : "Home address *"}</label>
-              <FieldHelp text="Where you're registered to live — must match your ID document, not your shop's address." example="Prinsengracht 12, 1015 DX Amsterdam" />
+              <label className="vco-label">{isCompany ? t("vcommercePortal:payoutForm.addressSection.representativeLabel") : t("vcommercePortal:payoutForm.addressSection.homeLabel")}</label>
+              <FieldHelp text={t("vcommercePortal:payoutForm.addressSection.help")} example={t("vcommercePortal:payoutForm.addressSection.example")} />
             </div>
             <AddressFields
               prefix="home-address"
@@ -207,19 +206,19 @@ export default function PayoutRegistrationForm({ value, onChange, companyRegistr
             />
           </div>
 
-          <p className="vco-apply-form__subsection-label">Payout bank account</p>
+          <p className="vco-apply-form__subsection-label">{t("vcommercePortal:payoutForm.bankSectionLabel")}</p>
           <div className="vco-field-grid">
             <div className="vco-field">
               <div className="vco-label-row">
-                <label className="vco-label" htmlFor="bankHolder">Account holder name *</label>
-                <FieldHelp text="Must match the legal name above exactly, or Stripe will reject the account." />
+                <label className="vco-label" htmlFor="bankHolder">{t("vcommercePortal:payoutForm.bankHolder.label")}</label>
+                <FieldHelp text={t("vcommercePortal:payoutForm.bankHolder.help")} />
               </div>
               <input id="bankHolder" className="vco-input" type="text" value={reg.bankAccountHolderName || ""} onChange={set("bankAccountHolderName")} required />
             </div>
             <div className="vco-field">
               <div className="vco-label-row">
-                <label className="vco-label" htmlFor="iban">IBAN *</label>
-                <FieldHelp text="Your business or personal bank account. We never store the full number — only Stripe does." example="NL91 ABNA 0417 1643 00" />
+                <label className="vco-label" htmlFor="iban">{t("vcommercePortal:payoutForm.iban.label")}</label>
+                <FieldHelp text={t("vcommercePortal:payoutForm.iban.help")} example={t("vcommercePortal:payoutForm.iban.example")} />
               </div>
               <input
                 id="iban"
@@ -228,19 +227,18 @@ export default function PayoutRegistrationForm({ value, onChange, companyRegistr
                 value={ibanStatus === "saved" ? `•••• •••• ${reg.ibanLast4}` : iban}
                 onChange={(e) => { setIban(e.target.value); setIbanStatus("idle"); }}
                 onBlur={tokenizeIban}
-                placeholder="NL91 ABNA 0417 1643 00"
+                placeholder={t("vcommercePortal:payoutForm.iban.placeholder")}
                 disabled={ibanStatus === "checking"}
                 required={ibanStatus !== "saved"}
               />
-              {ibanStatus === "checking" && <span className="vco-field__hint">Verifying with Stripe…</span>}
-              {ibanStatus === "saved" && <span className="vco-field__hint">Verified ✓ — click to enter a different account</span>}
+              {ibanStatus === "checking" && <span className="vco-field__hint">{t("vcommercePortal:payoutForm.ibanStatus.verifying")}</span>}
+              {ibanStatus === "saved" && <span className="vco-field__hint">{t("vcommercePortal:payoutForm.ibanStatus.verified")}</span>}
               {ibanStatus === "error" && <p className="vco-apply-form__error">{ibanError}</p>}
             </div>
           </div>
 
           <p className="vco-payout-note">
-            💡 That's everything we need. After approval, you'll complete one last step directly with Stripe —
-            a photo of your ID — and everything else here will already be filled in for you.
+            {t("vcommercePortal:payoutForm.payoutNote")}
           </p>
         </div>
       )}

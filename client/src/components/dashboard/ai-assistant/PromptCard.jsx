@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { IconStar, IconStarFilled, IconTrash, IconPlayerPlayFilled } from "@tabler/icons-react";
 
 export default function PromptCard({ prompt, isPrebuilt, onRun, onToggleFavourite, onDelete }) {
+  const { t } = useTranslation(["dashboardMain"]);
   return (
     <motion.div
       whileHover={{ y: -4, scale: 1.015 }}
@@ -14,7 +16,7 @@ export default function PromptCard({ prompt, isPrebuilt, onRun, onToggleFavourit
           <button
             type="button"
             onClick={onToggleFavourite}
-            aria-label={prompt.isFavourite ? "Remove from favourites" : "Add to favourites"}
+            aria-label={prompt.isFavourite ? t("dashboardMain:aiAssistant.promptCard.removeFavouriteAriaLabel") : t("dashboardMain:aiAssistant.promptCard.addFavouriteAriaLabel")}
             className="shrink-0 text-amber-300 transition hover:scale-110"
           >
             {prompt.isFavourite ? (
@@ -40,7 +42,7 @@ export default function PromptCard({ prompt, isPrebuilt, onRun, onToggleFavourit
             <button
               type="button"
               onClick={onDelete}
-              aria-label="Delete prompt"
+              aria-label={t("dashboardMain:aiAssistant.promptCard.deletePromptAriaLabel")}
               className="rounded-md p-1.5 text-slate-500 opacity-0 transition group-hover:opacity-100 hover:bg-white/10 hover:text-red-300"
             >
               <IconTrash size={14} />
@@ -49,10 +51,10 @@ export default function PromptCard({ prompt, isPrebuilt, onRun, onToggleFavourit
           <button
             type="button"
             onClick={onRun}
-            aria-label="Run this prompt"
+            aria-label={t("dashboardMain:aiAssistant.promptCard.runPromptAriaLabel")}
             className="ai-text-11 flex items-center gap-1 rounded-md bg-purple-600/80 px-2.5 py-1 font-medium text-white transition hover:bg-purple-500 active:scale-95"
           >
-            <IconPlayerPlayFilled size={12} /> Run
+            <IconPlayerPlayFilled size={12} /> {t("dashboardMain:aiAssistant.promptCard.runButton")}
           </button>
         </div>
       </div>

@@ -1,38 +1,40 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function VCommerceApplicationSuccessPage() {
+  const { t } = useTranslation(["vcommercePortal"]);
   return (
     <div className="vco-apply-page">
       <div className="vco-apply-page__inner vco-apply-page__gate">
         <div className="vco-gate-icon">🎉</div>
-        <h1 className="vco-apply-page__title">Application Submitted!</h1>
+        <h1 className="vco-apply-page__title">{t("vcommercePortal:applicationSuccess.title")}</h1>
         <p className="vco-apply-page__subtitle">
-          Thank you for applying to V.Commerce — V.O.I.C.E. NL Business Spotlight.
-          Our team will review your application and get back to you within <strong>5 business days</strong>.
+          {t("vcommercePortal:applicationSuccess.subtitlePrefix")}{" "}
+          <strong>{t("vcommercePortal:applicationSuccess.subtitleStrong")}</strong>.
         </p>
         <div className="vco-success-steps">
           <div className="vco-success-steps__item">
             <span className="vco-success-steps__num">1</span>
-            <span>Application reviewed by our team</span>
+            <span>{t("vcommercePortal:applicationSuccess.steps.reviewed")}</span>
           </div>
           <div className="vco-success-steps__item">
             <span className="vco-success-steps__num">2</span>
-            <span>You receive an approval email</span>
+            <span>{t("vcommercePortal:applicationSuccess.steps.approvalEmail")}</span>
           </div>
           <div className="vco-success-steps__item">
             <span className="vco-success-steps__num">3</span>
-            <span>Set up your storefront &amp; add products</span>
+            <span>{t("vcommercePortal:applicationSuccess.steps.setupStorefront")}</span>
           </div>
           <div className="vco-success-steps__item">
             <span className="vco-success-steps__num">4</span>
-            <span>Start selling to the V.O.I.C.E. NL community</span>
+            <span>{t("vcommercePortal:applicationSuccess.steps.startSelling")}</span>
           </div>
         </div>
         <Link to="/vcommerce" className="vco-btn vco-btn--primary">
-          Explore V.Commerce
+          {t("vcommercePortal:applicationSuccess.exploreButton")}
         </Link>
         <Link to="/dashboard" className="vco-btn vco-btn--ghost">
-          Go to My Dashboard
+          {t("vcommercePortal:applicationSuccess.dashboardButton")}
         </Link>
       </div>
     </div>

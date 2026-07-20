@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconArrowRight, IconMapPin, IconShieldCheck, IconStar } from "@tabler/icons-react";
 import { useMarketplaceData } from "../../vcommerce/marketplace/lib/useMarketplaceData.js";
 import { KNVERS_FEATURED_BUSINESS } from "../../vcommerce/shared/knversFeatured.js";
@@ -33,6 +34,7 @@ function LoadingCard() {
 }
 
 export default function DashboardVCommerceHighlights() {
+  const { t } = useTranslation(["dashboardSections"]);
   const {
     featured,
     featuredLoading,
@@ -49,51 +51,51 @@ export default function DashboardVCommerceHighlights() {
     <section className="dash-vcommerce" aria-labelledby="dash-vcommerce-title">
       <header className="dash-vcommerce__intro">
         <div>
-          <p>V.O.I.C.E. NL Community Marketplace</p>
-          <h2 id="dash-vcommerce-title">Discover V.Commerce</h2>
+          <p>{t("dashboardSections:vcommerceHighlights.eyebrow")}</p>
+          <h2 id="dash-vcommerce-title">{t("dashboardSections:vcommerceHighlights.title")}</h2>
         </div>
         <Link to="/vcommerce">
-          Explore Marketplace <IconArrowRight size={18} aria-hidden="true" />
+          {t("dashboardSections:vcommerceHighlights.exploreMarketplace")} <IconArrowRight size={18} aria-hidden="true" />
         </Link>
       </header>
 
       <div className="dash-vcommerce__layout">
         <article className="dash-vcommerce__featured">
           <div className="dash-vcommerce__section-heading">
-            <h3><IconStar size={19} aria-hidden="true" /> Business of the Week</h3>
-            <Link to="/vcommerce/businesses">View All <IconArrowRight size={15} /></Link>
+            <h3><IconStar size={19} aria-hidden="true" /> {t("dashboardSections:vcommerceHighlights.businessOfTheWeek")}</h3>
+            <Link to="/vcommerce/businesses">{t("dashboardSections:vcommerceHighlights.viewAll")} <IconArrowRight size={15} /></Link>
           </div>
 
           {featuredLoading ? <LoadingCard /> : (
             <div className="dash-vcommerce__featured-card">
               <div className="dash-vcommerce__featured-media">
                 <img src={business.mobileSpotlightImageUrl || KNVERS_FEATURED_BUSINESS.mobileSpotlightImageUrl} alt={business.name} />
-                <span>Featured Community Business</span>
+                <span>{t("dashboardSections:vcommerceHighlights.featuredCommunityBusiness")}</span>
               </div>
               <div>
                 <h4>{business.name}</h4>
                 <p>{business.categoryLabel}</p>
                 <p><IconMapPin size={14} /> {business.location}</p>
                 <p className="dash-vcommerce__rating">
-                  ★ {business.rating ? Number(business.rating).toFixed(1) : "New"}
-                  {business.reviewCount ? ` (${business.reviewCount} reviews)` : ""}
+                  ★ {business.rating ? Number(business.rating).toFixed(1) : t("dashboardSections:vcommerceHighlights.newRatingFallback")}
+                  {business.reviewCount ? ` ${t("dashboardSections:vcommerceHighlights.reviewCount", { count: business.reviewCount })}` : ""}
                 </p>
                 <div className="dash-vcommerce__tags">
                   {(business.tags || []).slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}
                 </div>
                 <Link to={business.shopUrl || "/vcommerce/businesses"}>
-                  Visit Shop <IconArrowRight size={17} />
+                  {t("dashboardSections:vcommerceHighlights.visitShop")} <IconArrowRight size={17} />
                 </Link>
               </div>
             </div>
           )}
-          {featuredError && <small className="dash-vcommerce__notice">Showing our latest marketplace spotlight.</small>}
+          {featuredError && <small className="dash-vcommerce__notice">{t("dashboardSections:vcommerceHighlights.featuredErrorNotice")}</small>}
         </article>
 
         <article className="dash-vcommerce__popular">
           <div className="dash-vcommerce__section-heading">
-            <h3>Popular Picks For You</h3>
-            <Link to="/vcommerce/businesses">View All <IconArrowRight size={15} /></Link>
+            <h3>{t("dashboardSections:vcommerceHighlights.popularPicks")}</h3>
+            <Link to="/vcommerce/businesses">{t("dashboardSections:vcommerceHighlights.viewAll")} <IconArrowRight size={15} /></Link>
           </div>
           <div className="dash-vcommerce__products">
             {productsLoading
@@ -110,13 +112,16 @@ export default function DashboardVCommerceHighlights() {
                     <p>{product.name || product.category}</p>
                     <strong>€{Number(product.price || 0).toFixed(2)}</strong>
                     {Number(product.cashbackPercent) > 0 && (
-                      <small><IconShieldCheck size={12} /> {product.cashbackPercent}% Cashback</small>
+                      <small>
+                        <IconShieldCheck size={12} />{" "}
+                        {t("dashboardSections:vcommerceHighlights.cashback", { percent: product.cashbackPercent })}
+                      </small>
                     )}
                   </div>
                 </Link>
               ))}
           </div>
-          {productsError && <small className="dash-vcommerce__notice">Showing a curated marketplace selection.</small>}
+          {productsError && <small className="dash-vcommerce__notice">{t("dashboardSections:vcommerceHighlights.productsErrorNotice")}</small>}
         </article>
       </div>
     </section>

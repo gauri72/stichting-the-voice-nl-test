@@ -1,0 +1,173 @@
+{
+  "closingCtaSection": {
+    "titleLine1": "Bedankt Dat Je Deel Uitmaakt",
+    "titleLine2": "Van De Beweging",
+    "text": "Samen creëren we Ervaringen. Delen we Verhalen. Maken we Impact. Stimuleren we Innovatie.",
+    "myProfile": "Mijn Profiel",
+    "discoverMore": "Ontdek Meer"
+  },
+  "discountsSection": {
+    "title": "Beschikbare Kortingen",
+    "empty": "Op dit moment zijn er geen actieve kortingen beschikbaar.",
+    "amountOff": "€{{amount}} korting",
+    "percentOff": "{{percent}}% KORTING",
+    "validUntil": "Geldig tot {{date}}",
+    "copied": "Gekopieerd!",
+    "copyCode": "Code Kopiëren"
+  },
+  "impactSection": {
+    "title": "Jouw V.O.I.C.E. NL Impact",
+    "experiences": { "line1": "Ervaringen", "line2": "Bijgewoond" },
+    "stories": { "line1": "Verhalen", "line2": "Gedeeld" },
+    "contributions": { "line1": "Impact", "line2": "Bijdragen" },
+    "innovation": { "line1": "Innovatie", "line2": "Projecten" }
+  },
+  "membershipCardSection": {
+    "genericError": "Er is iets misgegaan. Probeer het opnieuw.",
+    "title": "Jouw Lidmaatschapskaart",
+    "actionsAriaLabel": "Lidmaatschapskaart acties",
+    "downloadEcard": "E-Card Downloaden",
+    "preparing": "Voorbereiden…",
+    "addToGoogleWallet": "Toevoegen aan Google Wallet",
+    "opening": "Openen…",
+    "googleWalletAvailableTitle": "Sla dit lidmaatschap op in Google Wallet",
+    "googleWalletUnavailableTitle": "Google Wallet is nog niet geconfigureerd op de server",
+    "walletNote": "Download je e-card op elk moment. Google Wallet wordt beschikbaar zodra de gegevens voor deze omgeving zijn geconfigureerd.",
+    "benefitsAriaLabel": "Jouw Premium Voordelen",
+    "benefitsTitle": "Jouw Premium Voordelen",
+    "benefits": {
+      "entry": { "line1": "Gratis Evenement", "line2": "Toegang" },
+      "seats": { "line1": "Gereserveerde Premium", "line2": "Zitplaatsen" },
+      "lounge": { "line1": "VIP Lounge", "line2": "Toegang" },
+      "artist": { "line1": "Artiest Meet", "line2": "& Greet" },
+      "partner": { "line1": "Partner", "line2": "Kortingen" },
+      "merch": { "line1": "Merchandise", "line2": "Kortingen" },
+      "priority": { "line1": "Prioriteits", "line2": "Registratie" }
+    }
+  },
+  "myBookingsSection": {
+    "title": "Mijn Boekingen",
+    "viewTicketDetailsAriaLabel": "Bekijk ticketgegevens voor {{ticketType}} — {{attendeeName}}",
+    "downloadPdfAriaLabel": "Download PDF voor ticket {{ticketNumber}}",
+    "ticketCount_one": "{{count}} ticket",
+    "ticketCount_other": "{{count}} tickets",
+    "viewAllTickets": "Alle Tickets Bekijken",
+    "viewMoreTickets": "+{{count}} meer — Alle Tickets Bekijken"
+  },
+  "myEventsWidget": {
+    "title": "Aankomende Ervaringen",
+    "subtitle": "Ontdek aankomende ervaringen en krijg toegang tot je tickets.",
+    "viewAll": "Alles Bekijken",
+    "empty": "Er zijn op dit moment geen aankomende evenementen beschikbaar.",
+    "browseExperiences": "Ervaringen Bekijken"
+  },
+  "mySessionsSection": {
+    "title": "Mijn Sessies & RSVP's",
+    "subtitle": "Workshops en communitysessies die je hebt geboekt, en je RSVP-reacties.",
+    "upcomingSessions": "Aankomende Sessies",
+    "myRsvps": "Mijn RSVP's"
+  },
+  "recentActivitySection": {
+    "ariaLabel": "Recente activiteit en snelle acties",
+    "title": "Recente Activiteit",
+    "empty": "Je lidmaatschap, donaties, sponsoring en evenemententickets verschijnen hier.",
+    "quickActionsTitle": "Snelle Acties"
+  },
+  "referralSection": {
+    "title": "Mijn Referral-Code",
+    "copied": "Gekopieerd!",
+    "copyCode": "Code Kopiëren",
+    "share": "Delen",
+    "referralUses": "Referral Gebruikt",
+    "rewardsEarned": "Beloningen Verdiend",
+    "pendingRewards": "Openstaande Beloningen",
+    "empty": "Nodig vrienden uit voor V.O.I.C.E. NL en verdien beloningen wanneer ze lid worden — neem contact met ons op voor je referral-code.",
+    "recentRewards": "Recente Beloningen",
+    "anonymousBuyer": "Anonieme koper",
+    "noRewardsYet": "Nog geen referral-activiteit — deel je code om te beginnen.",
+    "shareTitle": "Word lid van Stichting The V.O.I.C.E. NL",
+    "shareText": "Gebruik mijn referral-code {{code}} voor korting!"
+  },
+  "statCardsSection": {
+    "title": "Jouw V.O.I.C.E. NL Impact",
+    "membership": { "line1": "Actief", "line2": "Lidmaatschap" },
+    "events": { "line1": "Evenementen", "line2": "Bijgewoond" },
+    "donations": { "line1": "Donaties", "line2": "Gedaan" },
+    "sponsorships": { "line1": "Sponsoring", "line2": "" },
+    "activeCount": "{{count}} Actief"
+  },
+  "upcomingEventsSection": {
+    "title": "Aankomende Evenementen",
+    "viewAll": "Alles Bekijken",
+    "registered": "Geregistreerd",
+    "viewTicket": "Ticket Bekijken",
+    "comingSoon": "Binnenkort",
+    "moreEventsOnTheWay": "Er komen binnenkort meer V.O.I.C.E. NL evenementen aan."
+  },
+  "vcommerceHighlights": {
+    "eyebrow": "V.O.I.C.E. NL Community Marktplaats",
+    "title": "Ontdek V.Commerce",
+    "exploreMarketplace": "Marktplaats Verkennen",
+    "businessOfTheWeek": "Bedrijf van de Week",
+    "viewAll": "Alles Bekijken",
+    "featuredCommunityBusiness": "Uitgelicht Community Bedrijf",
+    "newRatingFallback": "Nieuw",
+    "reviewCount": "({{count}} reviews)",
+    "visitShop": "Bezoek Winkel",
+    "featuredErrorNotice": "We laten onze nieuwste marktplaats-uitlichting zien.",
+    "popularPicks": "Populaire Keuzes Voor Jou",
+    "productsErrorNotice": "We laten een samengestelde selectie uit de marktplaats zien.",
+    "cashback": "{{percent}}% Cashback"
+  },
+  "welcomeBannerSection": {
+    "greetingDefault": "Welkom,",
+    "membershipCodeLabel": "Lidmaatschapscode",
+    "copyMembershipCodeAriaLabel": "Kopieer lidmaatschapscode {{code}}",
+    "openAssistantAriaLabel": "Open V.Assist",
+    "assistantLabel": "V.Assist",
+    "tooltipLine1": "Jouw slimme AI-metgezel voor alles.",
+    "tooltipLine2": "Boek tickets, beheer lidmaatschappen, ontdek voordelen en onderneem actie — allemaal via een gesprek.",
+    "tooltipLine3": "Vraag. Ontdek. Ervaar..",
+    "walletAriaLabel": "V.Wallet",
+    "walletLabel": "V.Wallet",
+    "myProfileAriaLabel": "Mijn Profiel",
+    "myProfileLabel": "Mijn Profiel",
+    "logOutAriaLabel": "Uitloggen",
+    "logOutLabel": "Uitloggen",
+    "pointsChipAriaLabel": "{{points}} punten — inwisselen in V.Wallet",
+    "redeemPoints": "Punten Inwisselen"
+  },
+  "ticketDetailModal": {
+    "closeAriaLabel": "Sluiten",
+    "qrAltText": "QR-code voor {{ticketNumber}}",
+    "checkedIn": "Ingecheckt",
+    "valid": "Geldig",
+    "seatLabel": "Stoel {{seat}}",
+    "downloadPdf": "PDF Downloaden"
+  },
+  "genericWidgets": {
+    "support": {
+      "defaultTitle": "Hulp Nodig?",
+      "contactSupport": "Contact Opnemen"
+    },
+    "profile": {
+      "defaultTitle": "Profielgegevens",
+      "name": "Naam",
+      "email": "E-mail",
+      "phone": "Telefoon",
+      "updateProfile": "Profiel Bijwerken"
+    },
+    "membershipStatus": {
+      "defaultTitle": "Lidmaatschapsstatus",
+      "status": "Status",
+      "plan": "Abonnement",
+      "validUntil": "Geldig tot",
+      "activeDefault": "Actief",
+      "notAMember": "Geen lid"
+    },
+    "myTickets": {
+      "defaultTitle": "Mijn Tickets",
+      "viewTickets": "Tickets Bekijken"
+    }
+  }
+}

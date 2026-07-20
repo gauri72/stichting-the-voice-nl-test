@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { IconCalendarEvent, IconDownload, IconMapPin, IconTicket, IconX } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { apiUrl } from "../../../utils/api.js";
 
 export default function TicketDetailModal({ ticket, booking, onClose }) {
+  const { t } = useTranslation(["dashboardSections"]);
   useEffect(() => {
     if (!ticket) return undefined;
     function onKeyDown(event) {
@@ -22,19 +24,28 @@ export default function TicketDetailModal({ ticket, booking, onClose }) {
   const qrPng = ticket.verificationToken
     ? `/api/tickets/qr/${ticket.verificationToken}.png`
     : ticket.qrCodeUrl;
-  const statusLabel = ticket.checkedIn ? "Checked in" : ticket.status === "valid" ? "Valid" : ticket.status;
+  const statusLabel = ticket.checkedIn
+    ? t("dashboardSections:ticketDetailModal.checkedIn")
+    : ticket.status === "valid"
+    ? t("dashboardSections:ticketDetailModal.valid")
+    : ticket.status;
   const seatLabel = ticket.seatLabel || [ticket.section, ticket.row, ticket.seatNumber].filter(Boolean).join(" · ");
 
   return createPortal(
     <div className="dash-ticket-modal" role="dialog" aria-modal="true" aria-labelledby="dash-ticket-modal-title" onClick={onClose}>
       <div className="dash-ticket-modal__panel" onClick={(e) => e.stopPropagation()}>
-        <button type="button" className="dash-ticket-modal__close" onClick={onClose} aria-label="Close">
+        <button
+          type="button"
+          className="dash-ticket-modal__close"
+          onClick={onClose}
+          aria-label={t("dashboardSections:ticketDetailModal.closeAriaLabel")}
+        >
           <IconX size={20} stroke={2} aria-hidden />
         </button>
 
         <img
           src={apiUrl(qrPng)}
-          alt={`QR code for ${ticket.ticketNumber}`}
+          alt={t("dashboardSections:ticketDetailModal.qrAltText", { ticketNumber: ticket.ticketNumber })}
           className="dash-ticket-modal__qr"
           width={180}
           height={180}
@@ -61,13 +72,14 @@ export default function TicketDetailModal({ ticket, booking, onClose }) {
           ) : null}
           {seatLabel ? (
             <p className="dash-ticket-modal__event-meta">
-              <IconTicket size={14} aria-hidden="true" /> Seat {seatLabel}
+              <IconTicket size={14} aria-hidden="true" />{" "}
+              {t("dashboardSections:ticketDetailModal.seatLabel", { seat: seatLabel })}
             </p>
           ) : null}
         </div>
 
         <a href={apiUrl(ticket.pdfUrl)} className="dash-ticket-modal__download" target="_blank" rel="noreferrer">
-          <IconDownload size={16} aria-hidden="true" /> Download PDF
+          <IconDownload size={16} aria-hidden="true" /> {t("dashboardSections:ticketDetailModal.downloadPdf")}
         </a>
       </div>
     </div>,

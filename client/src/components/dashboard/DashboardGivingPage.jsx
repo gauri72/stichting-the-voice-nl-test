@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconArrowLeft, IconHeartHandshake, IconUsersGroup, IconReceipt2 } from "@tabler/icons-react";
 import { apiFetch, authHeaders } from "../../utils/api.js";
 import { DASHBOARD_ROUTES } from "./dashboardUtils.js";
@@ -8,28 +9,16 @@ import "../../styles/dashboard-giving.css";
 
 const COPY = {
   donations: {
-    title: "My Donations",
-    subtitle: "A history of every contribution you've made to our mission.",
+    i18nKey: "donations",
     icon: IconHeartHandshake,
     tone: "green",
-    summaryHeading: "Total Donated",
-    emptyTitle: "No donations yet.",
-    emptyBody: "Every contribution — large or small — supports our mission.",
-    ctaLabel: "Make a Donation",
     ctaTo: DASHBOARD_ROUTES.donate,
-    itemNoun: "donation",
   },
   sponsorships: {
-    title: "My Sponsorships",
-    subtitle: "A history of every sponsorship you've backed.",
+    i18nKey: "sponsorships",
     icon: IconUsersGroup,
     tone: "blue",
-    summaryHeading: "Total Sponsored",
-    emptyTitle: "No sponsorships yet.",
-    emptyBody: "Sponsor an event or campaign to see it appear here.",
-    ctaLabel: "Become a Sponsor",
     ctaTo: DASHBOARD_ROUTES.sponsorship,
-    itemNoun: "sponsorship",
   },
 };
 
@@ -67,6 +56,7 @@ function GivingCard({ item, tone, Icon }) {
 }
 
 export default function DashboardGivingPage({ kind }) {
+  const { t } = useTranslation(["dashboardMain"]);
   const copy = COPY[kind];
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -79,11 +69,11 @@ export default function DashboardGivingPage({ kind }) {
       const result = await apiFetch("/api/dashboard/giving", { headers: authHeaders() });
       setData(result?.[kind] || null);
     } catch (e) {
-      setError(e.message || "Could not load this history.");
+      setError(e.message || t("dashboardMain:giving.loadError"));
     } finally {
       setLoading(false);
     }
-  }, [kind]);
+  }, [kind, t]);
 
   useEffect(() => {
     load();
@@ -92,7 +82,7 @@ export default function DashboardGivingPage({ kind }) {
   if (loading) {
     return (
       <DashboardShell>
-        <div className="member-dashboard__status">Loading your {copy.itemNoun} history…</div>
+        <div className="member-dashboard__status">{t(`dashboardMain:giving.${copy.i18nKey}.loading`)}</div>
       </DashboardShell>
     );
   }
@@ -103,7 +93,7 @@ export default function DashboardGivingPage({ kind }) {
         <div className="member-dashboard__status member-dashboard__status--error" role="alert">
           <p>{error}</p>
           <button type="button" className="member-dashboard__retry" onClick={load}>
-            Try again
+            {t("dashboardMain:common.tryAgain")}
           </button>
         </div>
       </DashboardShell>
@@ -117,10 +107,10 @@ export default function DashboardGivingPage({ kind }) {
     <DashboardShell>
       <header className="dash-my-events__hero">
         <Link to="/dashboard" className="dash-my-events__back">
-          <IconArrowLeft size={18} aria-hidden /> Dashboard
+          <IconArrowLeft size={18} aria-hidden /> {t("dashboardMain:common.dashboardLink")}
         </Link>
-        <h1 className="dash-my-events__page-title">{copy.title}</h1>
-        <p className="dash-my-events__page-subtitle">{copy.subtitle}</p>
+        <h1 className="dash-my-events__page-title">{t(`dashboardMain:giving.${copy.i18nKey}.title`)}</h1>
+        <p className="dash-my-events__page-subtitle">{t(`dashboardMain:giving.${copy.i18nKey}.subtitle`)}</p>
       </header>
 
       <div className={`dash-giving-summary dash-giving-summary--${copy.tone}`}>
@@ -128,24 +118,23 @@ export default function DashboardGivingPage({ kind }) {
           <copy.icon size={28} stroke={1.75} />
         </span>
         <div>
-          <p className="dash-giving-summary__heading">{copy.summaryHeading}</p>
+          <p className="dash-giving-summary__heading">{t(`dashboardMain:giving.${copy.i18nKey}.summaryHeading`)}</p>
           <p className="dash-giving-summary__value">{data?.totalLabel ?? "€ 0,00"}</p>
         </div>
         <span className="dash-giving-summary__count">
-          {data?.count ?? 0} {copy.itemNoun}
-          {data?.count === 1 ? "" : "s"}
+          {t(`dashboardMain:giving.${copy.i18nKey}.countLabel`, { count: data?.count ?? 0 })}
         </span>
       </div>
 
       <section className="dash-my-events__section" aria-labelledby="giving-history-title">
-        <h2 id="giving-history-title" className="dash-my-events__section-title">History</h2>
+        <h2 id="giving-history-title" className="dash-my-events__section-title">{t("dashboardMain:giving.historyHeading")}</h2>
         {!hasItems ? (
           <div className="dash-my-events__empty">
             <copy.icon size={40} aria-hidden />
-            <h2>{copy.emptyTitle}</h2>
-            <p>{copy.emptyBody}</p>
+            <h2>{t(`dashboardMain:giving.${copy.i18nKey}.emptyTitle`)}</h2>
+            <p>{t(`dashboardMain:giving.${copy.i18nKey}.emptyBody`)}</p>
             <Link to={copy.ctaTo} className="dash-my-events__btn dash-my-events__btn--primary">
-              {copy.ctaLabel}
+              {t(`dashboardMain:giving.${copy.i18nKey}.ctaLabel`)}
             </Link>
           </div>
         ) : (

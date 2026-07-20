@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { IconPlus } from "@tabler/icons-react";
 import { useAiAssistant } from "../../../contexts/AiAssistantContext.jsx";
 import PromptCard from "./PromptCard.jsx";
 
 export default function AiPromptLibraryPage() {
+  const { t } = useTranslation(["dashboardMain"]);
   const { savedPrompts, prebuiltPrompts, loadPrompts, savePrompt, toggleFavourite, removePrompt, sendMessage, startNewChat } =
     useAiAssistant();
   const navigate = useNavigate();
@@ -44,15 +46,15 @@ export default function AiPromptLibraryPage() {
 
   return (
     <div className="rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-black p-5 text-slate-100 ring-1 ring-white/10">
-      <h2 className="mb-1 text-lg font-semibold">Prompt Library</h2>
-      <p className="mb-4 text-sm text-slate-400">Save prompts you use often, or run one of the pre-built ones below.</p>
+      <h2 className="mb-1 text-lg font-semibold">{t("dashboardMain:aiAssistant.promptLibrary.heading")}</h2>
+      <p className="mb-4 text-sm text-slate-400">{t("dashboardMain:aiAssistant.promptLibrary.subtitle")}</p>
 
       <form onSubmit={handleAddPrompt} className="mb-5 flex gap-2">
         <input
           value={newPromptText}
           onChange={(e) => setNewPromptText(e.target.value)}
-          placeholder="Write a new prompt to save…"
-          aria-label="New prompt text"
+          placeholder={t("dashboardMain:aiAssistant.promptLibrary.newPromptPlaceholder")}
+          aria-label={t("dashboardMain:aiAssistant.promptLibrary.newPromptAriaLabel")}
           className="flex-1 rounded-lg border border-white/10 bg-slate-900/60 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/40"
         />
         <button
@@ -60,7 +62,7 @@ export default function AiPromptLibraryPage() {
           disabled={!newPromptText.trim()}
           className="flex items-center gap-1 rounded-lg bg-purple-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-purple-500 active:scale-95 disabled:opacity-40"
         >
-          <IconPlus size={16} /> Add
+          <IconPlus size={16} /> {t("dashboardMain:aiAssistant.promptLibrary.addButton")}
         </button>
       </form>
 
@@ -75,7 +77,7 @@ export default function AiPromptLibraryPage() {
               activeCategory === cat ? "text-white" : "text-slate-500 hover:text-slate-300"
             }`}
           >
-            {cat === "all" ? "All" : cat}
+            {cat === "all" ? t("dashboardMain:aiAssistant.promptLibrary.allCategory") : cat}
             {activeCategory === cat && (
               <motion.div
                 layoutId="prompt-tab-underline"
@@ -89,7 +91,7 @@ export default function AiPromptLibraryPage() {
 
       {filteredPrebuilt.length > 0 && (
         <section className="mb-6">
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Pre-built Prompts</h3>
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{t("dashboardMain:aiAssistant.promptLibrary.prebuiltHeading")}</h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filteredPrebuilt.map((p, i) => (
               <motion.div
@@ -106,9 +108,9 @@ export default function AiPromptLibraryPage() {
       )}
 
       <section>
-        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Your Prompts</h3>
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{t("dashboardMain:aiAssistant.promptLibrary.yourPromptsHeading")}</h3>
         {filteredSaved.length === 0 ? (
-          <p className="text-sm text-slate-500">No saved prompts in this category yet.</p>
+          <p className="text-sm text-slate-500">{t("dashboardMain:aiAssistant.promptLibrary.emptySaved")}</p>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filteredSaved.map((p, i) => (

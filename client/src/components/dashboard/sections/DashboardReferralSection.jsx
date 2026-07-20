@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { IconCheck, IconCopy, IconShare, IconGift } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { apiFetch, authHeaders } from "../../../utils/api.js";
 import "../../../styles/dashboard-referral-section.css";
 import { devWarn } from "../../../utils/devLog.js";
 
 export default function DashboardReferralSection() {
+  const { t } = useTranslation(["dashboardSections"]);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -46,8 +48,8 @@ export default function DashboardReferralSection() {
   async function handleShare() {
     if (!code) return;
     const shareData = {
-      title: "Join Stichting The V.O.I.C.E. NL",
-      text: `Use my referral code ${code} for a discount!`,
+      title: t("dashboardSections:referralSection.shareTitle"),
+      text: t("dashboardSections:referralSection.shareText", { code }),
       url: window.location.origin,
     };
     if (navigator.share) {
@@ -65,7 +67,7 @@ export default function DashboardReferralSection() {
     <section className="dash-referral-section" aria-labelledby="dash-referral-title">
       <div className="dash-referral-section__head">
         <IconGift size={22} aria-hidden />
-        <h2 id="dash-referral-title">My Referral Code</h2>
+        <h2 id="dash-referral-title">{t("dashboardSections:referralSection.title")}</h2>
       </div>
 
       {code ? (
@@ -74,10 +76,18 @@ export default function DashboardReferralSection() {
             <p className="dash-referral-section__code">{code}</p>
             <div className="dash-referral-section__actions">
               <button type="button" onClick={handleCopy} className={`dash-referral-section__btn${copied ? " dash-referral-section__btn--copied" : ""}`}>
-                {copied ? <><IconCheck size={16} /> Copied!</> : <><IconCopy size={16} /> Copy Code</>}
+                {copied ? (
+                  <>
+                    <IconCheck size={16} /> {t("dashboardSections:referralSection.copied")}
+                  </>
+                ) : (
+                  <>
+                    <IconCopy size={16} /> {t("dashboardSections:referralSection.copyCode")}
+                  </>
+                )}
               </button>
               <button type="button" onClick={handleShare} className="dash-referral-section__btn dash-referral-section__btn--share">
-                <IconShare size={16} /> Share
+                <IconShare size={16} /> {t("dashboardSections:referralSection.share")}
               </button>
             </div>
           </div>
@@ -85,38 +95,38 @@ export default function DashboardReferralSection() {
           <div className="dash-referral-section__stats">
             <button type="button" className="dash-referral-section__stat dash-referral-section__stat--clickable" onClick={scrollToRewards}>
               <strong>{data.referralUses}</strong>
-              <span>Referral Uses</span>
+              <span>{t("dashboardSections:referralSection.referralUses")}</span>
             </button>
             <button type="button" className="dash-referral-section__stat dash-referral-section__stat--clickable" onClick={scrollToRewards}>
               <strong>{data.rewardsEarned}</strong>
-              <span>Rewards Earned</span>
+              <span>{t("dashboardSections:referralSection.rewardsEarned")}</span>
             </button>
             <button type="button" className="dash-referral-section__stat dash-referral-section__stat--clickable" onClick={scrollToRewards}>
               <strong>{data.pendingRewards}</strong>
-              <span>Pending Rewards</span>
+              <span>{t("dashboardSections:referralSection.pendingRewards")}</span>
             </button>
           </div>
         </>
       ) : (
         <p className="dash-referral-section__empty">
-          Invite friends to V.O.I.C.E. NL and earn rewards when they join — contact us to get your referral code.
+          {t("dashboardSections:referralSection.empty")}
         </p>
       )}
 
       {code ? (
         <div className="dash-referral-section__rewards" ref={rewardsRef}>
-          <h3>Recent Rewards</h3>
+          <h3>{t("dashboardSections:referralSection.recentRewards")}</h3>
           {data.rewards?.length > 0 ? (
             data.rewards.map((r) => (
               <div key={r.id} className="dash-referral-section__reward-row">
-                <span>{r.buyerEmail || "Anonymous buyer"}</span>
+                <span>{r.buyerEmail || t("dashboardSections:referralSection.anonymousBuyer")}</span>
                 <span className={`dash-referral-section__status dash-referral-section__status--${r.rewardStatus}`}>
                   {r.rewardStatus}
                 </span>
               </div>
             ))
           ) : (
-            <p className="dash-referral-section__empty">No referral activity yet — share your code to get started.</p>
+            <p className="dash-referral-section__empty">{t("dashboardSections:referralSection.noRewardsYet")}</p>
           )}
         </div>
       ) : null}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { IconSparkles, IconRotate } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { PayWallet } from "../../icons/icons/index.js";
 
 function maskWalletId(customerId) {
@@ -34,6 +35,7 @@ function useCountUp(target, durationMs = 900) {
 }
 
 export default function WalletCard({ customerName, customerId, balanceMinor, rewardPoints, lowBalance, onFlip }) {
+  const { t } = useTranslation(["dashboardMobile"]);
   const [flipped, setFlipped] = useState(false);
   const reduceMotion = useReducedMotion();
   const animatedBalance = useCountUp(balanceMinor);
@@ -53,7 +55,7 @@ export default function WalletCard({ customerName, customerId, balanceMinor, rew
         onClick={handleFlip}
         role="button"
         tabIndex={0}
-        aria-label="Flip wallet card"
+        aria-label={t("dashboardMobile:wallet.card.flipAria")}
         onKeyDown={(e) => e.key === "Enter" && handleFlip()}
       >
         {/* Front */}
@@ -70,7 +72,7 @@ export default function WalletCard({ customerName, customerId, balanceMinor, rew
           </div>
 
           <div>
-            <p className="text-xs font-medium text-white/60">Available balance</p>
+            <p className="text-xs font-medium text-white/60">{t("dashboardMobile:wallet.card.availableBalance")}</p>
             <p className="text-3xl font-extrabold tabular-nums">€{(animatedBalance / 100).toFixed(2)}</p>
             {lowBalance && (
               <motion.p
@@ -78,7 +80,7 @@ export default function WalletCard({ customerName, customerId, balanceMinor, rew
                 transition={{ duration: 1.6, repeat: Infinity }}
                 className="mt-1 text-xs font-semibold text-amber-300"
               >
-                Low balance — top up to avoid interruptions
+                {t("dashboardMobile:wallet.card.lowBalanceWarning")}
               </motion.p>
             )}
           </div>
@@ -95,13 +97,13 @@ export default function WalletCard({ customerName, customerId, balanceMinor, rew
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
           <div className="flex items-center gap-1.5 text-sm font-bold tracking-wide">
-            <IconSparkles size={18} className="text-amber-300" /> Reward Points
+            <IconSparkles size={18} className="text-amber-300" /> {t("dashboardMobile:wallet.card.rewardPointsLabel")}
           </div>
           <div>
             <p className="text-3xl font-extrabold tabular-nums">{rewardPoints}</p>
-            <p className="text-xs font-medium text-white/60">points available</p>
+            <p className="text-xs font-medium text-white/60">{t("dashboardMobile:wallet.card.pointsAvailable")}</p>
           </div>
-          <p className="text-xs text-white/50">Tap to flip back</p>
+          <p className="text-xs text-white/50">{t("dashboardMobile:wallet.card.tapToFlipBack")}</p>
         </div>
       </motion.div>
     </div>

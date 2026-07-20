@@ -1,22 +1,24 @@
 import { IconArrowLeft, IconHome } from "@tabler/icons-react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "../../styles/dashboard-subpage-navigation.css";
 
 const LABELS = [
-  [/^\/dashboard\/events\/[^/]+\/tickets/, "Event Tickets", "/dashboard/events"],
-  [/^\/dashboard\/events/, "My Events", "/dashboard/events"],
-  [/^\/dashboard\/donations/, "My Donations", "/dashboard/donations"],
-  [/^\/dashboard\/sponsorships/, "My Sponsorships", "/dashboard/sponsorships"],
-  [/^\/dashboard\/profile/, "My Profile", "/dashboard/profile"],
-  [/^\/dashboard\/wallet/, "V.Wallet", "/dashboard/wallet"],
-  [/^\/dashboard\/vcommerce-buyer/, "Buyer Portal", "/dashboard/vcommerce-buyer"],
-  [/^\/dashboard\/vcommerce/, "Business Hub", "/dashboard/vcommerce"],
-  [/^\/dashboard\/ai-assistant\/prompts/, "Prompt Library", "/dashboard/ai-assistant/prompts"],
-  [/^\/dashboard\/ai-assistant\/schedule/, "Scheduled Prompts", "/dashboard/ai-assistant/schedule"],
-  [/^\/dashboard\/ai-assistant/, "V.Assist", "/dashboard/ai-assistant"],
+  [/^\/dashboard\/events\/[^/]+\/tickets/, "eventTickets", "/dashboard/events"],
+  [/^\/dashboard\/events/, "myEvents", "/dashboard/events"],
+  [/^\/dashboard\/donations/, "myDonations", "/dashboard/donations"],
+  [/^\/dashboard\/sponsorships/, "mySponsorships", "/dashboard/sponsorships"],
+  [/^\/dashboard\/profile/, "myProfile", "/dashboard/profile"],
+  [/^\/dashboard\/wallet/, "vWallet", "/dashboard/wallet"],
+  [/^\/dashboard\/vcommerce-buyer/, "buyerPortal", "/dashboard/vcommerce-buyer"],
+  [/^\/dashboard\/vcommerce/, "businessHub", "/dashboard/vcommerce"],
+  [/^\/dashboard\/ai-assistant\/prompts/, "promptLibrary", "/dashboard/ai-assistant/prompts"],
+  [/^\/dashboard\/ai-assistant\/schedule/, "scheduledPrompts", "/dashboard/ai-assistant/schedule"],
+  [/^\/dashboard\/ai-assistant/, "vAssist", "/dashboard/ai-assistant"],
 ];
 
 export default function DashboardSubpageNavigation() {
+  const { t } = useTranslation(["dashboardMain"]);
   const { pathname } = useLocation();
   if (pathname === "/dashboard" || !pathname.startsWith("/dashboard/")) return null;
   if (pathname.startsWith("/dashboard/ai-assistant")) return null;
@@ -24,13 +26,14 @@ export default function DashboardSubpageNavigation() {
   // next to its own "My Business" heading — skip the shared bar there.
   if (pathname === "/dashboard/vcommerce") return null;
 
-  const [, pageLabel, pageTarget] = LABELS.find(([pattern]) => pattern.test(pathname)) || [null, "Dashboard", pathname];
+  const [, labelKey, pageTarget] = LABELS.find(([pattern]) => pattern.test(pathname)) || [null, "dashboard", pathname];
+  const pageLabel = t(`dashboardMain:subpageNav.labels.${labelKey}`);
 
   return (
-    <div className="dashboard-subpage-nav" aria-label="Dashboard navigation">
+    <div className="dashboard-subpage-nav" aria-label={t("dashboardMain:subpageNav.ariaLabel")}>
       <Link to="/dashboard" className="dashboard-subpage-nav__btn">
         <IconArrowLeft aria-hidden stroke={2} />
-        <span>Back to Dashboard</span>
+        <span>{t("dashboardMain:subpageNav.backToDashboard")}</span>
       </Link>
       <Link to={pageTarget} className="dashboard-subpage-nav__btn" aria-current="page">
         <IconHome aria-hidden stroke={1.8} />

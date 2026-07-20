@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconHeartOff } from "@tabler/icons-react";
 import { useFavourites } from "./marketplace/lib/useFavourites.js";
 import { ImageWithFallback } from "./marketplace/components/ui.jsx";
@@ -7,6 +8,7 @@ import "../../styles/vcommerce-redesign.css";
 import "../../styles/vcommerce-mkt-tokens.css";
 
 function FavouriteItem({ item, onRemove }) {
+  const { t } = useTranslation(["vcommerceShop"]);
   return (
     <div style={{ display: "flex", gap: 14, alignItems: "center", background: "var(--mkt-surface)", border: "1px solid var(--mkt-border)", borderRadius: 12, padding: 14 }}>
       <Link to={item.shopUrl || "#"} style={{ flexShrink: 0, width: 72, height: 72, borderRadius: 10, overflow: "hidden", display: "block" }}>
@@ -23,16 +25,17 @@ function FavouriteItem({ item, onRemove }) {
       <button
         type="button"
         onClick={() => onRemove(item)}
-        aria-label={`Remove ${item.name} from favourites`}
+        aria-label={t("vcommerceShop:favouritesPage.removeAriaLabel", { name: item.name })}
         style={{ background: "transparent", border: "1px solid var(--mkt-border)", color: "var(--mkt-text-muted)", borderRadius: 8, padding: "6px 10px", cursor: "pointer", fontSize: "0.75rem" }}
       >
-        Remove
+        {t("vcommerceShop:favouritesPage.remove")}
       </button>
     </div>
   );
 }
 
 export default function VCommerceFavouritesPage() {
+  const { t } = useTranslation(["vcommerceShop"]);
   const { favourites, toggleFavourite, clearFavourites } = useFavourites();
   const list = favourites;
 
@@ -41,8 +44,8 @@ export default function VCommerceFavouritesPage() {
       <div style={{ maxWidth: 680, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
           <div>
-            <h1 style={{ color: "var(--mkt-text)", fontWeight: 800, fontSize: "1.5rem", marginBottom: 4 }}>Favourites</h1>
-            <p style={{ color: "var(--mkt-text-muted)", fontSize: "0.83rem" }}>{list.length} saved item{list.length !== 1 ? "s" : ""}</p>
+            <h1 style={{ color: "var(--mkt-text)", fontWeight: 800, fontSize: "1.5rem", marginBottom: 4 }}>{t("vcommerceShop:favouritesPage.title")}</h1>
+            <p style={{ color: "var(--mkt-text-muted)", fontSize: "0.83rem" }}>{t("vcommerceShop:favouritesPage.savedCount", { count: list.length })}</p>
           </div>
           {list.length > 0 && (
             <button
@@ -50,7 +53,7 @@ export default function VCommerceFavouritesPage() {
               onClick={clearFavourites}
               style={{ background: "transparent", border: "1px solid var(--mkt-border)", color: "var(--mkt-text-muted)", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: "0.78rem" }}
             >
-              Clear All
+              {t("vcommerceShop:favouritesPage.clearAll")}
             </button>
           )}
         </div>
@@ -58,12 +61,12 @@ export default function VCommerceFavouritesPage() {
         {list.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 0" }}>
             <IconHeartOff size={48} aria-hidden="true" style={{ color: "var(--mkt-border-strong)", marginBottom: 16 }} />
-            <p style={{ color: "var(--mkt-text-muted)", fontSize: "0.9rem", marginBottom: 16 }}>No favourites saved yet.</p>
+            <p style={{ color: "var(--mkt-text-muted)", fontSize: "0.9rem", marginBottom: 16 }}>{t("vcommerceShop:favouritesPage.empty")}</p>
             <Link
               to="/vcommerce/businesses"
               style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 9, background: "var(--mkt-cyan)", color: "#071426", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none" }}
             >
-              Browse Businesses
+              {t("vcommerceShop:favouritesPage.browseBusinesses")}
             </Link>
           </div>
         ) : (

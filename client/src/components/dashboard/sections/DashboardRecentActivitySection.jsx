@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons-react";
 import {
   IconHeartHandshake,
@@ -29,6 +30,7 @@ const FALLBACK_ICON = { Icon: IconShieldCheck, tone: "teal" };
 const ACTIVITY_PREVIEW_LIMIT = 4;
 
 export default function DashboardRecentActivitySection({ activity, quickActions }) {
+  const { t } = useTranslation(["dashboardSections"]);
   const [isActivityOpen, setIsActivityOpen] = useState(false);
   const activityPanelId = "dash-activity-panel";
   const hasMoreActivity = activity.length > ACTIVITY_PREVIEW_LIMIT;
@@ -39,7 +41,7 @@ export default function DashboardRecentActivitySection({ activity, quickActions 
     <section
       className="dash-activity-split"
       id={DASHBOARD_RECENT_ACTIVITY_ID}
-      aria-label="Recent activity and quick actions"
+      aria-label={t("dashboardSections:recentActivitySection.ariaLabel")}
     >
       <div className={`dash-activity${isActivityOpen ? " is-open" : ""}`}>
         <div className="dash-activity__head">
@@ -52,7 +54,7 @@ export default function DashboardRecentActivitySection({ activity, quickActions 
               aria-controls={activityPanelId}
               disabled={!hasMoreActivity}
             >
-              <span>Recent Activity</span>
+              <span>{t("dashboardSections:recentActivitySection.title")}</span>
               {activity.length > 0 ? (
                 <span className="dash-activity__count">{activity.length}</span>
               ) : null}
@@ -66,7 +68,7 @@ export default function DashboardRecentActivitySection({ activity, quickActions 
         <div id={activityPanelId} className="dash-activity__panel">
           {activity.length === 0 ? (
             <p className="dash-activity__empty">
-              Your membership, donations, sponsorships and event tickets will appear here.
+              {t("dashboardSections:recentActivitySection.empty")}
             </p>
           ) : (
             <ul className="dash-activity__list">
@@ -143,8 +145,8 @@ export default function DashboardRecentActivitySection({ activity, quickActions 
         </div>
       </div>
 
-      <div className="dash-quick-actions" aria-label="Quick actions">
-        <h2 className="dash-quick-actions__title">Quick Actions</h2>
+      <div className="dash-quick-actions" aria-label={t("dashboardSections:recentActivitySection.quickActionsTitle")}>
+        <h2 className="dash-quick-actions__title">{t("dashboardSections:recentActivitySection.quickActionsTitle")}</h2>
         {quickActions.map((action) =>
           action.to ? (
             <Link

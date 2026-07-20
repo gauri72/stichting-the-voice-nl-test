@@ -1,22 +1,25 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { IconChevronDown, IconPlayerPause, IconPlayerPlay, IconTrash, IconMail, IconBellRinging, IconDeviceDesktop } from "@tabler/icons-react";
 import CountdownTimer from "./CountdownTimer.jsx";
 
-const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_LABEL_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 const DELIVERY_ICONS = { dashboard: IconDeviceDesktop, email: IconMail, push: IconBellRinging };
 
-function describeSchedule(schedule) {
-  if (schedule.type === "daily") return `Daily at ${schedule.time}`;
+function describeSchedule(schedule, t, dayLabels) {
+  if (schedule.type === "daily") return t("dashboardMain:aiAssistant.scheduleTimelineItem.dailyAt", { time: schedule.time });
   if (schedule.type === "weekly") {
-    const days = (schedule.daysOfWeek || []).map((d) => DAY_LABELS[d]).join(", ");
-    return `Weekly (${days || "—"}) at ${schedule.time}`;
+    const days = (schedule.daysOfWeek || []).map((d) => dayLabels[d]).join(", ");
+    return t("dashboardMain:aiAssistant.scheduleTimelineItem.weeklyAt", { days: days || "—", time: schedule.time });
   }
-  if (schedule.type === "once") return `Once on ${new Date(schedule.runAt).toLocaleString()}`;
+  if (schedule.type === "once") return t("dashboardMain:aiAssistant.scheduleTimelineItem.onceOn", { datetime: new Date(schedule.runAt).toLocaleString() });
   return "";
 }
 
 export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) {
+  const { t } = useTranslation(["dashboardMain"]);
+  const dayLabels = DAY_LABEL_KEYS.map((key) => t(`dashboardMain:aiAssistant.scheduleModal.weekdays.${key}`));
   const [expanded, setExpanded] = useState(false);
   const DeliveryIcon = DELIVERY_ICONS[item.deliveryMethod] || IconDeviceDesktop;
   const isActive = item.status === "active";
@@ -45,7 +48,7 @@ export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) 
         >
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-slate-100">{item.promptText}</p>
-            <p className="text-xs text-slate-400">{describeSchedule(item.schedule)}</p>
+            <p className="text-xs text-slate-400">{describeSchedule(item.schedule, t, dayLabels)}</p>
           </div>
           <motion.span animate={{ rotate: expanded ? 180 : 0 }} className="shrink-0 text-slate-400">
             <IconChevronDown size={16} />
@@ -58,14 +61,14 @@ export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) 
               isActive ? "bg-emerald-500/15 text-emerald-300" : "bg-slate-600/30 text-slate-400"
             }`}
           >
-            {isActive ? "Active" : "Paused"}
+            {isActive ? t("dashboardMain:aiAssistant.scheduleTimelineItem.active") : t("dashboardMain:aiAssistant.scheduleTimelineItem.paused")}
           </span>
           <span className="flex items-center gap-1 text-slate-400">
-            <DeliveryIcon size={13} /> {item.deliveryMethod}
+            <DeliveryIcon size={13} /> {t(`dashboardMain:aiAssistant.scheduleModal.delivery.${item.deliveryMethod}`, { defaultValue: item.deliveryMethod })}
           </span>
           {isActive && item.nextRunAt && (
             <span className="text-slate-400">
-              next in <CountdownTimer targetDate={item.nextRunAt} />
+              {t("dashboardMain:aiAssistant.scheduleTimelineItem.nextIn")} <CountdownTimer targetDate={item.nextRunAt} />
             </span>
           )}
         </div>
@@ -80,8 +83,8 @@ export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) 
               className="overflow-hidden"
             >
               <div className="mt-3 space-y-1 border-t border-white/10 pt-3 text-xs text-slate-400">
-                <p>Last run: {item.lastRunAt ? new Date(item.lastRunAt).toLocaleString() : "never"}</p>
-                <p>Next run: {item.nextRunAt ? new Date(item.nextRunAt).toLocaleString() : "—"}</p>
+                <p>{t("dashboardMain:aiAssistant.scheduleTimelineItem.lastRun", { value: item.lastRunAt ? new Date(item.lastRunAt).toLocaleString() : t("dashboardMain:aiAssistant.scheduleTimelineItem.never") })}</p>
+                <p>{t("dashboardMain:aiAssistant.scheduleTimelineItem.nextRun", { value: item.nextRunAt ? new Date(item.nextRunAt).toLocaleString() : "—" })}</p>
               </div>
               <div className="mt-3 flex gap-2">
                 <button
@@ -90,14 +93,14 @@ export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) 
                   className="flex items-center gap-1 rounded-lg bg-white/10 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-white/20 active:scale-95"
                 >
                   {isActive ? <IconPlayerPause size={14} /> : <IconPlayerPlay size={14} />}
-                  {isActive ? "Pause" : "Resume"}
+                  {isActive ? t("dashboardMain:aiAssistant.scheduleTimelineItem.pause") : t("dashboardMain:aiAssistant.scheduleTimelineItem.resume")}
                 </button>
                 <button
                   type="button"
                   onClick={onDelete}
                   className="flex items-center gap-1 rounded-lg bg-red-950/40 px-2.5 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-950/70 active:scale-95"
                 >
-                  <IconTrash size={14} /> Delete
+                  <IconTrash size={14} /> {t("dashboardMain:aiAssistant.scheduleTimelineItem.delete")}
                 </button>
               </div>
             </motion.div>

@@ -8,7 +8,7 @@
     "secureSubtext": "Ihr Beitrag ist bei uns sicher.",
     "tier1": { "name": "Unterstützer", "description": "Helfen Sie uns, Kulturprogramme für alle zugänglich zu halten." },
     "tier2": { "name": "Freund", "description": "Stärken Sie Workshops, Vorführungen und Gemeinschaftstreffen." },
-    "tier3": { "name": "Champion", "description": "Werden Sie ein Kernunterstützer unserer Flaggschiff-Events und Outreach-Arbeit." },
+    "tier3": { "name": "Vorkämpfer", "description": "Werden Sie ein Kernunterstützer unserer Flaggschiff-Events und Outreach-Arbeit." },
     "tier4": { "name": "Förderer", "description": "Unterstützen Sie größere Initiativen und helfen Sie, unsere Reichweite weltweit auszubauen." },
     "tier5": { "name": "Visionär", "description": "Schaffen Sie eine transformative Wirkung und helfen Sie, eine bessere Zukunft zu gestalten." },
     "tier6": { "name": "Zahlen Sie, Was Sie Möchten", "description": "Geben Sie jeden beliebigen Betrag — jeder Beitrag hilft unserer Mission." }

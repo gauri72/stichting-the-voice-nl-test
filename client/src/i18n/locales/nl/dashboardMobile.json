@@ -1,0 +1,212 @@
+{
+  "commandCenter": {
+    "hero": {
+      "welcomeBack": "Welkom terug",
+      "assist": "V.Assist",
+      "assistAria": "Open V.Assist, jouw AI-community concierge",
+      "metricsAria": "Overzicht van je lidmaatschap",
+      "rewardsAria": "Open Beloningscentrum, {{count}} punten",
+      "pointsLabel": "Punten",
+      "walletAria": "Open V.Wallet, saldo {{balance}}",
+      "walletLabel": "V.Wallet",
+      "ticketsAria": "Open Mijn Tickets, {{count}} tickets",
+      "ticketsLabel": "Tickets",
+      "membershipAria": "Open {{label}}",
+      "membershipLabel": "Lidmaatschap",
+      "planSuffix": "{{variant}} abonnement",
+      "memberFallback": "Lid"
+    },
+    "sheet": {
+      "closeAria": "Sluit {{title}}"
+    },
+    "nextEvent": {
+      "badge": "Uitgelicht evenement",
+      "dateTba": "Datum nog bekend te maken",
+      "buyTickets": "Tickets kopen",
+      "discoverTitle": "Ontdek je volgende ervaring",
+      "discoverBody": "Er worden regelmatig nieuwe communityevenementen toegevoegd.",
+      "exploreEvents": "Ontdek evenementen"
+    },
+    "commerce": {
+      "eyebrow": "Marktplaats voor leden",
+      "title": "V.Commerce in de kijker",
+      "exploreAll": "Bekijk alles",
+      "featuredBadge": "Uitgelicht communitybedrijf",
+      "visitShop": "Bezoek winkel",
+      "cashback": "{{percent}}% cashback",
+      "offersAria": "V.Commerce-aanbiedingen"
+    },
+    "moreForYou": {
+      "eyebrow": "Ledentools",
+      "title": "Meer voor jou"
+    },
+    "cards": {
+      "profile": { "title": "Profiel & Instellingen", "value": "Account beheren" },
+      "donations": { "title": "Mijn Donaties" },
+      "sponsorships": {
+        "title": "Sponsorships",
+        "value_one": "{{count}} bijdrage",
+        "value_other": "{{count}} bijdragen"
+      },
+      "referral": { "title": "Verwijzingscode", "value": "Nodig uit & verdien" },
+      "business": { "title": "Bedrijvenhub", "value": "Aanbiedingen beheren" }
+    },
+    "impactBanner": {
+      "label": "Jouw impact",
+      "summary": "{{eventCount}} ervaringen · {{donationLabel}} gedoneerd · {{sponsorshipCount}} sponsorships",
+      "thanks": "Bedankt voor je steun aan de missie van V.O.I.C.E. NL."
+    },
+    "movement": {
+      "ariaLabel": "Bedankt dat je deel uitmaakt van de beweging",
+      "titleLead": "Bedankt Dat Je",
+      "titleAccent": "Deel Uitmaakt Van De Beweging",
+      "tagline": "Samen creëren we ervaringen. Delen we verhalen. Maken we impact. Wekken we innovatie."
+    },
+    "nav": {
+      "ariaLabel": "Ledendashboard",
+      "home": "Start",
+      "events": "Evenementen",
+      "commerce": "V.Commerce",
+      "wallet": "Wallet",
+      "profile": "Profiel"
+    },
+    "membershipSheet": {
+      "title": "Lidmaatschapskaart",
+      "passLabel": "Lidmaatschapspas",
+      "idLabel": "Lidmaatschaps-ID",
+      "memberSinceLabel": "Lid sinds",
+      "validUntilLabel": "Geldig tot",
+      "preparing": "Voorbereiden…",
+      "downloadCard": "E-kaart downloaden",
+      "opening": "Openen…",
+      "addGoogleWallet": "Toevoegen aan Google Wallet",
+      "googleWalletAvailableTitle": "Sla dit lidmaatschap op in Google Wallet",
+      "googleWalletUnavailableTitle": "Google Wallet is nog niet geconfigureerd",
+      "googleWalletComingSoon": "E-kaart downloaden is nu beschikbaar. Google Wallet verschijnt zodra dit is geconfigureerd.",
+      "actionUnavailable": "Deze lidmaatschapsactie is tijdelijk niet beschikbaar.",
+      "benefitsEyebrow": "Inbegrepen bij je abonnement",
+      "benefitsTitle": "Lidmaatschapsvoordelen",
+      "manageMembership": "Lidmaatschap beheren",
+      "qrAlt": "QR-code lidmaatschap {{membershipId}}",
+      "actionsAria": "Acties lidmaatschapskaart"
+    },
+    "ticketsSheet": {
+      "title": "Mijn Tickets",
+      "bookedExperience": "Geboekte ervaring",
+      "ticketCount_one": "{{count}} ticket",
+      "ticketCount_other": "{{count}} tickets",
+      "emptyTitle": "Nog geen geboekte tickets",
+      "emptyBody": "Je ticket-QR-codes verschijnen hier na het boeken.",
+      "eventTicketFallback": "Evenemententicket",
+      "qrAlt": "QR-code voor {{ticketType}}",
+      "download": "Downloaden",
+      "downloadAria": "Download {{ticketType}}",
+      "genericTicket": "ticket",
+      "viewAll": "Bekijk alle aankomende ervaringen"
+    },
+    "rewardsSheet": {
+      "title": "Beloningscentrum",
+      "availableLabel": "Beschikbaar om in te wisselen",
+      "pointsUnit": "beloningspunten",
+      "description": "Gebruik je punten voor ledenvoordelen, kortingen op evenementen en geselecteerde V.Commerce-beloningen.",
+      "openInWallet": "Open Beloningen in V.Wallet"
+    },
+    "impactSheet": {
+      "title": "Jouw impact",
+      "experiencesAttended": "Bijgewoonde ervaringen",
+      "donationsMade": "Gedane donaties",
+      "sponsorshipContributions": "Sponsorbijdragen",
+      "thanksParagraph": "Jouw deelname helpt bij het creëren van betekenisvolle culturele uitwisseling en sterkere gemeenschappen.",
+      "exploreLink": "Ontdek onze impact"
+    },
+    "referralSheet": {
+      "title": "Mijn verwijzingscode",
+      "intro": "Nodig vrienden uit voor V.O.I.C.E. NL en verdien beloningen wanneer zij zich aansluiten.",
+      "yourCodeLabel": "Jouw verwijzingscode",
+      "copied": "Code gekopieerd",
+      "copyCode": "Kopieer verwijzingscode",
+      "pendingActivation": "Je verwijzingscode verschijnt hier zodra deze is geactiveerd."
+    }
+  },
+  "wallet": {
+    "card": {
+      "flipAria": "Wallet-kaart omdraaien",
+      "availableBalance": "Beschikbaar saldo",
+      "lowBalanceWarning": "Laag saldo — top op om onderbrekingen te voorkomen",
+      "rewardPointsLabel": "Beloningspunten",
+      "pointsAvailable": "punten beschikbaar",
+      "tapToFlipBack": "Tik om terug te draaien"
+    },
+    "lowBalanceAlert": {
+      "message": "Je V.Wallet-saldo is lager dan je waarschuwingsdrempel.",
+      "topUpNow": "Nu opwaarderen"
+    },
+    "pointsProgress": {
+      "toFirstRedemption": "Nog {{count}} punten tot je eerste inwisseling",
+      "toNextDiscount": "Nog {{count}} punten tot je volgende korting van €1",
+      "ptsUnit": "{{count}} pt"
+    },
+    "topUpModal": {
+      "title": "V.Wallet opwaarderen",
+      "closeAria": "Sluiten",
+      "dialogAria": "V.Wallet opwaarderen",
+      "customAmountPlaceholder": "Aangepast bedrag (€)",
+      "pleaseWait": "Even geduld…",
+      "continueWith": "Doorgaan met €{{amount}}",
+      "otpIntro": "Deze opwaardering ligt boven je veiligheidsdrempel — voer de bevestigingscode in die we je zojuist per e-mail hebben gestuurd.",
+      "otpPlaceholder": "6-cijferige code",
+      "verifying": "Verifiëren…",
+      "verifyAndContinue": "Verifiëren en doorgaan",
+      "processing": "Verwerken…",
+      "paySecurely": "Veilig €{{amount}} betalen",
+      "topUpSuccessful": "Opwaarderen gelukt!",
+      "close": "Sluiten",
+      "errors": {
+        "checkPaymentDetails": "Controleer je betaalgegevens.",
+        "paymentIncomplete": "Betaling kon niet worden voltooid.",
+        "couldNotStartTopUp": "Opwaarderen kon niet worden gestart.",
+        "incorrectCode": "Die code is onjuist."
+      }
+    },
+    "transactionHistory": {
+      "empty": "Nog geen transacties.",
+      "types": {
+        "topup": "Opwaardering",
+        "purchase": "Aankoop",
+        "refund": "Terugbetaling",
+        "pointsEarned": "Punten verdiend",
+        "pointsRedeemed": "Punten ingewisseld",
+        "pointsExpired": "Punten verlopen",
+        "adminCredit": "Administratieve creditering",
+        "adminDebit": "Administratieve debitering"
+      },
+      "aiBadge": "AI",
+      "ptsSuffix": "pt"
+    },
+    "walletPage": {
+      "loading": "Je wallet wordt geladen…",
+      "unavailable": "V.Wallet is momenteel niet beschikbaar. Kom later terug.",
+      "backToAccount": "Terug naar Mijn Account",
+      "title": "V.Wallet",
+      "subtitle": "Waardeer op, verdien beloningspunten en laat V.Assist voor je boeken.",
+      "confirmingTopUp": "Je opwaardering wordt bevestigd…",
+      "topUpReceived": "Je opwaardering is ontvangen — je saldo is nu bijgewerkt.",
+      "topUpButton": "V.Wallet opwaarderen",
+      "tabs": { "overview": "Overzicht", "history": "Geschiedenis", "settings": "Instellingen" },
+      "sectionsAria": "Wallet-onderdelen",
+      "recentActivity": "Recente activiteit"
+    },
+    "settingsPanel": {
+      "aiBookingTitle": "AI-boekingstoestemming",
+      "aiBookingDescription": "Laat V.Assist tickets voor je boeken met je wallet",
+      "maxSpendPerBooking": "Maximale uitgave per AI-boeking",
+      "dailySpendLimit": "Dagelijkse AI-uitgavenlimiet",
+      "requireConfirmation": "Bevestiging vereisen voordat AI iets boekt",
+      "revokePermission": "AI-boekingstoestemming intrekken",
+      "lowBalanceThreshold": "Drempel voor waarschuwing laag saldo",
+      "defaultTopUpAmount": "Standaard opwaardeerbedrag",
+      "saving": "Opslaan…",
+      "saved": "Opgeslagen"
+    }
+  }
+}

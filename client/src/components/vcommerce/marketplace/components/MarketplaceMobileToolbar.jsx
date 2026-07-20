@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconBell, IconShoppingCart } from "@tabler/icons-react";
 import { useCart } from "../../cart/useCart.js";
 
@@ -8,6 +9,7 @@ import { useCart } from "../../cart/useCart.js";
  * so it links to /dashboard with no fabricated unread count.
  */
 export default function MarketplaceMobileToolbar() {
+  const { t } = useTranslation(["vcommerceShop"]);
   const { itemCount } = useCart();
 
   return (
@@ -27,11 +29,11 @@ export default function MarketplaceMobileToolbar() {
         backdropFilter: "blur(12px)",
       }}
       role="toolbar"
-      aria-label="Marketplace utilities"
+      aria-label={t("vcommerceShop:marketplaceMobileToolbar.toolbarAriaLabel")}
     >
       <Link
         to="/dashboard"
-        aria-label="Notifications"
+        aria-label={t("vcommerceShop:marketplaceMobileToolbar.notificationsAriaLabel")}
         style={{ position: "relative", color: "var(--mkt-text)", display: "flex" }}
       >
         <IconBell size={22} aria-hidden="true" />
@@ -39,7 +41,9 @@ export default function MarketplaceMobileToolbar() {
 
       <Link
         to="/vcommerce/checkout"
-        aria-label={`Shopping cart${itemCount ? `, ${itemCount} item${itemCount > 1 ? "s" : ""}` : ""}`}
+        aria-label={itemCount
+          ? t("vcommerceShop:marketplaceMobileToolbar.cartAriaLabelWithCount", { count: itemCount })
+          : t("vcommerceShop:marketplaceMobileToolbar.cartAriaLabelEmpty")}
         style={{ position: "relative", color: "var(--mkt-text)", display: "flex" }}
       >
         <IconShoppingCart size={22} aria-hidden="true" />

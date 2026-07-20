@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   IconCalendarEvent,
   IconCrown,
@@ -26,7 +27,7 @@ import CustomerDashboardAnnouncements, {
 import { DASHBOARD_ROUTES, planShortLabel, resolveMembershipQrSrc } from "./dashboardUtils.js";
 import { downloadMembershipEcard } from "../../utils/membershipEcard.js";
 
-function buildQuickActions({ membershipId, section }) {
+function buildQuickActions({ membershipId, section, t }) {
   const configured = section?.settings?.quickActions;
   if (Array.isArray(configured) && configured.length) {
     return configured.filter((a) => a.visible !== false);
@@ -34,14 +35,14 @@ function buildQuickActions({ membershipId, section }) {
   return [
     {
       id: "explore",
-      label: "Explore Events",
+      label: t("dashboardMain:common.quickActions.exploreEvents"),
       icon: <IconCalendarEvent size={20} stroke={1.75} />,
       to: DASHBOARD_ROUTES.myEvents,
       tone: "teal",
     },
     {
       id: "download",
-      label: "Download Card",
+      label: t("dashboardMain:common.quickActions.downloadCard"),
       icon: <IconDownload size={20} stroke={1.75} />,
       tone: "blue",
       onClick: () => {
@@ -51,14 +52,14 @@ function buildQuickActions({ membershipId, section }) {
     },
     {
       id: "renew",
-      label: "Renew Membership",
+      label: t("dashboardMain:common.quickActions.renewMembership"),
       icon: <IconRefresh size={20} stroke={1.75} />,
       to: DASHBOARD_ROUTES.membershipMatrix,
       tone: "green",
     },
     {
       id: "upgrade",
-      label: "Upgrade Membership",
+      label: t("dashboardMain:common.quickActions.upgradeMembership"),
       icon: <IconCrown size={20} stroke={1.75} />,
       to: DASHBOARD_ROUTES.membershipMatrix,
       tone: "teal-dark",
@@ -66,8 +67,8 @@ function buildQuickActions({ membershipId, section }) {
   ];
 }
 
-function ConfigurableWelcomeBanner({ section, settings, displayName }) {
-  const greeting = section?.settings?.greeting || settings?.welcomeMessage?.split(",")[0] || "Welcome,";
+function ConfigurableWelcomeBanner({ section, settings, displayName, t }) {
+  const greeting = section?.settings?.greeting || settings?.welcomeMessage?.split(",")[0] || t("dashboardMain:customerDashboardRenderer.welcomeBanner.defaultGreeting");
   const name = settings?.welcomeMessage?.includes("{{name}}")
     ? displayName
     : settings?.welcomeMessage?.split(",").slice(1).join(",").trim() || displayName;
@@ -99,6 +100,7 @@ function renderSection(section, ctx) {
     wallet,
     profile,
     preview,
+    t,
   } = ctx;
 
   switch (section.sectionType) {
@@ -109,6 +111,7 @@ function renderSection(section, ctx) {
           section={section}
           settings={settings}
           displayName={displayName}
+          t={t}
         />
       );
     case "available_discounts":
@@ -180,7 +183,7 @@ function renderSection(section, ctx) {
           activity={activity}
           quickActions={
             section.sectionType === "quick_actions" || section.settings?.showQuickActions !== false
-              ? buildQuickActions({ membershipId, section })
+              ? buildQuickActions({ membershipId, section, t })
               : []
           }
         />
@@ -200,7 +203,7 @@ function renderSection(section, ctx) {
             ...section,
             ctas: section.ctas?.length
               ? section.ctas
-              : [{ id: "donate", text: "Donate Now", url: "/donate", style: "primary", visible: true }],
+              : [{ id: "donate", text: t("dashboardMain:customerDashboardRenderer.defaultCtas.donateNow"), url: "/donate", style: "primary", visible: true }],
           }}
         />
       );
@@ -212,7 +215,7 @@ function renderSection(section, ctx) {
             ...section,
             ctas: section.ctas?.length
               ? section.ctas
-              : [{ id: "sponsor", text: "Become a Sponsor", url: "/sponsorship", style: "teal", visible: true }],
+              : [{ id: "sponsor", text: t("dashboardMain:customerDashboardRenderer.defaultCtas.becomeSponsor"), url: "/sponsorship", style: "teal", visible: true }],
           }}
         />
       );
@@ -224,7 +227,7 @@ function renderSection(section, ctx) {
             ...section,
             ctas: section.ctas?.length
               ? section.ctas
-              : [{ id: "volunteer", text: "Volunteer With Us", url: "/contact-us", style: "secondary", visible: true }],
+              : [{ id: "volunteer", text: t("dashboardMain:customerDashboardRenderer.defaultCtas.volunteerWithUs"), url: "/contact-us", style: "secondary", visible: true }],
           }}
         />
       );
@@ -247,8 +250,8 @@ function renderSection(section, ctx) {
     case "payment_methods":
       return preview ? (
         <section key={section.sectionId} className="member-dashboard__profile-widget">
-          <h2 className="member-dashboard__section-title">{section?.title || "Payment Methods"}</h2>
-          <p>Payment methods appear here for the logged-in member.</p>
+          <h2 className="member-dashboard__section-title">{section?.title || t("dashboardMain:customerDashboardRenderer.paymentMethods.title")}</h2>
+          <p>{t("dashboardMain:customerDashboardRenderer.paymentMethods.body")}</p>
         </section>
       ) : null;
     default:
@@ -262,6 +265,7 @@ export default function CustomerDashboardRenderer({
   displayName,
   preview = false,
 }) {
+  const { t } = useTranslation(["dashboardMain"]);
   const settings = config?.settings || {};
   const sections = config?.sections || [];
   const profile = data?.profile;
@@ -297,6 +301,7 @@ export default function CustomerDashboardRenderer({
     wallet,
     profile,
     preview,
+    t,
   };
 
   const welcomeSection = sections.find((s) => s.sectionType === "welcome_banner");
@@ -311,7 +316,7 @@ export default function CustomerDashboardRenderer({
       ) : null}
 
       {welcomeSection ? renderSection(welcomeSection, ctx) : (
-        <ConfigurableWelcomeBanner section={null} settings={settings} displayName={displayName} />
+        <ConfigurableWelcomeBanner section={null} settings={settings} displayName={displayName} t={t} />
       )}
 
       <div className="member-dashboard__body">

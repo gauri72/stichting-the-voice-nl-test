@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   IconWallet, IconShieldCheck, IconBuildingStore, IconWorld,
 } from "@tabler/icons-react";
@@ -6,43 +7,47 @@ import { SkeletonBlock } from "./ui.jsx";
 const STAT_DEFS = [
   {
     key: "walletCashback",
-    label: "V.Wallet Cashback",
+    labelKey: "walletCashback",
     iconClass: "vcohp-mob__stat-icon--teal",
     valueClass: "vcohp-mob__stat-value--teal",
     Icon: IconWallet,
-    format: () => "Active",
   },
   {
     key: "verifiedBusinesses",
-    label: "Verified Businesses",
+    labelKey: "verifiedBusinesses",
     iconClass: "vcohp-mob__stat-icon--green",
     valueClass: "vcohp-mob__stat-value--green",
     Icon: IconShieldCheck,
-    format: (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}K+` : `${v}+`,
   },
   {
     key: "activeShops",
-    label: "Active Shops",
+    labelKey: "activeShops",
     iconClass: "vcohp-mob__stat-icon--purple",
     valueClass: "vcohp-mob__stat-value--purple",
     Icon: IconBuildingStore,
-    format: (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}K+` : `${v}+`,
   },
   {
     key: "countries",
-    label: "Global Community",
+    labelKey: "countries",
     iconClass: "vcohp-mob__stat-icon--blue",
     valueClass: "vcohp-mob__stat-value--blue",
     Icon: IconWorld,
-    format: (v) => v ? `${v}+ Countries` : "Global",
   },
 ];
 
 /** Mobile 2×2 stats strip. */
 export default function MarketplaceStats({ stats, loading }) {
+  const { t } = useTranslation(["vcommerceShop"]);
+
+  const formatValue = (key, v) => {
+    if (key === "walletCashback") return t("vcommerceShop:marketplaceStats.active");
+    if (key === "countries") return v ? t("vcommerceShop:marketplaceStats.countriesCount", { count: v }) : t("vcommerceShop:marketplaceStats.global");
+    return v >= 1000 ? `${(v / 1000).toFixed(1)}K+` : `${v}+`;
+  };
+
   if (loading) {
     return (
-      <section className="vcohp-mob__stats" aria-label="Marketplace statistics">
+      <section className="vcohp-mob__stats" aria-label={t("vcommerceShop:marketplaceStats.ariaLabel")}>
         {[0, 1, 2, 3].map((i) => (
           <div key={i} className="vcohp-mob__stat">
             <SkeletonBlock style={{ width: 36, height: 36, borderRadius: 8, flexShrink: 0 }} />
@@ -57,10 +62,10 @@ export default function MarketplaceStats({ stats, loading }) {
   }
 
   return (
-    <section className="vcohp-mob__stats" aria-label="Marketplace statistics">
-      {STAT_DEFS.map(({ key, label, iconClass, valueClass, Icon, format }) => {
+    <section className="vcohp-mob__stats" aria-label={t("vcommerceShop:marketplaceStats.ariaLabel")}>
+      {STAT_DEFS.map(({ key, labelKey, iconClass, valueClass, Icon }) => {
         const raw = stats?.[key];
-        const displayValue = raw != null ? format(raw) : (key === "walletCashback" ? "Active" : "—");
+        const displayValue = raw != null ? formatValue(key, raw) : (key === "walletCashback" ? t("vcommerceShop:marketplaceStats.active") : "—");
         return (
           <div key={key} className="vcohp-mob__stat">
             <div className={`vcohp-mob__stat-icon ${iconClass}`} aria-hidden="true">
@@ -68,7 +73,7 @@ export default function MarketplaceStats({ stats, loading }) {
             </div>
             <div>
               <p className={`vcohp-mob__stat-value ${valueClass}`}>{displayValue}</p>
-              <p className="vcohp-mob__stat-label">{label}</p>
+              <p className="vcohp-mob__stat-label">{t(`vcommerceShop:marketplaceStats.labels.${labelKey}`)}</p>
             </div>
           </div>
         );
@@ -79,10 +84,13 @@ export default function MarketplaceStats({ stats, loading }) {
 
 /** Desktop hero stat column — separate visual treatment. */
 export function DesktopHeroStats({ stats, loading }) {
+  const { t } = useTranslation(["vcommerceShop"]);
+  const globalLabel = t("vcommerceShop:marketplaceStats.global");
+
   const DESKTOP_DEFS = [
     {
       key: "activeShops",
-      label: "Active Shops",
+      labelKey: "activeShops",
       iconClass: "vcohp-desk__stat-icon--teal",
       Icon: IconBuildingStore,
       format: (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}K+` : `${v}+`,
@@ -90,7 +98,7 @@ export function DesktopHeroStats({ stats, loading }) {
     },
     {
       key: "customers",
-      label: "Happy Customers",
+      labelKey: "customers",
       iconClass: "vcohp-desk__stat-icon--pink",
       Icon: IconWallet,
       format: (v) => v >= 1000 ? `${(v / 1000).toFixed(0)}K+` : `${v}`,
@@ -98,7 +106,7 @@ export function DesktopHeroStats({ stats, loading }) {
     },
     {
       key: "categories",
-      label: "Categories",
+      labelKey: "categories",
       iconClass: "vcohp-desk__stat-icon--purple",
       Icon: IconBuildingStore,
       format: (v) => `${v}+`,
@@ -106,17 +114,17 @@ export function DesktopHeroStats({ stats, loading }) {
     },
     {
       key: "countries",
-      label: "Community",
+      labelKey: "community",
       iconClass: "vcohp-desk__stat-icon--blue",
       Icon: IconWorld,
-      format: () => "Global",
-      fallback: "Global",
+      format: () => globalLabel,
+      fallback: globalLabel,
     },
   ];
 
   return (
     <div className="vcohp-desk__hero-stats">
-      {DESKTOP_DEFS.map(({ key, label, iconClass, Icon, format, fallback }) => {
+      {DESKTOP_DEFS.map(({ key, labelKey, iconClass, Icon, format, fallback }) => {
         const raw = stats?.[key];
         const value = loading ? "…" : (raw != null ? format(raw) : fallback);
         return (
@@ -126,7 +134,7 @@ export function DesktopHeroStats({ stats, loading }) {
             </div>
             <div>
               <p className="vcohp-desk__stat-value">{value}</p>
-              <p className="vcohp-desk__stat-label">{label}</p>
+              <p className="vcohp-desk__stat-label">{t(`vcommerceShop:marketplaceStats.desktopLabels.${labelKey}`)}</p>
             </div>
           </div>
         );

@@ -1,17 +1,19 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   IconHome2, IconLayoutGrid, IconPackage, IconWallet, IconUser,
 } from "@tabler/icons-react";
 
 const TABS = [
-  { key: "home",       label: "Home",       Icon: IconHome2,       to: "/vcommerce" },
-  { key: "categories", label: "Categories", Icon: IconLayoutGrid,  to: "/vcommerce/categories" },
-  { key: "orders",     label: "Orders",     Icon: IconPackage,     to: "/dashboard/vcommerce" },
-  { key: "wallet",     label: "V.Wallet",   Icon: IconWallet,      to: "/dashboard/wallet" },
-  { key: "profile",    label: "Profile",    Icon: IconUser,        to: "/dashboard/profile" },
+  { key: "home",       Icon: IconHome2,       to: "/vcommerce" },
+  { key: "categories", Icon: IconLayoutGrid,  to: "/vcommerce/categories" },
+  { key: "orders",     Icon: IconPackage,     to: "/dashboard/vcommerce" },
+  { key: "wallet",     Icon: IconWallet,      to: "/dashboard/wallet" },
+  { key: "profile",    Icon: IconUser,        to: "/dashboard/profile" },
 ];
 
 export default function MobileBottomNav() {
+  const { t } = useTranslation(["vcommerceShop"]);
   const { pathname } = useLocation();
 
   const activeKey =
@@ -25,7 +27,7 @@ export default function MobileBottomNav() {
   return (
     <nav
       className="vcohp-mob__nav"
-      aria-label="Marketplace navigation"
+      aria-label={t("vcommerceShop:mobileBottomNav.navAriaLabel")}
       style={{
         position: "fixed",
         bottom: 0,
@@ -41,8 +43,9 @@ export default function MobileBottomNav() {
         zIndex: 200,
       }}
     >
-      {TABS.map(({ key, label, Icon, to }) => {
+      {TABS.map(({ key, Icon, to }) => {
         const isActive = key === activeKey;
+        const label = t(`vcommerceShop:mobileBottomNav.tabs.${key}`);
         return (
           <Link
             key={key}

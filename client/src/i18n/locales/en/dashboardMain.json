@@ -1,0 +1,334 @@
+{
+  "common": {
+    "tryAgain": "Try again",
+    "dashboardLink": "Dashboard",
+    "quickActions": {
+      "exploreEvents": "Explore Events",
+      "downloadCard": "Download Card",
+      "renewMembership": "Renew Membership",
+      "upgradeMembership": "Upgrade Membership"
+    }
+  },
+  "customerDashboardRenderer": {
+    "defaultCtas": {
+      "donateNow": "Donate Now",
+      "becomeSponsor": "Become a Sponsor",
+      "volunteerWithUs": "Volunteer With Us"
+    },
+    "welcomeBanner": {
+      "defaultGreeting": "Welcome,"
+    },
+    "paymentMethods": {
+      "title": "Payment Methods",
+      "body": "Payment methods appear here for the logged-in member."
+    }
+  },
+  "eventCard": {
+    "featuredBadge": "Featured Event",
+    "daysLeft_one": "{{count}} day left",
+    "daysLeft_other": "{{count}} days left",
+    "membershipBenefitDefault": "Membership Benefit Available",
+    "buyTickets": "Buy Tickets"
+  },
+  "eventTickets": {
+    "loading": "Loading your tickets…",
+    "loadError": "Could not load tickets.",
+    "backToMyEvents": "Back to My Events",
+    "backLink": "My Events",
+    "subtitle": "Your tickets for this experience",
+    "summary": {
+      "heading": "Ticket Summary",
+      "ticketType": "Ticket Type",
+      "quantity": "Quantity",
+      "orderNumber": "Order Number",
+      "purchaseDate": "Purchase Date",
+      "status": "Status",
+      "totalPaid": "Total Paid",
+      "paymentMethod": "Payment Method",
+      "paymentMethodValues": {
+        "wallet": "V.Wallet",
+        "walletSplit": "V.Wallet + Card",
+        "free": "Free Booking",
+        "card": "Card"
+      }
+    },
+    "ticketCard": {
+      "checkedIn": "Checked in",
+      "valid": "Valid",
+      "orderRef": "Order {{orderNumber}}",
+      "downloadPdf": "Download PDF",
+      "downloadQrPng": "Download QR (PNG)",
+      "downloadQrSvg": "Download QR (SVG)",
+      "addToWallet": "Add to Wallet",
+      "comingSoon": "Coming soon",
+      "viewFullTicket": "View Full Ticket"
+    },
+    "list": {
+      "heading": "Your Tickets"
+    },
+    "buyMoreTickets": "Buy More Tickets"
+  },
+  "giving": {
+    "donations": {
+      "title": "My Donations",
+      "subtitle": "A history of every contribution you've made to our mission.",
+      "summaryHeading": "Total Donated",
+      "emptyTitle": "No donations yet.",
+      "emptyBody": "Every contribution — large or small — supports our mission.",
+      "ctaLabel": "Make a Donation",
+      "loading": "Loading your donation history…",
+      "countLabel_one": "{{count}} donation",
+      "countLabel_other": "{{count}} donations"
+    },
+    "sponsorships": {
+      "title": "My Sponsorships",
+      "subtitle": "A history of every sponsorship you've backed.",
+      "summaryHeading": "Total Sponsored",
+      "emptyTitle": "No sponsorships yet.",
+      "emptyBody": "Sponsor an event or campaign to see it appear here.",
+      "ctaLabel": "Become a Sponsor",
+      "loading": "Loading your sponsorship history…",
+      "countLabel_one": "{{count}} sponsorship",
+      "countLabel_other": "{{count}} sponsorships"
+    },
+    "loadError": "Could not load this history.",
+    "historyHeading": "History"
+  },
+  "myEvents": {
+    "loading": "Loading your events…",
+    "loadError": "Could not load events.",
+    "header": {
+      "title": "My Events",
+      "subtitle": "Discover upcoming experiences and access your tickets."
+    },
+    "search": {
+      "placeholder": "Search by event, venue, or location…",
+      "ariaLabel": "Search events"
+    },
+    "filtersAriaLabel": "Filter events",
+    "featuredEventsHeading": "Featured Events",
+    "history": {
+      "heading": "My Event History",
+      "empty": "You haven't booked any events yet.",
+      "exploreEvents": "Explore Events",
+      "viewTicket": "View Ticket",
+      "downloadPdf": "Download PDF",
+      "ticketCount_one": "{{count}} ticket",
+      "ticketCount_other": "{{count}} tickets"
+    },
+    "emptyState": {
+      "title": "No upcoming events available right now.",
+      "body": "Check back soon for new V.O.I.C.E. NL experiences.",
+      "cta": "Browse Experiences"
+    },
+    "upcomingEventsHeading": "Upcoming Events",
+    "allEventsHeading": "All Events",
+    "resultsHeading": "Results",
+    "noResults": "No events match your search or filter."
+  },
+  "subpageNav": {
+    "ariaLabel": "Dashboard navigation",
+    "backToDashboard": "Back to Dashboard",
+    "labels": {
+      "eventTickets": "Event Tickets",
+      "myEvents": "My Events",
+      "myDonations": "My Donations",
+      "mySponsorships": "My Sponsorships",
+      "myProfile": "My Profile",
+      "vWallet": "V.Wallet",
+      "buyerPortal": "Buyer Portal",
+      "businessHub": "Business Hub",
+      "promptLibrary": "Prompt Library",
+      "scheduledPrompts": "Scheduled Prompts",
+      "vAssist": "V.Assist",
+      "dashboard": "Dashboard"
+    }
+  },
+  "memberDashboard": {
+    "loading": "Loading your dashboard…",
+    "loadError": "Could not load your dashboard."
+  },
+  "membershipEcard": {
+    "noActiveMembership": {
+      "title": "No Active Membership",
+      "body": "Join a membership plan to unlock your digital card, QR verification, and wallet pass."
+    },
+    "ariaLabel": "Membership e-card",
+    "qrAlt": "Membership QR code for {{membershipId}}",
+    "copyIdAriaLabel": "Copy membership ID {{membershipId}}"
+  },
+  "aiAssistant": {
+    "common": {
+      "backToDashboard": "Back to dashboard",
+      "closeVAssist": "Close V Assist",
+      "dialogLabel": "V Assist"
+    },
+    "tabs": {
+      "chat": "Chat",
+      "promptLibrary": "Prompt Library",
+      "scheduledPrompts": "Scheduled Prompts"
+    },
+    "pageShell": {
+      "navAriaLabel": "AI Assistant sections"
+    },
+    "chat": {
+      "header": {
+        "tagline": "Your personal AI concierge",
+        "chatHistoryAriaLabel": "Chat history",
+        "newChatAriaLabel": "Start a new chat",
+        "newChat": "New chat"
+      },
+      "welcome": {
+        "heading": "Your Community Concierge",
+        "subheading": "How can I help you today?",
+        "online": "Online",
+        "memberContextLabel": "Member context",
+        "walletLabel": "V.Wallet",
+        "introTitle": "Welcome back.",
+        "introSubtitle": "Here are a few things I can help you with."
+      },
+      "starters": {
+        "findEvent": { "title": "Find an event", "subtitle": "Discover what's on", "prompt": "What events are coming up?" },
+        "exploreCommerce": { "title": "Explore V.Commerce", "subtitle": "Shop curated offers", "prompt": "Show me featured V.Commerce offers" },
+        "checkBenefits": { "title": "Check my benefits", "subtitle": "See what you're entitled to", "prompt": "What membership benefits can I use?" },
+        "useWallet": { "title": "Use my V.Wallet", "subtitle": "View balance & history", "prompt": "Help me with my V.Wallet" }
+      },
+      "suggestions": {
+        "weekAheadLabel": "What’s happening this week?",
+        "weekAheadPrompt": "What’s happening this week?",
+        "discountsLabel": "Show member discounts",
+        "discountsPrompt": "Show me member discounts"
+      },
+      "errorDismiss": "Dismiss",
+      "footerTags": {
+        "private": "Private",
+        "personalised": "Personalised",
+        "available247": "Available 24/7"
+      },
+      "composer": {
+        "placeholder": "Ask V.Assist anything…",
+        "messageAriaLabel": "Message",
+        "voiceInputAriaLabel": "Voice input",
+        "sendAriaLabel": "Send message",
+        "saveLastPromptAriaLabel": "Save last prompt"
+      },
+      "savePromptFeedback": "Saved to your prompt library!",
+      "history": {
+        "heading": "Chat History",
+        "closeAriaLabel": "Close",
+        "empty": "No previous chats yet."
+      },
+      "defaultMembershipLabel": "Member"
+    },
+    "promptLibrary": {
+      "heading": "Prompt Library",
+      "subtitle": "Save prompts you use often, or run one of the pre-built ones below.",
+      "newPromptPlaceholder": "Write a new prompt to save…",
+      "newPromptAriaLabel": "New prompt text",
+      "addButton": "Add",
+      "allCategory": "All",
+      "prebuiltHeading": "Pre-built Prompts",
+      "yourPromptsHeading": "Your Prompts",
+      "emptySaved": "No saved prompts in this category yet."
+    },
+    "scheduledPrompts": {
+      "heading": "Scheduled Prompts",
+      "subtitle": "Automatic check-ins, delivered however you like.",
+      "newScheduleButton": "New Schedule",
+      "empty": "No scheduled prompts yet. Create one to get automatic updates."
+    },
+    "chatBubble": {
+      "yourMessageAriaLabel": "Your message",
+      "assistantMessageAriaLabel": "Assistant message"
+    },
+    "countdown": {
+      "dueNow": "due now",
+      "daysHours": "{{days}}d {{hours}}h",
+      "hoursMinutes": "{{hours}}h {{minutes}}m",
+      "minutes": "{{minutes}}m"
+    },
+    "promptCard": {
+      "removeFavouriteAriaLabel": "Remove from favourites",
+      "addFavouriteAriaLabel": "Add to favourites",
+      "deletePromptAriaLabel": "Delete prompt",
+      "runPromptAriaLabel": "Run this prompt",
+      "runButton": "Run"
+    },
+    "scheduleModal": {
+      "ariaLabel": "Schedule a prompt",
+      "heading": "Schedule a Prompt",
+      "closeAriaLabel": "Close",
+      "weekdays": {
+        "sun": "Sun",
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat"
+      },
+      "delivery": {
+        "dashboard": "In-dashboard",
+        "email": "Email",
+        "push": "Push"
+      },
+      "fields": {
+        "prompt": "Prompt",
+        "promptPlaceholder": "e.g. Give me a summary of today's news",
+        "frequency": "Frequency",
+        "time": "Time",
+        "days": "Days",
+        "dateTime": "Date & time",
+        "deliveryMethod": "Delivery method"
+      },
+      "frequencyOptions": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "once": "One-time"
+      },
+      "pushBlocked": "Notifications were blocked — enable them in your browser settings to use push delivery.",
+      "errors": {
+        "promptRequired": "Prompt text is required.",
+        "pickDay": "Pick at least one day.",
+        "pickDateTime": "Pick a date and time.",
+        "createFailed": "Could not create scheduled prompt."
+      },
+      "submit": {
+        "saving": "Saving…",
+        "default": "Schedule Prompt"
+      }
+    },
+    "scheduleTimelineItem": {
+      "dailyAt": "Daily at {{time}}",
+      "weeklyAt": "Weekly ({{days}}) at {{time}}",
+      "onceOn": "Once on {{datetime}}",
+      "active": "Active",
+      "paused": "Paused",
+      "nextIn": "next in",
+      "lastRun": "Last run: {{value}}",
+      "nextRun": "Next run: {{value}}",
+      "never": "never",
+      "pause": "Pause",
+      "resume": "Resume",
+      "delete": "Delete"
+    },
+    "typingIndicator": {
+      "ariaLabel": "Assistant is typing"
+    },
+    "usageRing": {
+      "unlimitedTitle": "{{used}} prompts used today (unlimited plan)",
+      "limitedTitle": "{{used}} of {{limit}} prompts used today"
+    },
+    "walletBadge": {
+      "toolLabels": {
+        "findEvents": "Searching events…",
+        "prepareBooking": "Preparing your booking quote…",
+        "executeBooking": "Booking via V.Wallet…",
+        "working": "Working…"
+      },
+      "bookedTitle": "Booked via V.Wallet",
+      "summary": "{{quantity}}× {{eventTitle}} — €{{amount}}",
+      "pointsEarned": "+{{points}} pts"
+    }
+  }
+}

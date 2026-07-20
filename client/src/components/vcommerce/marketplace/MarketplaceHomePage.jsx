@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   IconArrowRight, IconBell, IconBriefcase, IconBuildingStore, IconCategory,
   IconGlobe, IconHeart, IconHome, IconMenu2, IconPackage, IconPlane, IconSearch,
@@ -44,14 +45,19 @@ const FALLBACK_CASHBACK = [7, 10, 8, 10, 6, 12];
 const MOCKUP_PRODUCTS = [productTechnova, productAaray, productSpice, productSoulful, productUrban, productArtvilla];
 
 function Brand() {
+  // NOTE: The org name and the literal expansion of the "V.O.I.C.E." acronym are
+  // intentionally left untranslated — translating "Vision of International Cultural
+  // Exchange" would break the acronym the name is built from.
   return <Link to="/" className="vcm-brand"><img src={logo} alt="V.O.I.C.E. NL" /><span><b>STICHTING<br />THE V.O.I.C.E. NL</b><small>The Vision of International<br />Cultural Exchange</small></span></Link>;
 }
 
 function DesktopBrand() {
-  return <Link to="/" className="vcm-desktop-brand" aria-label="Stichting The V.O.I.C.E. NL — go to homepage"><img className="vcm-desktop-brand__dark" src={desktopBrand} alt="" aria-hidden="true" /><img className="vcm-desktop-brand__light" src={desktopBrandTransparent} alt="" aria-hidden="true" /></Link>;
+  const { t } = useTranslation(["vcommerceShop"]);
+  return <Link to="/" className="vcm-desktop-brand" aria-label={t("vcommerceShop:marketplaceHome.desktopBrandAriaLabel")}><img className="vcm-desktop-brand__dark" src={desktopBrand} alt="" aria-hidden="true" /><img className="vcm-desktop-brand__light" src={desktopBrandTransparent} alt="" aria-hidden="true" /></Link>;
 }
 
 function MobileToolbar() {
+  const { t } = useTranslation(["vcommerceShop"]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const notificationsRef = useRef(null);
@@ -92,12 +98,16 @@ function MobileToolbar() {
 
   const closeMenu = () => setMenuOpen(false);
 
+  const cartAriaLabel = itemCount > 0
+    ? t("vcommerceShop:marketplaceHome.cartAriaLabelWithCount", { count: itemCount })
+    : t("vcommerceShop:marketplaceHome.cartAriaLabelEmpty");
+
   return (
     <>
       <header className="vcm-mobile-head">
         <button
           type="button"
-          aria-label="Open navigation menu"
+          aria-label={t("vcommerceShop:marketplaceHome.menuOpenAriaLabel")}
           aria-expanded={menuOpen}
           aria-controls="vcm-mobile-drawer"
           onClick={() => setMenuOpen(true)}
@@ -110,7 +120,7 @@ function MobileToolbar() {
           <div className="vcm-mobile-notifications" ref={notificationsRef}>
             <button
               type="button"
-              aria-label="Open notifications"
+              aria-label={t("vcommerceShop:marketplaceHome.notificationsOpenAriaLabel")}
               aria-expanded={notificationsOpen}
               aria-controls="vcm-mobile-notifications-panel"
               onClick={() => setNotificationsOpen((open) => !open)}
@@ -121,20 +131,20 @@ function MobileToolbar() {
               <section
                 id="vcm-mobile-notifications-panel"
                 className="vcm-mobile-notifications__panel"
-                aria-label="Notifications"
+                aria-label={t("vcommerceShop:marketplaceHome.notificationsPanelAriaLabel")}
               >
-                <strong>Notifications</strong>
+                <strong>{t("vcommerceShop:marketplaceHome.notificationsHeading")}</strong>
                 <div>
                   <IconBell aria-hidden="true" />
-                  <p>No new notifications</p>
-                  <small>Updates about your orders and marketplace activity will appear here.</small>
+                  <p>{t("vcommerceShop:marketplaceHome.noNotifications")}</p>
+                  <small>{t("vcommerceShop:marketplaceHome.notificationsHint")}</small>
                 </div>
               </section>
             ) : null}
           </div>
           <Link
             to="/vcommerce/checkout"
-            aria-label={`Shopping cart${itemCount > 0 ? `, ${itemCount} item${itemCount === 1 ? "" : "s"}` : ", empty"}`}
+            aria-label={cartAriaLabel}
           >
             <IconShoppingCart />
             {itemCount > 0 ? <em aria-hidden="true">{itemCount > 99 ? "99+" : itemCount}</em> : null}
@@ -145,55 +155,55 @@ function MobileToolbar() {
       <button
         type="button"
         className={`vcm-mobile-menu-backdrop${menuOpen ? " is-open" : ""}`}
-        aria-label="Close navigation menu"
+        aria-label={t("vcommerceShop:marketplaceHome.closeMenuAriaLabel")}
         tabIndex={menuOpen ? 0 : -1}
         onClick={closeMenu}
       />
       <nav
         id="vcm-mobile-drawer"
         className={`vcm-mobile-menu${menuOpen ? " is-open" : ""}`}
-        aria-label="Mobile navigation"
+        aria-label={t("vcommerceShop:marketplaceHome.mobileNavAriaLabel")}
         aria-hidden={!menuOpen}
       >
         <div className="vcm-mobile-menu__header">
-          <strong>Menu</strong>
-          <button type="button" aria-label="Close navigation menu" onClick={closeMenu}><IconX /></button>
+          <strong>{t("vcommerceShop:marketplaceHome.menuHeading")}</strong>
+          <button type="button" aria-label={t("vcommerceShop:marketplaceHome.closeMenuAriaLabel")} onClick={closeMenu}><IconX /></button>
         </div>
         <div className="vcm-mobile-menu__links">
-          <Link to="/" onClick={closeMenu}>Home</Link>
-          <Link to="/events" onClick={closeMenu}>Events</Link>
+          <Link to="/" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.nav.home")}</Link>
+          <Link to="/events" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.nav.events")}</Link>
           <details>
-            <summary>Our Pillars <IconChevronDown /></summary>
+            <summary>{t("vcommerceShop:marketplaceHome.nav.ourPillars")} <IconChevronDown /></summary>
             <div>
-              <Link to="/events" onClick={closeMenu}>Experience</Link>
-              <Link to="/stories" onClick={closeMenu}>Stories</Link>
-              <Link to="/impact" onClick={closeMenu}>Impact</Link>
-              <Link to="/voice-venture-studio" onClick={closeMenu}>Innovation</Link>
+              <Link to="/events" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.nav.experience")}</Link>
+              <Link to="/stories" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.nav.stories")}</Link>
+              <Link to="/impact" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.nav.impact")}</Link>
+              <Link to="/voice-venture-studio" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.nav.innovation")}</Link>
             </div>
           </details>
           <details>
-            <summary>Partner With Us <IconChevronDown /></summary>
+            <summary>{t("vcommerceShop:marketplaceHome.nav.partnerWithUs")} <IconChevronDown /></summary>
             <div>
-              <Link to="/sponsorship" onClick={closeMenu}>Sponsorship</Link>
-              <Link to="/donate" onClick={closeMenu}>Donate</Link>
-              <Link to="/vcommerce" onClick={closeMenu}>V.Commerce</Link>
+              <Link to="/sponsorship" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.nav.sponsorship")}</Link>
+              <Link to="/donate" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.nav.donate")}</Link>
+              <Link to="/vcommerce" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.nav.vcommerce")}</Link>
             </div>
           </details>
-          <Link to="/about-us" onClick={closeMenu}>About Us</Link>
+          <Link to="/about-us" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.nav.aboutUs")}</Link>
         </div>
         <div className="vcm-mobile-menu__marketplace">
-          <span>V.Commerce</span>
-          <Link to="/vcommerce/businesses" onClick={closeMenu}>Explore Shops</Link>
-          <Link to="/vcommerce/categories" onClick={closeMenu}>Categories</Link>
-          <Link to="/vcommerce/apply" onClick={closeMenu}>List Your Business</Link>
-          <Link to="/dashboard" onClick={closeMenu}>My Dashboard</Link>
+          <span>{t("vcommerceShop:marketplaceHome.marketplaceMenu.heading")}</span>
+          <Link to="/vcommerce/businesses" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.marketplaceMenu.exploreShops")}</Link>
+          <Link to="/vcommerce/categories" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.marketplaceMenu.categories")}</Link>
+          <Link to="/vcommerce/apply" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.marketplaceMenu.listYourBusiness")}</Link>
+          <Link to="/dashboard" onClick={closeMenu}>{t("vcommerceShop:marketplaceHome.marketplaceMenu.myDashboard")}</Link>
         </div>
         <div className="vcm-mobile-menu__preferences">
-          <span>Preferences &amp; App</span>
+          <span>{t("vcommerceShop:marketplaceHome.preferences.heading")}</span>
           <div>
             <div className="vcm-mobile-menu__theme">
               <ThemeToggle />
-              <span>Theme</span>
+              <span>{t("vcommerceShop:marketplaceHome.preferences.theme")}</span>
             </div>
             <SiteInstallPwaPrompt embedded />
           </div>
@@ -204,42 +214,68 @@ function MobileToolbar() {
 }
 
 function Hero({ mobile = false }) {
-  if (mobile) return <section className="vcm-mhero"><div><h1 className="vcm-page-title">V.Commerce</h1><p className="vcm-marketplace-tagline">V.O.I.C.E. NL COMMUNITY MARKETPLACE</p><h2 className="vcm-campaign-title">Shop. Support.<br /><span>Grow.</span></h2><p className="vcm-hero-description">Discover trusted businesses, products and services from our global community.</p><Link to="/vcommerce/businesses">Explore Shops <IconArrowRight /></Link></div><img className="vcm-mhero-art" src={mobileHeroGlobalCart} alt="Global online marketplace" /></section>;
-  return <section className="vcm-hero"><div className="vcm-hero-copy"><h1 className="vcm-page-title">V.Commerce</h1><p className="vcm-marketplace-tagline">V.O.I.C.E. NL COMMUNITY MARKETPLACE</p><h2 className="vcm-campaign-title">Shop. Support. <span>Grow.</span></h2><p className="vcm-hero-description">Discover trusted businesses, products and services from our global community.<br />Shop with confidence and earn V.Wallet cashback on every purchase.</p><div className="vcm-promises"><span><IconBriefcase />Earn V.Wallet<br />Cashback</span><span><IconUsers />Support Local &<br />Global Businesses</span><span><IconShieldCheck />Verified & Trusted<br />Community</span><span><IconShoppingBag />Secure & Easy<br />Shopping</span></div><div className="vcm-hero-buttons"><Link to="/vcommerce/businesses">Explore Shops <IconArrowRight /></Link><Link to="/vcommerce/apply"><IconBuildingStore /> List Your Business</Link></div></div><div className="vcm-mosaic">{[heroOpen,heroShopkeeper,heroBusinesswoman,heroWarehouse,heroGlobalCart].map((src,i)=><img key={src} src={src} alt={i === 0 ? "Community marketplace businesses" : ""} />)}</div></section>;
+  const { t } = useTranslation(["vcommerceShop"]);
+  if (mobile) return <section className="vcm-mhero"><div><h1 className="vcm-page-title">V.Commerce</h1><p className="vcm-marketplace-tagline">{t("vcommerceShop:marketplaceHome.hero.tagline")}</p><h2 className="vcm-campaign-title">{t("vcommerceShop:marketplaceHome.hero.titlePart1")}<br /><span>{t("vcommerceShop:marketplaceHome.hero.titlePart2")}</span></h2><p className="vcm-hero-description">{t("vcommerceShop:marketplaceHome.hero.descriptionMobile")}</p><Link to="/vcommerce/businesses">{t("vcommerceShop:marketplaceHome.hero.exploreShops")} <IconArrowRight /></Link></div><img className="vcm-mhero-art" src={mobileHeroGlobalCart} alt={t("vcommerceShop:marketplaceHome.hero.mobileHeroArtAlt")} /></section>;
+  return <section className="vcm-hero"><div className="vcm-hero-copy"><h1 className="vcm-page-title">V.Commerce</h1><p className="vcm-marketplace-tagline">{t("vcommerceShop:marketplaceHome.hero.tagline")}</p><h2 className="vcm-campaign-title">{t("vcommerceShop:marketplaceHome.hero.titlePart1")} <span>{t("vcommerceShop:marketplaceHome.hero.titlePart2")}</span></h2><p className="vcm-hero-description">{t("vcommerceShop:marketplaceHome.hero.descriptionDesktopLine1")}<br />{t("vcommerceShop:marketplaceHome.hero.descriptionDesktopLine2")}</p><div className="vcm-promises"><span><IconBriefcase />{t("vcommerceShop:marketplaceHome.hero.promises.cashback.line1")}<br />{t("vcommerceShop:marketplaceHome.hero.promises.cashback.line2")}</span><span><IconUsers />{t("vcommerceShop:marketplaceHome.hero.promises.support.line1")}<br />{t("vcommerceShop:marketplaceHome.hero.promises.support.line2")}</span><span><IconShieldCheck />{t("vcommerceShop:marketplaceHome.hero.promises.verified.line1")}<br />{t("vcommerceShop:marketplaceHome.hero.promises.verified.line2")}</span><span><IconShoppingBag />{t("vcommerceShop:marketplaceHome.hero.promises.secure.line1")}<br />{t("vcommerceShop:marketplaceHome.hero.promises.secure.line2")}</span></div><div className="vcm-hero-buttons"><Link to="/vcommerce/businesses">{t("vcommerceShop:marketplaceHome.hero.exploreShops")} <IconArrowRight /></Link><Link to="/vcommerce/apply"><IconBuildingStore /> {t("vcommerceShop:marketplaceHome.hero.listYourBusiness")}</Link></div></div><div className="vcm-mosaic">{[heroOpen,heroShopkeeper,heroBusinesswoman,heroWarehouse,heroGlobalCart].map((src,i)=><img key={src} src={src} alt={i === 0 ? t("vcommerceShop:marketplaceHome.hero.mosaicAlt") : ""} />)}</div></section>;
 }
 
-const actions = [
-  [IconShoppingBag,"Explore Shops","/vcommerce/businesses"], [IconPackage,"My Orders","/dashboard"],
-  [IconWallet,"V.Wallet","/dashboard/wallet"], [IconBuildingStore,"List Your Business","/vcommerce/apply"],
-  [IconCategory,"Categories","/vcommerce/categories"], [IconTicket,"Deals","/vcommerce/businesses?deals=1"],
-  [IconHeart,"Favourites","/vcommerce/favourites"], [IconSparkles,"V.Assist","/dashboard/ai-assistant"],
+const actionDefs = [
+  [IconShoppingBag, "exploreShops", "/vcommerce/businesses"], [IconPackage, "myOrders", "/dashboard"],
+  [IconWallet, "vWallet", "/dashboard/wallet"], [IconBuildingStore, "listYourBusiness", "/vcommerce/apply"],
+  [IconCategory, "categories", "/vcommerce/categories"], [IconTicket, "deals", "/vcommerce/businesses?deals=1"],
+  [IconHeart, "favourites", "/vcommerce/favourites"], [IconSparkles, "vAssist", "/dashboard/ai-assistant"],
 ];
-function QuickActions(){return <nav className="vcm-actions">{actions.map(([Icon,label,to])=><Link key={label} to={to}><Icon /><span>{label}</span></Link>)}</nav>}
+function QuickActions(){
+  const { t } = useTranslation(["vcommerceShop"]);
+  return <nav className="vcm-actions">{actionDefs.map(([Icon,key,to])=><Link key={key} to={to}><Icon /><span>{t(`vcommerceShop:marketplaceHome.quickActions.${key}`)}</span></Link>)}</nav>;
+}
 
 function BusinessWeek({ business }) {
+  const { t } = useTranslation(["vcommerceShop"]);
   const biz = business;
-  return <section className="vcm-week"><header><h2><IconStar /> BUSINESS OF THE WEEK</h2><Link to="/vcommerce/businesses">View All <IconArrowRight /></Link></header><div className="vcm-week-card"><div className="vcm-week-photo"><picture><source media="(max-width: 767px)" srcSet={biz.mobileImageUrl || biz.imageUrl} /><ImageWithFallback src={biz.imageUrl} alt="Knvers digital commerce and IT solutions" /></picture></div><div className="vcm-week-info"><i>Featured</i><h3>{biz.name}</h3><p>{biz.categoryLabel}</p><p>⌖ &nbsp;{biz.location}</p>{biz.reviewCount > 0 && <p className="vcm-rating">★ <b>{biz.rating}</b> ({biz.reviewCount} reviews)</p>}<div>{biz.tags.slice(0,3).map(t=><span key={t}>{t}</span>)}</div><Link to={biz.shopUrl}>Visit Shop <IconArrowRight /></Link></div></div><footer><b /><i /><i /><i /><i /><i /></footer></section>;
+  return <section className="vcm-week"><header><h2><IconStar /> {t("vcommerceShop:marketplaceHome.businessOfWeek.heading")}</h2><Link to="/vcommerce/businesses">{t("vcommerceShop:marketplaceHome.businessOfWeek.viewAll")} <IconArrowRight /></Link></header><div className="vcm-week-card"><div className="vcm-week-photo"><picture><source media="(max-width: 767px)" srcSet={biz.mobileImageUrl || biz.imageUrl} /><ImageWithFallback src={biz.imageUrl} alt={t("vcommerceShop:marketplaceHome.businessOfWeek.knversAlt")} /></picture></div><div className="vcm-week-info"><i>{t("vcommerceShop:marketplaceHome.businessOfWeek.featured")}</i><h3>{biz.name}</h3><p>{biz.categoryLabel}</p><p>⌖ &nbsp;{biz.location}</p>{biz.reviewCount > 0 && <p className="vcm-rating">★ <b>{biz.rating}</b> {t("vcommerceShop:marketplaceHome.businessOfWeek.reviewsCount", { count: biz.reviewCount })}</p>}<div>{biz.tags.slice(0,3).map(tag=><span key={tag}>{tag}</span>)}</div><Link to={biz.shopUrl}>{t("vcommerceShop:marketplaceHome.businessOfWeek.visitShop")} <IconArrowRight /></Link></div></div><footer><b /><i /><i /><i /><i /><i /></footer></section>;
 }
 
 function getProducts(products) {
   return Array.from({length:6},(_,i)=>({ ...(products?.[i] || {}), id:products?.[i]?.id || `fallback-${i}`, name:products?.[i]?.name || FALLBACK_NAMES[i], businessName:products?.[i]?.businessName || FALLBACK_NAMES[i], category:products?.[i]?.category || FALLBACK_CATS[i], price:products?.[i]?.price || FALLBACK_PRICES[i], cashbackPercent:products?.[i]?.cashbackPercent || FALLBACK_CASHBACK[i], imageUrl:MOCKUP_PRODUCTS[i], businessSlug:products?.[i]?.businessSlug || "" }));
 }
 function Popular({ products }) {
-  return <section className="vcm-popular"><header><h2>POPULAR PICKS FOR YOU</h2><Link to="/vcommerce/businesses">View All <IconArrowRight /></Link></header><div>{getProducts(products).map((p,i)=><Link key={p.id || i} to={p.businessSlug ? `/vcommerce/${p.businessSlug}` : "/vcommerce/businesses"} className="vcm-product"><figure><ImageWithFallback src={p.imageUrl} alt={p.name} /><button className="vcm-product-favourite-hit" aria-label={`Add ${p.businessName || p.name} to favourites`} onClick={(event)=>event.preventDefault()} /></figure><h3>{p.businessName || p.name}</h3><p>{p.category}</p><b>€{Number(p.price || FALLBACK_PRICES[i]).toFixed(2)}</b><small><IconWallet /> {p.cashbackPercent || FALLBACK_CASHBACK[i]}% Cashback</small></Link>)}</div></section>;
+  const { t } = useTranslation(["vcommerceShop"]);
+  return <section className="vcm-popular"><header><h2>{t("vcommerceShop:marketplaceHome.popular.heading")}</h2><Link to="/vcommerce/businesses">{t("vcommerceShop:marketplaceHome.popular.viewAll")} <IconArrowRight /></Link></header><div>{getProducts(products).map((p,i)=><Link key={p.id || i} to={p.businessSlug ? `/vcommerce/${p.businessSlug}` : "/vcommerce/businesses"} className="vcm-product"><figure><ImageWithFallback src={p.imageUrl} alt={p.name} /><button className="vcm-product-favourite-hit" aria-label={t("vcommerceShop:marketplaceHome.popular.addToFavouritesAriaLabel", { name: p.businessName || p.name })} onClick={(event)=>event.preventDefault()} /></figure><h3>{p.businessName || p.name}</h3><p>{p.category}</p><b>€{Number(p.price || FALLBACK_PRICES[i]).toFixed(2)}</b><small><IconWallet /> {t("vcommerceShop:marketplaceHome.popular.cashback", { percent: p.cashbackPercent || FALLBACK_CASHBACK[i] })}</small></Link>)}</div></section>;
 }
 
 function SearchCategories() {
-  return <section className="vcm-discover"><form onSubmit={e=>e.preventDefault()}><IconSearch /><input aria-label="Search marketplace" placeholder="Search businesses, products, services..." /><select aria-label="Category" defaultValue=""><option value="">All Categories</option>{BUSINESS_CATEGORIES.map((category)=><option key={category} value={category}>{BUSINESS_CATEGORY_LABELS[category]}</option>)}</select><button aria-label="Search"><IconSearch /></button></form><nav>{[[IconPlane,"Travel & Stay"],[IconYoga,"Yoga"],[IconShoppingBag,"Fashion"],[IconSparkles,"Beauty"],[IconHome,"Home & Living"],[IconShoppingBag,"Food & Drink"],[IconCategory,"Tech & Digital"],[IconHeart,"Health & Wellness"],[IconCategory,"More"]].map(([Icon,n])=><Link key={n} to="/vcommerce/categories"><Icon /><small>{n}</small></Link>)}</nav></section>;
+  const { t } = useTranslation(["vcommerceShop"]);
+  const shortcuts = [
+    [IconPlane, "travel"], [IconYoga, "yoga"], [IconShoppingBag, "fashion"], [IconSparkles, "beauty"],
+    [IconHome, "home"], [IconShoppingBag, "food"], [IconCategory, "tech"], [IconHeart, "health"], [IconCategory, "more"],
+  ];
+  return <section className="vcm-discover"><form onSubmit={e=>e.preventDefault()}><IconSearch /><input aria-label={t("vcommerceShop:marketplaceHome.search.ariaLabel")} placeholder={t("vcommerceShop:marketplaceHome.search.placeholder")} /><select aria-label={t("vcommerceShop:marketplaceHome.search.categoryAriaLabel")} defaultValue=""><option value="">{t("vcommerceShop:marketplaceHome.search.allCategories")}</option>{BUSINESS_CATEGORIES.map((category)=><option key={category} value={category}>{BUSINESS_CATEGORY_LABELS[category]}</option>)}</select><button aria-label={t("vcommerceShop:marketplaceHome.search.searchButtonAriaLabel")}><IconSearch /></button></form><nav>{shortcuts.map(([Icon,key])=><Link key={key} to="/vcommerce/categories"><Icon /><small>{t(`vcommerceShop:marketplaceHome.search.shortcuts.${key}`)}</small></Link>)}</nav></section>;
 }
 
-function BottomContent(){return <><section className="vcm-why"><h2>Why Shop on V.Commerce?</h2><div>{[[IconWallet,"Cashback Rewards","Earn V.Wallet cashback on every purchase"],[IconShieldCheck,"Verified Businesses","Every shop is verified for your protection"],[IconSparkles,"Wide Selection","Thousands of quality products & services"],[IconUsers,"Community Driven","Empowering local, national & global sellers"],[IconShoppingBag,"Secure Payments","Safe, encrypted & trusted checkout"]].map(([Icon,t,s])=><span key={t}><Icon /><b>{t}</b><small>{s}</small></span>)}</div></section><section className="vcm-impact"><div><h2>Make an Impact</h2><p>Every purchase you make helps strengthen our community and support meaningful initiatives.</p><Link to="/impact">Learn More <IconArrowRight /></Link></div><IconHeart /></section><section className="vcm-owner"><span><IconGlobe /><b>Shop Globally</b><small>From a trusted community<br />across the world</small></span><span><IconUsers /><b>Support Real People</b><small>Your purchase empowers<br />entrepreneurs</small></span><span><IconHeart /><b>Grow Together</b><small>Stronger community,<br />stronger future</small></span><span><IconBuildingStore /><b>Are you a business owner?</b><small>List your business and reach thousands of potential customers.</small></span><Link to="/vcommerce/apply">Apply Now <IconArrowRight /></Link></section></>}
+function BottomContent(){
+  const { t } = useTranslation(["vcommerceShop"]);
+  const benefitDefs = [
+    [IconWallet, "cashback"], [IconShieldCheck, "verified"], [IconSparkles, "selection"],
+    [IconUsers, "community"], [IconShoppingBag, "payments"],
+  ];
+  return <><section className="vcm-why"><h2>{t("vcommerceShop:marketplaceHome.why.heading")}</h2><div>{benefitDefs.map(([Icon,key])=><span key={key}><Icon /><b>{t(`vcommerceShop:marketplaceHome.why.benefits.${key}.title`)}</b><small>{t(`vcommerceShop:marketplaceHome.why.benefits.${key}.body`)}</small></span>)}</div></section><section className="vcm-impact"><div><h2>{t("vcommerceShop:marketplaceHome.impact.heading")}</h2><p>{t("vcommerceShop:marketplaceHome.impact.body")}</p><Link to="/impact">{t("vcommerceShop:marketplaceHome.impact.learnMore")} <IconArrowRight /></Link></div><IconHeart /></section><section className="vcm-owner"><span><IconGlobe /><b>{t("vcommerceShop:marketplaceHome.owner.shopGlobally.title")}</b><small>{t("vcommerceShop:marketplaceHome.owner.shopGlobally.line1")}<br />{t("vcommerceShop:marketplaceHome.owner.shopGlobally.line2")}</small></span><span><IconUsers /><b>{t("vcommerceShop:marketplaceHome.owner.supportRealPeople.title")}</b><small>{t("vcommerceShop:marketplaceHome.owner.supportRealPeople.line1")}<br />{t("vcommerceShop:marketplaceHome.owner.supportRealPeople.line2")}</small></span><span><IconHeart /><b>{t("vcommerceShop:marketplaceHome.owner.growTogether.title")}</b><small>{t("vcommerceShop:marketplaceHome.owner.growTogether.line1")}<br />{t("vcommerceShop:marketplaceHome.owner.growTogether.line2")}</small></span><span><IconBuildingStore /><b>{t("vcommerceShop:marketplaceHome.owner.businessOwner.title")}</b><small>{t("vcommerceShop:marketplaceHome.owner.businessOwner.body")}</small></span><Link to="/vcommerce/apply">{t("vcommerceShop:marketplaceHome.owner.applyNow")} <IconArrowRight /></Link></section></>;
+}
 
-function BottomNav(){return <nav className="vcm-bottom">{[[IconHome,"Home","/vcommerce"],[IconCategory,"Categories","/vcommerce/categories"],[IconPackage,"Orders","/dashboard"],[IconWallet,"V.Wallet","/dashboard/wallet"],[IconUser,"Profile","/my-account"]].map(([Icon,n,to],i)=><Link className={i===0?"active":""} key={n} to={to}><Icon /><span>{n}</span></Link>)}</nav>}
+function BottomNav(){
+  const { t } = useTranslation(["vcommerceShop"]);
+  const tabs = [
+    [IconHome, "home", "/vcommerce"], [IconCategory, "categories", "/vcommerce/categories"],
+    [IconPackage, "orders", "/dashboard"], [IconWallet, "wallet", "/dashboard/wallet"], [IconUser, "profile", "/my-account"],
+  ];
+  return <nav className="vcm-bottom">{tabs.map(([Icon,key,to],i)=><Link className={i===0?"active":""} key={key} to={to}><Icon /><span>{t(`vcommerceShop:marketplaceHome.bottomNav.${key}`)}</span></Link>)}</nav>;
+}
 
 export default function MarketplaceHomePage(){
+  const { t } = useTranslation(["vcommerceShop"]);
   const mobile=useSyncExternalStore(subscribe,getSnapshot,()=>false);
   const {featured,products}=useMarketplaceData();
-  useEffect(()=>{document.title="V.Commerce — Community Marketplace | V.O.I.C.E. NL"; document.body.classList.toggle("vco-mobile-active",mobile); return()=>document.body.classList.remove("vco-mobile-active")},[mobile]);
+  useEffect(()=>{document.title=t("vcommerceShop:marketplaceHome.documentTitle"); document.body.classList.toggle("vco-mobile-active",mobile); return()=>document.body.classList.remove("vco-mobile-active")},[mobile,t]);
   if(mobile)return <div className="vcm-page vcm-mobile"><MobileToolbar/><main><Hero mobile/><QuickActions/><BusinessWeek business={featured}/><Popular products={products}/><div className="vcm-lower"><BottomContent/></div></main><BottomNav/></div>;
   return <div className="vcm-page vcm-desktop"><DesktopBrand/><main><Hero/><SearchCategories/><div className="vcm-content"><BusinessWeek business={featured}/><Popular products={products}/></div><div className="vcm-lower"><BottomContent/></div></main></div>;
 }

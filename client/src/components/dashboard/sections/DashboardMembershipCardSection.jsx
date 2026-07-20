@@ -10,6 +10,7 @@ import {
   IconSofa,
   IconTicket,
 } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import MembershipEcard from "../MembershipEcard.jsx";
 import {
   addMembershipToGoogleWallet,
@@ -22,13 +23,13 @@ import {
 import "../../../styles/dashboard-membership-card-section.css";
 
 const BENEFIT_CONFIG = {
-  entry: { Icon: IconTicket, lines: ["Free Event", "Entry"] },
-  seats: { Icon: IconSofa, lines: ["Reserved Premium", "Seats"] },
-  lounge: { Icon: IconCrown, lines: ["VIP Lounge", "Access"] },
-  artist: { Icon: IconHeartHandshake, lines: ["Artist Meet", "& Greet"] },
-  partner: { Icon: IconRosetteDiscount, lines: ["Partner", "Discounts"] },
-  merch: { Icon: IconShoppingBag, lines: ["Merchandise", "Discounts"] },
-  priority: { Icon: IconBolt, lines: ["Priority", "Registration"] },
+  entry: { Icon: IconTicket, key: "entry" },
+  seats: { Icon: IconSofa, key: "seats" },
+  lounge: { Icon: IconCrown, key: "lounge" },
+  artist: { Icon: IconHeartHandshake, key: "artist" },
+  partner: { Icon: IconRosetteDiscount, key: "partner" },
+  merch: { Icon: IconShoppingBag, key: "merch" },
+  priority: { Icon: IconBolt, key: "priority" },
 };
 
 function TwoLineLabel({ lines }) {
@@ -54,6 +55,7 @@ export default function DashboardMembershipCardSection({
   showBenefits = true,
   compact = false,
 }) {
+  const { t } = useTranslation(["dashboardSections"]);
   const cardRef = useRef(null);
   const [actionMessage, setActionMessage] = useState("");
   const [busyAction, setBusyAction] = useState("");
@@ -66,7 +68,7 @@ export default function DashboardMembershipCardSection({
     try {
       await task();
     } catch (error) {
-      setActionMessage(error.message || "Something went wrong. Please try again.");
+      setActionMessage(error.message || t("dashboardSections:membershipCardSection.genericError"));
     } finally {
       setBusyAction("");
     }
@@ -82,7 +84,9 @@ export default function DashboardMembershipCardSection({
               heading's cqw units resolve against the card's own (narrower)
               width instead of the same outer container My Bookings' heading
               uses, throwing the two out of sync. */}
-          <h2 id="dash-membership-title" className="dash-membership__title">Your Membership Card</h2>
+          <h2 id="dash-membership-title" className="dash-membership__title">
+            {t("dashboardSections:membershipCardSection.title")}
+          </h2>
           <section
             className="dash-membership__rect dash-membership__rect--top dash-membership__rect--ecard"
             id={DASHBOARD_MEMBERSHIP_CARD_ID}
@@ -102,7 +106,7 @@ export default function DashboardMembershipCardSection({
               />
 
               {hasMembership ? (
-                <div className="voice-ecard__actions" aria-label="Membership card actions">
+                <div className="voice-ecard__actions" aria-label={t("dashboardSections:membershipCardSection.actionsAriaLabel")}>
                   <button
                     type="button"
                     className="voice-ecard__action"
@@ -114,7 +118,9 @@ export default function DashboardMembershipCardSection({
                     <span className="voice-ecard__action-icon" aria-hidden>
                       <IconDownload size={18} stroke={1.75} />
                     </span>
-                    {busyAction === "download" ? "Preparing…" : "Download E-Card"}
+                    {busyAction === "download"
+                      ? t("dashboardSections:membershipCardSection.preparing")
+                      : t("dashboardSections:membershipCardSection.downloadEcard")}
                   </button>
 
                   <button
@@ -123,15 +129,17 @@ export default function DashboardMembershipCardSection({
                     disabled={!googleEnabled || Boolean(busyAction)}
                     title={
                       googleEnabled
-                        ? "Save this membership to Google Wallet"
-                        : "Google Wallet is not configured on the server yet"
+                        ? t("dashboardSections:membershipCardSection.googleWalletAvailableTitle")
+                        : t("dashboardSections:membershipCardSection.googleWalletUnavailableTitle")
                     }
                     onClick={() => runAction("google", addMembershipToGoogleWallet)}
                   >
                     <span className="voice-ecard__action-icon" aria-hidden>
                       <IconBrandGoogle size={18} stroke={1.75} />
                     </span>
-                    {busyAction === "google" ? "Opening…" : "Add to Google Wallet"}
+                    {busyAction === "google"
+                      ? t("dashboardSections:membershipCardSection.opening")
+                      : t("dashboardSections:membershipCardSection.addToGoogleWallet")}
                   </button>
                 </div>
               ) : null}
@@ -142,8 +150,7 @@ export default function DashboardMembershipCardSection({
                 </p>
               ) : hasMembership && !googleEnabled ? (
                 <p className="voice-ecard__wallet-note">
-                  Download your e-card anytime. Google Wallet becomes available once credentials are
-                  configured for this environment.
+                  {t("dashboardSections:membershipCardSection.walletNote")}
                 </p>
               ) : null}
             </div>
@@ -152,23 +159,34 @@ export default function DashboardMembershipCardSection({
       ) : null}
 
       {showBenefits ? (
-        <section className="dash-membership__rect dash-membership__rect--bottom" aria-label="Your Premium Benefits">
+        <section
+          className="dash-membership__rect dash-membership__rect--bottom"
+          aria-label={t("dashboardSections:membershipCardSection.benefitsAriaLabel")}
+        >
           <div className="dash-membership__rect-body">
             <p className="dash-membership__eyebrow dash-membership__eyebrow--benefits">
               <span className="dash-membership__eyebrow-line" aria-hidden />
-              <span className="dash-membership__benefits-title dash-grad-text">Your Premium Benefits</span>
+              <span className="dash-membership__benefits-title dash-grad-text">
+                {t("dashboardSections:membershipCardSection.benefitsTitle")}
+              </span>
               <span className="dash-membership__eyebrow-line" aria-hidden />
             </p>
             <ul className="dash-membership__benefits-list">
               {PREMIUM_BENEFITS.map((benefit) => {
                 const config = BENEFIT_CONFIG[benefit.id];
                 const Icon = config?.Icon;
+                const lines = config?.key
+                  ? [
+                      t(`dashboardSections:membershipCardSection.benefits.${config.key}.line1`),
+                      t(`dashboardSections:membershipCardSection.benefits.${config.key}.line2`),
+                    ]
+                  : [benefit.label, ""];
                 return (
                   <li key={benefit.id}>
                     <span className="dash-membership__benefit-icon" aria-hidden>
                       {Icon ? <Icon size={32} stroke={1.65} /> : null}
                     </span>
-                    <TwoLineLabel lines={config?.lines || [benefit.label, ""]} />
+                    <TwoLineLabel lines={lines} />
                   </li>
                 );
               })}

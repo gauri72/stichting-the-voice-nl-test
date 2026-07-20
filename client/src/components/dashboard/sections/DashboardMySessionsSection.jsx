@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { apiFetch, authHeaders } from "../../../utils/api.js";
 import "../../../styles/dashboard-my-sessions-section.css";
 
 export default function DashboardMySessionsSection() {
+  const { t } = useTranslation(["dashboardSections"]);
   const [sessions, setSessions] = useState([]);
   const [rsvps, setRsvps] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -26,15 +28,15 @@ export default function DashboardMySessionsSection() {
   return (
     <section className="member-dashboard__panel">
       <header className="member-dashboard__panel-head">
-        <h2>My Sessions & RSVPs</h2>
+        <h2>{t("dashboardSections:mySessionsSection.title")}</h2>
         <p className="member-dashboard__panel-subtitle">
-          Workshops and community sessions you've booked, and your RSVP replies.
+          {t("dashboardSections:mySessionsSection.subtitle")}
         </p>
       </header>
       <div className="member-dashboard__panel-body">
         {sessions.length ? (
           <>
-            <h3 style={{ marginTop: 0 }}>Upcoming Sessions</h3>
+            <h3 style={{ marginTop: 0 }}>{t("dashboardSections:mySessionsSection.upcomingSessions")}</h3>
             <ul className="dash-session-list">
               {sessions.slice(0, 5).map((s) => (
                 <li key={s.bookingId} className="dash-session-row">
@@ -50,7 +52,7 @@ export default function DashboardMySessionsSection() {
         ) : null}
         {rsvps.length ? (
           <>
-            <h3>My RSVPs</h3>
+            <h3>{t("dashboardSections:mySessionsSection.myRsvps")}</h3>
             <ul className="dash-session-list">
               {rsvps.slice(0, 5).map((r, i) => (
                 <li key={`${r.eventSlug}-${i}`} className="dash-session-row">

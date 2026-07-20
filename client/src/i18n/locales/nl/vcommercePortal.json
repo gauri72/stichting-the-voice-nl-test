@@ -1,0 +1,680 @@
+{
+  "application": {
+    "steps": {
+      "business": "Uw bedrijf",
+      "selling": "Verkoopinstellingen",
+      "contact": "Contact & links",
+      "payout": "Uitbetaling & identiteit",
+      "review": "Overzicht"
+    },
+    "status": {
+      "pending": "In behandeling",
+      "approved": "Goedgekeurd",
+      "rejected": "Niet goedgekeurd"
+    },
+    "meta": {
+      "pageTitle": "Aanmelden bij V.Commerce — V.O.I.C.E. NL"
+    },
+    "loading": "Laden…",
+    "confirmingPayment": {
+      "title": "Uw bedrijfsomgeving wordt voorbereid",
+      "subtitle": "Betaling ontvangen. We maken op dit moment veilig uw persoonlijke V.Commerce-instelgebied aan."
+    },
+    "errors": {
+      "paymentNotVerified": "We konden uw pakketbetaling niet verifiëren.",
+      "checkoutNotStarted": "De beveiligde pakketbetaling kon niet worden gestart.",
+      "genericSubmit": "Er is iets misgegaan. Probeer het opnieuw."
+    },
+    "authGate": {
+      "title": "Log in om u aan te melden",
+      "subtitle": "U heeft een V.O.I.C.E. NL-account nodig om u aan te melden voor een V.Commerce-bedrijfsvermelding.",
+      "signInButton": "Inloggen of account aanmaken",
+      "backButton": "Terug naar V.Commerce"
+    },
+    "statusLoading": "Uw bedrijfsinstellingen worden voorbereid…",
+    "alreadyApplied": {
+      "title": "Status van uw aanmelding",
+      "subtitle": "We hebben uw aanmelding ontvangen. Dit is de huidige stand van zaken:",
+      "pendingNote": "Ons team beoordeelt aanmeldingen binnen 5 werkdagen. We sturen u een e-mail zodra er een beslissing is genomen.",
+      "approvedNote": "Gefeliciteerd! Uw bedrijf is goedgekeurd. Ga naar uw dashboard om uw winkel in te richten.",
+      "signedInAs": "Ingelogd als",
+      "yourAccount": "Uw account",
+      "oneApplicationNote": "Er kan per account maar één aanmelding tegelijk in behandeling zijn. Wilt u zich met een ander account aanmelden voor een ander bedrijf, log dan uit en ga verder met dat account.",
+      "switchAccountButton": "Uitloggen en ander account gebruiken",
+      "goToDashboard": "Naar mijn bedrijfsdashboard",
+      "backToVCommerce": "Terug naar V.Commerce"
+    },
+    "header": {
+      "backLink": "← Terug naar V.Commerce",
+      "title": "Meld u aan bij V.Commerce",
+      "subtitle": "Vermeld uw bedrijf, verkoop producten en diensten en bereik de V.O.I.C.E. NL-gemeenschap. Wekelijks uitgelichte plekken beschikbaar.",
+      "previousNote": "Opmerking bij vorige aanmelding:"
+    },
+    "step0": {
+      "applicantTypeLabel": "Ik meld me aan als…",
+      "communityMember": {
+        "title": "Gemeenschapslid",
+        "desc": "Onafhankelijke, lokale en door de gemeenschap geleide bedrijven. Lidmaatschap is niet vereist."
+      },
+      "sponsor": {
+        "title": "Sponsor / bedrijf",
+        "desc": "Merken, distributeurs en bedrijven die aan onze gemeenschap verkopen (geen lidmaatschap vereist)"
+      },
+      "businessName": { "label": "Bedrijfsnaam *", "placeholder": "bijv. Aisha's Artisan Skincare" },
+      "category": { "label": "Categorie *", "placeholder": "Selecteer een categorie…" },
+      "tagline": { "label": "Tagline", "placeholder": "Eén zin die uw merk samenvat" },
+      "description": { "label": "Bedrijfsomschrijving *", "placeholder": "Vertel ons over uw bedrijf, wat u aanbiedt en wat het bijzonder maakt…" }
+    },
+    "step1": {
+      "kicker": "Kies hoe u verkoopt",
+      "title": "Uw winkel, op uw manier",
+      "intro": "Geen website? Geen probleem. V.Commerce kan uw volledige online winkel worden.",
+      "billingAriaLabel": "Factureringscyclus",
+      "monthly": "Maandelijks",
+      "annual": "Jaarlijks · bespaar meer",
+      "mostPopular": "Meest gekozen",
+      "perMonth": "/maand",
+      "perYear": "/jaar",
+      "foundingOffer": "Founding-aanbieding vanaf {{amount}}/maand",
+      "feeNoticeStrong": "Eenvoudig en transparant:",
+      "feeNoticeText": "V.Commerce houdt 5% in, uitsluitend op verkopen die via onze checkout worden afgerond. Uitbetalingen aan verkopers worden doorgaans gestart op de vijfde werkdag na een geslaagde betaling."
+    },
+    "step2": {
+      "contactEmail": { "label": "E-mailadres voor contact *", "placeholder": "bedrijf@voorbeeld.com" },
+      "contactPhone": { "label": "Telefoon / WhatsApp", "placeholder": "+31 6 12345678" },
+      "website": { "label": "Website", "placeholder": "https://uwwebsite.com" },
+      "socialMediaLabel": "Social media (optioneel)",
+      "social": {
+        "instagram": { "label": "Instagram", "placeholder": "instagram.com/uwbedrijf" },
+        "facebook": { "label": "Facebook", "placeholder": "facebook.com/uwbedrijf" },
+        "linkedin": { "label": "LinkedIn", "placeholder": "linkedin.com/in/u" },
+        "tiktok": { "label": "TikTok", "placeholder": "tiktok.com/@u" },
+        "whatsapp": { "label": "WhatsApp", "placeholder": "+31 6 12345678" }
+      }
+    },
+    "step3": {
+      "kicker": "Bijna klaar",
+      "title": "Hoe willen we u uitbetalen?",
+      "intro": "Dit wordt gebruikt om uw marktplaats-uitbetalingen in te stellen met Stripe, onze betaalpartner. Deze gegevens blijven privé en worden nooit op uw winkelpagina getoond."
+    },
+    "step4": {
+      "messageLabel": "Waarom wilt u zich aansluiten bij V.Commerce? *",
+      "messagePlaceholder": "Vertel ons over uw doelen, uw band met de gemeenschap en wat u met V.Commerce hoopt te bereiken…",
+      "summary": {
+        "title": "Controleer uw aanmelding",
+        "business": "Bedrijf:",
+        "category": "Categorie:",
+        "email": "E-mail:",
+        "selling": "Verkoop:",
+        "package": "Pakket:"
+      },
+      "termsPrefix": "Door te verzenden gaat u akkoord met de",
+      "termsLink": "V.Commerce Algemene Voorwaarden",
+      "termsSuffix": "Ons team beoordeelt volledige aanmeldingen doorgaans binnen 5 werkdagen. Gehoste V.Commerce-verkopen hebben een transparante platformvergoeding van 5%."
+    },
+    "nav": {
+      "back": "← Terug",
+      "continue": "Doorgaan →",
+      "submitting": "Beveiligde checkout wordt geopend…",
+      "submit": "Doorgaan naar beveiligde betaling"
+    }
+  },
+  "applicationSuccess": {
+    "title": "Aanmelding verzonden!",
+    "subtitlePrefix": "Bedankt voor uw aanmelding bij V.Commerce — V.O.I.C.E. NL Business Spotlight. Ons team beoordeelt uw aanmelding en neemt binnen",
+    "subtitleStrong": "5 werkdagen",
+    "steps": {
+      "reviewed": "Aanmelding beoordeeld door ons team",
+      "approvalEmail": "U ontvangt een goedkeuringsmail",
+      "setupStorefront": "Richt uw winkel in & voeg producten toe",
+      "startSelling": "Begin met verkopen aan de V.O.I.C.E. NL-gemeenschap"
+    },
+    "exploreButton": "Ontdek V.Commerce",
+    "dashboardButton": "Naar mijn dashboard"
+  },
+  "payoutForm": {
+    "countries": {
+      "NL": "Nederland",
+      "BE": "België",
+      "DE": "Duitsland"
+    },
+    "address": {
+      "street": { "label": "Straat", "placeholder": "Prinsengracht" },
+      "houseNumber": { "label": "Huisnummer", "placeholder": "12" },
+      "postalCode": { "label": "Postcode", "placeholder": "1015 DX" },
+      "city": { "label": "Plaats", "placeholder": "Amsterdam" },
+      "country": { "label": "Land" }
+    },
+    "entityQuestion": {
+      "label": "Hoe bent u geregistreerd? *",
+      "help": "Dit bepaalt wat Stripe (onze betaalpartner) nodig heeft om u te verifiëren en uw uitbetalingen correct te routeren."
+    },
+    "entityOptions": {
+      "individual": { "title": "Zelfstandige / freelancer", "desc": "Geen geregistreerd bedrijf — u handelt onder uw eigen naam." },
+      "company": { "title": "Geregistreerd bedrijf", "desc": "U heeft een KvK-registratie (Kamer van Koophandel)." }
+    },
+    "companyDetailsLabel": "Bedrijfsgegevens",
+    "identityDetailsLabel": "Uw identiteitsgegevens",
+    "representativeLabel": "De persoon die dit account beheert (meestal uzelf)",
+    "companyLegalName": {
+      "label": "Wettelijke bedrijfsnaam *",
+      "help": "De geregistreerde naam op uw KvK-uittreksel — kan afwijken van de weergavenaam van uw winkel.",
+      "example": "De Groene Winkel B.V."
+    },
+    "kvkNumber": {
+      "label": "KvK-nummer *",
+      "help": "Uw 8-cijferige Kamer van Koophandel-nummer. Te vinden op uw KvK-uittreksel of via kvk.nl/zoeken.",
+      "example": "68750110"
+    },
+    "vatNumber": {
+      "label": "Btw-nummer",
+      "help": "Begint met NL, eindigt met B + 2 cijfers. Te vinden op uw KvK-uittreksel of belastingcorrespondentie. Laat leeg indien btw-vrijgesteld.",
+      "example": "NL123456789B01"
+    },
+    "legalName": {
+      "label": "Wettelijke volledige naam *",
+      "help": "Uw naam precies zoals vermeld op uw identiteitsbewijs — geen bijnaam of handelsnaam.",
+      "example": "Fatima El Amrani"
+    },
+    "dob": {
+      "label": "Geboortedatum *",
+      "help": "Wordt uitsluitend gebruikt voor identiteitsverificatie bij onze betaalpartner Stripe. Nooit publiekelijk zichtbaar."
+    },
+    "nationality": {
+      "label": "Nationaliteit",
+      "help": "Zoals vermeld op uw identiteitsbewijs.",
+      "example": "Nederlandse"
+    },
+    "addressSection": {
+      "representativeLabel": "Adres van de vertegenwoordiger *",
+      "homeLabel": "Woonadres *",
+      "help": "Waar u staat ingeschreven — moet overeenkomen met uw identiteitsbewijs, niet met het adres van uw winkel.",
+      "example": "Prinsengracht 12, 1015 DX Amsterdam"
+    },
+    "bankSectionLabel": "Bankrekening voor uitbetalingen",
+    "bankHolder": {
+      "label": "Naam rekeninghouder *",
+      "help": "Moet exact overeenkomen met de wettelijke naam hierboven, anders wijst Stripe de rekening af."
+    },
+    "iban": {
+      "label": "IBAN *",
+      "help": "Uw zakelijke of persoonlijke bankrekening. Wij slaan het volledige nummer nooit op — alleen Stripe doet dat.",
+      "example": "NL91 ABNA 0417 1643 00",
+      "placeholder": "NL91 ABNA 0417 1643 00"
+    },
+    "ibanStatus": {
+      "verifying": "Wordt geverifieerd bij Stripe…",
+      "verified": "Geverifieerd ✓ — klik om een andere rekening in te voeren"
+    },
+    "errors": {
+      "stripeNotConfigured": "Beveiligde betalingen zijn op dit moment niet beschikbaar — probeer het straks opnieuw.",
+      "ibanVerificationFailed": "Deze IBAN kon niet worden geverifieerd."
+    },
+    "payoutNote": "💡 Dat is alles wat we nodig hebben. Na goedkeuring rondt u nog één laatste stap rechtstreeks bij Stripe af — een foto van uw identiteitsbewijs — de rest is dan al voor u ingevuld."
+  },
+  "wholesalerRegister": {
+    "companyTypes": {
+      "groceryStore": "Kruidenier / Supermarkt",
+      "distributor": "Distributeur / Groothandel",
+      "retailer": "Detailhandel / Winkel",
+      "restaurant": "Restaurant / Catering",
+      "hotel": "Hotel / Horeca",
+      "other": "Overig"
+    },
+    "countries": {
+      "NL": "Nederland",
+      "BE": "België",
+      "DE": "Duitsland",
+      "FR": "Frankrijk",
+      "GB": "Verenigd Koninkrijk",
+      "OTHER": "Overig"
+    },
+    "validation": {
+      "companyNameRequired": "Bedrijfsnaam is verplicht.",
+      "companyTypeRequired": "Selecteer een bedrijfstype.",
+      "contactEmailRequired": "E-mailadres voor contact is verplicht.",
+      "cityRequired": "Plaats is verplicht."
+    },
+    "registrationFailed": "Registratie mislukt. Probeer het opnieuw.",
+    "authGate": {
+      "title": "Log in om u als groothandelaar te registreren",
+      "text": "U heeft een account nodig om u aan te melden voor een groothandelaccount.",
+      "signInButton": "Inloggen & doorgaan"
+    },
+    "steps": {
+      "businessInfo": "Bedrijfsgegevens",
+      "contactAddress": "Contact & adres"
+    },
+    "title": "Registreer als groothandelaar",
+    "subtitle": "Sluit u aan bij de V.O.I.C.E. NL-marktplaats voor toegang tot bulkprijzen en groothandelscatalogi van onze sponsors.",
+    "step0": {
+      "companyName": "Bedrijfsnaam",
+      "companyType": "Bedrijfstype",
+      "selectType": "Selecteer type…",
+      "kvkNumber": "Kamer van Koophandel / KvK-nummer",
+      "vatNumber": "Btw-nummer",
+      "vatNumberPlaceholder": "bijv. NL123456789B01",
+      "website": "Website (optioneel)",
+      "nextButton": "Volgende: contact & adres"
+    },
+    "step1": {
+      "contactEmail": "E-mailadres voor contact",
+      "contactPhone": "Telefoon",
+      "street": "Straatadres",
+      "city": "Plaats",
+      "postcode": "Postcode",
+      "country": "Land",
+      "backButton": "Terug",
+      "submitButton": "Aanmelding verzenden",
+      "submitting": "Bezig met verzenden…"
+    }
+  },
+  "wholesalerRegisterSuccess": {
+    "title": "Aanmelding ontvangen!",
+    "text": "Uw aanmelding voor een groothandelaccount is verzonden. Ons team beoordeelt deze en neemt binnen 1–2 werkdagen contact met u op.",
+    "steps": {
+      "underReview": "Aanmelding in behandeling",
+      "approvalEmail": "Goedkeuringsmelding per e-mail",
+      "accessPricing": "Toegang tot groothandelsprijzen & bulkbestellingen"
+    },
+    "browseMarketplace": "Bekijk marktplaats",
+    "goToDashboard": "Naar dashboard"
+  },
+  "portal": {
+    "tabs": {
+      "overview": "Overzicht",
+      "products": "Producten",
+      "orders": "Bestellingen",
+      "payouts": "Uitbetalingen",
+      "promote": "Promoten",
+      "settings": "Instellingen",
+      "import": "Importeren"
+    },
+    "main": {
+      "loadError": "Uw bedrijf kon niet worden geladen.",
+      "noBusiness": {
+        "title": "Geen bedrijf gevonden",
+        "fallbackText": "U heeft nog geen goedgekeurde V.Commerce-vermelding.",
+        "applyButton": "Nu aanmelden",
+        "backButton": "Terug naar dashboard"
+      },
+      "title": "Mijn bedrijf",
+      "backToDashboard": "Terug naar dashboard",
+      "businessHub": "Bedrijvenhub",
+      "viewPublicPage": "Bekijk openbare pagina ↗"
+    },
+    "overview": {
+      "kicker": "V.Commerce verkoopstudio",
+      "defaultSellingModeName": "Gehost door V.Commerce",
+      "heroTextWithWebsite": "Gebruik uw V.Commerce-winkel naast uw bestaande website.",
+      "heroTextNoWebsite": "Uw complete winkel, checkout en orderbeheer — geen aparte website nodig.",
+      "defaultPlanName": "Starter",
+      "packageSuffix": "pakket",
+      "feePerSale": "5% per gehoste verkoop",
+      "payoutTarget": "Uitbetalingsdoel binnen 5 werkdagen",
+      "packageAction": {
+        "activateTitle": "Activeer uw {{plan}}-pakket",
+        "activateText": "Uw vermelding kan tijdens de proefperiode worden voorbereid; pakketbetaling activeert doorlopende toegang tot de marktplaats.",
+        "activateButton": "Doorgaan naar beveiligde betaling →",
+        "checkoutError": "Pakketbetaling kon niet worden gestart."
+      },
+      "reviewPending": {
+        "title": "Ingediend voor verificatie",
+        "text": "Uw werkomgeving blijft privé terwijl ons team de volledige bedrijfsgegevens beoordeelt."
+      },
+      "onboarding": {
+        "kicker": "Betaalde werkomgeving · privé instellen",
+        "title": "Rond uw winkel af voor verificatie",
+        "text": "Uw bedrijf wordt pas openbaar zichtbaar nadat u deze gegevens heeft ingediend en een beheerder ze heeft goedgekeurd.",
+        "progress": "{{count}}/4 gereed",
+        "reviewFeedback": "Beoordelingsfeedback:",
+        "checklist": {
+          "packagePaymentLabel": "Pakketbetaling",
+          "packagePaymentDetail": "Beveiligd abonnement actief",
+          "logoLabel": "Logo en merk",
+          "logoDetail": "Voeg uw logo en merkverhaal toe in Instellingen",
+          "contactLabel": "Contact- en verkoopinstellingen",
+          "contactDetail": "Bevestig hoe klanten bij u kopen",
+          "productsLabel": "Producten of diensten"
+        },
+        "availableListings_one": "{{count}} beschikbare vermelding",
+        "availableListings_other": "{{count}} beschikbare vermeldingen",
+        "submitButton": "Volledig bedrijf indienen voor verificatie",
+        "submitting": "Uw winkel wordt gecontroleerd…",
+        "submitSuccess": "Uw volledige bedrijf is ingediend voor verificatie.",
+        "submitError": "Uw bedrijf kon niet worden ingediend voor beoordeling."
+      },
+      "stats": {
+        "totalRevenue": "Totale omzet",
+        "pendingPayout": "Uitbetaling in behandeling",
+        "totalPaidOut": "Totaal uitbetaald",
+        "totalOrders": "Totaal aantal bestellingen"
+      },
+      "businessCard": {
+        "title": "Uw bedrijf",
+        "featuredThisWeek": "⭐ Deze week uitgelicht",
+        "reviewsBadge": "★ {{rating}} ({{count}} beoordelingen)",
+        "viewPublicPage": "Bekijk openbare pagina ↗"
+      },
+      "cards": {
+        "feeTitle": "V.Commerce-vergoeding",
+        "feeSub": "Alleen op gehoste checkout-verkopen",
+        "scheduleTitle": "Uitbetalingsschema",
+        "scheduleValue": "5 dagen",
+        "scheduleSub": "Normaal gestart na betaling",
+        "cashbackTitle": "Cashback voor klanten",
+        "cashbackSub": "Bijgeschreven op V.Wallet",
+        "minOrderTitle": "Min. bestelwaarde",
+        "minOrderSub": "Minimale mandwaarde per bestelling"
+      },
+      "referral": {
+        "title": "Uw V.Commerce-winkellink",
+        "text": "Deel deze link zodat klanten uw producten kunnen vinden en veilig kunnen kopen via uw gehoste winkel.",
+        "copyButton": "Kopiëren",
+        "copiedButton": "Gekopieerd!"
+      }
+    },
+    "bulkPricing": {
+      "toggleLabel": "Bulkprijsstaffels",
+      "tierCount_one": "({{count}} staffel)",
+      "tierCount_other": "({{count}} staffels)",
+      "minOrderQty": "Min. bestelaantal",
+      "maxOrderQty": "Max. bestelaantal (leeg = onbeperkt)",
+      "tiersLabel": "Prijsstaffels (lagere stukprijs bij hogere aantallen)",
+      "noTiers": "Nog geen staffels. Kopers betalen de basisprijs.",
+      "minQtyPlaceholder": "Min. aantal",
+      "pricePlaceholder": "Prijs (€)",
+      "addTier": "+ Staffel toevoegen",
+      "saveButton": "Bulkprijzen opslaan",
+      "saving": "Bezig met opslaan…",
+      "saveSuccess": "Bulkprijzen opgeslagen.",
+      "saveError": "Fout bij opslaan van prijzen."
+    },
+    "products": {
+      "title": "Uw producten & diensten",
+      "addButton": "+ Product toevoegen",
+      "addSuccess": "Product toegevoegd.",
+      "updateSuccess": "Product bijgewerkt.",
+      "saveError": "Fout bij opslaan van product.",
+      "deleteConfirm": "Dit product verwijderen? Dit kan niet ongedaan worden gemaakt.",
+      "deleteSuccess": "Product verwijderd.",
+      "deleteError": "Fout bij verwijderen van product.",
+      "loading": "Laden…",
+      "empty": {
+        "text": "Nog geen producten. Voeg uw eerste product toe!",
+        "button": "Product toevoegen"
+      },
+      "table": {
+        "name": "Naam",
+        "type": "Type",
+        "price": "Prijs",
+        "bulkTiers": "Bulkstaffels",
+        "stock": "Voorraad",
+        "available": "Beschikbaar",
+        "actions": "Acties"
+      },
+      "bulkTiersBadge_one": "🏷️ {{count}} staffel",
+      "bulkTiersBadge_other": "🏷️ {{count}} staffels",
+      "yes": "Ja",
+      "no": "Nee",
+      "editButton": "Bewerken",
+      "deleteButton": "Verwijderen",
+      "modal": {
+        "addTitle": "Product toevoegen",
+        "editTitle": "Product bewerken",
+        "nameLabel": "Naam *",
+        "typeLabel": "Type *",
+        "typeService": "Dienst",
+        "typePhysical": "Fysiek product",
+        "typeDigital": "Digitaal product",
+        "descriptionLabel": "Omschrijving",
+        "priceLabel": "Prijs (€) *",
+        "stockLabel": "Voorraad (leeg = onbeperkt)",
+        "deliveryLabel": "Leverinformatie",
+        "deliveryPlaceholder": "bijv. Verzonden binnen 3-5 dagen",
+        "availableCheckbox": "Beschikbaar voor aankoop",
+        "saveButton": "Opslaan",
+        "cancelButton": "Annuleren"
+      }
+    },
+    "orders": {
+      "filters": {
+        "all": "Alle",
+        "paid": "Betaald",
+        "fulfilled": "Afgehandeld",
+        "pending": "In behandeling",
+        "cancelled": "Geannuleerd"
+      },
+      "fulfillSuccess": "Bestelling gemarkeerd als afgehandeld.",
+      "genericError": "Fout.",
+      "loading": "Laden…",
+      "empty": "Geen bestellingen gevonden.",
+      "itemCount_one": "{{count}} item",
+      "itemCount_other": "{{count}} items",
+      "youReceive": "U ontvangt {{amount}}",
+      "markFulfilledButton": "Markeer als afgehandeld",
+      "modal": {
+        "title": "Bestelling markeren als afgehandeld",
+        "subtitle": "Bestelling #{{id}} · {{amount}}",
+        "noteLabel": "Notitie voor klant (optioneel)",
+        "notePlaceholder": "bijv. Verzonden via PostNL, track & trace: ...",
+        "confirmButton": "Bevestigen",
+        "cancelButton": "Annuleren"
+      },
+      "table": {
+        "order": "Bestelling",
+        "customer": "Klant",
+        "items": "Items",
+        "total": "Totaal",
+        "status": "Status",
+        "date": "Datum",
+        "actions": "Acties"
+      }
+    },
+    "payouts": {
+      "kicker": "Veilige uitbetalingen voor verkopers",
+      "needsRegistration": {
+        "title": "Rond uw uitbetalingsgegevens af",
+        "text": "We hebben enkele identiteits- en bankgegevens nodig voordat u uitbetalingen via Stripe kunt instellen.",
+        "showButton": "Gegevens invullen",
+        "hideButton": "Verbergen"
+      },
+      "almostReady": {
+        "title": "Uitbetalingen zijn bijna gereed",
+        "text": "Uw gegevens zijn opgeslagen. We ronden de instelling met onze betaalpartner aan onze kant af — we e-mailen u zodra u de verificatie kunt voltooien en uitbetalingen kunt ontvangen."
+      },
+      "ready": {
+        "titleReady": "Uw uitbetalingsaccount is gereed",
+        "titleNotReady": "Koppel uw bankrekening",
+        "textReady": "Identiteits- en uitbetalingsgegevens zijn geverifieerd via Stripe.",
+        "textNotReady": "Rond veilige identiteits- en bankverificatie af voordat u marktplaatsinkomsten ontvangt.",
+        "manageButton": "Beheren in Stripe ↗",
+        "continueVerificationButton": "Verificatie voortzetten",
+        "setupButton": "Uitbetalingen instellen",
+        "opening": "Wordt geopend…"
+      },
+      "errors": {
+        "connectStartFailed": "Het beveiligd instellen van uitbetalingen kon niet worden gestart.",
+        "dashboardOpenFailed": "Stripe kon niet worden geopend.",
+        "registrationSaveFailed": "Uw uitbetalingsgegevens konden niet worden opgeslagen."
+      },
+      "saveButton": "Uitbetalingsgegevens opslaan",
+      "saving": "Bezig met opslaan…",
+      "balance": {
+        "available": "Beschikbaar in Stripe",
+        "pending": "In behandeling bij Stripe",
+        "schedule": "Uitbetalingsschema",
+        "scheduleDefault": "Standaard van Stripe"
+      },
+      "requirementsDue": "Stripe heeft meer informatie nodig: {{list}}.",
+      "infoNote": "💡 Stripe stuurt in aanmerking komende inkomsten automatisch naar uw geverifieerde bankrekening volgens uw Stripe-uitbetalingsschema. Terugbetalingen, geschillen, verificatie of fraudecontroles kunnen een uitbetaling vertragen.",
+      "loading": "Laden…",
+      "empty": "Nog geen uitbetalingen.",
+      "table": {
+        "created": "Aangemaakt",
+        "arrival": "Verwachte aankomst",
+        "amount": "Bedrag",
+        "status": "Status",
+        "reference": "Referentie / bank"
+      }
+    },
+    "promotions": {
+      "kicker": "Betaalbare zichtbaarheid",
+      "title": "Breng uw bedrijf onder de aandacht van meer klanten",
+      "text": "Kies een gerichte boost wanneer dat uw bedrijf helpt. Geen nieuwsbriefbundels en geen lange verplichtingen.",
+      "requestButton": "Promotie aanvragen →",
+      "requestTooltip": "Promotie-checkout wordt ingeschakeld na goedkeuring door een beheerder"
+    },
+    "import": {
+      "genericFailure": "Importeren mislukt.",
+      "fileTooLarge": "Bestand te groot (max. 10 MB).",
+      "readError": "Bestand kon niet worden gelezen: {{error}}",
+      "templateDownloadError": "Sjabloon kon niet worden gedownload: {{error}}",
+      "title": "Producten bulk importeren",
+      "subtitle": "Upload een Excel-bestand om in bulk producten aan te maken of bij te werken.",
+      "templateButton": "↓ Sjabloon downloaden",
+      "downloading": "Bezig met downloaden…",
+      "dropzone": {
+        "placeholder": "Sleep .xlsx of .csv hierheen",
+        "hint": "of klik om te bladeren · max. 10 MB"
+      },
+      "rowsDetected_one": "{{count}} rij gevonden",
+      "rowsDetected_other": "{{count}} rijen gevonden",
+      "clearButton": "Wissen",
+      "importButton_one": "{{count}} product importeren",
+      "importButton_other": "{{count}} producten importeren",
+      "importing": "Bezig met importeren…",
+      "result": {
+        "failed": "Importeren mislukt: {{error}}",
+        "complete": "Importeren voltooid — {{imported}} product(en) geïmporteerd, {{skipped}} overgeslagen",
+        "rowError": "Rij {{row}}: {{message}}"
+      },
+      "history": {
+        "title": "Importgeschiedenis",
+        "loading": "Laden…",
+        "empty": "Nog geen imports.",
+        "table": {
+          "file": "Bestand",
+          "imported": "Geïmporteerd",
+          "errors": "Fouten",
+          "date": "Datum"
+        }
+      }
+    },
+    "settings": {
+      "saveSuccess": "Profiel succesvol bijgewerkt.",
+      "saveError": "Fout bij opslaan.",
+      "brandImages": {
+        "title": "Merkafbeeldingen",
+        "logoLabel": "Logo (vierkant, 1:1)",
+        "bannerLabel": "Banner (breed, 3:1 aanbevolen)"
+      },
+      "imageUpload": {
+        "uploading": "Bezig met uploaden…",
+        "changeImage": "Afbeelding wijzigen",
+        "uploadImage": "Afbeelding uploaden",
+        "removeButton": "Verwijderen",
+        "noBanner": "🖼️ Geen banner",
+        "uploadError": "Uploaden mislukt."
+      },
+      "publicProfile": {
+        "title": "Openbaar profiel",
+        "taglineLabel": "Tagline",
+        "descriptionLabel": "Omschrijving",
+        "contactEmailLabel": "E-mailadres voor contact",
+        "contactPhoneLabel": "Telefoonnummer voor contact",
+        "websiteLabel": "Website",
+        "websitePlaceholder": "https://uwwebsite.com",
+        "sellingModeLabel": "Verkoopinstellingen"
+      },
+      "socialLinks": {
+        "title": "Social media-links",
+        "text": "Voer volledige URL's of alleen gebruikersnamen in (we voegen zo nodig https:// toe).",
+        "instagram": "Instagram",
+        "instagramPlaceholder": "@uwgebruikersnaam",
+        "facebook": "Facebook",
+        "facebookPlaceholder": "facebook.com/uwpagina",
+        "linkedin": "LinkedIn",
+        "linkedinPlaceholder": "linkedin.com/in/u",
+        "tiktok": "TikTok",
+        "tiktokPlaceholder": "@uwtiktok",
+        "whatsapp": "WhatsApp",
+        "whatsappPlaceholder": "+31 6 12345678"
+      },
+      "bankDetails": {
+        "title": "Bankgegevens voor uitbetalingen",
+        "connectedTextPrefix": "Uw uitbetalingen worden automatisch via Stripe verwerkt — beheer uw bankrekening via het tabblad",
+        "connectedTextStrong": "Uitbetalingen",
+        "connectedTextSuffix": "in plaats hiervan.",
+        "notConnectedText": "Vereist voor het ontvangen van handmatige SEPA-overboekingen van V.O.I.C.E. NL, totdat u de Stripe-uitbetalingsinstelling in het tabblad Uitbetalingen heeft voltooid.",
+        "accountHolderLabel": "Naam rekeninghouder",
+        "accountHolderPlaceholder": "Wettelijke naam zoals op de bankrekening",
+        "ibanLabel": "IBAN",
+        "ibanPlaceholder": "NL00 BANK 0000 0000 00",
+        "bankNameLabel": "Banknaam",
+        "bankNamePlaceholder": "ING, Rabobank, ABN AMRO…"
+      },
+      "saveButton": "Wijzigingen opslaan",
+      "saving": "Bezig met opslaan…"
+    }
+  },
+  "wholesalerPortal": {
+    "status": {
+      "pending": "In behandeling",
+      "approved": "Goedgekeurd",
+      "suspended": "Geschorst"
+    },
+    "tabs": {
+      "overview": "Overzicht",
+      "orderHistory": "Bestelgeschiedenis"
+    },
+    "reorder": {
+      "success": "Winkelwagen geladen — ga naar de marktplaats om af te rekenen.",
+      "error": "Herbestelling kon niet worden geladen."
+    },
+    "registrationRequired": {
+      "title": "Groothandelaccount vereist",
+      "text": "Registreer als groothandelaar voor toegang tot bulkprijzen en het groothandelsportaal.",
+      "button": "Registreren als groothandelaar"
+    },
+    "pendingReview": {
+      "title": "Aanmelding in behandeling",
+      "text": "Uw groothandelsaanmelding voor {{companyName}} wordt beoordeeld. U ontvangt een e-mail zodra deze is goedgekeurd.",
+      "button": "Bekijk marktplaats"
+    },
+    "browseMarketplace": "Bekijk marktplaats",
+    "companyDetails": {
+      "title": "Bedrijfsgegevens",
+      "companyName": "Bedrijfsnaam",
+      "type": "Type",
+      "kvk": "KvK / registratie",
+      "vat": "Btw-nummer",
+      "status": "Status",
+      "memberSince": "Lid sinds"
+    },
+    "contactAddress": {
+      "title": "Contact & adres",
+      "email": "E-mail",
+      "phone": "Telefoon",
+      "website": "Website",
+      "location": "Locatie"
+    },
+    "orders": {
+      "empty": "Nog geen bestellingen.",
+      "table": {
+        "order": "Bestelling",
+        "seller": "Verkoper",
+        "items": "Items",
+        "total": "Totaal",
+        "status": "Status",
+        "date": "Datum"
+      },
+      "reorderButton": "Opnieuw bestellen"
+    },
+    "pagination": {
+      "prev": "← Vorige",
+      "page": "Pagina {{page}}",
+      "next": "Volgende →"
+    }
+  }
+}

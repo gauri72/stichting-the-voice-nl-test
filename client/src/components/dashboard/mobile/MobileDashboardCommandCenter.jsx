@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   IconArrowRight,
   IconBuildingStore,
@@ -65,6 +66,7 @@ function formatMoney(minor = 0) {
 }
 
 function MobileSheet({ title, onClose, children }) {
+  const { t } = useTranslation(["dashboardMobile"]);
   useEffect(() => {
     const previous = document.body.style.overflow;
     const onKeyDown = (event) => event.key === "Escape" && onClose();
@@ -90,7 +92,7 @@ function MobileSheet({ title, onClose, children }) {
             <span>V.O.I.C.E. NL</span>
             <h2 id="mobile-dash-sheet-title">{title}</h2>
           </div>
-          <button type="button" onClick={onClose} aria-label={`Close ${title}`}>
+          <button type="button" onClick={onClose} aria-label={t("dashboardMobile:commandCenter.sheet.closeAria", { title })}>
             <IconX aria-hidden />
           </button>
         </header>
@@ -129,6 +131,7 @@ export default function MobileDashboardCommandCenter({
   validUntil,
   qrSrc,
 }) {
+  const { t } = useTranslation(["dashboardMobile"]);
   const { wallet, loadWallet } = useWallet();
   const { openAssistant } = useAiAssistant();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -192,7 +195,7 @@ export default function MobileDashboardCommandCenter({
     });
   }, [loadWallet]);
 
-  const firstName = String(displayName || "Member").trim().split(/\s+/)[0];
+  const firstName = String(displayName || t("dashboardMobile:commandCenter.hero.memberFallback")).trim().split(/\s+/)[0];
   const ticketCount = useMemo(
     () => bookings.reduce((sum, booking) => sum + Number(booking.ticketCount || booking.tickets?.length || 0), 0),
     [bookings],
@@ -204,21 +207,21 @@ export default function MobileDashboardCommandCenter({
   const eventCount = overview?.events?.count ?? 0;
   const sponsorshipCount = overview?.sponsorships?.count ?? 0;
   const membershipLabel = membershipBadgeLabel(planShort);
-  const membershipTier = String(planShort || "Member").replace(/\s+(Family|Single)$/i, "") || "Member";
+  const membershipTier = String(planShort || t("dashboardMobile:commandCenter.hero.memberFallback")).replace(/\s+(Family|Single)$/i, "") || t("dashboardMobile:commandCenter.hero.memberFallback");
   const membershipVariant = String(planShort || "").match(/\b(Family|Single)\b/i)?.[1] || "";
 
   const cards = [
-    { id: "profile", title: "Profile & Settings", value: "Manage Account", tone: "cyan", to: "/dashboard/profile" },
-    { id: "donations", title: "My Donations", value: donationLabel, tone: "pink", to: "/dashboard/donations" },
-    { id: "sponsorships", title: "Sponsorships", value: `${sponsorshipCount} Contribution${sponsorshipCount === 1 ? "" : "s"}`, tone: "violet", to: "/dashboard/sponsorships" },
+    { id: "profile", title: t("dashboardMobile:commandCenter.cards.profile.title"), value: t("dashboardMobile:commandCenter.cards.profile.value"), tone: "cyan", to: "/dashboard/profile" },
+    { id: "donations", title: t("dashboardMobile:commandCenter.cards.donations.title"), value: donationLabel, tone: "pink", to: "/dashboard/donations" },
+    { id: "sponsorships", title: t("dashboardMobile:commandCenter.cards.sponsorships.title"), value: t("dashboardMobile:commandCenter.cards.sponsorships.value", { count: sponsorshipCount }), tone: "violet", to: "/dashboard/sponsorships" },
     {
       id: "referral",
-      title: "Referral Code",
-      value: referral?.referralCode?.code || "Invite & Earn",
+      title: t("dashboardMobile:commandCenter.cards.referral.title"),
+      value: referral?.referralCode?.code || t("dashboardMobile:commandCenter.cards.referral.value"),
       tone: "gold",
       onClick: () => openSheet("referral"),
     },
-    ...(isBusinessOwner ? [{ id: "business", title: "Business Hub", value: "Manage Listings", tone: "green", to: "/dashboard/vcommerce" }] : []),
+    ...(isBusinessOwner ? [{ id: "business", title: t("dashboardMobile:commandCenter.cards.business.title"), value: t("dashboardMobile:commandCenter.cards.business.value"), tone: "green", to: "/dashboard/vcommerce" }] : []),
   ];
 
   const featuredShopUrl = featuredBusiness?.slug
@@ -236,7 +239,7 @@ export default function MobileDashboardCommandCenter({
     try {
       await task();
     } catch (error) {
-      setMembershipActionMessage(error.message || "This membership action is temporarily unavailable.");
+      setMembershipActionMessage(error.message || t("dashboardMobile:commandCenter.membershipSheet.actionUnavailable"));
     } finally {
       setMembershipAction("");
     }
@@ -251,26 +254,26 @@ export default function MobileDashboardCommandCenter({
         </picture>
         <div className="mobile-dash-hero__scrim" />
         <button type="button" className="mobile-dash-hero__assist" onClick={openAssistant}
-          aria-label="Open V.Assist, your AI community concierge">
+          aria-label={t("dashboardMobile:commandCenter.hero.assistAria")}>
           <IconRobot aria-hidden />
-          <span>V.Assist</span>
+          <span>{t("dashboardMobile:commandCenter.hero.assist")}</span>
         </button>
         <div className="mobile-dash-hero__content">
-          <p>Welcome back</p>
+          <p>{t("dashboardMobile:commandCenter.hero.welcomeBack")}</p>
           <h1 id="mobile-dash-name">{firstName}</h1>
           <span className="mobile-dash-hero__membership"><IconCrown aria-hidden /> {membershipLabel}</span>
-          <div className="mobile-dash-hero__metrics" aria-label="Member account summary">
-            <button type="button" className="mobile-dash-hero__metric mobile-dash-hero__metric--rewards" onClick={() => openSheet("rewards")} aria-label={`Open Rewards Center, ${rewards} points`}>
-              <IconSparkles aria-hidden /><b>{rewards}</b><small>Points</small><IconArrowRight className="mobile-dash-hero__metric-arrow" aria-hidden />
+          <div className="mobile-dash-hero__metrics" aria-label={t("dashboardMobile:commandCenter.hero.metricsAria")}>
+            <button type="button" className="mobile-dash-hero__metric mobile-dash-hero__metric--rewards" onClick={() => openSheet("rewards")} aria-label={t("dashboardMobile:commandCenter.hero.rewardsAria", { count: rewards })}>
+              <IconSparkles aria-hidden /><b>{rewards}</b><small>{t("dashboardMobile:commandCenter.hero.pointsLabel")}</small><IconArrowRight className="mobile-dash-hero__metric-arrow" aria-hidden />
             </button>
-            <Link className="mobile-dash-hero__metric mobile-dash-hero__metric--wallet" to="/dashboard/wallet" aria-label={`Open V.Wallet, balance ${formatMoney(balance)}`}>
-              <IconWallet aria-hidden /><b>{formatMoney(balance)}</b><small>V.Wallet</small><IconArrowRight className="mobile-dash-hero__metric-arrow" aria-hidden />
+            <Link className="mobile-dash-hero__metric mobile-dash-hero__metric--wallet" to="/dashboard/wallet" aria-label={t("dashboardMobile:commandCenter.hero.walletAria", { balance: formatMoney(balance) })}>
+              <IconWallet aria-hidden /><b>{formatMoney(balance)}</b><small>{t("dashboardMobile:commandCenter.hero.walletLabel")}</small><IconArrowRight className="mobile-dash-hero__metric-arrow" aria-hidden />
             </Link>
-            <button type="button" className="mobile-dash-hero__metric mobile-dash-hero__metric--tickets" onClick={() => openSheet("tickets")} aria-label={`Open My Tickets, ${ticketCount} tickets`}>
-              <IconTicket aria-hidden /><b>{ticketCount}</b><small>Tickets</small><IconArrowRight className="mobile-dash-hero__metric-arrow" aria-hidden />
+            <button type="button" className="mobile-dash-hero__metric mobile-dash-hero__metric--tickets" onClick={() => openSheet("tickets")} aria-label={t("dashboardMobile:commandCenter.hero.ticketsAria", { count: ticketCount })}>
+              <IconTicket aria-hidden /><b>{ticketCount}</b><small>{t("dashboardMobile:commandCenter.hero.ticketsLabel")}</small><IconArrowRight className="mobile-dash-hero__metric-arrow" aria-hidden />
             </button>
-            <button type="button" className="mobile-dash-hero__metric mobile-dash-hero__metric--membership" onClick={() => openSheet("membership")} aria-label={`Open ${membershipLabel}`}>
-              <IconCrown aria-hidden /><b>{membershipTier}</b><small>Membership</small>{membershipVariant ? <em>{membershipVariant} Plan</em> : null}<IconArrowRight className="mobile-dash-hero__metric-arrow" aria-hidden />
+            <button type="button" className="mobile-dash-hero__metric mobile-dash-hero__metric--membership" onClick={() => openSheet("membership")} aria-label={t("dashboardMobile:commandCenter.hero.membershipAria", { label: membershipLabel })}>
+              <IconCrown aria-hidden /><b>{membershipTier}</b><small>{t("dashboardMobile:commandCenter.hero.membershipLabel")}</small>{membershipVariant ? <em>{t("dashboardMobile:commandCenter.hero.planSuffix", { variant: membershipVariant })}</em> : null}<IconArrowRight className="mobile-dash-hero__metric-arrow" aria-hidden />
             </button>
           </div>
         </div>
@@ -280,21 +283,21 @@ export default function MobileDashboardCommandCenter({
         <section className="mobile-dash-next" aria-labelledby="mobile-dash-next-title">
           <img className="mobile-dash-next__image" src={nextEvent?.heroImage || eventFallback} alt="" />
           <span className="mobile-dash-next__scrim" />
-          <div className="mobile-dash-next__badge"><IconCalendarEvent aria-hidden /> Featured Event</div>
+          <div className="mobile-dash-next__badge"><IconCalendarEvent aria-hidden /> {t("dashboardMobile:commandCenter.nextEvent.badge")}</div>
           <div className="mobile-dash-next__content">
             {nextEvent ? (
               <>
                 <h2 id="mobile-dash-next-title">{nextEvent.title}</h2>
-                <p>{nextEvent.dateLabel || nextEvent.date || "Date to be announced"}</p>
+                <p>{nextEvent.dateLabel || nextEvent.date || t("dashboardMobile:commandCenter.nextEvent.dateTba")}</p>
                 <Link className="mobile-dash-next__buy" to={nextEvent.bookingUrl || "/events"}>
-                  Buy Tickets <IconTicket aria-hidden />
+                  {t("dashboardMobile:commandCenter.nextEvent.buyTickets")} <IconTicket aria-hidden />
                 </Link>
               </>
             ) : (
               <>
-                <h2 id="mobile-dash-next-title">Discover your next experience</h2>
-                <p>New community events are added regularly.</p>
-                <Link className="mobile-dash-next__buy" to="/events">Explore Events <IconArrowRight aria-hidden /></Link>
+                <h2 id="mobile-dash-next-title">{t("dashboardMobile:commandCenter.nextEvent.discoverTitle")}</h2>
+                <p>{t("dashboardMobile:commandCenter.nextEvent.discoverBody")}</p>
+                <Link className="mobile-dash-next__buy" to="/events">{t("dashboardMobile:commandCenter.nextEvent.exploreEvents")} <IconArrowRight aria-hidden /></Link>
               </>
             )}
           </div>
@@ -303,27 +306,27 @@ export default function MobileDashboardCommandCenter({
         <section className="mobile-dash-commerce" aria-labelledby="mobile-dash-commerce-title">
           <header>
             <div>
-              <span>Member marketplace</span>
-              <h2 id="mobile-dash-commerce-title">V.Commerce Spotlight</h2>
+              <span>{t("dashboardMobile:commandCenter.commerce.eyebrow")}</span>
+              <h2 id="mobile-dash-commerce-title">{t("dashboardMobile:commandCenter.commerce.title")}</h2>
             </div>
-            <Link to="/vcommerce">Explore All <IconArrowRight aria-hidden /></Link>
+            <Link to="/vcommerce">{t("dashboardMobile:commandCenter.commerce.exploreAll")} <IconArrowRight aria-hidden /></Link>
           </header>
           <Link className="mobile-dash-commerce__feature" to={featuredShopUrl}>
             <img src={featuredImage} alt="" />
             <span className="mobile-dash-commerce__scrim" />
-            <small className="mobile-dash-commerce__featured-badge">Featured community business</small>
+            <small className="mobile-dash-commerce__featured-badge">{t("dashboardMobile:commandCenter.commerce.featuredBadge")}</small>
             <div>
               <strong>{featuredBusiness.name}</strong>
               <span>{featuredBusiness.categoryLabel}</span>
-              <b>Visit Shop <IconArrowRight aria-hidden /></b>
+              <b>{t("dashboardMobile:commandCenter.commerce.visitShop")} <IconArrowRight aria-hidden /></b>
             </div>
           </Link>
           {marketplaceProducts.length ? (
-            <div className="mobile-dash-commerce__offers" aria-label="V.Commerce offers">
+            <div className="mobile-dash-commerce__offers" aria-label={t("dashboardMobile:commandCenter.commerce.offersAria")}>
               {marketplaceProducts.slice(0, 3).map((product) => (
                 <Link key={product.id || product._id} to={product.businessSlug ? `/vcommerce/${product.businessSlug}` : "/vcommerce/businesses"}>
                   {product.imageUrl ? <img src={product.imageUrl} alt="" /> : <IconShoppingBag aria-hidden />}
-                  <span><strong>{product.businessName || product.name}</strong><small>{product.cashbackPercent || 5}% cashback</small></span>
+                  <span><strong>{product.businessName || product.name}</strong><small>{t("dashboardMobile:commandCenter.commerce.cashback", { percent: product.cashbackPercent || 5 })}</small></span>
                 </Link>
               ))}
             </div>
@@ -332,7 +335,7 @@ export default function MobileDashboardCommandCenter({
 
         <section className="mobile-dash-section" aria-labelledby="mobile-dash-overview">
           <div className="mobile-dash-section__heading">
-            <div><span>Member tools</span><h2 id="mobile-dash-overview">More for You</h2></div>
+            <div><span>{t("dashboardMobile:commandCenter.moreForYou.eyebrow")}</span><h2 id="mobile-dash-overview">{t("dashboardMobile:commandCenter.moreForYou.title")}</h2></div>
           </div>
           <div className="mobile-dash-grid">
             {cards.map((card) => <SummaryCard key={card.id} {...card} />)}
@@ -342,33 +345,33 @@ export default function MobileDashboardCommandCenter({
         <button type="button" className="mobile-dash-impact" onClick={() => openSheet("impact")}>
           <span><IconChartDots aria-hidden /></span>
           <div>
-            <small>Your Impact</small>
-            <strong>{eventCount} experiences · {donationLabel} donated · {sponsorshipCount} sponsorships</strong>
-            <p>Thank you for supporting the V.O.I.C.E. NL mission.</p>
+            <small>{t("dashboardMobile:commandCenter.impactBanner.label")}</small>
+            <strong>{t("dashboardMobile:commandCenter.impactBanner.summary", { eventCount, donationLabel, sponsorshipCount })}</strong>
+            <p>{t("dashboardMobile:commandCenter.impactBanner.thanks")}</p>
           </div>
           <IconArrowRight aria-hidden />
         </button>
 
-        <section className="mobile-dash-movement" aria-label="Thank you for being part of the movement">
+        <section className="mobile-dash-movement" aria-label={t("dashboardMobile:commandCenter.movement.ariaLabel")}>
           <span className="mobile-dash-movement__glow" aria-hidden="true" />
           <img src={voiceVMark} alt="" aria-hidden="true" />
           <div>
-            <h2>Thank You For Being <strong>Part Of The Movement</strong></h2>
-            <p>Together we create Experiences. Share Stories. Drive Impact. Spark Innovation.</p>
+            <h2>{t("dashboardMobile:commandCenter.movement.titleLead")} <strong>{t("dashboardMobile:commandCenter.movement.titleAccent")}</strong></h2>
+            <p>{t("dashboardMobile:commandCenter.movement.tagline")}</p>
           </div>
         </section>
       </main>
 
-      <nav className="mobile-dash-nav" aria-label="Member dashboard">
-        <NavLink to="/dashboard" end><IconHome aria-hidden /><span>Home</span></NavLink>
-        <NavLink to="/dashboard/events"><IconCalendarEvent aria-hidden /><span>Events</span></NavLink>
-        <NavLink to="/vcommerce" className="mobile-dash-nav__commerce"><IconShoppingBag aria-hidden /><span>V.Commerce</span></NavLink>
-        <NavLink to="/dashboard/wallet"><IconWallet aria-hidden /><span>Wallet</span></NavLink>
-        <NavLink to="/dashboard/profile"><IconUser aria-hidden /><span>Profile</span></NavLink>
+      <nav className="mobile-dash-nav" aria-label={t("dashboardMobile:commandCenter.nav.ariaLabel")}>
+        <NavLink to="/dashboard" end><IconHome aria-hidden /><span>{t("dashboardMobile:commandCenter.nav.home")}</span></NavLink>
+        <NavLink to="/dashboard/events"><IconCalendarEvent aria-hidden /><span>{t("dashboardMobile:commandCenter.nav.events")}</span></NavLink>
+        <NavLink to="/vcommerce" className="mobile-dash-nav__commerce"><IconShoppingBag aria-hidden /><span>{t("dashboardMobile:commandCenter.nav.commerce")}</span></NavLink>
+        <NavLink to="/dashboard/wallet"><IconWallet aria-hidden /><span>{t("dashboardMobile:commandCenter.nav.wallet")}</span></NavLink>
+        <NavLink to="/dashboard/profile"><IconUser aria-hidden /><span>{t("dashboardMobile:commandCenter.nav.profile")}</span></NavLink>
       </nav>
 
       {sheet === "membership" ? (
-        <MobileSheet title="Membership Card" onClose={closeSheet}>
+        <MobileSheet title={t("dashboardMobile:commandCenter.membershipSheet.title")} onClose={closeSheet}>
           <div className="mobile-sheet-membership">
             <div className="mobile-sheet-membership__card" ref={membershipCardRef}>
               <span className="mobile-sheet-membership__ribbon" aria-hidden="true" />
@@ -382,45 +385,45 @@ export default function MobileDashboardCommandCenter({
               <img
                 className="mobile-sheet-membership__qr"
                 src={membershipQrImageSrc}
-                alt={`Membership QR code ${membershipId}`}
+                alt={t("dashboardMobile:commandCenter.membershipSheet.qrAlt", { membershipId })}
                 decoding="async"
                 onError={handleMembershipQrError}
               />
-              <span className="mobile-sheet-membership__pass-label">Member pass</span>
+              <span className="mobile-sheet-membership__pass-label">{t("dashboardMobile:commandCenter.membershipSheet.passLabel")}</span>
               <h3>{membershipLabel}</h3>
               <dl>
-                <div><dt>Membership ID</dt><dd>{membershipId}</dd></div>
-                <div><dt>Member since</dt><dd>{memberSince}</dd></div>
-                <div><dt>Valid until</dt><dd>{validUntil}</dd></div>
+                <div><dt>{t("dashboardMobile:commandCenter.membershipSheet.idLabel")}</dt><dd>{membershipId}</dd></div>
+                <div><dt>{t("dashboardMobile:commandCenter.membershipSheet.memberSinceLabel")}</dt><dd>{memberSince}</dd></div>
+                <div><dt>{t("dashboardMobile:commandCenter.membershipSheet.validUntilLabel")}</dt><dd>{validUntil}</dd></div>
               </dl>
             </div>
-            <div className="mobile-sheet-membership__actions" aria-label="Membership card actions">
+            <div className="mobile-sheet-membership__actions" aria-label={t("dashboardMobile:commandCenter.membershipSheet.actionsAria")}>
               <button
                 type="button"
                 disabled={Boolean(membershipAction)}
                 onClick={() => runMembershipAction("download", () => downloadMembershipEcard(membershipCardRef.current, membershipId))}
               >
                 <IconDownload aria-hidden />
-                <span>{membershipAction === "download" ? "Preparing…" : "Download E-Card"}</span>
+                <span>{membershipAction === "download" ? t("dashboardMobile:commandCenter.membershipSheet.preparing") : t("dashboardMobile:commandCenter.membershipSheet.downloadCard")}</span>
               </button>
               <button
                 type="button"
                 disabled={!googleWalletAvailable || Boolean(membershipAction)}
-                title={googleWalletAvailable ? "Save this membership to Google Wallet" : "Google Wallet is not configured yet"}
+                title={googleWalletAvailable ? t("dashboardMobile:commandCenter.membershipSheet.googleWalletAvailableTitle") : t("dashboardMobile:commandCenter.membershipSheet.googleWalletUnavailableTitle")}
                 onClick={() => runMembershipAction("google", addMembershipToGoogleWallet)}
               >
                 <IconBrandGoogle aria-hidden />
-                <span>{membershipAction === "google" ? "Opening…" : "Add to Google Wallet"}</span>
+                <span>{membershipAction === "google" ? t("dashboardMobile:commandCenter.membershipSheet.opening") : t("dashboardMobile:commandCenter.membershipSheet.addGoogleWallet")}</span>
               </button>
             </div>
             {membershipActionMessage ? <p className="mobile-sheet-membership__message" role="alert">{membershipActionMessage}</p> : null}
             {!googleWalletAvailable && !membershipActionMessage ? (
-              <p className="mobile-sheet-membership__message">E-card download is available now. Google Wallet will appear when it is configured.</p>
+              <p className="mobile-sheet-membership__message">{t("dashboardMobile:commandCenter.membershipSheet.googleWalletComingSoon")}</p>
             ) : null}
             <section className="mobile-sheet-membership__benefits" aria-labelledby="mobile-membership-benefits-title">
               <header>
-                <span>Included with your plan</span>
-                <h3 id="mobile-membership-benefits-title">Membership Benefits</h3>
+                <span>{t("dashboardMobile:commandCenter.membershipSheet.benefitsEyebrow")}</span>
+                <h3 id="mobile-membership-benefits-title">{t("dashboardMobile:commandCenter.membershipSheet.benefitsTitle")}</h3>
               </header>
               <ul>
                 {membershipBenefits.map((benefit, index) => {
@@ -434,41 +437,42 @@ export default function MobileDashboardCommandCenter({
                 })}
               </ul>
             </section>
-            <Link className="mobile-dash-sheet__primary" to="/membership">Manage Membership</Link>
+            <Link className="mobile-dash-sheet__primary" to="/membership">{t("dashboardMobile:commandCenter.membershipSheet.manageMembership")}</Link>
           </div>
         </MobileSheet>
       ) : null}
 
       {sheet === "tickets" ? (
-        <MobileSheet title="My Tickets" onClose={closeSheet}>
+        <MobileSheet title={t("dashboardMobile:commandCenter.ticketsSheet.title")} onClose={closeSheet}>
           {bookings.length ? (
             <div className="mobile-sheet-tickets">
               {bookings.map((booking) => (
                 <section key={booking.eventId} className="mobile-sheet-tickets__booking">
                   <header>
                     <div>
-                      <small>Booked experience</small>
+                      <small>{t("dashboardMobile:commandCenter.ticketsSheet.bookedExperience")}</small>
                       <h3>{booking.eventTitle}</h3>
                       <p>{booking.dateLabel}{booking.timeLabel ? ` · ${booking.timeLabel}` : ""}</p>
                     </div>
-                    <span>{booking.ticketCount} ticket{booking.ticketCount === 1 ? "" : "s"}</span>
+                    <span>{t("dashboardMobile:commandCenter.ticketsSheet.ticketCount", { count: booking.ticketCount })}</span>
                   </header>
                   <div className="mobile-sheet-tickets__list">
                     {(booking.tickets || []).map((ticket) => {
                       const qrSrc = ticket.verificationToken
                         ? `/api/tickets/qr/${ticket.verificationToken}.png`
                         : ticket.qrCodeUrl;
+                      const ticketTypeLabel = ticket.ticketTypeName || t("dashboardMobile:commandCenter.ticketsSheet.genericTicket");
                       return (
                         <article key={ticket.id || ticket.ticketNumber} className="mobile-sheet-ticket">
-                          {qrSrc ? <img src={apiUrl(qrSrc)} alt={`QR code for ${ticket.ticketTypeName}`} /> : <IconTicket aria-hidden />}
+                          {qrSrc ? <img src={apiUrl(qrSrc)} alt={t("dashboardMobile:commandCenter.ticketsSheet.qrAlt", { ticketType: ticket.ticketTypeName })} /> : <IconTicket aria-hidden />}
                           <div>
-                            <strong>{ticket.ticketTypeName || "Event Ticket"}</strong>
+                            <strong>{ticket.ticketTypeName || t("dashboardMobile:commandCenter.ticketsSheet.eventTicketFallback")}</strong>
                             <span>{ticket.attendeeName}</span>
                             <small>{ticket.ticketNumber}</small>
                           </div>
                           {ticket.pdfUrl ? (
-                            <a href={apiUrl(ticket.pdfUrl)} target="_blank" rel="noreferrer" aria-label={`Download ${ticket.ticketTypeName || "ticket"}`}>
-                              Download
+                            <a href={apiUrl(ticket.pdfUrl)} target="_blank" rel="noreferrer" aria-label={t("dashboardMobile:commandCenter.ticketsSheet.downloadAria", { ticketType: ticketTypeLabel })}>
+                              {t("dashboardMobile:commandCenter.ticketsSheet.download")}
                             </a>
                           ) : null}
                         </article>
@@ -481,47 +485,47 @@ export default function MobileDashboardCommandCenter({
           ) : (
             <div className="mobile-sheet-tickets__empty">
               <IconTicket aria-hidden />
-              <h3>No booked tickets yet</h3>
-              <p>Your ticket QR codes will appear here after booking.</p>
+              <h3>{t("dashboardMobile:commandCenter.ticketsSheet.emptyTitle")}</h3>
+              <p>{t("dashboardMobile:commandCenter.ticketsSheet.emptyBody")}</p>
             </div>
           )}
-          <Link className="mobile-dash-sheet__primary" to="/dashboard/events">View All Upcoming Experiences</Link>
+          <Link className="mobile-dash-sheet__primary" to="/dashboard/events">{t("dashboardMobile:commandCenter.ticketsSheet.viewAll")}</Link>
         </MobileSheet>
       ) : null}
 
       {sheet === "rewards" ? (
-        <MobileSheet title="Rewards Center" onClose={closeSheet}>
+        <MobileSheet title={t("dashboardMobile:commandCenter.rewardsSheet.title")} onClose={closeSheet}>
           <div className="mobile-sheet-rewards">
             <IconGift aria-hidden />
-            <small>Available to redeem</small>
+            <small>{t("dashboardMobile:commandCenter.rewardsSheet.availableLabel")}</small>
             <strong>{rewards}</strong>
-            <span>reward points</span>
-            <p>Use your points for member benefits, event discounts and selected V.Commerce rewards.</p>
-            <Link className="mobile-dash-sheet__primary" to="/dashboard/wallet">Open Rewards in V.Wallet</Link>
+            <span>{t("dashboardMobile:commandCenter.rewardsSheet.pointsUnit")}</span>
+            <p>{t("dashboardMobile:commandCenter.rewardsSheet.description")}</p>
+            <Link className="mobile-dash-sheet__primary" to="/dashboard/wallet">{t("dashboardMobile:commandCenter.rewardsSheet.openInWallet")}</Link>
           </div>
         </MobileSheet>
       ) : null}
 
       {sheet === "impact" ? (
-        <MobileSheet title="Your Impact" onClose={closeSheet}>
+        <MobileSheet title={t("dashboardMobile:commandCenter.impactSheet.title")} onClose={closeSheet}>
           <div className="mobile-sheet-impact">
-            <div><IconCalendarEvent aria-hidden /><strong>{eventCount}</strong><span>Experiences attended</span></div>
-            <div><IconHeartHandshake aria-hidden /><strong>{donationLabel}</strong><span>Donations made</span></div>
-            <div><IconBuildingStore aria-hidden /><strong>{sponsorshipCount}</strong><span>Sponsorship contributions</span></div>
+            <div><IconCalendarEvent aria-hidden /><strong>{eventCount}</strong><span>{t("dashboardMobile:commandCenter.impactSheet.experiencesAttended")}</span></div>
+            <div><IconHeartHandshake aria-hidden /><strong>{donationLabel}</strong><span>{t("dashboardMobile:commandCenter.impactSheet.donationsMade")}</span></div>
+            <div><IconBuildingStore aria-hidden /><strong>{sponsorshipCount}</strong><span>{t("dashboardMobile:commandCenter.impactSheet.sponsorshipContributions")}</span></div>
           </div>
-          <p className="mobile-sheet-impact__thanks">Your participation helps create meaningful cultural exchange and stronger communities.</p>
-          <Link className="mobile-dash-sheet__primary" to="/impact">Explore Our Impact</Link>
+          <p className="mobile-sheet-impact__thanks">{t("dashboardMobile:commandCenter.impactSheet.thanksParagraph")}</p>
+          <Link className="mobile-dash-sheet__primary" to="/impact">{t("dashboardMobile:commandCenter.impactSheet.exploreLink")}</Link>
         </MobileSheet>
       ) : null}
 
       {sheet === "referral" ? (
-        <MobileSheet title="My Referral Code" onClose={closeSheet}>
+        <MobileSheet title={t("dashboardMobile:commandCenter.referralSheet.title")} onClose={closeSheet}>
           <div className="mobile-sheet-referral">
             <span className="mobile-sheet-referral__icon"><IconShare aria-hidden /></span>
-            <p>Invite friends to V.O.I.C.E. NL and earn rewards when they join.</p>
+            <p>{t("dashboardMobile:commandCenter.referralSheet.intro")}</p>
             {referral?.referralCode?.code ? (
               <>
-                <small>Your referral code</small>
+                <small>{t("dashboardMobile:commandCenter.referralSheet.yourCodeLabel")}</small>
                 <strong>{referral.referralCode.code}</strong>
                 <button
                   type="button"
@@ -532,11 +536,11 @@ export default function MobileDashboardCommandCenter({
                     window.setTimeout(() => setReferralCopied(false), 1800);
                   }}
                 >
-                  <IconCopy aria-hidden /> {referralCopied ? "Code Copied" : "Copy Referral Code"}
+                  <IconCopy aria-hidden /> {referralCopied ? t("dashboardMobile:commandCenter.referralSheet.copied") : t("dashboardMobile:commandCenter.referralSheet.copyCode")}
                 </button>
               </>
             ) : (
-              <p>Your referral code will appear here as soon as it is activated.</p>
+              <p>{t("dashboardMobile:commandCenter.referralSheet.pendingActivation")}</p>
             )}
           </div>
         </MobileSheet>

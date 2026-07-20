@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { getVCommerceStripePromise } from "../../../utils/stripeClient.js";
 import { getStripeElementsAppearance } from "../../../utils/stripePayment.js";
@@ -18,26 +19,27 @@ function formatPrice(minor, currency = "eur") {
 
 // ── Order confirmation screen ──
 function OrderConfirmation({ cashbackMinor, currency, orderId, hasAccount }) {
+  const { t } = useTranslation(["vcommerceShop"]);
   return (
     <div style={{ maxWidth:560,margin:"0 auto",padding:"60px 24px",textAlign:"center" }}>
       <div style={{ fontSize:"3.5rem",marginBottom:16 }}>🎉</div>
-      <h1 style={{ fontSize:"1.75rem",fontWeight:800,marginBottom:12 }}>Order Placed!</h1>
+      <h1 style={{ fontSize:"1.75rem",fontWeight:800,marginBottom:12 }}>{t("vcommerceShop:checkoutPage.confirmation.title")}</h1>
       <p style={{ color:"var(--color-text-secondary,#666)",lineHeight:1.6,marginBottom:24 }}>
-        Your payment is confirmed. A branded receipt has been emailed to you, and the business will be in touch to fulfil the order.
+        {t("vcommerceShop:checkoutPage.confirmation.body")}
       </p>
       {cashbackMinor > 0 && (
         <div style={{ background:"rgba(20,184,166,0.08)",border:"1px solid rgba(20,184,166,0.2)",borderRadius:12,padding:"16px 20px",marginBottom:24,display:"inline-block" }}>
           <p style={{ margin:0,fontWeight:700,color:"var(--vco-accent-teal,#14B8A6)",fontSize:"1.1rem" }}>
-            🎁 {formatPrice(cashbackMinor, currency)} added to your V.Wallet
+            🎁 {t("vcommerceShop:checkoutPage.confirmation.cashbackAdded", { price: formatPrice(cashbackMinor, currency) })}
           </p>
           <p style={{ margin:"4px 0 0",fontSize:"0.85rem",color:"var(--color-text-muted,#888)" }}>
-            Cashback credited after payment confirmation
+            {t("vcommerceShop:checkoutPage.confirmation.cashbackNote")}
           </p>
         </div>
       )}
       <div style={{ display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap" }}>
-        <Link to="/vcommerce" className="vco-btn vco-btn--primary">Back to V.Commerce</Link>
-        {hasAccount && <Link to="/dashboard" className="vco-btn vco-btn--ghost">My Dashboard</Link>}
+        <Link to="/vcommerce" className="vco-btn vco-btn--primary">{t("vcommerceShop:checkoutPage.confirmation.backToVCommerce")}</Link>
+        {hasAccount && <Link to="/dashboard" className="vco-btn vco-btn--ghost">{t("vcommerceShop:checkoutPage.confirmation.myDashboard")}</Link>}
       </div>
     </div>
   );
@@ -45,6 +47,7 @@ function OrderConfirmation({ cashbackMinor, currency, orderId, hasAccount }) {
 
 // ── Stripe payment form ──
 function PaymentForm({ clientSecret, orderId, orderAccessToken, cashbackMinor, currency, onSuccess }) {
+  const { t } = useTranslation(["vcommerceShop"]);
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -95,11 +98,11 @@ function PaymentForm({ clientSecret, orderId, orderAccessToken, cashbackMinor, c
         };
         await poll();
       } else {
-        setError("Payment could not be completed. Please try again.");
+        setError(t("vcommerceShop:checkoutPage.payment.genericError"));
         setSubmitting(false);
       }
     } catch (err) {
-      setError(err?.message || "Payment failed. Please try again.");
+      setError(err?.message || t("vcommerceShop:checkoutPage.payment.failedFallback"));
       setSubmitting(false);
     }
   }
@@ -117,7 +120,7 @@ function PaymentForm({ clientSecret, orderId, orderAccessToken, cashbackMinor, c
       <button type="submit" disabled={submitting || !stripe}
         className="vco-btn vco-btn--primary"
         style={{ width:"100%",padding:"14px",fontSize:"1rem",justifyContent:"center" }}>
-        {submitting ? "Processing…" : "Pay Now"}
+        {submitting ? t("vcommerceShop:checkoutPage.payment.processing") : t("vcommerceShop:checkoutPage.payment.payNow")}
       </button>
     </form>
   );
@@ -125,6 +128,7 @@ function PaymentForm({ clientSecret, orderId, orderAccessToken, cashbackMinor, c
 
 // ── Main checkout page ──
 export default function VCommerceCheckoutPage() {
+  const { t } = useTranslation(["vcommerceShop"]);
   const [searchParams] = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const { cart, clearCart, subtotalMinor, cashbackMinor } = useCart();
@@ -156,9 +160,9 @@ export default function VCommerceCheckoutPage() {
   const appearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
 
   useEffect(() => {
-    document.title = "Checkout — V.Commerce";
+    document.title = t("vcommerceShop:checkoutPage.documentTitle");
     return () => { document.title = "V.O.I.C.E. NL"; };
-  }, []);
+  }, [t]);
 
   // Handle return from bank redirect (iDEAL etc.)
   useEffect(() => {
@@ -177,7 +181,7 @@ export default function VCommerceCheckoutPage() {
           }
         } catch { /* webhook can still be processing */ }
         if (!stopped && attempts < 12) setTimeout(verify, 1500);
-        else if (!stopped) setCreateError("Payment is still being confirmed. Please refresh in a moment.");
+        else if (!stopped) setCreateError(t("vcommerceShop:checkoutPage.confirmingStillProcessing"));
       };
       verify();
       return () => { stopped = true; };
@@ -223,8 +227,8 @@ export default function VCommerceCheckoutPage() {
       <div className="vco-apply-page">
         <div className="vco-apply-page__inner vco-apply-page__gate">
           <div className="vco-loading-dots"><span/><span/><span/></div>
-          <h1 className="vco-apply-page__title">Confirming your payment</h1>
-          <p className="vco-apply-page__subtitle">{createError || "Please keep this page open while we verify your order."}</p>
+          <h1 className="vco-apply-page__title">{t("vcommerceShop:checkoutPage.confirmingTitle")}</h1>
+          <p className="vco-apply-page__subtitle">{createError || t("vcommerceShop:checkoutPage.confirmingSubtitle")}</p>
         </div>
       </div>
     );
@@ -235,8 +239,8 @@ export default function VCommerceCheckoutPage() {
       <div className="vco-apply-page">
         <div className="vco-apply-page__inner vco-apply-page__gate">
           <div className="vco-gate-icon">🛒</div>
-          <h1 className="vco-apply-page__title">Your cart is empty</h1>
-          <Link to="/vcommerce" className="vco-btn vco-btn--primary">Browse V.Commerce</Link>
+          <h1 className="vco-apply-page__title">{t("vcommerceShop:checkoutPage.emptyCart.title")}</h1>
+          <Link to="/vcommerce" className="vco-btn vco-btn--primary">{t("vcommerceShop:checkoutPage.emptyCart.browse")}</Link>
         </div>
       </div>
     );
@@ -268,7 +272,7 @@ export default function VCommerceCheckoutPage() {
       setOrderAccessToken(result.orderAccessToken || "");
       setStep("paying");
     } catch (err) {
-      setCreateError(err?.message || "Could not start checkout. Please try again.");
+      setCreateError(err?.message || t("vcommerceShop:checkoutPage.createOrderError"));
     } finally {
       setCreating(false);
     }
@@ -281,101 +285,101 @@ export default function VCommerceCheckoutPage() {
       <div className="vco-checkout-shell">
         <Link to={`/vcommerce/${cart.businessSlug || ""}`}
           style={{ fontSize:"0.875rem",color:"var(--color-text-secondary,#666)",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:4,marginBottom:24 }}>
-          ← Back to {cart.businessName}
+          {t("vcommerceShop:checkoutPage.backToBusiness", { businessName: cart.businessName })}
         </Link>
 
         <div className="vco-checkout-layout">
           {/* Left: form */}
           <div>
             <h1 style={{ fontSize:"1.5rem",fontWeight:800,marginBottom:24 }}>
-              {step === "shipping" ? "Customer & Billing Details" : "Payment"}
+              {step === "shipping" ? t("vcommerceShop:checkoutPage.stepTitleShipping") : t("vcommerceShop:checkoutPage.stepTitlePayment")}
             </h1>
 
             {step === "shipping" && (
               <form onSubmit={handleShippingNext} style={{ background:"var(--color-card-bg,#fff)",borderRadius:16,border:"1px solid var(--color-border,rgba(128,128,128,0.15))",padding:28 }}>
                 <div style={{ display:"flex",flexDirection:"column",gap:16 }}>
                   <div className="vco-field">
-                    <label className="vco-label" htmlFor="sh-name">Full Name *</label>
+                    <label className="vco-label" htmlFor="sh-name">{t("vcommerceShop:checkoutPage.form.fullName")}</label>
                     <input id="sh-name" className="vco-input" type="text" required
                       value={shipping.name} onChange={(e) => setShipping((s) => ({ ...s, name: e.target.value }))}
-                      placeholder="Your full name" />
+                      placeholder={t("vcommerceShop:checkoutPage.form.fullNamePlaceholder")} />
                   </div>
                   <div className="vco-field-grid">
                     <div className="vco-field">
-                      <label className="vco-label" htmlFor="co-email">Email *</label>
+                      <label className="vco-label" htmlFor="co-email">{t("vcommerceShop:checkoutPage.form.email")}</label>
                       <input id="co-email" className="vco-input" type="email" required autoComplete="email"
                         value={contact.email} onChange={(e) => setContact((s) => ({ ...s, email: e.target.value }))}
-                        placeholder="you@example.com" />
+                        placeholder={t("vcommerceShop:checkoutPage.form.emailPlaceholder")} />
                     </div>
                     <div className="vco-field">
-                      <label className="vco-label" htmlFor="co-phone">Phone *</label>
+                      <label className="vco-label" htmlFor="co-phone">{t("vcommerceShop:checkoutPage.form.phone")}</label>
                       <input id="co-phone" className="vco-input" type="tel" required autoComplete="tel"
                         value={contact.phone} onChange={(e) => setContact((s) => ({ ...s, phone: e.target.value }))}
-                        placeholder="+31 6 12345678" />
+                        placeholder={t("vcommerceShop:checkoutPage.form.phonePlaceholder")} />
                     </div>
                   </div>
                   <div className="vco-field-grid">
                     <div className="vco-field">
-                      <label className="vco-label" htmlFor="co-company">Company (optional)</label>
+                      <label className="vco-label" htmlFor="co-company">{t("vcommerceShop:checkoutPage.form.company")}</label>
                       <input id="co-company" className="vco-input" value={contact.companyName}
                         onChange={(e) => setContact((s) => ({ ...s, companyName: e.target.value }))} />
                     </div>
                     <div className="vco-field">
-                      <label className="vco-label" htmlFor="co-vat">VAT number (optional)</label>
+                      <label className="vco-label" htmlFor="co-vat">{t("vcommerceShop:checkoutPage.form.vat")}</label>
                       <input id="co-vat" className="vco-input" value={contact.vatNumber}
                         onChange={(e) => setContact((s) => ({ ...s, vatNumber: e.target.value }))} />
                     </div>
                   </div>
                   <div className="vco-field">
-                    <label className="vco-label" htmlFor="sh-line1">Address *</label>
+                    <label className="vco-label" htmlFor="sh-line1">{t("vcommerceShop:checkoutPage.form.address")}</label>
                     <input id="sh-line1" className="vco-input" type="text" required
                       value={shipping.line1} onChange={(e) => setShipping((s) => ({ ...s, line1: e.target.value }))}
-                      placeholder="Street and number" />
+                      placeholder={t("vcommerceShop:checkoutPage.form.addressPlaceholder")} />
                   </div>
                   <label className="vco-checkout-consent">
                     <input type="checkbox" required checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
-                    <span>I agree to the terms, privacy policy, and the seller’s cancellation and refund conditions.</span>
+                    <span>{t("vcommerceShop:checkoutPage.form.consent")}</span>
                   </label>
                   {!user && (
-                    <p className="vco-checkout-guest-note">Guest checkout is enabled. Sign in before ordering only if you want this purchase to earn V.Wallet cashback.</p>
+                    <p className="vco-checkout-guest-note">{t("vcommerceShop:checkoutPage.form.guestNote")}</p>
                   )}
                   <div className="vco-field">
-                    <label className="vco-label" htmlFor="sh-line2">Apt / Suite</label>
+                    <label className="vco-label" htmlFor="sh-line2">{t("vcommerceShop:checkoutPage.form.apartment")}</label>
                     <input id="sh-line2" className="vco-input" type="text"
                       value={shipping.line2} onChange={(e) => setShipping((s) => ({ ...s, line2: e.target.value }))}
-                      placeholder="Optional" />
+                      placeholder={t("vcommerceShop:checkoutPage.form.apartmentPlaceholder")} />
                   </div>
                   <div className="vco-field-grid">
                     <div className="vco-field">
-                      <label className="vco-label" htmlFor="sh-city">City *</label>
+                      <label className="vco-label" htmlFor="sh-city">{t("vcommerceShop:checkoutPage.form.city")}</label>
                       <input id="sh-city" className="vco-input" type="text" required
                         value={shipping.city} onChange={(e) => setShipping((s) => ({ ...s, city: e.target.value }))}
-                        placeholder="Amsterdam" />
+                        placeholder={t("vcommerceShop:checkoutPage.form.cityPlaceholder")} />
                     </div>
                     <div className="vco-field">
-                      <label className="vco-label" htmlFor="sh-post">Postcode *</label>
+                      <label className="vco-label" htmlFor="sh-post">{t("vcommerceShop:checkoutPage.form.postcode")}</label>
                       <input id="sh-post" className="vco-input" type="text" required
                         value={shipping.postcode} onChange={(e) => setShipping((s) => ({ ...s, postcode: e.target.value }))}
-                        placeholder="1234 AB" />
+                        placeholder={t("vcommerceShop:checkoutPage.form.postcodePlaceholder")} />
                     </div>
                   </div>
                   <div className="vco-field">
-                    <label className="vco-label" htmlFor="sh-country">Country</label>
+                    <label className="vco-label" htmlFor="sh-country">{t("vcommerceShop:checkoutPage.form.country")}</label>
                     <select id="sh-country" className="vco-input vco-input--select"
                       value={shipping.country} onChange={(e) => setShipping((s) => ({ ...s, country: e.target.value }))}>
-                      <option value="NL">Netherlands</option>
-                      <option value="BE">Belgium</option>
-                      <option value="DE">Germany</option>
-                      <option value="FR">France</option>
-                      <option value="GB">United Kingdom</option>
-                      <option value="OTHER">Other</option>
+                      <option value="NL">{t("vcommerceShop:checkoutPage.form.countries.nl")}</option>
+                      <option value="BE">{t("vcommerceShop:checkoutPage.form.countries.be")}</option>
+                      <option value="DE">{t("vcommerceShop:checkoutPage.form.countries.de")}</option>
+                      <option value="FR">{t("vcommerceShop:checkoutPage.form.countries.fr")}</option>
+                      <option value="GB">{t("vcommerceShop:checkoutPage.form.countries.gb")}</option>
+                      <option value="OTHER">{t("vcommerceShop:checkoutPage.form.countries.other")}</option>
                     </select>
                   </div>
                   <div className="vco-field">
-                    <label className="vco-label" htmlFor="sh-note">Note to seller (optional)</label>
+                    <label className="vco-label" htmlFor="sh-note">{t("vcommerceShop:checkoutPage.form.note")}</label>
                     <textarea id="sh-note" className="vco-input vco-input--textarea"
                       value={note} onChange={(e) => setNote(e.target.value)}
-                      placeholder="Any special instructions…" rows={3} />
+                      placeholder={t("vcommerceShop:checkoutPage.form.notePlaceholder")} rows={3} />
                   </div>
                 </div>
 
@@ -388,7 +392,7 @@ export default function VCommerceCheckoutPage() {
                 <button type="submit" disabled={creating}
                   className="vco-btn vco-btn--primary"
                   style={{ width:"100%",padding:"14px",fontSize:"1rem",justifyContent:"center",marginTop:24 }}>
-                  {creating ? "Setting up payment…" : "Continue to Payment →"}
+                  {creating ? t("vcommerceShop:checkoutPage.settingUpPayment") : t("vcommerceShop:checkoutPage.continueToPayment")}
                 </button>
               </form>
             )}
@@ -408,7 +412,7 @@ export default function VCommerceCheckoutPage() {
                 <button type="button"
                   style={{ marginTop:12,background:"none",border:"none",cursor:"pointer",fontSize:"0.85rem",color:"var(--color-text-muted,#aaa)" }}
                   onClick={() => setStep("shipping")}>
-                  ← Edit customer details
+                  {t("vcommerceShop:checkoutPage.editCustomerDetails")}
                 </button>
               </div>
             )}
@@ -416,7 +420,7 @@ export default function VCommerceCheckoutPage() {
 
           {/* Right: order summary */}
           <div className="vco-checkout-summary">
-            <h2 style={{ fontSize:"1rem",fontWeight:700,marginBottom:16 }}>Order Summary</h2>
+            <h2 style={{ fontSize:"1rem",fontWeight:700,marginBottom:16 }}>{t("vcommerceShop:checkoutPage.orderSummary")}</h2>
             <p style={{ fontSize:"0.8rem",color:"var(--color-text-muted,#aaa)",marginBottom:12 }}>{cart.businessName}</p>
 
             <div style={{ display:"flex",flexDirection:"column",gap:12,marginBottom:20 }}>
@@ -439,20 +443,20 @@ export default function VCommerceCheckoutPage() {
 
             <div style={{ borderTop:"1px solid var(--color-border,rgba(128,128,128,0.12))",paddingTop:14 }}>
               <div style={{ display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:"0.9rem" }}>
-                <span style={{ color:"var(--color-text-secondary,#666)" }}>Subtotal</span>
+                <span style={{ color:"var(--color-text-secondary,#666)" }}>{t("vcommerceShop:checkoutPage.subtotal")}</span>
                 <strong>{formatPrice(subtotalMinor, currency)}</strong>
               </div>
               {user && cashbackMinor > 0 && (
                 <div style={{ display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:"0.85rem" }}>
-                  <span style={{ color:"var(--vco-accent-teal,#14B8A6)" }}>🎁 V.Wallet cashback</span>
+                  <span style={{ color:"var(--vco-accent-teal,#14B8A6)" }}>🎁 {t("vcommerceShop:checkoutPage.cashback")}</span>
                   <span style={{ color:"var(--vco-accent-teal,#14B8A6)",fontWeight:600 }}>+{formatPrice(cashbackMinor, currency)}</span>
                 </div>
               )}
               {!user && cashbackMinor > 0 && (
-                <p className="vco-checkout-cashback-note">Sign in before ordering to earn {formatPrice(cashbackMinor, currency)} V.Wallet cashback.</p>
+                <p className="vco-checkout-cashback-note">{t("vcommerceShop:checkoutPage.cashbackSignInNote", { price: formatPrice(cashbackMinor, currency) })}</p>
               )}
               <div style={{ display:"flex",justifyContent:"space-between",fontSize:"1rem",fontWeight:700,marginTop:10 }}>
-                <span>Total</span>
+                <span>{t("vcommerceShop:checkoutPage.total")}</span>
                 <span>{formatPrice(subtotalMinor, currency)}</span>
               </div>
             </div>

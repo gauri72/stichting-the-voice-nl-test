@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaIdCard, FaSignOutAlt } from "react-icons/fa";
 import { IconSparkles, IconCopy, IconCheck } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { PayWallet } from "../../icons/icons/index.js";
 import breadcrumbBgLight from "../../../assets/Dashboard/breadcrumb-bg-light.png";
 import breadcrumbBgDark from "../../../assets/Dashboard/breadcrumb-bg-dark.png";
@@ -14,11 +15,13 @@ import "../../../styles/dashboard-welcome-banner-section.css";
 
 export default function DashboardWelcomeBannerSection({
   displayName,
-  greeting = "Welcome,",
+  greeting,
   title,
   membershipId,
   hasMembership,
 }) {
+  const { t } = useTranslation(["dashboardSections"]);
+  const resolvedGreeting = greeting ?? t("dashboardSections:welcomeBannerSection.greetingDefault");
   const { isDark } = useTheme();
   const { logout } = useAuth();
   const { openAssistant } = useAiAssistant();
@@ -75,9 +78,11 @@ export default function DashboardWelcomeBannerSection({
             type="button"
             className="dash-welcome__membership-code"
             onClick={handleCopyMembershipId}
-            aria-label={`Copy membership code ${membershipId}`}
+            aria-label={t("dashboardSections:welcomeBannerSection.copyMembershipCodeAriaLabel", { code: membershipId })}
           >
-            <span className="dash-welcome__membership-code-label">Membership code</span>
+            <span className="dash-welcome__membership-code-label">
+              {t("dashboardSections:welcomeBannerSection.membershipCodeLabel")}
+            </span>
             <span className="dash-welcome__membership-code-row">
               <span className="dash-welcome__membership-code-value">{membershipId}</span>
               {copied ? (
@@ -91,7 +96,7 @@ export default function DashboardWelcomeBannerSection({
       </div>
 
       <div className="dash-welcome__content">
-        <p className="dash-welcome__greeting">{greeting}</p>
+        <p className="dash-welcome__greeting">{resolvedGreeting}</p>
         <h1
           id="dash-welcome-name"
           className={`dash-welcome__name${isDark ? "" : " dash-grad-text"}`}
@@ -107,17 +112,17 @@ export default function DashboardWelcomeBannerSection({
             onFocus={showAiTooltip}
             onBlur={hideAiTooltip}
             className="dash-welcome__ai-cta"
-            aria-label="Open V.Assist"
+            aria-label={t("dashboardSections:welcomeBannerSection.openAssistantAriaLabel")}
             aria-describedby={aiTooltipId}
           >
             <IconSparkles size={16} aria-hidden="true" className="dash-welcome__ai-cta-icon" />
-            <span className="dash-welcome__ai-cta-label">V.Assist</span>
+            <span className="dash-welcome__ai-cta-label">{t("dashboardSections:welcomeBannerSection.assistantLabel")}</span>
           </button>
           {aiTooltipVisible ? (
             <div id={aiTooltipId} role="tooltip" className="dash-welcome__ai-tooltip">
-              <p>Your Smart AI companion For Everything.</p>
-              <p>Book tickets, manage memberships, explore benefits and take action — all through conversation.</p>
-              <p>Ask. Explore. Experience..</p>
+              <p>{t("dashboardSections:welcomeBannerSection.tooltipLine1")}</p>
+              <p>{t("dashboardSections:welcomeBannerSection.tooltipLine2")}</p>
+              <p>{t("dashboardSections:welcomeBannerSection.tooltipLine3")}</p>
             </div>
           ) : null}
         </div>
@@ -125,27 +130,41 @@ export default function DashboardWelcomeBannerSection({
 
       <div className="dash-welcome__bottom-panel">
         <div className="dash-welcome__account-actions">
-          <Link to="/dashboard/wallet" className="dash-welcome__badge dash-welcome__btn--wallet" aria-label="V.Wallet">
+          <Link
+            to="/dashboard/wallet"
+            className="dash-welcome__badge dash-welcome__btn--wallet"
+            aria-label={t("dashboardSections:welcomeBannerSection.walletAriaLabel")}
+          >
             <PayWallet width="1em" height="1em" aria-hidden="true" className="dash-welcome__badge-icon" />
-            <span className="dash-welcome__badge-label">V.Wallet</span>
+            <span className="dash-welcome__badge-label">{t("dashboardSections:welcomeBannerSection.walletLabel")}</span>
           </Link>
-          <Link to={DASHBOARD_ROUTES.profile} className="dash-welcome__badge dash-welcome__btn--profile" aria-label="My Profile">
+          <Link
+            to={DASHBOARD_ROUTES.profile}
+            className="dash-welcome__badge dash-welcome__btn--profile"
+            aria-label={t("dashboardSections:welcomeBannerSection.myProfileAriaLabel")}
+          >
             <FaIdCard aria-hidden className="dash-welcome__badge-icon" />
-            <span className="dash-welcome__badge-label">My Profile</span>
+            <span className="dash-welcome__badge-label">{t("dashboardSections:welcomeBannerSection.myProfileLabel")}</span>
           </Link>
           <button
             type="button"
             className="dash-welcome__badge dash-welcome__btn--logout"
             onClick={handleLogout}
-            aria-label="Log Out"
+            aria-label={t("dashboardSections:welcomeBannerSection.logOutAriaLabel")}
           >
             <FaSignOutAlt aria-hidden className="dash-welcome__badge-icon" />
-            <span className="dash-welcome__badge-label">Log Out</span>
+            <span className="dash-welcome__badge-label">{t("dashboardSections:welcomeBannerSection.logOutLabel")}</span>
           </button>
         </div>
         {walletData?.enabled ? (
-          <Link to="/dashboard/wallet" className="dash-welcome__points-chip" aria-label={`${walletData.rewardPoints ?? 0} points — redeem in V.Wallet`}>
-            <span className="dash-welcome__points-chip-label">Redeem Points</span>
+          <Link
+            to="/dashboard/wallet"
+            className="dash-welcome__points-chip"
+            aria-label={t("dashboardSections:welcomeBannerSection.pointsChipAriaLabel", {
+              points: walletData.rewardPoints ?? 0,
+            })}
+          >
+            <span className="dash-welcome__points-chip-label">{t("dashboardSections:welcomeBannerSection.redeemPoints")}</span>
             <span className="dash-welcome__points-chip-value">{walletData.rewardPoints ?? 0}</span>
           </Link>
         ) : null}

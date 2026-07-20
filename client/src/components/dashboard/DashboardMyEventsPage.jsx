@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   IconArrowLeft,
   IconCalendarEvent,
@@ -30,7 +31,7 @@ const HISTORY_STATUS_ICON = {
   refunded: IconReceiptRefund,
 };
 
-function HistoryCard({ item }) {
+function HistoryCard({ item, t }) {
   const Icon = HISTORY_STATUS_ICON[item.bookingStatus.toLowerCase()] || IconTicket;
   return (
     <li className={`dash-history-card dash-history-card--${item.bookingStatus.toLowerCase()}`}>
@@ -45,18 +46,18 @@ function HistoryCard({ item }) {
             {item.bookingStatus.replace(/_/g, " ")}
           </span>
           <span className="dash-history-card__count">
-            {item.ticketCount} ticket{item.ticketCount === 1 ? "" : "s"}
+            {t("dashboardMain:myEvents.history.ticketCount", { count: item.ticketCount })}
           </span>
         </div>
       </div>
       {(item.ticketsUrl || item.pdfUrl) ? (
         <div className="dash-history-card__actions">
           {item.ticketsUrl ? (
-            <Link to={item.ticketsUrl} className="dash-my-events__link-btn">View Ticket</Link>
+            <Link to={item.ticketsUrl} className="dash-my-events__link-btn">{t("dashboardMain:myEvents.history.viewTicket")}</Link>
           ) : null}
           {item.pdfUrl ? (
             <a href={apiUrl(item.pdfUrl)} className="dash-my-events__link-btn" target="_blank" rel="noreferrer">
-              Download PDF
+              {t("dashboardMain:myEvents.history.downloadPdf")}
             </a>
           ) : null}
         </div>
@@ -66,6 +67,7 @@ function HistoryCard({ item }) {
 }
 
 export default function DashboardMyEventsPage() {
+  const { t } = useTranslation(["dashboardMain"]);
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -80,11 +82,11 @@ export default function DashboardMyEventsPage() {
       const result = await apiFetch("/api/dashboard/events", { headers: authHeaders() });
       setData(result);
     } catch (e) {
-      setError(e.message || "Could not load events.");
+      setError(e.message || t("dashboardMain:myEvents.loadError"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     load();
@@ -111,7 +113,7 @@ export default function DashboardMyEventsPage() {
   if (loading) {
     return (
       <DashboardShell>
-        <div className="member-dashboard__status">Loading your events…</div>
+        <div className="member-dashboard__status">{t("dashboardMain:myEvents.loading")}</div>
       </DashboardShell>
     );
   }
@@ -122,7 +124,7 @@ export default function DashboardMyEventsPage() {
         <div className="member-dashboard__status member-dashboard__status--error" role="alert">
           <p>{error}</p>
           <button type="button" className="member-dashboard__retry" onClick={load}>
-            Try again
+            {t("dashboardMain:common.tryAgain")}
           </button>
         </div>
       </DashboardShell>
@@ -135,18 +137,18 @@ export default function DashboardMyEventsPage() {
 
   const historySection = (
     <section className="dash-my-events__section dash-my-events__section--history" aria-labelledby="history-title">
-      <h2 id="history-title" className="dash-my-events__section-title">My Event History</h2>
+      <h2 id="history-title" className="dash-my-events__section-title">{t("dashboardMain:myEvents.history.heading")}</h2>
       {!hasBookedHistory ? (
         <div className="dash-my-events__empty dash-my-events__empty--inline">
-          <p>You haven&apos;t booked any events yet.</p>
+          <p>{t("dashboardMain:myEvents.history.empty")}</p>
           <Link to={DASHBOARD_ROUTES.events} className="dash-my-events__btn dash-my-events__btn--secondary">
-            Explore Events
+            {t("dashboardMain:myEvents.history.exploreEvents")}
           </Link>
         </div>
       ) : (
         <ul className="dash-history-list">
           {data.history.map((item) => (
-            <HistoryCard key={item.id} item={item} />
+            <HistoryCard key={item.id} item={item} t={t} />
           ))}
         </ul>
       )}
@@ -157,11 +159,11 @@ export default function DashboardMyEventsPage() {
     <DashboardShell>
       <header className="dash-my-events__hero">
         <Link to="/dashboard" className="dash-my-events__back">
-          <IconArrowLeft size={18} aria-hidden /> Dashboard
+          <IconArrowLeft size={18} aria-hidden /> {t("dashboardMain:common.dashboardLink")}
         </Link>
-        <h1 className="dash-my-events__page-title">My Events</h1>
+        <h1 className="dash-my-events__page-title">{t("dashboardMain:myEvents.header.title")}</h1>
         <p className="dash-my-events__page-subtitle">
-          Discover upcoming experiences and access your tickets.
+          {t("dashboardMain:myEvents.header.subtitle")}
         </p>
       </header>
 
@@ -170,13 +172,13 @@ export default function DashboardMyEventsPage() {
           <IconSearch size={18} aria-hidden />
           <input
             type="search"
-            placeholder="Search by event, venue, or location…"
+            placeholder={t("dashboardMain:myEvents.search.placeholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            aria-label="Search events"
+            aria-label={t("dashboardMain:myEvents.search.ariaLabel")}
           />
         </div>
-        <div className="dash-my-events__filters" role="tablist" aria-label="Filter events">
+        <div className="dash-my-events__filters" role="tablist" aria-label={t("dashboardMain:myEvents.filtersAriaLabel")}>
           {EVENT_FILTERS.map((f) => (
             <button
               key={f.id}
@@ -195,7 +197,7 @@ export default function DashboardMyEventsPage() {
       {showFeatured ? (
         <div className="dash-my-events__top-grid">
           <section className="dash-my-events__section" aria-labelledby="featured-events-title">
-            <h2 id="featured-events-title" className="dash-my-events__section-title">Featured Events</h2>
+            <h2 id="featured-events-title" className="dash-my-events__section-title">{t("dashboardMain:myEvents.featuredEventsHeading")}</h2>
             <div className="dash-my-events__grid">
               {data.featured.map((event) => (
                 <DashboardEventCard key={event.id} event={event} onViewTickets={handleViewTickets} />
@@ -211,17 +213,17 @@ export default function DashboardMyEventsPage() {
       {showPastOnly ? null : !hasAnyEvents ? (
         <div className="dash-my-events__empty">
           <IconCalendarEvent size={40} aria-hidden />
-          <h2>No upcoming events available right now.</h2>
-          <p>Check back soon for new V.O.I.C.E. NL experiences.</p>
+          <h2>{t("dashboardMain:myEvents.emptyState.title")}</h2>
+          <p>{t("dashboardMain:myEvents.emptyState.body")}</p>
           <Link to={DASHBOARD_ROUTES.events} className="dash-my-events__btn dash-my-events__btn--primary">
-            Browse Experiences
+            {t("dashboardMain:myEvents.emptyState.cta")}
           </Link>
         </div>
       ) : (
         <>
           {data.upcoming?.length > 0 && filter === "all" && !search ? (
             <section className="dash-my-events__section" aria-labelledby="upcoming-events-title">
-              <h2 id="upcoming-events-title" className="dash-my-events__section-title">Upcoming Events</h2>
+              <h2 id="upcoming-events-title" className="dash-my-events__section-title">{t("dashboardMain:myEvents.upcomingEventsHeading")}</h2>
               <div className="dash-my-events__grid dash-my-events__grid--upcoming">
                 {data.upcoming.map((event) => (
                   <DashboardEventCard key={event.id} event={event} onViewTickets={handleViewTickets} />
@@ -237,10 +239,10 @@ export default function DashboardMyEventsPage() {
           {filteredEvents.length > 0 || filter !== "all" || search ? (
             <section className="dash-my-events__section" aria-labelledby="all-events-title">
               <h2 id="all-events-title" className="dash-my-events__section-title">
-                {filter === "all" && !search ? "All Events" : "Results"}
+                {filter === "all" && !search ? t("dashboardMain:myEvents.allEventsHeading") : t("dashboardMain:myEvents.resultsHeading")}
               </h2>
               {filteredEvents.length === 0 ? (
-                <p className="dash-my-events__no-results">No events match your search or filter.</p>
+                <p className="dash-my-events__no-results">{t("dashboardMain:myEvents.noResults")}</p>
               ) : (
                 <div className="dash-my-events__grid">
                   {filteredEvents.map((event) => (
