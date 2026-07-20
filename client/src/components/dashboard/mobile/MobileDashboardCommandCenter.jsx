@@ -250,6 +250,11 @@ export default function MobileDashboardCommandCenter({
           <img className="mobile-dash-hero__image mobile-dash-hero__image--dark" src={heroDark} alt="" />
         </picture>
         <div className="mobile-dash-hero__scrim" />
+        <button type="button" className="mobile-dash-hero__assist" onClick={openAssistant}
+          aria-label="Open V.Assist, your AI community concierge">
+          <IconRobot aria-hidden />
+          <span>V.Assist</span>
+        </button>
         <div className="mobile-dash-hero__content">
           <p>Welcome back</p>
           <h1 id="mobile-dash-name">{firstName}</h1>
@@ -272,16 +277,6 @@ export default function MobileDashboardCommandCenter({
       </section>
 
       <main className="mobile-dash__body">
-        <button type="button" className="mobile-dash-assist" onClick={openAssistant}>
-          <span className="mobile-dash-assist__orb"><IconRobot aria-hidden /></span>
-          <span>
-            <small>Your AI Community Concierge</small>
-            <strong>V.Assist</strong>
-            <em>Events · Membership · Discounts · Businesses · Community</em>
-          </span>
-          <span className="mobile-dash-assist__open">Open <IconArrowRight aria-hidden /></span>
-        </button>
-
         <section className="mobile-dash-next" aria-labelledby="mobile-dash-next-title">
           <img className="mobile-dash-next__image" src={nextEvent?.heroImage || eventFallback} alt="" />
           <span className="mobile-dash-next__scrim" />

@@ -32,17 +32,9 @@
   .mobile-dash-hero__metric--membership em{position:relative;margin-top:3px;color:rgba(232,255,245,.7);font-size:.49rem;font-style:normal;line-height:1}
   .mobile-dash-hero__metrics .mobile-dash-hero__metric-arrow{position:absolute;right:6px;top:7px;width:10px;opacity:.52}
   .mobile-dash__body{display:grid;gap:20px;padding:20px 14px}
-  .mobile-dash-assist{position:relative;display:grid;grid-template-columns:auto 1fr;gap:14px;width:100%;padding:20px;text-align:left;color:#fff;border:1px solid rgba(154,108,255,.52);border-radius:24px;background:radial-gradient(circle at 85% 10%,rgba(37,216,232,.18),transparent 35%),linear-gradient(135deg,rgba(48,31,109,.88),rgba(5,17,35,.92));box-shadow:0 18px 45px rgba(32,12,94,.25),inset 0 1px rgba(255,255,255,.12);backdrop-filter:blur(20px);cursor:pointer;overflow:hidden}
-  .mobile-dash-assist::after{content:"";position:absolute;inset:-50%;background:linear-gradient(115deg,transparent 44%,rgba(255,255,255,.12) 49%,transparent 54%);transform:translateX(-45%);transition:transform .8s ease}
-  .mobile-dash-assist:hover::after{transform:translateX(45%)}
-  .mobile-dash-assist__orb{display:grid;place-items:center;width:56px;height:56px;border-radius:18px;color:#7be9ff;background:linear-gradient(145deg,#3132a4,#0a5ebc);box-shadow:0 0 25px rgba(56,118,255,.42)}
-  .mobile-dash-assist__orb svg{width:30px;height:30px}
-  .mobile-dash-assist small,.mobile-dash-assist strong,.mobile-dash-assist em{display:block}
-  .mobile-dash-assist small{color:#bcb3e9;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em}
-  .mobile-dash-assist strong{margin-top:2px;font-size:1.65rem}
-  .mobile-dash-assist em{margin-top:6px;color:#b6c5d2;font-size:.7rem;font-style:normal;line-height:1.5}
-  .mobile-dash-assist__open{grid-column:2;display:inline-flex;align-items:center;gap:5px;width:max-content;color:var(--md-cyan);font-size:.76rem;font-weight:700}
-  .mobile-dash-assist__open svg{width:15px}
+  .mobile-dash-hero__assist{position:absolute;top:16px;right:16px;z-index:3;display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border:1px solid rgba(154,108,255,.52);border-radius:999px;color:#fff;font:inherit;font-size:.78rem;font-weight:700;background:linear-gradient(135deg,rgba(48,31,109,.88),rgba(5,17,35,.85));box-shadow:0 8px 22px rgba(32,12,94,.3),inset 0 1px rgba(255,255,255,.12);backdrop-filter:blur(16px) saturate(140%);cursor:pointer}
+  .mobile-dash-hero__assist svg{width:16px;height:16px;color:#7be9ff;filter:drop-shadow(0 0 6px currentColor)}
+  .mobile-dash-hero__assist:active{transform:scale(.96)}
   .mobile-dash-commerce{padding:16px;border:1px solid rgba(32,217,232,.28);border-radius:26px;background:linear-gradient(145deg,rgba(7,25,40,.94),rgba(4,12,25,.96));box-shadow:0 18px 42px rgba(0,0,0,.2)}
   .mobile-dash-commerce>header{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:1px 2px 14px}
   .mobile-dash-commerce>header span{color:var(--md-cyan);font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em}
@@ -216,11 +208,8 @@
   [data-theme="light"] .mobile-dash-hero__metric--tickets>svg{color:#3d62c7}
   [data-theme="light"] .mobile-dash-hero__metric--membership>svg{color:#0b985c}
   [data-theme="light"] .mobile-dash-hero__metrics .mobile-dash-hero__metric-arrow{color:#557384;filter:none}
-  [data-theme="light"] .mobile-dash-assist{color:#14243a;border-color:rgba(104,76,203,.32);background:radial-gradient(circle at 86% 10%,rgba(32,217,232,.18),transparent 38%),linear-gradient(145deg,rgba(255,255,255,.94),rgba(229,226,250,.88));box-shadow:0 18px 42px rgba(51,43,116,.15),inset 0 1px rgba(255,255,255,.92)}
-  [data-theme="light"] .mobile-dash-assist small{color:#655a9b}
-  [data-theme="light"] .mobile-dash-assist em{color:#53677a}
-  [data-theme="light"] .mobile-dash-assist__open{color:#087f9a}
-  [data-theme="light"] .mobile-dash-assist__orb{color:#e9fbff;background:linear-gradient(145deg,#5263d8,#0b91c0);box-shadow:0 9px 24px rgba(49,82,184,.27)}
+  [data-theme="light"] .mobile-dash-hero__assist{color:#14243a;border-color:rgba(104,76,203,.32);background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(229,226,250,.86));box-shadow:0 8px 20px rgba(51,43,116,.15),inset 0 1px rgba(255,255,255,.9)}
+  [data-theme="light"] .mobile-dash-hero__assist svg{color:#0b91c0}
   [data-theme="light"] .mobile-dash-commerce{border-color:rgba(18,114,135,.22);background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(228,240,244,.88));box-shadow:0 18px 42px rgba(21,65,80,.11)}
   [data-theme="light"] .mobile-dash-commerce__offers>a{background:rgba(255,255,255,.68);border-color:rgba(35,100,119,.14)}
   [data-theme="light"] .mobile-dash__body{color:#10202e}
@@ -257,10 +246,6 @@
   .mobile-dash-hero__metric--wallet small{font-size:clamp(.72rem,3vw,.8rem)}
   .mobile-dash-hero__metric--membership b{font-size:clamp(.68rem,2.9vw,.84rem)}
   .mobile-dash-hero__metric--membership em{font-size:clamp(.53rem,2.2vw,.61rem)}
-  .mobile-dash-assist small{font-size:.74rem}
-  .mobile-dash-assist strong{font-size:1.82rem}
-  .mobile-dash-assist em{font-size:.77rem}
-  .mobile-dash-assist__open{font-size:.82rem}
   .mobile-dash-next__badge{font-size:.65rem}
   .mobile-dash-next h2{font-size:1.34rem}
   .mobile-dash-next p{font-size:.84rem}
