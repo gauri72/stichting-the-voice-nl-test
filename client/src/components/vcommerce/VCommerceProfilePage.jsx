@@ -43,8 +43,21 @@ function resolveUnitPrice(product, qty) {
   return product.priceMinor;
 }
 
-function ProductCard({ product, cashbackPercent, onSelect, isApprovedWholesaler }) {
+function ProductCard({ product, business, cashbackPercent, onSelect, onAddToCart, isApprovedWholesaler }) {
   const hasWholesale = product.bulkPricingTiers?.length > 0;
+  const hasVariants = product.variants?.length > 0;
+
+  function handleAddToCart(e) {
+    e.stopPropagation();
+    if (hasVariants) {
+      // Can't add to cart without picking a variant first — open the same
+      // modal the card click would, so the choice can be made there.
+      onSelect(product);
+      return;
+    }
+    onAddToCart(business, product, product.minOrderQty || 1, "");
+  }
+
   return (
     <div className="vco-product-card" onClick={() => onSelect(product)} role="button" tabIndex={0}
       onKeyDown={(e) => e.key === "Enter" && onSelect(product)}>
@@ -68,6 +81,9 @@ function ProductCard({ product, cashbackPercent, onSelect, isApprovedWholesaler 
             🎁 +{formatPrice(Math.round(product.priceMinor * cashbackPercent / 100), product.currency)} cashback
           </span>
         )}
+        <button type="button" className="vco-product-card__add-btn" onClick={handleAddToCart}>
+          {hasVariants ? "Select options" : "Add to Cart"}
+        </button>
       </div>
     </div>
   );
@@ -381,8 +397,10 @@ export default function VCommerceProfilePage() {
                   <ProductCard
                     key={p._id}
                     product={p}
+                    business={profile}
                     cashbackPercent={profile.cashbackPercent}
                     onSelect={setSelectedProduct}
+                    onAddToCart={addToCart}
                     isApprovedWholesaler={isApprovedWholesaler}
                   />
                 ))}

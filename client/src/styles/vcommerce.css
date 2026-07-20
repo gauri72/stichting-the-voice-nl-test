@@ -987,6 +987,24 @@
   margin-top: 6px;
 }
 
+.vco-product-card__add-btn {
+  margin-top: auto;
+  padding: 9px 14px;
+  border: none;
+  border-radius: var(--vco-radius-sm);
+  background: var(--vco-accent);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity var(--vco-transition);
+}
+
+.vco-product-card__add-btn:hover {
+  opacity: 0.9;
+}
+
 .vco-cashback-pill {
   font-size: 0.72rem;
   background: rgba(20, 184, 166, 0.12);
