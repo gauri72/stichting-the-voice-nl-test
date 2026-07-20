@@ -95,7 +95,12 @@ function buildStripeAccountPrefill(business) {
     },
   };
 
-  if (first_name) {
+  // Stripe rejects `individual` params on any account whose business_type isn't
+  // "individual" — for company accounts the representative's details need to go
+  // through the Persons API instead (not yet wired up), so leave them for the
+  // seller to fill in during Stripe's own hosted onboarding rather than sending
+  // a payload Stripe will reject outright.
+  if (!isCompany && first_name) {
     prefill.individual = {
       first_name,
       last_name,
