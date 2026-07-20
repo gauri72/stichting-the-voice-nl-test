@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 function formatPrice(minor, currency = "eur") {
@@ -9,6 +10,18 @@ function formatPrice(minor, currency = "eur") {
 }
 
 export default function CartDrawer({ cart, drawerOpen, closeDrawer, removeFromCart, updateQty, subtotalMinor, cashbackMinor }) {
+  // Lock background scroll while the drawer is open — standard for any
+  // overlay, and it also means the page behind it can't jump anywhere
+  // while it's up.
+  useEffect(() => {
+    if (!drawerOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [drawerOpen]);
+
   if (!drawerOpen) return null;
 
   const items = cart?.items || [];
