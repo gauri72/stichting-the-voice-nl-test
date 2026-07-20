@@ -56,6 +56,29 @@
     "empty": "No favourites saved yet.",
     "browseBusinesses": "Browse Businesses"
   },
+  "myOrdersPage": {
+    "title": "My Orders",
+    "orderCount_one": "{{count}} order",
+    "orderCount_other": "{{count}} orders",
+    "loading": "Loading your orders…",
+    "itemsFallback": "Order details",
+    "emptyTitle": "No orders yet",
+    "emptyBody": "Purchases you make from V.Commerce sellers will show up here.",
+    "browseMarketplace": "Browse Marketplace",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{page}} of {{totalPages}}",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "paid": "Paid",
+      "fulfilled": "Fulfilled",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "refunded": "Refunded"
+    }
+  },
   "profilePage": {
     "social": {
       "instagram": "Instagram",

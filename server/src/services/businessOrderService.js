@@ -343,15 +343,34 @@ export async function getOrderStatus(orderId, customerId, accessToken = "") {
   return order;
 }
 
-export async function listCustomerOrders(customerId, { page = 1, pageSize = 20 } = {}) {
+// Also picks up guest-checkout orders placed under the same email before the
+// buyer had (or used) an account — but only guest orders (customerId: null),
+// never another account's order, since customerEmail is free text (not
+// normalized at checkout the way User.email is) and its uniqueness isn't
+// enforced the way it is on the User model.
+export async function listCustomerOrders(customerId, email, { page = 1, pageSize = 20 } = {}) {
+  const trimmedEmail = String(email || "").trim();
+  const filter = trimmedEmail
+    ? {
+        $or: [
+          { customerId },
+          {
+            customerId: null,
+            customerEmail: {
+              $regex: new RegExp(`^${trimmedEmail.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i"),
+            },
+          },
+        ],
+      }
+    : { customerId };
   const skip = (page - 1) * pageSize;
   const [items, total] = await Promise.all([
-    BusinessOrder.find({ customerId })
+    BusinessOrder.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(pageSize)
       .lean(),
-    BusinessOrder.countDocuments({ customerId }),
+    BusinessOrder.countDocuments(filter),
   ]);
   return { items, total, page, pageSize };
 }

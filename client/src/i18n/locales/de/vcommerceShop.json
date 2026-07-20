@@ -56,6 +56,29 @@
     "empty": "Noch keine Favoriten gespeichert.",
     "browseBusinesses": "Unternehmen Durchsuchen"
   },
+  "myOrdersPage": {
+    "title": "Meine Bestellungen",
+    "orderCount_one": "{{count}} Bestellung",
+    "orderCount_other": "{{count}} Bestellungen",
+    "loading": "Deine Bestellungen werden geladen…",
+    "itemsFallback": "Bestelldetails",
+    "emptyTitle": "Noch keine Bestellungen",
+    "emptyBody": "Einkäufe bei V.Commerce-Verkäufern werden hier angezeigt.",
+    "browseMarketplace": "Marktplatz Durchsuchen",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "pageOf": "Seite {{page}} von {{totalPages}}",
+    "status": {
+      "pending": "Ausstehend",
+      "processing": "In Bearbeitung",
+      "paid": "Bezahlt",
+      "fulfilled": "Abgeschlossen",
+      "failed": "Fehlgeschlagen",
+      "cancelled": "Storniert",
+      "expired": "Abgelaufen",
+      "refunded": "Erstattet"
+    }
+  },
   "profilePage": {
     "social": {
       "instagram": "Instagram",

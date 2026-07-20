@@ -1,0 +1,112 @@
+.dash-my-orders {
+  margin-bottom: clamp(20px, 3cqw, 32px);
+  color: var(--md-text, #f5f8fb);
+}
+
+.dash-my-orders__intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+.dash-my-orders__intro p {
+  margin: 0 0 3px;
+  color: #00ddd8;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.dash-my-orders__intro h2 {
+  margin: 0;
+  font-size: clamp(1.1rem, 2.2cqw, 1.4rem);
+  letter-spacing: -.025em;
+}
+.dash-my-orders__intro a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #00ddd8;
+  font-size: .78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.dash-my-orders__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.dash-my-orders__card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid rgba(35, 113, 143, .38);
+  border-radius: 13px;
+  background: linear-gradient(145deg, #091627, #060c17);
+}
+.dash-my-orders__card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(0, 221, 216, .12);
+  color: #00ddd8;
+}
+.dash-my-orders__card-body { min-width: 0; flex: 1; }
+.dash-my-orders__card-body h4 { margin: 0; overflow: hidden; font-size: .82rem; text-overflow: ellipsis; white-space: nowrap; }
+.dash-my-orders__card-body p { margin: 3px 0 0; color: #9cacbd; font-size: .68rem; }
+.dash-my-orders__card-meta { flex-shrink: 0; text-align: right; }
+.dash-my-orders__card-meta strong { display: block; font-size: .82rem; }
+.dash-my-orders__badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.dash-my-orders__badge--green { color: #22db78; background: rgba(34, 219, 120, .12); }
+.dash-my-orders__badge--amber { color: #ffc028; background: rgba(255, 192, 40, .12); }
+.dash-my-orders__badge--red { color: #ff6b6b; background: rgba(255, 107, 107, .12); }
+.dash-my-orders__badge--grey { color: #9cacbd; background: rgba(156, 172, 189, .12); }
+
+.dash-my-orders__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  border: 1px dashed rgba(35, 113, 143, .38);
+  border-radius: 13px;
+  color: #9cacbd;
+  text-align: center;
+}
+.dash-my-orders__empty svg { color: #00ddd8; opacity: .7; }
+.dash-my-orders__empty p { margin: 0; font-size: .8rem; }
+.dash-my-orders__empty a { display: inline-flex; align-items: center; gap: 6px; color: #00ddd8; font-size: .78rem; font-weight: 700; text-decoration: none; }
+
+.dash-my-orders__skeleton {
+  min-height: 60px;
+  border-radius: 13px;
+  background: linear-gradient(100deg, #0d1928 20%, #14263a 40%, #0d1928 60%);
+  background-size: 220% 100%;
+  animation: dash-my-orders-shimmer 1.3s linear infinite;
+}
+@keyframes dash-my-orders-shimmer { to { background-position-x: -220%; } }
+
+[data-theme="light"] .dash-my-orders__card { background: linear-gradient(145deg, #fff, #f1f7fb); border-color: #bdd4e1; box-shadow: 0 10px 24px rgba(24, 65, 91, .08); }
+[data-theme="light"] .dash-my-orders__card-body p { color: #587084; }
+[data-theme="light"] .dash-my-orders__empty { border-color: #bdd4e1; color: #587084; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-my-orders__skeleton { animation: none !important; }
+}

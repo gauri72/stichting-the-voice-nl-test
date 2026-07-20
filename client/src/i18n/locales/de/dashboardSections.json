@@ -104,6 +104,25 @@
     "comingSoon": "Demnächst",
     "moreEventsOnTheWay": "Weitere V.O.I.C.E. NL Veranstaltungen sind bald verfügbar."
   },
+  "myOrdersSection": {
+    "eyebrow": "Deine Einkäufe",
+    "title": "Meine V.Commerce-Bestellungen",
+    "viewAll": "Alle Anzeigen",
+    "itemCount_one": "{{count}} Artikel",
+    "itemCount_other": "{{count}} Artikel",
+    "emptyBody": "Einkäufe bei V.Commerce-Verkäufern werden hier angezeigt.",
+    "browseMarketplace": "Marktplatz Durchsuchen",
+    "status": {
+      "pending": "Ausstehend",
+      "processing": "In Bearbeitung",
+      "paid": "Bezahlt",
+      "fulfilled": "Abgeschlossen",
+      "failed": "Fehlgeschlagen",
+      "cancelled": "Storniert",
+      "expired": "Abgelaufen",
+      "refunded": "Erstattet"
+    }
+  },
   "vcommerceHighlights": {
     "eyebrow": "V.O.I.C.E. NL Community-Marktplatz",
     "title": "V.Commerce Entdecken",

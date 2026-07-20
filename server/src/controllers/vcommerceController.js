@@ -9,7 +9,7 @@ import {
   getApplicationStatus,
   createApplication,
 } from "../services/businessApplicationService.js";
-import { getOrderStatus, createOrderIntent } from "../services/businessOrderService.js";
+import { getOrderStatus, createOrderIntent, listCustomerOrders } from "../services/businessOrderService.js";
 import { postReview, getReviews } from "../services/businessReviewService.js";
 import { checkRateLimit } from "../utils/rateLimit.js";
 import {
@@ -185,6 +185,17 @@ export async function getOrderStatusHandler(req, res) {
   try {
     const order = await getOrderStatus(req.params.orderId, req.user?.id || null, req.query.accessToken || "");
     ok(res, { order });
+  } catch (e) {
+    fail(res, e);
+  }
+}
+
+export async function getMyOrdersHandler(req, res) {
+  try {
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const pageSize = Math.min(50, Math.max(1, Number(req.query.pageSize) || 20));
+    const result = await listCustomerOrders(req.user.id, req.user.email, { page, pageSize });
+    ok(res, result);
   } catch (e) {
     fail(res, e);
   }

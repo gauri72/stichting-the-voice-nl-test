@@ -8,6 +8,7 @@ import {
   postApply,
   postCreateOrder,
   getOrderStatusHandler,
+  getMyOrdersHandler,
   postReviewHandler,
   getReviewsHandler,
   getStats,
@@ -30,6 +31,9 @@ router.get("/apply/payment-confirm", requireAuth, confirmApplicationPayment);
 
 // Order status polling (auth required)
 router.get("/order/:orderId/status", optionalAuth, getOrderStatusHandler);
+
+// My orders (buyer's own purchase history — static path before /:slug)
+router.get("/my-orders", requireAuth, getMyOrdersHandler);
 
 // Business profile and per-business actions — static before /:slug
 router.get("/:slug/reviews", getReviewsHandler);

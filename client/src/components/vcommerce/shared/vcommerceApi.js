@@ -60,6 +60,11 @@ export function getOrderStatus(orderId, accessToken = "") {
   return apiFetch(`/api/vcommerce/order/${orderId}/status${qs}`, { headers: authHeaders() });
 }
 
+export function getMyOrders(params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  return apiFetch(`/api/vcommerce/my-orders${qs ? `?${qs}` : ""}`, { headers: authHeaders() });
+}
+
 // --- Business Portal ---
 
 export function getMyBusiness() {

@@ -35,6 +35,7 @@ const WholesalerPortalPage = lazy(() => import("./components/dashboard/vcommerce
 const BusinessesListPage = lazy(() => import("./components/vcommerce/BusinessesListPage.jsx"));
 const VCommerceCategoriesPage = lazy(() => import("./components/vcommerce/VCommerceCategoriesPage.jsx"));
 const VCommerceFavouritesPage = lazy(() => import("./components/vcommerce/VCommerceFavouritesPage.jsx"));
+const VCommerceMyOrdersPage = lazy(() => import("./components/vcommerce/VCommerceMyOrdersPage.jsx"));
 import AiAssistantPageShell from "./components/dashboard/ai-assistant/AiAssistantPageShell.jsx";
 import AiAssistantOverlay from "./components/dashboard/ai-assistant/AiAssistantOverlay.jsx";
 import MyProfilePage from "./components/profile/MyProfilePage";
@@ -309,7 +310,13 @@ export default function App() {
           />
           <Route
             path="/vcommerce/orders"
-            element={<div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7a94" }}>Orders — Coming Soon</div>}
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="member-dashboard__status">Loading orders…</div>}>
+                  <VCommerceMyOrdersPage />
+                </Suspense>
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/vcommerce/deals"

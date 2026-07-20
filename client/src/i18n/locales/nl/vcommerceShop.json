@@ -56,6 +56,29 @@
     "empty": "Nog geen favorieten opgeslagen.",
     "browseBusinesses": "Bedrijven Bekijken"
   },
+  "myOrdersPage": {
+    "title": "Mijn Bestellingen",
+    "orderCount_one": "{{count}} bestelling",
+    "orderCount_other": "{{count}} bestellingen",
+    "loading": "Je bestellingen worden geladen…",
+    "itemsFallback": "Besteldetails",
+    "emptyTitle": "Nog geen bestellingen",
+    "emptyBody": "Aankopen die je doet bij V.Commerce-verkopers verschijnen hier.",
+    "browseMarketplace": "Bekijk Marktplaats",
+    "previous": "Vorige",
+    "next": "Volgende",
+    "pageOf": "Pagina {{page}} van {{totalPages}}",
+    "status": {
+      "pending": "In behandeling",
+      "processing": "Wordt verwerkt",
+      "paid": "Betaald",
+      "fulfilled": "Afgerond",
+      "failed": "Mislukt",
+      "cancelled": "Geannuleerd",
+      "expired": "Verlopen",
+      "refunded": "Terugbetaald"
+    }
+  },
   "profilePage": {
     "social": {
       "instagram": "Instagram",
