@@ -25,7 +25,7 @@
      row's right edge lines up with the button's right edge at any viewport
      width instead of drifting at a flat pixel guess. `top` clears the
      navbar's top padding + the button's own height + its bottom padding. */
-  right: clamp(14px, 3vw, 28px);
+  right: calc(clamp(14px, 3vw, 28px) + 28px);
   top: 100px;
 }
 
