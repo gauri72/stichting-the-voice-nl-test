@@ -1,1 +1,50 @@
-{}
+{
+  "grid": {
+    "sortLabel": "Sort by",
+    "sortOptions": {
+      "date": "Date",
+      "popularity": "Popularity",
+      "priceAsc": "Price: Low to High",
+      "priceDesc": "Price: High to Low"
+    },
+    "sectionAriaLabel": "Future Events",
+    "sectionTitle": "Future Events",
+    "upcomingCount_one": "{{count}} upcoming experience",
+    "upcomingCount_other": "{{count}} upcoming experiences",
+    "emptyState": {
+      "title": "No events match your filters",
+      "body": "Try adjusting your search or clearing some filters.",
+      "clearFilters": "Clear all filters"
+    },
+    "loadMore": {
+      "loading": "Loading…",
+      "button": "Load More Events"
+    },
+    "search": {
+      "placeholder": "Search events by name, venue, or category…",
+      "ariaLabel": "Search events"
+    },
+    "filterBar": {
+      "allCategories": "All Categories",
+      "allPrices": "All Prices",
+      "free": "Free",
+      "paid": "Paid",
+      "hasVideo": "Has Video",
+      "allLocations": "All Locations",
+      "locationAriaLabel": "Filter by location",
+      "clearFilters": "Clear filters",
+      "categories": {
+        "music": "Music",
+        "culture": "Culture",
+        "sports": "Sports",
+        "community": "Community",
+        "festivals": "Festivals",
+        "workshops": "Workshops"
+      }
+    },
+    "dateRange": {
+      "fromAriaLabel": "From date",
+      "toAriaLabel": "To date"
+    }
+  }
+}

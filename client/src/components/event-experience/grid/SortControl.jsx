@@ -1,14 +1,17 @@
+import { useTranslation } from "react-i18next";
+
 const SORT_OPTIONS = [
-  { value: "date", label: "Date" },
-  { value: "popularity", label: "Popularity" },
-  { value: "price_asc", label: "Price: Low to High" },
-  { value: "price_desc", label: "Price: High to Low" },
+  { value: "date", labelKey: "date" },
+  { value: "popularity", labelKey: "popularity" },
+  { value: "price_asc", labelKey: "priceAsc" },
+  { value: "price_desc", labelKey: "priceDesc" },
 ];
 
 export default function SortControl({ value, onChange }) {
+  const { t } = useTranslation(["eventExperience"]);
   return (
     <label className="flex items-center gap-2 whitespace-nowrap text-sm text-evx-text-secondary">
-      Sort by
+      {t("eventExperience:grid.sortLabel")}
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -16,7 +19,7 @@ export default function SortControl({ value, onChange }) {
       >
         {SORT_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>
-            {o.label}
+            {t(`eventExperience:grid.sortOptions.${o.labelKey}`)}
           </option>
         ))}
       </select>
