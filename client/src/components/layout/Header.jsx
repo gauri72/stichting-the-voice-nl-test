@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { IconBell, IconShoppingCart, IconTicket, IconUser, IconUserCheck, IconUserPlus } from "@tabler/icons-react";
 import ThemeToggle from "./ThemeToggle.jsx";
 import LanguageSwitcher from "./LanguageSwitcher.jsx";
-import HeaderActionRow from "./HeaderActionRow.jsx";
 import SiteInstallPwaPrompt from "../pwa/SiteInstallPwaPrompt.jsx";
 import { useCmsHeader } from "../../hooks/useCmsPage.js";
 import { useAuth } from "../../contexts/AuthContext.jsx";
@@ -330,6 +329,7 @@ export default function Header() {
               </Link>
             </div>
           ) : null}
+          {showThemeToggle ? <ThemeToggle className="nav-toolbar__desktop-theme" /> : null}
           <LanguageSwitcher header />
           <button
             className="menu-toggle"
@@ -343,8 +343,6 @@ export default function Header() {
             <span />
           </button>
         </div>
-
-        <HeaderActionRow showThemeToggle={showThemeToggle} />
 
         <button
           type="button"
