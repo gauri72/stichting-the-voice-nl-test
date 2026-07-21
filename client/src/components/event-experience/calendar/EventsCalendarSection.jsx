@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import useCalendarMonth from "./useCalendarMonth.js";
 import CalendarMonthGrid from "./CalendarMonthGrid.jsx";
@@ -8,6 +9,7 @@ import MobileDateStrip from "./MobileDateStrip.jsx";
 import useIsMobileViewport from "../../../hooks/useIsMobileViewport.js";
 
 export default function EventsCalendarSection() {
+  const { t } = useTranslation(["eventExperience"]);
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -49,18 +51,20 @@ export default function EventsCalendarSection() {
 
   return (
     <section
-      aria-label="Events Calendar"
+      aria-label={t("eventExperience:calendar.section.ariaLabel")}
       tabIndex={0}
       onKeyDown={handleKeyDown}
       className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-evx-accent"
     >
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-extrabold text-evx-heading sm:text-3xl">Events Calendar</h2>
+        <h2 className="text-2xl font-extrabold text-evx-heading sm:text-3xl">
+          {t("eventExperience:calendar.section.title")}
+        </h2>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => changeMonth(-1)}
-            aria-label="Previous month"
+            aria-label={t("eventExperience:calendar.section.prevMonth")}
             className="rounded-full border border-evx-border p-2 transition hover:border-evx-accent"
           >
             <IconChevronLeft size={18} />
@@ -79,7 +83,7 @@ export default function EventsCalendarSection() {
           <button
             type="button"
             onClick={() => changeMonth(1)}
-            aria-label="Next month"
+            aria-label={t("eventExperience:calendar.section.nextMonth")}
             className="rounded-full border border-evx-border p-2 transition hover:border-evx-accent"
           >
             <IconChevronRight size={18} />

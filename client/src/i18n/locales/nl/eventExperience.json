@@ -46,5 +46,69 @@
       "fromAriaLabel": "Vanaf datum",
       "toAriaLabel": "Tot datum"
     }
+  },
+  "calendar": {
+    "section": {
+      "ariaLabel": "Evenementenkalender",
+      "title": "Evenementenkalender",
+      "prevMonth": "Vorige maand",
+      "nextMonth": "Volgende maand"
+    },
+    "monthGrid": {
+      "weekdays": {
+        "mon": "Ma",
+        "tue": "Di",
+        "wed": "Wo",
+        "thu": "Do",
+        "fri": "Vr",
+        "sat": "Za",
+        "sun": "Zo"
+      }
+    },
+    "dayCell": {
+      "ariaLabelHasEvents_one": "{{day}}, {{count}} evenement",
+      "ariaLabelHasEvents_other": "{{day}}, {{count}} evenementen",
+      "ariaLabelNoEvents": "{{day}}, geen evenementen",
+      "hasShort": "Heeft een Short"
+    },
+    "dateStrip": {
+      "ariaLabelHasEvents_one": "{{weekdayDay}}, {{count}} evenement",
+      "ariaLabelHasEvents_other": "{{weekdayDay}}, {{count}} evenementen"
+    },
+    "sidePanel": {
+      "ariaLabel": "Evenementen op geselecteerde dag",
+      "close": "Sluiten"
+    },
+    "tooltip": {
+      "more_one": "+{{count}} meer",
+      "more_other": "+{{count}} meer"
+    }
+  },
+  "card": {
+    "free": "Gratis",
+    "priceFrom": "Vanaf {{price}}",
+    "getTickets": "Tickets kopen",
+    "joinWaitlist": "Wachtlijst",
+    "learnMore": "Meer informatie",
+    "watchShort": "Bekijk Short",
+    "videoBadge": {
+      "ariaLabel": "Bekijk de Short bij dit evenement"
+    },
+    "countdown": {
+      "startsIn": "Begint over {{hours}}u {{minutes}}m"
+    },
+    "save": {
+      "save": "Evenement opslaan",
+      "remove": "Verwijderen uit opgeslagen evenementen"
+    },
+    "share": {
+      "buttonAriaLabel": "Deel {{title}}",
+      "shareText": "Bekijk {{title}} — V.O.I.C.E. NL",
+      "title": "Deel dit evenement",
+      "close": "Sluiten",
+      "email": "E-mail",
+      "copyLink": "Link kopiëren",
+      "linkCopied": "Link gekopieerd!"
+    }
   }
 }
