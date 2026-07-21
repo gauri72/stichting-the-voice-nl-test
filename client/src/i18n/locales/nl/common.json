@@ -137,7 +137,9 @@
   "heroActionCluster": {
     "installAriaLabel": "V.App installeren",
     "whatsappAriaLabel": "Chat met ons via WhatsApp",
-    "languageAriaLabel": "Taal wijzigen"
+    "languageAriaLabel": "Taal wijzigen",
+    "chatPlaceholder": "Typ je bericht...",
+    "chatSendAriaLabel": "Bericht verzenden"
   },
   "maintenancePage": {
     "heading": "We zijn zo terug",

@@ -11,12 +11,16 @@ export const VOWNL_HERBEATS_WHATSAPP_URL =
 export const VENTURE_STUDIO_WHATSAPP_URL =
   "https://chat.whatsapp.com/FLIGfmUxG0IEVv0xFxf3se";
 
-/** Direct 1:1 WhatsApp chat link (wa.me), used by the various WhatsApp contact buttons. */
-export function buildWhatsAppHref() {
+/** Direct 1:1 WhatsApp chat link (wa.me), used by the various WhatsApp contact buttons.
+ * Optional `message` is pre-filled into the chat once the visitor opens WhatsApp. */
+export function buildWhatsAppHref(message) {
   const raw = import.meta.env.VITE_WHATSAPP_E164;
   const digits =
     raw && typeof raw === "string" && raw.replace(/\D/g, "").length >= 8
       ? raw.replace(/\D/g, "")
       : "31619032104";
-  return `https://wa.me/${digits}`;
+  const trimmedMessage = String(message || "").trim();
+  return trimmedMessage
+    ? `https://wa.me/${digits}?text=${encodeURIComponent(trimmedMessage)}`
+    : `https://wa.me/${digits}`;
 }

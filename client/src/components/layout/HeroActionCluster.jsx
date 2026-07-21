@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconCheck, IconDownload, IconMessageCircle } from "@tabler/icons-react";
+import { IconBrandWhatsapp, IconCheck, IconDownload, IconSend, IconX } from "@tabler/icons-react";
 import { SUPPORTED_LANGUAGES } from "../../i18n/index.js";
 import ThemeToggle from "./ThemeToggle.jsx";
 import PwaInstallDialog from "../pwa/PwaInstallDialog.jsx";
@@ -116,17 +116,92 @@ function LanguageButton({ t, i18n }) {
   );
 }
 
-function ChatButton({ t }) {
+function WhatsAppChatButton({ t }) {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const ref = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    function onDocClick(event) {
+      if (ref.current && !ref.current.contains(event.target)) setOpen(false);
+    }
+    function onKeyDown(event) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("click", onDocClick);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("click", onDocClick);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
+
+  function handleSend(event) {
+    event.preventDefault();
+    window.open(buildWhatsAppHref(message), "_blank", "noopener,noreferrer");
+    setMessage("");
+    setOpen(false);
+  }
+
   return (
-    <a
-      className="hero-action-cluster__btn hero-action-cluster__btn--chat"
-      href={buildWhatsAppHref()}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={t("common:heroActionCluster.whatsappAriaLabel")}
-    >
-      <IconMessageCircle size={15} stroke={1.75} />
-    </a>
+    <div className="hero-action-cluster__whatsapp" ref={ref}>
+      <button
+        type="button"
+        className="hero-action-cluster__btn hero-action-cluster__btn--whatsapp"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-label={t("common:heroActionCluster.whatsappAriaLabel")}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true">
+          <path d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.3-.5.1-1 .1-3.3-.7-2.8-1.1-4.6-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 1-2.2.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .6l-.4.5c-.1.2-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.4 1.5 2.7 1.6.3.1.4.1.6-.1l.7-.8c.2-.3.4-.2.7-.1l1.9.9c.2.1.4.2.4.4.1.2.1.9-.1 1.4z" />
+        </svg>
+      </button>
+      {open && (
+        <div
+          className="hero-action-cluster__whatsapp-menu"
+          role="dialog"
+          aria-label={t("common:footer.whatsappWidget.title")}
+        >
+          <div className="hero-action-cluster__whatsapp-header">
+            <span>
+              <IconBrandWhatsapp size={16} stroke={1.75} aria-hidden />
+              {t("common:footer.whatsappWidget.title")}
+            </span>
+            <button type="button" onClick={() => setOpen(false)} aria-label="Close WhatsApp chat widget">
+              <IconX size={14} stroke={1.75} aria-hidden />
+            </button>
+          </div>
+          <p className="hero-action-cluster__whatsapp-greeting">
+            {t("common:footer.whatsappWidget.greeting")} <span aria-hidden>👋</span>
+            <br />
+            {t("common:footer.whatsappWidget.helpQuestion")}
+          </p>
+          <form className="hero-action-cluster__whatsapp-form" onSubmit={handleSend}>
+            <input
+              ref={inputRef}
+              type="text"
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              placeholder={t("common:heroActionCluster.chatPlaceholder")}
+              className="hero-action-cluster__whatsapp-input"
+            />
+            <button
+              type="submit"
+              className="hero-action-cluster__whatsapp-send"
+              aria-label={t("common:heroActionCluster.chatSendAriaLabel")}
+            >
+              <IconSend size={15} stroke={1.75} aria-hidden />
+            </button>
+          </form>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -187,24 +262,14 @@ export default function HeroActionCluster() {
       <div className="hero-action-cluster hero-action-cluster--desktop" ref={desktopRef} style={desktopStyle || undefined}>
         <InstallButton t={t} />
         <LanguageButton t={t} i18n={i18n} />
-        <a
-          className="hero-action-cluster__btn hero-action-cluster__btn--whatsapp"
-          href={buildWhatsAppHref()}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={t("common:heroActionCluster.whatsappAriaLabel")}
-        >
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true">
-            <path d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.3-.5.1-1 .1-3.3-.7-2.8-1.1-4.6-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 1-2.2.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .6l-.4.5c-.1.2-.3.3-.1.6.2.3.9 1.4 1.9 2.3 1.3 1.1 2.4 1.5 2.7 1.6.3.1.4.1.6-.1l.7-.8c.2-.3.4-.2.7-.1l1.9.9c.2.1.4.2.4.4.1.2.1.9-.1 1.4z" />
-          </svg>
-        </a>
+        <WhatsAppChatButton t={t} />
         <ThemeToggle />
       </div>
 
       <div className="hero-action-cluster hero-action-cluster--mobile">
         <InstallButton t={t} />
         <LanguageButton t={t} i18n={i18n} />
-        <ChatButton t={t} />
+        <WhatsAppChatButton t={t} />
         <ThemeToggle />
       </div>
     </>

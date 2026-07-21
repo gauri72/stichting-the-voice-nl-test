@@ -137,7 +137,9 @@
   "heroActionCluster": {
     "installAriaLabel": "V.App installieren",
     "whatsappAriaLabel": "Chatte mit uns auf WhatsApp",
-    "languageAriaLabel": "Sprache ändern"
+    "languageAriaLabel": "Sprache ändern",
+    "chatPlaceholder": "Schreib deine Nachricht...",
+    "chatSendAriaLabel": "Nachricht senden"
   },
   "maintenancePage": {
     "heading": "Wir sind gleich zurück",
