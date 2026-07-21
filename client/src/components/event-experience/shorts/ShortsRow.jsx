@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import ShortCard from "./ShortCard.jsx";
 
 export default function ShortsRow({ label, events, onOpenLightbox, highlightedShortId }) {
+  const { t } = useTranslation(["eventExperience"]);
   const scrollRef = useRef(null);
   const [showArrows, setShowArrows] = useState(false);
 
@@ -22,7 +24,7 @@ export default function ShortsRow({ label, events, onOpenLightbox, highlightedSh
         <button
           type="button"
           onClick={() => scrollByAmount(-1)}
-          aria-label={`Scroll ${label} left`}
+          aria-label={t("eventExperience:shorts.scrollLeftAria", { label })}
           className={`absolute left-0 top-1/2 z-20 hidden -translate-y-1/2 rounded-full bg-black/50 p-2 text-white backdrop-blur-sm transition-opacity sm:flex ${
             showArrows ? "opacity-100" : "opacity-0"
           }`}
@@ -47,7 +49,7 @@ export default function ShortsRow({ label, events, onOpenLightbox, highlightedSh
         <button
           type="button"
           onClick={() => scrollByAmount(1)}
-          aria-label={`Scroll ${label} right`}
+          aria-label={t("eventExperience:shorts.scrollRightAria", { label })}
           className={`absolute right-0 top-1/2 z-20 hidden -translate-y-1/2 rounded-full bg-black/50 p-2 text-white backdrop-blur-sm transition-opacity sm:flex ${
             showArrows ? "opacity-100" : "opacity-0"
           }`}

@@ -1,1 +1,46 @@
-{}
+{
+  "app": {
+    "offlineBanner": "Offline — connect to the internet to validate tickets.",
+    "offlineError": "You are offline. Check-in requires an internet connection.",
+    "checkInFailedError": "Check-in failed.",
+    "cameraDeniedError": "Camera access denied. Paste the QR verification URL or token instead.",
+    "alignHint": "Align the ticket QR code inside the frame.",
+    "stopCamera": "Stop camera",
+    "validating": "Validating…",
+    "scanQrCode": "Scan QR code",
+    "manualTokenEntry": "Manual token entry",
+    "tokenPlaceholder": "Paste verification token or QR URL…",
+    "checkIn": "Check in",
+    "checkInSuccessful": "Check-in successful",
+    "attendee": "Attendee",
+    "event": "Event",
+    "ticketType": "Ticket type",
+    "section": "Section",
+    "row": "Row",
+    "seat": "Seat",
+    "ticketId": "Ticket ID",
+    "venue": "Venue",
+    "scanNextTicket": "Scan next ticket",
+    "ticketLabel": "Ticket: {{number}}",
+    "recentCheckInsAria": "Recent check-ins this session",
+    "recentCheckIns": "Recent check-ins"
+  },
+  "pwaShell": {
+    "title": "Check-in",
+    "subtitle": "Stichting The V.O.I.C.E. NL",
+    "onlineStatus": "Online",
+    "offlineStatus": "Offline",
+    "install": "Install",
+    "logoutAria": "Log out",
+    "signedInAs": "Signed in as {{name}}",
+    "adminFallback": "Admin",
+    "installTip": "Tip: install this page as an app for fullscreen scanning at the door.",
+    "openInAdminPanel": "Open in admin panel"
+  },
+  "installPrompt": {
+    "title": "Install Check-in app",
+    "body": "Add to your home screen for fast door-side scanning.",
+    "install": "Install",
+    "dismissAria": "Dismiss install prompt"
+  }
+}

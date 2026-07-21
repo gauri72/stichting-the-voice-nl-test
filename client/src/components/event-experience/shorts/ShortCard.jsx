@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { IconPlayerPlayFilled, IconVolume3, IconVolumeOff } from "@tabler/icons-react";
 import useIsMobileViewport from "../../../hooks/useIsMobileViewport.js";
 import EventCardMedia from "../card/EventCardMedia.jsx";
@@ -9,6 +10,7 @@ import useYoutubePlayer from "./useYoutubePlayer.js";
 import ShortCardHoverPreview from "./ShortCardHoverPreview.jsx";
 
 export default function ShortCard({ event, onOpenLightbox, highlighted }) {
+  const { t } = useTranslation(["eventExperience"]);
   const isMobile = useIsMobileViewport();
   const [isHovering, setIsHovering] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -61,7 +63,7 @@ export default function ShortCard({ event, onOpenLightbox, highlighted }) {
       onClick={() => onOpenLightbox(event)}
       role="button"
       tabIndex={0}
-      aria-label={`Watch Short for ${event.title}`}
+      aria-label={t("eventExperience:shorts.watchShortAria", { title: event.title })}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -98,7 +100,7 @@ export default function ShortCard({ event, onOpenLightbox, highlighted }) {
         <button
           type="button"
           onClick={toggleMute}
-          aria-label={isMuted ? "Unmute preview" : "Mute preview"}
+          aria-label={isMuted ? t("eventExperience:shorts.unmutePreview") : t("eventExperience:shorts.mutePreview")}
           className="absolute bottom-2 right-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80"
         >
           {isMuted ? <IconVolumeOff size={15} /> : <IconVolume3 size={15} />}

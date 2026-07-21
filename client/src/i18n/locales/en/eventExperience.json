@@ -110,5 +110,30 @@
       "copyLink": "Copy link",
       "linkCopied": "Link copied!"
     }
+  },
+  "hero": {
+    "sectionAria": "Featured events",
+    "emptyTitle": "No featured events right now",
+    "emptySubtitle": "Check back soon for upcoming experiences.",
+    "previousAria": "Previous featured event",
+    "nextAria": "Next featured event",
+    "slidesAria": "Featured event slides",
+    "slideAria": "Go to featured event {{index}} of {{count}}"
+  },
+  "shorts": {
+    "sectionAria": "Event Shorts",
+    "title": "Get a Feel for the Events",
+    "featuredLabel": "Featured Event Shorts",
+    "upcomingLabel": "Upcoming Event Shorts",
+    "scrollLeftAria": "Scroll {{label}} left",
+    "scrollRightAria": "Scroll {{label}} right",
+    "watchShortAria": "Watch Short for {{title}}",
+    "unmutePreview": "Unmute preview",
+    "mutePreview": "Mute preview",
+    "getTickets": "Get Tickets",
+    "watchFullShort": "Watch Full Short",
+    "close": "Close",
+    "previousShort": "Previous Short",
+    "nextShort": "Next Short"
   }
 }

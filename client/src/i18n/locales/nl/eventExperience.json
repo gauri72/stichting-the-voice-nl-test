@@ -110,5 +110,30 @@
       "copyLink": "Link kopiëren",
       "linkCopied": "Link gekopieerd!"
     }
+  },
+  "hero": {
+    "sectionAria": "Uitgelichte evenementen",
+    "emptyTitle": "Op dit moment geen uitgelichte evenementen",
+    "emptySubtitle": "Kom snel terug voor nieuwe evenementen.",
+    "previousAria": "Vorig uitgelicht evenement",
+    "nextAria": "Volgend uitgelicht evenement",
+    "slidesAria": "Uitgelichte evenement-slides",
+    "slideAria": "Ga naar uitgelicht evenement {{index}} van {{count}}"
+  },
+  "shorts": {
+    "sectionAria": "Event Shorts",
+    "title": "Proef de sfeer van de evenementen",
+    "featuredLabel": "Uitgelichte Event Shorts",
+    "upcomingLabel": "Aankomende Event Shorts",
+    "scrollLeftAria": "Scroll {{label}} naar links",
+    "scrollRightAria": "Scroll {{label}} naar rechts",
+    "watchShortAria": "Bekijk Short voor {{title}}",
+    "unmutePreview": "Geluid aan voor voorbeeld",
+    "mutePreview": "Geluid uit voor voorbeeld",
+    "getTickets": "Koop tickets",
+    "watchFullShort": "Bekijk volledige Short",
+    "close": "Sluiten",
+    "previousShort": "Vorige Short",
+    "nextShort": "Volgende Short"
   }
 }

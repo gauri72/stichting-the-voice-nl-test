@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IconCheck, IconQrcode, IconScan, IconX } from "@tabler/icons-react";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
 import {
@@ -10,6 +11,7 @@ import {
 const READER_ID = "checkin-qr-reader";
 
 export default function CheckInApp({ variant = "admin" }) {
+  const { t } = useTranslation(["checkin"]);
   const readerDomId = useId().replace(/:/g, "");
   const readerId = `${READER_ID}-${readerDomId}`;
 
@@ -60,7 +62,7 @@ export default function CheckInApp({ variant = "admin" }) {
 
   const handleCheckIn = useCallback(async (verificationToken) => {
     if (!online) {
-      setError("You are offline. Check-in requires an internet connection.");
+      setError(t("checkin:app.offlineError"));
       return;
     }
 
@@ -87,7 +89,7 @@ export default function CheckInApp({ variant = "admin" }) {
 
       if (navigator.vibrate) navigator.vibrate(120);
     } catch (err) {
-      setError(err.message || "Check-in failed.");
+      setError(err.message || t("checkin:app.checkInFailedError"));
       if (err.data?.ticket) {
         setResult({ success: false, ticket: err.data.ticket });
       }
@@ -124,9 +126,9 @@ export default function CheckInApp({ variant = "admin" }) {
       );
       setScanning(true);
     } catch {
-      setError("Camera access denied. Paste the QR verification URL or token instead.");
+      setError(t("checkin:app.cameraDeniedError"));
     }
-  }, [readerId, stopScanner, handleCheckIn, loading]);
+  }, [readerId, stopScanner, handleCheckIn, loading, t]);
 
   function onSubmit(e) {
     e.preventDefault();
@@ -144,7 +146,7 @@ export default function CheckInApp({ variant = "admin" }) {
     <div className={`checkin-app${isPwa ? " checkin-app--pwa" : ""}`}>
       {!online ? (
         <p className="checkin-app__offline" role="status">
-          Offline — connect to the internet to validate tickets.
+          {t("checkin:app.offlineBanner")}
         </p>
       ) : null}
 
@@ -152,9 +154,9 @@ export default function CheckInApp({ variant = "admin" }) {
         {scanning ? (
           <div className="checkin-app__reader-wrap">
             <div id={readerId} className="checkin-app__reader" />
-            <p className="checkin-app__hint">Align the ticket QR code inside the frame.</p>
+            <p className="checkin-app__hint">{t("checkin:app.alignHint")}</p>
             <button type="button" className="checkin-app__secondary-btn" onClick={stopScanner}>
-              Stop camera
+              {t("checkin:app.stopCamera")}
             </button>
           </div>
         ) : (
@@ -165,20 +167,20 @@ export default function CheckInApp({ variant = "admin" }) {
             disabled={loading || !online}
           >
             <IconScan size={isPwa ? 36 : 28} aria-hidden />
-            <span>{loading ? "Validating…" : "Scan QR code"}</span>
+            <span>{loading ? t("checkin:app.validating") : t("checkin:app.scanQrCode")}</span>
           </button>
         )}
 
         <form className="checkin-app__form" onSubmit={onSubmit}>
           <label htmlFor={`${readerId}-token`}>
-            <IconQrcode size={18} aria-hidden /> Manual token entry
+            <IconQrcode size={18} aria-hidden /> {t("checkin:app.manualTokenEntry")}
           </label>
           <input
             id={`${readerId}-token`}
             className="checkin-app__input"
             value={token}
             onChange={(e) => setToken(e.target.value)}
-            placeholder="Paste verification token or QR URL…"
+            placeholder={t("checkin:app.tokenPlaceholder")}
             autoComplete="off"
             inputMode="text"
           />
@@ -187,7 +189,7 @@ export default function CheckInApp({ variant = "admin" }) {
             className="checkin-app__submit"
             disabled={loading || !token.trim() || !online}
           >
-            {loading ? "Validating…" : "Check in"}
+            {loading ? t("checkin:app.validating") : t("checkin:app.checkIn")}
           </button>
         </form>
       </section>
@@ -202,37 +204,37 @@ export default function CheckInApp({ variant = "admin" }) {
       {result?.success ? (
         <div className="checkin-app__result checkin-app__result--success">
           <IconCheck size={32} aria-hidden />
-          <h2>Check-in successful</h2>
+          <h2>{t("checkin:app.checkInSuccessful")}</h2>
           <dl className="checkin-app__details">
-            <div><dt>Attendee</dt><dd>{result.ticket?.attendeeName}</dd></div>
-            <div><dt>Event</dt><dd>{result.event?.title}</dd></div>
-            <div><dt>Ticket type</dt><dd>{result.ticket?.ticketTypeName}</dd></div>
+            <div><dt>{t("checkin:app.attendee")}</dt><dd>{result.ticket?.attendeeName}</dd></div>
+            <div><dt>{t("checkin:app.event")}</dt><dd>{result.event?.title}</dd></div>
+            <div><dt>{t("checkin:app.ticketType")}</dt><dd>{result.ticket?.ticketTypeName}</dd></div>
             {result.ticket?.row || result.ticket?.seatNumber ? (
               <>
-                <div><dt>Section</dt><dd>{result.ticket?.section || "—"}</dd></div>
-                <div><dt>Row</dt><dd>{result.ticket?.row || "—"}</dd></div>
-                <div><dt>Seat</dt><dd>{result.ticket?.seatNumber || result.ticket?.seatLabel || "—"}</dd></div>
+                <div><dt>{t("checkin:app.section")}</dt><dd>{result.ticket?.section || "—"}</dd></div>
+                <div><dt>{t("checkin:app.row")}</dt><dd>{result.ticket?.row || "—"}</dd></div>
+                <div><dt>{t("checkin:app.seat")}</dt><dd>{result.ticket?.seatNumber || result.ticket?.seatLabel || "—"}</dd></div>
               </>
             ) : null}
-            <div><dt>Ticket ID</dt><dd>{result.ticket?.ticketNumber}</dd></div>
-            <div><dt>Venue</dt><dd>{result.event?.venueName || "—"}</dd></div>
+            <div><dt>{t("checkin:app.ticketId")}</dt><dd>{result.ticket?.ticketNumber}</dd></div>
+            <div><dt>{t("checkin:app.venue")}</dt><dd>{result.event?.venueName || "—"}</dd></div>
           </dl>
           <button type="button" className="checkin-app__submit" onClick={resetForNextScan}>
-            Scan next ticket
+            {t("checkin:app.scanNextTicket")}
           </button>
         </div>
       ) : null}
 
       {result && !result.success && result.ticket ? (
         <div className="checkin-app__result checkin-app__result--warning">
-          <p>Ticket: {result.ticket.ticketNumber}</p>
+          <p>{t("checkin:app.ticketLabel", { number: result.ticket.ticketNumber })}</p>
           <p>{result.ticket.attendeeName}</p>
         </div>
       ) : null}
 
       {recent.length > 0 ? (
-        <section className="checkin-app__recent" aria-label="Recent check-ins this session">
-          <h3>Recent check-ins</h3>
+        <section className="checkin-app__recent" aria-label={t("checkin:app.recentCheckInsAria")}>
+          <h3>{t("checkin:app.recentCheckIns")}</h3>
           <ul>
             {recent.map((item) => (
               <li key={`${item.ticketNumber}-${item.checkedInAt}`}>

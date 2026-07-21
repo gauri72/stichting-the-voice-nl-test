@@ -1,1 +1,46 @@
-{}
+{
+  "app": {
+    "offlineBanner": "Offline — stelle eine Internetverbindung her, um Tickets zu validieren.",
+    "offlineError": "Du bist offline. Für den Check-in ist eine Internetverbindung erforderlich.",
+    "checkInFailedError": "Check-in fehlgeschlagen.",
+    "cameraDeniedError": "Kamerazugriff verweigert. Füge stattdessen die QR-Verifizierungs-URL oder das Token ein.",
+    "alignHint": "Positioniere den QR-Code des Tickets im Rahmen.",
+    "stopCamera": "Kamera stoppen",
+    "validating": "Wird validiert…",
+    "scanQrCode": "QR-Code scannen",
+    "manualTokenEntry": "Manuelle Token-Eingabe",
+    "tokenPlaceholder": "Verifizierungstoken oder QR-URL einfügen…",
+    "checkIn": "Einchecken",
+    "checkInSuccessful": "Check-in erfolgreich",
+    "attendee": "Teilnehmer",
+    "event": "Veranstaltung",
+    "ticketType": "Tickettyp",
+    "section": "Bereich",
+    "row": "Reihe",
+    "seat": "Platz",
+    "ticketId": "Ticket-ID",
+    "venue": "Veranstaltungsort",
+    "scanNextTicket": "Nächstes Ticket scannen",
+    "ticketLabel": "Ticket: {{number}}",
+    "recentCheckInsAria": "Letzte Check-ins dieser Sitzung",
+    "recentCheckIns": "Letzte Check-ins"
+  },
+  "pwaShell": {
+    "title": "Check-in",
+    "subtitle": "Stichting The V.O.I.C.E. NL",
+    "onlineStatus": "Online",
+    "offlineStatus": "Offline",
+    "install": "Installieren",
+    "logoutAria": "Abmelden",
+    "signedInAs": "Angemeldet als {{name}}",
+    "adminFallback": "Admin",
+    "installTip": "Tipp: Installiere diese Seite als App für Vollbild-Scanning am Einlass.",
+    "openInAdminPanel": "Im Admin-Bereich öffnen"
+  },
+  "installPrompt": {
+    "title": "Check-in-App installieren",
+    "body": "Zum Startbildschirm hinzufügen für schnelles Scannen am Einlass.",
+    "install": "Installieren",
+    "dismissAria": "Installationshinweis schließen"
+  }
+}

@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function ShortCardHoverPreview({ event, onWatchFull }) {
+  const { t } = useTranslation(["eventExperience"]);
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
@@ -20,7 +22,7 @@ export default function ShortCardHoverPreview({ event, onWatchFull }) {
           onClick={(e) => e.stopPropagation()}
           className="flex-1 rounded-full bg-evx-accent px-2 py-1.5 text-center text-[10px] font-bold text-white"
         >
-          Get Tickets
+          {t("eventExperience:shorts.getTickets")}
         </Link>
         <button
           type="button"
@@ -30,7 +32,7 @@ export default function ShortCardHoverPreview({ event, onWatchFull }) {
           }}
           className="flex-1 rounded-full border border-white/40 px-2 py-1.5 text-[10px] font-semibold text-white"
         >
-          Watch Full Short
+          {t("eventExperience:shorts.watchFullShort")}
         </button>
       </div>
     </motion.div>
