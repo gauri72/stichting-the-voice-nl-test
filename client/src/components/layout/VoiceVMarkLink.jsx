@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import voiceVMark from "../../assets/Home/voice-v-mark.png";
 import "../../styles/voice-v-mark-link.css";
 
@@ -11,8 +12,9 @@ import "../../styles/voice-v-mark-link.css";
  * clickable, hoverable element on top.
  */
 export default function VoiceVMarkLink() {
+  const { t } = useTranslation(["common"]);
   return (
-    <Link to="/" className="voice-v-mark-link" aria-label="Stichting The V.O.I.C.E. NL — go to homepage">
+    <Link to="/" className="voice-v-mark-link" aria-label={t("common:voiceVMarkLink.ariaLabel")}>
       <img src={voiceVMark} alt="" className="voice-v-mark-link__img" aria-hidden="true" />
     </Link>
   );

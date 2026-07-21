@@ -1,4 +1,5 @@
 import { useParams, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import CmsAwarePage from "../cms/CmsAwarePage.jsx";
 import HomePage from "../home/HomePage.jsx";
 import EventsPage from "../events/EventsPage.jsx";
@@ -13,28 +14,30 @@ import PoliciesPage from "../policies/PoliciesPage.jsx";
 import PlaceholderPage from "../pages/PlaceholderPage.jsx";
 import "../../styles/cms-page.css";
 
-const FALLBACKS = {
-  home: <HomePage />,
-  events: <EventsPage />,
-  experience: <EventsPage />,
-  membership: <MembershipPage />,
-  stories: <StoriesPage />,
-  impact: <ImpactPage />,
-  innovation: <VentureStudioPage />,
-  "sponsor-us": <SponsorshipPage />,
-  donate: <DonatePage />,
-  "about-us": <AboutUsPage />,
-  contact: <PlaceholderPage title="Contact Us" />,
-  "privacy-policy": <PoliciesPage />,
-  "terms-and-conditions": <PoliciesPage />,
-  "policies-terms-conditions": <PoliciesPage />,
-  testimonials: null,
-};
-
 export default function PreviewPage() {
+  const { t } = useTranslation(["common"]);
   const { pageSlug } = useParams();
   const [searchParams] = useSearchParams();
   const version = searchParams.get("version") || "draft";
+
+  const FALLBACKS = {
+    home: <HomePage />,
+    events: <EventsPage />,
+    experience: <EventsPage />,
+    membership: <MembershipPage />,
+    stories: <StoriesPage />,
+    impact: <ImpactPage />,
+    innovation: <VentureStudioPage />,
+    "sponsor-us": <SponsorshipPage />,
+    donate: <DonatePage />,
+    "about-us": <AboutUsPage />,
+    contact: <PlaceholderPage title={t("common:previewPage.contactUs")} />,
+    "privacy-policy": <PoliciesPage />,
+    "terms-and-conditions": <PoliciesPage />,
+    "policies-terms-conditions": <PoliciesPage />,
+    testimonials: null,
+  };
+
   const fallback = FALLBACKS[pageSlug] ?? <PlaceholderPage title={pageSlug} />;
 
   return (

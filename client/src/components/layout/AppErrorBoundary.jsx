@@ -1,10 +1,11 @@
 import { Component } from "react";
+import { withTranslation } from "react-i18next";
 
 function clearSplashLock() {
   document.documentElement.classList.remove("splash-open");
 }
 
-export default class AppErrorBoundary extends Component {
+class AppErrorBoundary extends Component {
   constructor(props) {
     super(props);
     this.state = { error: null };
@@ -21,18 +22,19 @@ export default class AppErrorBoundary extends Component {
 
   render() {
     if (this.state.error) {
+      const { t } = this.props;
       return (
         <div className="app-error-state">
           <div className="app-error-state__card">
-            <h1>Something went wrong</h1>
+            <h1>{t("common:errorBoundary.heading")}</h1>
             <p>
-              The page could not load. Please refresh or try again later.
+              {t("common:errorBoundary.message")}
             </p>
             <button
               type="button"
               onClick={() => window.location.reload()}
             >
-              Refresh page
+              {t("common:errorBoundary.refreshButton")}
             </button>
           </div>
         </div>
@@ -42,3 +44,5 @@ export default class AppErrorBoundary extends Component {
     return this.props.children;
   }
 }
+
+export default withTranslation(["common"])(AppErrorBoundary);
