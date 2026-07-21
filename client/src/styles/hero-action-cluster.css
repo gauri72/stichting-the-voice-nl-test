@@ -20,11 +20,13 @@
 }
 
 .hero-action-cluster--desktop {
-  /* Below the header's "Sign In Or Register" button rather than overlapping
-     it — the header floats over the hero (position:absolute) so top:16px
-     landed right next to it instead of clear of it. */
-  right: 16px;
-  top: 90px;
+  /* Below the header's "Sign In Or Register" button. `right` matches
+     .site-navbar's own horizontal padding (header.css) exactly, so this
+     row's right edge lines up with the button's right edge at any viewport
+     width instead of drifting at a flat pixel guess. `top` clears the
+     navbar's top padding + the button's own height + its bottom padding. */
+  right: clamp(14px, 3vw, 28px);
+  top: 100px;
 }
 
 .hero-action-cluster--mobile {
