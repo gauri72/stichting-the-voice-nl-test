@@ -1,35 +1,25 @@
-/* Glass button row anchored below the "V." mark on the hero banner. Percentage
-   position matches voice-v-mark-link.css's mark box for each theme (mark
-   bottom edge + a small gap) — see that file if the mark's own position ever
-   changes, these need to move with it. */
+/* Glass button row anchored to the bottom-left corner of the hero banner
+   itself — deliberately not tied to the "V." mark's own (per-theme) size and
+   position, so this doesn't need to move if that mark ever changes. */
 .hero-action-cluster {
   position: absolute;
-  left: 1.53%;
-  top: 84%;
+  left: 16px;
+  bottom: 16px;
   z-index: 3;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-[data-theme="light"] .page-breadcrumb-hero .hero-action-cluster {
-  left: 2.09%;
-  top: 76%;
-}
-
 /* Mobile hero art is compressed tall-wise (see page-breadcrumb-hero.css's
-   forced aspect-ratio) — there isn't room for this row inside the mark's own
-   box, so it sits just below the whole banner instead. The hero section
-   already allows overflow at this breakpoint for the same reason. */
+   forced aspect-ratio), and the "V." mark's own clickable area already
+   extends close to the bottom edge there — sit just below the whole banner
+   instead of risking an overlap. The hero section already allows overflow
+   at this breakpoint for the same reason. */
 @media (max-width: 1100px) {
   .hero-action-cluster {
     left: 14px;
-    top: 100%;
-    margin-top: 10px;
-  }
-
-  [data-theme="light"] .page-breadcrumb-hero .hero-action-cluster {
-    left: 14px;
+    bottom: auto;
     top: 100%;
     margin-top: 10px;
   }
