@@ -236,6 +236,17 @@ body:has(.hero-action-cluster) .language-switcher:not(.language-switcher--embedd
   display: none;
 }
 
+/* On mobile, the cluster's own language button replaces the header's
+   --header variant switcher too — hide it there to avoid duplicates.
+   Scoped to .nav-toolbar so unrelated --header instances elsewhere
+   (e.g. V.Commerce's mobile header) are untouched, and to pages without
+   the cluster still show the header switcher as their only mobile option. */
+@media (max-width: 1100px) {
+  body:has(.hero-action-cluster) .nav-toolbar .language-switcher--header {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-action-cluster__btn {
     transition: none;
