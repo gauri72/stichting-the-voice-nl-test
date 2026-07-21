@@ -35,8 +35,12 @@
 
   .hero-action-cluster--mobile {
     display: flex;
+    /* The site header floats transparently over the top of this banner
+       (position:absolute, its own hamburger menu + language switcher sit at
+       the right edge of that nav row) — offset below it rather than at a
+       literal top:8px, which would collide with those. */
     right: 8px;
-    bottom: 8px;
+    top: 64px;
     gap: 6px;
   }
 }
