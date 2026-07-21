@@ -103,6 +103,33 @@
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.1), 0 10px 24px rgba(255, 186, 73, 0.32);
 }
 
+/* Desktop row: same brand gradient as the header's "Get Membership" button
+   (.donate-button in header.css) instead of the dark glass look — solid
+   color, so it reads the same in both site themes rather than swapping. */
+.hero-action-cluster--desktop .hero-action-cluster__btn,
+.hero-action-cluster--desktop .theme-toggle {
+  background: linear-gradient(90deg, #0078ab, #2ca45f);
+  border-color: transparent;
+  color: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 8px 20px rgba(0, 120, 171, 0.3);
+}
+
+[data-theme="light"] .hero-action-cluster--desktop .hero-action-cluster__btn,
+[data-theme="light"] .hero-action-cluster--desktop .theme-toggle {
+  background: linear-gradient(90deg, #0078ab, #2ca45f);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 120, 171, 0.3);
+}
+
+.hero-action-cluster--desktop .hero-action-cluster__btn:hover,
+.hero-action-cluster--desktop .theme-toggle:hover {
+  border-color: transparent;
+  box-shadow: 0 10px 24px rgba(0, 120, 171, 0.42);
+}
+
 /* The real ThemeToggle (desktop row only) defaults to 44px — scoped down to
    match the other three 36px buttons here without touching its global size
    used elsewhere (mobile hamburger menu, admin layout). */
