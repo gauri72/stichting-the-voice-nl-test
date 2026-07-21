@@ -79,8 +79,42 @@ export const SUPPORTED_LANGUAGES = [
 
 export const LANGUAGE_STORAGE_KEY = "voice_lang";
 
+// Site language follows the browser's language for first-time visitors: Dutch
+// browser → Dutch site, German browser → German site, anything else → English.
+// Implemented as a custom detector (rather than relying on the plugin's built-in
+// "navigator" detector plus i18next's supportedLngs matching) so the rule is
+// explicit and doesn't depend on region-code normalization edge cases (e.g.
+// "de-AT" or "nl-BE" must still map correctly). A previously chosen language
+// (saved to localStorage by the language switcher) always takes priority over
+// this — this only decides the *default* for someone who's never chosen one.
+const NON_ENGLISH_SUPPORTED_LANGUAGES = ["nl", "de"];
+
+function detectBrowserLanguage() {
+  if (typeof navigator === "undefined") return "en";
+  const candidates =
+    navigator.languages && navigator.languages.length
+      ? navigator.languages
+      : [navigator.language || navigator.userLanguage];
+  for (const raw of candidates) {
+    if (!raw) continue;
+    const base = raw.toLowerCase().split("-")[0];
+    if (NON_ENGLISH_SUPPORTED_LANGUAGES.includes(base)) return base;
+  }
+  return "en";
+}
+
+const languageDetector = new LanguageDetector();
+languageDetector.addDetector({
+  name: "voiceBrowserLanguage",
+  lookup: detectBrowserLanguage,
+  cacheUserLanguage() {
+    // Caching to localStorage is handled by the built-in "localStorage" detector
+    // (see detection.caches below) — nothing to do here.
+  },
+});
+
 i18next
-  .use(LanguageDetector)
+  .use(languageDetector)
   .use(initReactI18next)
   .init({
     resources: {
@@ -187,7 +221,7 @@ i18next
     defaultNS: "common",
     interpolation: { escapeValue: false },
     detection: {
-      order: ["localStorage", "navigator"],
+      order: ["localStorage", "voiceBrowserLanguage"],
       lookupLocalStorage: LANGUAGE_STORAGE_KEY,
       caches: ["localStorage"],
     },
