@@ -8,6 +8,7 @@ import SiteInstallPwaPrompt from "../pwa/SiteInstallPwaPrompt.jsx";
 import { useCmsHeader } from "../../hooks/useCmsPage.js";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { translateKnownLabel, translateKnownNavLabel } from "../../i18n/navLabels.js";
+import { useCmsLabelTranslation } from "../../hooks/useCmsLabelTranslation.js";
 import { useCart } from "../vcommerce/cart/useCart.js";
 
 const DEFAULT_BUY_TICKETS_URL =
@@ -135,10 +136,10 @@ export default function Header() {
     t
   );
   const buyTicketsUrl = settings.buyTicketsButtonUrl || DEFAULT_BUY_TICKETS_URL;
-  const memberText = translateKnownLabel(settings.memberButtonText, t) || t("common:nav.becomeMember");
+  const memberText = useCmsLabelTranslation(settings.memberButtonText, "common:nav.becomeMember");
   const memberUrl = settings.memberButtonUrl || "/membership";
-  const buyTicketsText = translateKnownLabel(settings.buyTicketsButtonText, t) || t("common:header.buyTickets");
-  const loginText = translateKnownLabel(settings.loginButtonText, t) || t("common:header.logInSignUp");
+  const buyTicketsText = useCmsLabelTranslation(settings.buyTicketsButtonText, "common:header.buyTickets");
+  const loginText = useCmsLabelTranslation(settings.loginButtonText, "common:header.logInSignUp");
   const loginUrl = settings.loginButtonUrl || "/my-account";
   const firstName = String(user?.firstName || user?.name || "").trim().split(/\s+/)[0];
   const accountText = isAuthenticated && firstName ? firstName : t("common:header.myAccount");

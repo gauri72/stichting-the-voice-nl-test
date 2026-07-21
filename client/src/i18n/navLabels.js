@@ -52,7 +52,12 @@ const KNOWN_TEXT_KEYS = [
   { test: (s) => /whatsapp.*group/i.test(s), key: "common:footer.whatsappButton" },
 ];
 
-export function translateKnownLabel(text, t) {
+export function matchKnownLabelKey(text) {
   const match = KNOWN_TEXT_KEYS.find((entry) => entry.test(String(text || "")));
-  return match ? t(match.key) : text;
+  return match ? match.key : null;
+}
+
+export function translateKnownLabel(text, t) {
+  const key = matchKnownLabelKey(text);
+  return key ? t(key) : text;
 }

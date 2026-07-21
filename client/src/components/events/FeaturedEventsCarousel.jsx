@@ -11,6 +11,7 @@ import {
 } from "@tabler/icons-react";
 import { apiFetch } from "../../utils/api.js";
 import { useAutoAdvance } from "../../hooks/useAutoAdvance.js";
+import { useCmsLabelTranslation } from "../../hooks/useCmsLabelTranslation.js";
 import defaultHeroLight from "../../assets/Home/featured events-light.png";
 import "../../styles/featured-events-carousel.css";
 
@@ -53,6 +54,15 @@ function getRemainingTimeLabel(dateIso, startTime, liveNowLabel) {
   const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
   const minutes = totalMinutes % 60;
   return `${days}d ${hours}h ${minutes}m`;
+}
+
+// Per-event CTA text is a separate small component because the hook it
+// needs (useCmsLabelTranslation) can't be called inline inside the
+// carousel's .map() — hooks must run per component instance, not per loop
+// iteration.
+function FeaturedEventCtaText({ event }) {
+  const isDefault = !event.featuredCtaText || event.featuredCtaText === "Book Tickets";
+  return useCmsLabelTranslation(isDefault ? "" : event.featuredCtaText, "events:carousel.buyTickets");
 }
 
 export default function FeaturedEventsCarousel({
@@ -285,9 +295,7 @@ export default function FeaturedEventsCarousel({
                 </div>
                 <div className="fec__actions">
                   <Link className="fec__cta fec__cta--primary" to={event.ticketsUrl}>
-                    {event.featuredCtaText === "Book Tickets" || !event.featuredCtaText
-                      ? t("events:carousel.buyTickets")
-                      : event.featuredCtaText}
+                    <FeaturedEventCtaText event={event} />
                   </Link>
                 </div>
               </div>

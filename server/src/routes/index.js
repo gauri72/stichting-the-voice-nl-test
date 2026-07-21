@@ -24,6 +24,7 @@ import walletRoutes from "./walletRoutes.js";
 import vcommerceRoutes from "./vcommerceRoutes.js";
 import vcommercePortalRoutes from "./vcommercePortalRoutes.js";
 import wholesalerRoutes from "./wholesalerRoutes.js";
+import cmsTextRoutes from "./cmsTextRoutes.js";
 
 const router = Router();
 
@@ -51,6 +52,7 @@ router.use("/wallet", walletRoutes);
 router.use("/vcommerce", vcommerceRoutes);
 router.use("/vcommerce-portal", vcommercePortalRoutes);
 router.use("/wholesaler", wholesalerRoutes);
+router.use("/cms-text", cmsTextRoutes);
 router.use("/admin", adminRoutes);
 
 export default router;
