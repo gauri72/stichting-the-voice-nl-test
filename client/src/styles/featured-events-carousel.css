@@ -241,21 +241,6 @@
   border: 1px solid rgba(126, 232, 255, 0.35);
 }
 
-[data-theme="light"] .fec__membership-badge {
-  color: #78350f;
-  background: linear-gradient(
-    135deg,
-    rgba(251, 191, 36, 0.28) 0%,
-    rgba(245, 158, 11, 0.12) 100%
-  );
-  border: 1px solid rgba(180, 83, 9, 0.35);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
-}
-
-[data-theme="light"] .fec__membership-badge svg {
-  color: #b45309;
-}
-
 .fec__actions {
   display: flex;
   flex-wrap: wrap;
@@ -592,6 +577,25 @@
   [data-theme="light"] .fec__description,
   [data-theme="light"] .fec__meta-item {
     color: var(--color-text-secondary, #334155);
+  }
+
+  /* Only here (mobile) does .fec__content get a solid light background —
+     on desktop it stays transparent over the dark event photo in every
+     theme, so this badge must not re-theme there (that made the text
+     nearly invisible against the photo). */
+  [data-theme="light"] .fec__membership-badge {
+    color: #78350f;
+    background: linear-gradient(
+      135deg,
+      rgba(251, 191, 36, 0.28) 0%,
+      rgba(245, 158, 11, 0.12) 100%
+    );
+    border: 1px solid rgba(180, 83, 9, 0.35);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
+
+  [data-theme="light"] .fec__membership-badge svg {
+    color: #b45309;
   }
 }
 
