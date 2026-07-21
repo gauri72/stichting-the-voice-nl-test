@@ -20,8 +20,11 @@
 }
 
 .hero-action-cluster--desktop {
+  /* Below the header's "Sign In Or Register" button rather than overlapping
+     it — the header floats over the hero (position:absolute) so top:16px
+     landed right next to it instead of clear of it. */
   right: 16px;
-  top: 16px;
+  top: 90px;
 }
 
 .hero-action-cluster--mobile {
