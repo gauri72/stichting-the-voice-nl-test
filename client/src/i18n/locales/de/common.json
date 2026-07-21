@@ -134,6 +134,10 @@
     "installAriaLabel": "V.App installieren",
     "dismissAriaLabel": "Installationshinweis schließen"
   },
+  "heroActionCluster": {
+    "installAriaLabel": "V.App installieren",
+    "whatsappAriaLabel": "Chatte mit uns auf WhatsApp"
+  },
   "maintenancePage": {
     "heading": "Wir sind gleich zurück",
     "bodyPrefix": "Unsere Website ist derzeit wegen geplanter Wartungsarbeiten offline. Wir arbeiten hart daran, dir ein noch besseres Erlebnis zu bieten. Wir sind wieder online am",

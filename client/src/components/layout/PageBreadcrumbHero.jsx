@@ -1,4 +1,5 @@
 import VoiceVMarkLink from "./VoiceVMarkLink.jsx";
+import HeroActionCluster from "./HeroActionCluster.jsx";
 import "../../styles/page-breadcrumb-hero.css";
 
 export default function PageBreadcrumbHero({
@@ -27,7 +28,12 @@ export default function PageBreadcrumbHero({
         alt=""
         decoding="async"
       />
-      {showVMark ? <VoiceVMarkLink /> : null}
+      {showVMark ? (
+        <>
+          <VoiceVMarkLink />
+          <HeroActionCluster />
+        </>
+      ) : null}
     </section>
   );
 }

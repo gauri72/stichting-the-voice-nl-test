@@ -134,6 +134,10 @@
     "installAriaLabel": "V.App installeren",
     "dismissAriaLabel": "Installatiemelding sluiten"
   },
+  "heroActionCluster": {
+    "installAriaLabel": "V.App installeren",
+    "whatsappAriaLabel": "Chat met ons via WhatsApp"
+  },
   "maintenancePage": {
     "heading": "We zijn zo terug",
     "bodyPrefix": "Onze website is momenteel offline voor gepland onderhoud. We werken hard aan een nog betere ervaring. We zijn weer online op",

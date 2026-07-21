@@ -134,6 +134,10 @@
     "installAriaLabel": "Install V.App",
     "dismissAriaLabel": "Dismiss install prompt"
   },
+  "heroActionCluster": {
+    "installAriaLabel": "Install V.App",
+    "whatsappAriaLabel": "Chat with us on WhatsApp"
+  },
   "maintenancePage": {
     "heading": "We'll be right back",
     "bodyPrefix": "Our website is currently down for scheduled maintenance. We're working hard to bring you an even better experience. We'll be back online on",

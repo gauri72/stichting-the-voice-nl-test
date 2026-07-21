@@ -26,7 +26,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { apiFetch } from "../../utils/api.js";
-import { WHATSAPP_GROUP_URL } from "../../constants/siteLinks.js";
+import { WHATSAPP_GROUP_URL, buildWhatsAppHref } from "../../constants/siteLinks.js";
 import { useCmsFooter } from "../../hooks/useCmsPage.js";
 import { useCookieConsent } from "../../contexts/CookieConsentContext.jsx";
 import { translateKnownLabel, translateKnownNavLabel } from "../../i18n/navLabels.js";
@@ -38,15 +38,6 @@ import "../../styles/footer.css";
 import "../../styles/footer-mobile.css";
 import "../../styles/footer-desktop.css";
 import "../../styles/footer-pwa-downloads.css";
-
-function buildWhatsAppHref() {
-  const raw = import.meta.env.VITE_WHATSAPP_E164;
-  const digits =
-    raw && typeof raw === "string" && raw.replace(/\D/g, "").length >= 8
-      ? raw.replace(/\D/g, "")
-      : "31619032104";
-  return `https://wa.me/${digits}`;
-}
 
 function buildFooterQuickLinks(t) {
   return [
