@@ -243,7 +243,59 @@ body:has(.hero-action-cluster) .language-switcher:not(.language-switcher--embedd
    the cluster still show the header switcher as their only mobile option. */
 @media (max-width: 1100px) {
   body:has(.hero-action-cluster) .nav-toolbar .language-switcher--header {
-    display: none;
+    display: none !important;
+  }
+
+  /* Hiding the language switcher above frees its 40px grid column — let the
+     CTA group (Get Membership / Buy Tickets / Sign In) expand to fill it
+     instead of leaving an empty gap next to the hamburger. */
+  body:has(.hero-action-cluster) .nav-toolbar {
+    grid-template-columns: minmax(0, 1fr) 40px;
+  }
+
+  body:has(.hero-action-cluster) .nav-toolbar .menu-toggle {
+    grid-column: 2;
+  }
+
+  /* Give these CTAs the desktop gradient/outline look instead of the
+     mobile glass-badge treatment, per request. */
+  body:has(.hero-action-cluster) .nav-toolbar .dash-welcome__badge.donate-button,
+  body:has(.hero-action-cluster) .nav-toolbar .dash-welcome__badge.auth-button {
+    position: static;
+    overflow: visible;
+    border-top-width: 0 !important;
+    border-radius: 12px;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    filter: none;
+  }
+
+  body:has(.hero-action-cluster) .nav-toolbar .dash-welcome__badge.donate-button {
+    border: none !important;
+    background: linear-gradient(90deg, #0078ab, #2ca45f) !important;
+    color: #ffffff !important;
+  }
+
+  body:has(.hero-action-cluster) .nav-toolbar .dash-welcome__badge.donate-button:hover {
+    filter: brightness(1.05);
+    box-shadow: 0 6px 14px rgba(0, 120, 171, 0.3);
+  }
+
+  body:has(.hero-action-cluster) .nav-toolbar .dash-welcome__badge.donate-button .dash-welcome__badge-icon {
+    color: #ffffff !important;
+  }
+
+  body:has(.hero-action-cluster) .nav-toolbar .dash-welcome__badge.auth-button {
+    border: 2px solid #0078ab !important;
+    background: var(--color-surface) !important;
+    color: var(--color-link) !important;
+  }
+
+  body:has(.hero-action-cluster) .nav-toolbar .dash-welcome__badge.auth-button.auth-button--active {
+    border-color: var(--md-green, #2fa84f) !important;
+    color: var(--md-green, #2fa84f) !important;
+    background: var(--color-surface) !important;
   }
 }
 
