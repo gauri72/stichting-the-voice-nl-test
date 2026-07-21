@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconChevronLeft, IconChevronRight, IconX } from "@tabler/icons-react";
 import useYoutubePlayer from "./useYoutubePlayer.js";
 
@@ -8,6 +9,7 @@ const FOCUSABLE_SELECTOR =
   'button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 export default function ShortsLightbox({ event, onClose, onPrev, onNext }) {
+  const { t } = useTranslation(["eventExperience"]);
   const panelRef = useRef(null);
   const lastFocusedRef = useRef(null);
 
@@ -74,7 +76,7 @@ export default function ShortsLightbox({ event, onClose, onPrev, onNext }) {
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("eventExperience:shorts.close")}
           className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80"
         >
           <IconX size={20} />
@@ -94,14 +96,14 @@ export default function ShortsLightbox({ event, onClose, onPrev, onNext }) {
             to={`/events/${event.slug || event.id}/tickets`}
             className="mt-2 inline-flex w-fit items-center justify-center rounded-full bg-evx-accent px-6 py-3 text-sm font-bold text-white shadow transition hover:brightness-110"
           >
-            Get Tickets
+            {t("eventExperience:shorts.getTickets")}
           </Link>
         </div>
 
         <button
           type="button"
           onClick={onPrev}
-          aria-label="Previous Short"
+          aria-label={t("eventExperience:shorts.previousShort")}
           className="absolute left-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 sm:flex"
         >
           <IconChevronLeft size={22} />
@@ -109,7 +111,7 @@ export default function ShortsLightbox({ event, onClose, onPrev, onNext }) {
         <button
           type="button"
           onClick={onNext}
-          aria-label="Next Short"
+          aria-label={t("eventExperience:shorts.nextShort")}
           className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 sm:flex"
         >
           <IconChevronRight size={22} />

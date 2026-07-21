@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IconDownload, IconX } from "@tabler/icons-react";
 import { isStandalonePwa, PWA_VARIANTS } from "../../pwa/manifestConfig.js";
 import PwaInstallDialog from "../pwa/PwaInstallDialog.jsx";
 
 export default function InstallPwaPrompt({ className = "" }) {
+  const { t } = useTranslation(["checkin"]);
   const [dismissed, setDismissed] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -13,19 +15,19 @@ export default function InstallPwaPrompt({ className = "" }) {
     <>
       <div className={`checkin-pwa-install${className ? ` ${className}` : ""}`}>
         <div>
-          <strong>Install Check-in app</strong>
-          <p>Add to your home screen for fast door-side scanning.</p>
+          <strong>{t("checkin:installPrompt.title")}</strong>
+          <p>{t("checkin:installPrompt.body")}</p>
         </div>
         <div className="checkin-pwa-install__actions">
           <button type="button" className="checkin-pwa-install__primary" onClick={() => setDialogOpen(true)}>
             <IconDownload size={16} aria-hidden />
-            Install
+            {t("checkin:installPrompt.install")}
           </button>
           <button
             type="button"
             className="checkin-pwa-install__dismiss"
             onClick={() => setDismissed(true)}
-            aria-label="Dismiss install prompt"
+            aria-label={t("checkin:installPrompt.dismissAria")}
           >
             <IconX size={16} />
           </button>

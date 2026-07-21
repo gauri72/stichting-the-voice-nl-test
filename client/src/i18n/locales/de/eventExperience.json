@@ -1,1 +1,27 @@
-{}
+{
+  "hero": {
+    "sectionAria": "Empfohlene Veranstaltungen",
+    "emptyTitle": "Derzeit keine empfohlenen Veranstaltungen",
+    "emptySubtitle": "Schau bald wieder vorbei für neue Erlebnisse.",
+    "previousAria": "Vorherige empfohlene Veranstaltung",
+    "nextAria": "Nächste empfohlene Veranstaltung",
+    "slidesAria": "Folien mit empfohlenen Veranstaltungen",
+    "slideAria": "Zu empfohlener Veranstaltung {{index}} von {{count}} wechseln"
+  },
+  "shorts": {
+    "sectionAria": "Event Shorts",
+    "title": "Bekomm ein Gefühl für die Events",
+    "featuredLabel": "Empfohlene Event Shorts",
+    "upcomingLabel": "Kommende Event Shorts",
+    "scrollLeftAria": "{{label}} nach links scrollen",
+    "scrollRightAria": "{{label}} nach rechts scrollen",
+    "watchShortAria": "Short für {{title}} ansehen",
+    "unmutePreview": "Vorschau-Ton einschalten",
+    "mutePreview": "Vorschau-Ton ausschalten",
+    "getTickets": "Tickets kaufen",
+    "watchFullShort": "Vollständigen Short ansehen",
+    "close": "Schließen",
+    "previousShort": "Vorheriger Short",
+    "nextShort": "Nächster Short"
+  }
+}

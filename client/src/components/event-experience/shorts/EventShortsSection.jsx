@@ -1,10 +1,12 @@
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import useEventShorts from "./useEventShorts.js";
 import ShortsRow from "./ShortsRow.jsx";
 import ShortsLightbox from "./ShortsLightbox.jsx";
 import { useEventExperience } from "../EventExperienceContext.jsx";
 
 export default function EventShortsSection() {
+  const { t } = useTranslation(["eventExperience"]);
   const { featured, upcoming, loading, hasAny } = useEventShorts();
   const { highlightedShortId } = useEventExperience();
   const [activeId, setActiveId] = useState(null);
@@ -29,20 +31,20 @@ export default function EventShortsSection() {
   if (loading || !hasAny) return null;
 
   return (
-    <section id="evx-shorts-section" aria-label="Event Shorts" className="mx-auto max-w-7xl px-0 py-12 sm:px-6 lg:px-8">
+    <section id="evx-shorts-section" aria-label={t("eventExperience:shorts.sectionAria")} className="mx-auto max-w-7xl px-0 py-12 sm:px-6 lg:px-8">
       <h2 className="mb-6 px-4 text-2xl font-extrabold text-evx-heading sm:px-0 sm:text-3xl">
-        Get a Feel for the Events
+        {t("eventExperience:shorts.title")}
       </h2>
 
       <div className="flex flex-col gap-10">
         <ShortsRow
-          label="Featured Event Shorts"
+          label={t("eventExperience:shorts.featuredLabel")}
           events={featured}
           onOpenLightbox={openLightbox}
           highlightedShortId={highlightedShortId}
         />
         <ShortsRow
-          label="Upcoming Event Shorts"
+          label={t("eventExperience:shorts.upcomingLabel")}
           events={upcoming}
           onOpenLightbox={openLightbox}
           highlightedShortId={highlightedShortId}

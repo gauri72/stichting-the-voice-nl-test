@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import EventCard from "../card/EventCard.jsx";
 import EventCardMedia from "../card/EventCardMedia.jsx";
@@ -12,6 +13,7 @@ const SLIDE_DURATION_MS = 7000;
 const SWIPE_THRESHOLD_PX = 50;
 
 export default function FeaturedHeroCarousel() {
+  const { t } = useTranslation(["eventExperience"]);
   const { events, loading } = useFeaturedEvents();
   const { scrollToShort } = useEventExperience();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -72,8 +74,8 @@ export default function FeaturedHeroCarousel() {
   if (!events.length) {
     return (
       <div className="relative flex h-[40vh] min-h-[280px] w-full flex-col items-center justify-center gap-2 bg-evx-bg-muted text-evx-text-muted">
-        <p className="text-lg font-semibold">No featured events right now</p>
-        <p className="text-sm">Check back soon for upcoming experiences.</p>
+        <p className="text-lg font-semibold">{t("eventExperience:hero.emptyTitle")}</p>
+        <p className="text-sm">{t("eventExperience:hero.emptySubtitle")}</p>
       </div>
     );
   }
@@ -83,7 +85,7 @@ export default function FeaturedHeroCarousel() {
 
   return (
     <section
-      aria-label="Featured events"
+      aria-label={t("eventExperience:hero.sectionAria")}
       tabIndex={0}
       className="relative h-[72vh] min-h-[480px] w-full overflow-hidden bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-evx-accent"
       onMouseEnter={() => setIsPaused(true)}
@@ -120,7 +122,7 @@ export default function FeaturedHeroCarousel() {
           <button
             type="button"
             onClick={() => goTo(activeIndex - 1)}
-            aria-label="Previous featured event"
+            aria-label={t("eventExperience:hero.previousAria")}
             className="absolute left-3 top-1/2 z-20 hidden -translate-y-1/2 rounded-full bg-black/40 p-2.5 text-white backdrop-blur-sm transition hover:bg-black/60 sm:flex"
           >
             <IconChevronLeft size={22} />
@@ -128,7 +130,7 @@ export default function FeaturedHeroCarousel() {
           <button
             type="button"
             onClick={() => goTo(activeIndex + 1)}
-            aria-label="Next featured event"
+            aria-label={t("eventExperience:hero.nextAria")}
             className="absolute right-3 top-1/2 z-20 hidden -translate-y-1/2 rounded-full bg-black/40 p-2.5 text-white backdrop-blur-sm transition hover:bg-black/60 sm:flex"
           >
             <IconChevronRight size={22} />

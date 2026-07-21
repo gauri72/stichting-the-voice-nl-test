@@ -1,1 +1,46 @@
-{}
+{
+  "app": {
+    "offlineBanner": "Offline — maak verbinding met internet om tickets te valideren.",
+    "offlineError": "Je bent offline. Voor inchecken is een internetverbinding vereist.",
+    "checkInFailedError": "Inchecken mislukt.",
+    "cameraDeniedError": "Cameratoegang geweigerd. Plak in plaats daarvan de QR-verificatie-URL of token.",
+    "alignHint": "Plaats de QR-code van het ticket binnen het kader.",
+    "stopCamera": "Camera stoppen",
+    "validating": "Bezig met valideren…",
+    "scanQrCode": "QR-code scannen",
+    "manualTokenEntry": "Handmatige token-invoer",
+    "tokenPlaceholder": "Plak verificatietoken of QR-URL…",
+    "checkIn": "Inchecken",
+    "checkInSuccessful": "Inchecken gelukt",
+    "attendee": "Deelnemer",
+    "event": "Evenement",
+    "ticketType": "Tickettype",
+    "section": "Sectie",
+    "row": "Rij",
+    "seat": "Stoel",
+    "ticketId": "Ticket-ID",
+    "venue": "Locatie",
+    "scanNextTicket": "Volgend ticket scannen",
+    "ticketLabel": "Ticket: {{number}}",
+    "recentCheckInsAria": "Recente check-ins deze sessie",
+    "recentCheckIns": "Recente check-ins"
+  },
+  "pwaShell": {
+    "title": "Check-in",
+    "subtitle": "Stichting The V.O.I.C.E. NL",
+    "onlineStatus": "Online",
+    "offlineStatus": "Offline",
+    "install": "Installeren",
+    "logoutAria": "Uitloggen",
+    "signedInAs": "Ingelogd als {{name}}",
+    "adminFallback": "Beheerder",
+    "installTip": "Tip: installeer deze pagina als app voor volledig scherm scannen bij de deur.",
+    "openInAdminPanel": "Openen in beheerpaneel"
+  },
+  "installPrompt": {
+    "title": "Check-in app installeren",
+    "body": "Voeg toe aan je startscherm voor snel scannen bij de deur.",
+    "install": "Installeren",
+    "dismissAria": "Installatiemelding sluiten"
+  }
+}

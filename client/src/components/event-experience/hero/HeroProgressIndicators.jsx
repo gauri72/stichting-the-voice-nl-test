@@ -1,13 +1,16 @@
+import { useTranslation } from "react-i18next";
+
 export default function HeroProgressIndicators({ count, activeIndex, onSelect, durationMs, isPaused, reducedMotion }) {
+  const { t } = useTranslation(["eventExperience"]);
   return (
-    <div className="flex items-center gap-2" role="tablist" aria-label="Featured event slides">
+    <div className="flex items-center gap-2" role="tablist" aria-label={t("eventExperience:hero.slidesAria")}>
       {Array.from({ length: count }).map((_, i) => (
         <button
           key={i}
           type="button"
           role="tab"
           aria-selected={i === activeIndex}
-          aria-label={`Go to featured event ${i + 1} of ${count}`}
+          aria-label={t("eventExperience:hero.slideAria", { index: i + 1, count })}
           onClick={() => onSelect(i)}
           className="relative h-1.5 w-8 overflow-hidden rounded-full bg-white/25 transition-all hover:bg-white/40 sm:w-10"
         >
