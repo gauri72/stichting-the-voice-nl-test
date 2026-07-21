@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconCheck, IconDownload, IconMessageCircle, IconMoon, IconSun } from "@tabler/icons-react";
 import { SUPPORTED_LANGUAGES } from "../../i18n/index.js";
@@ -154,10 +154,51 @@ function ThemeToggleButton({ t }) {
  */
 export default function HeroActionCluster() {
   const { t, i18n } = useTranslation(["common"]);
+  const desktopRef = useRef(null);
+  const [desktopStyle, setDesktopStyle] = useState(null);
+
+  // Center this row under the header's "Sign In Or Register" (or account)
+  // button exactly, by measuring its real rendered position/width instead of
+  // guessing a fixed pixel offset — the button's width varies by language
+  // and its position shifts with the header's own responsive layout, so a
+  // static CSS value can't track it reliably at every screen size.
+  useLayoutEffect(() => {
+    const clusterEl = desktopRef.current;
+    if (!clusterEl) return undefined;
+
+    function reposition() {
+      const signInEl = document.querySelector(".nav-toolbar__cta-auth");
+      const heroEl = clusterEl.offsetParent;
+      if (!signInEl || !heroEl) return;
+
+      const signInRect = signInEl.getBoundingClientRect();
+      const heroRect = heroEl.getBoundingClientRect();
+      const clusterWidth = clusterEl.getBoundingClientRect().width;
+
+      const signInCenterX = signInRect.left + signInRect.width / 2;
+      const right = Math.max(heroRect.right - (signInCenterX + clusterWidth / 2), 8);
+      const top = signInRect.bottom - heroRect.top + 14;
+
+      setDesktopStyle({ right: `${right}px`, top: `${top}px` });
+    }
+
+    reposition();
+
+    const signInEl = document.querySelector(".nav-toolbar__cta-auth");
+    const resizeObserver = new ResizeObserver(reposition);
+    if (signInEl) resizeObserver.observe(signInEl);
+    resizeObserver.observe(clusterEl);
+    window.addEventListener("resize", reposition);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", reposition);
+    };
+  }, [i18n.language]);
 
   return (
     <>
-      <div className="hero-action-cluster hero-action-cluster--desktop">
+      <div className="hero-action-cluster hero-action-cluster--desktop" ref={desktopRef} style={desktopStyle || undefined}>
         <InstallButton t={t} />
         <LanguageButton t={t} i18n={i18n} />
         <a
