@@ -203,6 +203,7 @@ export default function HeroActionCluster() {
 
       <div className="hero-action-cluster hero-action-cluster--mobile">
         <InstallButton t={t} />
+        <LanguageButton t={t} i18n={i18n} />
         <ChatButton t={t} />
         <ThemeToggle />
       </div>
