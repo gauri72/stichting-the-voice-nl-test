@@ -1,1 +1,50 @@
-{}
+{
+  "grid": {
+    "sortLabel": "Sorteren op",
+    "sortOptions": {
+      "date": "Datum",
+      "popularity": "Populariteit",
+      "priceAsc": "Prijs: laag naar hoog",
+      "priceDesc": "Prijs: hoog naar laag"
+    },
+    "sectionAriaLabel": "Toekomstige evenementen",
+    "sectionTitle": "Toekomstige evenementen",
+    "upcomingCount_one": "{{count}} aankomend evenement",
+    "upcomingCount_other": "{{count}} aankomende evenementen",
+    "emptyState": {
+      "title": "Geen evenementen komen overeen met je filters",
+      "body": "Pas je zoekopdracht aan of wis een paar filters.",
+      "clearFilters": "Alle filters wissen"
+    },
+    "loadMore": {
+      "loading": "Laden…",
+      "button": "Meer evenementen laden"
+    },
+    "search": {
+      "placeholder": "Zoek evenementen op naam, locatie of categorie…",
+      "ariaLabel": "Evenementen zoeken"
+    },
+    "filterBar": {
+      "allCategories": "Alle categorieën",
+      "allPrices": "Alle prijzen",
+      "free": "Gratis",
+      "paid": "Betaald",
+      "hasVideo": "Met video",
+      "allLocations": "Alle locaties",
+      "locationAriaLabel": "Filteren op locatie",
+      "clearFilters": "Filters wissen",
+      "categories": {
+        "music": "Muziek",
+        "culture": "Cultuur",
+        "sports": "Sport",
+        "community": "Gemeenschap",
+        "festivals": "Festivals",
+        "workshops": "Workshops"
+      }
+    },
+    "dateRange": {
+      "fromAriaLabel": "Vanaf datum",
+      "toAriaLabel": "Tot datum"
+    }
+  }
+}
