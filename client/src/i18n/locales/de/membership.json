@@ -53,5 +53,23 @@
     "row10": "Gültig Für",
     "allEvents": "Alle Veranstaltungen",
     "oneYear": "1 Jahr"
+  },
+  "membershipBreadcrumb": {
+    "ariaLabel": "Mitgliedschaft"
+  },
+  "verifyMembershipPage": {
+    "notFound": "Mitgliedschaft nicht gefunden",
+    "valid": "Gültige Mitgliedschaft",
+    "statusHeading": "Mitgliedschaft {{status}}",
+    "statusFallback": "ungültig",
+    "verificationFailed": "Überprüfung fehlgeschlagen.",
+    "invalidQrMessage": "Dieser QR-Code stimmt mit keiner Mitgliedschaft in unseren Unterlagen überein.",
+    "fields": {
+      "member": "Mitglied",
+      "membershipId": "Mitgliedschafts-ID",
+      "type": "Typ",
+      "status": "Status",
+      "validUntil": "Gültig bis"
+    }
   }
 }

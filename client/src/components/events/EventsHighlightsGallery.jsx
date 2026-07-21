@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import {
   FaChevronLeft,
   FaChevronRight,
@@ -8,12 +9,13 @@ import {
 import "../../styles/events-highlights-gallery.css";
 
 export default function EventsHighlightsGallery({ gallery, onClose }) {
+  const { t } = useTranslation(["events"]);
   const [index, setIndex] = useState(0);
   const [broken, setBroken] = useState(false);
 
   const images = gallery?.images ?? [];
   const total = images.length;
-  const title = gallery?.title ?? "Event highlights";
+  const title = gallery?.title ?? t("events:eventsHighlightsGallery.defaultTitle");
 
   useEffect(() => {
     setIndex(0);
@@ -72,7 +74,7 @@ export default function EventsHighlightsGallery({ gallery, onClose }) {
       >
         <header className="events-highlights-pip__header">
           <div>
-            <p className="events-highlights-pip__eyebrow">Event highlights</p>
+            <p className="events-highlights-pip__eyebrow">{t("events:eventsHighlightsGallery.eyebrow")}</p>
             <h2 id="events-highlights-pip-title" className="events-highlights-pip__title">
               {title}
             </h2>
@@ -81,7 +83,7 @@ export default function EventsHighlightsGallery({ gallery, onClose }) {
             type="button"
             className="events-highlights-pip__close"
             onClick={onClose}
-            aria-label="Close highlights gallery"
+            aria-label={t("events:eventsHighlightsGallery.close")}
           >
             <FaXmark aria-hidden />
           </button>
@@ -93,7 +95,7 @@ export default function EventsHighlightsGallery({ gallery, onClose }) {
               type="button"
               className="events-highlights-pip__nav events-highlights-pip__nav--prev"
               onClick={goPrev}
-              aria-label="Previous image"
+              aria-label={t("events:eventsHighlightsGallery.previousImage")}
             >
               <FaChevronLeft aria-hidden />
             </button>
@@ -105,12 +107,12 @@ export default function EventsHighlightsGallery({ gallery, onClose }) {
                 key={currentSrc}
                 className="events-highlights-pip__image"
                 src={currentSrc}
-                alt={`${title} highlight ${index + 1} of ${total}`}
+                alt={t("events:eventsHighlightsGallery.imageAlt", { title, index: index + 1, total })}
                 onError={() => setBroken(true)}
               />
             ) : (
               <p className="events-highlights-pip__error">
-                This image could not be loaded. Use the arrows to view other photos.
+                {t("events:eventsHighlightsGallery.loadError")}
               </p>
             )}
           </figure>
@@ -120,7 +122,7 @@ export default function EventsHighlightsGallery({ gallery, onClose }) {
               type="button"
               className="events-highlights-pip__nav events-highlights-pip__nav--next"
               onClick={goNext}
-              aria-label="Next image"
+              aria-label={t("events:eventsHighlightsGallery.nextImage")}
             >
               <FaChevronRight aria-hidden />
             </button>

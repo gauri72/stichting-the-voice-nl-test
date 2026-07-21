@@ -63,5 +63,22 @@
     "previous": "Zurück",
     "next": "Weiter",
     "close": "Schließen"
+  },
+  "eventsHighlightsGallery": {
+    "eyebrow": "Veranstaltungshöhepunkte",
+    "defaultTitle": "Veranstaltungshöhepunkte",
+    "close": "Höhepunkte-Galerie schließen",
+    "previousImage": "Vorheriges Bild",
+    "nextImage": "Nächstes Bild",
+    "loadError": "Dieses Bild konnte nicht geladen werden. Verwenden Sie die Pfeile, um andere Fotos anzuzeigen.",
+    "imageAlt": "{{title}} Höhepunkt {{index}} von {{total}}"
+  },
+  "eventsYoutubeShortsPip": {
+    "eyebrow": "Veranstaltungshöhepunkt",
+    "close": "Video schließen",
+    "videoTitle": "{{title}} — YouTube Short"
+  },
+  "eventsBreadcrumb": {
+    "ariaLabel": "Erlebnis"
   }
 }

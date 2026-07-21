@@ -44,5 +44,12 @@
     "previous": "Previous",
     "next": "Next",
     "close": "Close"
+  },
+  "page": {
+    "loading": "Loading…",
+    "pillarsTitle": "Our Core Pillars"
+  },
+  "aboutBreadcrumb": {
+    "ariaLabel": "About Us"
   }
 }

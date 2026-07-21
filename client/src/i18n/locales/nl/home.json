@@ -81,5 +81,11 @@
       "description": "Elke bijdrage maakt inclusieve evenementen mogelijk, voedt jong talent en houdt door de gemeenschap geleide creativiteit levend.",
       "ctaText": "Doneer Nu"
     }
+  },
+  "hero": {
+    "ariaLabel": "Stichting The V.O.I.C.E. NL"
+  },
+  "pillarDetailModal": {
+    "close": "Sluiten"
   }
 }

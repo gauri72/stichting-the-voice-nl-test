@@ -63,5 +63,22 @@
     "previous": "Previous",
     "next": "Next",
     "close": "Close"
+  },
+  "eventsHighlightsGallery": {
+    "eyebrow": "Event highlights",
+    "defaultTitle": "Event highlights",
+    "close": "Close highlights gallery",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "loadError": "This image could not be loaded. Use the arrows to view other photos.",
+    "imageAlt": "{{title}} highlight {{index}} of {{total}}"
+  },
+  "eventsYoutubeShortsPip": {
+    "eyebrow": "Event highlight",
+    "close": "Close video",
+    "videoTitle": "{{title}} — YouTube Short"
+  },
+  "eventsBreadcrumb": {
+    "ariaLabel": "Experience"
   }
 }

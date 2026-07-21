@@ -81,5 +81,11 @@
       "description": "Jeder Beitrag ermöglicht inklusive Veranstaltungen, fördert junge Talente und erhält von der Gemeinschaft getragene Kreativität.",
       "ctaText": "Jetzt Spenden"
     }
+  },
+  "hero": {
+    "ariaLabel": "Stichting The V.O.I.C.E. NL"
+  },
+  "pillarDetailModal": {
+    "close": "Schließen"
   }
 }

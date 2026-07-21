@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import AboutUsBreadcrumbSection from "./AboutUsBreadcrumbSection";
 import AboutUsHeroSection from "./AboutUsHeroSection";
 import AboutUsMissionSection from "./AboutUsMissionSection";
@@ -9,13 +10,13 @@ import PageSectionRenderer from "../cms/PageSectionRenderer.jsx";
 import { useCmsPage, useCmsSeo } from "../../hooks/useCmsPage.js";
 import "../../styles/about-us-page.css";
 
-function AboutUsPageFallback() {
+function AboutUsPageFallback({ t }) {
   return (
     <div id="about-us-navbar-top" className="about-us-page-shell">
       <AboutUsBreadcrumbSection />
       <AboutUsHeroSection />
       <AboutUsMissionSection />
-      <OurPillarsSection title="Our Core Pillars" sectionClassName="about-us-pillars" />
+      <OurPillarsSection title={t("about:page.pillarsTitle")} sectionClassName="about-us-pillars" />
       <AboutUsWhatWeDoSection />
       <AboutUsValuesSection />
       <TeamMembersSlider sectionClassName="about-us-team-section" />
@@ -24,6 +25,7 @@ function AboutUsPageFallback() {
 }
 
 export default function AboutUsPage() {
+  const { t } = useTranslation(["about"]);
   const { data, loading, hasCms } = useCmsPage("about-us");
   useCmsSeo(data);
 
@@ -34,7 +36,7 @@ export default function AboutUsPage() {
   if (loading) {
     return (
       <div className="about-us-page-shell">
-        <p className="cms-page-loading">Loading…</p>
+        <p className="cms-page-loading">{t("about:page.loading")}</p>
       </div>
     );
   }
@@ -48,5 +50,5 @@ export default function AboutUsPage() {
     );
   }
 
-  return <AboutUsPageFallback />;
+  return <AboutUsPageFallback t={t} />;
 }

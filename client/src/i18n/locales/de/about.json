@@ -44,5 +44,12 @@
     "previous": "Zurück",
     "next": "Weiter",
     "close": "Schließen"
+  },
+  "page": {
+    "loading": "Wird geladen…",
+    "pillarsTitle": "Unsere Kernsäulen"
+  },
+  "aboutBreadcrumb": {
+    "ariaLabel": "Über Uns"
   }
 }
