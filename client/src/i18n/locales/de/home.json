@@ -1,4 +1,21 @@
 {
+  "vcommerceSpotlight": {
+    "eyebrow": "Gemeinsam Sinnvolle Wirkung Erzielen",
+    "title": "Partner Werden",
+    "subtitle": "Unterstütze unsere Mission durch Sponsoring, Spenden oder indem du mit unserem Community-Marktplatz mitwächst.",
+    "spotlightTitle": "V.Commerce im Rampenlicht",
+    "spotlightSubtitle": "Entdecke Unternehmen, die unsere Community stärken.",
+    "imageAlt": "{{name}} — Vorgestelltes Community-Unternehmen",
+    "imageLabel": "Vorgestelltes Community-Unternehmen",
+    "sponsored": "Gesponsert",
+    "verifiedBusiness": "Verifiziertes Unternehmen",
+    "reviewCount_one": "({{count}} Bewertung)",
+    "reviewCount_other": "({{count}} Bewertungen)",
+    "cashback": "{{percent}}% V.Wallet Cashback",
+    "visitShop": "Shop Besuchen",
+    "exploreVCommerce": "V.Commerce Entdecken",
+    "disclosure": "Gesponserte Platzierung unterstützt die Programme von Stichting The V.O.I.C.E. NL."
+  },
   "pillars": {
     "title": "Vier Säulen. Eine Mission.",
     "learnMore": "Mehr erfahren",

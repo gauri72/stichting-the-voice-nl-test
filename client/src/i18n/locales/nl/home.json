@@ -1,4 +1,21 @@
 {
+  "vcommerceSpotlight": {
+    "eyebrow": "Samen Betekenisvolle Impact Maken",
+    "title": "Word Partner",
+    "subtitle": "Steun onze missie via sponsoring, donaties, of door mee te groeien met onze community marktplaats.",
+    "spotlightTitle": "V.Commerce In De Schijnwerpers",
+    "spotlightSubtitle": "Ontdek bedrijven die onze community versterken.",
+    "imageAlt": "{{name}} — Uitgelicht Community Bedrijf",
+    "imageLabel": "Uitgelicht Community Bedrijf",
+    "sponsored": "Gesponsord",
+    "verifiedBusiness": "Geverifieerd Bedrijf",
+    "reviewCount_one": "({{count}} beoordeling)",
+    "reviewCount_other": "({{count}} beoordelingen)",
+    "cashback": "{{percent}}% V.Wallet Cashback",
+    "visitShop": "Bezoek Winkel",
+    "exploreVCommerce": "Verken V.Commerce",
+    "disclosure": "Gesponsorde plaatsing ondersteunt de programma's van Stichting The V.O.I.C.E. NL."
+  },
   "pillars": {
     "title": "Vier Pijlers. Één Missie.",
     "learnMore": "Meer informatie",

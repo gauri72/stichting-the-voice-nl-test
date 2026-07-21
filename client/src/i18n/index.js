@@ -22,6 +22,8 @@ import enVcommercePortal from "./locales/en/vcommercePortal.json";
 import enDashboardMobile from "./locales/en/dashboardMobile.json";
 import enDashboardMain from "./locales/en/dashboardMain.json";
 import enDashboardSections from "./locales/en/dashboardSections.json";
+import enEventExperience from "./locales/en/eventExperience.json";
+import enCheckin from "./locales/en/checkin.json";
 
 import nlCommon from "./locales/nl/common.json";
 import nlHome from "./locales/nl/home.json";
@@ -43,6 +45,8 @@ import nlVcommercePortal from "./locales/nl/vcommercePortal.json";
 import nlDashboardMobile from "./locales/nl/dashboardMobile.json";
 import nlDashboardMain from "./locales/nl/dashboardMain.json";
 import nlDashboardSections from "./locales/nl/dashboardSections.json";
+import nlEventExperience from "./locales/nl/eventExperience.json";
+import nlCheckin from "./locales/nl/checkin.json";
 
 import deCommon from "./locales/de/common.json";
 import deHome from "./locales/de/home.json";
@@ -64,6 +68,8 @@ import deVcommercePortal from "./locales/de/vcommercePortal.json";
 import deDashboardMobile from "./locales/de/dashboardMobile.json";
 import deDashboardMain from "./locales/de/dashboardMain.json";
 import deDashboardSections from "./locales/de/dashboardSections.json";
+import deEventExperience from "./locales/de/eventExperience.json";
+import deCheckin from "./locales/de/checkin.json";
 
 export const SUPPORTED_LANGUAGES = [
   { code: "en", label: "English", nativeLabel: "English" },
@@ -99,6 +105,8 @@ i18next
         dashboardMobile: enDashboardMobile,
         dashboardMain: enDashboardMain,
         dashboardSections: enDashboardSections,
+        eventExperience: enEventExperience,
+        checkin: enCheckin,
       },
       nl: {
         common: nlCommon,
@@ -121,6 +129,8 @@ i18next
         dashboardMobile: nlDashboardMobile,
         dashboardMain: nlDashboardMain,
         dashboardSections: nlDashboardSections,
+        eventExperience: nlEventExperience,
+        checkin: nlCheckin,
       },
       de: {
         common: deCommon,
@@ -143,6 +153,8 @@ i18next
         dashboardMobile: deDashboardMobile,
         dashboardMain: deDashboardMain,
         dashboardSections: deDashboardSections,
+        eventExperience: deEventExperience,
+        checkin: deCheckin,
       },
     },
     fallbackLng: "en",
@@ -169,6 +181,8 @@ i18next
       "dashboardMobile",
       "dashboardMain",
       "dashboardSections",
+      "eventExperience",
+      "checkin",
     ],
     defaultNS: "common",
     interpolation: { escapeValue: false },

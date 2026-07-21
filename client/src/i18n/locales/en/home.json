@@ -1,4 +1,21 @@
 {
+  "vcommerceSpotlight": {
+    "eyebrow": "Create Meaningful Impact Together",
+    "title": "Partner With Us",
+    "subtitle": "Support our mission through sponsorship, donations, or by growing with our community marketplace.",
+    "spotlightTitle": "V.Commerce Spotlight",
+    "spotlightSubtitle": "Discover businesses powering our community.",
+    "imageAlt": "{{name}} — Featured Community Business",
+    "imageLabel": "Featured Community Business",
+    "sponsored": "Sponsored",
+    "verifiedBusiness": "Verified Business",
+    "reviewCount_one": "({{count}} review)",
+    "reviewCount_other": "({{count}} reviews)",
+    "cashback": "{{percent}}% V.Wallet Cashback",
+    "visitShop": "Visit Shop",
+    "exploreVCommerce": "Explore V.Commerce",
+    "disclosure": "Sponsored placement supports Stichting The V.O.I.C.E. NL programmes."
+  },
   "pillars": {
     "title": "Four Pillars. One Mission.",
     "learnMore": "Learn more",
