@@ -81,5 +81,11 @@
       "description": "Every contribution powers inclusive events, nurtures young talent, and keeps community-led creativity thriving.",
       "ctaText": "Donate Now"
     }
+  },
+  "hero": {
+    "ariaLabel": "Stichting The V.O.I.C.E. NL"
+  },
+  "pillarDetailModal": {
+    "close": "Close"
   }
 }

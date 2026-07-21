@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { apiFetch } from "../../utils/api.js";
 import "../../styles/admin-memberships-page.css";
 import "../../styles/membership-verification.css";
 
 export default function VerifyMembershipPage() {
+  const { t } = useTranslation(["membership", "common"]);
   const { token } = useParams();
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
@@ -17,7 +19,7 @@ export default function VerifyMembershipPage() {
         });
         setResult(data);
       } catch (err) {
-        setError(err.message || "Verification failed.");
+        setError(err.message || t("membership:verifyMembershipPage.verificationFailed"));
       }
     }
     verify();
@@ -34,7 +36,13 @@ export default function VerifyMembershipPage() {
             {valid ? "✓" : "!"}
           </div>
           <h1>
-            {!member ? "Membership not found" : valid ? "Valid membership" : `Membership ${result?.status || "invalid"}`}
+            {!member
+              ? t("membership:verifyMembershipPage.notFound")
+              : valid
+              ? t("membership:verifyMembershipPage.valid")
+              : t("membership:verifyMembershipPage.statusHeading", {
+                  status: result?.status || t("membership:verifyMembershipPage.statusFallback"),
+                })}
           </h1>
           <p>Stichting The V.O.I.C.E. NL</p>
         </div>
@@ -43,11 +51,11 @@ export default function VerifyMembershipPage() {
           {member ? (
             <dl>
               {[
-                ["Member", member.memberName || member.fullName],
-                ["Membership ID", member.membershipId],
-                ["Type", member.membershipType],
-                ["Status", result.status],
-                ["Valid until", member.validUntil || member.memberUntilLabel],
+                [t("membership:verifyMembershipPage.fields.member"), member.memberName || member.fullName],
+                [t("membership:verifyMembershipPage.fields.membershipId"), member.membershipId],
+                [t("membership:verifyMembershipPage.fields.type"), member.membershipType],
+                [t("membership:verifyMembershipPage.fields.status"), result.status],
+                [t("membership:verifyMembershipPage.fields.validUntil"), member.validUntil || member.memberUntilLabel],
               ].map(([label, value]) => (
                 <div key={label}>
                   <span>{label}</span>
@@ -56,11 +64,11 @@ export default function VerifyMembershipPage() {
               ))}
             </dl>
           ) : (
-            <p className="membership-verification__empty">This QR code does not match any membership in our records.</p>
+            <p className="membership-verification__empty">{t("membership:verifyMembershipPage.invalidQrMessage")}</p>
           )}
         </div>
       </div>
-      <p className="membership-verification__footer">© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.</p>
+      <p className="membership-verification__footer">{t("common:footer.copyrightText")}</p>
     </div>
   );
 }

@@ -53,5 +53,23 @@
     "row10": "Valid For",
     "allEvents": "All Events",
     "oneYear": "1 Year"
+  },
+  "membershipBreadcrumb": {
+    "ariaLabel": "Membership"
+  },
+  "verifyMembershipPage": {
+    "notFound": "Membership not found",
+    "valid": "Valid membership",
+    "statusHeading": "Membership {{status}}",
+    "statusFallback": "invalid",
+    "verificationFailed": "Verification failed.",
+    "invalidQrMessage": "This QR code does not match any membership in our records.",
+    "fields": {
+      "member": "Member",
+      "membershipId": "Membership ID",
+      "type": "Type",
+      "status": "Status",
+      "validUntil": "Valid until"
+    }
   }
 }

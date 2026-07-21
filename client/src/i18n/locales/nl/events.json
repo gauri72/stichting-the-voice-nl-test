@@ -63,5 +63,22 @@
     "previous": "Vorige",
     "next": "Volgende",
     "close": "Sluiten"
+  },
+  "eventsHighlightsGallery": {
+    "eyebrow": "Evenementhoogtepunten",
+    "defaultTitle": "Evenementhoogtepunten",
+    "close": "Sluit hoogtepuntengalerij",
+    "previousImage": "Vorige afbeelding",
+    "nextImage": "Volgende afbeelding",
+    "loadError": "Deze afbeelding kon niet worden geladen. Gebruik de pijlen om andere foto's te bekijken.",
+    "imageAlt": "{{title}} hoogtepunt {{index}} van {{total}}"
+  },
+  "eventsYoutubeShortsPip": {
+    "eyebrow": "Evenementhoogtepunt",
+    "close": "Sluit video",
+    "videoTitle": "{{title}} — YouTube Short"
+  },
+  "eventsBreadcrumb": {
+    "ariaLabel": "Ervaring"
   }
 }

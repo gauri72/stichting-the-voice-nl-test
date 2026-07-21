@@ -44,5 +44,12 @@
     "previous": "Vorige",
     "next": "Volgende",
     "close": "Sluiten"
+  },
+  "page": {
+    "loading": "Laden…",
+    "pillarsTitle": "Onze Kernpijlers"
+  },
+  "aboutBreadcrumb": {
+    "ariaLabel": "Over Ons"
   }
 }

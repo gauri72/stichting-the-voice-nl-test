@@ -53,5 +53,23 @@
     "row10": "Geldig Voor",
     "allEvents": "Alle Evenementen",
     "oneYear": "1 Jaar"
+  },
+  "membershipBreadcrumb": {
+    "ariaLabel": "Lidmaatschap"
+  },
+  "verifyMembershipPage": {
+    "notFound": "Lidmaatschap niet gevonden",
+    "valid": "Geldig lidmaatschap",
+    "statusHeading": "Lidmaatschap {{status}}",
+    "statusFallback": "ongeldig",
+    "verificationFailed": "Verificatie mislukt.",
+    "invalidQrMessage": "Deze QR-code komt niet overeen met een lidmaatschap in onze administratie.",
+    "fields": {
+      "member": "Lid",
+      "membershipId": "Lidmaatschaps-ID",
+      "type": "Type",
+      "status": "Status",
+      "validUntil": "Geldig tot"
+    }
   }
 }

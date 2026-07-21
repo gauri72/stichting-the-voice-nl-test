@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { FaXmark } from "react-icons/fa6";
 import "../../styles/events-highlights-gallery.css";
 
@@ -7,6 +8,8 @@ import "../../styles/events-highlights-gallery.css";
  * @param {{ video: { title: string, youtubeId: string } | null, onClose: () => void }} props
  */
 export default function EventsYouTubeShortsPip({ video, onClose }) {
+  const { t } = useTranslation(["events"]);
+
   useEffect(() => {
     if (!video) return undefined;
 
@@ -41,7 +44,7 @@ export default function EventsYouTubeShortsPip({ video, onClose }) {
       >
         <header className="events-highlights-pip__header">
           <div>
-            <p className="events-highlights-pip__eyebrow">Event highlight</p>
+            <p className="events-highlights-pip__eyebrow">{t("events:eventsYoutubeShortsPip.eyebrow")}</p>
             <h2 id="events-highlights-pip-title" className="events-highlights-pip__title">
               {video.title}
             </h2>
@@ -50,7 +53,7 @@ export default function EventsYouTubeShortsPip({ video, onClose }) {
             type="button"
             className="events-highlights-pip__close"
             onClick={onClose}
-            aria-label="Close video"
+            aria-label={t("events:eventsYoutubeShortsPip.close")}
           >
             <FaXmark aria-hidden />
           </button>
@@ -61,7 +64,7 @@ export default function EventsYouTubeShortsPip({ video, onClose }) {
             <iframe
               className="events-highlights-pip__video"
               src={embedUrl}
-              title={`${video.title} — YouTube Short`}
+              title={t("events:eventsYoutubeShortsPip.videoTitle", { title: video.title })}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
             />

@@ -1,11 +1,14 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconArrowRight, IconX } from "@tabler/icons-react";
 import { TABLER_ICON_STROKE } from "../../constants/homeIcons.js";
 import "../../styles/pillar-detail-modal.css";
 
 export default function PillarDetailModal({ pillar, onClose, knowMoreLabel }) {
+  const { t } = useTranslation(["home"]);
+
   useEffect(() => {
     if (!pillar) return undefined;
     function onKeyDown(event) {
@@ -32,7 +35,7 @@ export default function PillarDetailModal({ pillar, onClose, knowMoreLabel }) {
       onClick={onClose}
     >
       <div className={`pillar-detail-modal__panel pillar-detail-modal__panel--${accent}`} onClick={(e) => e.stopPropagation()}>
-        <button type="button" className="pillar-detail-modal__close" onClick={onClose} aria-label="Close">
+        <button type="button" className="pillar-detail-modal__close" onClick={onClose} aria-label={t("home:pillarDetailModal.close")}>
           <IconX size={20} stroke={2} aria-hidden />
         </button>
 
