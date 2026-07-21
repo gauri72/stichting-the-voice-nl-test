@@ -8,9 +8,9 @@
    just stacked on top of each other).
 
    Desktop and mobile intentionally show different button sets (install +
-   language + WhatsApp vs. install + chat + theme toggle, bottom-left vs.
-   bottom-right) — both render unconditionally in the DOM and this CSS picks
-   which is visible per breakpoint. */
+   language + WhatsApp vs. install + chat + theme toggle) but the same
+   corner — top-right of the banner. Both render unconditionally in the DOM
+   and this CSS picks which is visible per breakpoint. */
 .hero-action-cluster {
   position: absolute;
   z-index: 3;
@@ -20,8 +20,8 @@
 }
 
 .hero-action-cluster--desktop {
-  left: 16px;
-  bottom: 16px;
+  right: 16px;
+  top: 16px;
 }
 
 .hero-action-cluster--mobile {
