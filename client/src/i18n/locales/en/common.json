@@ -79,5 +79,74 @@
       "helpQuestion": "Can we help you?",
       "openChat": "Open chat"
     }
+  },
+  "themeToggle": {
+    "chooseTheme": "Choose theme",
+    "themePreference": "Theme preference",
+    "appearance": "Appearance",
+    "dark": "Dark",
+    "light": "Light",
+    "auto": "Auto",
+    "darkDescription": "Always use dark theme",
+    "lightDescription": "Always use light theme",
+    "autoDescription": "Follow local sunrise and sunset",
+    "themeTitle": "{{mode}} theme",
+    "locating": "Finding your location…",
+    "transitionAt": "{{mode}} at {{time}}",
+    "usingDeviceTheme": "Using your device theme",
+    "privacyNote": "Location stays on this device and is used only for daylight timing."
+  },
+  "appSplash": {
+    "loading": "Loading…"
+  },
+  "footerPwaDownloads": {
+    "title": "Download app",
+    "appLabel": "V.O.I.C.E. app",
+    "appSubtitle": "Install website"
+  },
+  "errorBoundary": {
+    "heading": "Something went wrong",
+    "message": "The page could not load. Please refresh or try again later.",
+    "refreshButton": "Refresh page"
+  },
+  "voiceVMarkLink": {
+    "ariaLabel": "Stichting The V.O.I.C.E. NL — go to homepage"
+  },
+  "routeErrorBoundary": {
+    "heading": "Something went wrong",
+    "message": "This section could not load. Please refresh or try again.",
+    "refreshButton": "Refresh"
+  },
+  "toast": {
+    "dismiss": "Dismiss"
+  },
+  "turnstileWidget": {
+    "ariaLabel": "Security verification"
+  },
+  "pwaInstallDialog": {
+    "close": "Close",
+    "oneTapSupport": "Your browser supports one-tap install.",
+    "installing": "Installing…",
+    "installNow": "Install now",
+    "openCheckInPage": "Open check-in page"
+  },
+  "siteInstallPwaPrompt": {
+    "installAriaLabel": "Install V.App",
+    "dismissAriaLabel": "Dismiss install prompt"
+  },
+  "maintenancePage": {
+    "heading": "We'll be right back",
+    "bodyPrefix": "Our website is currently down for scheduled maintenance. We're working hard to bring you an even better experience. We'll be back online on",
+    "bodySuffix": ".",
+    "liveSoon": "We're live — please refresh the page!",
+    "countdownAriaLabel": "Time until site is back",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds",
+    "questions": "Questions?"
+  },
+  "previewPage": {
+    "contactUs": "Contact Us"
   }
 }

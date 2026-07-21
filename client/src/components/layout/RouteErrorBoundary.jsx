@@ -1,9 +1,10 @@
 import { Component } from "react";
+import { withTranslation } from "react-i18next";
 
 /**
  * Isolates render errors so one broken section does not crash the whole app.
  */
-export default class RouteErrorBoundary extends Component {
+class RouteErrorBoundary extends Component {
   constructor(props) {
     super(props);
     this.state = { error: null };
@@ -19,12 +20,13 @@ export default class RouteErrorBoundary extends Component {
 
   render() {
     if (this.state.error) {
+      const { t } = this.props;
       return (
         <div className="route-error-boundary" role="alert">
-          <h2>{this.props.title || "Something went wrong"}</h2>
-          <p>{this.props.message || "This section could not load. Please refresh or try again."}</p>
+          <h2>{this.props.title || t("common:routeErrorBoundary.heading")}</h2>
+          <p>{this.props.message || t("common:routeErrorBoundary.message")}</p>
           <button type="button" className="admin-events__primary-btn" onClick={() => window.location.reload()}>
-            Refresh
+            {t("common:routeErrorBoundary.refreshButton")}
           </button>
         </div>
       );
@@ -32,3 +34,5 @@ export default class RouteErrorBoundary extends Component {
     return this.props.children;
   }
 }
+
+export default withTranslation(["common"])(RouteErrorBoundary);

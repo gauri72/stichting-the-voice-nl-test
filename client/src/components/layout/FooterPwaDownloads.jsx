@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { IconDownload } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import PwaInstallDialog from "../pwa/PwaInstallDialog.jsx";
 import { isStandalonePwa, PWA_VARIANTS } from "../../pwa/manifestConfig.js";
 
@@ -32,6 +33,7 @@ function DesktopPwaItem({ icon: Icon, label, subtitle, onClick }) {
 }
 
 export default function FooterPwaDownloads({ variant = "mobile" }) {
+  const { t } = useTranslation(["common"]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const Item = variant === "desktop" ? DesktopPwaItem : MobilePwaItem;
 
@@ -40,13 +42,13 @@ export default function FooterPwaDownloads({ variant = "mobile" }) {
   return (
     <div className="footer-pwa-downloads">
       <p className={`footer-pwa-downloads__title footer-pwa-downloads__title--${variant}`}>
-        Download app
+        {t("common:footerPwaDownloads.title")}
       </p>
       <div className={variant === "desktop" ? "footer-desktop-quick-grid" : "footer-mobile-quick-grid"}>
         <Item
           icon={IconDownload}
-          label="V.O.I.C.E. app"
-          subtitle="Install website"
+          label={t("common:footerPwaDownloads.appLabel")}
+          subtitle={t("common:footerPwaDownloads.appSubtitle")}
           onClick={() => setDialogOpen(true)}
         />
       </div>

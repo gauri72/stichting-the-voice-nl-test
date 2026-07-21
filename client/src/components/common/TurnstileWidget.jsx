@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { isTurnstileEnabled } from "../../utils/captcha.js";
 import "../../styles/turnstile-widget.css";
 
@@ -34,6 +35,7 @@ function getTurnstileTheme() {
 }
 
 export default function TurnstileWidget({ onVerify, onExpire, onError, resetKey = 0 }) {
+  const { t } = useTranslation(["common"]);
   const containerRef = useRef(null);
   const widgetIdRef = useRef(null);
 
@@ -76,7 +78,7 @@ export default function TurnstileWidget({ onVerify, onExpire, onError, resetKey 
     <div
       ref={containerRef}
       className="turnstile-widget"
-      aria-label="Security verification"
+      aria-label={t("common:turnstileWidget.ariaLabel")}
     />
   );
 }

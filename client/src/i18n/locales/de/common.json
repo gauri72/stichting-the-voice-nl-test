@@ -79,5 +79,74 @@
       "helpQuestion": "Können wir Ihnen helfen?",
       "openChat": "Chat öffnen"
     }
+  },
+  "themeToggle": {
+    "chooseTheme": "Design wählen",
+    "themePreference": "Design-Einstellung",
+    "appearance": "Erscheinungsbild",
+    "dark": "Dunkel",
+    "light": "Hell",
+    "auto": "Automatisch",
+    "darkDescription": "Immer dunkles Design verwenden",
+    "lightDescription": "Immer helles Design verwenden",
+    "autoDescription": "Lokalem Sonnenauf- und -untergang folgen",
+    "themeTitle": "{{mode}} Design",
+    "locating": "Standort wird ermittelt…",
+    "transitionAt": "{{mode}} um {{time}}",
+    "usingDeviceTheme": "Geräteeinstellung wird verwendet",
+    "privacyNote": "Dein Standort bleibt auf diesem Gerät und wird nur für die Tageslichtzeiten verwendet."
+  },
+  "appSplash": {
+    "loading": "Wird geladen…"
+  },
+  "footerPwaDownloads": {
+    "title": "App herunterladen",
+    "appLabel": "V.O.I.C.E. App",
+    "appSubtitle": "Website installieren"
+  },
+  "errorBoundary": {
+    "heading": "Etwas ist schiefgelaufen",
+    "message": "Die Seite konnte nicht geladen werden. Bitte aktualisiere die Seite oder versuche es später erneut.",
+    "refreshButton": "Seite aktualisieren"
+  },
+  "voiceVMarkLink": {
+    "ariaLabel": "Stichting The V.O.I.C.E. NL — zur Startseite"
+  },
+  "routeErrorBoundary": {
+    "heading": "Etwas ist schiefgelaufen",
+    "message": "Dieser Bereich konnte nicht geladen werden. Bitte aktualisiere die Seite oder versuche es erneut.",
+    "refreshButton": "Aktualisieren"
+  },
+  "toast": {
+    "dismiss": "Schließen"
+  },
+  "turnstileWidget": {
+    "ariaLabel": "Sicherheitsüberprüfung"
+  },
+  "pwaInstallDialog": {
+    "close": "Schließen",
+    "oneTapSupport": "Dein Browser unterstützt die Installation mit einem Klick.",
+    "installing": "Wird installiert…",
+    "installNow": "Jetzt installieren",
+    "openCheckInPage": "Zur Check-in-Seite"
+  },
+  "siteInstallPwaPrompt": {
+    "installAriaLabel": "V.App installieren",
+    "dismissAriaLabel": "Installationshinweis schließen"
+  },
+  "maintenancePage": {
+    "heading": "Wir sind gleich zurück",
+    "bodyPrefix": "Unsere Website ist derzeit wegen geplanter Wartungsarbeiten offline. Wir arbeiten hart daran, dir ein noch besseres Erlebnis zu bieten. Wir sind wieder online am",
+    "bodySuffix": ".",
+    "liveSoon": "Wir sind wieder live — bitte lade die Seite neu!",
+    "countdownAriaLabel": "Zeit bis die Website wieder online ist",
+    "days": "Tage",
+    "hours": "Stunden",
+    "minutes": "Minuten",
+    "seconds": "Sekunden",
+    "questions": "Fragen?"
+  },
+  "previewPage": {
+    "contactUs": "Kontaktieren Sie Uns"
   }
 }

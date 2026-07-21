@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 /** Same file as tab favicon (`public/favicon.png`) so the browser can reuse one small request. */
 const SPLASH_LOGO_SRC = `${import.meta.env.BASE_URL}favicon.png`;
@@ -7,6 +8,7 @@ const MIN_MS = 650;
 const FADE_MS = 480;
 
 export default function AppSplash({ disabled = false }) {
+  const { t } = useTranslation(["common"]);
   const [phase, setPhase] = useState(disabled ? "gone" : "show");
   const startedFade = useRef(disabled);
 
@@ -54,11 +56,11 @@ export default function AppSplash({ disabled = false }) {
 
   useEffect(() => {
     if (phase !== "fade") return undefined;
-    const t = window.setTimeout(() => {
+    const fadeTimeout = window.setTimeout(() => {
       setPhase("gone");
       document.documentElement.classList.remove("splash-open");
     }, FADE_MS);
-    return () => window.clearTimeout(t);
+    return () => window.clearTimeout(fadeTimeout);
   }, [phase]);
 
   if (disabled || phase === "gone") return null;
@@ -82,6 +84,7 @@ export default function AppSplash({ disabled = false }) {
             fetchPriority="high"
           />
         </div>
+        <span className="visually-hidden">{t("common:appSplash.loading")}</span>
       </div>
     </div>
   );

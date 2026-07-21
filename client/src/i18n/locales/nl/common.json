@@ -79,5 +79,74 @@
       "helpQuestion": "Kunnen we je helpen?",
       "openChat": "Chat openen"
     }
+  },
+  "themeToggle": {
+    "chooseTheme": "Thema kiezen",
+    "themePreference": "Themavoorkeur",
+    "appearance": "Weergave",
+    "dark": "Donker",
+    "light": "Licht",
+    "auto": "Automatisch",
+    "darkDescription": "Altijd donker thema gebruiken",
+    "lightDescription": "Altijd licht thema gebruiken",
+    "autoDescription": "Volg lokale zonsopgang en zonsondergang",
+    "themeTitle": "{{mode}} thema",
+    "locating": "Locatie bepalen…",
+    "transitionAt": "{{mode}} om {{time}}",
+    "usingDeviceTheme": "Themavoorkeur van je apparaat wordt gebruikt",
+    "privacyNote": "Je locatie blijft op dit apparaat en wordt alleen gebruikt voor de daglichttiming."
+  },
+  "appSplash": {
+    "loading": "Bezig met laden…"
+  },
+  "footerPwaDownloads": {
+    "title": "App downloaden",
+    "appLabel": "V.O.I.C.E. app",
+    "appSubtitle": "Website installeren"
+  },
+  "errorBoundary": {
+    "heading": "Er is iets misgegaan",
+    "message": "De pagina kon niet worden geladen. Vernieuw de pagina of probeer het later opnieuw.",
+    "refreshButton": "Pagina vernieuwen"
+  },
+  "voiceVMarkLink": {
+    "ariaLabel": "Stichting The V.O.I.C.E. NL — ga naar de homepage"
+  },
+  "routeErrorBoundary": {
+    "heading": "Er is iets misgegaan",
+    "message": "Dit onderdeel kon niet worden geladen. Vernieuw de pagina of probeer het opnieuw.",
+    "refreshButton": "Vernieuwen"
+  },
+  "toast": {
+    "dismiss": "Sluiten"
+  },
+  "turnstileWidget": {
+    "ariaLabel": "Beveiligingscontrole"
+  },
+  "pwaInstallDialog": {
+    "close": "Sluiten",
+    "oneTapSupport": "Je browser ondersteunt installeren met één tik.",
+    "installing": "Bezig met installeren…",
+    "installNow": "Nu installeren",
+    "openCheckInPage": "Ga naar de incheckpagina"
+  },
+  "siteInstallPwaPrompt": {
+    "installAriaLabel": "V.App installeren",
+    "dismissAriaLabel": "Installatiemelding sluiten"
+  },
+  "maintenancePage": {
+    "heading": "We zijn zo terug",
+    "bodyPrefix": "Onze website is momenteel offline voor gepland onderhoud. We werken hard aan een nog betere ervaring. We zijn weer online op",
+    "bodySuffix": ".",
+    "liveSoon": "We zijn weer live — vernieuw de pagina!",
+    "countdownAriaLabel": "Tijd tot de website weer online is",
+    "days": "Dagen",
+    "hours": "Uren",
+    "minutes": "Minuten",
+    "seconds": "Seconden",
+    "questions": "Vragen?"
+  },
+  "previewPage": {
+    "contactUs": "Neem Contact Op"
   }
 }

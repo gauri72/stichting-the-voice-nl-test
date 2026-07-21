@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import "../../styles/maintenance.css";
 
 const LOGO_SRC = `${import.meta.env.BASE_URL}favicon.png`;
@@ -44,6 +45,7 @@ function CountdownUnit({ value, label }) {
 }
 
 export default function MaintenancePage() {
+  const { t } = useTranslation(["common"]);
   const [timeLeft, setTimeLeft] = useState(getTimeLeft);
 
   useEffect(() => {
@@ -63,30 +65,30 @@ export default function MaintenancePage() {
 
         <p className="maint-page__org">Stichting The V.O.I.C.E. NL</p>
 
-        <h1 className="maint-page__heading">We'll be right back</h1>
+        <h1 className="maint-page__heading">{t("common:maintenancePage.heading")}</h1>
 
         <p className="maint-page__body">
-          Our website is currently down for scheduled maintenance. We're working hard to
-          bring you an even better experience. We'll be back online on{" "}
-          <strong>{TARGET_LABEL}</strong>.
+          {t("common:maintenancePage.bodyPrefix")}{" "}
+          <strong>{TARGET_LABEL}</strong>
+          {t("common:maintenancePage.bodySuffix")}
         </p>
 
         {timeLeft.done ? (
-          <p className="maint-page__live-soon">We're live — please refresh the page!</p>
+          <p className="maint-page__live-soon">{t("common:maintenancePage.liveSoon")}</p>
         ) : (
-          <div className="maint-countdown" aria-label="Time until site is back">
-            <CountdownUnit value={timeLeft.days} label="Days" />
+          <div className="maint-countdown" aria-label={t("common:maintenancePage.countdownAriaLabel")}>
+            <CountdownUnit value={timeLeft.days} label={t("common:maintenancePage.days")} />
             <span className="maint-countdown__sep" aria-hidden>:</span>
-            <CountdownUnit value={timeLeft.hours} label="Hours" />
+            <CountdownUnit value={timeLeft.hours} label={t("common:maintenancePage.hours")} />
             <span className="maint-countdown__sep" aria-hidden>:</span>
-            <CountdownUnit value={timeLeft.minutes} label="Minutes" />
+            <CountdownUnit value={timeLeft.minutes} label={t("common:maintenancePage.minutes")} />
             <span className="maint-countdown__sep" aria-hidden>:</span>
-            <CountdownUnit value={timeLeft.seconds} label="Seconds" />
+            <CountdownUnit value={timeLeft.seconds} label={t("common:maintenancePage.seconds")} />
           </div>
         )}
 
         <p className="maint-page__contact">
-          Questions?{" "}
+          {t("common:maintenancePage.questions")}{" "}
           <a href="mailto:info@stichtingthevoice.nl">info@stichtingthevoice.nl</a>
         </p>
       </div>

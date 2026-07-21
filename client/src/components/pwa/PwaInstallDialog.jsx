@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { IconDownload, IconX } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import { usePwaInstall } from "../../hooks/usePwaInstall.js";
 import { getPwaInstallSteps } from "../../pwa/pwaPlatform.js";
 import { isStandalonePwa } from "../../pwa/manifestConfig.js";
 import "../../styles/pwa-install-dialog.css";
 
 export default function PwaInstallDialog({ open, onClose, variant = "site" }) {
+  const { t } = useTranslation(["common"]);
   const { canInstall, promptInstall } = usePwaInstall(variant);
   const [installing, setInstalling] = useState(false);
   const guide = getPwaInstallSteps(variant);
@@ -37,7 +39,12 @@ export default function PwaInstallDialog({ open, onClose, variant = "site" }) {
 
   return (
     <div className="pwa-install-dialog" role="presentation">
-      <button type="button" className="pwa-install-dialog__backdrop" onClick={onClose} aria-label="Close" />
+      <button
+        type="button"
+        className="pwa-install-dialog__backdrop"
+        onClick={onClose}
+        aria-label={t("common:pwaInstallDialog.close")}
+      />
       <div
         className="pwa-install-dialog__panel"
         role="dialog"
@@ -46,14 +53,19 @@ export default function PwaInstallDialog({ open, onClose, variant = "site" }) {
       >
         <header className="pwa-install-dialog__header">
           <h2 id="pwa-install-dialog-title">{guide.title}</h2>
-          <button type="button" className="pwa-install-dialog__close" onClick={onClose} aria-label="Close">
+          <button
+            type="button"
+            className="pwa-install-dialog__close"
+            onClick={onClose}
+            aria-label={t("common:pwaInstallDialog.close")}
+          >
             <IconX size={18} />
           </button>
         </header>
 
         {canInstall ? (
           <div className="pwa-install-dialog__native">
-            <p>Your browser supports one-tap install.</p>
+            <p>{t("common:pwaInstallDialog.oneTapSupport")}</p>
             <button
               type="button"
               className="pwa-install-dialog__install-btn"
@@ -61,7 +73,7 @@ export default function PwaInstallDialog({ open, onClose, variant = "site" }) {
               disabled={installing}
             >
               <IconDownload size={18} aria-hidden />
-              {installing ? "Installing…" : "Install now"}
+              {installing ? t("common:pwaInstallDialog.installing") : t("common:pwaInstallDialog.installNow")}
             </button>
           </div>
         ) : (
@@ -76,7 +88,7 @@ export default function PwaInstallDialog({ open, onClose, variant = "site" }) {
 
         {variant === "checkin" ? (
           <Link to="/check-in" className="pwa-install-dialog__link" onClick={onClose}>
-            Open check-in page
+            {t("common:pwaInstallDialog.openCheckInPage")}
           </Link>
         ) : null}
       </div>

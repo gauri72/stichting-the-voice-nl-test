@@ -1,5 +1,6 @@
 import { createPortal } from "react-dom";
 import { IconCheck, IconX, IconAlertTriangle } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 import "../../styles/toast.css";
 
 const ICONS = {
@@ -10,6 +11,7 @@ const ICONS = {
 /** Fixed bottom-right stack, rendered via portal so it's never clipped by an ancestor's
  * overflow/transform — same portal approach already used by LoginModal.jsx. */
 export default function ToastContainer({ toasts, onDismiss }) {
+  const { t } = useTranslation(["common"]);
   if (!toasts.length) return null;
 
   return createPortal(
@@ -20,7 +22,12 @@ export default function ToastContainer({ toasts, onDismiss }) {
           <div key={toast.id} className={`toast toast--${toast.type}`}>
             <Icon size={18} aria-hidden />
             <span className="toast__message">{toast.message}</span>
-            <button type="button" className="toast__close" onClick={() => onDismiss(toast.id)} aria-label="Dismiss">
+            <button
+              type="button"
+              className="toast__close"
+              onClick={() => onDismiss(toast.id)}
+              aria-label={t("common:toast.dismiss")}
+            >
               <IconX size={14} />
             </button>
           </div>
