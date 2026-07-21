@@ -1,8 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconCheck, IconDownload, IconMessageCircle, IconMoon, IconSun } from "@tabler/icons-react";
+import { IconCheck, IconDownload, IconMessageCircle } from "@tabler/icons-react";
 import { SUPPORTED_LANGUAGES } from "../../i18n/index.js";
-import { useTheme } from "../../contexts/ThemeContext.jsx";
 import ThemeToggle from "./ThemeToggle.jsx";
 import PwaInstallDialog from "../pwa/PwaInstallDialog.jsx";
 import { isStandalonePwa, PWA_VARIANTS } from "../../pwa/manifestConfig.js";
@@ -131,20 +130,6 @@ function ChatButton({ t }) {
   );
 }
 
-function ThemeToggleButton({ t }) {
-  const { isDark, toggleTheme } = useTheme();
-  return (
-    <button
-      type="button"
-      className="hero-action-cluster__btn hero-action-cluster__btn--theme"
-      onClick={toggleTheme}
-      aria-label={t("common:themeToggle.chooseTheme")}
-    >
-      {isDark ? <IconSun size={15} stroke={1.75} /> : <IconMoon size={15} stroke={1.75} />}
-    </button>
-  );
-}
-
 /**
  * V.App install / language / WhatsApp glass buttons anchored to the hero
  * banner. Desktop and mobile intentionally show different button sets (per
@@ -219,7 +204,7 @@ export default function HeroActionCluster() {
       <div className="hero-action-cluster hero-action-cluster--mobile">
         <InstallButton t={t} />
         <ChatButton t={t} />
-        <ThemeToggleButton t={t} />
+        <ThemeToggle />
       </div>
     </>
   );
