@@ -46,7 +46,7 @@ export default function ImpactHerBeatsSection() {
         </div>
 
         <a
-          className="impact-herbeats__cta"
+          className="impact-herbeats__cta cta-pulse"
           href={ctaHref}
           target="_blank"
           rel="noopener noreferrer"

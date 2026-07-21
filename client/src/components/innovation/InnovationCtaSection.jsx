@@ -27,7 +27,7 @@ export default function InnovationCtaSection() {
           <p className="innovation-cta__description">
             {resolveOverrideText(overrides.ventureCtaDescription, INNOVATION_CTA.description, t("innovation:cta.description"))}
           </p>
-          <Link to={overrides.ventureCtaButtonLink || INNOVATION_CTA.buttonTo} className="innovation-cta__button">
+          <Link to={overrides.ventureCtaButtonLink || INNOVATION_CTA.buttonTo} className="innovation-cta__button cta-pulse">
             {resolveOverrideText(overrides.ventureCtaButtonText, INNOVATION_CTA.buttonLabel, t("innovation:cta.buttonLabel"))}
             <IconArrowRight size={18} stroke={2} aria-hidden />
           </Link>

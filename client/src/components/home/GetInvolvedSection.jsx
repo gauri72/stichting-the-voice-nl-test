@@ -88,7 +88,7 @@ export default function GetInvolvedSection() {
           {linkCards.map(({ overrideKey, i18nKey, titleEn, descriptionEn, to, accent, Icon, image }) => (
             <Link
               key={i18nKey}
-              className={`get-involved-card get-involved-card--with-image get-involved-card--${accent}`}
+              className={`get-involved-card get-involved-card--with-image get-involved-card--${accent} cta-pulse`}
               to={overrides[`${overrideKey}Link`] || to}
               style={{ "--get-involved-image": `url(${image})` }}
             >
@@ -111,7 +111,7 @@ export default function GetInvolvedSection() {
 
           <button
             type="button"
-            className={`get-involved-card get-involved-card--with-image get-involved-card--${volunteerCard.accent}`}
+            className={`get-involved-card get-involved-card--with-image get-involved-card--${volunteerCard.accent} cta-pulse`}
             onClick={openModal}
             aria-haspopup="dialog"
             style={{ "--get-involved-image": `url(${volunteerCard.image})` }}

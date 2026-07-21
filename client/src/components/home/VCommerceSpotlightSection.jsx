@@ -66,8 +66,8 @@ export default function VCommerceSpotlightSection() {
             <p className="vcommerce-spotlight__description">{business.description}</p>
 
             <div className="vcommerce-spotlight__actions">
-              <Link className="vcommerce-spotlight__primary" to={business.shopUrl}>{t("home:vcommerceSpotlight.visitShop")} <IconArrowRight aria-hidden="true" /></Link>
-              <Link className="vcommerce-spotlight__secondary" to="/vcommerce">{t("home:vcommerceSpotlight.exploreVCommerce")} <IconArrowRight aria-hidden="true" /></Link>
+              <Link className="vcommerce-spotlight__primary cta-pulse" to={business.shopUrl}>{t("home:vcommerceSpotlight.visitShop")} <IconArrowRight aria-hidden="true" /></Link>
+              <Link className="vcommerce-spotlight__secondary cta-pulse" to="/vcommerce">{t("home:vcommerceSpotlight.exploreVCommerce")} <IconArrowRight aria-hidden="true" /></Link>
             </div>
           </div>
         </article>

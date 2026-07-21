@@ -103,7 +103,7 @@ export default function SponsorshipPlansCardsSection({ selectedTierId, onSelectT
 
                   <button
                     type="button"
-                    className="sponsorship-plans-card__cta"
+                    className="sponsorship-plans-card__cta cta-pulse"
                     onClick={() => onSelectTier?.(tier)}
                     aria-controls="sponsorship-payment"
                     aria-expanded={selectedTierId === tier.id}

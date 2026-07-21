@@ -294,7 +294,7 @@ export default function FeaturedEventsCarousel({
                   ) : null}
                 </div>
                 <div className="fec__actions">
-                  <Link className="fec__cta fec__cta--primary" to={event.ticketsUrl}>
+                  <Link className="fec__cta fec__cta--primary cta-pulse" to={event.ticketsUrl}>
                     <FeaturedEventCtaText event={event} />
                   </Link>
                 </div>

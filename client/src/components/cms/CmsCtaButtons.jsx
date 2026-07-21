@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 function CtaLink({ cta }) {
   if (!cta?.visible && cta?.visible !== undefined) return null;
   if (!cta?.text) return null;
-  const className = `cms-cta cms-cta--${cta.style || "primary"}`;
+  const className = `cms-cta cms-cta--${cta.style || "primary"} cta-pulse`;
   if (cta.url?.startsWith("/")) {
     return <Link to={cta.url} className={className} target={cta.target}>{cta.text}</Link>;
   }

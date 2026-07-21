@@ -88,7 +88,7 @@ export default function DonatePlansCardsSection({ selectedTierId, onSelectTier }
 
                   <button
                     type="button"
-                    className="donate-plans-card__cta"
+                    className="donate-plans-card__cta cta-pulse"
                     onClick={() => onSelectTier?.(tier)}
                     aria-controls="donate-payment"
                     aria-expanded={selectedTierId === tier.id}

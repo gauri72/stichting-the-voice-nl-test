@@ -26,11 +26,11 @@ export default function LoginCtaSection() {
           </div>
 
           <div className="login-cta__actions">
-            <Link className="login-cta__btn login-cta__btn--primary" to="/membership">
+            <Link className="login-cta__btn login-cta__btn--primary cta-pulse" to="/membership">
               <FaStar aria-hidden />
               {t("auth:cta.upgradeMembership")}
             </Link>
-            <Link className="login-cta__btn login-cta__btn--secondary" to="/sponsorship">
+            <Link className="login-cta__btn login-cta__btn--secondary cta-pulse" to="/sponsorship">
               <FaHandshake aria-hidden />
               {t("auth:cta.becomeSponsor")}
             </Link>

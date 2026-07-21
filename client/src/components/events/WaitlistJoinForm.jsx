@@ -64,7 +64,7 @@ export default function WaitlistJoinForm({
     return (
       <button
         type="button"
-        className="ticket-booking__waitlist-trigger"
+        className="ticket-booking__waitlist-trigger cta-pulse"
         onClick={() => setOpen(true)}
       >
         <IconClockHour4 size={16} /> {t("checkout:waitlist.joinWaitlist")}

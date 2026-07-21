@@ -262,7 +262,7 @@ export default function Footer() {
           <FooterMobileDivider />
 
           <a
-            className="footer-mobile-whatsapp-btn"
+            className="footer-mobile-whatsapp-btn cta-pulse"
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -395,7 +395,7 @@ export default function Footer() {
 
           <aside className="footer-desktop-hero__aside">
             <a
-              className="footer-desktop-whatsapp-btn"
+              className="footer-desktop-whatsapp-btn cta-pulse"
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"

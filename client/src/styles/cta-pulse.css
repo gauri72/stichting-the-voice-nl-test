@@ -1,0 +1,27 @@
+/* Shared "click me" ambient cue for primary CTA buttons/links sitewide —
+   a gentle up-and-down float, as if the button is drifting in place, so it
+   reads as alive/inviting without requiring hover. Pauses on hover/focus so
+   it doesn't fight with each button's own hover-lift transform. */
+@keyframes ctaFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.cta-pulse {
+  animation: ctaFloat 2.6s ease-in-out infinite;
+}
+
+.cta-pulse:hover,
+.cta-pulse:focus-visible {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-pulse {
+    animation: none;
+  }
+}

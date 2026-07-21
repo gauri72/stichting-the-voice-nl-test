@@ -22,7 +22,7 @@ export default function BusinessOwnerCTA({ variant = "desktop" }) {
         </div>
         <Link
           to="/vcommerce/apply"
-          className="vcohp-desk__biz-cta-btn"
+          className="vcohp-desk__biz-cta-btn cta-pulse"
           style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 10, background: "var(--mkt-cyan)", color: "#071426", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}
         >
           {t("vcommerceShop:businessOwnerCta.desktop.cta")} <IconArrowRight size={15} aria-hidden="true" />
@@ -46,7 +46,7 @@ export default function BusinessOwnerCTA({ variant = "desktop" }) {
       </p>
       <Link
         to="/vcommerce/apply"
-        className="vcohp-mob__biz-cta-btn"
+        className="vcohp-mob__biz-cta-btn cta-pulse"
         style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 0", borderRadius: 8, background: "var(--mkt-cyan)", color: "#071426", fontWeight: 700, fontSize: "0.82rem", textDecoration: "none" }}
       >
         {t("vcommerceShop:businessOwnerCta.mobile.cta")} <IconArrowRight size={14} aria-hidden="true" />

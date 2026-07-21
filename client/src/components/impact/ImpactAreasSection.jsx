@@ -110,7 +110,7 @@ export default function ImpactAreasSection() {
 
                   {buttonStyle === "whatsapp" ? (
                     <a
-                      className="impact-area-card__button impact-area-card__button--whatsapp"
+                      className="impact-area-card__button impact-area-card__button--whatsapp cta-pulse"
                       href={displayButtonLink}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -125,7 +125,7 @@ export default function ImpactAreasSection() {
                   ) : (
                     <Link
                       to={displayButtonLink}
-                      className="impact-area-card__button impact-area-card__button--outline"
+                      className="impact-area-card__button impact-area-card__button--outline cta-pulse"
                     >
                       {displayButtonLabel}
                       <IconArrowRight size={16} stroke={2} aria-hidden />

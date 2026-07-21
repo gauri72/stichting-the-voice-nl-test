@@ -98,7 +98,7 @@ export default function InnovationInitiativesSection() {
                 {buttonLabel ? (
                   buttonStyle === "whatsapp" ? (
                     <a
-                      className="innovation-initiative-card__button innovation-initiative-card__button--whatsapp"
+                      className="innovation-initiative-card__button innovation-initiative-card__button--whatsapp cta-pulse"
                       href={buttonHref}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -110,7 +110,7 @@ export default function InnovationInitiativesSection() {
                   ) : buttonHref ? (
                     <a
                       href={buttonHref}
-                      className="innovation-initiative-card__button innovation-initiative-card__button--outline"
+                      className="innovation-initiative-card__button innovation-initiative-card__button--outline cta-pulse"
                     >
                       {displayButtonLabel}
                       <IconArrowRight size={16} stroke={2} aria-hidden />
@@ -118,7 +118,7 @@ export default function InnovationInitiativesSection() {
                   ) : (
                     <Link
                       to={buttonTo}
-                      className="innovation-initiative-card__button innovation-initiative-card__button--outline"
+                      className="innovation-initiative-card__button innovation-initiative-card__button--outline cta-pulse"
                     >
                       {displayButtonLabel}
                       <IconArrowRight size={16} stroke={2} aria-hidden />

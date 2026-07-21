@@ -57,7 +57,7 @@ export default function OurImpactSection() {
             </p>
             <h3>{resolveOverrideText(overrides[`${overrideKey}Heading`], headingEn, t(`home:ourImpact.${i18nKey}.heading`))}</h3>
             <p>{resolveOverrideText(overrides[`${overrideKey}Description`], descriptionEn, t(`home:ourImpact.${i18nKey}.description`))}</p>
-            <Link className="our-impact-action-button" to={overrides[`${overrideKey}CtaLink`] || to}>
+            <Link className="our-impact-action-button cta-pulse" to={overrides[`${overrideKey}CtaLink`] || to}>
               {resolveOverrideText(overrides[`${overrideKey}CtaText`], ctaTextEn, t(`home:ourImpact.${i18nKey}.ctaText`))}
             </Link>
           </article>

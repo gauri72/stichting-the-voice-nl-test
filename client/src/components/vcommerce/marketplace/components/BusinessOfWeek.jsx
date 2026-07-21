@@ -53,7 +53,7 @@ function BOTWCard({ business, isFeatured }) {
             ))}
           </div>
         )}
-        <Link to={business.shopUrl} className="vcohp-mob__botw-visit" style={{ borderColor: "var(--mkt-border-strong)", color: "var(--mkt-cyan)" }}>
+        <Link to={business.shopUrl} className="vcohp-mob__botw-visit cta-pulse" style={{ borderColor: "var(--mkt-border-strong)", color: "var(--mkt-cyan)" }}>
           {t("vcommerceShop:businessOfWeek.visitShop")} <IconArrowRight size={15} aria-hidden="true" />
         </Link>
       </div>
@@ -206,7 +206,7 @@ export function DesktopBOTW({ featured, alternates, loading, error }) {
               ))}
             </div>
           )}
-          <Link to={biz.shopUrl} className="vcohp-desk__botw-visit" style={{ borderColor: "var(--mkt-border-strong)", color: "var(--mkt-cyan)" }}>
+          <Link to={biz.shopUrl} className="vcohp-desk__botw-visit cta-pulse" style={{ borderColor: "var(--mkt-border-strong)", color: "var(--mkt-cyan)" }}>
             {t("vcommerceShop:businessOfWeek.visitShop")} <IconArrowRight size={16} aria-hidden="true" />
           </Link>
         </div>

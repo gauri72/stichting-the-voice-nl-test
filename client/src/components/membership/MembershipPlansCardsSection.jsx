@@ -104,7 +104,7 @@ export default function MembershipPlansCardsSection({ selectedTierId, onSelectTi
 
                   <button
                     type="button"
-                    className="membership-plans-card__cta"
+                    className="membership-plans-card__cta cta-pulse"
                     onClick={() => onSelectTier?.(tier)}
                     aria-controls="membership-payment"
                     aria-expanded={selectedTierId === tier.id}

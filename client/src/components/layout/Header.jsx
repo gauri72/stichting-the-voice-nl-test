@@ -228,7 +228,7 @@ export default function Header() {
 
   const memberCta = (
     <Link
-      className="donate-button nav-toolbar__cta-member dash-welcome__badge"
+      className="donate-button nav-toolbar__cta-member dash-welcome__badge cta-pulse"
       to={memberUrl}
       onClick={closeMenu}
     >
@@ -241,7 +241,7 @@ export default function Header() {
 
   const buyTicketsCta = (
     <a
-      className="donate-button buy-tickets-button dash-welcome__badge"
+      className="donate-button buy-tickets-button dash-welcome__badge cta-pulse"
       href={buyTicketsUrl}
       target={settings.buyTicketsOpenNewTab !== false ? "_blank" : "_self"}
       rel="noopener noreferrer"
@@ -257,7 +257,7 @@ export default function Header() {
 
   const authCta = isAuthenticated ? (
     <Link
-      className="donate-button auth-button auth-button--active nav-toolbar__cta-auth dash-welcome__badge"
+      className="donate-button auth-button auth-button--active nav-toolbar__cta-auth dash-welcome__badge cta-pulse"
       to="/dashboard"
       onClick={closeMenu}
     >
@@ -268,7 +268,7 @@ export default function Header() {
     </Link>
   ) : (
     <Link
-      className="donate-button auth-button nav-toolbar__cta-auth dash-welcome__badge"
+      className="donate-button auth-button nav-toolbar__cta-auth dash-welcome__badge cta-pulse"
       to={loginUrl}
       onClick={closeMenu}
     >
