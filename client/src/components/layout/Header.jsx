@@ -329,7 +329,6 @@ export default function Header() {
               </Link>
             </div>
           ) : null}
-          {showThemeToggle ? <ThemeToggle className="nav-toolbar__desktop-theme" /> : null}
           <LanguageSwitcher header />
           <button
             className="menu-toggle"
