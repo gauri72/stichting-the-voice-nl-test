@@ -87,11 +87,6 @@ ${entries.map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join("\n")}`;
 }
 
 async function main() {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.error("ANTHROPIC_API_KEY is not set — nothing to do.");
-    process.exit(1);
-  }
-
   const { namespaces, parsed, errors } = loadAll();
   if (errors.length) {
     console.error("i18n files have structural errors — run i18n:check and fix those first:");
@@ -108,6 +103,13 @@ async function main() {
   if (!nsLangPairs.length) {
     console.log("Nothing to translate — en/nl/de are already in sync.");
     return;
+  }
+
+  // Only require the API key once we know there's actual translation work to do —
+  // an already-in-sync repo shouldn't fail a run just because the key isn't set yet.
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.error(`ANTHROPIC_API_KEY is not set, but ${nsLangPairs.length} namespace/language pair(s) need translating. Set the key and re-run.`);
+    process.exit(1);
   }
 
   console.log(`${nsLangPairs.length} namespace/language pair(s) have missing translations:`);
