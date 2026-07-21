@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   IconBrandWhatsapp,
   IconBrandFacebook,
@@ -19,6 +20,7 @@ function buildEventUrl(event) {
 }
 
 export function ShareButton({ event, className = "" }) {
+  const { t } = useTranslation(["eventExperience"]);
   const [open, setOpen] = useState(false);
 
   return (
@@ -30,7 +32,7 @@ export function ShareButton({ event, className = "" }) {
           e.stopPropagation();
           setOpen(true);
         }}
-        aria-label={`Share ${event.title}`}
+        aria-label={t("eventExperience:card.share.buttonAriaLabel", { title: event.title })}
         className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition hover:bg-black/70 ${className}`}
       >
         <IconShare3 size={16} />
@@ -41,9 +43,10 @@ export function ShareButton({ event, className = "" }) {
 }
 
 export default function ShareSheet({ event, onClose }) {
+  const { t } = useTranslation(["eventExperience"]);
   const [copied, setCopied] = useState(false);
   const url = buildEventUrl(event);
-  const text = `Check out ${event.title} — V.O.I.C.E. NL`;
+  const text = t("eventExperience:card.share.shareText", { title: event.title });
   const panelRef = useRef(null);
   const lastFocusedRef = useRef(null);
 
@@ -106,7 +109,7 @@ export default function ShareSheet({ event, onClose }) {
       href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
     },
     {
-      label: "Email",
+      label: t("eventExperience:card.share.email"),
       icon: IconMail,
       href: `mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(url)}`,
     },
@@ -129,16 +132,16 @@ export default function ShareSheet({ event, onClose }) {
           transition={{ type: "spring", stiffness: 320, damping: 28 }}
           role="dialog"
           aria-modal="true"
-          aria-label="Share this event"
+          aria-label={t("eventExperience:card.share.title")}
           onClick={(e) => e.stopPropagation()}
           className="w-full max-w-sm rounded-2xl bg-evx-surface-elevated p-5 shadow-2xl"
         >
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-evx-heading">Share this event</h3>
+            <h3 className="text-base font-bold text-evx-heading">{t("eventExperience:card.share.title")}</h3>
             <button
               type="button"
               onClick={onClose}
-              aria-label="Close"
+              aria-label={t("eventExperience:card.share.close")}
               className="rounded-full p-1.5 transition hover:bg-evx-bg-muted"
             >
               <IconX size={18} />
@@ -166,7 +169,7 @@ export default function ShareSheet({ event, onClose }) {
             className="flex w-full items-center justify-center gap-2 rounded-full border border-evx-border px-4 py-2.5 text-sm font-semibold text-evx-text transition hover:border-evx-accent"
           >
             {copied ? <IconCheck size={16} className="text-emerald-500" /> : <IconLink size={16} />}
-            {copied ? "Link copied!" : "Copy link"}
+            {copied ? t("eventExperience:card.share.linkCopied") : t("eventExperience:card.share.copyLink")}
           </button>
         </motion.div>
       </motion.div>

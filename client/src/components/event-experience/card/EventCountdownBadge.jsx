@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { IconClock } from "@tabler/icons-react";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -14,6 +15,7 @@ function getRemainingMs(date, startTime) {
 // Only renders for events starting within the next 24 hours — a visible
 // urgency cue, not a generic "time until" display.
 export default function EventCountdownBadge({ date, startTime, className = "" }) {
+  const { t } = useTranslation(["eventExperience"]);
   const [remainingMs, setRemainingMs] = useState(() => getRemainingMs(date, startTime));
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function EventCountdownBadge({ date, startTime, className = "" })
       className={`inline-flex items-center gap-1 rounded-full bg-red-500/90 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white ${className}`}
     >
       <IconClock size={12} />
-      Starts in {hours}h {minutes}m
+      {t("eventExperience:card.countdown.startsIn", { hours, minutes })}
     </motion.span>
   );
 }

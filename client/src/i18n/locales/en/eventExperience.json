@@ -1,1 +1,66 @@
-{}
+{
+  "calendar": {
+    "section": {
+      "ariaLabel": "Events Calendar",
+      "title": "Events Calendar",
+      "prevMonth": "Previous month",
+      "nextMonth": "Next month"
+    },
+    "monthGrid": {
+      "weekdays": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      }
+    },
+    "dayCell": {
+      "ariaLabelHasEvents_one": "{{day}}, {{count}} event",
+      "ariaLabelHasEvents_other": "{{day}}, {{count}} events",
+      "ariaLabelNoEvents": "{{day}}, no events",
+      "hasShort": "Has Short"
+    },
+    "dateStrip": {
+      "ariaLabelHasEvents_one": "{{weekdayDay}}, {{count}} event",
+      "ariaLabelHasEvents_other": "{{weekdayDay}}, {{count}} events"
+    },
+    "sidePanel": {
+      "ariaLabel": "Events on selected day",
+      "close": "Close"
+    },
+    "tooltip": {
+      "more_one": "+{{count}} more",
+      "more_other": "+{{count}} more"
+    }
+  },
+  "card": {
+    "free": "Free",
+    "priceFrom": "From {{price}}",
+    "getTickets": "Get Tickets",
+    "joinWaitlist": "Join Waitlist",
+    "learnMore": "Learn More",
+    "watchShort": "Watch Short",
+    "videoBadge": {
+      "ariaLabel": "Watch Short for this event"
+    },
+    "countdown": {
+      "startsIn": "Starts in {{hours}}h {{minutes}}m"
+    },
+    "save": {
+      "save": "Save this event",
+      "remove": "Remove from saved events"
+    },
+    "share": {
+      "buttonAriaLabel": "Share {{title}}",
+      "shareText": "Check out {{title}} — V.O.I.C.E. NL",
+      "title": "Share this event",
+      "close": "Close",
+      "email": "Email",
+      "copyLink": "Copy link",
+      "linkCopied": "Link copied!"
+    }
+  }
+}

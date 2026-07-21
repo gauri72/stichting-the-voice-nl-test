@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export default function CalendarDayTooltip({ dayData }) {
+  const { t } = useTranslation(["eventExperience"]);
   return (
     <motion.div
       initial={{ opacity: 0, y: -4 }}
@@ -15,7 +17,11 @@ export default function CalendarDayTooltip({ dayData }) {
           {e.title}
         </p>
       ))}
-      {dayData.count > 4 ? <p className="text-evx-text-muted">+{dayData.count - 4} more</p> : null}
+      {dayData.count > 4 ? (
+        <p className="text-evx-text-muted">
+          {t("eventExperience:calendar.tooltip.more", { count: dayData.count - 4 })}
+        </p>
+      ) : null}
     </motion.div>
   );
 }

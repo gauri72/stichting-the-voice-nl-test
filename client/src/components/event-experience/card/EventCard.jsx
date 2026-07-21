@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconCalendarEvent, IconMapPin } from "@tabler/icons-react";
 import EventCardMedia from "./EventCardMedia.jsx";
 import { CategoryBadge, AvailabilityBadge, VideoBadge } from "./EventCardBadges.jsx";
@@ -35,6 +36,7 @@ export default function EventCard({ event, variant = "grid", onWatchShort }) {
 }
 
 function FeaturedCard({ event, onWatchShort }) {
+  const { t } = useTranslation(["eventExperience"]);
   const soldOut = isSoldOut(event);
   const image = event.featuredHeroImageUrl || event.heroImage;
 
@@ -84,7 +86,9 @@ function FeaturedCard({ event, onWatchShort }) {
           ) : null}
           {event.priceFromFormatted ? (
             <span className="font-semibold text-white">
-              {event.isFree ? "Free" : `From ${event.priceFromFormatted}`}
+              {event.isFree
+                ? t("eventExperience:card.free")
+                : t("eventExperience:card.priceFrom", { price: event.priceFromFormatted })}
             </span>
           ) : null}
         </motion.div>
@@ -95,21 +99,21 @@ function FeaturedCard({ event, onWatchShort }) {
               to={`/events/${event.slug || event.id}/tickets`}
               className="relative isolate inline-flex items-center justify-center overflow-hidden rounded-full bg-evx-accent px-6 py-3 text-sm font-bold text-white shadow-lg shadow-evx-accent/30 transition hover:brightness-110 active:scale-95"
             >
-              {event.featuredCtaText || "Get Tickets"}
+              {event.featuredCtaText || t("eventExperience:card.getTickets")}
             </Link>
           ) : (
             <Link
               to={`/events/${event.slug || event.id}/tickets`}
               className="inline-flex items-center justify-center rounded-full bg-white/15 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/25 active:scale-95"
             >
-              Join Waitlist
+              {t("eventExperience:card.joinWaitlist")}
             </Link>
           )}
           <Link
             to={`/events/${event.slug || event.id}/tickets`}
             className="inline-flex items-center justify-center rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10 active:scale-95"
           >
-            Learn More
+            {t("eventExperience:card.learnMore")}
           </Link>
           {event.hasVideo ? (
             <button
@@ -117,7 +121,7 @@ function FeaturedCard({ event, onWatchShort }) {
               onClick={() => onWatchShort?.(event)}
               className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 active:scale-95"
             >
-              ▶ Watch Short
+              ▶ {t("eventExperience:card.watchShort")}
             </button>
           ) : null}
         </motion.div>
@@ -127,6 +131,7 @@ function FeaturedCard({ event, onWatchShort }) {
 }
 
 function GridCard({ event, onWatchShort }) {
+  const { t } = useTranslation(["eventExperience"]);
   const soldOut = isSoldOut(event);
 
   return (
@@ -164,14 +169,14 @@ function GridCard({ event, onWatchShort }) {
               to={`/events/${event.slug || event.id}/tickets`}
               className="translate-y-2 rounded-full bg-evx-accent px-4 py-2 text-xs font-bold text-white shadow transition group-hover:translate-y-0"
             >
-              Get Tickets
+              {t("eventExperience:card.getTickets")}
             </Link>
           ) : (
             <Link
               to={`/events/${event.slug || event.id}/tickets`}
               className="translate-y-2 rounded-full bg-white/20 px-4 py-2 text-xs font-bold text-white shadow transition hover:bg-white/30 group-hover:translate-y-0"
             >
-              Join Waitlist
+              {t("eventExperience:card.joinWaitlist")}
             </Link>
           )}
         </div>
@@ -190,7 +195,11 @@ function GridCard({ event, onWatchShort }) {
         ) : null}
         <div className="mt-auto flex items-center justify-between pt-2">
           <span className="text-sm font-bold text-evx-accent">
-            {event.isFree ? "Free" : event.priceFromFormatted ? `From ${event.priceFromFormatted}` : ""}
+            {event.isFree
+              ? t("eventExperience:card.free")
+              : event.priceFromFormatted
+                ? t("eventExperience:card.priceFrom", { price: event.priceFromFormatted })
+                : ""}
           </span>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { IconPlayerPlayFilled } from "@tabler/icons-react";
 
 const AVAILABILITY_STYLES = {
@@ -31,12 +32,13 @@ export function AvailabilityBadge({ status, className = "" }) {
 }
 
 export function VideoBadge({ onClick, className = "", size = "sm" }) {
+  const { t } = useTranslation(["eventExperience"]);
   const dims = size === "lg" ? "h-12 w-12" : "h-7 w-7";
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label="Watch Short for this event"
+      aria-label={t("eventExperience:card.videoBadge.ariaLabel")}
       className={`inline-flex ${dims} items-center justify-center rounded-full bg-black/65 text-white backdrop-blur-sm transition hover:scale-110 hover:bg-evx-accent ${className}`}
     >
       <IconPlayerPlayFilled size={size === "lg" ? 22 : 14} />

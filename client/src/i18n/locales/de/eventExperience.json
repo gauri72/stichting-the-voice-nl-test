@@ -1,1 +1,66 @@
-{}
+{
+  "calendar": {
+    "section": {
+      "ariaLabel": "Veranstaltungskalender",
+      "title": "Veranstaltungskalender",
+      "prevMonth": "Vorheriger Monat",
+      "nextMonth": "Nächster Monat"
+    },
+    "monthGrid": {
+      "weekdays": {
+        "mon": "Mo",
+        "tue": "Di",
+        "wed": "Mi",
+        "thu": "Do",
+        "fri": "Fr",
+        "sat": "Sa",
+        "sun": "So"
+      }
+    },
+    "dayCell": {
+      "ariaLabelHasEvents_one": "{{day}}, {{count}} Veranstaltung",
+      "ariaLabelHasEvents_other": "{{day}}, {{count}} Veranstaltungen",
+      "ariaLabelNoEvents": "{{day}}, keine Veranstaltungen",
+      "hasShort": "Hat einen Short"
+    },
+    "dateStrip": {
+      "ariaLabelHasEvents_one": "{{weekdayDay}}, {{count}} Veranstaltung",
+      "ariaLabelHasEvents_other": "{{weekdayDay}}, {{count}} Veranstaltungen"
+    },
+    "sidePanel": {
+      "ariaLabel": "Veranstaltungen am ausgewählten Tag",
+      "close": "Schließen"
+    },
+    "tooltip": {
+      "more_one": "+{{count}} weitere",
+      "more_other": "+{{count}} weitere"
+    }
+  },
+  "card": {
+    "free": "Gratis",
+    "priceFrom": "Ab {{price}}",
+    "getTickets": "Tickets kaufen",
+    "joinWaitlist": "Warteliste",
+    "learnMore": "Mehr erfahren",
+    "watchShort": "Short ansehen",
+    "videoBadge": {
+      "ariaLabel": "Short zu dieser Veranstaltung ansehen"
+    },
+    "countdown": {
+      "startsIn": "Beginnt in {{hours}}h {{minutes}}m"
+    },
+    "save": {
+      "save": "Veranstaltung speichern",
+      "remove": "Aus gespeicherten Veranstaltungen entfernen"
+    },
+    "share": {
+      "buttonAriaLabel": "{{title}} teilen",
+      "shareText": "Schau dir {{title}} an — V.O.I.C.E. NL",
+      "title": "Diese Veranstaltung teilen",
+      "close": "Schließen",
+      "email": "E-Mail",
+      "copyLink": "Link kopieren",
+      "linkCopied": "Link kopiert!"
+    }
+  }
+}

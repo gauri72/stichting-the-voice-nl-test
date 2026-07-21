@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next";
 import { toDayKey, isSameDay, categoryColor } from "./calendarUtils.js";
 
 export default function MobileDateStrip({ year, month, days, onSelectDay }) {
+  const { t } = useTranslation(["eventExperience"]);
   const daysInMonth = new Date(year, month, 0).getDate();
   const today = new Date();
 
@@ -10,13 +12,18 @@ export default function MobileDateStrip({ year, month, days, onSelectDay }) {
         const date = new Date(year, month - 1, i + 1);
         const dayData = days[toDayKey(date)];
         const todayFlag = isSameDay(date, today);
+        const weekdayDay = date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric" });
         return (
           <button
             key={i}
             type="button"
             onClick={() => dayData && onSelectDay(date, dayData)}
             disabled={!dayData}
-            aria-label={`${date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric" })}${dayData ? `, ${dayData.count} event${dayData.count === 1 ? "" : "s"}` : ""}`}
+            aria-label={
+              dayData
+                ? t("eventExperience:calendar.dateStrip.ariaLabelHasEvents", { weekdayDay, count: dayData.count })
+                : weekdayDay
+            }
             className={`flex flex-shrink-0 flex-col items-center gap-1 rounded-xl border px-3 py-2 ${
               dayData ? "border-evx-border bg-evx-surface" : "border-transparent text-evx-text-muted"
             } ${todayFlag ? "ring-2 ring-evx-accent" : ""}`}

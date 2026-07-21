@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { IconVideo } from "@tabler/icons-react";
 import CalendarDayTooltip from "./CalendarDayTooltip.jsx";
 import { categoryColor } from "./calendarUtils.js";
 
 export default function CalendarDayCell({ date, dayData, isToday, onSelect }) {
+  const { t } = useTranslation(["eventExperience"]);
   const [showTooltip, setShowTooltip] = useState(false);
 
   if (!date) return <div className="aspect-square" aria-hidden="true" />;
@@ -16,7 +18,11 @@ export default function CalendarDayCell({ date, dayData, isToday, onSelect }) {
         type="button"
         onClick={() => hasEvents && onSelect(date, dayData)}
         disabled={!hasEvents}
-        aria-label={`${date.getDate()}${hasEvents ? `, ${dayData.count} event${dayData.count === 1 ? "" : "s"}` : ", no events"}`}
+        aria-label={
+          hasEvents
+            ? t("eventExperience:calendar.dayCell.ariaLabelHasEvents", { day: date.getDate(), count: dayData.count })
+            : t("eventExperience:calendar.dayCell.ariaLabelNoEvents", { day: date.getDate() })
+        }
         className={`relative flex aspect-square w-full flex-col items-start gap-0.5 overflow-hidden rounded-lg border p-1.5 text-left transition-colors sm:p-2 ${
           hasEvents
             ? "cursor-pointer border-evx-border bg-evx-surface hover:border-evx-accent"
@@ -42,7 +48,11 @@ export default function CalendarDayCell({ date, dayData, isToday, onSelect }) {
               {dayData.count}
             </span>
             {dayData.hasVideo ? (
-              <IconVideo size={12} className="absolute bottom-1 right-1 text-evx-accent" aria-label="Has Short" />
+              <IconVideo
+                size={12}
+                className="absolute bottom-1 right-1 text-evx-accent"
+                aria-label={t("eventExperience:calendar.dayCell.hasShort")}
+              />
             ) : null}
             <span className="mt-auto line-clamp-1 hidden text-[10px] text-evx-text-muted sm:block">
               {dayData.events[0]?.title}

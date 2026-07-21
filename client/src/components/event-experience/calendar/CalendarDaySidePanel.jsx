@@ -2,11 +2,13 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { IconClock, IconVideo, IconX } from "@tabler/icons-react";
 
 const FOCUSABLE_SELECTOR = 'button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 export default function CalendarDaySidePanel({ date, dayData, onClose }) {
+  const { t } = useTranslation(["eventExperience"]);
   const panelRef = useRef(null);
   const lastFocusedRef = useRef(null);
 
@@ -63,7 +65,7 @@ export default function CalendarDaySidePanel({ date, dayData, onClose }) {
             transition={{ type: "spring", stiffness: 320, damping: 32 }}
             role="dialog"
             aria-modal="true"
-            aria-label="Events on selected day"
+            aria-label={t("eventExperience:calendar.sidePanel.ariaLabel")}
             className="fixed right-0 top-0 z-[1260] h-full w-full max-w-sm overflow-y-auto bg-evx-surface-elevated p-5 shadow-2xl"
           >
             <div className="mb-4 flex items-center justify-between">
@@ -73,7 +75,7 @@ export default function CalendarDaySidePanel({ date, dayData, onClose }) {
               <button
                 type="button"
                 onClick={onClose}
-                aria-label="Close"
+                aria-label={t("eventExperience:calendar.sidePanel.close")}
                 className="rounded-full p-1.5 transition hover:bg-evx-bg-muted"
               >
                 <IconX size={20} />
