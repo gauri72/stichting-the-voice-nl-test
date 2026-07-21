@@ -1,11 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconBrandWhatsapp, IconCheck, IconDownload, IconSend, IconX } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
+import { IconBrandWhatsapp, IconCheck, IconDownload, IconLogout, IconSend, IconX } from "@tabler/icons-react";
 import { SUPPORTED_LANGUAGES } from "../../i18n/index.js";
 import ThemeToggle from "./ThemeToggle.jsx";
 import PwaInstallDialog from "../pwa/PwaInstallDialog.jsx";
 import { isStandalonePwa, PWA_VARIANTS } from "../../pwa/manifestConfig.js";
 import { buildWhatsAppHref } from "../../constants/siteLinks.js";
+import { useAuth } from "../../contexts/AuthContext.jsx";
 import "../../styles/hero-action-cluster.css";
 
 function FlagIcon({ code }) {
@@ -53,6 +55,28 @@ function InstallButton({ t }) {
       </button>
       <PwaInstallDialog open={open} variant={PWA_VARIANTS.site} onClose={() => setOpen(false)} />
     </>
+  );
+}
+
+function LogoutButton({ t }) {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+  if (!isAuthenticated) return null;
+
+  function handleLogout() {
+    logout();
+    navigate("/my-account", { replace: true });
+  }
+
+  return (
+    <button
+      type="button"
+      className="hero-action-cluster__btn hero-action-cluster__btn--logout"
+      onClick={handleLogout}
+      aria-label={t("dashboardSections:welcomeBannerSection.logOutAriaLabel")}
+    >
+      <IconLogout size={15} stroke={1.75} />
+    </button>
   );
 }
 
@@ -213,49 +237,60 @@ function WhatsAppChatButton({ t }) {
  * LanguageSwitcher's --header variant elsewhere in this codebase), so there's
  * no viewport-detection hook or hydration-mismatch risk.
  */
-export default function HeroActionCluster() {
-  const { t, i18n } = useTranslation(["common"]);
+export default function HeroActionCluster({ anchorSelector = ".nav-toolbar__cta-auth" } = {}) {
+  const { t, i18n } = useTranslation(["common", "dashboardSections"]);
   const desktopRef = useRef(null);
   const [desktopStyle, setDesktopStyle] = useState(null);
 
-  // Center this row under the header's "Sign In Or Register" (or account)
-  // button exactly, by measuring its real rendered position/width instead of
-  // guessing a fixed pixel offset — the button's width varies by language
-  // and its position shifts with the header's own responsive layout, so a
-  // static CSS value can't track it reliably at every screen size.
+  // Right-align this row under its anchor element (by default, the header's
+  // "Sign In Or Register"/account button — same right margin, not centered)
+  // by measuring the anchor's real rendered position instead of guessing a
+  // fixed pixel offset — its width varies by language and its position
+  // shifts with the header's own responsive layout, so a static CSS value
+  // can't track it reliably at every screen size. `anchorSelector` lets a
+  // page override what this row anchors below (e.g. the dashboard hero
+  // anchors it under its own metrics tiles instead); a MutationObserver on
+  // the anchor's style attribute (not just ResizeObserver) is needed for
+  // that case, since the anchor may itself be repositioned via inline
+  // style — a position change, not a size change.
   useLayoutEffect(() => {
     const clusterEl = desktopRef.current;
     if (!clusterEl) return undefined;
 
     function reposition() {
-      const signInEl = document.querySelector(".nav-toolbar__cta-auth");
+      const anchorEl = document.querySelector(anchorSelector);
       const heroEl = clusterEl.offsetParent;
-      if (!signInEl || !heroEl) return;
+      if (!anchorEl || !heroEl) return;
 
-      const signInRect = signInEl.getBoundingClientRect();
+      const anchorRect = anchorEl.getBoundingClientRect();
       const heroRect = heroEl.getBoundingClientRect();
-      const clusterWidth = clusterEl.getBoundingClientRect().width;
 
-      const signInCenterX = signInRect.left + signInRect.width / 2;
-      const right = Math.max(heroRect.right - (signInCenterX + clusterWidth / 2), 8);
-      const top = signInRect.bottom - heroRect.top + 14;
+      const right = Math.max(heroRect.right - anchorRect.right, 8);
+      const top = anchorRect.bottom - heroRect.top + 14;
 
       setDesktopStyle({ right: `${right}px`, top: `${top}px` });
     }
 
     reposition();
+    const raf = requestAnimationFrame(reposition);
 
-    const signInEl = document.querySelector(".nav-toolbar__cta-auth");
+    const anchorEl = document.querySelector(anchorSelector);
     const resizeObserver = new ResizeObserver(reposition);
-    if (signInEl) resizeObserver.observe(signInEl);
+    if (anchorEl) resizeObserver.observe(anchorEl);
     resizeObserver.observe(clusterEl);
+
+    const mutationObserver = new MutationObserver(reposition);
+    if (anchorEl) mutationObserver.observe(anchorEl, { attributes: true, attributeFilter: ["style"] });
+
     window.addEventListener("resize", reposition);
 
     return () => {
+      cancelAnimationFrame(raf);
       resizeObserver.disconnect();
+      mutationObserver.disconnect();
       window.removeEventListener("resize", reposition);
     };
-  }, [i18n.language]);
+  }, [i18n.language, anchorSelector]);
 
   return (
     <>
@@ -264,6 +299,7 @@ export default function HeroActionCluster() {
         <LanguageButton t={t} i18n={i18n} />
         <WhatsAppChatButton t={t} />
         <ThemeToggle />
+        <LogoutButton t={t} />
       </div>
 
       <div className="hero-action-cluster hero-action-cluster--mobile">
@@ -271,6 +307,7 @@ export default function HeroActionCluster() {
         <LanguageButton t={t} i18n={i18n} />
         <WhatsAppChatButton t={t} />
         <ThemeToggle />
+        <LogoutButton t={t} />
       </div>
     </>
   );

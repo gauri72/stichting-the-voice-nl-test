@@ -1,17 +1,26 @@
-import { useEffect, useId, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FaIdCard, FaSignOutAlt } from "react-icons/fa";
-import { IconSparkles, IconCopy, IconCheck } from "@tabler/icons-react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { FaIdCard } from "react-icons/fa";
+import { IconSparkles, IconCopy, IconCheck, IconWallet, IconTicket, IconCrown, IconRobot } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { PayWallet } from "../../icons/icons/index.js";
+import HeroActionCluster from "../../layout/HeroActionCluster.jsx";
+import DashboardMembershipModal from "./DashboardMembershipModal.jsx";
 import breadcrumbBgLight from "../../../assets/Dashboard/breadcrumb-bg-light.png";
 import breadcrumbBgDark from "../../../assets/Dashboard/breadcrumb-bg-dark.png";
 import { useTheme } from "../../../contexts/ThemeContext.jsx";
-import { useAuth } from "../../../contexts/AuthContext.jsx";
 import { useAiAssistant } from "../../../contexts/AiAssistantContext.jsx";
 import { useWallet } from "../../../contexts/WalletContext.jsx";
-import { DASHBOARD_ROUTES } from "../dashboardUtils.js";
+import { apiFetch, authHeaders } from "../../../utils/api.js";
+import { DASHBOARD_ROUTES, membershipBadgeLabel } from "../dashboardUtils.js";
 import "../../../styles/dashboard-welcome-banner-section.css";
+
+function formatMoney(minor = 0) {
+  return new Intl.NumberFormat("nl-NL", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+  }).format(Number(minor || 0) / 100);
+}
 
 export default function DashboardWelcomeBannerSection({
   displayName,
@@ -19,32 +28,90 @@ export default function DashboardWelcomeBannerSection({
   title,
   membershipId,
   hasMembership,
+  planShort,
+  planId,
+  memberSince,
+  validUntil,
+  validFrom,
+  qrSrc,
+  wallet,
 }) {
-  const { t } = useTranslation(["dashboardSections"]);
+  const { t, i18n } = useTranslation(["dashboardSections", "dashboardMobile"]);
   const resolvedGreeting = greeting ?? t("dashboardSections:welcomeBannerSection.greetingDefault");
   const { isDark } = useTheme();
-  const { logout } = useAuth();
   const { openAssistant } = useAiAssistant();
   const { wallet: walletData, loadWallet } = useWallet();
-  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [aiTooltipVisible, setAiTooltipVisible] = useState(false);
+  const [bookings, setBookings] = useState([]);
+  const [membershipModalOpen, setMembershipModalOpen] = useState(false);
   const aiTooltipId = useId();
+  const metricsRef = useRef(null);
+  const [metricsStyle, setMetricsStyle] = useState(null);
 
   useEffect(() => {
     loadWallet();
   }, [loadWallet]);
+
+  useEffect(() => {
+    apiFetch("/api/dashboard/bookings", { headers: authHeaders() })
+      .then((data) => setBookings(data?.bookings || []))
+      .catch(() => {});
+  }, []);
+
+  // Position the metrics tiles directly under the header's "Shivam"/account
+  // button — same technique HeroActionCluster itself uses (see
+  // HeroActionCluster.jsx's own reposition effect), now that the tiles sit
+  // above the button row instead of below it. HeroActionCluster in turn
+  // anchors itself under these tiles via its `anchorSelector` prop (set
+  // below), so the two rows stay swapped without either hardcoding
+  // knowledge of the other's internals.
+  useLayoutEffect(() => {
+    const metricsEl = metricsRef.current;
+    if (!metricsEl) return undefined;
+
+    function reposition() {
+      const anchorEl = document.querySelector(".nav-toolbar__cta-auth");
+      const heroEl = metricsEl.offsetParent;
+      if (!anchorEl || !heroEl) return;
+
+      const anchorRect = anchorEl.getBoundingClientRect();
+      const heroRect = heroEl.getBoundingClientRect();
+
+      const right = Math.max(heroRect.right - anchorRect.right, 8);
+      const top = anchorRect.bottom - heroRect.top + 14;
+
+      setMetricsStyle({ right: `${right}px`, top: `${top}px` });
+    }
+
+    reposition();
+    const raf = requestAnimationFrame(reposition);
+
+    const anchorEl = document.querySelector(".nav-toolbar__cta-auth");
+    const resizeObserver = new ResizeObserver(reposition);
+    resizeObserver.observe(metricsEl);
+    if (anchorEl) resizeObserver.observe(anchorEl);
+
+    window.addEventListener("resize", reposition);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", reposition);
+    };
+  }, [i18n.language]);
+
+  const rewards = walletData?.rewardPoints ?? 0;
+  const balance = walletData?.balanceMinor ?? 0;
+  const ticketCount = bookings.reduce((sum, booking) => sum + Number(booking.ticketCount || booking.tickets?.length || 0), 0);
+  const membershipLabel = membershipBadgeLabel(planShort);
+  const membershipTier = String(planShort || t("dashboardMobile:commandCenter.hero.memberFallback")).replace(/\s+(Family|Single)$/i, "") || t("dashboardMobile:commandCenter.hero.memberFallback");
 
   function showAiTooltip() {
     setAiTooltipVisible(true);
   }
   function hideAiTooltip() {
     setAiTooltipVisible(false);
-  }
-
-  function handleLogout() {
-    logout();
-    navigate("/my-account", { replace: true });
   }
 
   async function handleCopyMembershipId() {
@@ -58,6 +125,7 @@ export default function DashboardWelcomeBannerSection({
   }
 
   return (
+    <>
     <header className="dash-welcome" aria-labelledby="dash-welcome-name">
       <div className="dash-welcome__bg">
         <img
@@ -95,6 +163,8 @@ export default function DashboardWelcomeBannerSection({
         ) : null}
       </div>
 
+      <HeroActionCluster anchorSelector=".dash-welcome .dash-welcome__metrics" />
+
       <div className="dash-welcome__content">
         <p className="dash-welcome__greeting">{resolvedGreeting}</p>
         <h1
@@ -103,6 +173,12 @@ export default function DashboardWelcomeBannerSection({
         >
           {displayName}
         </h1>
+        {hasMembership ? (
+          <span className="dash-welcome__membership-badge">
+            <IconCrown size={16} aria-hidden="true" />
+            {membershipLabel}
+          </span>
+        ) : null}
         <div className="dash-welcome__ai-cta-wrap">
           <button
             type="button"
@@ -115,7 +191,7 @@ export default function DashboardWelcomeBannerSection({
             aria-label={t("dashboardSections:welcomeBannerSection.openAssistantAriaLabel")}
             aria-describedby={aiTooltipId}
           >
-            <IconSparkles size={16} aria-hidden="true" className="dash-welcome__ai-cta-icon" />
+            <IconRobot aria-hidden="true" className="dash-welcome__ai-cta-icon" />
             <span className="dash-welcome__ai-cta-label">{t("dashboardSections:welcomeBannerSection.assistantLabel")}</span>
           </button>
           {aiTooltipVisible ? (
@@ -128,47 +204,73 @@ export default function DashboardWelcomeBannerSection({
         </div>
       </div>
 
-      <div className="dash-welcome__bottom-panel">
-        <div className="dash-welcome__account-actions">
+      <div
+        className="dash-welcome__metrics"
+        ref={metricsRef}
+        style={metricsStyle || undefined}
+        aria-label={t("dashboardMobile:commandCenter.hero.metricsAria")}
+      >
           <Link
             to="/dashboard/wallet"
-            className="dash-welcome__badge dash-welcome__btn--wallet"
-            aria-label={t("dashboardSections:welcomeBannerSection.walletAriaLabel")}
+            className="dash-welcome__metric dash-welcome__metric--rewards"
+            aria-label={t("dashboardMobile:commandCenter.hero.rewardsAria", { count: rewards })}
           >
-            <PayWallet width="1em" height="1em" aria-hidden="true" className="dash-welcome__badge-icon" />
-            <span className="dash-welcome__badge-label">{t("dashboardSections:welcomeBannerSection.walletLabel")}</span>
+            <IconSparkles aria-hidden />
+            <b>{rewards}</b>
+            <small>{t("dashboardMobile:commandCenter.hero.pointsLabel")}</small>
           </Link>
           <Link
-            to={DASHBOARD_ROUTES.profile}
-            className="dash-welcome__badge dash-welcome__btn--profile"
-            aria-label={t("dashboardSections:welcomeBannerSection.myProfileAriaLabel")}
+            to="/dashboard/wallet"
+            className="dash-welcome__metric dash-welcome__metric--wallet"
+            aria-label={t("dashboardMobile:commandCenter.hero.walletAria", { balance: formatMoney(balance) })}
           >
-            <FaIdCard aria-hidden className="dash-welcome__badge-icon" />
-            <span className="dash-welcome__badge-label">{t("dashboardSections:welcomeBannerSection.myProfileLabel")}</span>
+            <IconWallet aria-hidden />
+            <b>{formatMoney(balance)}</b>
+            <small>{t("dashboardMobile:commandCenter.hero.walletLabel")}</small>
+          </Link>
+          <Link
+            to={DASHBOARD_ROUTES.myEvents}
+            className="dash-welcome__metric dash-welcome__metric--tickets"
+            aria-label={t("dashboardMobile:commandCenter.hero.ticketsAria", { count: ticketCount })}
+          >
+            <IconTicket aria-hidden />
+            <b>{ticketCount}</b>
+            <small>{t("dashboardMobile:commandCenter.hero.ticketsLabel")}</small>
           </Link>
           <button
             type="button"
-            className="dash-welcome__badge dash-welcome__btn--logout"
-            onClick={handleLogout}
-            aria-label={t("dashboardSections:welcomeBannerSection.logOutAriaLabel")}
+            className="dash-welcome__metric dash-welcome__metric--membership"
+            onClick={() => setMembershipModalOpen(true)}
+            aria-label={t("dashboardMobile:commandCenter.hero.membershipAria", { label: membershipLabel })}
           >
-            <FaSignOutAlt aria-hidden className="dash-welcome__badge-icon" />
-            <span className="dash-welcome__badge-label">{t("dashboardSections:welcomeBannerSection.logOutLabel")}</span>
+            <IconCrown aria-hidden />
+            <b>{membershipTier}</b>
+            <small>{t("dashboardMobile:commandCenter.hero.membershipLabel")}</small>
           </button>
-        </div>
-        {walletData?.enabled ? (
           <Link
-            to="/dashboard/wallet"
-            className="dash-welcome__points-chip"
-            aria-label={t("dashboardSections:welcomeBannerSection.pointsChipAriaLabel", {
-              points: walletData.rewardPoints ?? 0,
-            })}
+            to={DASHBOARD_ROUTES.profile}
+            className="dash-welcome__metric dash-welcome__metric--profile"
+            aria-label={t("dashboardSections:welcomeBannerSection.myProfileAriaLabel")}
           >
-            <span className="dash-welcome__points-chip-label">{t("dashboardSections:welcomeBannerSection.redeemPoints")}</span>
-            <span className="dash-welcome__points-chip-value">{walletData.rewardPoints ?? 0}</span>
+            <FaIdCard aria-hidden />
+            <b>{t("dashboardSections:welcomeBannerSection.myProfileLabel")}</b>
           </Link>
-        ) : null}
       </div>
     </header>
+
+    <DashboardMembershipModal
+      open={membershipModalOpen}
+      onClose={() => setMembershipModalOpen(false)}
+      planShort={planShort}
+      planId={planId}
+      membershipId={membershipId}
+      memberSince={memberSince}
+      validUntil={validUntil}
+      validFrom={validFrom}
+      hasMembership={hasMembership}
+      qrSrc={qrSrc}
+      wallet={wallet}
+    />
+    </>
   );
 }

@@ -54,6 +54,7 @@ export default function DashboardMembershipCardSection({
   showCard = true,
   showBenefits = true,
   compact = false,
+  sectionId = DASHBOARD_MEMBERSHIP_CARD_ID,
 }) {
   const { t } = useTranslation(["dashboardSections"]);
   const cardRef = useRef(null);
@@ -89,7 +90,7 @@ export default function DashboardMembershipCardSection({
           </h2>
           <section
             className="dash-membership__rect dash-membership__rect--top dash-membership__rect--ecard"
-            id={DASHBOARD_MEMBERSHIP_CARD_ID}
+            id={sectionId || undefined}
             aria-labelledby="dash-membership-title"
           >
             <div className="dash-membership__rect-body">

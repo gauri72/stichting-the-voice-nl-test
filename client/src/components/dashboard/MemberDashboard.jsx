@@ -97,7 +97,18 @@ function DashboardShell({ children }) {
 function LegacyMemberDashboard({ displayName, overview, activity, membership, hasMembership, planId, planShort, membershipId, memberSince, validUntil, validFrom, qrSrc, wallet, quickActions }) {
   return (
     <>
-      <DashboardWelcomeBannerSection displayName={displayName} membershipId={membershipId} hasMembership={hasMembership} />
+      <DashboardWelcomeBannerSection
+        displayName={displayName}
+        membershipId={membershipId}
+        hasMembership={hasMembership}
+        planShort={planShort}
+        planId={planId}
+        memberSince={memberSince}
+        validUntil={validUntil}
+        validFrom={validFrom}
+        qrSrc={qrSrc}
+        wallet={wallet}
+      />
       <div className="member-dashboard__body">
         <div className="dash-bookings-events-row">
           <div className="dash-bookings-events-row__col">

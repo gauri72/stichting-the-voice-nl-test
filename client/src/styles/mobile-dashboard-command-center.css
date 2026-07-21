@@ -18,12 +18,13 @@
   .mobile-dash-hero__metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:auto}
   .mobile-dash-hero__metrics>a,.mobile-dash-hero__metrics>button{position:relative;display:grid;justify-items:start;min-width:0;overflow:hidden;padding:11px 9px;text-align:left;text-decoration:none;color:#fff;border:1px solid rgba(220,239,245,.2);border-radius:16px;background:rgba(3,12,25,.64);box-shadow:inset 0 1px rgba(255,255,255,.1),0 10px 24px rgba(0,0,0,.18);backdrop-filter:blur(18px) saturate(135%);font:inherit;cursor:pointer;transition:transform .24s cubic-bezier(.2,.8,.2,1),border-color .24s ease,box-shadow .24s ease,filter .24s ease}
   .mobile-dash-hero__metrics>a::before,.mobile-dash-hero__metrics>button::before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.13),transparent 46%);pointer-events:none}
-  .mobile-dash-hero__metric--rewards{background:linear-gradient(145deg,rgba(126,38,125,.86),rgba(39,18,72,.78))!important;border-color:rgba(245,104,226,.45)!important}
-  .mobile-dash-hero__metric--wallet{background:linear-gradient(145deg,rgba(0,125,174,.88),rgba(5,41,86,.8))!important;border-color:rgba(54,213,245,.5)!important}
-  .mobile-dash-hero__metric--tickets{background:linear-gradient(145deg,rgba(40,71,183,.86),rgba(22,27,91,.8))!important;border-color:rgba(98,127,255,.48)!important}
-  .mobile-dash-hero__metric--membership{background:linear-gradient(145deg,rgba(0,111,77,.9),rgba(4,48,45,.82))!important;border-color:rgba(61,224,163,.5)!important}
+  .mobile-dash-hero__metric--rewards{background:linear-gradient(145deg,rgba(126,38,125,.86),rgba(39,18,72,.78))!important;border-color:rgba(245,104,226,.45)!important;animation-delay:0s}
+  .mobile-dash-hero__metric--wallet{background:linear-gradient(145deg,rgba(0,125,174,.88),rgba(5,41,86,.8))!important;border-color:rgba(54,213,245,.5)!important;animation-delay:.15s}
+  .mobile-dash-hero__metric--tickets{background:linear-gradient(145deg,rgba(40,71,183,.86),rgba(22,27,91,.8))!important;border-color:rgba(98,127,255,.48)!important;animation-delay:.3s}
+  .mobile-dash-hero__metric--membership{background:linear-gradient(145deg,rgba(0,111,77,.9),rgba(4,48,45,.82))!important;border-color:rgba(61,224,163,.5)!important;animation-delay:.45s}
+  .mobile-dash-hero__metrics>a,.mobile-dash-hero__metrics>button{animation:mobileDashMetricFloat 2.6s ease-in-out infinite}
   .mobile-dash-hero__metrics>a:active,.mobile-dash-hero__metrics>button:active{transform:scale(.96)}
-  .mobile-dash-hero__metrics>a:hover,.mobile-dash-hero__metrics>button:hover{transform:translateY(-2px);filter:brightness(1.06);box-shadow:inset 0 1px rgba(255,255,255,.14),0 14px 30px rgba(0,0,0,.24)}
+  .mobile-dash-hero__metrics>a:hover,.mobile-dash-hero__metrics>button:hover,.mobile-dash-hero__metrics>a:focus-visible,.mobile-dash-hero__metrics>button:focus-visible{transform:translateY(-2px);filter:brightness(1.06);box-shadow:inset 0 1px rgba(255,255,255,.14),0 14px 30px rgba(0,0,0,.24);animation-play-state:paused}
   .mobile-dash-hero__metrics svg{position:relative;width:17px;color:#dffaff;filter:drop-shadow(0 0 8px currentColor)}
   .mobile-dash-hero__metrics b{position:relative;max-width:100%;margin-top:8px;overflow:hidden;color:#fff;font-size:.9rem;line-height:1.05;letter-spacing:-.03em;text-overflow:ellipsis}
   .mobile-dash-hero__metrics small{position:relative;margin-top:3px;color:rgba(238,248,252,.84);font-size:.67rem;font-weight:600;line-height:1.05}
@@ -32,9 +33,10 @@
   .mobile-dash-hero__metric--membership em{position:relative;margin-top:3px;color:rgba(232,255,245,.7);font-size:.49rem;font-style:normal;line-height:1}
   .mobile-dash-hero__metrics .mobile-dash-hero__metric-arrow{position:absolute;right:6px;top:7px;width:10px;opacity:.52}
   .mobile-dash__body{display:grid;gap:20px;padding:20px 14px}
-  .mobile-dash-hero__assist{position:absolute;top:18px;right:18px;z-index:3;display:inline-flex;align-items:center;gap:11px;padding:15px 25px;border:1px solid rgba(154,108,255,.52);border-radius:999px;color:#fff;font:inherit;font-size:1.15rem;font-weight:800;background:linear-gradient(135deg,rgba(48,31,109,.88),rgba(5,17,35,.85));box-shadow:0 11px 28px rgba(32,12,94,.33),inset 0 1px rgba(255,255,255,.12);backdrop-filter:blur(16px) saturate(140%);cursor:pointer}
+  .mobile-dash-hero__assist{position:absolute;top:62px;right:18px;z-index:3;display:inline-flex;align-items:center;gap:11px;padding:15px 25px;border:1px solid rgba(154,108,255,.52);border-radius:999px;color:#fff;font:inherit;font-size:1.15rem;font-weight:800;background:linear-gradient(135deg,rgba(48,31,109,.88),rgba(5,17,35,.85));box-shadow:0 11px 28px rgba(32,12,94,.33),inset 0 1px rgba(255,255,255,.12);backdrop-filter:blur(16px) saturate(140%);cursor:pointer;animation:mobileDashAssistFloat 2.6s ease-in-out infinite}
   .mobile-dash-hero__assist svg{width:27px;height:27px;color:#7be9ff;filter:drop-shadow(0 0 6px currentColor)}
   .mobile-dash-hero__assist:active{transform:scale(.96)}
+  .mobile-dash-hero__assist:hover,.mobile-dash-hero__assist:focus-visible{animation-play-state:paused}
   .mobile-dash-commerce{padding:16px;border:1px solid rgba(32,217,232,.28);border-radius:26px;background:linear-gradient(145deg,rgba(7,25,40,.94),rgba(4,12,25,.96));box-shadow:0 18px 42px rgba(0,0,0,.2)}
   .mobile-dash-commerce>header{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:1px 2px 14px}
   .mobile-dash-commerce>header span{color:var(--md-cyan);font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em}
@@ -217,6 +219,7 @@
   [data-theme="light"] .mobile-dash-card{border-color:rgba(33,88,104,.16)}
   [data-theme="light"] .mobile-dash-wallet small,[data-theme="light"] .mobile-dash-next p,[data-theme="light"] .mobile-dash-impact p{color:#607887}
   [data-theme="light"] .mobile-dash-movement{border-color:rgba(14,132,169,.2);background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(228,241,246,.9));box-shadow:0 13px 35px rgba(24,63,78,.09)}
+  [data-theme="light"] .mobile-dash-movement img{content:url("../assets/Dashboard/logo.png");filter:none}
   [data-theme="light"] .mobile-dash-movement h2{color:#102c3d}
   [data-theme="light"] .mobile-dash-movement h2 strong{color:#087fad}
   [data-theme="light"] .mobile-dash-movement p{color:#607887}
@@ -274,5 +277,7 @@
   .mobile-sheet-ticket>a{font-size:.65rem}
   @keyframes mobileDashFade{from{opacity:0}}
   @keyframes mobileDashSheet{from{transform:translateY(100%)}}
+  @keyframes mobileDashAssistFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  @keyframes mobileDashMetricFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
   @media(prefers-reduced-motion:reduce){.mobile-dash *,.mobile-dash-sheet,.mobile-dash-sheet-backdrop{animation:none!important;transition:none!important}}
 }

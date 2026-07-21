@@ -23,6 +23,7 @@ import {
   IconShare,
   IconCopy,
 } from "@tabler/icons-react";
+import HeroActionCluster from "../../layout/HeroActionCluster.jsx";
 import { useAiAssistant } from "../../../contexts/AiAssistantContext.jsx";
 import { useWallet } from "../../../contexts/WalletContext.jsx";
 import { apiFetch, apiUrl, authHeaders } from "../../../utils/api.js";
@@ -253,6 +254,7 @@ export default function MobileDashboardCommandCenter({
           <img className="mobile-dash-hero__image mobile-dash-hero__image--dark" src={heroDark} alt="" />
         </picture>
         <div className="mobile-dash-hero__scrim" />
+        <HeroActionCluster />
         <button type="button" className="mobile-dash-hero__assist" onClick={openAssistant}
           aria-label={t("dashboardMobile:commandCenter.hero.assistAria")}>
           <IconRobot aria-hidden />

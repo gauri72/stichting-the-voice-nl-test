@@ -90,6 +90,18 @@
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.1), 0 10px 24px rgba(255, 186, 73, 0.32);
 }
 
+/* Deliberately a different (red) color, not just the shared brand gradient
+   — this is a destructive/exit action, not another utility button. */
+.hero-action-cluster__btn--logout {
+  background: linear-gradient(90deg, #e14848, #b42318);
+  box-shadow: 0 8px 20px rgba(180, 35, 24, 0.32);
+}
+
+.hero-action-cluster__btn--logout:hover {
+  border-color: rgba(225, 72, 72, 0.55);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.1), 0 10px 24px rgba(225, 72, 72, 0.38);
+}
+
 /* The real ThemeToggle (both rows now — full dark/light/auto menu, not a
    plain binary switch) has its own default styling (theme-toggle.css) —
    match it to the gradient the other buttons use here, and shrink it from
@@ -115,6 +127,48 @@
 .hero-action-cluster--desktop .theme-toggle__icon {
   width: 18px;
   height: 18px;
+}
+
+/* Ambient "click me" cue — a gentle float, as if each button is drifting
+   in place, so the row reads as alive rather than static. Staggered
+   animation-delay per button so they ripple across the row instead of all
+   floating in unison. Paused on hover/focus so it doesn't fight with the
+   buttons' own hover-lift transform. */
+.hero-action-cluster__btn,
+.hero-action-cluster .theme-toggle {
+  animation: heroClusterFloat 2.6s ease-in-out infinite;
+}
+
+.hero-action-cluster__btn:hover,
+.hero-action-cluster__btn:focus-visible,
+.hero-action-cluster .theme-toggle:hover,
+.hero-action-cluster .theme-toggle:focus-visible {
+  animation-play-state: paused;
+}
+
+.hero-action-cluster__btn--install {
+  animation-delay: 0s;
+}
+
+.hero-action-cluster__btn--lang {
+  animation-delay: 0.15s;
+}
+
+.hero-action-cluster__btn--whatsapp {
+  animation-delay: 0.3s;
+}
+
+.hero-action-cluster .theme-toggle {
+  animation-delay: 0.45s;
+}
+
+.hero-action-cluster__btn--logout {
+  animation-delay: 0.6s;
+}
+
+@keyframes heroClusterFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 @media (max-width: 1100px) {
@@ -404,6 +458,15 @@ body:has(.hero-action-cluster) .language-switcher:not(.language-switcher--embedd
     filter: none;
   }
 
+  /* The shared hover-shimmer sweep (dashboard-welcome-banner-section.css)
+     relies on overflow:hidden to clip itself to the button shape between
+     sweeps — with overflow:visible above, it renders as a stray diagonal
+     white patch instead of staying hidden off to the side. */
+  body:has(.hero-action-cluster) .nav-toolbar .dash-welcome__badge.donate-button::before,
+  body:has(.hero-action-cluster) .nav-toolbar .dash-welcome__badge.auth-button::before {
+    display: none;
+  }
+
   body:has(.hero-action-cluster) .nav-toolbar .dash-welcome__badge.donate-button {
     border: none !important;
     background: linear-gradient(90deg, #0078ab, #2ca45f) !important;
@@ -438,5 +501,9 @@ body:has(.hero-action-cluster) .language-switcher:not(.language-switcher--embedd
   }
   .hero-action-cluster__btn:hover {
     transform: none;
+  }
+  .hero-action-cluster__btn,
+  .hero-action-cluster .theme-toggle {
+    animation: none;
   }
 }

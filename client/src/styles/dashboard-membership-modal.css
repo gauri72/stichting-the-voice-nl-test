@@ -1,0 +1,71 @@
+/* Popup wrapper for DashboardMembershipCardSection — same backdrop/panel
+   convention as .dash-ticket-modal (dashboard-my-bookings-section.css),
+   just wider to fit the e-card + benefits list. */
+.dash-membership-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 3vw, 24px);
+  background: rgba(4, 8, 16, 0.86);
+  backdrop-filter: blur(12px);
+  animation: dash-membership-modal-fade-in 0.2s ease;
+}
+
+.dash-membership-modal__panel {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: min(92vh, 800px);
+  overflow-y: auto;
+  padding: clamp(24px, 4vw, 32px) clamp(20px, 4vw, 28px);
+  border-radius: 18px;
+  background: #0d0d0d;
+  border: 1px solid rgba(26, 167, 196, 0.3);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  animation: dash-membership-modal-pop-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+[data-theme="light"] .dash-membership-modal__panel {
+  background: #fff;
+  border-color: rgba(10, 95, 117, 0.3);
+}
+
+.dash-membership-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--md-text);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dash-membership-modal__close:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(1.06);
+}
+
+@keyframes dash-membership-modal-fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes dash-membership-modal-pop-in {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-membership-modal,
+  .dash-membership-modal__panel {
+    animation: none;
+  }
+}
