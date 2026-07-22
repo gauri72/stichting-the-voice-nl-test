@@ -10,12 +10,14 @@ export function usePwaInstall(expectedVariant = null) {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [installed, setInstalled] = useState(isStandalonePwa());
 
-  useEffect(() => {
-    if (!matches) {
-      setDeferredPrompt(null);
-    }
-  }, [matches]);
-
+  // Deliberately NOT clearing deferredPrompt when `matches` goes false (e.g.
+  // navigating from the main site to /check-in, which has its own PWA
+  // variant) — the browser only fires beforeinstallprompt once per session,
+  // so discarding it here would permanently lose a valid one-tap install
+  // opportunity the moment a visitor crosses between variants, even though
+  // it's still perfectly usable once they're back on a matching page.
+  // `canInstall` below already gates on `matches`, so a mismatched button
+  // just doesn't advertise it as available — it isn't thrown away.
   useEffect(() => {
     function onBeforeInstall(event) {
       event.preventDefault();
