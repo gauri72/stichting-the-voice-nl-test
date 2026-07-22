@@ -136,7 +136,9 @@
     "featuredErrorNotice": "We laten onze nieuwste marktplaats-uitlichting zien.",
     "popularPicks": "Populaire Keuzes Voor Jou",
     "productsErrorNotice": "We laten een samengestelde selectie uit de marktplaats zien.",
-    "cashback": "{{percent}}% Cashback"
+    "cashback": "{{percent}}% Cashback",
+    "ownerBannerBody": "Je beheert {{businessName}} op V.Commerce.",
+    "ownerBannerCta": "Naar Mijn Bedrijf"
   },
   "welcomeBannerSection": {
     "greetingDefault": "Welkom,",

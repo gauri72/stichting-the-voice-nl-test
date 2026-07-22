@@ -136,7 +136,9 @@
     "featuredErrorNotice": "Wir zeigen unser neuestes Marktplatz-Highlight.",
     "popularPicks": "Beliebte Empfehlungen Für Dich",
     "productsErrorNotice": "Wir zeigen eine kuratierte Auswahl aus dem Marktplatz.",
-    "cashback": "{{percent}}% Cashback"
+    "cashback": "{{percent}}% Cashback",
+    "ownerBannerBody": "Du verwaltest {{businessName}} auf V.Commerce.",
+    "ownerBannerCta": "Zu Meinem Unternehmen"
   },
   "welcomeBannerSection": {
     "greetingDefault": "Willkommen,",

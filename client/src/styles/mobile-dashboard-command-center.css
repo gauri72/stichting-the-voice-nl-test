@@ -33,7 +33,7 @@
   .mobile-dash-hero__metric--membership em{position:relative;margin-top:3px;color:rgba(232,255,245,.7);font-size:.49rem;font-style:normal;line-height:1}
   .mobile-dash-hero__metrics .mobile-dash-hero__metric-arrow{position:absolute;right:6px;top:7px;width:10px;opacity:.52}
   .mobile-dash__body{display:grid;gap:20px;padding:20px 14px}
-  .mobile-dash-hero__assist{position:absolute;top:62px;right:18px;z-index:3;display:inline-flex;align-items:center;gap:11px;padding:15px 25px;border:1px solid rgba(154,108,255,.52);border-radius:999px;color:#fff;font:inherit;font-size:1.15rem;font-weight:800;background:linear-gradient(135deg,rgba(48,31,109,.88),rgba(5,17,35,.85));box-shadow:0 11px 28px rgba(32,12,94,.33),inset 0 1px rgba(255,255,255,.12);backdrop-filter:blur(16px) saturate(140%);cursor:pointer;animation:mobileDashAssistFloat 2.6s ease-in-out infinite}
+  .mobile-dash-hero__assist{position:absolute;top:62px;right:8px;z-index:3;display:inline-flex;align-items:center;gap:11px;padding:15px 25px;border:1px solid rgba(154,108,255,.52);border-radius:999px;color:#fff;font:inherit;font-size:1.15rem;font-weight:800;background:linear-gradient(135deg,rgba(48,31,109,.88),rgba(5,17,35,.85));box-shadow:0 11px 28px rgba(32,12,94,.33),inset 0 1px rgba(255,255,255,.12);backdrop-filter:blur(16px) saturate(140%);cursor:pointer;animation:mobileDashAssistFloat 2.6s ease-in-out infinite}
   .mobile-dash-hero__assist svg{width:27px;height:27px;color:#7be9ff;filter:drop-shadow(0 0 6px currentColor)}
   .mobile-dash-hero__assist:active{transform:scale(.96)}
   .mobile-dash-hero__assist:hover,.mobile-dash-hero__assist:focus-visible{animation-play-state:paused}

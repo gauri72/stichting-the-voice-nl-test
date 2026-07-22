@@ -15,6 +15,8 @@ import DashboardMyBookingsSection from "./sections/DashboardMyBookingsSection.js
 import DashboardStatCardsSection from "./sections/DashboardStatCardsSection.jsx";
 import DashboardMembershipCardSection from "./sections/DashboardMembershipCardSection.jsx";
 import DashboardMyEventsWidget from "./sections/DashboardMyEventsWidget.jsx";
+import DashboardBusinessHubBanner from "./sections/DashboardBusinessHubBanner.jsx";
+import DashboardMyOrdersSection from "./sections/DashboardMyOrdersSection.jsx";
 import DashboardMySessionsSection from "./sections/DashboardMySessionsSection.jsx";
 import DashboardRecentActivitySection from "./sections/DashboardRecentActivitySection.jsx";
 import DashboardImpactSection from "./sections/DashboardImpactSection.jsx";
@@ -114,6 +116,8 @@ function LegacyMemberDashboard({ displayName, overview, activity, membership, ha
           <div className="dash-bookings-events-row__col">
             <DashboardMyBookingsSection compact />
             <DashboardMyEventsWidget compact />
+            <DashboardBusinessHubBanner />
+            <DashboardMyOrdersSection />
           </div>
           <div className="dash-bookings-events-row__col">
             <DashboardMembershipCardSection

@@ -49,7 +49,7 @@
         "value_other": "{{count}} bijdragen"
       },
       "referral": { "title": "Verwijzingscode", "value": "Nodig uit & verdien" },
-      "business": { "title": "Bedrijvenhub", "value": "Aanbiedingen beheren" }
+      "business": { "title": "Mijn Bedrijf", "value": "Aanbiedingen beheren" }
     },
     "impactBanner": {
       "label": "Jouw impact",

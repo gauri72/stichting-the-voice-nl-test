@@ -14,7 +14,6 @@ import {
   DASHBOARD_ROUTES,
 } from "../dashboardUtils.js";
 import DashboardVCommerceHighlights from "./DashboardVCommerceHighlights.jsx";
-import DashboardMyOrdersSection from "./DashboardMyOrdersSection.jsx";
 import "../../../styles/dashboard-stat-cards-section.css";
 
 export default function DashboardStatCardsSection({ overview, hasMembership, planId }) {
@@ -71,7 +70,6 @@ export default function DashboardStatCardsSection({ overview, hasMembership, pla
 
   return (
     <>
-      <DashboardMyOrdersSection />
       <DashboardVCommerceHighlights />
       <section className="dash-stats-section" aria-labelledby="dash-impact-title">
         <h2 id="dash-impact-title" className="dash-stats-section__title">

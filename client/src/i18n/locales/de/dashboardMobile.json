@@ -49,7 +49,7 @@
         "value_other": "{{count}} Beiträge"
       },
       "referral": { "title": "Empfehlungscode", "value": "Einladen & verdienen" },
-      "business": { "title": "Business-Hub", "value": "Angebote verwalten" }
+      "business": { "title": "Mein Unternehmen", "value": "Angebote verwalten" }
     },
     "impactBanner": {
       "label": "Deine Wirkung",

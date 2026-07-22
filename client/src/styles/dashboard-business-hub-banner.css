@@ -1,0 +1,65 @@
+/* Only rendered for the current user's own business — points at the
+   seller's management area (/dashboard/vcommerce). Sits in the left
+   column of the bookings/events row, below Upcoming Experiences, so it
+   inherits that column's width via flex-column stretch. */
+.dash-business-hub-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border: 1px solid rgba(34, 219, 120, 0.4);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(34, 219, 120, 0.14), rgba(34, 219, 120, 0.03));
+  color: inherit;
+  text-decoration: none;
+}
+
+.dash-business-hub-banner__icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 11px;
+  background: rgba(34, 219, 120, 0.18);
+  color: #22db78;
+}
+
+.dash-business-hub-banner__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-business-hub-banner__copy strong {
+  font-size: 0.95rem;
+}
+
+.dash-business-hub-banner__copy span {
+  color: var(--md-text-secondary, #b7c3cc);
+  font-size: 0.82rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-business-hub-banner__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #22db78;
+  color: #04170c;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: filter 0.25s ease;
+}
+
+.dash-business-hub-banner:hover .dash-business-hub-banner__cta {
+  filter: brightness(1.08);
+}

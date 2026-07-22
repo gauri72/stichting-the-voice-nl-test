@@ -49,7 +49,7 @@
         "value_other": "{{count}} Contributions"
       },
       "referral": { "title": "Referral Code", "value": "Invite & Earn" },
-      "business": { "title": "Business Hub", "value": "Manage Listings" }
+      "business": { "title": "My Business", "value": "Manage Listings" }
     },
     "impactBanner": {
       "label": "Your Impact",
