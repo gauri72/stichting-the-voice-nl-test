@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { IconArrowLeft, IconHome } from "@tabler/icons-react";
 import { useAuth } from "../../../contexts/AuthContext.jsx";
+import HeroActionCluster from "../../layout/HeroActionCluster.jsx";
 import "../../../styles/dashboard-subpage-navigation.css";
 import {
   getMyBusiness,
@@ -1389,7 +1390,8 @@ export default function VCommercePortalPage() {
   }
 
   return (
-    <div className="vco-portal-shell" style={{ maxWidth:1040,margin:"0 auto",padding:"clamp(48px,8vw,72px) 24px 60px" }}>
+    <div className="vco-portal-shell" style={{ position:"relative",maxWidth:1040,margin:"0 auto",padding:"clamp(48px,8vw,72px) 24px 60px" }}>
+      <HeroActionCluster />
       <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:28,flexWrap:"wrap",gap:12 }}>
         <div style={{ display:"flex",alignItems:"center",gap:16,flexWrap:"wrap" }}>
           <div>
