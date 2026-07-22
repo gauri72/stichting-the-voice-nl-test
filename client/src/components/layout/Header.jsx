@@ -323,6 +323,7 @@ export default function Header() {
               </div>
               <Link
                 to="/vcommerce/checkout"
+                className="vcm-cart-btn-desktop"
                 aria-label={`Shopping cart${itemCount > 0 ? `, ${itemCount} item${itemCount === 1 ? "" : "s"}` : ", empty"}`}
               >
                 <IconShoppingCart aria-hidden="true" />

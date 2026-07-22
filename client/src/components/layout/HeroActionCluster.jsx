@@ -237,38 +237,40 @@ function WhatsAppChatButton({ t }) {
  * LanguageSwitcher's --header variant elsewhere in this codebase), so there's
  * no viewport-detection hook or hydration-mismatch risk.
  */
-export default function HeroActionCluster({ anchorSelector = ".nav-toolbar__cta-auth" } = {}) {
-  const { t, i18n } = useTranslation(["common", "dashboardSections"]);
-  const desktopRef = useRef(null);
-  const [desktopStyle, setDesktopStyle] = useState(null);
+// Measures `anchorSelector`'s real rendered position and right-aligns
+// `ref`'s element under it (relative to `ref`'s offsetParent), instead of
+// guessing a fixed pixel offset — the anchor's width varies by language and
+// its position shifts with the page's own responsive layout, so a static
+// CSS value can't track it reliably at every screen size. A MutationObserver
+// on the anchor's style attribute (not just ResizeObserver) is needed since
+// some anchors are repositioned via inline style — a position change, not a
+// size change. Returns null (no computed style) when `anchorSelector` isn't
+// provided, leaving the caller's static CSS positioning in place.
+function useAnchoredStyle(ref, anchorSelector, deps) {
+  const [style, setStyle] = useState(null);
 
-  // Right-align this row under its anchor element (by default, the header's
-  // "Sign In Or Register"/account button — same right margin, not centered)
-  // by measuring the anchor's real rendered position instead of guessing a
-  // fixed pixel offset — its width varies by language and its position
-  // shifts with the header's own responsive layout, so a static CSS value
-  // can't track it reliably at every screen size. `anchorSelector` lets a
-  // page override what this row anchors below (e.g. the dashboard hero
-  // anchors it under its own metrics tiles instead); a MutationObserver on
-  // the anchor's style attribute (not just ResizeObserver) is needed for
-  // that case, since the anchor may itself be repositioned via inline
-  // style — a position change, not a size change.
   useLayoutEffect(() => {
-    const clusterEl = desktopRef.current;
-    if (!clusterEl) return undefined;
+    const clusterEl = ref.current;
+    if (!clusterEl || !anchorSelector) return undefined;
 
     function reposition() {
       const anchorEl = document.querySelector(anchorSelector);
-      const heroEl = clusterEl.offsetParent;
-      if (!anchorEl || !heroEl) return;
+      const parentEl = clusterEl.offsetParent;
+      if (!anchorEl || !parentEl) return;
 
       const anchorRect = anchorEl.getBoundingClientRect();
-      const heroRect = heroEl.getBoundingClientRect();
+      const parentRect = parentEl.getBoundingClientRect();
 
-      const right = Math.max(heroRect.right - anchorRect.right, 8);
-      const top = anchorRect.bottom - heroRect.top + 14;
+      // No floor on `right` — the anchor isn't guaranteed to sit inside the
+      // cluster's positioned ancestor (e.g. the V.Commerce cart button lives
+      // in the full-bleed site header, to the right of the hero's own
+      // max-width container), so a negative value that pushes the cluster
+      // past its ancestor's right edge is the correct way to still land
+      // exactly under the anchor's right edge.
+      const right = parentRect.right - anchorRect.right;
+      const top = anchorRect.bottom - parentRect.top + 14;
 
-      setDesktopStyle({ right: `${right}px`, top: `${top}px` });
+      setStyle({ right: `${right}px`, top: `${top}px` });
     }
 
     reposition();
@@ -290,7 +292,23 @@ export default function HeroActionCluster({ anchorSelector = ".nav-toolbar__cta-
       mutationObserver.disconnect();
       window.removeEventListener("resize", reposition);
     };
-  }, [i18n.language, anchorSelector]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anchorSelector, ...deps]);
+
+  return style;
+}
+
+export default function HeroActionCluster({ anchorSelector = ".nav-toolbar__cta-auth", mobileAnchorSelector = null } = {}) {
+  const { t, i18n } = useTranslation(["common", "dashboardSections"]);
+  const desktopRef = useRef(null);
+  const mobileRef = useRef(null);
+
+  // By default, the header's "Sign In Or Register"/account button; a page
+  // can override what each row anchors below (e.g. a shopping cart button)
+  // via `anchorSelector`/`mobileAnchorSelector`. When `mobileAnchorSelector`
+  // is omitted, the mobile row keeps its static top-right-corner CSS offset.
+  const desktopStyle = useAnchoredStyle(desktopRef, anchorSelector, [i18n.language]);
+  const mobileStyle = useAnchoredStyle(mobileRef, mobileAnchorSelector, [i18n.language]);
 
   return (
     <>
@@ -302,7 +320,7 @@ export default function HeroActionCluster({ anchorSelector = ".nav-toolbar__cta-
         <LogoutButton t={t} />
       </div>
 
-      <div className="hero-action-cluster hero-action-cluster--mobile">
+      <div className="hero-action-cluster hero-action-cluster--mobile" ref={mobileRef} style={mobileStyle || undefined}>
         <InstallButton t={t} />
         <LanguageButton t={t} i18n={i18n} />
         <WhatsAppChatButton t={t} />

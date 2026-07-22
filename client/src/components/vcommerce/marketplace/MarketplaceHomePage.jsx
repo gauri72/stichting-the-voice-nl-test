@@ -12,6 +12,7 @@ import { useMarketplaceData } from "./lib/useMarketplaceData.js";
 import { ImageWithFallback } from "./components/ui.jsx";
 import ThemeToggle from "../../layout/ThemeToggle.jsx";
 import LanguageSwitcher from "../../layout/LanguageSwitcher.jsx";
+import HeroActionCluster from "../../layout/HeroActionCluster.jsx";
 import SiteInstallPwaPrompt from "../../pwa/SiteInstallPwaPrompt.jsx";
 import { BUSINESS_CATEGORIES, BUSINESS_CATEGORY_LABELS } from "../shared/BUSINESS_CATEGORIES.js";
 import { useCart } from "../cart/useCart.js";
@@ -144,12 +145,14 @@ function MobileToolbar() {
           </div>
           <Link
             to="/vcommerce/checkout"
+            className="vcm-cart-btn-mobile"
             aria-label={cartAriaLabel}
           >
             <IconShoppingCart />
             {itemCount > 0 ? <em aria-hidden="true">{itemCount > 99 ? "99+" : itemCount}</em> : null}
           </Link>
         </div>
+        <HeroActionCluster anchorSelector=".vcm-cart-btn-desktop" mobileAnchorSelector=".vcm-cart-btn-mobile" />
       </header>
 
       <button
@@ -216,10 +219,11 @@ function MobileToolbar() {
 function Hero({ mobile = false }) {
   const { t } = useTranslation(["vcommerceShop"]);
   if (mobile) return <section className="vcm-mhero"><div><h1 className="vcm-page-title">V.Commerce</h1><p className="vcm-marketplace-tagline">{t("vcommerceShop:marketplaceHome.hero.tagline")}</p><h2 className="vcm-campaign-title">{t("vcommerceShop:marketplaceHome.hero.titlePart1")}<br /><span>{t("vcommerceShop:marketplaceHome.hero.titlePart2")}</span></h2><p className="vcm-hero-description">{t("vcommerceShop:marketplaceHome.hero.descriptionMobile")}</p><Link className="cta-pulse" to="/vcommerce/businesses">{t("vcommerceShop:marketplaceHome.hero.exploreShops")} <IconArrowRight /></Link></div><img className="vcm-mhero-art" src={mobileHeroGlobalCart} alt={t("vcommerceShop:marketplaceHome.hero.mobileHeroArtAlt")} /></section>;
-  return <section className="vcm-hero"><div className="vcm-hero-copy"><h1 className="vcm-page-title">V.Commerce</h1><p className="vcm-marketplace-tagline">{t("vcommerceShop:marketplaceHome.hero.tagline")}</p><h2 className="vcm-campaign-title">{t("vcommerceShop:marketplaceHome.hero.titlePart1")} <span>{t("vcommerceShop:marketplaceHome.hero.titlePart2")}</span></h2><p className="vcm-hero-description">{t("vcommerceShop:marketplaceHome.hero.descriptionDesktopLine1")}<br />{t("vcommerceShop:marketplaceHome.hero.descriptionDesktopLine2")}</p><div className="vcm-promises"><span><IconBriefcase />{t("vcommerceShop:marketplaceHome.hero.promises.cashback.line1")}<br />{t("vcommerceShop:marketplaceHome.hero.promises.cashback.line2")}</span><span><IconUsers />{t("vcommerceShop:marketplaceHome.hero.promises.support.line1")}<br />{t("vcommerceShop:marketplaceHome.hero.promises.support.line2")}</span><span><IconShieldCheck />{t("vcommerceShop:marketplaceHome.hero.promises.verified.line1")}<br />{t("vcommerceShop:marketplaceHome.hero.promises.verified.line2")}</span><span><IconShoppingBag />{t("vcommerceShop:marketplaceHome.hero.promises.secure.line1")}<br />{t("vcommerceShop:marketplaceHome.hero.promises.secure.line2")}</span></div><div className="vcm-hero-buttons"><Link className="cta-pulse" to="/vcommerce/businesses">{t("vcommerceShop:marketplaceHome.hero.exploreShops")} <IconArrowRight /></Link><Link className="cta-pulse" to="/vcommerce/apply"><IconBuildingStore /> {t("vcommerceShop:marketplaceHome.hero.listYourBusiness")}</Link></div></div><div className="vcm-mosaic">{[heroOpen,heroShopkeeper,heroBusinesswoman,heroWarehouse,heroGlobalCart].map((src,i)=><img key={src} src={src} alt={i === 0 ? t("vcommerceShop:marketplaceHome.hero.mosaicAlt") : ""} />)}</div></section>;
+  return <section className="vcm-hero"><HeroActionCluster anchorSelector=".vcm-cart-btn-desktop" mobileAnchorSelector=".vcm-cart-btn-mobile" /><div className="vcm-hero-copy"><h1 className="vcm-page-title">V.Commerce</h1><p className="vcm-marketplace-tagline">{t("vcommerceShop:marketplaceHome.hero.tagline")}</p><h2 className="vcm-campaign-title">{t("vcommerceShop:marketplaceHome.hero.titlePart1")} <span>{t("vcommerceShop:marketplaceHome.hero.titlePart2")}</span></h2><p className="vcm-hero-description">{t("vcommerceShop:marketplaceHome.hero.descriptionDesktopLine1")}<br />{t("vcommerceShop:marketplaceHome.hero.descriptionDesktopLine2")}</p><div className="vcm-promises"><span><IconBriefcase />{t("vcommerceShop:marketplaceHome.hero.promises.cashback.line1")}<br />{t("vcommerceShop:marketplaceHome.hero.promises.cashback.line2")}</span><span><IconUsers />{t("vcommerceShop:marketplaceHome.hero.promises.support.line1")}<br />{t("vcommerceShop:marketplaceHome.hero.promises.support.line2")}</span><span><IconShieldCheck />{t("vcommerceShop:marketplaceHome.hero.promises.verified.line1")}<br />{t("vcommerceShop:marketplaceHome.hero.promises.verified.line2")}</span><span><IconShoppingBag />{t("vcommerceShop:marketplaceHome.hero.promises.secure.line1")}<br />{t("vcommerceShop:marketplaceHome.hero.promises.secure.line2")}</span></div><div className="vcm-hero-buttons"><Link className="cta-pulse" to="/vcommerce/businesses">{t("vcommerceShop:marketplaceHome.hero.exploreShops")} <IconArrowRight /></Link><Link className="cta-pulse" to="/vcommerce/apply"><IconBuildingStore /> {t("vcommerceShop:marketplaceHome.hero.listYourBusiness")}</Link></div></div><div className="vcm-mosaic">{[heroOpen,heroShopkeeper,heroBusinesswoman,heroWarehouse,heroGlobalCart].map((src,i)=><img key={src} src={src} alt={i === 0 ? t("vcommerceShop:marketplaceHome.hero.mosaicAlt") : ""} />)}</div></section>;
 }
 
 const actionDefs = [
+  [IconBriefcase, "businessHub", "/dashboard/vcommerce"],
   [IconShoppingBag, "exploreShops", "/vcommerce/businesses"], [IconPackage, "myOrders", "/dashboard"],
   [IconWallet, "vWallet", "/dashboard/wallet"], [IconBuildingStore, "listYourBusiness", "/vcommerce/apply"],
   [IconCategory, "categories", "/vcommerce/categories"], [IconTicket, "deals", "/vcommerce/businesses?deals=1"],
@@ -277,5 +281,5 @@ export default function MarketplaceHomePage(){
   const {featured,products}=useMarketplaceData();
   useEffect(()=>{document.title=t("vcommerceShop:marketplaceHome.documentTitle"); document.body.classList.toggle("vco-mobile-active",mobile); return()=>document.body.classList.remove("vco-mobile-active")},[mobile,t]);
   if(mobile)return <div className="vcm-page vcm-mobile"><MobileToolbar/><main><Hero mobile/><QuickActions/><BusinessWeek business={featured}/><Popular products={products}/><div className="vcm-lower"><BottomContent/></div></main><BottomNav/></div>;
-  return <div className="vcm-page vcm-desktop"><DesktopBrand/><main><Hero/><SearchCategories/><div className="vcm-content"><BusinessWeek business={featured}/><Popular products={products}/></div><div className="vcm-lower"><BottomContent/></div></main></div>;
+  return <div className="vcm-page vcm-desktop"><DesktopBrand/><main><Hero/><QuickActions/><SearchCategories/><div className="vcm-content"><BusinessWeek business={featured}/><Popular products={products}/></div><div className="vcm-lower"><BottomContent/></div></main></div>;
 }
