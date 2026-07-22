@@ -54,6 +54,7 @@
 }
 
 .innovation-hero {
+  position: relative;
   padding: clamp(12px, 2vw, 18px) clamp(14px, 3vw, 28px) clamp(18px, 3vw, 28px);
 }
 
@@ -591,7 +592,10 @@
   }
 
   .innovation-hero {
-    padding-top: 8px;
+    /* Clears the HeroActionCluster mobile row (top:8px, ~30px tall) so it
+       doesn't sit on top of the title text below it — this hero has no
+       photo banner to give it natural clearance like other pages. */
+    padding-top: 56px;
     padding-bottom: 24px;
   }
 

@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { INNOVATION_HERO } from "../../data/innovationDisplay.js";
 import { useContentOverrides } from "../../hooks/useCmsPage.js";
 import { resolveOverrideText } from "../../i18n/overrideText.js";
+import HeroActionCluster from "../layout/HeroActionCluster.jsx";
 
 export default function InnovationHeroSection() {
   const { t } = useTranslation(["innovation"]);
@@ -10,6 +11,7 @@ export default function InnovationHeroSection() {
 
   return (
     <section className="innovation-hero" aria-labelledby="innovation-hero-title">
+      <HeroActionCluster />
       <div className="innovation-hero__inner">
         <div className="innovation-hero__copy">
           <h1 id="innovation-hero-title" className="innovation-hero__title">
