@@ -4,16 +4,24 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
+import mongoSanitize from "express-mongo-sanitize";
 import env from "./config/env.js";
 import apiRoutes from "./routes/index.js";
 import { stripeWebhook } from "./controllers/paymentController.js";
 import { stripeVCommerceWebhook } from "./controllers/vcommerceWebhookController.js";
+import { handleError } from "./utils/handleError.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const walletAssetsDir = path.join(__dirname, "assets", "wallet");
 const publicUploadsDir = path.join(process.cwd(), "public", "uploads");
 
 const app = express();
+
+// Render's load balancer is the only hop in front of this service, so trust
+// exactly one proxy — this makes req.ip reflect the real client IP (derived
+// from the trusted X-Forwarded-For entry) instead of a client-spoofable
+// header value, which the rate limiters below rely on.
+app.set("trust proxy", 1);
 
 // Allow QR / PDF assets to load on the separate static frontend host (e.g. Render web + API).
 app.use(
@@ -58,6 +66,11 @@ app.use("/api/vcommerce-portal", express.urlencoded({ extended: true, limit: "8m
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
+// Strips `$`/`.`-prefixed keys from body/query/params so a query-string
+// operator injection (e.g. ?field[$ne]=null) can't reach Mongoose filters —
+// on top of, not instead of, each service's own input handling.
+app.use(mongoSanitize());
+
 app.get("/", (_req, res) => {
   res.status(200).json({ message: "Stichting The V.O.I.C.E. NL API" });
 });
@@ -66,5 +79,13 @@ app.use("/assets/wallet", express.static(walletAssetsDir, { maxAge: "7d" }));
 app.use("/uploads", express.static(publicUploadsDir, { maxAge: "1h" }));
 
 app.use("/api", apiRoutes);
+
+// Catches errors from middleware that run outside any controller's own
+// try/catch (malformed JSON bodies, uncaught multer errors, etc.) so they get
+// the same sanitized-message treatment as everything else.
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  return handleError(res, err, { logTag: "[uncaught]" });
+});
 
 export default app;

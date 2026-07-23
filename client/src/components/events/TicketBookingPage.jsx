@@ -515,10 +515,13 @@ export default function TicketBookingPage() {
   }, [event?.id, event?.category, selectedItems, ticketQty, attendee.firstName, attendee.lastName, attendee.email, attendee.phone, resolveForms, populateFormValues]);
 
   const goToConfirmation = useCallback(
-    (orderNumber, email = "") => {
+    (orderNumber, email = "", guestAccessToken = "") => {
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
+      const params = new URLSearchParams();
       const normalizedEmail = String(email || "").trim();
-      const query = normalizedEmail ? `?email=${encodeURIComponent(normalizedEmail)}` : "";
+      if (normalizedEmail) params.set("email", normalizedEmail);
+      if (guestAccessToken) params.set("token", guestAccessToken);
+      const query = params.toString() ? `?${params.toString()}` : "";
       navigate(`/events/${eventIdOrSlug}/tickets/confirmation/${orderNumber}${query}`);
     },
     [eventIdOrSlug, navigate]
@@ -529,9 +532,15 @@ export default function TicketBookingPage() {
     return saved?.orderId || paymentIntent?.metadata?.order_id || null;
   }, []);
 
+  const resolveGuestAccessToken = useCallback(() => {
+    const saved = readCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
+    return saved?.guestAccessToken || "";
+  }, []);
+
   const finalizeTicketPayment = useCallback(
     async (paymentIntent) => {
       const orderId = resolveOrderId(paymentIntent);
+      const guestAccessToken = resolveGuestAccessToken();
       try {
         if (orderId) {
           const confirmed = await apiFetch(`/api/events/orders/${orderId}/confirm`, {
@@ -539,7 +548,7 @@ export default function TicketBookingPage() {
             headers: authHeaders(),
             body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
           });
-          goToConfirmation(confirmed.order.orderNumber, attendee.email);
+          goToConfirmation(confirmed.order.orderNumber, attendee.email, guestAccessToken);
           return;
         }
 
@@ -548,12 +557,12 @@ export default function TicketBookingPage() {
           headers: authHeaders(),
           body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
         });
-        goToConfirmation(confirmed.order.orderNumber, attendee.email);
+        goToConfirmation(confirmed.order.orderNumber, attendee.email, guestAccessToken);
       } catch (err) {
         setError(err.message || t("checkout:errors.couldNotConfirmBooking"));
       }
     },
-    [attendee.email, goToConfirmation, resolveOrderId]
+    [attendee.email, goToConfirmation, resolveOrderId, resolveGuestAccessToken]
   );
 
   useEffect(() => {
@@ -684,6 +693,7 @@ export default function TicketBookingPage() {
         orderId: checkout.order.id,
         orderNumber: checkout.order.orderNumber,
         paymentIntentId: checkout.payment?.paymentIntentId || null,
+        guestAccessToken: checkout.guestAccessToken || "",
         eventIdOrSlug,
         payer,
       });
@@ -732,7 +742,7 @@ export default function TicketBookingPage() {
           participantCount: ticketQty,
         });
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
-      goToConfirmation(result.order.orderNumber, attendee.email);
+      goToConfirmation(result.order.orderNumber, attendee.email, result.guestAccessToken);
     } catch (err) {
       setError(err.message || t("checkout:errors.freeBookingFailed"));
     } finally {

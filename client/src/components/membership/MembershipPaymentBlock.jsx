@@ -74,7 +74,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
       if (!isPaymentReturnUrl()) return;
       setHandlingReturn(true);
       await completePaymentReturn(stripe, {
-        onSuccess: async (paymentIntent) => {
+        onSuccess: async (paymentIntent, returnedClientSecret) => {
           const saved = readCheckoutSession(MEMBERSHIP_CHECKOUT_SESSION_KEY);
           const payer = readCheckoutPayer(saved);
           if (payer) setMember((prev) => ({ ...prev, ...payer }));
@@ -88,7 +88,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
             await fetchWithTimeout(apiUrl("/api/payments/confirm"), {
               method: "POST",
               headers: { "Content-Type": "application/json", ...authHeaders() },
-              body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+              body: JSON.stringify({ paymentIntentId: paymentIntent.id, clientSecret: returnedClientSecret })
             });
           } catch (_err) {
             // Webhook may still deliver.
@@ -201,7 +201,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
       await fetchWithTimeout(apiUrl("/api/payments/confirm"), {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
-        body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+        body: JSON.stringify({ paymentIntentId: paymentIntent.id, clientSecret })
       });
     } catch (_err) {
       // Webhook may still deliver.

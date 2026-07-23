@@ -18,17 +18,24 @@ function normalizeEmail(email) {
 }
 
 function signAdminToken(admin, rememberMe = false) {
-  const expiresIn = rememberMe ? "30d" : "7d";
+  const expiresIn = rememberMe ? "30d" : "2h";
   return jwt.sign(
     {
       sub: admin._id.toString(),
       email: admin.email,
       type: "admin",
       role: admin.role,
+      v: admin.tokenVersion || 0,
     },
     env.auth.jwtSecret,
     { expiresIn }
   );
+}
+
+/** Invalidates every outstanding token for this admin (logout-everywhere). */
+export async function logoutAdmin(adminId) {
+  if (!isDbReady()) return;
+  await Admin.updateOne({ _id: adminId }, { $inc: { tokenVersion: 1 } });
 }
 
 export function verifyAdminToken(token) {

@@ -16,11 +16,10 @@ import {
   savePushSubscription,
 } from "../services/aiAssistantService.js";
 import { getVapidPublicKey, isPushConfigured } from "../services/webPushService.js";
+import { handleError as handleErrorBase } from "../utils/handleError.js";
 
 function handleError(res, error) {
-  const status = error.status || 500;
-  if (status >= 500) console.error("[ai-assistant]", error);
-  return res.status(status).json({ error: error.message || "Request failed." });
+  return handleErrorBase(res, error, { logTag: "[ai-assistant]" });
 }
 
 export async function getStatus(req, res) {

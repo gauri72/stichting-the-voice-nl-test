@@ -563,6 +563,10 @@ export async function retryExecutionLog(id, admin) {
 
   const requestMeta = log.requestMeta || {};
   if (!requestMeta.url) throwStatus("Cannot retry: request metadata unavailable.");
+  // Re-validate on every retry, not just at original request time — a stored
+  // URL could have been logged before this integration's allow-list changed,
+  // or before this check existed.
+  await assertSafeOutboundUrl(requestMeta.url);
 
   const bundle = await loadIntegrationBundle(log.integrationId);
   const credentials = await getDecryptedCredentials(log.integrationId);

@@ -32,6 +32,7 @@ function productionConfig(stripe = {}) {
     nodeEnv: "production",
     auth: { jwtSecret: "jwt" },
     captcha: { turnstileSecretKey: "turnstile" },
+    clientUrlConfigured: true,
     stripe: {
       secretKey: "sk_live_platform",
       webhookSecret: "whsec_platform",

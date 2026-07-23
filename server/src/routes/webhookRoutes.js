@@ -4,13 +4,12 @@ import { handleIncomingWebhook } from "../services/smartApiBuilderService.js";
 import { createPendingBatch } from "../services/i18n/translationReviewService.js";
 import { notifyAdminOfNewTranslations } from "../services/i18n/i18nReviewMailer.js";
 import env from "../config/env.js";
+import { handleError as handleErrorBase } from "../utils/handleError.js";
 
 const router = Router();
 
 function handleError(res, error) {
-  const status = error.status || 500;
-  if (status >= 500) console.error("[webhook]", error);
-  return res.status(status).json({ error: error.message || "Webhook processing failed." });
+  return handleErrorBase(res, error, { logTag: "[webhook]" });
 }
 
 router.post("/custom/:integrationKey", async (req, res) => {

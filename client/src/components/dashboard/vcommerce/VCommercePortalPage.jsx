@@ -915,17 +915,34 @@ function ImportTab({ businessId }) {
     setFileObj(file);
     setResult(null);
     try {
-      const XLSX = (await import("xlsx")).default;
+      const ExcelJS = (await import("exceljs")).default;
       const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, { type: "array" });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
-      if (rows.length < 2) { setPreview([]); return; }
-      const headers = rows[0].map(String);
-      const data = rows.slice(1).map((row, i) => {
-        const obj = { _row: i + 2 };
-        headers.forEach((h, ci) => { obj[h] = row[ci] ?? ""; });
-        return obj;
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(buf);
+      const worksheet = workbook.worksheets[0];
+      if (!worksheet || worksheet.rowCount < 2) { setPreview([]); return; }
+      const cellText = (cell) => {
+        const value = cell?.value;
+        if (value && typeof value === "object") {
+          if (Array.isArray(value.richText)) return value.richText.map((rt) => rt.text).join("");
+          if (value.result !== undefined) return value.result;
+          if (value.text !== undefined) return value.text;
+        }
+        return value === null || value === undefined ? "" : value;
+      };
+      const headers = [];
+      worksheet.getRow(1).eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        headers[colNumber] = String(cellText(cell) || "");
+      });
+      const data = [];
+      worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+        if (rowNumber === 1) return;
+        const obj = { _row: rowNumber };
+        headers.forEach((h, colNumber) => {
+          if (!h) return;
+          obj[h] = cellText(row.getCell(colNumber));
+        });
+        data.push(obj);
       });
       setPreview(data);
     } catch (err) {

@@ -8,9 +8,11 @@ import {
   requestPasswordReset,
   resetPassword,
   updateUserProfile,
-  changePassword
+  changePassword,
+  logoutUser
 } from "../services/authService.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
+import { assertPasswordPolicy } from "../utils/passwordPolicy.js";
 
 import { handleError as handleErrorBase } from "../utils/handleError.js";
 
@@ -26,9 +28,7 @@ export async function register(req, res) {
       return res.status(400).json({ error: "All fields are required." });
     }
 
-    if (password.length < 8) {
-      return res.status(400).json({ error: "Password must be at least 8 characters long." });
-    }
+    assertPasswordPolicy(password);
 
     const result = await registerUser({ firstName, lastName, email, password });
     return res.status(201).json(result);
@@ -151,6 +151,15 @@ export async function resetPasswordHandler(req, res) {
 
     const result = await resetPassword({ token, password });
     return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function logout(req, res) {
+  try {
+    await logoutUser(req.user.id);
+    return res.status(200).json({ message: "Logged out." });
   } catch (error) {
     return handleError(res, error);
   }

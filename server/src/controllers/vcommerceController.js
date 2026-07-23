@@ -16,14 +16,14 @@ import {
   createApplicationPackageCheckout,
   confirmApplicationPackageCheckout,
 } from "../services/vcommercePackageService.js";
+import { handleError as handleErrorBase } from "../utils/handleError.js";
 
 function ok(res, data, status = 200) {
   return res.status(status).json(data);
 }
 
-function fail(res, err) {
-  const status = err.status || 500;
-  return res.status(status).json({ error: err.message || "Unexpected error" });
+function handleError(res, err) {
+  return handleErrorBase(res, err, { logTag: "[vcommerce]" });
 }
 
 export async function getFeatured(req, res) {
@@ -31,7 +31,7 @@ export async function getFeatured(req, res) {
     const { business, alternates } = await getFeaturedBusiness();
     ok(res, { business, alternates });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -40,7 +40,7 @@ export async function getStats(req, res) {
     const stats = await getMarketplaceStats();
     ok(res, stats);
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -50,7 +50,7 @@ export async function getPopularProductsHandler(req, res) {
     const products = await getPopularProducts({ limit });
     ok(res, { products });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -65,7 +65,7 @@ export async function getList(req, res) {
     });
     ok(res, result);
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -74,7 +74,7 @@ export async function getProfile(req, res) {
     const business = await getBusinessBySlug(req.params.slug);
     ok(res, { business });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -83,7 +83,7 @@ export async function getApplyStatus(req, res) {
     const status = await getApplicationStatus(req.user.id);
     ok(res, status);
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -98,7 +98,7 @@ export async function postApply(req, res) {
     const checkout = await createApplicationPackageCheckout(req.user.id, application, origin);
     return ok(res, { application, ...checkout }, 201);
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 }
 
@@ -111,7 +111,7 @@ export async function confirmApplicationPayment(req, res) {
       businessSlug: result.business.slug,
     });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -152,7 +152,7 @@ export async function postCreateOrder(req, res) {
     );
     return ok(res, result, 201);
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 }
 
@@ -163,7 +163,7 @@ export async function postReviewHandler(req, res) {
     const review = await postReview(req.user.id, reviewerName, req.params.businessId, orderId, { rating, body });
     return ok(res, { review }, 201);
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 }
 
@@ -177,7 +177,7 @@ export async function getReviewsHandler(req, res) {
     });
     return ok(res, result);
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 }
 
@@ -186,7 +186,7 @@ export async function getOrderStatusHandler(req, res) {
     const order = await getOrderStatus(req.params.orderId, req.user?.id || null, req.query.accessToken || "");
     ok(res, { order });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -197,6 +197,6 @@ export async function getMyOrdersHandler(req, res) {
     const result = await listCustomerOrders(req.user.id, req.user.email, { page, pageSize });
     ok(res, result);
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }

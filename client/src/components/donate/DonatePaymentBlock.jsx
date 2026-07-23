@@ -71,7 +71,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
       if (!isPaymentReturnUrl()) return;
       setHandlingReturn(true);
       await completePaymentReturn(stripe, {
-        onSuccess: async (paymentIntent) => {
+        onSuccess: async (paymentIntent, returnedClientSecret) => {
           const saved = readCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
           const payer = readCheckoutPayer(saved);
           if (payer) setDonor((prev) => ({ ...prev, ...payer }));
@@ -87,7 +87,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
             await fetchWithTimeout(apiUrl("/api/payments/confirm"), {
               method: "POST",
               headers: { "Content-Type": "application/json", ...authHeaders() },
-              body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+              body: JSON.stringify({ paymentIntentId: paymentIntent.id, clientSecret: returnedClientSecret })
             });
           } catch (_err) {
             // Webhook may still deliver.
@@ -218,7 +218,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
       await fetchWithTimeout(apiUrl("/api/payments/confirm"), {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
-        body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+        body: JSON.stringify({ paymentIntentId: paymentIntent.id, clientSecret })
       });
     } catch (_err) {
       // Webhook may still deliver; thank-you screen is already shown.

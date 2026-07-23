@@ -59,6 +59,9 @@ export function AuthProvider({ children }) {
   );
 
   const logout = useCallback(() => {
+    // Best-effort — invalidate the session server-side too, but local storage
+    // must be cleared either way even if this request fails.
+    apiFetch("/api/auth/logout", { method: "POST", headers: authHeaders() }).catch(() => {});
     clearSession();
   }, [clearSession]);
 

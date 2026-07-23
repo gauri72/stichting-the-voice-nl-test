@@ -45,7 +45,10 @@ export async function sendVentureStudioMessageEmail({ name, email, subject, mess
 
   const safeName = String(name || "").trim();
   const safeEmail = String(email || "").trim();
-  const safeSubject = String(subject || "").trim();
+  // Strips CR/LF (not just trims) since this value is also passed straight to
+  // Nodemailer's `subject` header option — without this, embedded newlines
+  // could inject extra email headers.
+  const safeSubject = String(subject || "").replace(/[\r\n]+/g, " ").trim().slice(0, 200);
   const safeMessage = String(message || "").trim();
 
   const html = `

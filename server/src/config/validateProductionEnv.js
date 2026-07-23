@@ -9,6 +9,7 @@ export function getMissingProductionEnv(config = env) {
   const missing = [];
   if (!config.auth.jwtSecret) missing.push("JWT_SECRET");
   if (!config.captcha.turnstileSecretKey) missing.push("TURNSTILE_SECRET_KEY");
+  if (!config.clientUrlConfigured) missing.push("CLIENT_URL");
   if (!config.stripe.webhookSecret && config.stripe.secretKey) {
     missing.push("STRIPE_WEBHOOK_SECRET");
   }

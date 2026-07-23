@@ -11,6 +11,7 @@ import {
   sendPasswordResetEmail,
   sendPasswordChangedEmail
 } from "./authMailer.js";
+import { assertPasswordPolicy } from "../utils/passwordPolicy.js";
 
 const OTP_TTL_MS = 10 * 60 * 1000;
 const RESET_TTL_MS = 60 * 60 * 1000;
@@ -59,12 +60,18 @@ function otpMatches(user, otp) {
 }
 
 function signToken(user, rememberMe = false) {
-  const expiresIn = rememberMe ? "30d" : "7d";
+  const expiresIn = rememberMe ? "30d" : "2h";
   return jwt.sign(
-    { sub: user._id.toString(), email: user.email },
+    { sub: user._id.toString(), email: user.email, v: user.tokenVersion || 0 },
     env.auth.jwtSecret,
     { expiresIn }
   );
+}
+
+/** Invalidates every outstanding token for this user (logout-everywhere). */
+export async function logoutUser(userId) {
+  if (!isDbReady()) return;
+  await User.updateOne({ _id: userId }, { $inc: { tokenVersion: 1 } });
 }
 
 export function verifyAuthToken(token) {
@@ -349,11 +356,7 @@ export async function changePassword(userId, { currentPassword, newPassword }) {
     throw err;
   }
 
-  if (String(newPassword).length < 8) {
-    const err = new Error("New password must be at least 8 characters long.");
-    err.status = 400;
-    throw err;
-  }
+  assertPasswordPolicy(newPassword);
 
   const user = await User.findById(userId).select("+passwordHash");
   if (!user || !user.isVerified) {
@@ -393,9 +396,11 @@ export async function changePassword(userId, { currentPassword, newPassword }) {
   }
 
   user.passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
-  // Invalidate any outstanding reset links once the password changes.
+  // Invalidate any outstanding reset links, and every previously issued JWT,
+  // once the password changes.
   user.passwordResetTokenHash = null;
   user.passwordResetExpires = null;
+  user.tokenVersion = (user.tokenVersion || 0) + 1;
   await user.save();
 
   await ActivityLog.create({
@@ -416,9 +421,15 @@ export async function changePassword(userId, { currentPassword, newPassword }) {
     console.error("[auth] Failed to send password change confirmation:", error.message);
   }
 
+  // Bumping tokenVersion above invalidates every outstanding token, including
+  // the one used to authenticate this very request — issue a fresh one so
+  // the user's current session keeps working without forcing a re-login.
+  const token = signToken(user, false);
+
   return {
     message: "Your password has been updated. A confirmation email has been sent to you.",
-    emailSent
+    emailSent,
+    token
   };
 }
 
@@ -597,11 +608,7 @@ export async function resetPassword({ token, password }) {
     throw err;
   }
 
-  if (!password || password.length < 8) {
-    const err = new Error("Password must be at least 8 characters long.");
-    err.status = 400;
-    throw err;
-  }
+  assertPasswordPolicy(password);
 
   const tokenHash = hashResetToken(trimmedToken);
   const user = await User.findOne({
@@ -618,6 +625,10 @@ export async function resetPassword({ token, password }) {
   user.passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
   user.passwordResetTokenHash = null;
   user.passwordResetExpires = null;
+  // Invalidate any previously issued JWTs — this flow is only reachable
+  // without one (via the emailed reset link), so there's no current session
+  // to preserve here.
+  user.tokenVersion = (user.tokenVersion || 0) + 1;
   if (!user.isVerified) {
     user.isVerified = true;
   }

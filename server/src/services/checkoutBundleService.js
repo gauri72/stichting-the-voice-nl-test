@@ -25,6 +25,14 @@ async function buildOrderNumber() {
   return `VOICE-${year}-${String(seq).padStart(6, "0")}`;
 }
 
+/** Guest (no account) orders get a random access token; account orders don't need one. */
+function buildGuestAccessToken(userId) {
+  if (userId) return { guestAccessToken: "", guestAccessTokenHash: "" };
+  const guestAccessToken = crypto.randomBytes(32).toString("hex");
+  const guestAccessTokenHash = crypto.createHash("sha256").update(guestAccessToken).digest("hex");
+  return { guestAccessToken, guestAccessTokenHash };
+}
+
 export async function createOrUpdateSession({
   sessionId,
   eventId,
@@ -614,6 +622,8 @@ export async function createBundleCheckout(eventId, payload, userId) {
       ]
     : [];
 
+  const { guestAccessToken, guestAccessTokenHash } = buildGuestAccessToken(userId);
+
   const order = await TicketOrder.create({
     orderNumber,
     orderType,
@@ -667,6 +677,7 @@ export async function createBundleCheckout(eventId, payload, userId) {
     selectedSeats: seatData.selectedSeats,
     seatingMode: seatData.seatingMode,
     checkoutAnswers: validatedCheckoutForm.answers,
+    guestAccessTokenHash,
   });
 
   const checkoutFormSaved = await saveCheckoutFormResponse({
@@ -699,6 +710,7 @@ export async function createBundleCheckout(eventId, payload, userId) {
       payment: { mode: "free", paymentIntentId: null, clientSecret: null, amountMinor: 0 },
       preview,
       requiresFreeCompletion: true,
+      guestAccessToken: guestAccessToken || undefined,
       summary: {
         ...preview.summary,
         membershipTotalMinor: preview.combined.membershipTotalMinor,
@@ -739,6 +751,7 @@ export async function createBundleCheckout(eventId, payload, userId) {
     order: formatBundleOrder(order),
     payment,
     preview,
+    guestAccessToken: guestAccessToken || undefined,
     summary: {
       ...preview.summary,
       membershipTotalMinor: preview.combined.membershipTotalMinor,
@@ -941,6 +954,8 @@ export async function completeFreeOrder(eventId, payload, userId) {
         ]
       : [];
 
+  const { guestAccessToken, guestAccessTokenHash } = buildGuestAccessToken(userId);
+
   const order = await TicketOrder.create({
     orderNumber,
     orderType,
@@ -995,6 +1010,7 @@ export async function completeFreeOrder(eventId, payload, userId) {
     selectedSeats: seatData.selectedSeats,
     seatingMode: seatData.seatingMode,
     checkoutAnswers: validatedCheckoutForm.answers,
+    guestAccessTokenHash,
   });
 
   const checkoutFormSaved = await saveCheckoutFormResponse({
@@ -1018,5 +1034,6 @@ export async function completeFreeOrder(eventId, payload, userId) {
     ...result,
     preview,
     isFreeBooking: true,
+    guestAccessToken: guestAccessToken || undefined,
   };
 }

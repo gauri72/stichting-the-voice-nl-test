@@ -1,4 +1,4 @@
-import { loginAdmin, getAdminById } from "../services/adminService.js";
+import { loginAdmin, getAdminById, logoutAdmin } from "../services/adminService.js";
 import { getAdminDashboardPayload } from "../services/adminDashboardService.js";
 import { requireAdmin } from "../middleware/adminMiddleware.js";
 
@@ -39,6 +39,15 @@ export async function adminDashboard(req, res) {
   try {
     const payload = await getAdminDashboardPayload(req.admin);
     return res.status(200).json(payload);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function adminLogout(req, res) {
+  try {
+    await logoutAdmin(req.admin.id);
+    return res.status(200).json({ message: "Logged out." });
   } catch (error) {
     return handleError(res, error);
   }

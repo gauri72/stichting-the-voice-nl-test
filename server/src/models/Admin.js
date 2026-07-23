@@ -29,6 +29,8 @@ const adminSchema = new mongoose.Schema(
     lastLoginAt: { type: Date, default: null },
     invitedAt: { type: Date, default: null },
     invitationId: { type: mongoose.Schema.Types.ObjectId, ref: "AdminInvitation", default: null },
+    /** Bumped on logout to invalidate all previously issued admin JWTs. */
+    tokenVersion: { type: Number, default: 0 },
   },
   { timestamps: true, collection: "admins" }
 );
@@ -52,6 +54,7 @@ adminSchema.methods.toSafeJSON = function toSafeJSON(extra = {}) {
     isActive: this.isActive,
     lastLoginAt: this.lastLoginAt,
     createdAt: this.createdAt,
+    tokenVersion: this.tokenVersion || 0,
     ...extra,
   };
 };

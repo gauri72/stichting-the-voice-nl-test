@@ -30,6 +30,7 @@ import {
 import { createPackageCheckout } from "../services/vcommercePackageService.js";
 import { submitBusinessForReview } from "../services/businessApplicationService.js";
 import BusinessApplication from "../models/BusinessApplication.js";
+import { handleError as handleErrorBase } from "../utils/handleError.js";
 
 function parseDataUrl(dataUrl) {
   if (!dataUrl || typeof dataUrl !== "string") return null;
@@ -42,9 +43,8 @@ function ok(res, data, status = 200) {
   return res.status(status).json(data);
 }
 
-function fail(res, err) {
-  const status = err.status || 500;
-  return res.status(status).json({ error: err.message || "Unexpected error" });
+function handleError(res, err) {
+  return handleErrorBase(res, err, { logTag: "[vcommerce-portal]" });
 }
 
 async function getOwnBusiness(userId) {
@@ -72,7 +72,7 @@ export async function getMyBusiness(req, res) {
       },
     });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -82,7 +82,7 @@ export async function postSubmitForReview(req, res) {
     ok(res, { status: result.application.status });
   } catch (e) {
     if (e.missing) return res.status(e.status || 400).json({ error: e.message, missing: e.missing });
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -103,7 +103,7 @@ export async function patchMyBusiness(req, res) {
     const updated = await updateBusinessProfile(business._id, data);
     ok(res, { business: updated });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -113,7 +113,7 @@ export async function getMyProducts(req, res) {
     const products = await adminListProducts(business._id);
     ok(res, { products });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -123,7 +123,7 @@ export async function postMyProduct(req, res) {
     const product = await createProduct(req.user.id, business._id, req.body);
     ok(res, { product }, 201);
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -132,7 +132,7 @@ export async function patchMyProduct(req, res) {
     const product = await updateProduct(req.user.id, req.params.productId, req.body);
     ok(res, { product });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -141,7 +141,7 @@ export async function deleteMyProduct(req, res) {
     await deleteProduct(req.user.id, req.params.productId);
     ok(res, { success: true });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -151,7 +151,7 @@ export async function postReorderProducts(req, res) {
     await reorderProducts(req.user.id, business._id, req.body.orderedIds);
     ok(res, { success: true });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -166,7 +166,7 @@ export async function getMyOrders(req, res) {
     });
     ok(res, { ...result, orders: result.items });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -176,7 +176,7 @@ export async function patchMyOrderFulfilled(req, res) {
     const order = await markOrderFulfilled(req.params.orderId, business._id, req.body.note);
     ok(res, { order });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -192,7 +192,7 @@ export async function getMyPayouts(req, res) {
     });
     ok(res, { ...result, payouts: result.items });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -200,7 +200,7 @@ export async function getConnectOverview(req, res) {
   try {
     ok(res, await getSellerConnectOverview(req.user.id));
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -208,7 +208,7 @@ export async function postConnectDashboard(req, res) {
   try {
     ok(res, await createSellerDashboardLink(req.user.id));
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -218,7 +218,7 @@ export async function patchMyProductPricing(req, res) {
     const product = await setBulkPricing(req.user.id, req.params.productId, { tiers, minOrderQty, maxOrderQty });
     ok(res, { product });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -236,18 +236,18 @@ export async function postImportProducts(req, res) {
     );
     return ok(res, result);
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 }
 
 export async function getProductsTemplate(req, res) {
   try {
-    const buffer = generateExcelTemplate();
+    const buffer = await generateExcelTemplate();
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     res.setHeader("Content-Disposition", 'attachment; filename="vcommerce-products-template.xlsx"');
     return res.send(buffer);
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 }
 
@@ -257,7 +257,7 @@ export async function getMyImportHistory(req, res) {
     const history = await getImportHistory(req.user.id, business._id);
     ok(res, { history });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -269,7 +269,7 @@ export async function getMyReferralLink(req, res) {
     const url = code ? `${host}/vcommerce?ref=${code}` : null;
     ok(res, { code, url });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -277,7 +277,7 @@ export async function patchMyPayoutRegistration(req, res) {
   try {
     ok(res, await updatePayoutRegistration(req.user.id, req.body));
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -288,7 +288,7 @@ export async function postConnectOnboarding(req, res) {
     const refreshUrl = `${origin}/dashboard/vcommerce?connect=refresh`;
     ok(res, await createSellerOnboardingLink(req.user.id, { returnUrl, refreshUrl }));
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -296,7 +296,7 @@ export async function getConnectStatus(req, res) {
   try {
     ok(res, await refreshSellerConnectStatus(req.user.id));
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -305,7 +305,7 @@ export async function postPackageCheckout(req, res) {
     const origin = req.get("origin") || `${req.protocol}://${req.get("host")}`;
     ok(res, await createPackageCheckout(req.user.id, origin));
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -345,6 +345,6 @@ export async function uploadBusinessImage(req, res) {
     await updateBusinessProfile(business._id, { [urlField]: url });
     return ok(res, { url });
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 }

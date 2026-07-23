@@ -109,3 +109,26 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+    # Security headers for the served HTML/JS (helmet on voice-nl-api only
+    # covers API responses, not this static site). CSP allow-list covers
+    # Google Sign-In, Stripe.js/Elements, Cloudflare Turnstile, and Google
+    # Fonts — the only external origins this app actually loads (checked
+    # client/index.html + stripeClient.js + TurnstileWidget.jsx). Re-check
+    # the browser console for CSP violations after any new external
+    # integration is added.
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=()
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; script-src 'self' https://accounts.google.com https://challenges.cloudflare.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https: wss:; frame-src https://js.stripe.com https://accounts.google.com https://challenges.cloudflare.com"

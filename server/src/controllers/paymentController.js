@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import env from "../config/env.js";
 import { isValidEmail } from "../utils/validation.js";
 import { getDonationTier } from "../config/donationTiers.js";
@@ -20,6 +21,16 @@ import { buildReceiptNumber } from "../utils/receiptNumber.js";
 
 // In-memory guard so we don't email twice if both webhook and client confirmation fire.
 const emailedIntents = new Set();
+
+function clientSecretMatches(intent, submitted) {
+  const expected = String(intent?.client_secret || "");
+  const candidate = String(submitted || "");
+  if (!expected || !candidate) return false;
+  const expectedBuf = Buffer.from(expected, "utf8");
+  const candidateBuf = Buffer.from(candidate, "utf8");
+  if (expectedBuf.length !== candidateBuf.length) return false;
+  return crypto.timingSafeEqual(expectedBuf, candidateBuf);
+}
 
 function describePaymentMethod(intent) {
   const pm = intent?.payment_method;
@@ -380,7 +391,7 @@ export async function confirmPayment(req, res) {
   }
 
   try {
-    const { paymentIntentId } = req.body || {};
+    const { paymentIntentId, clientSecret } = req.body || {};
     if (!paymentIntentId) {
       return res.status(400).json({ error: "paymentIntentId is required." });
     }
@@ -389,6 +400,14 @@ export async function confirmPayment(req, res) {
     const intent = await stripe.paymentIntents.retrieve(paymentIntentId, {
       expand: ["payment_method", "latest_charge"]
     });
+
+    // This route is unauthenticated (guest donations/sponsorships/memberships
+    // are legitimate), so the client secret — only known to whoever created
+    // or received this specific PaymentIntent — is the proof of ownership
+    // that gates triggering fulfillment here.
+    if (!clientSecretMatches(intent, clientSecret)) {
+      return res.status(403).json({ error: "Invalid payment confirmation request." });
+    }
 
     if (intent.status !== "succeeded") {
       return res.status(202).json({ status: intent.status });

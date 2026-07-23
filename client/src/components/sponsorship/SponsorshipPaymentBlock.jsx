@@ -74,7 +74,7 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
       if (!isPaymentReturnUrl()) return;
       setHandlingReturn(true);
       await completePaymentReturn(stripe, {
-        onSuccess: async (paymentIntent) => {
+        onSuccess: async (paymentIntent, returnedClientSecret) => {
           const saved = readCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
           const payer = readCheckoutPayer(saved);
           if (payer) setSponsor((prev) => ({ ...prev, ...payer }));
@@ -83,7 +83,7 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
             await fetch(apiUrl("/api/payments/confirm"), {
               method: "POST",
               headers: { "Content-Type": "application/json", ...authHeaders() },
-              body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+              body: JSON.stringify({ paymentIntentId: paymentIntent.id, clientSecret: returnedClientSecret })
             });
           } catch (_err) {
             // Webhook may still deliver.
@@ -213,7 +213,7 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
       await fetch(apiUrl("/api/payments/confirm"), {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders() },
-        body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+        body: JSON.stringify({ paymentIntentId: paymentIntent.id, clientSecret })
       });
     } catch (_err) {
       // Webhook may still deliver.

@@ -27,7 +27,26 @@ import {
   postSubmitForReview,
 } from "../controllers/vcommercePortalController.js";
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+const IMPORT_FILE_MIME_TYPES = new Set([
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-excel",
+  "text/csv",
+]);
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter(req, file, cb) {
+    const extOk = /\.(xlsx|xls|csv)$/i.test(file.originalname || "");
+    const typeOk = IMPORT_FILE_MIME_TYPES.has(file.mimetype);
+    if (!extOk || !typeOk) {
+      const err = new Error("Only .xlsx, .xls, or .csv files are allowed.");
+      err.status = 400;
+      return cb(err);
+    }
+    return cb(null, true);
+  },
+});
 
 const router = Router();
 

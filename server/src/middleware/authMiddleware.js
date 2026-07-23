@@ -13,7 +13,7 @@ export async function optionalAuth(req, res, next) {
       return next();
     }
     const user = await getUserById(payload.sub);
-    if (user) {
+    if (user && (payload.v || 0) === (user.tokenVersion || 0)) {
       req.user = user;
     }
   } catch {
@@ -35,7 +35,7 @@ export async function requireAuth(req, res, next) {
       return res.status(401).json({ error: "Authentication required." });
     }
     const user = await getUserById(payload.sub);
-    if (!user) {
+    if (!user || (payload.v || 0) !== (user.tokenVersion || 0)) {
       return res.status(401).json({ error: "Invalid or expired session." });
     }
 

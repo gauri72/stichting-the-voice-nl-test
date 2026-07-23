@@ -9,11 +9,10 @@ import {
   listScheduledRunLogs,
   getDashboardStats,
 } from "../services/adminAiAssistantSettingsService.js";
+import { handleError as handleErrorBase } from "../utils/handleError.js";
 
 function handleError(res, error) {
-  const status = error.status || 500;
-  if (status >= 500) console.error("[admin-personal-ai]", error);
-  return res.status(status).json({ error: error.message || "Request failed." });
+  return handleErrorBase(res, error, { logTag: "[admin-personal-ai]" });
 }
 
 export async function getSettings(req, res) {

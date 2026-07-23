@@ -1,4 +1,9 @@
 import { translateCmsText } from "../services/cmsTextTranslationService.js";
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
+function handleError(res, error) {
+  return handleErrorBase(res, error, { logTag: "[cms-text]" });
+}
 
 export async function translateCmsTextHandler(req, res) {
   const { text, lang } = req.body || {};
@@ -7,8 +12,6 @@ export async function translateCmsTextHandler(req, res) {
     const translatedText = await translateCmsText(text, lang);
     return res.status(200).json({ translatedText });
   } catch (error) {
-    const status = error.status || 500;
-    if (status >= 500) console.error("[cms-text] translate failed:", error.message);
-    return res.status(status).json({ error: error.message || "Translation failed." });
+    return handleError(res, error);
   }
 }

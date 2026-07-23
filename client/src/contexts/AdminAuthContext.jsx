@@ -60,6 +60,9 @@ export function AdminAuthProvider({ children }) {
   );
 
   const logout = useCallback(() => {
+    // Best-effort — invalidate the session server-side too, but local storage
+    // must be cleared either way even if this request fails.
+    apiFetch("/api/admin/logout", { method: "POST", headers: adminAuthHeaders() }).catch(() => {});
     clearSession();
   }, [clearSession]);
 

@@ -2,6 +2,7 @@ import env from "../config/env.js";
 import { getMailFromAddress, getSmtpTransporter, isMailerConfigured } from "./smtpTransport.js";
 import { generateTicketQrPngBuffer } from "./ticketQrService.js";
 import { generateOrderTicketsPdfFromDocs, generateTicketPdfFromDocs } from "./ticketPdfService.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 const WEBSITE_URL = "https://stichtingthevoice.nl";
 const PRIVACY_URL = `${WEBSITE_URL}/privacy-policy`;
@@ -25,15 +26,6 @@ const EMAIL_STYLES = `
     .preheader-link { padding-top:8px !important; text-align:left !important; }
   }
 `;
-
-function escapeHtml(value) {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
 
 function formatEventDate(date) {
   if (!date) return "—";
@@ -91,9 +83,18 @@ function visibleCheckoutAnswers(order, key) {
     .map((a) => ({ label: a.questionLabel, answer: a.answer }));
 }
 
+// Guest (no account) orders need ?email= for the confirmation page's guest
+// lookup to succeed — logged-in orders resolve via the viewer's own session.
+function buildOrderViewUrl(order, event) {
+  const base = `${env.clientUrl}/events/${event?.slug || event?._id || "event"}/tickets/confirmation/${order.orderNumber}`;
+  if (order.userId) return base;
+  const email = String(order.attendeeEmail || "").trim();
+  return email ? `${base}?email=${encodeURIComponent(email)}` : base;
+}
+
 function buildTicketEmailText({ order, ticket, event, updateNotice = "", updateChanges = [] }) {
   const eventTitle = event?.title || "Event";
-  const viewUrl = `${env.clientUrl}/events/${event?.slug || event?._id || "event"}/tickets/confirmation/${order.orderNumber}`;
+  const viewUrl = buildOrderViewUrl(order, event);
   const seatLines = ticket.row || ticket.seatNumber
     ? `\nYour seat:\nSection: ${ticket.section || "—"}\nRow: ${ticket.row || "—"}\nSeat: ${ticket.seatNumber || "—"}\n`
     : "";
@@ -137,7 +138,7 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
   const venueValue = venueAddress
     ? `${venueName}<br/><span style="font-weight:500;color:#c7d3e6;">${venueAddress}</span>`
     : venueName;
-  const viewInBrowserUrl = `${env.clientUrl}/events/${event?.slug || event?._id || "event"}/tickets/confirmation/${order.orderNumber}`;
+  const viewInBrowserUrl = buildOrderViewUrl(order, event);
   const supportEmail = escapeHtml(env.org.contactEmail || "info@stichtingthevoice.nl");
   const tagline = escapeHtml(eventTagline(event));
   const websiteLabel = escapeHtml(WEBSITE_URL.replace(/^https?:\/\//, ""));

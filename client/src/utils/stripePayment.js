@@ -261,7 +261,7 @@ export async function completePaymentReturn(stripe, { onSuccess, onError }) {
   }
 
   if (paymentIntent?.status === "succeeded") {
-    await onSuccess?.(paymentIntent);
+    await onSuccess?.(paymentIntent, clientSecret);
     clearPaymentReturnQuery();
     return true;
   }

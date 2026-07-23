@@ -1,4 +1,4 @@
-import xlsx from "xlsx";
+import ExcelJS from "exceljs";
 import BusinessProduct from "../models/BusinessProduct.js";
 import BusinessProfile from "../models/BusinessProfile.js";
 
@@ -38,6 +38,42 @@ async function makeUniqueProductSlug(businessId, base) {
     slug = `${base}-${attempt}`;
   }
   return slug;
+}
+
+function cellText(cell) {
+  const value = cell?.value;
+  if (value && typeof value === "object") {
+    if (Array.isArray(value.richText)) return value.richText.map((rt) => rt.text).join("");
+    if (value.result !== undefined) return value.result;
+    if (value.text !== undefined) return value.text;
+  }
+  return value === null || value === undefined ? "" : value;
+}
+
+/** Mirrors xlsx's sheet_to_json({defval:""}) shape so parseRow() stays unchanged. */
+async function readRowsFromWorkbook(buffer) {
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(buffer);
+  const worksheet = workbook.worksheets[0];
+  if (!worksheet) return [];
+
+  const headers = [];
+  worksheet.getRow(1).eachCell({ includeEmpty: true }, (cell, colNumber) => {
+    headers[colNumber] = String(cellText(cell) || "").trim();
+  });
+
+  const rows = [];
+  worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+    if (rowNumber === 1) return;
+    const obj = {};
+    headers.forEach((header, colNumber) => {
+      if (!header) return;
+      obj[header] = cellText(row.getCell(colNumber));
+    });
+    rows.push(obj);
+  });
+
+  return rows;
 }
 
 function parseRow(row, rowNumber) {
@@ -109,10 +145,7 @@ export async function importProductsFromExcel(userId, businessId, buffer, filena
     throw err;
   }
 
-  const workbook = xlsx.read(buffer, { type: "buffer" });
-  const sheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[sheetName];
-  const rows = xlsx.utils.sheet_to_json(sheet, { defval: "" });
+  const rows = await readRowsFromWorkbook(buffer);
 
   if (rows.length === 0) {
     return { imported: 0, skipped: 0, errors: [], message: "No data rows found in the file." };
@@ -172,9 +205,7 @@ export async function importProductsFromExcel(userId, businessId, buffer, filena
   return { imported, skipped, errors: errorList };
 }
 
-export function generateExcelTemplate() {
-  const wb = xlsx.utils.book_new();
-  const headerRow = TEMPLATE_HEADERS;
+export async function generateExcelTemplate() {
   const exampleRow = [
     "Organic Olive Oil 500ml",
     "Cold-pressed extra virgin olive oil from Greece",
@@ -191,9 +222,11 @@ export function generateExcelTemplate() {
     "olive oil,organic,food",
   ];
 
-  const ws = xlsx.utils.aoa_to_sheet([headerRow, exampleRow]);
-  xlsx.utils.book_append_sheet(wb, ws, "Products");
-  return xlsx.write(wb, { type: "buffer", bookType: "xlsx" });
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Products");
+  worksheet.addRow(TEMPLATE_HEADERS);
+  worksheet.addRow(exampleRow);
+  return workbook.xlsx.writeBuffer();
 }
 
 export async function getImportHistory(userId, businessId) {

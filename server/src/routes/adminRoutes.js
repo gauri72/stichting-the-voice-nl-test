@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { adminLogin, adminMe, requireAdmin } from "../controllers/adminController.js";
+import { adminLogin, adminMe, adminLogout, requireAdmin } from "../controllers/adminController.js";
 import { adminLoginRateLimit } from "../middleware/authRateLimitMiddleware.js";
 import { requireCaptcha } from "../middleware/captchaMiddleware.js";
 import adminBroadcastRoutes from "./adminBroadcastRoutes.js";
@@ -44,6 +44,7 @@ const router = Router();
 
 router.post("/login", adminLoginRateLimit(), requireCaptcha(), adminLogin);
 router.get("/me", requireAdmin, adminMe);
+router.post("/logout", requireAdmin, adminLogout);
 router.use("/dashboard", requireAdmin, adminDashboardRoutes);
 router.use("/broadcasts", adminBroadcastRoutes);
 router.use("/discounts", requireAdmin, adminDiscountRoutes);

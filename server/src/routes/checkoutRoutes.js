@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { optionalAuth, requireAuth } from "../middleware/authMiddleware.js";
+import { publicRateLimit } from "../middleware/publicRateLimitMiddleware.js";
 import {
   applyDiscount,
   removeDiscount,
@@ -39,7 +40,12 @@ const router = Router();
 router.post("/apply-discount", optionalAuth, applyDiscount);
 router.post("/remove-discount", optionalAuth, removeDiscount);
 router.get("/member-discount", requireAuth, getMemberDiscount);
-router.post("/validate-code", optionalAuth, validateCode);
+router.post(
+  "/validate-code",
+  publicRateLimit({ maxAttempts: 8, windowMs: 5 * 60_000, keyPrefix: "discount-validate" }),
+  optionalAuth,
+  validateCode
+);
 
 router.post("/session", initCheckoutSession);
 router.post("/detect-member-status", optionalAuth, detectMemberStatus);

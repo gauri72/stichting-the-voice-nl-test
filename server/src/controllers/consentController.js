@@ -3,6 +3,11 @@ import {
   saveConsentRecord,
   validateConsentPayload,
 } from "../services/cookieConsentService.js";
+import { handleError as handleErrorBase } from "../utils/handleError.js";
+
+function handleError(res, error) {
+  return handleErrorBase(res, error, { logTag: "[consent]" });
+}
 
 export async function saveConsent(req, res) {
   const error = validateConsentPayload(req.body);
@@ -20,7 +25,7 @@ export async function saveConsent(req, res) {
     });
     return res.status(201).json({ consent: record });
   } catch (err) {
-    return res.status(500).json({ error: err.message || "Could not save your cookie consent." });
+    return handleError(res, err);
   }
 }
 
@@ -38,6 +43,6 @@ export async function getConsentByUserId(req, res) {
     }
     return res.json({ consent: record });
   } catch (err) {
-    return res.status(500).json({ error: err.message || "Could not load the consent record." });
+    return handleError(res, err);
   }
 }

@@ -13,7 +13,7 @@ export async function requireAdmin(req, res, next) {
 
     const payload = verifyAdminToken(match[1]);
     const admin = await getAdminAccessProfile(payload.sub);
-    if (!admin) {
+    if (!admin || (payload.v || 0) !== (admin.tokenVersion || 0)) {
       return res.status(401).json({ error: "Invalid or expired admin session." });
     }
 

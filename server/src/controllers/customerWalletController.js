@@ -9,11 +9,10 @@ import { payTicketWithWallet, payTicketSplit } from "../services/walletCheckoutS
 import { executeWalletBooking } from "../services/walletAiBookingService.js";
 import AIBookingLog from "../models/AIBookingLog.js";
 import WalletSettings from "../models/WalletSettings.js";
+import { handleError as handleErrorBase } from "../utils/handleError.js";
 
 function handleError(res, error) {
-  const status = error.status || 500;
-  if (status >= 500) console.error("[wallet]", error);
-  return res.status(status).json({ error: error.message || "Request failed." });
+  return handleErrorBase(res, error, { logTag: "[wallet]" });
 }
 
 export async function getWallet(req, res) {

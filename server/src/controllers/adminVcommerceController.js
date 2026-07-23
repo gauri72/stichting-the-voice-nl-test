@@ -36,14 +36,14 @@ import {
   runAutomatedRiskScan,
 } from "../services/vcommerceAdminOperationsService.js";
 import { getAuditLogsForTarget, logAdminAction } from "../services/adminAuditService.js";
+import { handleError as handleErrorBase } from "../utils/handleError.js";
 
 function ok(res, data, status = 200) {
   return res.status(status).json(data);
 }
 
-function fail(res, err) {
-  const status = err.status || 500;
-  return res.status(status).json({ error: err.message || "Unexpected error" });
+function handleError(res, err) {
+  return handleErrorBase(res, err, { logTag: "[admin/vcommerce]" });
 }
 
 function adminId(req) {
@@ -63,7 +63,7 @@ export async function getApplications(req, res) {
     });
     ok(res, result);
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -76,7 +76,7 @@ export async function patchApplication(req, res) {
     const application = await reviewApplication(req.params.id, adminId(req), { action, note });
     ok(res, { application });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -94,7 +94,7 @@ export async function getBusinesses(req, res) {
     });
     ok(res, { ...result, businesses: result.items });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -107,7 +107,7 @@ export async function getOneBusiness(req, res) {
     const products = await adminListProducts(business._id);
     ok(res, { business, products });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -124,7 +124,7 @@ export async function patchBusiness(req, res) {
     });
     ok(res, { business });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -133,7 +133,7 @@ export async function postSetFeatured(req, res) {
     const business = await setFeaturedBusiness(req.params.id);
     ok(res, { business });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -142,7 +142,7 @@ export async function postUnsetFeatured(req, res) {
     const business = await unsetFeaturedBusiness(req.params.id);
     ok(res, { business });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -151,26 +151,26 @@ export async function patchAdminProduct(req, res) {
     const product = await adminUpdateProduct(req.params.productId, req.body);
     ok(res, { product });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
 export async function postAdminProduct(req, res) {
   try {
     ok(res, { product: await createAdminProduct(adminId(req), req.params.id, req.body) }, 201);
-  } catch (e) { fail(res, e); }
+  } catch (e) { handleError(res, e); }
 }
 
 export async function deleteAdminProductController(req, res) {
   try {
     ok(res, await deleteAdminProduct(adminId(req), req.params.id, req.params.productId));
-  } catch (e) { fail(res, e); }
+  } catch (e) { handleError(res, e); }
 }
 
 export async function getBusinessActivity(req, res) {
   try {
     ok(res, { activity: await getAuditLogsForTarget(req.params.id, 100) });
-  } catch (e) { fail(res, e); }
+  } catch (e) { handleError(res, e); }
 }
 
 // --- Orders ---
@@ -186,7 +186,7 @@ export async function getOrders(req, res) {
     });
     ok(res, { ...result, orders: result.items });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -196,7 +196,7 @@ export async function getOneOrder(req, res) {
     if (!order) return res.status(404).json({ error: "Order not found" });
     ok(res, { order });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -216,7 +216,7 @@ export async function downloadOrderReceipt(req, res) {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="${order.receiptNumber}.pdf"`);
     return res.send(pdf);
-  } catch (e) { return fail(res, e); }
+  } catch (e) { return handleError(res, e); }
 }
 
 export async function resendOrderReceipt(req, res) {
@@ -225,7 +225,7 @@ export async function resendOrderReceipt(req, res) {
     if (!order) return res.status(404).json({ error: "Order not found" });
     await sendBusinessOrderEmails(order, { force: true });
     return ok(res, { order });
-  } catch (e) { return fail(res, e); }
+  } catch (e) { return handleError(res, e); }
 }
 
 export async function patchOrderStatus(req, res) {
@@ -234,7 +234,7 @@ export async function patchOrderStatus(req, res) {
       ? await refundBusinessOrder(req.params.id, req.body.note || "")
       : await adminUpdateOrderStatus(req.params.id, req.body.status, req.body.note || "");
     return ok(res, { order });
-  } catch (e) { return fail(res, e); }
+  } catch (e) { return handleError(res, e); }
 }
 
 // --- Payouts ---
@@ -250,7 +250,7 @@ export async function getPayouts(req, res) {
     });
     ok(res, { ...result, payouts: result.items });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -259,7 +259,7 @@ export async function getPayoutSummary(req, res) {
     const summary = await getBusinessPendingPayoutSummary(req.params.businessId);
     ok(res, { summary });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -269,7 +269,7 @@ export async function postCreatePayout(req, res) {
     const payout = await createPayout(adminId(req), businessId, orderIds);
     ok(res, { payout }, 201);
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -279,7 +279,7 @@ export async function patchMarkPayoutPaid(req, res) {
     const payout = await markPayoutPaid(req.params.id, { paymentReference, notes });
     ok(res, { payout });
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
@@ -290,43 +290,43 @@ export async function getAnalytics(req, res) {
     const data = await getAdminPayoutAnalytics();
     ok(res, data);
   } catch (e) {
-    fail(res, e);
+    handleError(res, e);
   }
 }
 
 export async function getChargeRules(req, res) {
-  try { ok(res, { rules: await listChargeRules(req.query) }); } catch (e) { fail(res, e); }
+  try { ok(res, { rules: await listChargeRules(req.query) }); } catch (e) { handleError(res, e); }
 }
 export async function postChargeRule(req, res) {
-  try { ok(res, { rule: await saveChargeRule(adminId(req), req.body) }, 201); } catch (e) { fail(res, e); }
+  try { ok(res, { rule: await saveChargeRule(adminId(req), req.body) }, 201); } catch (e) { handleError(res, e); }
 }
 export async function patchChargeRule(req, res) {
-  try { ok(res, { rule: await saveChargeRule(adminId(req), req.body, req.params.id) }); } catch (e) { fail(res, e); }
+  try { ok(res, { rule: await saveChargeRule(adminId(req), req.body, req.params.id) }); } catch (e) { handleError(res, e); }
 }
 export async function getAdjustments(req, res) {
-  try { ok(res, { adjustments: await listAdjustments(req.query) }); } catch (e) { fail(res, e); }
+  try { ok(res, { adjustments: await listAdjustments(req.query) }); } catch (e) { handleError(res, e); }
 }
 export async function postAdjustment(req, res) {
-  try { ok(res, { adjustment: await createAdjustment(adminId(req), req.body) }, 201); } catch (e) { fail(res, e); }
+  try { ok(res, { adjustment: await createAdjustment(adminId(req), req.body) }, 201); } catch (e) { handleError(res, e); }
 }
 export async function getLedger(req, res) {
-  try { ok(res, { entries: await listLedger(req.query) }); } catch (e) { fail(res, e); }
+  try { ok(res, { entries: await listLedger(req.query) }); } catch (e) { handleError(res, e); }
 }
 export async function patchOrderPayoutHold(req, res) {
-  try { ok(res, { order: await setOrderPayoutHold(adminId(req), req.params.id, req.body.reason || "") }); } catch (e) { fail(res, e); }
+  try { ok(res, { order: await setOrderPayoutHold(adminId(req), req.params.id, req.body.reason || "") }); } catch (e) { handleError(res, e); }
 }
 export async function getRiskFlags(req, res) {
-  try { ok(res, { flags: await listRiskFlags(req.query) }); } catch (e) { fail(res, e); }
+  try { ok(res, { flags: await listRiskFlags(req.query) }); } catch (e) { handleError(res, e); }
 }
 export async function postRiskFlag(req, res) {
-  try { ok(res, { flag: await createRiskFlag(adminId(req), req.body) }, 201); } catch (e) { fail(res, e); }
+  try { ok(res, { flag: await createRiskFlag(adminId(req), req.body) }, 201); } catch (e) { handleError(res, e); }
 }
 export async function patchRiskFlag(req, res) {
-  try { ok(res, { flag: await updateRiskFlag(adminId(req), req.params.id, req.body) }); } catch (e) { fail(res, e); }
+  try { ok(res, { flag: await updateRiskFlag(adminId(req), req.params.id, req.body) }); } catch (e) { handleError(res, e); }
 }
 export async function getOperations(req, res) {
-  try { ok(res, await getOperationsOverview()); } catch (e) { fail(res, e); }
+  try { ok(res, await getOperationsOverview()); } catch (e) { handleError(res, e); }
 }
 export async function postRiskScan(req, res) {
-  try { ok(res, await runAutomatedRiskScan(adminId(req))); } catch (e) { fail(res, e); }
+  try { ok(res, await runAutomatedRiskScan(adminId(req))); } catch (e) { handleError(res, e); }
 }

@@ -13,3 +13,10 @@ client/node_modules/
 server/node_modules/
 server/uploads/*
 !server/uploads/.gitkeep
+
+# Wallet signing certs/keys (Apple/Google Wallet) — never commit these.
+*.pem
+*.key
+*.p12
+*.pfx
+server/certs/

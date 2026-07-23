@@ -4,6 +4,7 @@ import {
   adminUpdateWholesaler,
 } from "../services/wholesalerService.js";
 import { adminListReviews, adminDeleteReview } from "../services/businessReviewService.js";
+import { handleError as handleErrorBase } from "../utils/handleError.js";
 
 // requireAdmin is applied by the parent adminRoutes.js before mounting this router
 const router = Router();
@@ -12,9 +13,8 @@ function ok(res, data, status = 200) {
   return res.status(status).json(data);
 }
 
-function fail(res, err) {
-  const status = err.status || 500;
-  return res.status(status).json({ error: err.message || "Unexpected error" });
+function handleError(res, err) {
+  return handleErrorBase(res, err, { logTag: "[admin/wholesaler]" });
 }
 
 router.get("/", async (req, res) => {
@@ -28,7 +28,7 @@ router.get("/", async (req, res) => {
     });
     return ok(res, result);
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 });
 
@@ -37,7 +37,7 @@ router.patch("/:id", async (req, res) => {
     const profile = await adminUpdateWholesaler(req.params.id, req.admin._id, req.body);
     return ok(res, { profile });
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 });
 
@@ -52,7 +52,7 @@ router.get("/reviews", async (req, res) => {
     });
     return ok(res, result);
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 });
 
@@ -61,7 +61,7 @@ router.delete("/reviews/:id", async (req, res) => {
     await adminDeleteReview(req.params.id);
     return ok(res, { success: true });
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 });
 

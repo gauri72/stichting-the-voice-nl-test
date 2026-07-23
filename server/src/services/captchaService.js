@@ -7,6 +7,15 @@ export function isCaptchaVerificationEnabled() {
 }
 
 export async function verifyTurnstileToken({ token, ip } = {}) {
+  // In production, a missing secret must fail closed (503), not silently skip
+  // verification — validateProductionEnv() already blocks startup without one,
+  // but this covers any case where the secret is unset/cleared after boot.
+  if (env.nodeEnv === "production" && !env.captcha.turnstileSecretKey) {
+    const error = new Error("Security verification is unavailable. Please try again later.");
+    error.status = 503;
+    throw error;
+  }
+
   if (!isCaptchaVerificationEnabled()) {
     return { success: true, skipped: true };
   }

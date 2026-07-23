@@ -1,10 +1,7 @@
 import { checkRateLimit } from "../utils/rateLimit.js";
 
 function clientKey(req) {
-  const ip =
-    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
-    req.socket?.remoteAddress ||
-    "unknown";
+  const ip = req.ip || "unknown";
   const email = String(req.body?.email || "").toLowerCase().trim();
   return `${ip}:${email || req.path}`;
 }

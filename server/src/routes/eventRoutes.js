@@ -11,12 +11,18 @@ import {
   myOrders,
 } from "../controllers/ticketController.js";
 import { getPublicSeatMap } from "../controllers/seatPublicController.js";
+import { publicRateLimit } from "../middleware/publicRateLimitMiddleware.js";
 
 const router = Router();
 
 router.get("/", listPublishedEvents);
 router.get("/orders/my", requireAuth, myOrders);
-router.get("/orders/:orderNumber", optionalAuth, getOrder);
+router.get(
+  "/orders/:orderNumber",
+  publicRateLimit({ maxAttempts: 10, windowMs: 5 * 60_000, keyPrefix: "guest-order-lookup" }),
+  optionalAuth,
+  getOrder
+);
 router.post("/orders/confirm-intent", optionalAuth, confirmPaymentByIntent);
 router.post("/orders/:orderId/confirm", optionalAuth, confirmPayment);
 

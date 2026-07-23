@@ -10,6 +10,7 @@ import {
   resetPasswordHandler,
   updateProfile,
   changePasswordHandler,
+  logout,
   requireAuth
 } from "../controllers/authController.js";
 import { requireCaptcha } from "../middleware/captchaMiddleware.js";
@@ -28,5 +29,6 @@ router.post("/reset-password", limit, requireCaptcha(), resetPasswordHandler);
 router.get("/me", requireAuth, me);
 router.patch("/me", requireAuth, updateProfile);
 router.patch("/password", requireAuth, changePasswordHandler);
+router.post("/logout", requireAuth, logout);
 
 export default router;

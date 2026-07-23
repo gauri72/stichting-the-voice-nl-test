@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/authMiddleware.js";
+import { aiChatRateLimit } from "../middleware/aiChatRateLimitMiddleware.js";
 import {
   getStatus,
   postChat,
@@ -23,7 +24,7 @@ router.use(requireAuth);
 
 router.get("/status", getStatus);
 
-router.post("/chat", postChat);
+router.post("/chat", aiChatRateLimit(), postChat);
 router.get("/chat/history", getChatHistoryList);
 router.get("/chat/history/:id", getChatSessionDetail);
 

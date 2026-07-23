@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { IconEye, IconEyeOff, IconLock } from "@tabler/icons-react";
-import { apiFetch, authHeaders } from "../../../utils/api.js";
+import { apiFetch, authHeaders, setStoredToken, AUTH_TOKEN_KEY } from "../../../utils/api.js";
 import { PROFILE_ROUTES } from "../profileUtils.js";
 
 const EMPTY = { currentPassword: "", newPassword: "", confirmPassword: "" };
@@ -69,6 +69,13 @@ export default function ProfileChangePasswordCard() {
           newPassword: form.newPassword,
         }),
       });
+      // Changing the password invalidates every previously issued token
+      // (including this device's) — swap in the fresh one the server just
+      // issued so the current session keeps working without a re-login.
+      if (result?.token) {
+        const rememberMe = Boolean(localStorage.getItem(AUTH_TOKEN_KEY));
+        setStoredToken(result.token, rememberMe);
+      }
       setSuccess(result?.message || t("misc:profile.changePassword.updateSuccessDefault"));
       setForm(EMPTY);
       setEditing(false);

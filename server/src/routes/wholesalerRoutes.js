@@ -7,6 +7,7 @@ import {
   updateMyWholesalerProfile,
   reorderFromPastOrder,
 } from "../services/wholesalerService.js";
+import { handleError as handleErrorBase } from "../utils/handleError.js";
 
 const router = Router();
 
@@ -14,9 +15,8 @@ function ok(res, data, status = 200) {
   return res.status(status).json(data);
 }
 
-function fail(res, err) {
-  const status = err.status || 500;
-  return res.status(status).json({ error: err.message || "Unexpected error" });
+function handleError(res, err) {
+  return handleErrorBase(res, err, { logTag: "[wholesaler]" });
 }
 
 router.post("/register", requireAuth, async (req, res) => {
@@ -24,7 +24,7 @@ router.post("/register", requireAuth, async (req, res) => {
     const profile = await registerWholesaler(req.user.id, req.body);
     return ok(res, { profile }, 201);
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 });
 
@@ -33,7 +33,7 @@ router.get("/status", requireAuth, async (req, res) => {
     const status = await getWholesalerStatus(req.user.id);
     return ok(res, status);
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 });
 
@@ -42,7 +42,7 @@ router.get("/me", requireAuth, async (req, res) => {
     const profile = await getMyWholesalerProfile(req.user.id);
     return ok(res, { profile });
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 });
 
@@ -51,7 +51,7 @@ router.patch("/me", requireAuth, async (req, res) => {
     const profile = await updateMyWholesalerProfile(req.user.id, req.body);
     return ok(res, { profile });
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 });
 
@@ -60,7 +60,7 @@ router.post("/orders/:orderId/reorder", requireAuth, async (req, res) => {
     const cart = await reorderFromPastOrder(req.user.id, req.params.orderId);
     return ok(res, { cart });
   } catch (e) {
-    return fail(res, e);
+    return handleError(res, e);
   }
 });
 

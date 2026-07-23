@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import TicketOrder from "../models/TicketOrder.js";
 import Ticket from "../models/Ticket.js";
 import User from "../models/User.js";
@@ -297,8 +298,18 @@ export async function getUserTickets(userId) {
   return tickets.map(formatTicket);
 }
 
-export async function getOrderForUser(orderNumber, userId, requesterEmail = "") {
-  const order = await TicketOrder.findOne({ orderNumber }).lean();
+function guestAccessTokenMatches(order, guestAccessToken) {
+  const storedHash = order?.guestAccessTokenHash || "";
+  if (!storedHash || !guestAccessToken) return false;
+  const suppliedHash = crypto.createHash("sha256").update(String(guestAccessToken)).digest("hex");
+  const storedBuf = Buffer.from(storedHash, "utf8");
+  const suppliedBuf = Buffer.from(suppliedHash, "utf8");
+  if (storedBuf.length !== suppliedBuf.length) return false;
+  return crypto.timingSafeEqual(storedBuf, suppliedBuf);
+}
+
+export async function getOrderForUser(orderNumber, userId, requesterEmail = "", guestAccessToken = "") {
+  const order = await TicketOrder.findOne({ orderNumber }).select("+guestAccessTokenHash").lean();
   if (!order) {
     const err = new Error("Order not found.");
     err.status = 404;
@@ -315,19 +326,26 @@ export async function getOrderForUser(orderNumber, userId, requesterEmail = "") 
     throw err;
   }
   if (!order.userId) {
-    const normalizedRequesterEmail = String(requesterEmail || "").trim().toLowerCase();
-    if (!normalizedRequesterEmail) {
-      const err = new Error("Email is required to view this order.");
-      err.status = 400;
-      throw err;
-    }
-    const normalizedAttendeeEmail = String(order.attendeeEmail || "").trim().toLowerCase();
-    if (normalizedRequesterEmail !== normalizedAttendeeEmail) {
-      const err = new Error("Access denied.");
-      err.status = 403;
-      throw err;
+    // Prefer the guest access token issued at checkout; fall back to email
+    // match for orders placed before this existed (no guestAccessTokenHash
+    // stored yet).
+    const tokenMatches = guestAccessTokenMatches(order, guestAccessToken);
+    if (!tokenMatches) {
+      const normalizedRequesterEmail = String(requesterEmail || "").trim().toLowerCase();
+      if (!normalizedRequesterEmail) {
+        const err = new Error("Email is required to view this order.");
+        err.status = 400;
+        throw err;
+      }
+      const normalizedAttendeeEmail = String(order.attendeeEmail || "").trim().toLowerCase();
+      if (normalizedRequesterEmail !== normalizedAttendeeEmail) {
+        const err = new Error("Access denied.");
+        err.status = 403;
+        throw err;
+      }
     }
   }
+  delete order.guestAccessTokenHash;
   const tickets = await Ticket.find({ orderId: order._id }).lean();
   return { order: formatOrder(order), tickets: tickets.map(formatTicket) };
 }

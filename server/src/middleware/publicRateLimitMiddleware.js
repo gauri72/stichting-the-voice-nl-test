@@ -1,11 +1,7 @@
 import { checkRateLimit } from "../utils/rateLimit.js";
 
 function clientIp(req) {
-  return (
-    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
-    req.socket?.remoteAddress ||
-    "unknown"
-  );
+  return req.ip || "unknown";
 }
 
 /**

@@ -110,6 +110,8 @@ const ticketOrderSchema = new mongoose.Schema(
     adminIssued: { type: Boolean, default: false },
     adminIssuedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
     adminNote: { type: String, default: "", trim: true, maxlength: 500 },
+    /** Guest (no userId) orders only — proves the requester holds the link from checkout/email. */
+    guestAccessTokenHash: { type: String, default: "", select: false },
   },
   { timestamps: true, collection: "ticket_orders" }
 );

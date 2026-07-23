@@ -65,6 +65,14 @@ export function getStoredToken() {
   return sessionStorage.getItem(AUTH_TOKEN_KEY) || localStorage.getItem(AUTH_TOKEN_KEY);
 }
 
+// Accepted residual risk: tokens live in Web Storage rather than an httpOnly
+// cookie, so a successful XSS could still exfiltrate one. Mitigated (not
+// eliminated) by: every dangerouslySetInnerHTML site routing through
+// sanitizeHtml.js's DOMPurify wrapper, short-lived tokens (2h unless "remember
+// me"), and server-side logout/password-change revocation (tokenVersion) so a
+// stolen token doesn't outlive the legitimate session indefinitely. A full
+// httpOnly-cookie migration would close this properly but needs its own pass
+// (new CSRF surface, cross-subdomain cookie handling, ~100+ client call sites).
 export function setStoredToken(token, rememberMe = true) {
   localStorage.removeItem(AUTH_TOKEN_KEY);
   sessionStorage.removeItem(AUTH_TOKEN_KEY);

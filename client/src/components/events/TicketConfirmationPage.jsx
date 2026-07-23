@@ -17,7 +17,11 @@ export default function TicketConfirmationPage() {
     async function load() {
       try {
         const email = searchParams.get("email") || "";
-        const query = email ? `?email=${encodeURIComponent(email)}` : "";
+        const token = searchParams.get("token") || "";
+        const params = new URLSearchParams();
+        if (email) params.set("email", email);
+        if (token) params.set("token", token);
+        const query = params.toString() ? `?${params.toString()}` : "";
         const result = await apiFetch(`/api/events/orders/${orderNumber}${query}`, { headers: authHeaders() });
         setData(result);
       } catch (err) {

@@ -13,6 +13,11 @@ const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   port: Number(process.env.PORT) || 5000,
   clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
+  // Unlike `clientUrl` above (which always has a usable default so CORS never
+  // breaks locally), this stays unset when CLIENT_URL is missing so
+  // validateProductionEnv can fail loud instead of silently defaulting to
+  // localhost in production.
+  clientUrlConfigured: Boolean(process.env.CLIENT_URL),
   // Public, internet-reachable base URL of THIS API (used to build QR image / verify
   // links embedded in emails and PDFs). In production set PUBLIC_API_URL to the live
   // API host (e.g. https://voice-nl-api.onrender.com).
@@ -127,9 +132,9 @@ const env = {
     tagline:
       process.env.ORG_TAGLINE ||
       "The voice of international cultural exchange in the Netherlands",
-    sponsorUploadUrl:
-      process.env.SPONSOR_UPLOAD_URL ||
-      "https://e.pcloud.com/#/puplink?code=a0d7Z7oHyALJyo1QSVj7EPvLx5y5ySo37",
+    // No hardcoded fallback — the pCloud upload link is org-specific and must
+    // be set via SPONSOR_UPLOAD_URL in the deployment environment.
+    sponsorUploadUrl: process.env.SPONSOR_UPLOAD_URL || "",
     /** Optional single line below donation thank-you email (plain text; leave empty to omit). */
     emailFooterOptional: stripEnv(process.env.EMAIL_FOOTER_OPTIONAL)
   },

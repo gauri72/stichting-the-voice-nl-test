@@ -4,22 +4,28 @@ import mongoose from "mongoose";
 import env from "../src/config/env.js";
 import { connectDb } from "../src/db/connectDb.js";
 import { createAdminAccount } from "../src/services/adminService.js";
+import { assertPasswordPolicy } from "../src/utils/passwordPolicy.js";
 
 dotenv.config();
 
 // Some local resolvers refuse SRV lookups needed for mongodb+srv:// — use public DNS.
 dns.setServers(env.dnsServers.length ? env.dnsServers : ["8.8.8.8", "1.1.1.1"]);
 
-const DEFAULT_EMAIL = "admin@stichtingthevoice.nl";
-const DEFAULT_PASSWORD = "VoiceAdmin@2025";
 const DEFAULT_FIRST_NAME = "Site";
 const DEFAULT_LAST_NAME = "Administrator";
 
 async function main() {
-  const email = process.env.ADMIN_SEED_EMAIL || DEFAULT_EMAIL;
-  const password = process.env.ADMIN_SEED_PASSWORD || DEFAULT_PASSWORD;
+  const email = process.env.ADMIN_SEED_EMAIL;
+  const password = process.env.ADMIN_SEED_PASSWORD;
   const firstName = process.env.ADMIN_SEED_FIRST_NAME || DEFAULT_FIRST_NAME;
   const lastName = process.env.ADMIN_SEED_LAST_NAME || DEFAULT_LAST_NAME;
+
+  if (!email || !password) {
+    throw new Error(
+      "ADMIN_SEED_EMAIL and ADMIN_SEED_PASSWORD must be set — no default credentials are provided."
+    );
+  }
+  assertPasswordPolicy(password);
 
   if (!env.mongoUri) {
     throw new Error("MONGODB_URI is not configured.");
@@ -40,7 +46,7 @@ async function main() {
     console.log(`  Email:    ${admin.email}`);
     console.log(`  Name:     ${admin.firstName} ${admin.lastName}`);
     console.log(`  Role:     ${admin.role}`);
-    console.log(`  Password: ${password}`);
+    console.log("  Password: (as provided via ADMIN_SEED_PASSWORD)");
     console.log("  Collection: admins (cluster17 / voice_nl_26)");
   } catch (error) {
     if (error.status === 409) {

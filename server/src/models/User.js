@@ -16,7 +16,9 @@ const userSchema = new mongoose.Schema(
     passwordResetTokenHash: { type: String, default: null, select: false },
     passwordResetExpires: { type: Date, default: null },
     /** Stripe Customer used to store this user's reusable payment methods. */
-    stripeCustomerId: { type: String, default: "", trim: true }
+    stripeCustomerId: { type: String, default: "", trim: true },
+    /** Bumped on logout/password change to invalidate all previously issued JWTs. */
+    tokenVersion: { type: Number, default: 0 }
   },
   { timestamps: true, collection: "users" }
 );
@@ -31,7 +33,8 @@ userSchema.methods.toSafeJSON = function toSafeJSON() {
     email: this.email,
     phone: this.phone || "",
     isVerified: this.isVerified,
-    createdAt: this.createdAt
+    createdAt: this.createdAt,
+    tokenVersion: this.tokenVersion || 0
   };
 };
 

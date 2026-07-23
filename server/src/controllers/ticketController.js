@@ -1,4 +1,5 @@
 import { handleError as handleErrorBase } from "../utils/handleError.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 function handleError(res, error) {
   return handleErrorBase(res, error, { logTag: "[events]" });
@@ -76,7 +77,8 @@ export async function getOrder(req, res) {
     const result = await getOrderForUser(
       req.params.orderNumber,
       req.user?.id || req.user?._id,
-      req.query?.email || req.query?.attendeeEmail || ""
+      req.query?.email || req.query?.attendeeEmail || "",
+      req.query?.token || req.query?.access_token || ""
     );
     return res.status(200).json(result);
   } catch (error) {
@@ -112,7 +114,7 @@ export async function verifyTicket(req, res) {
       return res
         .status(200)
         .type("html")
-        .send(`<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Ticket Verification</title></head><body style="font-family:system-ui;background:#06152f;color:#fff;padding:24px;max-width:480px;margin:0 auto;"><h1 style="color:#3ecf9a;">V.O.I.C.E. NL</h1><p style="color:${statusColor};font-weight:bold;">${statusLabel}</p><p><strong>${event?.title || "Event"}</strong></p><p>${ticket.attendeeName}</p><p>${ticket.ticketTypeName}</p><p style="color:#8a9bb5;font-size:13px;">${ticket.ticketNumber}</p></body></html>`);
+        .send(`<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Ticket Verification</title></head><body style="font-family:system-ui;background:#06152f;color:#fff;padding:24px;max-width:480px;margin:0 auto;"><h1 style="color:#3ecf9a;">V.O.I.C.E. NL</h1><p style="color:${statusColor};font-weight:bold;">${escapeHtml(statusLabel)}</p><p><strong>${escapeHtml(event?.title || "Event")}</strong></p><p>${escapeHtml(ticket.attendeeName)}</p><p>${escapeHtml(ticket.ticketTypeName)}</p><p style="color:#8a9bb5;font-size:13px;">${escapeHtml(ticket.ticketNumber)}</p></body></html>`);
     }
 
     return res.status(200).json({
