@@ -89,7 +89,12 @@ services:
     name: voice-nl-web
     runtime: static
     rootDir: .
-    buildCommand: npm install && npm run build
+    # postbuild (client/scripts/prerender.js) needs a real Chromium binary,
+    # not just the playwright npm package — `npm install` alone only gets the
+    # JS bindings. If this build container turns out not to permit apt access
+    # (--with-deps needs it), the fallback is running the prerender step in
+    # CI instead and shipping its output rather than generating it here.
+    buildCommand: npm install && npx playwright install --with-deps chromium && npm run build
     staticPublishPath: ./client/dist
     pullRequestPreviewsEnabled: false
     envVars:
@@ -104,6 +109,10 @@ services:
         sync: false
       - key: VITE_WHATSAPP_E164
         value: "31619032104"
+      # This site's own public origin — used by scripts/prerender.js to crawl
+      # itself during the build and to build absolute URLs in sitemap.xml.
+      - key: SITE_URL
+        value: https://stichtingthevoice.nl
     # SPA rewrite so client-side routes like /sponsorship resolve to index.html
     routes:
       - type: rewrite

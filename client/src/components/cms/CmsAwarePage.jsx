@@ -1,9 +1,24 @@
 import PageSectionRenderer from "./PageSectionRenderer.jsx";
 import { useCmsPage, useCmsSeo } from "../../hooks/useCmsPage.js";
 
-export default function CmsAwarePage({ slug, fallback, append = null, preview = false, version = "published" }) {
+/**
+ * @param {boolean} deferReadyToFallback - when true, this page's `fallback`
+ *   contains its own async data (e.g. FeaturedEventsCarousel) that should own
+ *   the prerender-readiness signal instead of CmsAwarePage marking ready as
+ *   soon as its own (unrelated) CMS-content check settles. Only needed for
+ *   fallbacks with real async children — plain static fallbacks don't need it.
+ */
+export default function CmsAwarePage({
+  slug,
+  fallback,
+  append = null,
+  preview = false,
+  version = "published",
+  deferReadyToFallback = false,
+}) {
   const { data, loading, hasCms } = useCmsPage(slug, { preview, version });
-  useCmsSeo(data);
+  const hasRealCmsContent = hasCms && Boolean(data?.sections?.length);
+  useCmsSeo(data, { loading, markReady: hasRealCmsContent || !deferReadyToFallback });
 
   if (loading) {
     return fallback ? fallback : <div className="cms-page-loading">Loading…</div>;

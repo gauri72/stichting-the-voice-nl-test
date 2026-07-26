@@ -7,6 +7,7 @@ import { useCart } from "./cart/useCart.js";
 import CartDrawer from "./cart/CartDrawer.jsx";
 import { useWholesaler } from "../../contexts/WholesalerContext.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useSeo } from "../../hooks/useSeo.js";
 import knversBanner from "../../assets/VCommerce/businesses/knvers-banner.jpg";
 import knversItConsultation from "../../assets/VCommerce/businesses/knvers-it-consultation.jpg";
 
@@ -288,14 +289,23 @@ export default function VCommerceProfilePage() {
             : product;
         });
         setData({ profile, products: productsWithArtwork });
-        if (profile.businessName) {
-          document.title = `${profile.businessName} — ${t("vcommerceShop:profilePage.titleSuffix")}`;
-        }
       })
       .catch((err) => setError(err?.message || t("vcommerceShop:profilePage.loadErrorFallback")))
       .finally(() => setLoading(false));
-    return () => { document.title = "V.O.I.C.E. NL"; };
   }, [slug]);
+
+  const profile = data?.profile;
+  useSeo(
+    {
+      title: profile?.businessName
+        ? `${profile.businessName} — ${t("vcommerceShop:profilePage.titleSuffix")}`
+        : undefined,
+      description: profile?.description || profile?.tagline || undefined,
+      ogImage: profile?.bannerUrl || profile?.logoUrl || undefined,
+      noindex: !loading && !profile,
+    },
+    { loading }
+  );
 
   if (loading) {
     return (
@@ -320,7 +330,6 @@ export default function VCommerceProfilePage() {
     );
   }
 
-  const profile = data?.profile;
   const products = Array.isArray(data?.products) ? data.products : [];
   if (!profile) {
     return (

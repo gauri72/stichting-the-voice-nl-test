@@ -23,5 +23,12 @@ function HomePageFallback() {
 }
 
 export default function HomePage() {
-  return <CmsAwarePage slug="home" fallback={<HomePageFallback />} append={<VCommerceSpotlightSection />} />;
+  return (
+    <CmsAwarePage
+      slug="home"
+      fallback={<HomePageFallback />}
+      append={<VCommerceSpotlightSection />}
+      deferReadyToFallback
+    />
+  );
 }

@@ -144,11 +144,14 @@ import ManifestRouter from "./components/pwa/ManifestRouter.jsx";
 import SiteInstallPwaPrompt from "./components/pwa/SiteInstallPwaPrompt.jsx";
 import vcommerceHeaderBrand from "./assets/VCommerce/vcommerce-header-brand.png";
 import vcommerceHeaderBrandTransparent from "./assets/VCommerce/vcommerce-header-brand-transparent.png";
+import { useSeo } from "./hooks/useSeo.js";
 
 // Enable by setting VITE_MAINTENANCE_MODE=true in your .env / hosting environment.
 const MAINTENANCE_MODE = import.meta.env.VITE_MAINTENANCE_MODE === "true";
 
 function EmptyPage() {
+  useSeo({ title: "Coming soon — Stichting The V.O.I.C.E. NL", noindex: true });
+
   return (
     <div className="coming-soon-page">
       <div className="coming-soon-page__inner">

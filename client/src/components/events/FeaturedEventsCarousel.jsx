@@ -12,6 +12,7 @@ import {
 import { apiFetch } from "../../utils/api.js";
 import { useAutoAdvance } from "../../hooks/useAutoAdvance.js";
 import { useCmsLabelTranslation } from "../../hooks/useCmsLabelTranslation.js";
+import { markPrerenderReady } from "../../utils/seoMeta.js";
 import defaultHeroLight from "../../assets/Home/featured events-light.png";
 import "../../styles/featured-events-carousel.css";
 
@@ -101,6 +102,10 @@ export default function FeaturedEventsCarousel({
       })
       .finally(() => {
         if (active) setLoading(false);
+        // Idempotent — safe even when some other content on the page already
+        // marked ready first. Owns readiness for pages whose CMS fallback
+        // renders this carousel as its primary async content (Home, Events).
+        markPrerenderReady();
       });
 
     return () => {

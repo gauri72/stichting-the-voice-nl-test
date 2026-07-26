@@ -1,0 +1,25 @@
+User-agent: *
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /vcommerce-portal
+Disallow: /wholesaler
+Disallow: /vcommerce/checkout
+Disallow: /vcommerce/orders
+Disallow: /vcommerce/apply
+Disallow: /vcommerce/favourites
+Disallow: /vcommerce/deals
+Disallow: /my-account
+Disallow: /login
+Disallow: /register
+Disallow: /reset-password
+Disallow: /verify-membership
+Disallow: /events/*/tickets
+Disallow: /sessions/*/book
+Disallow: /rsvp
+Disallow: /our-pillars
+Disallow: /segments
+Disallow: /testimonials
+Disallow: /blogs
+Disallow: /film-festival
+
+Sitemap: https://stichtingthevoice.nl/sitemap.xml

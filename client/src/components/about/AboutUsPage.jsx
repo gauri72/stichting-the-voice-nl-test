@@ -27,7 +27,7 @@ function AboutUsPageFallback({ t }) {
 export default function AboutUsPage() {
   const { t } = useTranslation(["about"]);
   const { data, loading, hasCms } = useCmsPage("about-us");
-  useCmsSeo(data);
+  useCmsSeo(data, { loading });
 
   const hasTeamInCms =
     hasCms &&

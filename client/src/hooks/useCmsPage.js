@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../utils/api.js";
 import { slugFromPath } from "../utils/pagesAdmin.js";
+import { setMetaTag, setCanonicalLink, markPrerenderReady } from "../utils/seoMeta.js";
 
 export function useCmsPage(slugOrPath, { preview = false, version = "published" } = {}) {
   const slug = slugOrPath?.startsWith("/") ? slugFromPath(slugOrPath) : slugOrPath;
@@ -99,25 +100,34 @@ export function useCmsDesignSystem() {
   return { designSystem, loading };
 }
 
-export function useCmsSeo(pageData) {
+/**
+ * @param {object} pageData - result of useCmsPage's `data`
+ * @param {{ loading?: boolean, markReady?: boolean }} options - pass the
+ *   `loading` flag from the same useCmsPage call so the readiness marker (and
+ *   tag updates) only fire once the fetch has actually settled, not on the
+ *   first (empty) render. `markReady` defaults to true; pass false when the
+ *   caller's fallback content has its own async data and should own the
+ *   readiness signal instead (see CmsAwarePage's `deferReadyToFallback`).
+ */
+export function useCmsSeo(pageData, { loading, markReady = true } = {}) {
   useEffect(() => {
-    if (!pageData?.seo) return;
-    const { seo, title } = pageData;
-    if (seo.metaTitle || title) {
-      document.title = seo.metaTitle || title;
-    }
-    const setMeta = (name, content) => {
-      if (!content) return;
-      let el = document.querySelector(`meta[name="${name}"]`);
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute("name", name);
-        document.head.appendChild(el);
+    if (loading) return;
+
+    if (pageData?.seo) {
+      const { seo, title } = pageData;
+      if (seo.metaTitle || title) {
+        document.title = seo.metaTitle || title;
       }
-      el.setAttribute("content", content);
-    };
-    setMeta("description", seo.metaDescription);
-    if (seo.keywords) setMeta("keywords", seo.keywords);
-    if (seo.robotsIndex === false) setMeta("robots", "noindex, nofollow");
-  }, [pageData]);
+      setMetaTag("description", seo.metaDescription);
+      if (seo.keywords) setMetaTag("keywords", seo.keywords);
+      if (seo.robotsIndex === false) setMetaTag("robots", "noindex, nofollow");
+      setMetaTag("og:title", seo.ogTitle || seo.metaTitle || title, "property");
+      setMetaTag("og:description", seo.ogDescription || seo.metaDescription, "property");
+      if (seo.ogImage?.url) setMetaTag("og:image", seo.ogImage.url, "property");
+      setMetaTag("og:url", window.location.href, "property");
+      if (seo.canonicalUrl) setCanonicalLink(seo.canonicalUrl);
+    }
+
+    if (markReady) markPrerenderReady();
+  }, [pageData, loading, markReady]);
 }
