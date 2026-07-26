@@ -91,10 +91,14 @@ services:
     rootDir: .
     # postbuild (client/scripts/prerender.js) needs a real Chromium binary,
     # not just the playwright npm package — `npm install` alone only gets the
-    # JS bindings. If this build container turns out not to permit apt access
-    # (--with-deps needs it), the fallback is running the prerender step in
-    # CI instead and shipping its output rather than generating it here.
-    buildCommand: npm install && npx playwright install --with-deps chromium && npm run build
+    # JS bindings. `--with-deps` (apt-get for missing system libs) doesn't
+    # work here: confirmed this build container has no root/sudo access
+    # ("su: Authentication failure"). Plain `install chromium` downloads only
+    # the browser binaries — if headless Chromium then fails to launch due to
+    # missing shared libs, the fallback is running the prerender step in CI
+    # instead (e.g. GitHub Actions, which has full apt access) and shipping
+    # its output rather than generating it inside Render's build.
+    buildCommand: npm install && npx playwright install chromium && npm run build
     staticPublishPath: ./client/dist
     pullRequestPreviewsEnabled: false
     envVars:
