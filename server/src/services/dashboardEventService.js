@@ -181,7 +181,15 @@ function enrichEventCard(event, { orders, tickets, membershipBenefit, now }) {
 async function loadUserEventData(userId) {
   const oid = new mongoose.Types.ObjectId(userId);
   const user = await User.findById(oid).select("email").lean();
-  const ownedOrders = await TicketOrder.find({ userId: oid }).lean();
+  const email = user?.email ? user.email.toLowerCase() : "";
+  // A guest checkout (no login) is never linked back to an account afterward, so without
+  // also matching by the account's own verified email, an order placed as a guest under
+  // that same email would never appear here — same gap fixed in
+  // ticketOrderService.js::getUserOrders/getUserTickets, duplicated in this separate
+  // dashboard-events data loader.
+  const ownedOrders = await TicketOrder.find(
+    email ? { $or: [{ userId: oid }, { attendeeEmail: email }] } : { userId: oid }
+  ).lean();
   const ownedOrderIds = ownedOrders.map((o) => o._id);
   const tickets = await Ticket.find({
     $or: [
@@ -191,7 +199,7 @@ async function loadUserEventData(userId) {
         transferRecipientEmail: { $in: ["", null] },
       },
       { assignedUserId: oid },
-      ...(user?.email ? [{ transferRecipientEmail: user.email.toLowerCase() }] : []),
+      ...(email ? [{ transferRecipientEmail: email }] : []),
     ],
   }).lean();
   const relevantOrderIds = [...new Set(tickets.map((ticket) => ticket.orderId.toString()))];
@@ -421,7 +429,13 @@ export async function getEventBookingStatusForUser(userId, eventId) {
   }
 
   const oid = new mongoose.Types.ObjectId(userId);
-  const orders = await TicketOrder.find({ userId: oid, eventId: event._id }).lean();
+  const user = await User.findById(oid).select("email").lean();
+  const email = user?.email ? user.email.toLowerCase() : "";
+  const orders = await TicketOrder.find(
+    email
+      ? { $or: [{ userId: oid }, { attendeeEmail: email }], eventId: event._id }
+      : { userId: oid, eventId: event._id }
+  ).lean();
   const orderIds = orders.map((o) => o._id);
   const tickets = orderIds.length
     ? await Ticket.find({ orderId: { $in: orderIds } }).lean()
@@ -451,11 +465,16 @@ export async function getEventTicketsForUser(userId, eventId) {
 
   const oid = new mongoose.Types.ObjectId(userId);
   const user = await User.findById(oid).select("email").lean();
-  const ownedOrders = await TicketOrder.find({
-    userId: oid,
-    eventId: event._id,
-    paymentStatus: { $in: SETTLED_PAYMENT_STATUSES },
-  }).select("_id").lean();
+  const email = user?.email ? user.email.toLowerCase() : "";
+  const ownedOrders = await TicketOrder.find(
+    email
+      ? {
+          $or: [{ userId: oid }, { attendeeEmail: email }],
+          eventId: event._id,
+          paymentStatus: { $in: SETTLED_PAYMENT_STATUSES },
+        }
+      : { userId: oid, eventId: event._id, paymentStatus: { $in: SETTLED_PAYMENT_STATUSES } }
+  ).select("_id").lean();
   const ownedOrderIds = ownedOrders.map((order) => order._id);
   const tickets = await Ticket.find({
     eventId: event._id,
@@ -466,7 +485,7 @@ export async function getEventTicketsForUser(userId, eventId) {
         transferRecipientEmail: { $in: ["", null] },
       },
       { assignedUserId: oid },
-      ...(user?.email ? [{ transferRecipientEmail: user.email.toLowerCase() }] : []),
+      ...(email ? [{ transferRecipientEmail: email }] : []),
     ],
   }).sort({ createdAt: 1 }).lean();
 
