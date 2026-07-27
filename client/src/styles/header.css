@@ -76,6 +76,57 @@
   display: none;
 }
 
+.vassist-bell-btn {
+  display: none;
+}
+
+@media (min-width: 1101px) {
+  .vassist-bell-btn {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid rgba(0, 228, 223, 0.28);
+    border-radius: 12px;
+    background: rgba(4, 16, 30, 0.74);
+    color: #f4fbff;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(12px);
+    text-decoration: none;
+  }
+
+  .vassist-bell-btn svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .vassist-bell-btn > span {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    display: grid;
+    place-items: center;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 4px;
+    border-radius: 10px;
+    background: #7c3aed;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+  }
+
+  [data-theme="light"] .vassist-bell-btn {
+    border-color: #bdd3df;
+    background: rgba(255, 255, 255, 0.9);
+    color: #17384b;
+    box-shadow: 0 8px 22px rgba(19, 54, 75, 0.12);
+  }
+}
+
 @media (min-width: 1101px) {
   .site-header--vcommerce .site-navbar {
     padding-left: 120px;

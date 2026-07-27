@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { IconPlus } from "@tabler/icons-react";
@@ -9,12 +10,13 @@ import AiUpdatesList from "./AiUpdatesList.jsx";
 
 export default function AiScheduledPromptsPage() {
   const { t } = useTranslation(["dashboardMain"]);
+  const location = useLocation();
   const {
     scheduledPrompts, loadSchedules, createSchedule, updateSchedule, removeSchedule,
     loadResults, unreadResultsCount,
   } = useAiAssistant();
   const [modalOpen, setModalOpen] = useState(false);
-  const [tab, setTab] = useState("schedules");
+  const [tab, setTab] = useState(location.state?.openTab === "updates" ? "updates" : "schedules");
 
   useEffect(() => {
     loadSchedules();

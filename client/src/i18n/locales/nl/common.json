@@ -17,7 +17,8 @@
   "header": {
     "buyTickets": "Tickets Kopen",
     "logInSignUp": "Inloggen Of Registreren",
-    "myAccount": "Mijn Account"
+    "myAccount": "Mijn Account",
+    "vassistUpdates": "V.Assist updates"
   },
   "buttons": {
     "learnMore": "Meer Informatie",

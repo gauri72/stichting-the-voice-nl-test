@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, NavLink, useSearchParams } from "react-router-dom";
+import { Link, NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   IconArrowRight,
@@ -137,7 +137,8 @@ export default function MobileDashboardCommandCenter({
 }) {
   const { t } = useTranslation(["dashboardMobile"]);
   const { wallet, loadWallet } = useWallet();
-  const { openAssistant } = useAiAssistant();
+  const { openAssistant, unreadResultsCount } = useAiAssistant();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [bookings, setBookings] = useState([]);
   const [events, setEvents] = useState([]);
@@ -258,10 +259,23 @@ export default function MobileDashboardCommandCenter({
         </picture>
         <div className="mobile-dash-hero__scrim" />
         <HeroActionCluster />
-        <button type="button" className="mobile-dash-hero__assist" onClick={openAssistant}
-          aria-label={t("dashboardMobile:commandCenter.hero.assistAria")}>
+        <button
+          type="button"
+          className="mobile-dash-hero__assist"
+          onClick={() =>
+            unreadResultsCount > 0
+              ? navigate("/dashboard/ai-assistant/schedule", { state: { openTab: "updates" } })
+              : openAssistant()
+          }
+          aria-label={t("dashboardMobile:commandCenter.hero.assistAria")}
+        >
           <IconRobot aria-hidden />
           <span>{t("dashboardMobile:commandCenter.hero.assist")}</span>
+          {unreadResultsCount > 0 ? (
+            <span className="mobile-dash-hero__assist-badge" aria-hidden="true">
+              {unreadResultsCount > 99 ? "99+" : unreadResultsCount}
+            </span>
+          ) : null}
         </button>
         <div className="mobile-dash-hero__content">
           <p>{t("dashboardMobile:commandCenter.hero.welcomeBack")}</p>

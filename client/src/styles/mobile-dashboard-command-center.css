@@ -37,6 +37,7 @@
   .mobile-dash-hero__assist svg{width:27px;height:27px;color:#7be9ff;filter:drop-shadow(0 0 6px currentColor)}
   .mobile-dash-hero__assist:active{transform:scale(.96)}
   .mobile-dash-hero__assist:hover,.mobile-dash-hero__assist:focus-visible{animation-play-state:paused}
+  .mobile-dash-hero__assist-badge{position:absolute;top:-6px;right:-6px;z-index:4;display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#7c3aed;color:#fff;font-size:11px;font-weight:800;box-shadow:0 4px 10px rgba(0,0,0,.3)}
   .mobile-dash-commerce{padding:16px;border:1px solid rgba(32,217,232,.28);border-radius:26px;background:linear-gradient(145deg,rgba(7,25,40,.94),rgba(4,12,25,.96));box-shadow:0 18px 42px rgba(0,0,0,.2)}
   .mobile-dash-commerce>header{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:1px 2px 14px}
   .mobile-dash-commerce>header span{color:var(--md-cyan);font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em}

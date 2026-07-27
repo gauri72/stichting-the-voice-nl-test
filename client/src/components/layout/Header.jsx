@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { IconBell, IconShoppingCart, IconTicket, IconUser, IconUserCheck, IconUserPlus } from "@tabler/icons-react";
+import { IconBell, IconBellRinging, IconShoppingCart, IconTicket, IconUser, IconUserCheck, IconUserPlus } from "@tabler/icons-react";
 import ThemeToggle from "./ThemeToggle.jsx";
 import LanguageSwitcher from "./LanguageSwitcher.jsx";
 import SiteInstallPwaPrompt from "../pwa/SiteInstallPwaPrompt.jsx";
 import { useCmsHeader } from "../../hooks/useCmsPage.js";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useAiAssistant } from "../../contexts/AiAssistantContext.jsx";
 import { translateKnownLabel, translateKnownNavLabel } from "../../i18n/navLabels.js";
 import { useCmsLabelTranslation } from "../../hooks/useCmsLabelTranslation.js";
 import { useCart } from "../vcommerce/cart/useCart.js";
@@ -123,6 +124,7 @@ export default function Header() {
   const { t } = useTranslation(["common"]);
   const { header } = useCmsHeader();
   const { user, isAuthenticated } = useAuth();
+  const { unreadResultsCount } = useAiAssistant();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdownLabel, setOpenDropdownLabel] = useState(null);
   const [commerceNotificationsOpen, setCommerceNotificationsOpen] = useState(false);
@@ -292,6 +294,20 @@ export default function Header() {
           <div className="nav-toolbar__cta-group">
             {memberCta}
             {buyTicketsCta}
+            {isAuthenticated ? (
+              <Link
+                to="/dashboard/ai-assistant/schedule"
+                state={{ openTab: "updates" }}
+                className="vassist-bell-btn"
+                onClick={closeMenu}
+                aria-label={t("common:header.vassistUpdates")}
+              >
+                <IconBellRinging aria-hidden="true" />
+                {unreadResultsCount > 0 ? (
+                  <span aria-hidden="true">{unreadResultsCount > 99 ? "99+" : unreadResultsCount}</span>
+                ) : null}
+              </Link>
+            ) : null}
             {authCta}
           </div>
           {isVcommerce ? (
