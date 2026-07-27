@@ -8,7 +8,7 @@ import {
 import { getAvailableDiscountsForUser } from "../services/dashboardAvailableDiscountsService.js";
 import { getDashboardGivingForUser } from "../services/dashboardGivingService.js";
 import { getUserReferralData } from "../services/adminDiscountRuleService.js";
-import { REFERRAL_SYSTEM_ENABLED } from "../config/discountConfig.js";
+import { getReferralProgramSettings } from "../services/referralProgramSettingsService.js";
 import env from "../config/env.js";
 import { getMembershipPageForUser, ensureDemoMembership } from "../services/membershipService.js";
 import {
@@ -95,10 +95,11 @@ export async function getGoogleWalletPass(req, res) {
 }
 
 export async function getReferrals(req, res) {
-  if (!REFERRAL_SYSTEM_ENABLED) {
-    return res.status(200).json({ enabled: false, referral: null });
-  }
   try {
+    const settings = await getReferralProgramSettings();
+    if (!settings.enabled) {
+      return res.status(200).json({ enabled: false, referral: null });
+    }
     const referral = await getUserReferralData(req.user.id, req.user.email);
     return res.status(200).json({ enabled: true, referral });
   } catch (error) {

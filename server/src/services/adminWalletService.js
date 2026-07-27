@@ -5,6 +5,7 @@ import AIBookingLog from "../models/AIBookingLog.js";
 import User from "../models/User.js";
 import Event from "../models/Event.js";
 import TicketOrder from "../models/TicketOrder.js";
+import ReferralReward from "../models/ReferralReward.js";
 import { getStripe, isStripeConfigured } from "./stripe.js";
 import { creditWallet, debitWallet, getGlobalSettings as getWalletGlobalSettings } from "./walletService.js";
 import WalletGlobalSettings from "../models/WalletGlobalSettings.js";
@@ -236,5 +237,15 @@ export async function refundOrder(orderId, { method = "wallet", reason = "" } = 
   order.paymentStatus = "refunded";
   order.orderStatus = "CANCELLED";
   await order.save();
+
+  // Cancel any not-yet-paid referral reward tied to this order — a reward already paid
+  // out before the refund is a known, accepted limitation (see
+  // referralRewardAutoApprovalScheduler.js): the wallet credit isn't clawed back
+  // automatically, that becomes a manual admin follow-up.
+  await ReferralReward.updateMany(
+    { orderId: order.orderNumber, rewardStatus: { $in: ["pending", "approved"] } },
+    { $set: { rewardStatus: "cancelled" } }
+  ).catch((e) => console.warn("[refund] Could not cancel referral reward for order", order.orderNumber, e.message));
+
   return { success: true, order };
 }

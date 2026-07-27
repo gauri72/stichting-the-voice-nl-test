@@ -1,11 +1,18 @@
 import DiscountRule from "../models/DiscountRule.js";
 import DiscountUsage from "../models/DiscountUsage.js";
 import ReferralReward from "../models/ReferralReward.js";
+import WalletTransaction from "../models/WalletTransaction.js";
 import User from "../models/User.js";
 import Event from "../models/Event.js";
 import AdminAuditLog from "../models/AdminAuditLog.js";
 import { DEFAULT_MEMBER_DISCOUNTS } from "../config/discountDefaults.js";
+import { CURRENCY_REWARD_TYPES } from "../config/discountConfig.js";
 import { getNextSequence } from "../utils/sequence.js";
+import { getReferralProgramSettings } from "./referralProgramSettingsService.js";
+import { creditWallet } from "./walletService.js";
+import { getOrIssueReferralCode } from "./referralCodeIssuanceService.js";
+import { sendReferralRewardPaidEmail } from "./discountMailer.js";
+import { escapeRegex } from "../utils/regexUtils.js";
 
 function throwError(message, status = 400) {
   const err = new Error(message);
@@ -491,6 +498,10 @@ export async function syncDefaultMemberDiscounts(adminId) {
 export async function listReferrals(params = {}) {
   const query = {};
   if (params.status) query.rewardStatus = params.status;
+  if (params.email?.trim()) {
+    const needle = new RegExp(escapeRegex(params.email.trim()), "i");
+    query.$or = [{ referrerEmail: needle }, { buyerEmail: needle }];
+  }
 
   const rewards = await ReferralReward.find(query).sort({ createdAt: -1 }).limit(200).lean();
   return rewards.map((r) => ({
@@ -502,7 +513,9 @@ export async function listReferrals(params = {}) {
     discountGiven: r.discountGiven,
     rewardType: r.rewardType,
     rewardValue: r.rewardValue,
+    isCurrencyReward: CURRENCY_REWARD_TYPES.includes(r.rewardType),
     rewardStatus: r.rewardStatus,
+    awaitingManualPayout: Boolean(r.awaitingManualPayout),
     approvedAt: r.approvedAt,
     paidAt: r.paidAt,
     createdAt: r.createdAt,
@@ -520,14 +533,51 @@ export async function approveReferralReward(id, adminId) {
   return reward;
 }
 
+// Same idempotent check-then-write shape as referralRewardAutoApprovalScheduler.js — this
+// function is the manual-path equivalent of what the scheduler does automatically, reused
+// here so an admin expediting a still-pending reward (or resolving one flagged
+// awaitingManualPayout with a wallet after all) gets a real wallet credit, not just a
+// status flag that silently claims money moved when it didn't.
 export async function markReferralRewardPaid(id, adminId) {
-  const reward = await ReferralReward.findByIdAndUpdate(
-    id,
-    { rewardStatus: "paid", paidAt: new Date() },
-    { new: true }
-  );
+  const reward = await ReferralReward.findById(id);
   if (!reward) throwError("Referral reward not found.", 404);
+
+  const wasAlreadyPaid = reward.rewardStatus === "paid";
+  const isCurrencyReward = CURRENCY_REWARD_TYPES.includes(reward.rewardType);
+  let creditedNow = false;
+  if (!wasAlreadyPaid && isCurrencyReward && reward.referrerUserId && reward.rewardValue > 0) {
+    const existingTransaction = await WalletTransaction.findOne({
+      referenceType: "referralReward",
+      referenceId: String(reward._id),
+    }).lean();
+    if (!existingTransaction) {
+      await creditWallet(reward.referrerUserId, reward.rewardValue, {
+        type: "referralReward",
+        description: `Referral reward — ${reward.rewardId || reward._id}`,
+        referenceType: "referralReward",
+        referenceId: String(reward._id),
+        initiatedBy: "admin",
+      });
+      creditedNow = true;
+    }
+  }
+
+  reward.rewardStatus = "paid";
+  reward.paidAt = new Date();
+  if (!reward.approvedAt) reward.approvedAt = new Date();
+  reward.awaitingManualPayout = false;
+  await reward.save();
+
   await logAudit(adminId, "Referral Reward Paid", id, `Marked paid for ${reward.referrerEmail}`);
+
+  if (!wasAlreadyPaid && reward.referrerEmail) {
+    sendReferralRewardPaidEmail({
+      email: reward.referrerEmail,
+      rewardValue: `€${(reward.rewardValue / 100).toFixed(2)}`,
+      creditedToWallet: creditedNow,
+    }).catch((err) => console.error("[referrals] referral reward paid email failed:", err.message));
+  }
+
   return reward;
 }
 
@@ -538,7 +588,7 @@ export async function cancelReferralReward(id, adminId) {
     { new: true }
   );
   if (!reward) throwError("Referral reward not found.", 404);
-  await logAudit(adminId, "Referral Reward Created", id, `Cancelled reward for ${reward.referrerEmail}`);
+  await logAudit(adminId, "Referral Reward Cancelled", id, `Cancelled reward for ${reward.referrerEmail}`);
   return reward;
 }
 
@@ -572,11 +622,22 @@ export async function listEventsForEligibility() {
 }
 
 export async function getUserReferralData(userId, email) {
-  const referralCode = await DiscountRule.findOne({
+  let referralCode = await DiscountRule.findOne({
     type: "referral_code",
     $or: [{ referrerUserId: userId }, { referrerEmail: email?.toLowerCase() }],
     status: "active",
   }).lean();
+
+  if (!referralCode) {
+    const referralSettings = await getReferralProgramSettings();
+    if (referralSettings.autoIssueOnDashboardVisit) {
+      const user = await User.findById(userId).select("firstName lastName email").lean();
+      if (user) {
+        const issued = await getOrIssueReferralCode(user, referralSettings);
+        referralCode = issued.toObject ? issued.toObject() : issued;
+      }
+    }
+  }
 
   const rewards = await ReferralReward.find({
     $or: [{ referrerUserId: userId }, { referrerEmail: email?.toLowerCase() }],
@@ -589,8 +650,15 @@ export async function getUserReferralData(userId, email) {
     : 0;
 
   const pendingRewards = rewards.filter((r) => r.rewardStatus === "pending").length;
+  // rewardValue is only real currency (minor units) for these three reward types —
+  // free_ticket/manual rewards aren't euros, so they're excluded from this sum and only
+  // shown individually in the per-reward list below.
   const totalEarned = rewards
-    .filter((r) => r.rewardStatus === "paid" || r.rewardStatus === "approved")
+    .filter(
+      (r) =>
+        (r.rewardStatus === "paid" || r.rewardStatus === "approved") &&
+        CURRENCY_REWARD_TYPES.includes(r.rewardType)
+    )
     .reduce((sum, r) => sum + (r.rewardValue || 0), 0);
 
   return {
@@ -604,7 +672,10 @@ export async function getUserReferralData(userId, email) {
       id: r._id.toString(),
       buyerEmail: r.buyerEmail,
       rewardStatus: r.rewardStatus,
+      rewardType: r.rewardType,
       rewardValue: r.rewardValue,
+      isCurrencyReward: CURRENCY_REWARD_TYPES.includes(r.rewardType),
+      awaitingManualPayout: Boolean(r.awaitingManualPayout),
       createdAt: r.createdAt,
     })),
   };

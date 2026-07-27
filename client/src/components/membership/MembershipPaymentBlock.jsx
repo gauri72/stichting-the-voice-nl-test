@@ -23,6 +23,7 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useWallet } from "../../contexts/WalletContext.jsx";
 import { authHeaders, apiUrl } from "../../utils/api.js";
 import { getStripePromise, STRIPE_PUBLISHABLE_KEY } from "../../utils/stripeClient.js";
+import { getPendingReferralCode, clearPendingReferralCode } from "../../utils/referralCapture.js";
 import "../../styles/sponsorship-payment-block.css";
 
 export const MEMBERSHIP_CHECKOUT_SESSION_KEY = "voice_nl_membership_checkout";
@@ -46,7 +47,9 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
     phone: "",
     country: ""
   });
-  const [discountCode, setDiscountCode] = useState("");
+  // Pre-fills from a captured ?ref= referral link (client/src/utils/referralCapture.js) —
+  // same field the customer would otherwise type a code into by hand.
+  const [discountCode, setDiscountCode] = useState(() => getPendingReferralCode() || "");
   const [discountInfo, setDiscountInfo] = useState(null);
   const [clientSecret, setClientSecret] = useState("");
   const [intentMeta, setIntentMeta] = useState(null);
@@ -96,6 +99,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
           setSuccess({ id: paymentIntent.id });
           setStep("done");
           clearCheckoutSession(MEMBERSHIP_CHECKOUT_SESSION_KEY);
+          clearPendingReferralCode();
           try {
             await fetchWithTimeout(apiUrl("/api/payments/confirm"), {
               method: "POST",
@@ -185,6 +189,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
         setSuccess({ id: data.paymentIntentId });
         setStep("done");
         clearCheckoutSession(MEMBERSHIP_CHECKOUT_SESSION_KEY);
+        clearPendingReferralCode();
         loadWallet();
         return;
       }
@@ -224,6 +229,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
     setSuccess({ id: paymentIntent.id });
     setStep("done");
     clearCheckoutSession(MEMBERSHIP_CHECKOUT_SESSION_KEY);
+    clearPendingReferralCode();
 
     try {
       await fetchWithTimeout(apiUrl("/api/payments/confirm"), {

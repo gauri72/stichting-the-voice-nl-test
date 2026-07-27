@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import useBookingFlow from "../../hooks/useBookingFlow.js";
+import { getPendingReferralCode, clearPendingReferralCode } from "../../utils/referralCapture.js";
 import "../../styles/public-booking-flows.css";
 
 export default function SessionBookingPage() {
@@ -16,7 +17,9 @@ export default function SessionBookingPage() {
     customerEmail: "",
     customerPhone: "",
     participants: 1,
-    discountCode: "",
+    // Pre-fills from a captured ?ref= referral link (client/src/utils/referralCapture.js) —
+    // same field the customer would otherwise type a code into by hand.
+    discountCode: getPendingReferralCode() || "",
     payLater: false,
   });
   const [error, setError] = useState("");
@@ -59,6 +62,7 @@ export default function SessionBookingPage() {
         ...form,
       });
       setSummary(result.booking);
+      clearPendingReferralCode();
       if (result.payment?.clientSecret) {
         setError(t("misc:sessionBooking.paymentIntentNotice"));
       }

@@ -27,6 +27,7 @@ import {
   membershipBannerHasContent,
   sanitizeCustomerDiscountLabel,
 } from "../../utils/membershipDisplayLabels.js";
+import { getPendingReferralCode, clearPendingReferralCode } from "../../utils/referralCapture.js";
 import SeatMapSelector from "./SeatMapSelector.jsx";
 import WaitlistJoinForm from "./WaitlistJoinForm.jsx";
 import DynamicCheckoutForm, { serializeCheckoutAnswers } from "./DynamicCheckoutForm.jsx";
@@ -121,9 +122,14 @@ export default function TicketBookingPage() {
   const sessionRestoreRef = useRef(false);
 
   const checkoutSessionIdFromUrl = searchParams.get("checkoutSessionId") || "";
-  const returnPath = checkoutSessionIdFromUrl
-    ? `/events/${eventIdOrSlug}/tickets?checkoutSessionId=${checkoutSessionIdFromUrl}`
-    : `/events/${eventIdOrSlug}/tickets`;
+  const returnPath = (() => {
+    const params = new URLSearchParams();
+    if (checkoutSessionIdFromUrl) params.set("checkoutSessionId", checkoutSessionIdFromUrl);
+    const pendingRef = getPendingReferralCode();
+    if (pendingRef) params.set("ref", pendingRef);
+    const query = params.toString();
+    return query ? `/events/${eventIdOrSlug}/tickets?${query}` : `/events/${eventIdOrSlug}/tickets`;
+  })();
   const payer = useMemo(
     () => ({
       firstName: attendee.firstName,
@@ -288,6 +294,21 @@ export default function TicketBookingPage() {
     load();
     return () => { cancelled = true; };
   }, [eventIdOrSlug]);
+
+  // Pre-fills every ticket type's code field with a captured ?ref= referral link — only on
+  // a fresh checkout start, not while resuming a saved session (checkoutSessionIdFromUrl
+  // present), so this never clobbers codes a restored session already applied.
+  useEffect(() => {
+    if (checkoutSessionIdFromUrl || !event?.ticketTypes?.length) return;
+    const pendingRef = getPendingReferralCode();
+    if (!pendingRef) return;
+    setTicketCodes((prev) => {
+      if (Object.keys(prev).length > 0) return prev;
+      const next = {};
+      event.ticketTypes.forEach((tt) => { next[tt.id] = pendingRef; });
+      return next;
+    });
+  }, [event?.ticketTypes, checkoutSessionIdFromUrl]);
 
   const refreshPreview = useCallback(async (overrides = {}) => {
     if (!selectedItems.length || !event?.id) {
@@ -551,6 +572,7 @@ export default function TicketBookingPage() {
   const goToConfirmation = useCallback(
     (orderNumber, email = "", guestAccessToken = "") => {
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
+      clearPendingReferralCode();
       const params = new URLSearchParams();
       const normalizedEmail = String(email || "").trim();
       if (normalizedEmail) params.set("email", normalizedEmail);

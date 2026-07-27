@@ -1,5 +1,9 @@
 import * as adminDiscountService from "../services/adminDiscountRuleService.js";
 import * as adminCatalogService from "../services/adminDiscountCatalogService.js";
+import {
+  getReferralProgramSettings,
+  updateReferralProgramSettings,
+} from "../services/referralProgramSettingsService.js";
 import DiscountCode from "../models/DiscountCode.js";
 import User from "../models/User.js";
 import {
@@ -264,6 +268,24 @@ export async function cancelReferral(req, res) {
   try {
     const reward = await adminDiscountService.cancelReferralReward(req.params.id, req.admin?.id);
     return res.status(200).json({ reward });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function getReferralSettings(req, res) {
+  try {
+    const settings = await getReferralProgramSettings();
+    return res.status(200).json({ settings });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function patchReferralSettings(req, res) {
+  try {
+    const settings = await updateReferralProgramSettings(req.body || {});
+    return res.status(200).json({ settings });
   } catch (error) {
     return handleError(res, error);
   }

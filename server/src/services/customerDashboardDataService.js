@@ -3,7 +3,7 @@ import { getMembershipPageForUser } from "./membershipService.js";
 import { getAvailableDiscountsForUser } from "./dashboardAvailableDiscountsService.js";
 import { getDashboardEventsForUser } from "./dashboardEventService.js";
 import { getUserReferralData } from "./adminDiscountRuleService.js";
-import { REFERRAL_SYSTEM_ENABLED } from "../config/discountConfig.js";
+import { getReferralProgramSettings } from "./referralProgramSettingsService.js";
 import { getPublishedConfig } from "./customerDashboardBuilderService.js";
 import { buildUserVisibilityContext, filterSectionsForUser } from "./customerDashboardVisibilityService.js";
 import Ticket from "../models/Ticket.js";
@@ -41,12 +41,13 @@ export async function getCustomerDashboardConfigForUser(user) {
 }
 
 export async function getCustomerDashboardDataForUser(user) {
+  const referralSettings = await getReferralProgramSettings();
   const [dashboard, membership, discounts, events, referral] = await Promise.all([
     getDashboardPayloadForUser(user),
     getMembershipPageForUser(user).catch(() => null),
     getAvailableDiscountsForUser(user).catch(() => ({ discounts: [] })),
     getDashboardEventsForUser(user.id).catch(() => ({ events: [] })),
-    REFERRAL_SYSTEM_ENABLED
+    referralSettings.enabled
       ? getUserReferralData(user.id, user.email).catch(() => null)
       : Promise.resolve(null),
   ]);

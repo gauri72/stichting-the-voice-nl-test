@@ -37,6 +37,10 @@ export const DASHBOARD_CODE_TYPES = [
 
 export const REWARD_TYPES = ["credit", "free_ticket", "fixed_amount", "percentage", "manual"];
 
+// Reward types whose rewardValue is real currency (minor units) — free_ticket/manual
+// rewards aren't euros, so anything that sums/formats reward money must exclude them.
+export const CURRENCY_REWARD_TYPES = ["credit", "fixed_amount", "percentage"];
+
 export const REWARD_STATUSES = ["pending", "approved", "paid", "cancelled"];
 
 export const STACKING_CONFIG = {
@@ -48,5 +52,3 @@ export const STACKING_CONFIG = {
   stackingMode: "stack",
   preventReferralSelfUse: true,
 };
-
-export const REFERRAL_SYSTEM_ENABLED = process.env.REFERRAL_SYSTEM_ENABLED !== "false";

@@ -80,6 +80,21 @@ export async function sendReferralRewardEarnedEmail({ email, firstName, rewardVa
   return sendEmail({ to: email, subject: `Referral reward earned — ${ORG_NAME}`, html });
 }
 
+/** Sent when a referral reward actually pays out (V.Wallet credited, or an admin marks a
+ * non-wallet reward paid) — the follow-up sendReferralRewardEarnedEmail's own copy already
+ * promises ("processed shortly") but that never previously existed. */
+export async function sendReferralRewardPaidEmail({ email, firstName, rewardValue, creditedToWallet }) {
+  const html = `
+    <h2 style="color:#0891b2;">Your Referral Reward Has Been Paid</h2>
+    <p>Hi ${escapeHtml(firstName || "there")},</p>
+    <p>Your referral reward has been processed.</p>
+    <p>Reward: <strong>${escapeHtml(rewardValue)}</strong></p>
+    ${creditedToWallet ? "<p>It's now available in your V.Wallet balance.</p>" : ""}
+    <p>Thanks for spreading the word about ${ORG_NAME}!</p>
+  `;
+  return sendEmail({ to: email, subject: `Referral reward paid — ${ORG_NAME}`, html });
+}
+
 export async function sendDiscountExpiringEmail({ email, firstName, discountCode, expiryDate, eventName }) {
   const html = `
     <h2 style="color:#f59e0b;">Discount Expiring Soon</h2>

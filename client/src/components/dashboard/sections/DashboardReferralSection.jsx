@@ -5,6 +5,10 @@ import { apiFetch, authHeaders } from "../../../utils/api.js";
 import "../../../styles/dashboard-referral-section.css";
 import { devWarn } from "../../../utils/devLog.js";
 
+function formatMoney(minor) {
+  return new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(Number(minor || 0) / 100);
+}
+
 export default function DashboardReferralSection() {
   const { t } = useTranslation(["dashboardSections"]);
   const [data, setData] = useState(null);
@@ -47,10 +51,13 @@ export default function DashboardReferralSection() {
 
   async function handleShare() {
     if (!code) return;
+    // A referral code isn't tied to one event, so it links to the events listing page —
+    // client/src/utils/referralCapture.js captures ?ref= there (or anywhere else it lands)
+    // and every checkout flow's code field pre-fills from it.
     const shareData = {
       title: t("dashboardSections:referralSection.shareTitle"),
       text: t("dashboardSections:referralSection.shareText", { code }),
-      url: window.location.origin,
+      url: `${window.location.origin}/events?ref=${encodeURIComponent(code)}`,
     };
     if (navigator.share) {
       try {
@@ -98,7 +105,7 @@ export default function DashboardReferralSection() {
               <span>{t("dashboardSections:referralSection.referralUses")}</span>
             </button>
             <button type="button" className="dash-referral-section__stat dash-referral-section__stat--clickable" onClick={scrollToRewards}>
-              <strong>{data.rewardsEarned}</strong>
+              <strong>{formatMoney(data.rewardsEarned)}</strong>
               <span>{t("dashboardSections:referralSection.rewardsEarned")}</span>
             </button>
             <button type="button" className="dash-referral-section__stat dash-referral-section__stat--clickable" onClick={scrollToRewards}>
@@ -120,6 +127,7 @@ export default function DashboardReferralSection() {
             data.rewards.map((r) => (
               <div key={r.id} className="dash-referral-section__reward-row">
                 <span>{r.buyerEmail || t("dashboardSections:referralSection.anonymousBuyer")}</span>
+                {r.isCurrencyReward ? <span>{formatMoney(r.rewardValue)}</span> : null}
                 <span className={`dash-referral-section__status dash-referral-section__status--${r.rewardStatus}`}>
                   {r.rewardStatus}
                 </span>

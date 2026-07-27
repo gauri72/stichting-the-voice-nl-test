@@ -125,6 +125,9 @@ export default function AdminDiscountsPage() {
   const [syncing, setSyncing] = useState(false);
   const [userSearch, setUserSearch] = useState("");
   const [showReferrals, setShowReferrals] = useState(false);
+  const [referralSearch, setReferralSearch] = useState("");
+  const [referralSettings, setReferralSettings] = useState(null);
+  const [referralSettingsSaving, setReferralSettingsSaving] = useState(false);
   const [createType, setCreateType] = useState("campaign_code");
 
   const buildParams = useCallback(() => {
@@ -143,18 +146,20 @@ export default function AdminDiscountsPage() {
     setError("");
     try {
       const params = buildParams();
-      const [listData, statsData, usersData, eventsData, referralsData] = await Promise.all([
+      const [listData, statsData, usersData, eventsData, referralsData, referralSettingsData] = await Promise.all([
         apiFetch(`/api/admin/discounts?${params}`, { headers: adminAuthHeaders() }),
         apiFetch("/api/admin/discounts/dashboard", { headers: adminAuthHeaders() }),
         apiFetch("/api/admin/discounts/users", { headers: adminAuthHeaders() }),
         apiFetch("/api/admin/discounts/events", { headers: adminAuthHeaders() }),
         apiFetch("/api/admin/discounts/referrals", { headers: adminAuthHeaders() }),
+        apiFetch("/api/admin/discounts/referral-settings", { headers: adminAuthHeaders() }),
       ]);
       setDiscounts(listData.discounts || []);
       setStats(statsData.stats || null);
       setUsers(usersData.users || []);
       setEvents(eventsData.events || []);
       setReferrals(referralsData.referrals || []);
+      setReferralSettings(referralSettingsData.settings || null);
     } catch (err) {
       setError(err.message || "Could not load discounts.");
     } finally {
@@ -165,6 +170,24 @@ export default function AdminDiscountsPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Independent of loadData's main Promise.all — re-queries just the referral table
+  // (server-side, not a client-side filter of the already-fetched page) so support can find
+  // a specific person even if their reward has aged past the 200-row default listing.
+  useEffect(() => {
+    if (!showReferrals) return undefined;
+    const timer = window.setTimeout(async () => {
+      try {
+        const params = new URLSearchParams();
+        if (referralSearch.trim()) params.set("email", referralSearch.trim());
+        const data = await apiFetch(`/api/admin/discounts/referrals?${params.toString()}`, { headers: adminAuthHeaders() });
+        setReferrals(data.referrals || []);
+      } catch (err) {
+        setError(err.message || "Could not search referral rewards.");
+      }
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [referralSearch, showReferrals]);
 
   useEffect(() => {
     if (!filters.eventId) {
@@ -360,6 +383,22 @@ export default function AdminDiscountsPage() {
     }
   }
 
+  async function updateReferralSettings(patch) {
+    setReferralSettingsSaving(true);
+    try {
+      const data = await apiFetch("/api/admin/discounts/referral-settings", {
+        method: "PATCH",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify(patch),
+      });
+      setReferralSettings(data.settings);
+    } catch (err) {
+      window.alert(err.message || "Could not update referral settings.");
+    } finally {
+      setReferralSettingsSaving(false);
+    }
+  }
+
   const filteredUsers = users.filter((u) => {
     const q = userSearch.toLowerCase().trim();
     if (!q) return false;
@@ -440,9 +479,91 @@ export default function AdminDiscountsPage() {
 
         {showReferrals ? (
           <section className="admin-discounts__referrals">
+            <h3>Referral Program Settings</h3>
+            {referralSettings ? (
+              <div className="admin-discounts__referral-settings">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={referralSettings.enabled}
+                    disabled={referralSettingsSaving}
+                    onChange={(e) => updateReferralSettings({ enabled: e.target.checked })}
+                  />
+                  Referral program enabled (turning this off stops referral codes from being redeemed at checkout, not just hides the dashboard widget)
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={referralSettings.autoIssueOnDashboardVisit}
+                    disabled={referralSettingsSaving}
+                    onChange={(e) => updateReferralSettings({ autoIssueOnDashboardVisit: e.target.checked })}
+                  />
+                  Auto-issue every member a referral code on their first dashboard visit
+                </label>
+                <div className="admin-discounts__referral-settings-grid">
+                  <label>
+                    Buyer discount (%)
+                    <input
+                      type="number"
+                      min="0"
+                      value={referralSettings.defaultDiscountValue}
+                      disabled={referralSettingsSaving}
+                      onBlur={(e) => updateReferralSettings({ defaultDiscountValue: Number(e.target.value) })}
+                      onChange={(e) => setReferralSettings((s) => ({ ...s, defaultDiscountValue: e.target.value }))}
+                    />
+                  </label>
+                  <label>
+                    Referrer reward (% of order, credited to V.Wallet)
+                    <input
+                      type="number"
+                      min="0"
+                      value={referralSettings.defaultRewardValue}
+                      disabled={referralSettingsSaving}
+                      onBlur={(e) => updateReferralSettings({ defaultRewardValue: Number(e.target.value) })}
+                      onChange={(e) => setReferralSettings((s) => ({ ...s, defaultRewardValue: e.target.value }))}
+                    />
+                  </label>
+                  <label>
+                    Hold period before auto-payout (days)
+                    <input
+                      type="number"
+                      min="0"
+                      value={referralSettings.holdDays}
+                      disabled={referralSettingsSaving}
+                      onBlur={(e) => updateReferralSettings({ holdDays: Number(e.target.value) })}
+                      onChange={(e) => setReferralSettings((s) => ({ ...s, holdDays: e.target.value }))}
+                    />
+                  </label>
+                  <label>
+                    Monthly cap per referrer (€, 0 = uncapped)
+                    <input
+                      type="number"
+                      min="0"
+                      value={referralSettings.monthlyCapMinor / 100}
+                      disabled={referralSettingsSaving}
+                      onBlur={(e) => updateReferralSettings({ monthlyCapMinor: Math.round(Number(e.target.value) * 100) })}
+                      onChange={(e) => setReferralSettings((s) => ({ ...s, monthlyCapMinor: Number(e.target.value) * 100 }))}
+                    />
+                  </label>
+                </div>
+                <p className="admin-discounts__hint">
+                  These four values only apply to codes the system auto-issues to members — an admin's own hand-crafted referral code (below) keeps whatever values were set on it directly.
+                </p>
+              </div>
+            ) : null}
+
             <h3>Referral Rewards</h3>
+            <input
+              type="search"
+              className="admin-discounts__referral-search"
+              placeholder="Search by referrer or buyer email…"
+              value={referralSearch}
+              onChange={(e) => setReferralSearch(e.target.value)}
+            />
             {referrals.length === 0 ? (
-              <p className="admin-discounts__empty">No referral rewards yet.</p>
+              <p className="admin-discounts__empty">
+                {referralSearch.trim() ? "No referral rewards match that email." : "No referral rewards yet."}
+              </p>
             ) : (
               <div className="admin-discounts__table-wrap">
                 <table className="admin-discounts__table">
@@ -455,8 +576,20 @@ export default function AdminDiscountsPage() {
                         <td>{r.referrerEmail || "—"}</td>
                         <td>{r.buyerEmail || "—"}</td>
                         <td>{formatMoney(r.discountGiven)}</td>
-                        <td>{r.rewardType} {r.rewardValue}</td>
-                        <td><span className={statusBadge(r.rewardStatus)}>{r.rewardStatus}</span></td>
+                        <td>
+                          {r.isCurrencyReward ? formatMoney(r.rewardValue) : `${r.rewardValue} (${r.rewardType})`}
+                        </td>
+                        <td>
+                          <span className={statusBadge(r.rewardStatus)}>{r.rewardStatus}</span>
+                          {r.awaitingManualPayout ? (
+                            <span
+                              className="admin-discounts__badge admin-discounts__badge--paused"
+                              title="Auto-approved, but can't be auto-paid — no wallet account, a non-currency reward type, or it would exceed the monthly cap. Pay this one manually."
+                            >
+                              needs manual payout
+                            </span>
+                          ) : null}
+                        </td>
                         <td className="admin-discounts__actions-cell">
                           {r.rewardStatus === "pending" ? (
                             <button type="button" onClick={() => referralAction(r.id, "approve")}>Approve</button>

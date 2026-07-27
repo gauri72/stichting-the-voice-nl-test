@@ -20,6 +20,8 @@ import {
   approveReferral,
   markReferralPaid,
   cancelReferral,
+  getReferralSettings,
+  patchReferralSettings,
   updateCatalogDiscount,
   hideCatalogDiscount,
   archiveCatalogDiscount,
@@ -34,6 +36,9 @@ router.get("/export", exportUsage);
 router.post("/sync", syncDiscounts);
 router.get("/users", listUsers);
 router.get("/events", listEvents);
+
+router.get("/referral-settings", getReferralSettings);
+router.patch("/referral-settings", patchReferralSettings);
 
 router.get("/referrals", listReferrals);
 router.patch("/referrals/:id/approve", approveReferral);

@@ -17,6 +17,7 @@ import {
   sanitizeCustomerDiscountLabel,
 } from "../utils/membershipDisplayLabels.js";
 import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
+import { getReferralProgramSettings } from "./referralProgramSettingsService.js";
 import { sendReferralRewardEarnedEmail, sendDiscountExpiringEmail } from "./discountMailer.js";
 import User from "../models/User.js";
 import Event from "../models/Event.js";
@@ -34,6 +35,13 @@ function throwError(message, status = 400) {
 
 function normalizeCode(code) {
   return String(code || "").trim().toUpperCase();
+}
+
+// Strips a +tag from the local part of an email (jane+anything@x.com -> jane@x.com) so
+// self-referral detection can't be trivially evaded by aliasing — harmless for providers
+// that don't support plus-addressing, since it only ever makes the match more permissive.
+function stripEmailAlias(email) {
+  return String(email || "").replace(/\+[^@]*@/, "@");
 }
 
 function isRuleActive(rule) {
@@ -283,14 +291,27 @@ async function validateRuleEligibility(rule, { userId, email, eventId, ticketTyp
     }
   }
 
-  if (rule.type === "referral_code" && STACKING_CONFIG.preventReferralSelfUse) {
-    const referrerId = rule.referrerUserId?.toString();
-    const referrerEmail = String(rule.referrerEmail || "").toLowerCase();
-    if (referrerId && userId && referrerId === userId.toString()) {
-      throwError("You cannot use your own referral code.");
+  if (rule.type === "referral_code") {
+    // The real kill switch — previously only REFERRAL_SYSTEM_ENABLED gated the dashboard
+    // widget while checkout redemption kept working regardless. This actually stops a
+    // referral code from being redeemed when the program is disabled.
+    const referralSettings = await getReferralProgramSettings();
+    if (referralSettings.enabled === false) {
+      throwError("Referral codes are not currently accepted.");
     }
-    if (referrerEmail && email && referrerEmail === email.toLowerCase()) {
-      throwError("You cannot use your own referral code.");
+
+    if (STACKING_CONFIG.preventReferralSelfUse) {
+      const referrerId = rule.referrerUserId?.toString();
+      const referrerEmail = String(rule.referrerEmail || "").toLowerCase();
+      if (referrerId && userId && referrerId === userId.toString()) {
+        throwError("You cannot use your own referral code.");
+      }
+      // Compares the plus-addressing-stripped local part too (jane+1@gmail.com and
+      // jane+2@gmail.com both deliver to jane@gmail.com) — otherwise a referrer could
+      // trivially redeem their own code by aliasing their inbox.
+      if (referrerEmail && email && stripEmailAlias(referrerEmail) === stripEmailAlias(email.toLowerCase())) {
+        throwError("You cannot use your own referral code.");
+      }
     }
   }
 
@@ -541,6 +562,7 @@ export async function recordDiscountUsage({
   if (discountRule.type === "referral_code") {
     const rewardValue = calculateReferralReward(totalAfterDiscount, discountRule);
     const rewardId = await buildRewardId();
+    const referralSettings = await getReferralProgramSettings();
     await ReferralReward.create({
       rewardId,
       discountId: discountRule._id || discountRule.id,
@@ -552,8 +574,12 @@ export async function recordDiscountUsage({
       eventId: eventId || null,
       discountGiven: discountAmount,
       rewardType: discountRule.rewardType || "manual",
-      rewardValue: discountRule.rewardValue || 0,
+      // The already-computed reward (minor units for percentage/fixed_amount/credit,
+      // matching discountGiven's units) — was previously the raw, un-computed rule config
+      // number, which meant every reward amount shown anywhere was wrong.
+      rewardValue,
       rewardStatus: "pending",
+      holdUntil: new Date(Date.now() + referralSettings.holdDays * 86400000),
     });
     usage.rewardAmount = rewardValue;
     await usage.save();
