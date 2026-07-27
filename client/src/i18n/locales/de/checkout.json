@@ -129,7 +129,8 @@
     "becomeMemberTitle": "Mitglied werden",
     "becomeMemberBody": "Werden Sie Mitglied bei V.O.I.C.E. NL und sichern Sie sich exklusive Rabatte, bevorzugten Zugang und Mitgliedervorteile.",
     "addMembershipPlusTickets": "Mitgliedschaft Hinzufügen + Tickets Kaufen",
-    "continueTicketsOnly": "Nur Mit Tickets Fortfahren"
+    "continueTicketsOnly": "Nur Mit Tickets Fortfahren",
+    "discountCapReachedBody": "Du hast deinen {{type}}-Mitgliedschaftsrabatt für dieses Event bereits verwendet. Weitere Tickets werden zum vollen Preis berechnet."
   },
   "membershipMessages": {
     "activeFound": "Aktive Mitgliedschaft Gefunden",
@@ -154,6 +155,7 @@
     "ticketTotal": "Ticket-Gesamtsumme",
     "membershipPricing": "Mitgliedschaftspreise",
     "membershipDiscount": "Mitgliedschaftsrabatt",
+    "membershipDiscountCapNote": "Mitgliedschaftsrabatt angewendet auf {{discounted}} von {{total}} Tickets — das Limit von {{limit}} Tickets pro Event für diese E-Mail-Adresse wurde erreicht.",
     "membershipTotal": "Mitgliedschafts-Gesamtsumme",
     "total": "Gesamt",
     "savingsComparison": "Ersparnisvergleich",

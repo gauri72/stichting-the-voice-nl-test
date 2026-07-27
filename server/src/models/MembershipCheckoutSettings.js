@@ -83,6 +83,15 @@ const membershipCheckoutSettingsSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: () => ({ ...DEFAULT_TICKETTAILOR_DISCOUNT_RULES }),
     },
+    enableMembershipTicketDiscountCap: {
+      type: Boolean,
+      default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.enableMembershipTicketDiscountCap,
+    },
+    membershipDiscountedTicketCapPerEvent: {
+      type: Number,
+      default: DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.membershipDiscountedTicketCapPerEvent,
+      min: 0,
+    },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin", default: null },
   },
   { timestamps: true, collection: "membership_checkout_settings" }

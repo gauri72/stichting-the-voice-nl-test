@@ -6,6 +6,7 @@ import TicketTailorBooking from "../models/TicketTailorBooking.js";
 import { resolvePlanId, getPlan } from "../config/membershipPlans.js";
 import { DEFAULT_MEMBERSHIP_TICKET_KEYWORDS } from "../config/checkoutDefaults.js";
 import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
+import { getMembershipDiscountCapStatus } from "./membershipTicketCapService.js";
 import { inferPlanIdFromTitle } from "./membershipService.js";
 import {
   isTicketTailorConfigured,
@@ -527,18 +528,32 @@ function mergeMembershipResults(local, ttSynced, ttLive, options = {}) {
   return { active, expired, source };
 }
 
-function buildDetectionResult({ active, expired, source, email, userId, isLoggedIn, sessionUserId = null, settings = null }) {
+async function buildDetectionResult({ active, expired, source, email, userId, isLoggedIn, sessionUserId = null, settings = null, eventId = null }) {
   const linkedUserId = sessionUserId || userId;
   const hasUserAccount = Boolean(linkedUserId);
   const requireLoginForTT =
     settings?.requireLoginForTicketTailorBenefits !== false;
+  const capFeatureEnabled = settings?.enableMembershipTicketDiscountCap !== false;
 
   if (active) {
     const isTicketTailorSource =
       source === MEMBERSHIP_SOURCE.TICKETTAILOR || source === MEMBERSHIP_SOURCE.BOTH;
-    const requiresLogin =
-      !isLoggedIn &&
-      (isTicketTailorSource ? requireLoginForTT : true);
+
+    // Cap status is only knowable with an eventId (there's no cart/event context
+    // yet for e.g. a bare membership-plan lookup) — when unavailable, treat the
+    // cap as "not evaluated" (null) rather than silently blocking or unblocking.
+    let capStatus = null;
+    if (capFeatureEnabled && eventId && email) {
+      capStatus = await getMembershipDiscountCapStatus({ eventId, email, membershipSettings: settings });
+    }
+
+    // Once the cap applies to everyone (guest or logged-in) alike, logging in
+    // never unlocks more discount than a guest already gets — so there's
+    // nothing left for the login gate to protect. Falls back to the legacy,
+    // TicketTailor-only gate when the whole feature is toggled off.
+    const requiresLogin = capFeatureEnabled
+      ? false
+      : (!isLoggedIn && (isTicketTailorSource ? requireLoginForTT : true));
     const requiresAccountLinking =
       !isLoggedIn &&
       !hasUserAccount &&
@@ -567,6 +582,10 @@ function buildDetectionResult({ active, expired, source, email, userId, isLogged
       isActive: true,
       isExpired: false,
       verificationWarning: null,
+      discountCapEnabled: capStatus?.capEnabled ?? capFeatureEnabled,
+      discountCapLimit: capStatus?.capLimit ?? null,
+      discountCapRemaining: capStatus ? capStatus.remaining : null,
+      discountCapReached: capStatus ? capStatus.remaining <= 0 : false,
     };
   }
 
@@ -729,7 +748,7 @@ export async function detectByMembershipCode(code, options = {}) {
     memberUntil: record.memberUntilFormatted,
   });
 
-  const result = buildDetectionResult({
+  const result = await buildDetectionResult({
     active: record,
     expired: null,
     source: record.source,
@@ -737,6 +756,8 @@ export async function detectByMembershipCode(code, options = {}) {
     userId: record.userId,
     isLoggedIn,
     sessionUserId: options.sessionUserId || null,
+    settings,
+    eventId: options.eventId || null,
   });
 
   return {
@@ -780,6 +801,8 @@ export async function detectByEmail(email, options = {}) {
       source: MEMBERSHIP_SOURCE.NONE,
       email: "",
       isLoggedIn,
+      settings,
+      eventId: options.eventId || null,
     });
   }
 
@@ -832,13 +855,14 @@ export async function detectByEmail(email, options = {}) {
       settings.enableTicketTailorMembershipPriority !== false &&
       settings.checkTicketTailorBeforeLocal !== false,
   });
-  let result = buildDetectionResult({
+  let result = await buildDetectionResult({
     ...merged,
     email: normalized,
     userId: local.active?.userId || local.expired?.userId || null,
     isLoggedIn,
     sessionUserId: options.sessionUserId || null,
     settings,
+    eventId: options.eventId || null,
   });
 
   if (options.membershipCode) {
@@ -847,6 +871,7 @@ export async function detectByEmail(email, options = {}) {
       isLoggedIn,
       sessionUserId: options.sessionUserId || null,
       settings,
+      eventId: options.eventId || null,
     });
     if (codeResult.codeValid && codeResult.status === MEMBERSHIP_STATUS.ACTIVE) {
       result = codeResult;
@@ -906,6 +931,7 @@ export async function detectByUserId(userId, options = {}) {
           isLoggedIn: true,
           sessionUserId: userId,
           settings,
+          eventId: options.eventId || null,
         });
       }
       return { ...emailResult, requiresLogin: false, requiresAccountLinking: false };
@@ -923,6 +949,7 @@ export async function detectByUserId(userId, options = {}) {
       isLoggedIn: true,
       sessionUserId: userId,
       settings,
+      eventId: options.eventId || null,
     });
   }
 
@@ -953,6 +980,7 @@ export async function detectByUserId(userId, options = {}) {
       isLoggedIn: true,
       sessionUserId: userId,
       settings,
+      eventId: options.eventId || null,
     });
   }
 
@@ -965,15 +993,16 @@ export async function detectByUserId(userId, options = {}) {
     isLoggedIn: true,
     sessionUserId: userId,
     settings,
+    eventId: options.eventId || null,
   });
 }
 
-export async function getMembershipStatus({ userId, email, isLoggedIn = false, membershipCode = null, sessionUserId = null }) {
+export async function getMembershipStatus({ userId, email, isLoggedIn = false, membershipCode = null, sessionUserId = null, eventId = null }) {
   if (isLoggedIn && userId) {
-    return detectByUserId(userId, { email, isLoggedIn: true, membershipCode, sessionUserId: userId });
+    return detectByUserId(userId, { email, isLoggedIn: true, membershipCode, sessionUserId: userId, eventId });
   }
   if (email) {
-    return detectByEmail(email, { isLoggedIn: false, membershipCode, sessionUserId });
+    return detectByEmail(email, { isLoggedIn: false, membershipCode, sessionUserId, eventId });
   }
   return {
     found: false,

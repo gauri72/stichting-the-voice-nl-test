@@ -38,6 +38,18 @@ export default function BookingPricePreview({ preview }) {
         </div>
       ) : null}
 
+      {preview.membershipDiscountCap?.unitsAtFullPriceDueToCap > 0 ? (
+        <p className="ticket-booking__discount-note ticket-booking__discount-note--warning" role="status">
+          {t("checkout:pricePreview.membershipDiscountCapNote", {
+            discounted: preview.membershipDiscountCap.unitsDiscountedInThisOrder,
+            total:
+              preview.membershipDiscountCap.unitsDiscountedInThisOrder +
+              preview.membershipDiscountCap.unitsAtFullPriceDueToCap,
+            limit: preview.membershipDiscountCap.limit,
+          })}
+        </p>
+      ) : null}
+
       {ticketPricing.lineItems?.length > 1 ? (
         <div className="ticket-booking__preview-section">
           <p className="ticket-booking__preview-label">{t("checkout:pricePreview.perTicketBreakdown")}</p>

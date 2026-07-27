@@ -505,6 +505,44 @@ export default function AdminMembershipsPage() {
               </label>
             </div>
 
+            <h3>Membership discount without login (capped per event)</h3>
+            <p className="admin-memberships__hint">
+              When enabled, any active membership (local or TicketTailor) can redeem its ticket
+              discount without logging in, up to the cap below — tracked per email, per event,
+              across all past orders. This supersedes &quot;Require login to apply TicketTailor
+              membership benefits&quot; above while enabled. Disabling this reverts fully to the
+              old behavior: unlimited discount once logged in, login required as a guest.
+            </p>
+            <div className="admin-memberships__checkout-grid">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={checkoutSettings.enableMembershipTicketDiscountCap !== false}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      enableMembershipTicketDiscountCap: e.target.checked,
+                    }))
+                  }
+                />
+                Allow membership discount redemption without login
+              </label>
+              <label>
+                Discounted tickets per event, per email
+                <input
+                  type="number"
+                  min="0"
+                  value={checkoutSettings.membershipDiscountedTicketCapPerEvent ?? 2}
+                  onChange={(e) =>
+                    setCheckoutSettings((s) => ({
+                      ...s,
+                      membershipDiscountedTicketCapPerEvent: Number(e.target.value),
+                    }))
+                  }
+                />
+              </label>
+            </div>
+
             <h3>TicketTailor discount rules by membership type</h3>
             <div className="admin-memberships__tt-discount-rules">
               {[

@@ -289,12 +289,13 @@ export async function applyMemberBenefitsAfterLogin({ sessionId, userId, email }
   };
 }
 
-export async function detectMemberForCheckout({ userId, email, isLoggedIn, sessionId, membershipCode = null }) {
+export async function detectMemberForCheckout({ userId, email, isLoggedIn, sessionId, membershipCode = null, eventId = null }) {
   const detection = await detectMemberStatus({
     userId,
     email,
     isLoggedIn: Boolean(isLoggedIn && userId),
     membershipCode,
+    eventId,
   });
 
   if (sessionId) {
@@ -411,6 +412,7 @@ export async function validateBundle({
     email,
     isLoggedIn: Boolean(isLoggedIn && userId),
     membershipCode: membershipCode || null,
+    eventId: event.id,
   });
 
   if (includeMembership) {
@@ -452,15 +454,22 @@ export async function validateBundle({
     }
   }
 
+  const capFeatureEnabled = membershipSettings.enableMembershipTicketDiscountCap !== false;
   const canApplyMemberBenefitWithoutLogin =
     detection.source === MEMBERSHIP_SOURCE.TICKETTAILOR &&
     membershipSettings.requireLoginForTicketTailorBenefits === false;
 
+  // With the discount cap feature on (default), an active-but-not-logged-in
+  // member is never blocked here — the cap applies identically whether or not
+  // they log in, so logging in wouldn't unlock anything more. calculatePricePreview
+  // silently applies a full/partial/zero discount depending on remaining cap
+  // instead. Toggling the feature off reverts to the original hard gate.
   if (
     detection.isActive &&
     !isLoggedIn &&
     applyMemberBenefit &&
     !includeMembership &&
+    !capFeatureEnabled &&
     !canApplyMemberBenefitWithoutLogin
   ) {
     const err = new Error(

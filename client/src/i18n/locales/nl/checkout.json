@@ -129,7 +129,8 @@
     "becomeMemberTitle": "Word lid",
     "becomeMemberBody": "Word lid van V.O.I.C.E. NL en profiteer van exclusieve kortingen, voorrang en lidvoordelen.",
     "addMembershipPlusTickets": "Lidmaatschap Toevoegen + Tickets Kopen",
-    "continueTicketsOnly": "Doorgaan Met Alleen Tickets"
+    "continueTicketsOnly": "Doorgaan Met Alleen Tickets",
+    "discountCapReachedBody": "Je hebt je {{type}}-lidmaatschapskorting voor dit evenement al gebruikt. Extra tickets worden tegen de volledige prijs berekend."
   },
   "membershipMessages": {
     "activeFound": "Actief Lidmaatschap Gevonden",
@@ -154,6 +155,7 @@
     "ticketTotal": "Totaal tickets",
     "membershipPricing": "Lidmaatschapsprijzen",
     "membershipDiscount": "Lidmaatschapskorting",
+    "membershipDiscountCapNote": "Lidmaatschapskorting toegepast op {{discounted}} van {{total}} tickets — de limiet van {{limit}} tickets per evenement voor dit e-mailadres is bereikt.",
     "membershipTotal": "Totaal lidmaatschap",
     "total": "Totaal",
     "savingsComparison": "Besparingsvergelijking",

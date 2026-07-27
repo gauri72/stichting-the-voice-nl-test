@@ -80,10 +80,11 @@ export async function getMembershipStatus({ userId, email, isLoggedIn }) {
   return wrapUnified(unified, Boolean(isLoggedIn && userId));
 }
 
-export async function detectMemberStatus({ userId, email, isLoggedIn, membershipCode = null }) {
+export async function detectMemberStatus({ userId, email, isLoggedIn, membershipCode = null, eventId = null }) {
   const detection = await detectMembershipForCheckout(email, userId, {
     isLoggedIn: Boolean(isLoggedIn && userId),
     membershipCode,
+    eventId,
   });
   return wrapUnified(detection, Boolean(isLoggedIn && userId));
 }

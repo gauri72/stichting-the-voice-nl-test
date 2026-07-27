@@ -75,6 +75,15 @@ export async function updateMembershipCheckoutSettings(data, adminId) {
   if (data.ticketTailorDiscountRules && typeof data.ticketTailorDiscountRules === "object") {
     update.ticketTailorDiscountRules = data.ticketTailorDiscountRules;
   }
+  if (data.enableMembershipTicketDiscountCap !== undefined) {
+    update.enableMembershipTicketDiscountCap = Boolean(data.enableMembershipTicketDiscountCap);
+  }
+  if (data.membershipDiscountedTicketCapPerEvent !== undefined) {
+    update.membershipDiscountedTicketCapPerEvent = Math.max(
+      0,
+      Number(data.membershipDiscountedTicketCapPerEvent) || 0
+    );
+  }
   if (adminId) update.updatedBy = adminId;
 
   const doc = await MembershipCheckoutSettings.findOneAndUpdate(
@@ -116,6 +125,10 @@ function formatSettings(doc) {
       ...DEFAULT_TICKETTAILOR_DISCOUNT_RULES,
       ...(doc.ticketTailorDiscountRules || {}),
     },
+    enableMembershipTicketDiscountCap: doc.enableMembershipTicketDiscountCap !== false,
+    membershipDiscountedTicketCapPerEvent:
+      doc.membershipDiscountedTicketCapPerEvent ??
+      DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS.membershipDiscountedTicketCapPerEvent,
     updatedAt: doc.updatedAt,
   };
 }

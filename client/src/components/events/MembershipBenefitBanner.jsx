@@ -110,6 +110,85 @@ export default function MembershipBenefitBanner({
     const memberEmail = detection.membership?.email || "";
     const registerHref = buildRegisterUrl(memberEmail, returnPath || "/dashboard");
 
+    // Membership discount cap fully used up (by this email, for this event, across any
+    // past order) — logging in wouldn't unlock more, since the cap applies identically
+    // whether or not the customer is logged in. Nothing to opt into or out of here.
+    if (detection.discountCapReached) {
+      return (
+        <div className="ticket-booking__member-banner ticket-booking__member-banner--active">
+          <IconUserCheck size={22} />
+          <div>
+            <p className="ticket-booking__member-banner-title">{messagesCopy.activeDetected}</p>
+            <p className="ticket-booking__member-banner-body">
+              {t("checkout:membershipBanner.discountCapReachedBody", { type: membershipType })}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    // Redeemable without logging in (the discount cap feature is on and this email is
+    // still under it) — treat exactly like an already-logged-in member: show what
+    // happened, no login CTA, since logging in wouldn't apply a bigger discount.
+    if (!detection.requiresLogin) {
+      const hasDiscount = memberDiscountApplied || (detection.discountValue > 0 && !discountWarning);
+
+      if (discountWarning && !memberDiscountApplied) {
+        return (
+          <div className="ticket-booking__member-banner ticket-booking__member-banner--warning">
+            <IconAlertCircle size={22} />
+            <div>
+              <p className="ticket-booking__member-banner-title">{messagesCopy.activeFound}</p>
+              <p className="ticket-booking__member-banner-body">{discountWarning}</p>
+            </div>
+          </div>
+        );
+      }
+
+      if (!hasDiscount) return null;
+
+      const discountTitle = sanitizeCustomerDiscountLabel(
+        memberDiscountLabel || messagesCopy.discountApplied,
+        t
+      );
+
+      return (
+        <div className="ticket-booking__member-banner ticket-booking__member-banner--active">
+          <IconUserCheck size={22} />
+          <div>
+            <p className="ticket-booking__member-banner-title">{discountTitle}</p>
+            <p className="ticket-booking__member-banner-body">
+              {messages?.body ||
+                t("checkout:membershipBanner.activeFoundBody", { type: membershipType })}
+              {memberUntil ? ` ${t("checkout:membershipBanner.validUntilSuffix", { date: memberUntil })}` : ""}
+            </p>
+            {detection.discountValue > 0 ? (
+              <p className="ticket-booking__member-detail-line">
+                {formatMemberDiscountLineLabel(
+                  membershipType,
+                  detection.discountType,
+                  detection.discountValue,
+                  t
+                )}
+              </p>
+            ) : null}
+            {detection.requiresAccountLinking ? (
+              <div className="ticket-booking__member-banner-actions">
+                <Link
+                  to={registerHref}
+                  className="ticket-booking__cta ticket-booking__cta--small"
+                >
+                  <IconUserPlus size={16} /> {t("checkout:membershipBanner.createAccountApply")}
+                </Link>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      );
+    }
+
+    // Legacy path — the discount cap feature is toggled off (or a TicketTailor-specific
+    // setting still requires it): same login-gate UI as before the cap feature existed.
     return (
       <div className="ticket-booking__member-banner ticket-booking__member-banner--login">
         <IconLogin size={22} />

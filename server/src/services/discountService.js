@@ -400,6 +400,12 @@ export function resolveStackedDiscounts({
   memberRule,
   codeRule,
   orderType = "tickets",
+  // Lets a caller that already computed a capped/reduced member discount
+  // (the per-event membership redemption cap — see membershipTicketCapService.js
+  // and pricePreviewService.js::calculatePricePreview) supply that exact amount
+  // instead of having it recomputed from the full, uncapped subtotalMinor here.
+  // null/undefined (every existing caller) preserves today's behavior exactly.
+  memberDiscountAmountOverride = null,
 }) {
   let memberDiscountMinor = 0;
   let codeDiscountMinor = 0;
@@ -407,7 +413,9 @@ export function resolveStackedDiscounts({
   let codeLabel = "";
 
   if (memberRule && appliesToOrderType(memberRule, orderType)) {
-    memberDiscountMinor = calculateDiscountAmount(subtotalMinor, memberRule);
+    memberDiscountMinor = memberDiscountAmountOverride != null
+      ? memberDiscountAmountOverride
+      : calculateDiscountAmount(subtotalMinor, memberRule);
     memberLabel = sanitizeCustomerDiscountLabel(
       memberRule.label || CUSTOMER_MEMBERSHIP_MESSAGES.discountApplied
     );
@@ -573,6 +581,7 @@ export async function applyDiscountsToOrder({
   voucherCode,
   memberPlanId = null,
   memberRuleOverride = null,
+  memberDiscountAmountOverride = null,
   allowStacking = true,
 }) {
   // Belt-and-suspenders: every code path this function can take to find a discount
@@ -599,7 +608,7 @@ export async function applyDiscountsToOrder({
   }
 
   if (!allowStacking && memberRule && codeRule) {
-    const memberOnly = resolveStackedDiscounts({ subtotalMinor, memberRule, codeRule: null, orderType });
+    const memberOnly = resolveStackedDiscounts({ subtotalMinor, memberRule, codeRule: null, orderType, memberDiscountAmountOverride });
     const codeOnly = resolveStackedDiscounts({ subtotalMinor, memberRule: null, codeRule, orderType });
     if (codeOnly.discountAmountMinor > memberOnly.discountAmountMinor) {
       memberRule = null;
@@ -613,6 +622,7 @@ export async function applyDiscountsToOrder({
     memberRule,
     codeRule,
     orderType,
+    memberDiscountAmountOverride,
   });
 }
 
@@ -651,6 +661,8 @@ export async function applyDiscountsToOrderLines({
   for (const line of lineItems) {
     const lineMemberRuleOverride =
       line.memberRuleOverride !== undefined ? line.memberRuleOverride : memberRuleOverride;
+    const lineMemberDiscountAmountOverride =
+      line.memberDiscountAmountOverrideMinor !== undefined ? line.memberDiscountAmountOverrideMinor : null;
     let result;
     let codeError = null;
     try {
@@ -665,6 +677,7 @@ export async function applyDiscountsToOrderLines({
         voucherCode: line.voucherCode,
         memberPlanId,
         memberRuleOverride: lineMemberRuleOverride,
+        memberDiscountAmountOverride: lineMemberDiscountAmountOverride,
         allowStacking,
       });
     } catch (err) {
@@ -685,6 +698,7 @@ export async function applyDiscountsToOrderLines({
         voucherCode: null,
         memberPlanId,
         memberRuleOverride: lineMemberRuleOverride,
+        memberDiscountAmountOverride: lineMemberDiscountAmountOverride,
         allowStacking,
       });
     }

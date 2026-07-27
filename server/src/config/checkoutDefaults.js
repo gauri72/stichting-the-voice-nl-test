@@ -58,6 +58,12 @@ export const DEFAULT_MEMBERSHIP_CHECKOUT_SETTINGS = {
   requireLoginForTicketTailorBenefits: true,
   allowTicketTailorMembershipDiscountStacking: true,
   ticketTailorDiscountRules: { ...DEFAULT_TICKETTAILOR_DISCOUNT_RULES },
+  // Master toggle for redeeming a membership discount without logging in, capped per event
+  // per email (supersedes requireLoginForTicketTailorBenefits above when enabled — that
+  // setting only ever covered Ticket Tailor-sourced memberships anyway). Off = full revert
+  // to the pre-cap behavior (unlimited discount once logged in, login required as a guest).
+  enableMembershipTicketDiscountCap: true,
+  membershipDiscountedTicketCapPerEvent: 2,
 };
 
 export function getPlanBenefitsSummary(planId) {

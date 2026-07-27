@@ -118,6 +118,9 @@ const ticketOrderSchema = new mongoose.Schema(
 
 ticketOrderSchema.index({ createdAt: -1 });
 ticketOrderSchema.index({ eventId: 1, paymentStatus: 1 });
+// Backs the membership discount cap's per-email-per-event usage lookup
+// (membershipTicketCapService.js::countDiscountedTicketsForEmail).
+ticketOrderSchema.index({ eventId: 1, attendeeEmail: 1, paymentStatus: 1 });
 
 const TicketOrder =
   mongoose.models.TicketOrder || mongoose.model("TicketOrder", ticketOrderSchema);

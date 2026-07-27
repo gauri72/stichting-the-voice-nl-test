@@ -809,7 +809,6 @@ export default function TicketBookingPage() {
     }
 
     const status = detection?.status;
-    const isActiveGuest = status === "GUEST_EMAIL_ACTIVE_MEMBER";
     const isExpiredGuest =
       status === "GUEST_EMAIL_EXPIRED_MEMBER" && applyMemberBenefit && !includeMembership;
 
@@ -830,7 +829,11 @@ export default function TicketBookingPage() {
       return;
     }
 
-    if (isActiveGuest && applyMemberBenefit && !membershipCodeApplied) {
+    // detection.requiresLogin is the authoritative, cap-aware flag from the server —
+    // false whenever the membership discount cap feature is on (the default), since a
+    // guest can then redeem the same capped benefit a logged-in member gets. Falls back
+    // to the old isActiveGuest-based block only when that feature is toggled off.
+    if (detection?.requiresLogin && applyMemberBenefit && !membershipCodeApplied) {
       setError(t("checkout:errors.loginToApplyBenefits"));
       setStep(BENEFITS_STEP);
       return;
@@ -999,7 +1002,7 @@ export default function TicketBookingPage() {
 
   function nextFromBenefits() {
     if (
-      memberDetection?.status === "GUEST_EMAIL_ACTIVE_MEMBER" &&
+      memberDetection?.requiresLogin &&
       applyMemberBenefit &&
       !membershipCodeApplied
     ) {

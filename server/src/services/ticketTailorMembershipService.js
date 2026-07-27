@@ -40,6 +40,7 @@ export async function detectMembershipForCheckout(email, userId, options = {}) {
       membershipCode: options.membershipCode || null,
       sessionUserId: userId,
       settings,
+      eventId: options.eventId || null,
     });
   } else if (email) {
     unified = await detectByEmail(email, {
@@ -47,6 +48,7 @@ export async function detectMembershipForCheckout(email, userId, options = {}) {
       membershipCode: options.membershipCode || null,
       sessionUserId: options.sessionUserId || null,
       settings,
+      eventId: options.eventId || null,
     });
   } else {
     unified = {
@@ -120,11 +122,11 @@ export async function detectMembershipForCheckout(email, userId, options = {}) {
     discountValue,
     normalizedMembershipType: normalized.label,
     normalizedPlanId: planId,
-    requiresLoginForBenefits:
-      unified.isActive &&
-      !isLoggedIn &&
-      settings.requireLoginForTicketTailorBenefits !== false &&
-      (unified.source === MEMBERSHIP_SOURCE.TICKETTAILOR || unified.requiresLogin),
+    // Passthrough of the now cap-aware, authoritative flag computed in
+    // buildDetectionResult() — was previously an independent recomputation
+    // of roughly the same TicketTailor-only rule, which would have drifted
+    // out of sync with the new discount-cap logic if left unmigrated.
+    requiresLoginForBenefits: unified.requiresLogin,
   };
 }
 
@@ -154,6 +156,7 @@ export async function applyTicketTailorMembershipBenefit({
   const detection = await detectMembershipForCheckout(checkoutEmail, userId, {
     isLoggedIn,
     membershipCode: session.membershipCode || null,
+    eventId: resolvedEventId,
   });
 
   if (!detection.isActive) {

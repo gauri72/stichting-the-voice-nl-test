@@ -129,7 +129,8 @@
     "becomeMemberTitle": "Become a member",
     "becomeMemberBody": "Become a V.O.I.C.E. NL member and unlock exclusive discounts, priority access and member benefits.",
     "addMembershipPlusTickets": "Add Membership + Buy Tickets",
-    "continueTicketsOnly": "Continue With Tickets Only"
+    "continueTicketsOnly": "Continue With Tickets Only",
+    "discountCapReachedBody": "You've already used your {{type}} membership discount for this event. Additional tickets are charged at full price."
   },
   "membershipMessages": {
     "activeFound": "Active Membership Found",
@@ -154,6 +155,7 @@
     "ticketTotal": "Ticket total",
     "membershipPricing": "Membership pricing",
     "membershipDiscount": "Membership discount",
+    "membershipDiscountCapNote": "Membership discount applied to {{discounted}} of {{total}} tickets — the {{limit}}-ticket cap per event for this email has been reached.",
     "membershipTotal": "Membership total",
     "total": "Total",
     "savingsComparison": "Savings comparison",

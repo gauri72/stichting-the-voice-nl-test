@@ -5,6 +5,7 @@ import { getPublishedEventBySlugOrId } from "./eventService.js";
 import { detectMemberStatus, MEMBER_STATES } from "./memberDetectionService.js";
 import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
 import { MEMBERSHIP_SOURCE } from "./membershipDetectionService.js";
+import { getMembershipDiscountCapStatus } from "./membershipTicketCapService.js";
 import {
   CUSTOMER_MEMBERSHIP_MESSAGES,
   sanitizeCustomerDiscountLabel,
@@ -44,6 +45,11 @@ async function resolveMemberBenefitContext({
   eventId,
   ticketTypeId = null,
   subtotalMinor,
+  // The per-event membership discount redemption cap (see membershipTicketCapService.js)
+  // applies identically whether or not the customer is logged in — once it's on, logging
+  // in doesn't unlock a bigger discount than a guest already gets, so it widens this gate
+  // rather than being a separate branch. false preserves today's exact behavior.
+  capFeatureEnabled = false,
 }) {
   const instantAllowed =
     eventSettings.allowInstantMembershipBenefit &&
@@ -55,6 +61,7 @@ async function resolveMemberBenefitContext({
   let memberRuleOverride = null;
   let membershipSource = memberDetection.source || memberDetection.membershipSource || "LOCAL";
   let discountWarning = null;
+  let previewAmount = 0;
 
   const membershipType =
     memberDetection.membershipType ||
@@ -76,7 +83,7 @@ async function resolveMemberBenefitContext({
     eventSettings.enableMemberDiscount &&
     applyMemberBenefit !== false
   ) {
-    if (isLoggedIn || canApplyWithoutLogin) {
+    if (isLoggedIn || canApplyWithoutLogin || capFeatureEnabled) {
       memberPlanId = rawPlanId;
 
       if (isTicketTailorActive && membershipSettings.applyTicketTailorMembershipDiscounts !== false) {
@@ -105,7 +112,7 @@ async function resolveMemberBenefitContext({
       }
 
       if (memberRuleOverride && subtotalMinor > 0) {
-        const previewAmount = calculateDiscountAmount(subtotalMinor, memberRuleOverride);
+        previewAmount = calculateDiscountAmount(subtotalMinor, memberRuleOverride);
         benefitApplied = previewAmount > 0;
         console.log(
           "[TT_DISCOUNT_AMOUNT_CALCULATED] subtotal=%s discountType=%s discountValue=%s amount=%s",
@@ -156,6 +163,7 @@ async function resolveMemberBenefitContext({
     memberRuleOverride,
     membershipSource,
     discountWarning,
+    memberDiscountAmountMinor: benefitApplied ? previewAmount : 0,
   };
 }
 
@@ -217,28 +225,51 @@ export async function calculatePricePreview({
     email,
     isLoggedIn: Boolean(isLoggedIn && userId),
     membershipCode,
+    eventId: event.id,
   });
+
+  const capFeatureEnabled = membershipSettings.enableMembershipTicketDiscountCap !== false;
+  let capStatus = null;
+  if (memberDetection.isActive && eventSettings.enableMemberDiscount && applyMemberBenefit !== false && capFeatureEnabled) {
+    capStatus = await getMembershipDiscountCapStatus({ eventId: event.id, email, membershipSettings });
+  }
+  let capRemaining = capStatus?.remaining ?? Infinity;
 
   // Resolved per ticket type, not once for the whole cart: a membership discount (just
   // like a code) can now be scoped to specific ticket types, so the same membership might
   // yield a discount on a VIP line but nothing on a General line within the same order.
-  const perLineMemberContext = await Promise.all(
-    lineItems.map((line) =>
-      resolveMemberBenefitContext({
-        memberDetection,
-        includeMembership,
-        selectedPlanId,
-        purchaseType,
-        eventSettings,
-        membershipSettings,
-        applyMemberBenefit,
-        isLoggedIn,
-        eventId: event.id,
-        ticketTypeId: line.ticketTypeId,
-        subtotalMinor: line.originalPriceMinor,
-      })
-    )
-  );
+  // Sequential (not Promise.all) because the discount-redemption cap is shared across the
+  // whole cart — each line's eligible quantity depends on how much of the cap prior lines
+  // in the same request already consumed, decremented in the order items were submitted.
+  const perLineMemberContext = [];
+  const lineEligibility = [];
+  for (const line of lineItems) {
+    const eligibleQty = capStatus ? Math.max(0, Math.min(line.quantity, capRemaining)) : line.quantity;
+    const eligibleSubtotalMinor = eligibleQty > 0 ? line.unitPriceMinor * eligibleQty : 0;
+
+    const ctx = await resolveMemberBenefitContext({
+      memberDetection,
+      includeMembership,
+      selectedPlanId,
+      purchaseType,
+      eventSettings,
+      membershipSettings,
+      applyMemberBenefit,
+      isLoggedIn,
+      eventId: event.id,
+      ticketTypeId: line.ticketTypeId,
+      subtotalMinor: eligibleSubtotalMinor,
+      capFeatureEnabled,
+    });
+
+    perLineMemberContext.push(ctx);
+    // Only an actually-applied discount (a real rule matched, amount > 0) consumes the
+    // shared cap — matches countDiscountedTicketsForEmail's definition of "used" exactly,
+    // so a membership type with no configured discount rule never eats into the cap.
+    const appliedQty = ctx.benefitApplied ? eligibleQty : 0;
+    lineEligibility.push({ requestedQty: line.quantity, eligibleQty: appliedQty });
+    if (capStatus) capRemaining -= appliedQty;
+  }
 
   // Cart-level display fields (banner text, comparison view) collapse the per-line contexts
   // back to one representative value — the first line where a benefit actually applied, or
@@ -270,6 +301,13 @@ export async function calculatePricePreview({
       discountCode: lineCode,
       voucherCode: lineCode,
       memberRuleOverride: lineMemberContext.benefitApplied ? lineMemberContext.memberRuleOverride : null,
+      // Overrides the recomputed-from-full-subtotal member discount with the
+      // cap-bounded amount actually resolved above (see resolveStackedDiscounts's
+      // memberDiscountAmountOverride) — without this, discountService.js would
+      // silently recompute the full, uncapped discount off the whole line.
+      memberDiscountAmountOverrideMinor: lineMemberContext.benefitApplied
+        ? lineMemberContext.memberDiscountAmountMinor
+        : null,
     };
   });
 
@@ -436,9 +474,10 @@ export async function calculatePricePreview({
         : null,
     },
     ticketPricing: {
-      lineItems: lineItems.map((line) => {
+      lineItems: lineItems.map((line, i) => {
         const lineDiscount = discountResult.lineItems.find((l) => l.ticketTypeId === line.ticketTypeId);
         const finalPriceMinor = Math.max(0, line.originalPriceMinor - (lineDiscount?.discountAmountMinor || 0));
+        const eligibility = lineEligibility[i] || { requestedQty: line.quantity, eligibleQty: 0 };
         return {
           ...line,
           memberDiscountMinor: lineDiscount?.memberDiscountMinor || 0,
@@ -452,6 +491,8 @@ export async function calculatePricePreview({
           codeError: lineDiscount?.codeError || null,
           finalPriceMinor,
           finalPrice: formatMoney(finalPriceMinor),
+          eligibleDiscountQty: eligibility.eligibleQty,
+          discountCapReached: Boolean(capStatus) && eligibility.eligibleQty < eligibility.requestedQty,
         };
       }),
       subtotalMinor,
@@ -500,6 +541,19 @@ export async function calculatePricePreview({
     appliedDiscounts,
     comparison,
     discountResult,
+    membershipDiscountCap: capStatus
+      ? {
+          enabled: true,
+          limit: capStatus.capLimit,
+          usedBeforeThisOrder: capStatus.usedCount,
+          remainingBeforeThisOrder: capStatus.remaining,
+          unitsDiscountedInThisOrder: lineEligibility.reduce((sum, l) => sum + l.eligibleQty, 0),
+          unitsAtFullPriceDueToCap: lineEligibility.reduce(
+            (sum, l) => sum + Math.max(0, l.requestedQty - l.eligibleQty),
+            0
+          ),
+        }
+      : null,
     summary: ticketSummary,
   };
 
