@@ -271,16 +271,33 @@ export function formatTicket(ticket) {
   };
 }
 
+// A guest checkout (no login) is never linked to an account afterward — there's no
+// backfill/claim step anywhere in the codebase — so an order placed as a guest with the
+// same email as a registered account would otherwise never show up on that account's own
+// dashboard, even though it's a perfectly valid, paid-for order under an email the account
+// owner controls. Matching by the account's own verified email alongside userId surfaces
+// those orders without needing to retroactively write userId onto old records.
+async function ownedOrdersFilter(userId) {
+  const user = await User.findById(userId).select("email").lean();
+  const email = user?.email ? user.email.toLowerCase() : "";
+  return email
+    ? { $or: [{ userId }, { attendeeEmail: email }], paymentStatus: { $in: ["paid", "free"] } }
+    : { userId, paymentStatus: { $in: ["paid", "free"] } };
+}
+
 export async function getUserOrders(userId) {
-  const orders = await TicketOrder.find({ userId, paymentStatus: { $in: ["paid", "free"] } })
-    .sort({ createdAt: -1 })
-    .lean();
+  const filter = await ownedOrdersFilter(userId);
+  const orders = await TicketOrder.find(filter).sort({ createdAt: -1 }).lean();
   return orders.map(formatOrder);
 }
 
 export async function getUserTickets(userId) {
   const user = await User.findById(userId).select("email").lean();
-  const orders = await TicketOrder.find({ userId, paymentStatus: { $in: ["paid", "free"] } }).select("_id").lean();
+  const email = user?.email ? user.email.toLowerCase() : "";
+  const ordersFilter = email
+    ? { $or: [{ userId }, { attendeeEmail: email }], paymentStatus: { $in: ["paid", "free"] } }
+    : { userId, paymentStatus: { $in: ["paid", "free"] } };
+  const orders = await TicketOrder.find(ordersFilter).select("_id").lean();
   const orderIds = orders.map((o) => o._id);
   const tickets = await Ticket.find({
     $or: [
@@ -290,7 +307,7 @@ export async function getUserTickets(userId) {
         transferRecipientEmail: { $in: ["", null] },
       },
       { assignedUserId: userId },
-      ...(user?.email ? [{ transferRecipientEmail: user.email.toLowerCase() }] : []),
+      ...(email ? [{ transferRecipientEmail: email }] : []),
     ],
   })
     .sort({ createdAt: -1 })
