@@ -101,6 +101,12 @@ const ticketOrderSchema = new mongoose.Schema(
       index: true,
     },
     paymentIntentId: { type: String, default: "", trim: true, index: true },
+    // Raw points count redeemed for this order's discount (walletCheckoutService.js's
+    // payTicketSplit) — kept alongside the euro-equivalent appliedDiscounts entry so a
+    // cancelled/never-completed split payment can refund the exact points spent without
+    // reverse-computing from a euro amount (which would drift if pointsNeededPerEuroDiscount
+    // changes between redemption and refund).
+    pointsRedeemed: { type: Number, default: 0, min: 0 },
     // Distinguishes a wallet-funded order from a genuinely free/complimentary
     // one even though both can land on paymentStatus "free" via fulfillOrder's
     // isFreeOrder bypass — needed for admin wallet revenue reporting.

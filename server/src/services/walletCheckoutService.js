@@ -157,10 +157,46 @@ export async function payTicketSplit(eventId, payload, userId, { walletPortionMi
   order.paymentIntentId = intent.id;
   if (discountMinor > 0) {
     order.appliedDiscounts.push({ type: "points_redemption", label: "Reward points", amountMinor: discountMinor });
+    order.pointsRedeemed = pointsToRedeem;
   }
   await order.save();
 
   return { order, clientSecret: intent.client_secret, paymentIntentId: intent.id, walletPortionMinor: cappedWalletPortion, cardPortionMinor };
+}
+
+/**
+ * Called when the customer backs out of a split payment's card step (or, defensively,
+ * whenever we otherwise learn the card portion is never going to complete). Points were
+ * already redeemed eagerly in payTicketSplit above — the wallet balance portion was NOT
+ * touched yet (it's deferred until the card side succeeds), so only points need refunding
+ * here. Guarded by paymentStatus so a retry (e.g. double-click) can't refund twice.
+ */
+export async function cancelTicketSplitPayment(orderId, userId) {
+  const order = await TicketOrder.findById(orderId);
+  if (!order) throw err("Order not found.", 404);
+  if (String(order.userId) !== String(userId)) throw err("Not authorized to cancel this order.", 403);
+  if (order.paymentMethod !== "wallet_split") throw err("This order was not a V.Wallet split payment.", 400);
+  if (order.paymentStatus !== "pending") {
+    // Already resolved (paid via webhook, or already cancelled) — nothing to do.
+    return { success: true, alreadyResolved: true };
+  }
+
+  await cancelUnusedIntent(order.paymentIntentId);
+
+  if (order.pointsRedeemed > 0) {
+    await awardPoints(userId, order.pointsRedeemed, {
+      description: "Points refunded — payment cancelled",
+      referenceType: "ticketOrder",
+      referenceId: order._id.toString(),
+      initiatedBy: "customer",
+    });
+  }
+
+  order.paymentStatus = "failed";
+  order.orderStatus = "CANCELLED";
+  await order.save();
+
+  return { success: true };
 }
 
 /** Called from the Stripe webhook once the card portion of a split payment succeeds. */

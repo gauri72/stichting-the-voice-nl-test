@@ -5,7 +5,7 @@ import {
   getOrCreateWalletSettings,
 } from "../services/walletService.js";
 import { createTopUpPaymentIntent } from "../services/walletTopUpService.js";
-import { payTicketWithWallet, payTicketSplit } from "../services/walletCheckoutService.js";
+import { payTicketWithWallet, payTicketSplit, cancelTicketSplitPayment } from "../services/walletCheckoutService.js";
 import { executeWalletBooking } from "../services/walletAiBookingService.js";
 import AIBookingLog from "../models/AIBookingLog.js";
 import WalletSettings from "../models/WalletSettings.js";
@@ -58,6 +58,16 @@ export async function postPay(req, res) {
 
     const result = await payTicketWithWallet(eventId, checkout, req.user.id, { pointsToRedeem: Number(pointsToRedeem) || 0 });
     return res.status(201).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function postCancelSplitPay(req, res) {
+  try {
+    const { orderId } = req.params;
+    const result = await cancelTicketSplitPayment(orderId, req.user.id);
+    return res.json(result);
   } catch (error) {
     return handleError(res, error);
   }

@@ -1767,7 +1767,21 @@ export default function TicketBookingPage() {
                 type="button"
                 className="ticket-booking__back"
                 disabled={checkoutLoading || handlingReturn}
-                onClick={() => {
+                onClick={async () => {
+                  // Points were already redeemed server-side the moment this split payment's
+                  // card PaymentIntent was created — leaving without cancelling it server-side
+                  // would strand that order pending forever with the points permanently gone.
+                  const orderId = checkoutOrder?.id || checkoutOrder?._id;
+                  if (orderId && checkoutOrder?.paymentMethod === "wallet_split") {
+                    try {
+                      await apiFetch(`/api/wallet/pay/${orderId}/cancel`, {
+                        method: "POST",
+                        headers: authHeaders(),
+                      });
+                    } catch (err) {
+                      devWarn("Could not cancel split payment order:", err.message);
+                    }
+                  }
                   setClientSecret("");
                   setCheckoutOrder(null);
                   setSplitCardPortionMinor(null);

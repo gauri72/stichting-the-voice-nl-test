@@ -6,6 +6,7 @@ import {
   getTransactions,
   postTopUp,
   postPay,
+  postCancelSplitPay,
   postRedeemPointsPreview,
   putSettings,
   postRevokeAiBooking,
@@ -22,6 +23,7 @@ router.get("/", getWallet);
 router.get("/transactions", getTransactions);
 router.post("/topup", walletWriteLimit, postTopUp);
 router.post("/pay", walletWriteLimit, postPay);
+router.post("/pay/:orderId/cancel", walletWriteLimit, postCancelSplitPay);
 router.post("/redeem-points", postRedeemPointsPreview);
 router.put("/settings", putSettings);
 router.post("/ai-booking/revoke", postRevokeAiBooking);

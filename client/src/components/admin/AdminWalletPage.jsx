@@ -15,6 +15,7 @@ export default function AdminWalletPage() {
   const [message, setMessage] = useState("");
 
   const [creditForm, setCreditForm] = useState({ customerId: "", amountMinor: "", reason: "" });
+  const [pointsForm, setPointsForm] = useState({ customerId: "", points: "", reason: "" });
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -98,6 +99,27 @@ export default function AdminWalletPage() {
     }
   }
 
+  async function handlePointsAdjust(e) {
+    e.preventDefault();
+    try {
+      await apiFetch("/api/admin/wallet/points-adjust", {
+        method: "POST",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify({
+          customerId: pointsForm.customerId,
+          points: Math.trunc(Number(pointsForm.points)),
+          reason: pointsForm.reason,
+        }),
+      });
+      setMessage("Points adjusted.");
+      setPointsForm({ customerId: "", points: "", reason: "" });
+      setTimeout(() => setMessage(""), 2000);
+      loadAll();
+    } catch (err) {
+      setError(err.message || "Could not adjust points.");
+    }
+  }
+
   if (loading) return <AdminLayout pageTitle="V.Wallet"><p className="admin-finance__status">Loading…</p></AdminLayout>;
 
   return (
@@ -163,6 +185,17 @@ export default function AdminWalletPage() {
             <input placeholder="Reason (required)" value={creditForm.reason} onChange={(e) => setCreditForm((f) => ({ ...f, reason: e.target.value }))} />
             <button type="button" className="admin-finance__btn admin-finance__btn--primary" onClick={handleCredit}>Credit</button>
             <button type="button" className="admin-finance__btn" onClick={handleDebit}>Debit</button>
+          </form>
+        </section>
+
+        <section className="admin-finance__section">
+          <h2>Manual Points Adjustment</h2>
+          <p className="admin-finance__hint">Use a negative number to deduct points (e.g. to correct points redeemed for a payment that was never completed).</p>
+          <form className="admin-finance__line-row" style={{ gridTemplateColumns: "2fr 1fr 2fr auto" }}>
+            <input placeholder="Customer ID" value={pointsForm.customerId} onChange={(e) => setPointsForm((f) => ({ ...f, customerId: e.target.value }))} />
+            <input placeholder="Points (+/-)" type="number" value={pointsForm.points} onChange={(e) => setPointsForm((f) => ({ ...f, points: e.target.value }))} />
+            <input placeholder="Reason (required)" value={pointsForm.reason} onChange={(e) => setPointsForm((f) => ({ ...f, reason: e.target.value }))} />
+            <button type="button" className="admin-finance__btn admin-finance__btn--primary" onClick={handlePointsAdjust}>Adjust</button>
           </form>
         </section>
 
