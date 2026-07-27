@@ -8,10 +8,15 @@ function clientKey(req) {
 
 /**
  * Rate limit sensitive auth endpoints (login, register, OTP, password reset).
+ *
+ * keyFn defaults to IP+email, correct for these pre-login endpoints (there's no
+ * req.user yet). Callers behind requireAuth — e.g. walletRoutes.js — should pass
+ * a keyFn based on req.user.id instead, since req.body never carries an email
+ * there and IP+path alone can't tell two different authenticated customers apart.
  */
-export function authRateLimit({ maxAttempts = 15, windowMs = 15 * 60_000 } = {}) {
+export function authRateLimit({ maxAttempts = 15, windowMs = 15 * 60_000, keyFn = clientKey } = {}) {
   return (req, res, next) => {
-    const key = clientKey(req);
+    const key = keyFn(req);
     const result = checkRateLimit(`auth:${key}`, { maxAttempts, windowMs });
     if (!result.allowed) {
       const retrySec = Math.ceil((result.retryAfterMs || windowMs) / 1000);
