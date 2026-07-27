@@ -50,6 +50,12 @@ async function resolveMemberBenefitContext({
   // in doesn't unlock a bigger discount than a guest already gets, so it widens this gate
   // rather than being a separate branch. false preserves today's exact behavior.
   capFeatureEnabled = false,
+  // True when this line has quantity > 0 but the redemption cap left zero eligible units —
+  // distinguishes "no discount because you already used your cap" from "no discount because
+  // this membership type has no rule configured," which otherwise produce the identical
+  // subtotalMinor === 0 code path below.
+  cappedToZero = false,
+  capLimit = null,
 }) {
   const instantAllowed =
     eventSettings.allowInstantMembershipBenefit &&
@@ -133,6 +139,15 @@ async function resolveMemberBenefitContext({
           membershipType,
           membershipSource
         );
+      }
+
+      // Overrides whichever generic warning was just set above — a cap-exhausted line
+      // isn't "no discount configured," it's "you already used your discount," which is a
+      // different, more actionable message regardless of whether a rule happens to exist.
+      if (cappedToZero) {
+        discountWarning = capLimit != null
+          ? `Membership found, but the ${capLimit}-ticket discount cap for this event has already been reached for this email.`
+          : "Membership found, but the discount cap for this event has already been reached for this email.";
       }
     }
   } else if (
@@ -228,9 +243,14 @@ export async function calculatePricePreview({
     eventId: event.id,
   });
 
+  // Deliberately NOT gated on eventSettings.enableMemberDiscount/applyMemberBenefit — those
+  // are independently re-checked inside resolveMemberBenefitContext below, where they still
+  // correctly prevent any discount from applying. Gating capStatus itself on them too just
+  // hid the cap status (and the client's "cap reached" note) in cases where the real discount
+  // logic didn't need it hidden.
   const capFeatureEnabled = membershipSettings.enableMembershipTicketDiscountCap !== false;
   let capStatus = null;
-  if (memberDetection.isActive && eventSettings.enableMemberDiscount && applyMemberBenefit !== false && capFeatureEnabled) {
+  if (memberDetection.isActive && capFeatureEnabled) {
     capStatus = await getMembershipDiscountCapStatus({ eventId: event.id, email, membershipSettings });
   }
   let capRemaining = capStatus?.remaining ?? Infinity;
@@ -246,6 +266,7 @@ export async function calculatePricePreview({
   for (const line of lineItems) {
     const eligibleQty = capStatus ? Math.max(0, Math.min(line.quantity, capRemaining)) : line.quantity;
     const eligibleSubtotalMinor = eligibleQty > 0 ? line.unitPriceMinor * eligibleQty : 0;
+    const cappedToZero = Boolean(capStatus) && line.quantity > 0 && eligibleQty === 0;
 
     const ctx = await resolveMemberBenefitContext({
       memberDetection,
@@ -260,6 +281,8 @@ export async function calculatePricePreview({
       ticketTypeId: line.ticketTypeId,
       subtotalMinor: eligibleSubtotalMinor,
       capFeatureEnabled,
+      cappedToZero,
+      capLimit: capStatus?.capLimit ?? null,
     });
 
     perLineMemberContext.push(ctx);

@@ -58,7 +58,12 @@ export default function MembershipBenefitBanner({
   }
 
   if (isActiveLoggedIn) {
-    const hasDiscount = memberDiscountApplied || (detection.discountValue > 0 && !discountWarning);
+    // Trust only the real, preview-derived signal — detection.discountValue is a cap-blind
+    // "does this membership type have any discount rule at all" lookup and stays > 0 even
+    // once this email has exhausted its per-event redemption cap, which previously produced
+    // a false "discount applied" banner. Worst case here is a one-tick-later banner while the
+    // first preview resolves, never a false claim.
+    const hasDiscount = memberDiscountApplied;
 
     if (discountWarning && !memberDiscountApplied) {
       return (
@@ -131,7 +136,8 @@ export default function MembershipBenefitBanner({
     // still under it) — treat exactly like an already-logged-in member: show what
     // happened, no login CTA, since logging in wouldn't apply a bigger discount.
     if (!detection.requiresLogin) {
-      const hasDiscount = memberDiscountApplied || (detection.discountValue > 0 && !discountWarning);
+      // See the isActiveLoggedIn branch above for why discountValue is never used here.
+      const hasDiscount = memberDiscountApplied;
 
       if (discountWarning && !memberDiscountApplied) {
         return (

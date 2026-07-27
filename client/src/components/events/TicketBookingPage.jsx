@@ -1627,16 +1627,25 @@ export default function TicketBookingPage() {
                       <span className="ticket-booking__wallet-pay-title">💳 Pay with V.Wallet</span>
                     </div>
                     <p className="ticket-booking__wallet-pay-topup">
-                      Pay instantly from your balance and earn reward points on every booking. Create a free V.O.I.C.E. NL account to get a V.Wallet.
+                      Pay instantly from your V.Wallet balance and earn reward points. Log in to continue — new here? You can create a free account in the next step.
                     </p>
                     <button
                       type="button"
                       className="ticket-booking__wallet-pay-cta"
-                      onClick={() => handleRequestLogin("signup")}
+                      onClick={() => handleRequestLogin("login")}
                     >
-                      Create your free account
+                      Log in to use V.Wallet
                     </button>
                     <div className="ticket-booking__wallet-pay-divider">or pay by card below</div>
+                  </div>
+                ) : null}
+
+                {user && !walletData && preview?.combined ? (
+                  <div className="ticket-booking__wallet-pay">
+                    <div className="ticket-booking__wallet-pay-head">
+                      <span className="ticket-booking__wallet-pay-title">💳 Pay with V.Wallet</span>
+                    </div>
+                    <p className="ticket-booking__wallet-pay-topup">Loading your V.Wallet…</p>
                   </div>
                 ) : null}
 
