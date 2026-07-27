@@ -20,6 +20,10 @@
     "myAccount": "Mein Konto",
     "vassistUpdates": "V.Assist-Updates"
   },
+  "referralToast": {
+    "message": "Empfehlungscode {{code}} angewendet — dein Rabatt wird beim Checkout bereitstehen!",
+    "dismiss": "Schließen"
+  },
   "buttons": {
     "learnMore": "Mehr Erfahren",
     "readMore": "Weiterlesen",

@@ -5,6 +5,7 @@ import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import LanguageSwitcher from "./components/layout/LanguageSwitcher.jsx";
 import CookieConsentBanner from "./components/layout/CookieConsentBanner";
+import ReferralWelcomeToast from "./components/layout/ReferralWelcomeToast.jsx";
 import CookiePreferencesModal from "./components/layout/CookiePreferencesModal.jsx";
 import HomePage from "./components/home/HomePage";
 import AboutUsPage from "./components/about/AboutUsPage";
@@ -43,7 +44,6 @@ import VentureStudioPage from "./components/venture-studio/VentureStudioPage";
 import StoriesPage from "./components/stories/StoriesPage";
 import ImpactPage from "./components/impact/ImpactPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import { captureReferralFromUrl } from "./utils/referralCapture.js";
 import MaintenancePage from "./components/maintenance/MaintenancePage";
 import OurPillarsPlaceholderPage from "./components/pages/OurPillarsPlaceholderPage.jsx";
 import ContactPage from "./components/contact/ContactPage.jsx";
@@ -188,16 +188,6 @@ function ScrollToHash() {
   return null;
 }
 
-function ReferralCapture() {
-  const { search } = useLocation();
-
-  useEffect(() => {
-    captureReferralFromUrl();
-  }, [search]);
-
-  return null;
-}
-
 function AuthAliasRedirect() {
   const location = useLocation();
   return <Navigate to={`/my-account${location.search}`} replace />;
@@ -220,7 +210,7 @@ export default function App() {
     <div className="app-shell">
       <ManifestRouter />
       <ScrollToHash />
-      <ReferralCapture />
+      <ReferralWelcomeToast />
       {!hideSiteChrome && <Header />}
       <main className={`app-main${isStandalonePage ? " app-main--standalone" : ""}${isVCommerceSubpage ? " app-main--vcommerce-subpage" : ""}`}>
         {isVCommerceSubpage ? (

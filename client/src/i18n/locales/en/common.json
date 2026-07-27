@@ -20,6 +20,10 @@
     "myAccount": "My Account",
     "vassistUpdates": "V.Assist updates"
   },
+  "referralToast": {
+    "message": "Referral code {{code}} applied — your discount will be ready at checkout!",
+    "dismiss": "Dismiss"
+  },
   "buttons": {
     "learnMore": "Learn More",
     "readMore": "Read More",

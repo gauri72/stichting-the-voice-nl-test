@@ -9,17 +9,20 @@ const REFERRAL_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days — typical referra
 
 /** Reads ?ref= from the current URL and stashes it (first-touch — only overwrites an
  * existing stashed code if a new one is actually present in the URL). Call once per page
- * load; safe to call on every route, not just checkout pages. */
+ * load; safe to call on every route, not just checkout pages. Returns the captured code (so
+ * a caller can show a "code applied" confirmation), or null if there was none to capture. */
 export function captureReferralFromUrl() {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined") return null;
   try {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("ref")?.trim();
-    if (!code) return;
+    if (!code) return null;
     sessionStorage.setItem(REFERRAL_KEY, JSON.stringify({ code, capturedAt: Date.now() }));
+    return code;
   } catch {
     // Storage can be unavailable in privacy-restricted browsers — the referral simply
     // won't pre-fill, checkout itself is unaffected.
+    return null;
   }
 }
 
