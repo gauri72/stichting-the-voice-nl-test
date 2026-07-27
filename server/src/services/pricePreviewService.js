@@ -342,6 +342,11 @@ export async function calculatePricePreview({
     lineItems: discountLineItems,
     memberPlanId: null,
     allowStacking,
+    // The per-line loop above (resolveMemberBenefitContext) already made the complete,
+    // cap-aware decision for every line, including "no discount" — this must never be
+    // re-derived from scratch here, or a logged-in member's discount silently comes back
+    // uncapped via discountService.js's legacy getAutomaticMemberDiscount fallback.
+    skipAutomaticMemberLookup: true,
   });
 
   if (benefitApplied && discountResult.memberDiscountMinor > 0) {

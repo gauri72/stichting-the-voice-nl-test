@@ -583,6 +583,16 @@ export async function applyDiscountsToOrder({
   memberRuleOverride = null,
   memberDiscountAmountOverride = null,
   allowStacking = true,
+  // Set by callers (pricePreviewService.js) that have already made a complete, authoritative
+  // decision about this line's member discount themselves — including "no discount applies,"
+  // e.g. because the per-event redemption cap left zero eligible units. Without this, a null
+  // memberRuleOverride was indistinguishable from "no override was computed, please look one
+  // up yourself," so a logged-in member's discount got silently re-derived from scratch here
+  // via getAutomaticMemberDiscount — uncapped — even when the caller had deliberately decided
+  // not to apply one. Other callers (ticketOrderService, checkoutDiscountController,
+  // sessionPlatformService) don't pre-resolve member eligibility, so they still rely on this
+  // lookup by leaving the default false.
+  skipAutomaticMemberLookup = false,
 }) {
   // Belt-and-suspenders: every code path this function can take to find a discount
   // (member rule, code/voucher) already checks published status internally, but this is
@@ -596,9 +606,9 @@ export async function applyDiscountsToOrder({
   const code = discountCode || voucherCode;
   let memberRule = memberRuleOverride || null;
 
-  if (!memberRule && memberPlanId) {
+  if (!memberRule && !skipAutomaticMemberLookup && memberPlanId) {
     memberRule = await getAutomaticMemberDiscountForPlan(memberPlanId, eventId, orderType, ticketTypeId);
-  } else if (!memberRule && userId) {
+  } else if (!memberRule && !skipAutomaticMemberLookup && userId) {
     memberRule = await getAutomaticMemberDiscount(userId, eventId, orderType, ticketTypeId);
   }
 
@@ -642,6 +652,7 @@ export async function applyDiscountsToOrderLines({
   memberPlanId = null,
   memberRuleOverride = null,
   allowStacking = true,
+  skipAutomaticMemberLookup = false,
 }) {
   const lines = [];
   let memberDiscountMinor = 0;
@@ -679,6 +690,7 @@ export async function applyDiscountsToOrderLines({
         memberRuleOverride: lineMemberRuleOverride,
         memberDiscountAmountOverride: lineMemberDiscountAmountOverride,
         allowStacking,
+        skipAutomaticMemberLookup,
       });
     } catch (err) {
       // A code valid for one ticket-type line but not another must not blow up the whole
@@ -700,6 +712,7 @@ export async function applyDiscountsToOrderLines({
         memberRuleOverride: lineMemberRuleOverride,
         memberDiscountAmountOverride: lineMemberDiscountAmountOverride,
         allowStacking,
+        skipAutomaticMemberLookup,
       });
     }
 
