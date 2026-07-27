@@ -855,7 +855,12 @@ export default function TicketBookingPage() {
     setWalletPayError("");
     try {
       const result = await payWithWallet({
-        eventId: eventIdOrSlug,
+        // event.id, not eventIdOrSlug — the wallet-pay backend (walletCheckoutService.js's
+        // quoteOrder -> createBundleCheckout) expects a real Event ObjectId and doesn't
+        // resolve a slug itself, unlike the regular card-checkout path (which goes through
+        // useBookingFlow, already initialized with event.id). Passing the raw URL slug here
+        // 500s for any event accessed by its slug (the normal way).
+        eventId: event.id,
         checkout: {
           items: selectedItems,
           attendeeFirstName: attendee.firstName,
@@ -885,7 +890,12 @@ export default function TicketBookingPage() {
     setWalletPayError("");
     try {
       const result = await payWithWallet({
-        eventId: eventIdOrSlug,
+        // event.id, not eventIdOrSlug — the wallet-pay backend (walletCheckoutService.js's
+        // quoteOrder -> createBundleCheckout) expects a real Event ObjectId and doesn't
+        // resolve a slug itself, unlike the regular card-checkout path (which goes through
+        // useBookingFlow, already initialized with event.id). Passing the raw URL slug here
+        // 500s for any event accessed by its slug (the normal way).
+        eventId: event.id,
         checkout: {
           items: selectedItems,
           attendeeFirstName: attendee.firstName,
