@@ -4,6 +4,7 @@
       "welcomeBack": "Willkommen zurück",
       "assist": "V.Assist",
       "assistAria": "V.Assist öffnen, deinen KI-Community-Concierge",
+      "notifBellAria": "{{count}} ungelesene V.Assist-Updates, ansehen",
       "metricsAria": "Übersicht deines Mitgliedskontos",
       "rewardsAria": "Prämiencenter öffnen, {{count}} Punkte",
       "pointsLabel": "Punkte",

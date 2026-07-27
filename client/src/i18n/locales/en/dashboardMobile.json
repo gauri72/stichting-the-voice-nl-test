@@ -4,6 +4,7 @@
       "welcomeBack": "Welcome back",
       "assist": "V.Assist",
       "assistAria": "Open V.Assist, your AI community concierge",
+      "notifBellAria": "{{count}} unread V.Assist updates, view them",
       "metricsAria": "Member account summary",
       "rewardsAria": "Open Rewards Center, {{count}} points",
       "pointsLabel": "Points",

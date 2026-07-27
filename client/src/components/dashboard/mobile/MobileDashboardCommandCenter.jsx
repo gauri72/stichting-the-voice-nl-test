@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   IconArrowRight,
+  IconBellRinging,
   IconBuildingStore,
   IconCalendarEvent,
   IconChartDots,
@@ -259,24 +260,24 @@ export default function MobileDashboardCommandCenter({
         </picture>
         <div className="mobile-dash-hero__scrim" />
         <HeroActionCluster />
-        <button
-          type="button"
-          className="mobile-dash-hero__assist"
-          onClick={() =>
-            unreadResultsCount > 0
-              ? navigate("/dashboard/ai-assistant/schedule", { state: { openTab: "updates" } })
-              : openAssistant()
-          }
-          aria-label={t("dashboardMobile:commandCenter.hero.assistAria")}
-        >
+        <button type="button" className="mobile-dash-hero__assist" onClick={openAssistant}
+          aria-label={t("dashboardMobile:commandCenter.hero.assistAria")}>
           <IconRobot aria-hidden />
           <span>{t("dashboardMobile:commandCenter.hero.assist")}</span>
-          {unreadResultsCount > 0 ? (
-            <span className="mobile-dash-hero__assist-badge" aria-hidden="true">
+        </button>
+        {unreadResultsCount > 0 ? (
+          <button
+            type="button"
+            className="mobile-dash-hero__notif-bell"
+            onClick={() => navigate("/dashboard/ai-assistant/schedule", { state: { openTab: "updates" } })}
+            aria-label={t("dashboardMobile:commandCenter.hero.notifBellAria", { count: unreadResultsCount })}
+          >
+            <IconBellRinging aria-hidden />
+            <span className="mobile-dash-hero__notif-bell-badge" aria-hidden="true">
               {unreadResultsCount > 99 ? "99+" : unreadResultsCount}
             </span>
-          ) : null}
-        </button>
+          </button>
+        ) : null}
         <div className="mobile-dash-hero__content">
           <p>{t("dashboardMobile:commandCenter.hero.welcomeBack")}</p>
           <h1 id="mobile-dash-name">{firstName}</h1>

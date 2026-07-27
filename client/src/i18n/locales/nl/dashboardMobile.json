@@ -4,6 +4,7 @@
       "welcomeBack": "Welkom terug",
       "assist": "V.Assist",
       "assistAria": "Open V.Assist, jouw AI-community concierge",
+      "notifBellAria": "{{count}} ongelezen V.Assist-updates, bekijk ze",
       "metricsAria": "Overzicht van je lidmaatschap",
       "rewardsAria": "Open Beloningscentrum, {{count}} punten",
       "pointsLabel": "Punten",
