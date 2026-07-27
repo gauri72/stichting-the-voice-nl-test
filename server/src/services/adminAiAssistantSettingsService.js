@@ -118,8 +118,11 @@ export async function listScheduledRunLogs(limit = 100) {
     customerName: r.customerId ? `${r.customerId.firstName} ${r.customerId.lastName}` : "Unknown",
     promptText: promptsById.get(r.scheduledPromptId?.toString()) || "",
     resultPreview: (r.resultText || "").slice(0, 160),
-    deliveryMethod: r.deliveryMethod,
-    deliveryStatus: r.deliveryStatus,
+    channels: {
+      inApp: r.channels?.inApp?.status || "delivered",
+      email: r.channels?.email?.requested ? r.channels.email.status : "not_requested",
+      push: r.channels?.push?.requested ? r.channels.push.status : "not_requested",
+    },
     deliveredAt: r.deliveredAt,
     createdAt: r.createdAt,
   }));

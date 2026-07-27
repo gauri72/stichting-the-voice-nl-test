@@ -9,6 +9,7 @@
     "sync:highlights": "node scripts/sync-event-highlights.js",
     "fix:membership-kind": "node scripts/fix-membership-kind.js",
     "fix:referral-reward-values": "node scripts/fix-referral-reward-values.js",
+    "migrate:ai-scheduled-prompt-delivery": "node scripts/migrate-ai-scheduled-prompt-delivery.js",
     "sync:past-data": "node scripts/sync-ticket-tailor-past-data.js",
     "fix:legacy-users": "node scripts/fix-legacy-users.js",
     "seed:admin": "node scripts/seed-admin.js",

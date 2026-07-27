@@ -12,6 +12,8 @@ import {
   updateScheduledPrompt,
   deleteScheduledPrompt,
   listResultsForCustomer,
+  markResultRead,
+  resendResultChannel,
   getUsageStats,
   savePushSubscription,
 } from "../services/aiAssistantService.js";
@@ -116,14 +118,14 @@ export async function getSchedules(req, res) {
 
 export async function postSchedule(req, res) {
   try {
-    const { promptText, schedule, deliveryMethod } = req.body;
+    const { promptText, schedule, notifyEmail, notifyPush } = req.body;
     if (!promptText || !promptText.trim()) {
       return res.status(400).json({ error: "Prompt text is required." });
     }
     if (!schedule || !schedule.type) {
       return res.status(400).json({ error: "A valid schedule is required." });
     }
-    const created = await createScheduledPrompt(req.user.id, { promptText: promptText.trim(), schedule, deliveryMethod });
+    const created = await createScheduledPrompt(req.user.id, { promptText: promptText.trim(), schedule, notifyEmail, notifyPush });
     return res.status(201).json({ schedule: created });
   } catch (error) {
     return handleError(res, error);
@@ -152,6 +154,25 @@ export async function getResults(req, res) {
   try {
     const results = await listResultsForCustomer(req.user.id);
     return res.json({ results });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function patchResultRead(req, res) {
+  try {
+    const result = await markResultRead(req.user.id, req.params.id);
+    return res.json({ result });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function postResendResult(req, res) {
+  try {
+    const { channel } = req.body;
+    const result = await resendResultChannel(req.user.id, req.params.id, channel);
+    return res.json({ result });
   } catch (error) {
     return handleError(res, error);
   }

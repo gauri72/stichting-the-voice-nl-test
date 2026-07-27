@@ -235,7 +235,22 @@
       "heading": "Geplante Prompts",
       "subtitle": "Automatische Check-ins, geliefert genau wie du es möchtest.",
       "newScheduleButton": "Neuer Zeitplan",
-      "empty": "Noch keine geplanten Prompts. Erstelle einen für automatische Updates."
+      "empty": "Noch keine geplanten Prompts. Erstelle einen für automatische Updates.",
+      "tabs": {
+        "schedules": "Zeitpläne",
+        "updates": "Updates"
+      }
+    },
+    "updatesList": {
+      "empty": "Noch keine Updates. Sie erscheinen hier, sobald ein Zeitplan ausgeführt wird.",
+      "untitled": "Update",
+      "resend": "Erneut senden",
+      "channelStatus": {
+        "delivered": "Zugestellt",
+        "pending_retry": "Wird wiederholt",
+        "failed": "Fehlgeschlagen",
+        "not_requested": "Nicht angefordert"
+      }
     },
     "chatBubble": {
       "yourMessageAriaLabel": "Deine Nachricht",
@@ -268,10 +283,11 @@
         "sat": "Sa"
       },
       "delivery": {
-        "dashboard": "Im Dashboard",
+        "inAppNote": "Updates landen immer in deinem In-App-Posteingang. Wähle unten zusätzliche Kanäle.",
         "email": "E-Mail",
         "push": "Push"
       },
+      "pushUnavailable": "Push-Benachrichtigungen sind derzeit nicht verfügbar.",
       "fields": {
         "prompt": "Prompt",
         "promptPlaceholder": "z. B. Gib mir eine Zusammenfassung der heutigen Nachrichten",

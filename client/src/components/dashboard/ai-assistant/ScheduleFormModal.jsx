@@ -1,41 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { IconX, IconMail, IconBellRinging, IconDeviceDesktop } from "@tabler/icons-react";
+import { IconX, IconMail, IconBellRinging } from "@tabler/icons-react";
+import { apiFetch, authHeaders } from "../../../utils/api.js";
 import { usePushSubscription } from "./usePushSubscription.js";
 
 const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-const DELIVERY_OPTION_DEFS = [
-  { value: "dashboard", icon: IconDeviceDesktop },
-  { value: "email", icon: IconMail },
-  { value: "push", icon: IconBellRinging },
-];
 
 export default function ScheduleFormModal({ onClose, onCreate }) {
   const { t } = useTranslation(["dashboardMain"]);
   const WEEKDAYS = WEEKDAY_KEYS.map((key) => t(`dashboardMain:aiAssistant.scheduleModal.weekdays.${key}`));
-  const DELIVERY_OPTIONS = DELIVERY_OPTION_DEFS.map((opt) => ({
-    ...opt,
-    label: t(`dashboardMain:aiAssistant.scheduleModal.delivery.${opt.value}`),
-  }));
   const [promptText, setPromptText] = useState("");
   const [type, setType] = useState("daily");
   const [time, setTime] = useState("08:00");
   const [daysOfWeek, setDaysOfWeek] = useState([1]);
   const [runAt, setRunAt] = useState("");
-  const [deliveryMethod, setDeliveryMethod] = useState("dashboard");
+  const [notifyEmail, setNotifyEmail] = useState(false);
+  const [notifyPush, setNotifyPush] = useState(false);
+  const [pushConfigured, setPushConfigured] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
   const { status: pushStatus, error: pushError, subscribe } = usePushSubscription();
+
+  useEffect(() => {
+    apiFetch("/api/ai/status", { headers: authHeaders() })
+      .then((data) => setPushConfigured(Boolean(data.pushConfigured)))
+      .catch(() => {});
+  }, []);
 
   function toggleDay(day) {
     setDaysOfWeek((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort()));
   }
 
-  async function handleDeliverySelect(value) {
-    setDeliveryMethod(value);
-    if (value === "push" && pushStatus !== "granted") {
-      await subscribe();
+  async function handleNotifyPushToggle() {
+    const next = !notifyPush;
+    setNotifyPush(next);
+    if (next && pushStatus !== "granted") {
+      const granted = await subscribe();
+      if (!granted) setNotifyPush(false);
     }
   }
 
@@ -55,7 +57,7 @@ export default function ScheduleFormModal({ onClose, onCreate }) {
 
     setSubmitting(true);
     try {
-      await onCreate({ promptText: promptText.trim(), schedule, deliveryMethod });
+      await onCreate({ promptText: promptText.trim(), schedule, notifyEmail, notifyPush });
       onClose();
     } catch (err) {
       setFormError(err.message || t("dashboardMain:aiAssistant.scheduleModal.errors.createFailed"));
@@ -163,22 +165,37 @@ export default function ScheduleFormModal({ onClose, onCreate }) {
 
           <div>
             <label className="mb-1 block text-xs font-medium text-slate-400">{t("dashboardMain:aiAssistant.scheduleModal.fields.deliveryMethod")}</label>
+            <p className="ai-text-11 mb-2 text-slate-500">{t("dashboardMain:aiAssistant.scheduleModal.delivery.inAppNote")}</p>
             <div className="flex gap-2">
-              {DELIVERY_OPTIONS.map(({ value, label, icon: Icon }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => handleDeliverySelect(value)}
-                  className={`flex flex-1 flex-col items-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition ${
-                    deliveryMethod === value ? "bg-purple-600 text-white" : "bg-white/5 text-slate-300 hover:bg-white/10"
-                  }`}
-                >
-                  <Icon size={16} /> {label}
-                </button>
-              ))}
+              <button
+                type="button"
+                onClick={() => setNotifyEmail((prev) => !prev)}
+                aria-pressed={notifyEmail}
+                className={`flex flex-1 flex-col items-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition ${
+                  notifyEmail ? "bg-purple-600 text-white" : "bg-white/5 text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                <IconMail size={16} /> {t("dashboardMain:aiAssistant.scheduleModal.delivery.email")}
+              </button>
+              <button
+                type="button"
+                onClick={handleNotifyPushToggle}
+                disabled={!pushConfigured}
+                aria-pressed={notifyPush}
+                className={`flex flex-1 flex-col items-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                  notifyPush ? "bg-purple-600 text-white" : "bg-white/5 text-slate-300 hover:bg-white/10"
+                }`}
+              >
+                <IconBellRinging size={16} /> {t("dashboardMain:aiAssistant.scheduleModal.delivery.push")}
+              </button>
             </div>
             <AnimatePresence>
-              {deliveryMethod === "push" && pushStatus === "denied" && (
+              {!pushConfigured && (
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="ai-text-11 mt-1.5 text-amber-300">
+                  {t("dashboardMain:aiAssistant.scheduleModal.pushUnavailable")}
+                </motion.p>
+              )}
+              {notifyPush && pushStatus === "denied" && (
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="ai-text-11 mt-1.5 text-amber-300">
                   {pushError || t("dashboardMain:aiAssistant.scheduleModal.pushBlocked")}
                 </motion.p>

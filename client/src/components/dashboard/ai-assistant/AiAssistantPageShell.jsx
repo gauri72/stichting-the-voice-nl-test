@@ -1,6 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { IconArrowLeft, IconMessageCircle2, IconBooks, IconCalendarTime, IconX } from "@tabler/icons-react";
+import { useAiAssistant } from "../../../contexts/AiAssistantContext.jsx";
 import "../../../styles/ai-assistant-premium.css";
 
 const TAB_DEFS = [
@@ -19,6 +20,7 @@ const TAB_DEFS = [
  */
 export default function AiAssistantPageShell({ children }) {
   const { t } = useTranslation(["dashboardMain"]);
+  const { unreadResultsCount } = useAiAssistant();
   const TABS = TAB_DEFS.map((tab) => ({ ...tab, label: t(`dashboardMain:aiAssistant.tabs.${tab.labelKey}`) }));
   return (
     <div className="ai-standalone-premium">
@@ -28,7 +30,7 @@ export default function AiAssistantPageShell({ children }) {
         <Link to="/dashboard" aria-label={t("dashboardMain:aiAssistant.common.closeVAssist")}><IconX /></Link>
       </header>
       <nav className="ai-premium-page-tabs" aria-label={t("dashboardMain:aiAssistant.pageShell.navAriaLabel")}>
-        {TABS.map(({ to, label, icon: Icon, end }) => (
+        {TABS.map(({ to, label, icon: Icon, end, labelKey }) => (
           <NavLink
             key={to}
             to={to}
@@ -36,6 +38,9 @@ export default function AiAssistantPageShell({ children }) {
             className={({ isActive }) => isActive ? "is-active" : ""}
           >
             <Icon /> <span>{label}</span>
+            {labelKey === "scheduledPrompts" && unreadResultsCount > 0 && (
+              <span className="ai-premium-page-tabs-badge">{unreadResultsCount}</span>
+            )}
           </NavLink>
         ))}
       </nav>

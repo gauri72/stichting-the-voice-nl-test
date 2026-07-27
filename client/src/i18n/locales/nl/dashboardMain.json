@@ -235,7 +235,22 @@
       "heading": "Geplande prompts",
       "subtitle": "Automatische check-ins, geleverd zoals jij dat wilt.",
       "newScheduleButton": "Nieuw schema",
-      "empty": "Nog geen geplande prompts. Maak er een aan voor automatische updates."
+      "empty": "Nog geen geplande prompts. Maak er een aan voor automatische updates.",
+      "tabs": {
+        "schedules": "Schema's",
+        "updates": "Updates"
+      }
+    },
+    "updatesList": {
+      "empty": "Nog geen updates. Ze verschijnen hier zodra een schema wordt uitgevoerd.",
+      "untitled": "Update",
+      "resend": "Opnieuw verzenden",
+      "channelStatus": {
+        "delivered": "Afgeleverd",
+        "pending_retry": "Nieuwe poging",
+        "failed": "Mislukt",
+        "not_requested": "Niet aangevraagd"
+      }
     },
     "chatBubble": {
       "yourMessageAriaLabel": "Jouw bericht",
@@ -268,10 +283,11 @@
         "sat": "Za"
       },
       "delivery": {
-        "dashboard": "In dashboard",
+        "inAppNote": "Updates verschijnen altijd in je in-app inbox. Kies hieronder extra kanalen.",
         "email": "E-mail",
         "push": "Push"
       },
+      "pushUnavailable": "Pushmeldingen zijn momenteel niet beschikbaar.",
       "fields": {
         "prompt": "Prompt",
         "promptPlaceholder": "bijv. Geef me een samenvatting van het nieuws van vandaag",

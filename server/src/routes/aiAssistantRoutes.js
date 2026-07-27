@@ -15,6 +15,8 @@ import {
   putSchedule,
   deleteSchedule,
   getResults,
+  patchResultRead,
+  postResendResult,
   getUsage,
   postPushSubscribe,
 } from "../controllers/customerAiController.js";
@@ -39,6 +41,8 @@ router.put("/schedule/:id", putSchedule);
 router.delete("/schedule/:id", deleteSchedule);
 
 router.get("/results", getResults);
+router.patch("/results/:id/read", patchResultRead);
+router.post("/results/:id/resend", postResendResult);
 router.get("/usage", getUsage);
 router.post("/push/subscribe", postPushSubscribe);
 

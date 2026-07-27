@@ -146,6 +146,21 @@
   width: 19px;
 }
 
+.ai-premium-page-tabs-badge {
+  display: inline-flex;
+  min-width: 17px;
+  height: 17px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--vap-cyan), var(--vap-violet));
+  color: #041018;
+  font-size: .65rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
 .ai-premium-chat {
   position: relative;
   display: flex;

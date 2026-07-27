@@ -19,6 +19,12 @@ const TIER_LABELS = {
   none: "No membership",
 };
 
+function ChannelStatusBadge({ status }) {
+  if (!status || status === "not_requested") return <span className="admin-finance__badge">—</span>;
+  const tone = status === "delivered" ? "admin-finance__badge--paid" : status === "pending_retry" ? "admin-finance__badge--pending" : "admin-finance__badge--overdue";
+  return <span className={`admin-finance__badge ${tone}`}>{status}</span>;
+}
+
 export default function AdminAiAssistantPage() {
   const { admin } = useAdminAuth();
   const canEdit = hasPermission(admin?.permissions, "personal_ai.edit");
@@ -240,7 +246,7 @@ export default function AdminAiAssistantPage() {
           <div className="admin-finance__table-wrap">
             <table className="admin-finance__table">
               <thead>
-                <tr><th>Customer</th><th>Prompt</th><th>Result Preview</th><th>Delivery</th><th>Status</th><th>When</th></tr>
+                <tr><th>Customer</th><th>Prompt</th><th>Result Preview</th><th>In-app</th><th>Email</th><th>Push</th><th>When</th></tr>
               </thead>
               <tbody>
                 {logs.map((l) => (
@@ -248,8 +254,9 @@ export default function AdminAiAssistantPage() {
                     <td>{l.customerName}</td>
                     <td>{l.promptText}</td>
                     <td>{l.resultPreview}</td>
-                    <td>{l.deliveryMethod}</td>
-                    <td><span className={l.deliveryStatus === "delivered" ? "admin-finance__badge admin-finance__badge--paid" : "admin-finance__badge admin-finance__badge--overdue"}>{l.deliveryStatus}</span></td>
+                    <td><ChannelStatusBadge status={l.channels?.inApp} /></td>
+                    <td><ChannelStatusBadge status={l.channels?.email} /></td>
+                    <td><ChannelStatusBadge status={l.channels?.push} /></td>
                     <td>{new Date(l.createdAt).toLocaleString()}</td>
                   </tr>
                 ))}

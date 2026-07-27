@@ -509,20 +509,22 @@ function formatScheduledPrompt(doc) {
     id: doc._id.toString(),
     promptText: doc.promptText,
     schedule: doc.schedule,
-    deliveryMethod: doc.deliveryMethod,
+    notifyEmail: Boolean(doc.notifyEmail),
+    notifyPush: Boolean(doc.notifyPush),
     status: doc.status,
     lastRunAt: doc.lastRunAt,
     nextRunAt: doc.nextRunAt,
   };
 }
 
-export async function createScheduledPrompt(customerId, { promptText, schedule, deliveryMethod }) {
+export async function createScheduledPrompt(customerId, { promptText, schedule, notifyEmail, notifyPush }) {
   const nextRunAt = computeNextRunAt(schedule);
   const doc = await ScheduledPrompt.create({
     customerId,
     promptText,
     schedule,
-    deliveryMethod: deliveryMethod || "dashboard",
+    notifyEmail: Boolean(notifyEmail),
+    notifyPush: Boolean(notifyPush),
     nextRunAt,
   });
   return formatScheduledPrompt(doc);
@@ -536,7 +538,8 @@ export async function updateScheduledPrompt(customerId, id, updates) {
     throw err;
   }
   if (updates.promptText !== undefined) doc.promptText = updates.promptText;
-  if (updates.deliveryMethod !== undefined) doc.deliveryMethod = updates.deliveryMethod;
+  if (updates.notifyEmail !== undefined) doc.notifyEmail = Boolean(updates.notifyEmail);
+  if (updates.notifyPush !== undefined) doc.notifyPush = Boolean(updates.notifyPush);
   if (updates.status !== undefined) doc.status = updates.status;
   if (updates.schedule !== undefined) {
     doc.schedule = updates.schedule;
@@ -555,6 +558,14 @@ export async function deleteScheduledPrompt(customerId, id) {
 // Scheduled prompt execution (called by aiSchedulerService) + delivery
 // ---------------------------------------------------------------------------
 
+// Retry-with-backoff schedule for transient email/push failures: 3 retries after the
+// initial attempt (4 attempts total), then give up. Matches typical webhook-retry practice
+// — same idempotent-safety spirit as this codebase's other retry-safe code
+// (walletService.js::withWalletTransaction, referralRewardAutoApprovalScheduler.js), just
+// spread across scheduler ticks instead of immediate in-process retries since a transient
+// SMTP/push outage won't usually clear within the same second.
+const RETRY_DELAYS_MS = [5 * 60_000, 30 * 60_000, 120 * 60_000];
+
 export async function runScheduledPrompt(scheduledPromptDoc) {
   const customer = await User.findById(scheduledPromptDoc.customerId).lean();
   if (!customer) return;
@@ -565,11 +576,9 @@ export async function runScheduledPrompt(scheduledPromptDoc) {
   ]);
 
   let resultText = "";
-  let deliveryStatus = "delivered";
 
   if (!access.enabled) {
     resultText = "The AI assistant is currently disabled for this account.";
-    deliveryStatus = "failed";
   } else {
     try {
       const client = getClient();
@@ -584,77 +593,196 @@ export async function runScheduledPrompt(scheduledPromptDoc) {
       });
       if (message.stop_reason === "refusal") {
         resultText = "The assistant was unable to respond to this scheduled prompt.";
-        deliveryStatus = "failed";
       } else {
         resultText = message.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
       }
     } catch (error) {
       resultText = `Could not generate a result: ${error.message}`;
-      deliveryStatus = "failed";
     }
   }
 
+  // Creating this document IS the in-app delivery — the "Updates" inbox reads straight
+  // from this collection (listResultsForCustomer), so in-app is guaranteed regardless of
+  // what happens with email/push below. A generation failure still lands here (with the
+  // failure message as the content) so the user can see something went wrong, rather than
+  // a schedule that silently never produces anything.
   const aiResult = await AIResult.create({
     customerId: scheduledPromptDoc.customerId,
     scheduledPromptId: scheduledPromptDoc._id,
     resultText,
     deliveredAt: new Date(),
-    deliveryMethod: scheduledPromptDoc.deliveryMethod,
-    deliveryStatus,
+    channels: {
+      inApp: { status: "delivered" },
+      email: { requested: Boolean(scheduledPromptDoc.notifyEmail) },
+      push: { requested: Boolean(scheduledPromptDoc.notifyPush) },
+    },
   });
 
-  if (deliveryStatus === "delivered") {
-    await deliverResult(customer, scheduledPromptDoc, aiResult);
-  }
+  if (scheduledPromptDoc.notifyEmail) await attemptChannelDelivery(aiResult, "email", customer, scheduledPromptDoc.promptText);
+  if (scheduledPromptDoc.notifyPush) await attemptChannelDelivery(aiResult, "push", customer, scheduledPromptDoc.promptText);
 
   return aiResult;
 }
 
-async function deliverResult(customer, scheduledPrompt, aiResult) {
-  if (scheduledPrompt.deliveryMethod === "email") {
-    const tx = getSmtpTransporter();
-    if (tx && customer.email) {
+/**
+ * Attempts delivery for one channel of one AIResult and persists that channel's own
+ * outcome — never touches the other channel's status. Reused both for the first attempt
+ * (right after generation, above) and for scheduled retries (aiSchedulerService.js's retry
+ * pass, which re-fetches the AIResult + its parent ScheduledPrompt's promptText first).
+ */
+export async function attemptChannelDelivery(aiResult, channel, customer, promptText) {
+  const priorAttempts = aiResult.channels?.[channel]?.attempts || 0;
+
+  try {
+    if (channel === "email") {
+      const tx = getSmtpTransporter();
+      if (!tx || !customer.email) throw new Error("Email is not configured for this account or server.");
       await tx.sendMail({
         from: env.email.from,
         to: customer.email,
         subject: "Your scheduled AI Assistant update",
-        text: `${scheduledPrompt.promptText}\n\n${aiResult.resultText}`,
-        html: `<p><strong>${escapeHtml(scheduledPrompt.promptText)}</strong></p><p>${escapeHtml(aiResult.resultText).replace(/\n/g, "<br/>")}</p>`,
-      }).catch(() => {});
-    }
-  } else if (scheduledPrompt.deliveryMethod === "push") {
-    const subscriptions = await PushSubscription.find({ customerId: customer._id || customer.id }).lean();
-    for (const sub of subscriptions) {
-      try {
-        const result = await sendPush(sub, {
-          title: "V.O.I.C.E. NL Assistant",
-          body: aiResult.resultText.slice(0, 140),
+        text: `${promptText}\n\n${aiResult.resultText}`,
+        html: `<p><strong>${escapeHtml(promptText)}</strong></p><p>${escapeHtml(aiResult.resultText).replace(/\n/g, "<br/>")}</p>`,
+      });
+    } else if (channel === "push") {
+      const subscriptions = await PushSubscription.find({ customerId: customer._id || customer.id }).lean();
+      if (!subscriptions.length) {
+        throw Object.assign(new Error("No push subscription registered for this account."), { permanent: true });
+      }
+      let anySent = false;
+      let anyTransientError = false;
+      let lastError = "";
+      for (const sub of subscriptions) {
+        try {
+          const result = await sendPush(sub, {
+            title: "V.O.I.C.E. NL Assistant",
+            body: aiResult.resultText.slice(0, 140),
+          });
+          if (result.expired) {
+            await PushSubscription.deleteOne({ _id: sub._id });
+          } else {
+            anySent = true;
+          }
+        } catch (err) {
+          anyTransientError = true;
+          lastError = err.message;
+        }
+      }
+      if (!anySent) {
+        // Every subscription was either expired (deleted above) or errored. Retrying is
+        // only worthwhile if at least one failure looked transient (network blip, etc.) —
+        // if every subscription was simply expired, there's nothing left to retry against.
+        throw Object.assign(new Error(lastError || "No active push subscription could be reached."), {
+          permanent: !anyTransientError,
         });
-        if (result.expired) await PushSubscription.deleteOne({ _id: sub._id });
-      } catch {
-        // best-effort delivery — failure is recorded on the AIResult already
       }
     }
+
+    await AIResult.updateOne(
+      { _id: aiResult._id },
+      {
+        $set: {
+          [`channels.${channel}.status`]: "delivered",
+          [`channels.${channel}.attempts`]: priorAttempts + 1,
+          [`channels.${channel}.nextRetryAt`]: null,
+          [`channels.${channel}.lastError`]: "",
+        },
+      }
+    );
+  } catch (error) {
+    const attempts = priorAttempts + 1;
+    // Permanent failures (no subscription to retry against at all) skip the backoff
+    // schedule entirely — retrying something that's definitively resolved wastes hours for
+    // no benefit, unlike a genuine transient error worth trying again.
+    const delay = error.permanent ? undefined : RETRY_DELAYS_MS[attempts - 1];
+    await AIResult.updateOne(
+      { _id: aiResult._id },
+      {
+        $set: {
+          [`channels.${channel}.status`]: delay ? "pending_retry" : "failed",
+          [`channels.${channel}.attempts`]: attempts,
+          [`channels.${channel}.nextRetryAt`]: delay ? new Date(Date.now() + delay) : null,
+          [`channels.${channel}.lastError`]: error.message || "Delivery failed.",
+        },
+      }
+    );
   }
-  // "dashboard" delivery has no extra step — the AIResult itself is what the
-  // dashboard reads.
 }
 
 function escapeHtml(str) {
   return String(str || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-export async function listResultsForCustomer(customerId, limit = 20) {
-  const docs = await AIResult.find({ customerId }).sort({ createdAt: -1 }).limit(limit).lean();
-  return docs.map((d) => ({
+function formatAIResult(d, promptText = "") {
+  return {
     id: d._id.toString(),
     scheduledPromptId: d.scheduledPromptId.toString(),
+    promptText,
     resultText: d.resultText,
     deliveredAt: d.deliveredAt,
-    deliveryMethod: d.deliveryMethod,
-    deliveryStatus: d.deliveryStatus,
+    channels: d.channels,
     readAt: d.readAt,
-  }));
+  };
+}
+
+export async function listResultsForCustomer(customerId, limit = 20) {
+  const docs = await AIResult.find({ customerId }).sort({ createdAt: -1 }).limit(limit).lean();
+  const scheduledPromptIds = [...new Set(docs.map((d) => d.scheduledPromptId?.toString()).filter(Boolean))];
+  const prompts = await ScheduledPrompt.find({ _id: { $in: scheduledPromptIds } }).select("promptText").lean();
+  const promptsById = new Map(prompts.map((p) => [p._id.toString(), p.promptText]));
+  return docs.map((d) => formatAIResult(d, promptsById.get(d.scheduledPromptId?.toString()) || ""));
+}
+
+export async function markResultRead(customerId, id) {
+  // Only sets readAt the first time — marking an already-read result read again is a
+  // harmless no-op, not an error, matching standard inbox-read semantics.
+  const updated = await AIResult.findOneAndUpdate(
+    { _id: id, customerId, readAt: null },
+    { $set: { readAt: new Date() } },
+    { new: true }
+  ).lean();
+  const result = updated || (await AIResult.findOne({ _id: id, customerId }).lean());
+  if (!result) {
+    const err = new Error("Result not found.");
+    err.status = 404;
+    throw err;
+  }
+  const scheduledPrompt = await ScheduledPrompt.findById(result.scheduledPromptId).select("promptText").lean();
+  return formatAIResult(result, scheduledPrompt?.promptText || "");
+}
+
+/** Customer-triggered manual retry for a channel currently "failed" (permanent — the
+ * automatic backoff schedule already gave up). Reuses the exact same delivery function the
+ * scheduler's retry pass uses. */
+export async function resendResultChannel(customerId, id, channel) {
+  if (!["email", "push"].includes(channel)) {
+    const err = new Error("Invalid delivery channel.");
+    err.status = 400;
+    throw err;
+  }
+  const result = await AIResult.findOne({ _id: id, customerId }).lean();
+  if (!result) {
+    const err = new Error("Result not found.");
+    err.status = 404;
+    throw err;
+  }
+  if (result.channels?.[channel]?.status !== "failed") {
+    const err = new Error("This channel is not currently in a failed state.");
+    err.status = 400;
+    throw err;
+  }
+  const [customer, scheduledPrompt] = await Promise.all([
+    User.findById(customerId).lean(),
+    ScheduledPrompt.findById(result.scheduledPromptId).lean(),
+  ]);
+  if (!customer) {
+    const err = new Error("Account not found.");
+    err.status = 404;
+    throw err;
+  }
+  await attemptChannelDelivery(result, channel, customer, scheduledPrompt?.promptText || "");
+  const updated = await AIResult.findById(id).lean();
+  return formatAIResult(updated, scheduledPrompt?.promptText || "");
 }
 
 // ---------------------------------------------------------------------------

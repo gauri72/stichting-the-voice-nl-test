@@ -235,7 +235,22 @@
       "heading": "Scheduled Prompts",
       "subtitle": "Automatic check-ins, delivered however you like.",
       "newScheduleButton": "New Schedule",
-      "empty": "No scheduled prompts yet. Create one to get automatic updates."
+      "empty": "No scheduled prompts yet. Create one to get automatic updates.",
+      "tabs": {
+        "schedules": "Schedules",
+        "updates": "Updates"
+      }
+    },
+    "updatesList": {
+      "empty": "No updates yet. They'll show up here as soon as a schedule runs.",
+      "untitled": "Update",
+      "resend": "Resend",
+      "channelStatus": {
+        "delivered": "Delivered",
+        "pending_retry": "Retrying",
+        "failed": "Failed",
+        "not_requested": "Not requested"
+      }
     },
     "chatBubble": {
       "yourMessageAriaLabel": "Your message",
@@ -268,10 +283,11 @@
         "sat": "Sat"
       },
       "delivery": {
-        "dashboard": "In-dashboard",
+        "inAppNote": "Updates always land in your in-app inbox. Pick any extra channels below.",
         "email": "Email",
         "push": "Push"
       },
+      "pushUnavailable": "Push notifications aren't available right now.",
       "fields": {
         "prompt": "Prompt",
         "promptPlaceholder": "e.g. Give me a summary of today's news",

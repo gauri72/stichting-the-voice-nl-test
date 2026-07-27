@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { apiFetch, apiUrl, authHeaders } from "../utils/api.js";
 import { useAuth } from "./AuthContext.jsx";
 
@@ -14,6 +14,7 @@ export function AiAssistantProvider({ children }) {
   const [savedPrompts, setSavedPrompts] = useState([]);
   const [prebuiltPrompts, setPrebuiltPrompts] = useState([]);
   const [scheduledPrompts, setScheduledPrompts] = useState([]);
+  const [results, setResults] = useState([]);
   const [usage, setUsage] = useState(null);
   const [error, setError] = useState("");
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
@@ -214,6 +215,41 @@ export function AiAssistantProvider({ children }) {
     setScheduledPrompts((prev) => prev.filter((s) => s.id !== id));
   }, []);
 
+  const loadResults = useCallback(async () => {
+    if (!isAuthenticated) return;
+    try {
+      const data = await apiFetch("/api/ai/results", { headers: authHeaders() });
+      setResults(data.results || []);
+    } catch (err) {
+      setError(err.message || "Could not load your updates.");
+    }
+  }, [isAuthenticated]);
+
+  // Loaded once on sign-in (not just when the Updates tab is visited) so the unread badge
+  // is accurate app-wide, the same way loadUsage/loadSchedules are lazy but this one can't
+  // be — a badge nobody ever triggers isn't a badge.
+  useEffect(() => {
+    if (isAuthenticated) loadResults();
+  }, [isAuthenticated, loadResults]);
+
+  const markResultRead = useCallback(async (id) => {
+    const data = await apiFetch(`/api/ai/results/${id}/read`, { method: "PATCH", headers: authHeaders() });
+    setResults((prev) => prev.map((r) => (r.id === id ? data.result : r)));
+    return data.result;
+  }, []);
+
+  const resendResult = useCallback(async (id, channel) => {
+    const data = await apiFetch(`/api/ai/results/${id}/resend`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ channel }),
+    });
+    setResults((prev) => prev.map((r) => (r.id === id ? data.result : r)));
+    return data.result;
+  }, []);
+
+  const unreadResultsCount = useMemo(() => results.filter((r) => !r.readAt).length, [results]);
+
   const value = useMemo(
     () => ({
       messages,
@@ -237,6 +273,11 @@ export function AiAssistantProvider({ children }) {
       createSchedule,
       updateSchedule,
       removeSchedule,
+      results,
+      loadResults,
+      markResultRead,
+      resendResult,
+      unreadResultsCount,
       usage,
       loadUsage,
       isOverlayOpen,
@@ -248,6 +289,7 @@ export function AiAssistantProvider({ children }) {
       chatHistory, loadChatHistory, openChatSession,
       savedPrompts, prebuiltPrompts, loadPrompts, savePrompt, toggleFavourite, removePrompt,
       scheduledPrompts, loadSchedules, createSchedule, updateSchedule, removeSchedule,
+      results, loadResults, markResultRead, resendResult, unreadResultsCount,
       usage, loadUsage, isOverlayOpen, openAssistant, closeAssistant,
     ]
   );

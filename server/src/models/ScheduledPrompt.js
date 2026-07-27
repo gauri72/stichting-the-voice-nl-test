@@ -18,7 +18,12 @@ const scheduledPromptSchema = new mongoose.Schema(
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     promptText: { type: String, required: true, trim: true, maxlength: 1000 },
     schedule: { type: scheduleSchema, required: true },
-    deliveryMethod: { type: String, enum: ["dashboard", "email", "push"], default: "dashboard" },
+    // In-app (the "Updates" inbox on AiScheduledPromptsPage) is always delivered — these are
+    // additive, independent opt-in channels layered on top, not a single either/or choice.
+    // See migrate-ai-scheduled-prompt-delivery.js for the conversion of pre-existing rows
+    // that used the old single deliveryMethod enum.
+    notifyEmail: { type: Boolean, default: false },
+    notifyPush: { type: Boolean, default: false },
     status: { type: String, enum: ["active", "paused"], default: "active", index: true },
     lastRunAt: { type: Date, default: null },
     nextRunAt: { type: Date, default: null, index: true },

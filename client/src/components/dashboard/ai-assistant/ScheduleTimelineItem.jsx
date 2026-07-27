@@ -5,7 +5,6 @@ import { IconChevronDown, IconPlayerPause, IconPlayerPlay, IconTrash, IconMail, 
 import CountdownTimer from "./CountdownTimer.jsx";
 
 const DAY_LABEL_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-const DELIVERY_ICONS = { dashboard: IconDeviceDesktop, email: IconMail, push: IconBellRinging };
 
 function describeSchedule(schedule, t, dayLabels) {
   if (schedule.type === "daily") return t("dashboardMain:aiAssistant.scheduleTimelineItem.dailyAt", { time: schedule.time });
@@ -21,7 +20,6 @@ export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) 
   const { t } = useTranslation(["dashboardMain"]);
   const dayLabels = DAY_LABEL_KEYS.map((key) => t(`dashboardMain:aiAssistant.scheduleModal.weekdays.${key}`));
   const [expanded, setExpanded] = useState(false);
-  const DeliveryIcon = DELIVERY_ICONS[item.deliveryMethod] || IconDeviceDesktop;
   const isActive = item.status === "active";
 
   return (
@@ -63,9 +61,19 @@ export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) 
           >
             {isActive ? t("dashboardMain:aiAssistant.scheduleTimelineItem.active") : t("dashboardMain:aiAssistant.scheduleTimelineItem.paused")}
           </span>
-          <span className="flex items-center gap-1 text-slate-400">
-            <DeliveryIcon size={13} /> {t(`dashboardMain:aiAssistant.scheduleModal.delivery.${item.deliveryMethod}`, { defaultValue: item.deliveryMethod })}
+          <span className="flex items-center gap-1 text-slate-400" title={t("dashboardMain:aiAssistant.scheduledPrompts.tabs.updates")}>
+            <IconDeviceDesktop size={13} />
           </span>
+          {item.notifyEmail && (
+            <span className="flex items-center gap-1 text-slate-400">
+              <IconMail size={13} /> {t("dashboardMain:aiAssistant.scheduleModal.delivery.email")}
+            </span>
+          )}
+          {item.notifyPush && (
+            <span className="flex items-center gap-1 text-slate-400">
+              <IconBellRinging size={13} /> {t("dashboardMain:aiAssistant.scheduleModal.delivery.push")}
+            </span>
+          )}
           {isActive && item.nextRunAt && (
             <span className="text-slate-400">
               {t("dashboardMain:aiAssistant.scheduleTimelineItem.nextIn")} <CountdownTimer targetDate={item.nextRunAt} />
