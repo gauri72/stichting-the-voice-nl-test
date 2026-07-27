@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import TicketOrder from "../models/TicketOrder.js";
 import { getMembershipCheckoutSettings } from "./membershipCheckoutSettingsService.js";
 
@@ -15,12 +16,19 @@ const SETTLED_STATUSES = ["paid", "free", "complimentary"];
  */
 export async function countDiscountedTicketsForEmail({ eventId, email }) {
   const normalizedEmail = String(email || "").trim().toLowerCase();
-  if (!eventId || !normalizedEmail) return 0;
+  if (!eventId || !normalizedEmail || !mongoose.Types.ObjectId.isValid(eventId)) return 0;
 
   const [result] = await TicketOrder.aggregate([
     {
       $match: {
-        eventId,
+        // Model.aggregate() bypasses Mongoose's automatic query-value casting (unlike
+        // find()/findOne()) — eventId reaches this function as a plain string (e.g. from
+        // formatEvent's event.id, or straight from a client request body), and matching
+        // that string directly against the real ObjectId-typed field below silently
+        // matches nothing. Must cast explicitly, same as every other aggregate() in this
+        // codebase that filters on an ObjectId field (dashboardEventService.js,
+        // dashboardService.js, paymentRecordService.js, etc.).
+        eventId: new mongoose.Types.ObjectId(eventId),
         attendeeEmail: normalizedEmail,
         paymentStatus: { $in: SETTLED_STATUSES },
       },
