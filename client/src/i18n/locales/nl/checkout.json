@@ -230,6 +230,13 @@
     "wakingHint": "Onze betaaldienst wordt opgestart. De eerste aanvraag kan tot een minuut duren. Volgende aanvragen zijn direct.",
     "closeBlock": "Betaalblok sluiten",
     "paymentReference": "Betalingsreferentie",
+    "wallet": {
+      "title": "Betalen met V.Wallet",
+      "balance": "Saldo: €{{amount}}",
+      "redeemPoints": "Punten inwisselen ({{count}} beschikbaar)",
+      "useBalance": "Gebruik van V.Wallet-saldo (€)",
+      "hint": "Wordt eerst toegepast als korting, daarna op deze betaling — een eventueel resterend bedrag betaal je met kaart of iDEAL."
+    },
     "errors": {
       "stripeKeyMissing": "Stripe publishable key ontbreekt. Voeg VITE_STRIPE_PUBLISHABLE_KEY toe aan client/.env en herstart de dev-server.",
       "couldNotStart": "Kon de betaling niet starten. Probeer het opnieuw.",

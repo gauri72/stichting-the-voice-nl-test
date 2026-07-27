@@ -3,7 +3,8 @@ import { getStripe } from "./stripe.js";
 import TicketOrder from "../models/TicketOrder.js";
 import { createBundleCheckout } from "./checkoutBundleService.js";
 import { fulfillOrder } from "./postPaymentFulfillmentService.js";
-import { debitWallet, creditWallet, redeemPoints, awardPoints, computePointsForSpend, getOrCreateWallet } from "./walletService.js";
+import { debitWallet, creditWallet, awardPoints, computePointsForSpend } from "./walletService.js";
+import { applyPointsDiscount, capWalletPortion, deferWalletDebit } from "./walletSplitPaymentService.js";
 
 function err(message, status = 400) {
   const e = new Error(message);
@@ -33,12 +34,6 @@ async function cancelUnusedIntent(paymentIntentId) {
   }
 }
 
-async function applyPointsRedemption(customerId, pointsToRedeem) {
-  if (!pointsToRedeem) return { discountMinor: 0, transaction: null };
-  const redemption = await redeemPoints(customerId, pointsToRedeem);
-  return redemption;
-}
-
 async function awardPurchasePoints(customerId, order, initiatedBy) {
   const points = await computePointsForSpend(customerId, order.totalAmountMinor);
   if (points > 0) {
@@ -56,8 +51,7 @@ async function awardPurchasePoints(customerId, order, initiatedBy) {
 export async function payTicketWithWallet(eventId, payload, userId, { pointsToRedeem = 0, initiatedBy = "customer" } = {}) {
   const { order, payment } = await quoteOrder(eventId, payload, userId);
 
-  const { discountMinor, transaction: pointsTransaction } = await applyPointsRedemption(userId, pointsToRedeem);
-  const amountDueMinor = Math.max(0, order.totalAmountMinor - discountMinor);
+  const { discountMinor, amountDueMinor } = await applyPointsDiscount(userId, pointsToRedeem, order.totalAmountMinor);
 
   try {
     if (amountDueMinor > 0) {
@@ -135,11 +129,8 @@ export async function payTicketWithWallet(eventId, payload, userId, { pointsToRe
 export async function payTicketSplit(eventId, payload, userId, { walletPortionMinor, pointsToRedeem = 0 }) {
   const { order, payment } = await quoteOrder(eventId, payload, userId);
 
-  const { discountMinor } = await applyPointsRedemption(userId, pointsToRedeem);
-  const amountDueMinor = Math.max(0, order.totalAmountMinor - discountMinor);
-
-  const wallet = await getOrCreateWallet(userId);
-  const cappedWalletPortion = Math.min(walletPortionMinor, wallet.balanceMinor, amountDueMinor);
+  const { discountMinor, amountDueMinor } = await applyPointsDiscount(userId, pointsToRedeem, order.totalAmountMinor);
+  const cappedWalletPortion = await capWalletPortion(userId, walletPortionMinor, amountDueMinor);
   const cardPortionMinor = amountDueMinor - cappedWalletPortion;
 
   if (cardPortionMinor <= 0) {
@@ -180,17 +171,15 @@ export async function applyDeferredWalletPortion(orderId, meta) {
   const order = await TicketOrder.findById(orderId);
   if (!order || !order.userId) return { success: false, error: "Order or customer not found." };
 
-  try {
-    await debitWallet(order.userId, walletPortionMinor, {
-      type: "purchase",
-      description: `Tickets — ${order.orderNumber} (wallet portion)`,
-      referenceType: "ticketOrder",
-      referenceId: order._id.toString(),
-      initiatedBy: "customer",
-    });
-    await awardPurchasePoints(order.userId, order, "customer");
-    return { success: true };
-  } catch (e) {
-    return { success: false, error: e.message };
-  }
+  const result = await deferWalletDebit(order.userId, walletPortionMinor, {
+    type: "purchase",
+    description: `Tickets — ${order.orderNumber} (wallet portion)`,
+    referenceType: "ticketOrder",
+    referenceId: order._id.toString(),
+    initiatedBy: "customer",
+  });
+  if (!result.success) return result;
+
+  await awardPurchasePoints(order.userId, order, "customer");
+  return { success: true };
 }

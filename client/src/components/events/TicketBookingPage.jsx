@@ -16,6 +16,7 @@ import { getStripePromise, STRIPE_PUBLISHABLE_KEY } from "../../utils/stripeClie
 import {
   clearCheckoutSession,
   completePaymentReturn,
+  formatStripeAmountLabel,
   getStripeElementsAppearance,
   isPaymentReturnUrl,
   persistCheckoutSession,
@@ -70,6 +71,10 @@ export default function TicketBookingPage() {
   const [walletSubmitting, setWalletSubmitting] = useState(false);
   const [walletPayError, setWalletPayError] = useState("");
   const [pointsToRedeem, setPointsToRedeem] = useState(0);
+  // null = "follow the default" (use the full available wallet portion); once the
+  // customer drags the slider, this holds their explicit choice in minor units.
+  const [walletPortionMinor, setWalletPortionMinor] = useState(null);
+  const [splitCardPortionMinor, setSplitCardPortionMinor] = useState(null);
 
   const [event, setEvent] = useState(null);
   const [quantities, setQuantities] = useState({});
@@ -130,9 +135,24 @@ export default function TicketBookingPage() {
     [attendee]
   );
 
-  const amountLabel = preview?.combined?.grandTotal || "€0.00";
+  const amountLabel = splitCardPortionMinor != null
+    ? formatStripeAmountLabel({ amount: splitCardPortionMinor, currency: "eur" })
+    : preview?.combined?.grandTotal || "€0.00";
 
   const isFreeCheckout = (preview?.combined?.grandTotalMinor ?? 1) <= 0;
+
+  // Client-side mirror of walletService.js::previewPointsRedemption's formula —
+  // purely for bounding the wallet-portion slider; the backend recomputes and
+  // enforces the real discount at payment time.
+  const pointsDiscountEstimateMinor = walletData?.pointsProgram?.pointsNeededPerEuroDiscount
+    ? Math.round(((pointsToRedeem || 0) / walletData.pointsProgram.pointsNeededPerEuroDiscount) * 100)
+    : 0;
+  const amountDueAfterPointsMinor = Math.max(0, (preview?.combined?.grandTotalMinor || 0) - pointsDiscountEstimateMinor);
+  const maxWalletPortionMinor = Math.min(walletData?.balanceMinor || 0, amountDueAfterPointsMinor);
+  const walletPortionMinorApplied = walletPortionMinor === null
+    ? maxWalletPortionMinor
+    : Math.min(walletPortionMinor, maxWalletPortionMinor);
+  const cardPortionPreviewMinor = Math.max(0, amountDueAfterPointsMinor - walletPortionMinorApplied);
 
   const selectedItems = useMemo(
     () =>
@@ -859,6 +879,50 @@ export default function TicketBookingPage() {
     }
   }
 
+  async function handlePaySplit() {
+    if (walletPortionMinorApplied <= 0) return;
+    setWalletSubmitting(true);
+    setWalletPayError("");
+    try {
+      const result = await payWithWallet({
+        eventId: eventIdOrSlug,
+        checkout: {
+          items: selectedItems,
+          attendeeFirstName: attendee.firstName,
+          attendeeLastName: attendee.lastName,
+          attendeeEmail: attendee.email,
+          attendeePhone: attendee.phone,
+          discountCodes: ticketCodes,
+          termsAccepted,
+          selectedSeatIds,
+          checkoutFormAnswers,
+          participantCount: ticketQty,
+        },
+        pointsToRedeem: pointsToRedeem || 0,
+        split: { walletPortionMinor: walletPortionMinorApplied },
+      });
+      setCheckoutOrder(result.order);
+      setClientSecret(result.clientSecret);
+      setSplitCardPortionMinor(result.cardPortionMinor);
+      // Overwrite the persisted orderId/paymentIntentId from the auto-started
+      // full-price checkout above with this split order's — the redirect
+      // return flow (finalizeTicketPayment -> resolveOrderId) reads this back
+      // and would otherwise confirm the wrong (abandoned) order.
+      persistCheckoutSession(TICKET_CHECKOUT_SESSION_KEY, {
+        orderId: result.order.id || result.order._id,
+        orderNumber: result.order.orderNumber,
+        paymentIntentId: result.paymentIntentId,
+        guestAccessToken: "",
+        eventIdOrSlug,
+        payer,
+      });
+    } catch (err) {
+      setWalletPayError(err.message || t("checkout:errors.couldNotStartCheckout"));
+    } finally {
+      setWalletSubmitting(false);
+    }
+  }
+
   async function handleStripeSuccess(paymentIntent) {
     const orderId = checkoutOrder?.id || resolveOrderId(paymentIntent);
     if (!orderId && !paymentIntent?.id) {
@@ -1573,15 +1637,38 @@ export default function TicketBookingPage() {
 
                     {walletPayError ? <p className="ticket-booking__error">{walletPayError}</p> : null}
 
-                    {walletData.balanceMinor >= (preview.combined.grandTotalMinor || 0) ? (
+                    {walletData.balanceMinor >= amountDueAfterPointsMinor ? (
                       <button
                         type="button"
                         className="ticket-booking__wallet-pay-cta"
-                        disabled={walletSubmitting}
+                        disabled={walletSubmitting || checkoutLoading}
                         onClick={handlePayWithWallet}
                       >
                         {walletSubmitting ? "Processing…" : `Pay ${preview.combined.grandTotal} with V.Wallet`}
                       </button>
+                    ) : maxWalletPortionMinor > 0 ? (
+                      <div className="ticket-booking__wallet-pay-split">
+                        <label htmlFor="wallet-portion-slider">
+                          Use €{(walletPortionMinorApplied / 100).toFixed(2)} from V.Wallet, pay €{(cardPortionPreviewMinor / 100).toFixed(2)} by card
+                        </label>
+                        <input
+                          id="wallet-portion-slider"
+                          type="range"
+                          min="0"
+                          max={maxWalletPortionMinor}
+                          step="1"
+                          value={walletPortionMinorApplied}
+                          onChange={(e) => setWalletPortionMinor(Number(e.target.value))}
+                        />
+                        <button
+                          type="button"
+                          className="ticket-booking__wallet-pay-cta"
+                          disabled={walletSubmitting || checkoutLoading || walletPortionMinorApplied <= 0}
+                          onClick={handlePaySplit}
+                        >
+                          {walletSubmitting ? "Processing…" : "Use this V.Wallet amount"}
+                        </button>
+                      </div>
                     ) : (
                       <p className="ticket-booking__wallet-pay-topup">
                         Your wallet balance doesn't cover this total yet — top up from your dashboard, or pay by card below.
@@ -1607,7 +1694,7 @@ export default function TicketBookingPage() {
                 {clientSecret && STRIPE_PUBLISHABLE_KEY ? (
                   <div className="ticket-booking__stripe">
                     <Elements
-                      key={isDark ? "ticket-stripe-dark" : "ticket-stripe-light"}
+                      key={`${isDark ? "ticket-stripe-dark" : "ticket-stripe-light"}-${clientSecret}`}
                       stripe={getStripePromise()}
                       options={{
                         clientSecret,
@@ -1638,6 +1725,8 @@ export default function TicketBookingPage() {
                 onClick={() => {
                   setClientSecret("");
                   setCheckoutOrder(null);
+                  setSplitCardPortionMinor(null);
+                  setWalletPortionMinor(null);
                   checkoutInitRef.current = false;
                   setStep(REVIEW_STEP);
                 }}

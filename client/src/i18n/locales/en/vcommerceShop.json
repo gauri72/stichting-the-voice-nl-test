@@ -206,6 +206,9 @@
     "subtotal": "Subtotal",
     "cashback": "V.Wallet cashback",
     "cashbackSignInNote": "Sign in before ordering to earn {{price}} V.Wallet cashback.",
+    "pointsDiscount": "Points redeemed",
+    "walletPortion": "V.Wallet balance",
+    "totalDueByCard": "Due by card",
     "total": "Total"
   },
   "marketplaceHome": {

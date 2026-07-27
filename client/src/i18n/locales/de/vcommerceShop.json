@@ -206,6 +206,9 @@
     "subtotal": "Zwischensumme",
     "cashback": "V.Wallet Cashback",
     "cashbackSignInNote": "Melde dich vor der Bestellung an, um {{price}} V.Wallet Cashback zu verdienen.",
+    "pointsDiscount": "Eingelöste Punkte",
+    "walletPortion": "V.Wallet-Guthaben",
+    "totalDueByCard": "Fällig per Karte",
     "total": "Gesamt"
   },
   "marketplaceHome": {

@@ -230,6 +230,13 @@
     "wakingHint": "Our payment service is starting up. The first request can take up to a minute. Subsequent requests will be instant.",
     "closeBlock": "Close payment block",
     "paymentReference": "Payment reference",
+    "wallet": {
+      "title": "Pay with V.Wallet",
+      "balance": "Balance: €{{amount}}",
+      "redeemPoints": "Redeem points ({{count}} available)",
+      "useBalance": "Use from V.Wallet balance (€)",
+      "hint": "Applied first as a discount, then towards this payment — any remaining balance is paid by card or iDEAL."
+    },
     "errors": {
       "stripeKeyMissing": "Stripe publishable key is missing. Add VITE_STRIPE_PUBLISHABLE_KEY to client/.env and restart the dev server.",
       "couldNotStart": "Could not start the payment. Please try again.",

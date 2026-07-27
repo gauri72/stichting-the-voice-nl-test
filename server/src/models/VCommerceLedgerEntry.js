@@ -8,7 +8,7 @@ const vCommerceLedgerEntrySchema = new mongoose.Schema(
     adjustmentId: { type: mongoose.Schema.Types.ObjectId, ref: "VCommerceAdjustment", default: null },
     entryType: {
       type: String,
-      enum: ["sale", "fee", "cashback", "credit", "deduction", "waiver", "refund", "payout", "manual"],
+      enum: ["sale", "fee", "cashback", "credit", "deduction", "waiver", "refund", "payout", "manual", "wallet_transfer"],
       required: true,
       index: true,
     },

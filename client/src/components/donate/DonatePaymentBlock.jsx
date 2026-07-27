@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Elements } from "@stripe/react-stripe-js";
 import StripeCheckoutForm from "../payments/StripeCheckoutForm";
+import WalletPortionControl from "../payments/WalletPortionControl.jsx";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import {
   getStripeElementsAppearance,
@@ -18,6 +19,8 @@ import {
 import { useResolvedCheckoutTier } from "../../hooks/useResolvedCheckoutTier.js";
 import { useApiWarmup } from "../../hooks/useApiWarmup.js";
 import { useTheme } from "../../contexts/ThemeContext.jsx";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useWallet } from "../../contexts/WalletContext.jsx";
 import { authHeaders, apiUrl } from "../../utils/api.js";
 import { getStripePromise, STRIPE_PUBLISHABLE_KEY } from "../../utils/stripeClient.js";
 import "../../styles/sponsorship-payment-block.css";
@@ -29,6 +32,8 @@ const PUBLISHABLE_KEY = STRIPE_PUBLISHABLE_KEY;
 const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClose }, ref) {
   const { t } = useTranslation(["checkout"]);
   const { isDark } = useTheme();
+  const { user } = useAuth();
+  const { wallet, loadWallet } = useWallet();
   const activeTier = useResolvedCheckoutTier(DONATE_CHECKOUT_SESSION_KEY, tier);
   const stripeAppearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
   const [step, setStep] = useState("details");
@@ -48,6 +53,18 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
   const [submitError, setSubmitError] = useState("");
   const [success, setSuccess] = useState(null);
   const [handlingReturn, setHandlingReturn] = useState(() => isPaymentReturnUrl());
+  const [pointsToRedeem, setPointsToRedeem] = useState(0);
+  // null = "follow the wallet's current balance"; once the donor edits the
+  // amount, this holds their explicit choice in minor units. The backend
+  // caps whatever's requested against both the balance and the real amount
+  // due (unknown here — see WalletPortionControl.jsx), so defaulting to the
+  // full balance is safe.
+  const [walletPortionMinor, setWalletPortionMinor] = useState(null);
+  const appliedWalletPortionMinor = walletPortionMinor === null ? (wallet?.balanceMinor || 0) : walletPortionMinor;
+
+  useEffect(() => {
+    if (user) loadWallet();
+  }, [user, loadWallet]);
 
   useEffect(() => {
     if (isPaymentReturnUrl()) return;
@@ -92,6 +109,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
           } catch (_err) {
             // Webhook may still deliver.
           }
+          if (user) loadWallet();
         },
         onError: (msg) => {
           setSubmitError(msg);
@@ -160,6 +178,11 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
         }
       }
 
+      if (user) {
+        if (appliedWalletPortionMinor > 0) body.walletPortionMinor = appliedWalletPortionMinor;
+        if (pointsToRedeem > 0) body.pointsToRedeem = pointsToRedeem;
+      }
+
       const response = await fetchWithTimeout(
         apiUrl("/api/payments/create-payment-intent"),
         {
@@ -175,6 +198,15 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data?.error || t("checkout:paymentBlock.errors.couldNotStart"));
+      }
+
+      if (data.mode === "wallet_only") {
+        setSubmitError("");
+        setSuccess({ id: data.paymentIntentId, tierName: activeTier?.name || "" });
+        setStep("done");
+        clearCheckoutSession(DONATE_CHECKOUT_SESSION_KEY);
+        loadWallet();
+        return;
       }
 
       const meta = {
@@ -223,6 +255,7 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
     } catch (_err) {
       // Webhook may still deliver; thank-you screen is already shown.
     }
+    if (user) loadWallet();
   }
 
   return (
@@ -358,6 +391,17 @@ const DonatePaymentBlock = forwardRef(function DonatePaymentBlock({ tier, onClos
                 />
               </label>
             </div>
+
+            {user ? (
+              <WalletPortionControl
+                wallet={wallet}
+                pointsToRedeem={pointsToRedeem}
+                onPointsToRedeemChange={setPointsToRedeem}
+                walletPortionMinor={appliedWalletPortionMinor}
+                onWalletPortionMinorChange={setWalletPortionMinor}
+                disabled={loading}
+              />
+            ) : null}
 
             {submitError ? (
               <p className="sponsorship-payment__error" role="alert">

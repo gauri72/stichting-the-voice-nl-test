@@ -206,6 +206,9 @@
     "subtotal": "Subtotaal",
     "cashback": "V.Wallet cashback",
     "cashbackSignInNote": "Log in voordat je bestelt om {{price}} V.Wallet cashback te verdienen.",
+    "pointsDiscount": "Punten ingewisseld",
+    "walletPortion": "V.Wallet-saldo",
+    "totalDueByCard": "Te betalen met kaart",
     "total": "Totaal"
   },
   "marketplaceHome": {

@@ -81,6 +81,15 @@ const businessOrderSchema = new mongoose.Schema(
     refundedAt: { type: Date, default: null },
     payoutId: { type: mongoose.Schema.Types.ObjectId, ref: "BusinessPayout", default: null },
     walletTransactionId: { type: mongoose.Schema.Types.ObjectId, ref: "WalletTransaction", default: null },
+    // V.Wallet balance + reward-points composition (checkout time, authenticated
+    // customers only). walletPortionMinor/pointsDiscountMinor are carved out of
+    // subtotalMinor — the customer actually paid subtotalMinor - pointsDiscountMinor
+    // - walletPortionMinor via Stripe. See businessOrderService.js createOrderIntent.
+    walletPortionMinor: { type: Number, default: 0, min: 0 },
+    walletTransferId: { type: String, default: "", trim: true },
+    walletTransferStatus: { type: String, enum: ["not_applicable", "pending", "succeeded", "failed"], default: "not_applicable" },
+    pointsRedeemed: { type: Number, default: 0, min: 0 },
+    pointsDiscountMinor: { type: Number, default: 0, min: 0 },
     receiptNumber: { type: String, default: "", trim: true, index: true },
     receiptGeneratedAt: { type: Date, default: null },
     receiptEmailStatus: { type: String, enum: ["not_sent", "sent", "failed"], default: "not_sent" },

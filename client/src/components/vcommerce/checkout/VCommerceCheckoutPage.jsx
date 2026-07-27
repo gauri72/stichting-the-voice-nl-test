@@ -5,8 +5,10 @@ import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-
 import { getVCommerceStripePromise } from "../../../utils/stripeClient.js";
 import { getStripeElementsAppearance } from "../../../utils/stripePayment.js";
 import { useAuth } from "../../../contexts/AuthContext.jsx";
+import { useWallet } from "../../../contexts/WalletContext.jsx";
 import { useCart } from "../cart/useCart.js";
 import { postCreateOrder, getOrderStatus } from "../shared/vcommerceApi.js";
+import WalletPortionControl from "../../payments/WalletPortionControl.jsx";
 import "../../../styles/vcommerce-checkout.css";
 
 function formatPrice(minor, currency = "eur") {
@@ -131,6 +133,7 @@ export default function VCommerceCheckoutPage() {
   const { t } = useTranslation(["vcommerceShop"]);
   const [searchParams] = useSearchParams();
   const { user, loading: authLoading } = useAuth();
+  const { wallet, loadWallet } = useWallet();
   const { cart, clearCart, subtotalMinor, cashbackMinor } = useCart();
 
   const businessId = searchParams.get("business") || cart?.businessId;
@@ -154,6 +157,17 @@ export default function VCommerceCheckoutPage() {
   const [createError, setCreateError] = useState(null);
   const [confirmed, setConfirmed] = useState(false);
   const [step, setStep] = useState(isPaymentReturn ? "paying" : "shipping"); // shipping | paying | done
+  const [pointsToRedeem, setPointsToRedeem] = useState(0);
+  // null = "follow the wallet's current balance" — see WalletPortionControl.jsx;
+  // the real amount due isn't known client-side before order creation
+  // (custom carts, seller-specific fees), so the backend caps whatever's
+  // requested against both the balance and the real total.
+  const [walletPortionMinor, setWalletPortionMinor] = useState(null);
+  const appliedWalletPortionMinor = walletPortionMinor === null ? (wallet?.balanceMinor || 0) : walletPortionMinor;
+  // Server-computed split, captured once the order is created — cashback
+  // excludes the wallet-funded portion, so it can differ from the cart's own
+  // pre-checkout estimate (which doesn't know about wallet/points yet).
+  const [orderResult, setOrderResult] = useState(null);
 
   const stripePromise = useMemo(() => getVCommerceStripePromise(), []);
   const isDark = document.documentElement.getAttribute("data-theme") === "dark";
@@ -163,6 +177,10 @@ export default function VCommerceCheckoutPage() {
     document.title = t("vcommerceShop:checkoutPage.documentTitle");
     return () => { document.title = "V.O.I.C.E. NL"; };
   }, [t]);
+
+  useEffect(() => {
+    if (user) loadWallet();
+  }, [user, loadWallet]);
 
   // Handle return from bank redirect (iDEAL etc.)
   useEffect(() => {
@@ -177,7 +195,7 @@ export default function VCommerceCheckoutPage() {
           const { order } = await getOrderStatus(returnOrderId, returnAccessToken);
           if (stopped) return;
           if (order?.status === "paid" || order?.status === "fulfilled") {
-            setConfirmed(true); setStep("done"); clearCart(); return;
+            setConfirmed(true); setStep("done"); clearCart(); if (user) loadWallet(); return;
           }
         } catch { /* webhook can still be processing */ }
         if (!stopped && attempts < 12) setTimeout(verify, 1500);
@@ -213,7 +231,7 @@ export default function VCommerceCheckoutPage() {
     return (
       <div className="vco-page">
         <OrderConfirmation
-          cashbackMinor={user ? cashbackMinor : 0}
+          cashbackMinor={user ? (orderResult?.cashbackMinor ?? cashbackMinor) : 0}
           currency={cart?.items?.[0]?.currency || "eur"}
           orderId={orderId}
           hasAccount={Boolean(user)}
@@ -266,10 +284,22 @@ export default function VCommerceCheckoutPage() {
         vatNumber: contact.vatNumber,
         termsAccepted,
         customerNote: note,
+        ...(user && appliedWalletPortionMinor > 0 ? { walletPortionMinor: appliedWalletPortionMinor } : {}),
+        ...(user && pointsToRedeem > 0 ? { pointsToRedeem } : {}),
       });
-      setClientSecret(result.clientSecret);
+      setOrderResult(result);
       setOrderId(result.orderId);
       setOrderAccessToken(result.orderAccessToken || "");
+
+      if (result.mode === "wallet_only") {
+        clearCart();
+        setStep("done");
+        setConfirmed(true);
+        loadWallet();
+        return;
+      }
+
+      setClientSecret(result.clientSecret);
       setStep("paying");
     } catch (err) {
       setCreateError(err?.message || t("vcommerceShop:checkoutPage.createOrderError"));
@@ -383,6 +413,17 @@ export default function VCommerceCheckoutPage() {
                   </div>
                 </div>
 
+                {user && (
+                  <WalletPortionControl
+                    wallet={wallet}
+                    pointsToRedeem={pointsToRedeem}
+                    onPointsToRedeemChange={setPointsToRedeem}
+                    walletPortionMinor={appliedWalletPortionMinor}
+                    onWalletPortionMinorChange={setWalletPortionMinor}
+                    disabled={creating}
+                  />
+                )}
+
                 {createError && (
                   <p style={{ padding:"10px 14px",background:"rgba(239,68,68,0.08)",borderRadius:8,color:"#DC2626",fontSize:"0.875rem",marginTop:16 }}>
                     {createError}
@@ -406,7 +447,7 @@ export default function VCommerceCheckoutPage() {
                     orderAccessToken={orderAccessToken}
                     cashbackMinor={cashbackMinor}
                     currency={currency}
-                    onSuccess={() => { clearCart(); setStep("done"); setConfirmed(true); }}
+                    onSuccess={() => { clearCart(); setStep("done"); setConfirmed(true); if (user) loadWallet(); }}
                   />
                 </Elements>
                 <button type="button"
@@ -446,18 +487,30 @@ export default function VCommerceCheckoutPage() {
                 <span style={{ color:"var(--color-text-secondary,#666)" }}>{t("vcommerceShop:checkoutPage.subtotal")}</span>
                 <strong>{formatPrice(subtotalMinor, currency)}</strong>
               </div>
-              {user && cashbackMinor > 0 && (
+              {user && (orderResult?.cashbackMinor ?? cashbackMinor) > 0 && (
                 <div style={{ display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:"0.85rem" }}>
                   <span style={{ color:"var(--vco-accent-teal,#14B8A6)" }}>🎁 {t("vcommerceShop:checkoutPage.cashback")}</span>
-                  <span style={{ color:"var(--vco-accent-teal,#14B8A6)",fontWeight:600 }}>+{formatPrice(cashbackMinor, currency)}</span>
+                  <span style={{ color:"var(--vco-accent-teal,#14B8A6)",fontWeight:600 }}>+{formatPrice(orderResult?.cashbackMinor ?? cashbackMinor, currency)}</span>
                 </div>
               )}
               {!user && cashbackMinor > 0 && (
                 <p className="vco-checkout-cashback-note">{t("vcommerceShop:checkoutPage.cashbackSignInNote", { price: formatPrice(cashbackMinor, currency) })}</p>
               )}
+              {orderResult?.pointsDiscountMinor > 0 && (
+                <div style={{ display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:"0.85rem" }}>
+                  <span style={{ color:"var(--color-text-secondary,#666)" }}>{t("vcommerceShop:checkoutPage.pointsDiscount")}</span>
+                  <span>-{formatPrice(orderResult.pointsDiscountMinor, currency)}</span>
+                </div>
+              )}
+              {orderResult?.walletPortionMinor > 0 && (
+                <div style={{ display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:"0.85rem" }}>
+                  <span style={{ color:"var(--color-text-secondary,#666)" }}>💳 {t("vcommerceShop:checkoutPage.walletPortion")}</span>
+                  <span>-{formatPrice(orderResult.walletPortionMinor, currency)}</span>
+                </div>
+              )}
               <div style={{ display:"flex",justifyContent:"space-between",fontSize:"1rem",fontWeight:700,marginTop:10 }}>
-                <span>{t("vcommerceShop:checkoutPage.total")}</span>
-                <span>{formatPrice(subtotalMinor, currency)}</span>
+                <span>{orderResult?.cardPortionMinor != null ? t("vcommerceShop:checkoutPage.totalDueByCard") : t("vcommerceShop:checkoutPage.total")}</span>
+                <span>{formatPrice(orderResult?.cardPortionMinor ?? subtotalMinor, currency)}</span>
               </div>
             </div>
           </div>

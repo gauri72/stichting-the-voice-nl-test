@@ -122,7 +122,7 @@ export async function postCreateOrder(req, res) {
     if (!rl.allowed) {
       return res.status(429).json({ error: "Too many order requests. Please wait a moment." });
     }
-    const { items, shippingAddress, billingAddress, referralCode, poNumber } = req.body;
+    const { items, shippingAddress, billingAddress, referralCode, poNumber, walletPortionMinor, pointsToRedeem } = req.body;
     const guest = !req.user;
     const email = String(req.body.email || req.user?.email || "").trim().toLowerCase();
     const name = String(req.body.name || `${req.user?.firstName || ""} ${req.user?.lastName || ""}`.trim()).trim();
@@ -148,7 +148,7 @@ export async function postCreateOrder(req, res) {
       req.params.businessId,
       items,
       shippingAddress,
-      { referralCode, poNumber }
+      { referralCode, poNumber, walletPortionMinor, pointsToRedeem }
     );
     return ok(res, result, 201);
   } catch (e) {

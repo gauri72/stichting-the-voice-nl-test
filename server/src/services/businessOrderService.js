@@ -2,6 +2,7 @@ import BusinessProfile from "../models/BusinessProfile.js";
 import BusinessProduct from "../models/BusinessProduct.js";
 import BusinessOrder from "../models/BusinessOrder.js";
 import { creditWallet } from "./walletService.js";
+import { applyPointsDiscount, capWalletPortion, deferWalletDebit } from "./walletSplitPaymentService.js";
 import { getVCommerceStripe } from "./stripe.js";
 import {
   VCOMMERCE_PLATFORM_FEE_PERCENT,
@@ -31,7 +32,7 @@ function resolveUnitPrice(product, qty) {
   return product.priceMinor;
 }
 
-export async function createOrderIntent(customerId, customerData, businessId, items, shippingAddress, { referralCode, poNumber } = {}) {
+export async function createOrderIntent(customerId, customerData, businessId, items, shippingAddress, { referralCode, poNumber, walletPortionMinor, pointsToRedeem } = {}) {
   const business = await BusinessProfile.findById(businessId).lean();
   if (!business || business.status !== "active") {
     const err = new Error("Business not found or not active.");
@@ -118,8 +119,34 @@ export async function createOrderIntent(customerId, customerData, businessId, it
 
   const platformFeeMinor = Math.round((subtotalMinor * effectiveFeePercent) / 100);
   const businessAmountMinor = subtotalMinor - platformFeeMinor;
-  const cashbackMinor = Math.round((subtotalMinor * cashbackPercent) / 100);
   const isGuest = !customerId;
+
+  // Optional V.Wallet balance + reward-points composition, authenticated
+  // customers only (guest checkout has no wallet or points). Same order as
+  // tickets/donations: points discount first, then cap the wallet portion
+  // against the already-discounted amount, then Stripe covers whatever's
+  // left. platformFeeMinor/businessAmountMinor above stay computed on the
+  // full pre-discount subtotalMinor — the seller isn't penalized for the
+  // customer's payment method or points choice — so the fee actually
+  // collected gets split proportionally across the card leg (via the
+  // reduced destination charge's application_fee_amount below) and the
+  // wallet leg (via the payout math in settleOrderFulfillment's transfer).
+  let pointsDiscountMinor = 0;
+  let cappedWalletPortion = 0;
+  let cardPortionMinor = subtotalMinor;
+  const requestedPointsToRedeem = Number(pointsToRedeem) || 0;
+  const requestedWalletPortionMinor = Number(walletPortionMinor) || 0;
+  if (!isGuest && (requestedPointsToRedeem > 0 || requestedWalletPortionMinor > 0)) {
+    const discount = await applyPointsDiscount(customerId, requestedPointsToRedeem, subtotalMinor);
+    pointsDiscountMinor = discount.discountMinor;
+    cappedWalletPortion = await capWalletPortion(customerId, requestedWalletPortionMinor, discount.amountDueMinor);
+    cardPortionMinor = discount.amountDueMinor - cappedWalletPortion;
+  }
+
+  // Cashback excludes the wallet-funded portion (confirmed decision) —
+  // computed on whatever's left after points + wallet, so it can't compound
+  // on itself (wallet balance -> cashback -> more wallet balance -> ...).
+  const cashbackMinor = Math.round((cardPortionMinor * cashbackPercent) / 100);
   const effectiveCashbackMinor = isGuest ? 0 : cashbackMinor;
   const guestAccessToken = isGuest ? crypto.randomBytes(32).toString("hex") : "";
   const guestAccessTokenHash = guestAccessToken
@@ -157,6 +184,10 @@ export async function createOrderIntent(customerId, customerData, businessId, it
     poNumber: poNumber || "",
     customerNote: customerData.note || "",
     status: "pending",
+    walletPortionMinor: cappedWalletPortion,
+    walletTransferStatus: cappedWalletPortion > 0 ? "pending" : "not_applicable",
+    pointsRedeemed: requestedPointsToRedeem,
+    pointsDiscountMinor,
     calculationSnapshot: {
       version: 1,
       subtotalMinor,
@@ -165,6 +196,9 @@ export async function createOrderIntent(customerId, customerData, businessId, it
       cashbackPercent,
       cashbackMinor: effectiveCashbackMinor,
       businessAmountMinor,
+      walletPortionMinor: cappedWalletPortion,
+      pointsRedeemed: requestedPointsToRedeem,
+      pointsDiscountMinor,
       calculatedAt: new Date(),
       chargeRuleIds: [configuredRules.platformFee?._id, configuredRules.cashback?._id].filter(Boolean),
       chargeType: "destination_charge",
@@ -175,8 +209,59 @@ export async function createOrderIntent(customerId, customerData, businessId, it
     cashbackFundingParty: "platform",
   });
 
+  // 100%-covered by points + wallet — Stripe can't create a €0 (or
+  // negative) destination charge, so debit the wallet directly and fulfil
+  // immediately via the same settlement path a real Stripe payment takes,
+  // skipping the charge-reconciliation step entirely (there's no Stripe
+  // charge/transfer/application-fee to reconcile). Mirrors
+  // paymentController.js's payWithWalletOnly for donations/memberships.
+  if (cardPortionMinor <= 0) {
+    const debited = await deferWalletDebit(customerId, cappedWalletPortion, {
+      type: "purchase",
+      description: `V.Commerce order ${order.orderNumber} at ${business.businessName}`,
+      referenceType: "businessOrder",
+      referenceId: order._id.toString(),
+      initiatedBy: "customer",
+    });
+    if (!debited.success) {
+      await BusinessOrder.findByIdAndUpdate(order._id, { $set: { status: "cancelled" } }).catch(() => {});
+      const e = new Error(debited.error || "Could not charge your V.Wallet balance.");
+      e.status = 400;
+      throw e;
+    }
+
+    try {
+      await fulfillWalletOnlyOrder(order._id);
+    } catch (fulfillmentError) {
+      console.error("[vcommerce] Wallet-only fulfillment failed:", fulfillmentError.message);
+      await creditWallet(customerId, cappedWalletPortion, {
+        type: "refund",
+        description: `Refund — could not complete order ${order.orderNumber}`,
+        referenceType: "businessOrder",
+        referenceId: order._id.toString(),
+        initiatedBy: "customer",
+      }).catch((refundErr) => {
+        console.error("[vcommerce] CRITICAL: wallet refund after failed fulfillment also failed:", refundErr.message);
+      });
+      const e = new Error("We couldn't complete this order, so your V.Wallet balance (and any points used) have been refunded. Please try again.");
+      e.status = 500;
+      throw e;
+    }
+
+    return {
+      mode: "wallet_only",
+      orderId: order._id.toString(),
+      cashbackMinor: effectiveCashbackMinor,
+      subtotalMinor,
+      walletPortionMinor: cappedWalletPortion,
+      pointsDiscountMinor,
+      orderAccessToken: guestAccessToken || undefined,
+    };
+  }
+
+  const cardApplicationFeeMinor = Math.round((cardPortionMinor * effectiveFeePercent) / 100);
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: subtotalMinor,
+    amount: cardPortionMinor,
     currency: "eur",
     metadata: {
       payment_kind: "business_order",
@@ -185,7 +270,7 @@ export async function createOrderIntent(customerId, customerData, businessId, it
       customerId: customerId?.toString() || "",
     },
     description: `V.Commerce order at ${business.businessName}`,
-    application_fee_amount: platformFeeMinor,
+    application_fee_amount: cardApplicationFeeMinor,
     transfer_data: {
       destination: business.stripeConnectedAccountId,
     },
@@ -196,10 +281,14 @@ export async function createOrderIntent(customerId, customerData, businessId, it
   await order.save();
 
   return {
+    mode: "stripe",
     clientSecret: paymentIntent.client_secret,
     orderId: order._id.toString(),
     cashbackMinor: effectiveCashbackMinor,
     subtotalMinor,
+    walletPortionMinor: cappedWalletPortion,
+    cardPortionMinor,
+    pointsDiscountMinor,
     orderAccessToken: guestAccessToken || undefined,
   };
 }
@@ -246,6 +335,37 @@ export async function fulfillOrder(paymentIntentOrId) {
     : addBusinessDays(new Date(), VCOMMERCE_PAYOUT_DELAY_BUSINESS_DAYS);
   await order.save();
 
+  return settleOrderFulfillment(order);
+}
+
+/**
+ * 100%-covered-by-points-and-wallet order: no Stripe PaymentIntent exists at
+ * all (see the cardPortionMinor <= 0 branch in createOrderIntent above), so
+ * there's nothing to reconcile — just transition status and run the same
+ * settlement every other order goes through.
+ */
+async function fulfillWalletOnlyOrder(orderId) {
+  const order = await BusinessOrder.findById(orderId);
+  if (!order) return null;
+  if (order.status !== "pending") return order;
+
+  order.status = "paid";
+  order.paymentStatus = "succeeded";
+  order.paidAt = new Date();
+  order.payoutEligibleAt = null;
+  await order.save();
+
+  return settleOrderFulfillment(order);
+}
+
+/**
+ * Shared post-payment settlement — stock, cashback, business counters,
+ * ledger entries, the wallet-funded portion's seller payout, and receipt
+ * emails. Called once payment has been confirmed (either a real Stripe
+ * charge via fulfillOrder, or a wallet/points-only order via
+ * fulfillWalletOnlyOrder) and the order has already transitioned to "paid".
+ */
+async function settleOrderFulfillment(order) {
   for (const item of order.items) {
     if (item.productType !== "service") {
       await BusinessProduct.updateOne(
@@ -303,6 +423,44 @@ export async function fulfillOrder(paymentIntentOrId) {
   ], { ordered: false }).catch((error) => {
     if (error?.code !== 11000) console.error("[vcommerce] Ledger write failed:", error.message);
   });
+
+  // Seller payout for the wallet-funded portion — a same-time Stripe
+  // transfer to the connected account, separate from the (possibly
+  // nonexistent, for a wallet-only order) destination-charge transfer.
+  // Instant per the confirmed decision. Errors here must not roll back the
+  // already-fulfilled order — log and mark for admin retry, mirroring the
+  // "log and continue" pattern used for cashback-credit failures above.
+  if (order.walletPortionMinor > 0) {
+    try {
+      const stripe = getVCommerceStripe();
+      const sellerShareMinor = Math.round(order.walletPortionMinor * (1 - order.platformFeePercent / 100));
+      const transfer = await stripe.transfers.create(
+        {
+          amount: sellerShareMinor,
+          currency: order.currency,
+          destination: order.stripeConnectedAccountId,
+          metadata: { businessOrderId: order._id.toString(), leg: "wallet_portion" },
+        },
+        { idempotencyKey: `vcommerce-wallet-transfer-${order._id}` }
+      );
+      order.walletTransferId = transfer.id;
+      order.walletTransferStatus = "succeeded";
+      await order.save();
+
+      await VCommerceLedgerEntry.create({
+        businessId: order.businessId, orderId: order._id, entryType: "wallet_transfer", direction: "credit",
+        amountMinor: sellerShareMinor, currency: order.currency,
+        description: `Seller payout for V.Wallet-funded portion of ${order._id}`,
+        idempotencyKey: `order:${order._id}:wallet-transfer`,
+      }).catch((error) => {
+        if (error?.code !== 11000) console.error("[vcommerce] Wallet-transfer ledger write failed:", error.message);
+      });
+    } catch (error) {
+      console.error("[vcommerce] Wallet-portion seller transfer failed (needs admin retry):", error.message);
+      order.walletTransferStatus = "failed";
+      await order.save().catch(() => {});
+    }
+  }
 
   try {
     await sendBusinessOrderEmails(order);
@@ -446,13 +604,74 @@ export async function refundBusinessOrder(orderId, reason = "") {
   }
 
   const stripe = getVCommerceStripe();
-  await stripe.refunds.create({
-    payment_intent: order.stripePaymentIntentId,
-    reason: "requested_by_customer",
-    reverse_transfer: true,
-    refund_application_fee: true,
-    metadata: { businessOrderId: order._id.toString(), adminReason: reason.slice(0, 450) },
-  }, { idempotencyKey: `vcommerce-refund-${order._id}` });
+  // Wallet-only orders (100% covered by points + wallet) have no Stripe
+  // PaymentIntent at all — nothing to refund on that side. Every other order
+  // (full-card, or a card+wallet split) always has one for the card portion.
+  if (order.stripePaymentIntentId) {
+    await stripe.refunds.create({
+      payment_intent: order.stripePaymentIntentId,
+      reason: "requested_by_customer",
+      reverse_transfer: true,
+      refund_application_fee: true,
+      metadata: { businessOrderId: order._id.toString(), adminReason: reason.slice(0, 450) },
+    }, { idempotencyKey: `vcommerce-refund-${order._id}` });
+  }
+
+  // A split (or wallet-only) order moved money to the seller via a second,
+  // separate leg — C2's direct Stripe transfer for the wallet-funded portion,
+  // outside the destination charge the refund above just reversed. Claw that
+  // back too, then credit the customer's V.Wallet (and any redeemed points)
+  // for what they originally paid that way — the single most complex piece
+  // of this refund path, since it's a three-legged reversal in the split
+  // case (destination-charge refund + transfer reversal + wallet credit).
+  if (order.walletPortionMinor > 0 && order.walletTransferStatus === "succeeded" && order.walletTransferId) {
+    try {
+      await stripe.transfers.createReversal(
+        order.walletTransferId,
+        { metadata: { businessOrderId: order._id.toString() } },
+        { idempotencyKey: `vcommerce-wallet-transfer-reversal-${order._id}` }
+      );
+      const sellerShareMinor = Math.round(order.walletPortionMinor * (1 - order.platformFeePercent / 100));
+      await VCommerceLedgerEntry.create({
+        businessId: order.businessId, orderId: order._id, entryType: "wallet_transfer", direction: "debit",
+        amountMinor: sellerShareMinor, currency: order.currency,
+        description: `Seller payout reversed for refunded ${order._id}`,
+        idempotencyKey: `order:${order._id}:wallet-transfer-reversal`,
+      }).catch((error) => { if (error?.code !== 11000) console.error("[vcommerce] Wallet-transfer reversal ledger write failed:", error.message); });
+    } catch (error) {
+      console.error("[vcommerce] Wallet-portion transfer reversal requires admin review:", error.message);
+    }
+  } else if (order.walletPortionMinor > 0 && order.walletTransferStatus === "failed") {
+    console.warn(`[vcommerce] Order ${order._id} refunded with a wallet-portion transfer that never succeeded — nothing to reverse, but confirm no manual payout was made.`);
+  }
+
+  if (order.customerId && order.walletPortionMinor > 0) {
+    try {
+      await creditWallet(order.customerId, order.walletPortionMinor, {
+        type: "refund",
+        referenceType: "businessOrder",
+        referenceId: order._id.toString(),
+        initiatedBy: "system",
+        description: `V.Wallet portion refunded for ${order.orderNumber}`,
+        allowOverCap: true,
+      });
+    } catch (error) {
+      console.error("[vcommerce] Wallet-portion refund requires admin review:", error.message);
+    }
+  }
+  if (order.customerId && order.pointsRedeemed > 0) {
+    try {
+      const { awardPoints } = await import("./walletService.js");
+      await awardPoints(order.customerId, order.pointsRedeemed, {
+        description: `Points refunded for refunded order ${order.orderNumber}`,
+        referenceType: "businessOrder",
+        referenceId: order._id.toString(),
+        initiatedBy: "system",
+      });
+    } catch (error) {
+      console.error("[vcommerce] Points refund requires admin review:", error.message);
+    }
+  }
 
   order.status = "refunded";
   order.paymentStatus = "refunded";

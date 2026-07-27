@@ -18,6 +18,9 @@ import { provisionMembershipFromPayment } from "../services/membershipProvisioni
 import { recordSucceededPaymentIntent } from "../services/paymentRecordService.js";
 import { linkPaymentIntentToRecords } from "../services/sponsorshipDonationRecordService.js";
 import { buildReceiptNumber } from "../utils/receiptNumber.js";
+import PaymentTransaction from "../models/PaymentTransaction.js";
+import { creditWallet, awardPoints } from "../services/walletService.js";
+import { applyPointsDiscount, capWalletPortion, deferWalletDebit } from "../services/walletSplitPaymentService.js";
 
 // In-memory guard so we don't email twice if both webhook and client confirmation fire.
 const emailedIntents = new Set();
@@ -32,7 +35,7 @@ function clientSecretMatches(intent, submitted) {
   return crypto.timingSafeEqual(expectedBuf, candidateBuf);
 }
 
-function describePaymentMethod(intent) {
+function describeStripePaymentMethod(intent) {
   const pm = intent?.payment_method;
   if (pm && typeof pm === "object") {
     if (pm.type === "card" && pm.card?.brand) {
@@ -57,6 +60,19 @@ function describePaymentMethod(intent) {
     }
   }
   return "Card via Stripe";
+}
+
+// isWalletOnlyIntent: the synthetic pseudo-intent built for a 100%
+// wallet/points-covered payment (see payWithWalletOnly below) — it has no
+// real payment_method/latest_charge to sniff a card brand from, and would
+// otherwise wrongly fall through to the generic "Card via Stripe" default.
+function describePaymentMethod(intent, { walletPortionMinor = 0, isWalletOnlyIntent = false } = {}) {
+  if (isWalletOnlyIntent) return "V.Wallet";
+  const cardOrRedirectLabel = describeStripePaymentMethod(intent);
+  if (walletPortionMinor > 0) {
+    return `Partly V.Wallet (€${(walletPortionMinor / 100).toFixed(2)}), partly ${cardOrRedirectLabel}`;
+  }
+  return cardOrRedirectLabel;
 }
 
 function sanitizeSponsor(input = {}) {
@@ -118,7 +134,6 @@ async function emailMembershipOnce(payload) {
 
 async function handleSucceededPayment(intent) {
   const meta = intent.metadata || {};
-  const paymentMethod = describePaymentMethod(intent);
 
   if (meta.payment_kind === "wallet_topup") {
     const { confirmTopUpFromWebhook } = await import("../services/walletWebhookService.js");
@@ -130,31 +145,67 @@ async function handleSucceededPayment(intent) {
     const orderId = meta.order_id;
     if (!orderId) return;
 
-    // Split V.Wallet + card checkout: the wallet portion is only debited
-    // once the card portion has actually succeeded (this webhook firing),
-    // so the wallet is never charged for an order that fails on the card side.
-    if (meta.wallet_portion_minor) {
-      const { applyDeferredWalletPortion } = await import("../services/walletCheckoutService.js");
-      const applied = await applyDeferredWalletPortion(orderId, meta);
-      if (!applied.success) {
-        console.error("[payments] Deferred wallet portion failed for order", orderId, applied.error);
-        return;
-      }
-    }
-
+    // Split V.Wallet + card checkout: fulfillOrder() itself applies the
+    // deferred wallet debit (via metadata.wallet_portion_minor) once it has
+    // re-confirmed the card portion succeeded, so the wallet is never charged
+    // for an order that fails on the card side. That logic is shared with the
+    // client's post-redirect confirm-intent path — see postPaymentFulfillmentService.js.
     const { fulfillOrder } = await import("../services/postPaymentFulfillmentService.js");
     await fulfillOrder(orderId, intent.id);
     return;
   }
 
+  // Split V.Wallet + card/points checkout for donation/sponsorship/membership
+  // — mirrors the ticket flow. A real Stripe intent here only covers the card
+  // remainder, so the true total paid needs the wallet portion added back in
+  // before anything derives "amount paid" from it. The wallet-only synthetic
+  // intent built by payWithWalletOnly() already carries the full amount (its
+  // id is prefixed "wallet_"), so it's excluded from that correction.
+  const walletPortionMinor = Number(meta.wallet_portion_minor || 0);
+  const isWalletOnlyIntent = String(intent.id || "").startsWith("wallet_");
+  const needsAmountCorrection = walletPortionMinor > 0 && !isWalletOnlyIntent;
+  const effectiveIntent = needsAmountCorrection
+    ? {
+        ...intent,
+        amount: (intent.amount || 0) + walletPortionMinor,
+        amount_received: (intent.amount_received || intent.amount || 0) + walletPortionMinor,
+      }
+    : intent;
+  const paymentMethod = describePaymentMethod(intent, { walletPortionMinor, isWalletOnlyIntent });
+
+  // The wallet portion is only debited once the card side has actually
+  // succeeded (this call firing) — never for a failed/abandoned card charge.
+  // Both the Stripe webhook and the client's own /api/payments/confirm call
+  // can reach this function for the same intent; PaymentTransaction's unique
+  // paymentIntentId makes an "already recorded?" check a practical (if not
+  // perfectly atomic) guard against double-debiting — the same, pre-existing
+  // level of dedup this function already relies on for the sponsorship/
+  // donation records below.
+  if (needsAmountCorrection && meta.user_id) {
+    const alreadyRecorded = await PaymentTransaction.exists({ paymentIntentId: intent.id });
+    if (!alreadyRecorded) {
+      const debited = await deferWalletDebit(meta.user_id, walletPortionMinor, {
+        type: "purchase",
+        description: `${meta.tier_name || meta.payment_kind} (wallet portion)`,
+        referenceType: meta.payment_kind,
+        referenceId: intent.id,
+        initiatedBy: "customer",
+      });
+      if (!debited.success) {
+        console.error("[payments] Deferred wallet portion failed for intent", intent.id, debited.error);
+        return;
+      }
+    }
+  }
+
   if (meta.payment_kind === "membership") {
     try {
       const result = await provisionMembershipFromPayment({
-        ...intent,
+        ...effectiveIntent,
         metadata: { ...meta, payment_method_label: paymentMethod }
       });
       try {
-        await recordSucceededPaymentIntent(intent, {
+        await recordSucceededPaymentIntent(effectiveIntent, {
           kind: "membership",
           receiptNumber: result.member.receiptNumber
         });
@@ -186,7 +237,7 @@ async function handleSucceededPayment(intent) {
   const payload = {
     sponsor,
     tier,
-    amountMinor: intent.amount_received || intent.amount,
+    amountMinor: effectiveIntent.amount_received || effectiveIntent.amount,
     currency: intent.currency,
     paymentIntentId: intent.id,
     paymentCreated: intent.created,
@@ -195,13 +246,13 @@ async function handleSucceededPayment(intent) {
   };
 
   try {
-    await recordSucceededPaymentIntent(intent);
+    await recordSucceededPaymentIntent(effectiveIntent);
   } catch (err) {
     console.error("[payments] recordSucceededPaymentIntent:", err.message);
   }
 
   try {
-    await linkPaymentIntentToRecords(intent, paymentMethod);
+    await linkPaymentIntentToRecords(effectiveIntent, paymentMethod);
   } catch (err) {
     console.error("[payments] linkPaymentIntentToRecords:", err.message);
   }
@@ -227,7 +278,7 @@ export async function createPaymentIntent(req, res) {
   }
 
   try {
-    const { kind = "sponsorship", tierId, amount: customAmount, sponsor: rawSponsor, discountCode } =
+    const { kind = "sponsorship", tierId, amount: customAmount, sponsor: rawSponsor, discountCode, walletPortionMinor, pointsToRedeem } =
       req.body || {};
     const isDonation = kind === "donation";
     const isMembership = kind === "membership";
@@ -355,6 +406,70 @@ export async function createPaymentIntent(req, res) {
       } : {})
     };
 
+    const description = isMembership
+      ? `Membership - ${tier.name}`
+      : isDonation
+        ? `Donation - ${tier.name}`
+        : `Sponsorship - ${tier.name}`;
+
+    // Optional V.Wallet balance + reward-points composition, authenticated
+    // customers only (guest checkout has no wallet or points — matches the
+    // ticket flow's auth gate). Same order as tickets: points discount first,
+    // then cap the wallet portion against the already-discounted amount, then
+    // Stripe covers whatever's left.
+    const requestedWalletPortionMinor = Number(walletPortionMinor) || 0;
+    const requestedPointsToRedeem = Number(pointsToRedeem) || 0;
+    if (req.user?.id && (requestedWalletPortionMinor > 0 || requestedPointsToRedeem > 0)) {
+      const { discountMinor: pointsDiscountMinor, amountDueMinor } = await applyPointsDiscount(
+        req.user.id,
+        requestedPointsToRedeem,
+        amountMinor
+      );
+      const cappedWalletPortion = await capWalletPortion(req.user.id, requestedWalletPortionMinor, amountDueMinor);
+      const cardPortionMinor = amountDueMinor - cappedWalletPortion;
+
+      if (cardPortionMinor <= 0) {
+        return res.status(201).json(
+          await payWithWalletOnly({
+            userId: req.user.id,
+            walletPortionMinor: cappedWalletPortion,
+            pointsToRedeem: requestedPointsToRedeem,
+            pointsDiscountMinor,
+            metadata,
+            tier,
+            kind,
+            appliedDiscount
+          })
+        );
+      }
+
+      const intent = await stripe.paymentIntents.create({
+        amount: cardPortionMinor,
+        currency: env.stripe.currency,
+        automatic_payment_methods: { enabled: true, allow_redirects: "always" },
+        description,
+        metadata: {
+          ...metadata,
+          wallet_portion_minor: String(cappedWalletPortion),
+          points_redeemed: String(requestedPointsToRedeem)
+        }
+      });
+
+      return res.status(201).json({
+        mode: "stripe",
+        clientSecret: intent.client_secret,
+        paymentIntentId: intent.id,
+        walletPortionMinor: cappedWalletPortion,
+        cardPortionMinor,
+        pointsDiscountMinor,
+        amount: cardPortionMinor,
+        currency: env.stripe.currency,
+        tier: { id: tier.id, name: tier.name },
+        discountApplied: !!appliedDiscount,
+        discountInfo: appliedDiscount
+      });
+    }
+
     const intent = await stripe.paymentIntents.create({
       amount: amountMinor,
       currency: env.stripe.currency,
@@ -362,15 +477,12 @@ export async function createPaymentIntent(req, res) {
         enabled: true,
         allow_redirects: "always"
       },
-      description: isMembership
-        ? `Membership - ${tier.name}`
-        : isDonation
-          ? `Donation - ${tier.name}`
-          : `Sponsorship - ${tier.name}`,
+      description,
       metadata
     });
 
     return res.status(201).json({
+      mode: "stripe",
       clientSecret: intent.client_secret,
       paymentIntentId: intent.id,
       amount: amountMinor,
@@ -381,8 +493,91 @@ export async function createPaymentIntent(req, res) {
     });
   } catch (error) {
     console.error("[payments] createPaymentIntent error:", error);
+    // payWithWalletOnly() throws with a specific .status/.message (e.g. an
+    // insufficient-balance race, or a refunded-after-failure notice) that the
+    // customer needs to see verbatim rather than the generic message below.
+    if (error.status) {
+      return res.status(error.status).json({ error: error.message });
+    }
     return res.status(500).json({ error: "Unable to create payment intent." });
   }
+}
+
+/**
+ * 100%-covered-by-points-and-wallet checkout: Stripe can't create a €0 (or
+ * card-portion-less) intent, so debit the wallet directly and fulfil through
+ * the same handleSucceededPayment() path a real Stripe payment would take,
+ * via a synthetic pseudo-intent (mirrors walletCheckoutService.js's ticket
+ * wallet-only sentinel). If fulfillment throws, compensate by refunding the
+ * wallet debit and any redeemed points — mirrors payTicketWithWallet's
+ * rollback for the same failure mode.
+ */
+async function payWithWalletOnly({ userId, walletPortionMinor, pointsToRedeem, pointsDiscountMinor, metadata, tier, kind, appliedDiscount }) {
+  const debited = await deferWalletDebit(userId, walletPortionMinor, {
+    type: "purchase",
+    description: `${tier.name} (${kind})`,
+    referenceType: kind,
+    referenceId: tier.id,
+    initiatedBy: "customer"
+  });
+  if (!debited.success) {
+    const e = new Error(debited.error || "Could not charge your V.Wallet balance.");
+    e.status = 400;
+    throw e;
+  }
+
+  const syntheticIntent = {
+    id: `wallet_${crypto.randomUUID()}`,
+    object: "payment_intent",
+    status: "succeeded",
+    amount: walletPortionMinor,
+    amount_received: walletPortionMinor,
+    currency: env.stripe.currency,
+    created: Math.floor(Date.now() / 1000),
+    metadata: {
+      ...metadata,
+      wallet_portion_minor: String(walletPortionMinor),
+      points_redeemed: String(pointsToRedeem || 0)
+    }
+  };
+
+  try {
+    await handleSucceededPayment(syntheticIntent);
+  } catch (fulfillmentError) {
+    console.error("[payments] Wallet-only fulfillment failed:", fulfillmentError.message);
+    await creditWallet(userId, walletPortionMinor, {
+      type: "refund",
+      description: `Refund — could not complete ${kind} payment`,
+      referenceType: kind,
+      referenceId: tier.id,
+      initiatedBy: "customer"
+    }).catch((refundErr) => {
+      console.error("[payments] CRITICAL: wallet refund after failed fulfillment also failed:", refundErr.message);
+    });
+    if (pointsToRedeem > 0) {
+      await awardPoints(userId, pointsToRedeem, {
+        description: "Points refunded — payment could not be completed",
+        referenceType: kind,
+        referenceId: tier.id,
+        initiatedBy: "customer"
+      }).catch(() => {});
+    }
+    const e = new Error("We couldn't complete this payment, so your V.Wallet balance (and any points used) have been refunded. Please try again.");
+    e.status = 500;
+    throw e;
+  }
+
+  return {
+    mode: "wallet_only",
+    paymentIntentId: syntheticIntent.id,
+    walletPortionMinor,
+    pointsDiscountMinor,
+    amount: walletPortionMinor,
+    currency: env.stripe.currency,
+    tier: { id: tier.id, name: tier.name },
+    discountApplied: !!appliedDiscount,
+    discountInfo: appliedDiscount
+  };
 }
 
 export async function confirmPayment(req, res) {

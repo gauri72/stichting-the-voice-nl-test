@@ -118,7 +118,8 @@
 
 [data-theme="light"] .ticket-booking :is(
   .ticket-booking__wallet-pay-balance,
-  .ticket-booking__wallet-pay-points
+  .ticket-booking__wallet-pay-points,
+  .ticket-booking__wallet-pay-split label
 ) {
   color: #5b21b6;
 }
@@ -752,6 +753,23 @@
 .ticket-booking__wallet-pay-topup {
   font-size: 0.85rem;
   color: #fbbf24;
+}
+
+.ticket-booking__wallet-pay-split {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.ticket-booking__wallet-pay-split label {
+  font-size: 0.85rem;
+  color: #c4b5fd;
+}
+
+.ticket-booking__wallet-pay-split input[type="range"] {
+  width: 100%;
+  accent-color: #7c3aed;
 }
 
 .ticket-booking__wallet-pay-divider {

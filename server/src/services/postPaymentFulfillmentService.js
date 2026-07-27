@@ -515,7 +515,28 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
         err.status = 400;
         throw err;
       }
-      if (typeof intent.amount === "number" && intent.amount !== order.totalAmountMinor) {
+      // Split V.Wallet + card checkout: the intent only covers the card
+      // portion, so the expected amount is reduced by whatever wallet portion
+      // is recorded in its metadata. Debit the wallet here too — whichever
+      // caller (Stripe webhook or the client's post-redirect confirm-intent
+      // call) reaches fulfillment first, since the atomic paymentStatus
+      // transition above guarantees only one of them gets past it per order.
+      const walletPortionMinor = Number(intent.metadata?.wallet_portion_minor || 0);
+      if (walletPortionMinor > 0) {
+        const { applyDeferredWalletPortion } = await import("./walletCheckoutService.js");
+        const applied = await applyDeferredWalletPortion(order._id.toString(), intent.metadata);
+        if (!applied.success) {
+          order.paymentStatus = "failed";
+          order.orderStatus = "PENDING";
+          await order.save();
+          const err = new Error(applied.error || "Could not apply your V.Wallet balance to this order.");
+          err.status = 400;
+          throw err;
+        }
+      }
+
+      const expectedIntentAmount = order.totalAmountMinor - walletPortionMinor;
+      if (typeof intent.amount === "number" && intent.amount !== expectedIntentAmount) {
         order.paymentStatus = "failed";
         order.orderStatus = "PENDING";
         await order.save();

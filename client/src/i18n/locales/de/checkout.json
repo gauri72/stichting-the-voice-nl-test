@@ -230,6 +230,13 @@
     "wakingHint": "Unser Zahlungsdienst startet gerade. Die erste Anfrage kann bis zu einer Minute dauern. Weitere Anfragen sind sofort.",
     "closeBlock": "Zahlungsblock schließen",
     "paymentReference": "Zahlungsreferenz",
+    "wallet": {
+      "title": "Mit V.Wallet bezahlen",
+      "balance": "Guthaben: €{{amount}}",
+      "redeemPoints": "Punkte einlösen ({{count}} verfügbar)",
+      "useBalance": "Vom V.Wallet-Guthaben verwenden (€)",
+      "hint": "Wird zuerst als Rabatt angewendet, dann auf diese Zahlung — ein verbleibender Restbetrag wird per Karte oder iDEAL bezahlt."
+    },
     "errors": {
       "stripeKeyMissing": "Der Stripe Publishable Key fehlt. Fügen Sie VITE_STRIPE_PUBLISHABLE_KEY zu client/.env hinzu und starten Sie den Dev-Server neu.",
       "couldNotStart": "Die Zahlung konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",

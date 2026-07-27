@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Elements } from "@stripe/react-stripe-js";
 import StripeCheckoutForm from "../payments/StripeCheckoutForm";
+import WalletPortionControl from "../payments/WalletPortionControl.jsx";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import {
   getStripeElementsAppearance,
@@ -18,6 +19,8 @@ import {
 import { useResolvedCheckoutTier } from "../../hooks/useResolvedCheckoutTier.js";
 import { useApiWarmup } from "../../hooks/useApiWarmup.js";
 import { useTheme } from "../../contexts/ThemeContext.jsx";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useWallet } from "../../contexts/WalletContext.jsx";
 import { authHeaders, apiUrl } from "../../utils/api.js";
 import { getStripePromise, STRIPE_PUBLISHABLE_KEY } from "../../utils/stripeClient.js";
 import "../../styles/sponsorship-payment-block.css";
@@ -32,6 +35,8 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
 ) {
   const { t } = useTranslation(["checkout"]);
   const { isDark } = useTheme();
+  const { user } = useAuth();
+  const { wallet, loadWallet } = useWallet();
   const activeTier = useResolvedCheckoutTier(MEMBERSHIP_CHECKOUT_SESSION_KEY, tier);
   const stripeAppearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
   const [step, setStep] = useState("details");
@@ -50,6 +55,13 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
   const [submitError, setSubmitError] = useState("");
   const [success, setSuccess] = useState(null);
   const [handlingReturn, setHandlingReturn] = useState(() => isPaymentReturnUrl());
+  const [pointsToRedeem, setPointsToRedeem] = useState(0);
+  const [walletPortionMinor, setWalletPortionMinor] = useState(null);
+  const appliedWalletPortionMinor = walletPortionMinor === null ? (wallet?.balanceMinor || 0) : walletPortionMinor;
+
+  useEffect(() => {
+    if (user) loadWallet();
+  }, [user, loadWallet]);
 
   useEffect(() => {
     if (isPaymentReturnUrl()) return;
@@ -93,6 +105,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
           } catch (_err) {
             // Webhook may still deliver.
           }
+          if (user) loadWallet();
         },
         onError: (msg) => {
           setSubmitError(msg);
@@ -132,6 +145,24 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
 
     try {
       const name = member.name.trim();
+      const body = {
+        kind: "membership",
+        tierId: activeTier.id,
+        discountCode: discountCode.trim(),
+        sponsor: {
+          name,
+          firstName: name.split(" ")[0] || "",
+          lastName: name.split(" ").slice(1).join(" "),
+          email: member.email.trim(),
+          phone: member.phone.trim(),
+          country: member.country.trim()
+        }
+      };
+      if (user) {
+        if (appliedWalletPortionMinor > 0) body.walletPortionMinor = appliedWalletPortionMinor;
+        if (pointsToRedeem > 0) body.pointsToRedeem = pointsToRedeem;
+      }
+
       const response = await fetchWithTimeout(
         apiUrl("/api/payments/create-payment-intent"),
         {
@@ -140,25 +171,22 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
             "Content-Type": "application/json",
             ...authHeaders()
           },
-          body: JSON.stringify({
-            kind: "membership",
-            tierId: activeTier.id,
-            discountCode: discountCode.trim(),
-            sponsor: {
-              name,
-              firstName: name.split(" ")[0] || "",
-              lastName: name.split(" ").slice(1).join(" "),
-              email: member.email.trim(),
-              phone: member.phone.trim(),
-              country: member.country.trim()
-            }
-          })
+          body: JSON.stringify(body)
         }
       );
 
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data?.error || t("checkout:paymentBlock.errors.couldNotStart"));
+      }
+
+      if (data.mode === "wallet_only") {
+        setSubmitError("");
+        setSuccess({ id: data.paymentIntentId });
+        setStep("done");
+        clearCheckoutSession(MEMBERSHIP_CHECKOUT_SESSION_KEY);
+        loadWallet();
+        return;
       }
 
       const meta = {
@@ -206,6 +234,7 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
     } catch (_err) {
       // Webhook may still deliver.
     }
+    if (user) loadWallet();
   }
 
   return (
@@ -316,6 +345,17 @@ const MembershipPaymentBlock = forwardRef(function MembershipPaymentBlock(
                 </span>
               </label>
             </div>
+
+            {user ? (
+              <WalletPortionControl
+                wallet={wallet}
+                pointsToRedeem={pointsToRedeem}
+                onPointsToRedeemChange={setPointsToRedeem}
+                walletPortionMinor={appliedWalletPortionMinor}
+                onWalletPortionMinorChange={setWalletPortionMinor}
+                disabled={loading}
+              />
+            ) : null}
 
             {submitError ? (
               <p className="sponsorship-payment__error" role="alert">

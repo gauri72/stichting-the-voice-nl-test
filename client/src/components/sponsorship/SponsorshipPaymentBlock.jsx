@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Elements } from "@stripe/react-stripe-js";
 import StripeCheckoutForm from "../payments/StripeCheckoutForm";
+import WalletPortionControl from "../payments/WalletPortionControl.jsx";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import {
   getStripeElementsAppearance,
@@ -18,6 +19,8 @@ import {
 import { useResolvedCheckoutTier } from "../../hooks/useResolvedCheckoutTier.js";
 import { useApiWarmup } from "../../hooks/useApiWarmup.js";
 import { useTheme } from "../../contexts/ThemeContext.jsx";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useWallet } from "../../contexts/WalletContext.jsx";
 import { authHeaders, apiUrl } from "../../utils/api.js";
 import { getStripePromise, STRIPE_PUBLISHABLE_KEY } from "../../utils/stripeClient.js";
 import "../../styles/sponsorship-payment-block.css";
@@ -32,6 +35,8 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
 ) {
   const { t } = useTranslation(["checkout"]);
   const { isDark } = useTheme();
+  const { user } = useAuth();
+  const { wallet, loadWallet } = useWallet();
   const activeTier = useResolvedCheckoutTier(SPONSOR_CHECKOUT_SESSION_KEY, tier);
   const stripeAppearance = useMemo(() => getStripeElementsAppearance(isDark), [isDark]);
   const [step, setStep] = useState("details");
@@ -51,6 +56,13 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
   const [submitError, setSubmitError] = useState("");
   const [success, setSuccess] = useState(null);
   const [handlingReturn, setHandlingReturn] = useState(() => isPaymentReturnUrl());
+  const [pointsToRedeem, setPointsToRedeem] = useState(0);
+  const [walletPortionMinor, setWalletPortionMinor] = useState(null);
+  const appliedWalletPortionMinor = walletPortionMinor === null ? (wallet?.balanceMinor || 0) : walletPortionMinor;
+
+  useEffect(() => {
+    if (user) loadWallet();
+  }, [user, loadWallet]);
 
   useEffect(() => {
     if (isPaymentReturnUrl()) return;
@@ -88,6 +100,7 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
           } catch (_err) {
             // Webhook may still deliver.
           }
+          if (user) loadWallet();
           clearCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
           setSuccess({
             id: paymentIntent.id,
@@ -163,6 +176,11 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
         }
       }
 
+      if (user) {
+        if (appliedWalletPortionMinor > 0) body.walletPortionMinor = appliedWalletPortionMinor;
+        if (pointsToRedeem > 0) body.pointsToRedeem = pointsToRedeem;
+      }
+
       const response = await fetchWithTimeout(
         apiUrl("/api/payments/create-payment-intent"),
         {
@@ -178,6 +196,15 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data?.error || t("checkout:paymentBlock.errors.couldNotStart"));
+      }
+
+      if (data.mode === "wallet_only") {
+        setSubmitError("");
+        setSuccess({ id: data.paymentIntentId, tierName: activeTier?.name || "" });
+        setStep("done");
+        clearCheckoutSession(SPONSOR_CHECKOUT_SESSION_KEY);
+        loadWallet();
+        return;
       }
 
       const meta = {
@@ -218,6 +245,7 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
     } catch (_err) {
       // Webhook may still deliver.
     }
+    if (user) loadWallet();
     setSuccess({
       id: paymentIntent.id,
       tierName: activeTier?.name || ""
@@ -356,6 +384,17 @@ const SponsorshipPaymentBlock = forwardRef(function SponsorshipPaymentBlock(
                 />
               </label>
             </div>
+
+            {user ? (
+              <WalletPortionControl
+                wallet={wallet}
+                pointsToRedeem={pointsToRedeem}
+                onPointsToRedeemChange={setPointsToRedeem}
+                walletPortionMinor={appliedWalletPortionMinor}
+                onWalletPortionMinorChange={setWalletPortionMinor}
+                disabled={loading}
+              />
+            ) : null}
 
             {submitError ? (
               <p className="sponsorship-payment__error" role="alert">
