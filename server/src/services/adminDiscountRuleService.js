@@ -663,7 +663,12 @@ export async function getUserReferralData(userId, email) {
 
   return {
     referralCode: referralCode
-      ? { code: referralCode.code, id: referralCode._id.toString() }
+      ? {
+          code: referralCode.code,
+          id: referralCode._id.toString(),
+          discountType: referralCode.discountType,
+          discountValue: referralCode.discountValue,
+        }
       : null,
     referralUses: usages,
     rewardsEarned: totalEarned,

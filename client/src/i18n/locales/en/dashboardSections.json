@@ -86,7 +86,12 @@
     "anonymousBuyer": "Anonymous buyer",
     "noRewardsYet": "No referral activity yet — share your code to get started.",
     "shareTitle": "Join Stichting The V.O.I.C.E. NL",
-    "shareText": "Use my referral code {{code}} for a discount!"
+    "shareText": "Use my referral code {{code}} for a discount!",
+    "shareTextWithDiscount": "Use my referral code {{code}} to get {{discount}} off at V.O.I.C.E. NL!",
+    "shareViaWhatsApp": "WhatsApp",
+    "shareViaEmail": "Email",
+    "shareViaCopyLink": "Copy Link",
+    "shareMoreOptions": "More options…"
   },
   "statCardsSection": {
     "title": "Your V.O.I.C.E. NL Impact",

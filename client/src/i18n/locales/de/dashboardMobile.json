@@ -125,7 +125,12 @@
       "yourCodeLabel": "Dein Empfehlungscode",
       "copied": "Code kopiert",
       "copyCode": "Empfehlungscode kopieren",
-      "pendingActivation": "Dein Empfehlungscode erscheint hier, sobald er aktiviert ist."
+      "pendingActivation": "Dein Empfehlungscode erscheint hier, sobald er aktiviert ist.",
+      "shareText": "Nutze meinen Empfehlungscode {{code}} für einen Rabatt!",
+      "shareTextWithDiscount": "Nutze meinen Empfehlungscode {{code}} und erhalte {{discount}} Rabatt bei V.O.I.C.E. NL!",
+      "shareViaWhatsApp": "WhatsApp",
+      "shareViaEmail": "E-Mail",
+      "shareMoreOptions": "Mehr"
     }
   },
   "wallet": {

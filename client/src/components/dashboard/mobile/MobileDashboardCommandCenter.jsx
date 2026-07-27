@@ -22,6 +22,8 @@ import {
   IconX,
   IconShare,
   IconCopy,
+  IconBrandWhatsapp,
+  IconMail,
 } from "@tabler/icons-react";
 import HeroActionCluster from "../../layout/HeroActionCluster.jsx";
 import { useAiAssistant } from "../../../contexts/AiAssistantContext.jsx";
@@ -33,6 +35,7 @@ import {
 } from "../../vcommerce/shared/vcommerceApi.js";
 import { KNVERS_FEATURED_BUSINESS } from "../../vcommerce/shared/knversFeatured.js";
 import { buildQrSrc, membershipBadgeLabel, PREMIUM_BENEFITS } from "../dashboardUtils.js";
+import { formatDiscountLabel, buildReferralUrl, buildWhatsAppShareLink, buildEmailShareLink } from "../../../utils/referralShare.js";
 import {
   addMembershipToGoogleWallet,
   downloadMembershipEcard,
@@ -540,6 +543,34 @@ export default function MobileDashboardCommandCenter({
                 >
                   <IconCopy aria-hidden /> {referralCopied ? t("dashboardMobile:commandCenter.referralSheet.copied") : t("dashboardMobile:commandCenter.referralSheet.copyCode")}
                 </button>
+                {(() => {
+                  const code = referral.referralCode.code;
+                  const discountLabel = formatDiscountLabel(referral.referralCode.discountType, referral.referralCode.discountValue);
+                  const shareUrl = buildReferralUrl(code);
+                  const shareText = discountLabel
+                    ? t("dashboardMobile:commandCenter.referralSheet.shareTextWithDiscount", { code, discount: discountLabel })
+                    : t("dashboardMobile:commandCenter.referralSheet.shareText", { code });
+                  const shareMessage = `${shareText} ${shareUrl}`;
+                  return (
+                    <div className="mobile-sheet-referral__share-row">
+                      <a href={buildWhatsAppShareLink(shareMessage)} target="_blank" rel="noopener noreferrer" className="mobile-sheet-referral__share-btn">
+                        <IconBrandWhatsapp aria-hidden /> {t("dashboardMobile:commandCenter.referralSheet.shareViaWhatsApp")}
+                      </a>
+                      <a href={buildEmailShareLink({ subject: t("dashboardMobile:commandCenter.referralSheet.title"), body: shareMessage })} className="mobile-sheet-referral__share-btn">
+                        <IconMail aria-hidden /> {t("dashboardMobile:commandCenter.referralSheet.shareViaEmail")}
+                      </a>
+                      {navigator.share ? (
+                        <button
+                          type="button"
+                          className="mobile-sheet-referral__share-btn"
+                          onClick={() => navigator.share({ title: t("dashboardMobile:commandCenter.referralSheet.title"), text: shareText, url: shareUrl }).catch(() => {})}
+                        >
+                          <IconShare aria-hidden /> {t("dashboardMobile:commandCenter.referralSheet.shareMoreOptions")}
+                        </button>
+                      ) : null}
+                    </div>
+                  );
+                })()}
               </>
             ) : (
               <p>{t("dashboardMobile:commandCenter.referralSheet.pendingActivation")}</p>

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { IconCheck, IconCopy, IconShare, IconGift } from "@tabler/icons-react";
+import { IconCheck, IconCopy, IconShare, IconGift, IconBrandWhatsapp, IconMail, IconDots } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { apiFetch, authHeaders } from "../../../utils/api.js";
+import { formatDiscountLabel, buildReferralUrl, buildWhatsAppShareLink, buildEmailShareLink } from "../../../utils/referralShare.js";
 import "../../../styles/dashboard-referral-section.css";
 import { devWarn } from "../../../utils/devLog.js";
 
@@ -14,7 +15,25 @@ export default function DashboardReferralSection() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [shareMenuOpen, setShareMenuOpen] = useState(false);
   const rewardsRef = useRef(null);
+  const shareWrapRef = useRef(null);
+
+  useEffect(() => {
+    if (!shareMenuOpen) return;
+    function handleClickOutside(e) {
+      if (shareWrapRef.current && !shareWrapRef.current.contains(e.target)) setShareMenuOpen(false);
+    }
+    function handleEscape(e) {
+      if (e.key === "Escape") setShareMenuOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [shareMenuOpen]);
 
   function scrollToRewards() {
     rewardsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -49,24 +68,24 @@ export default function DashboardReferralSection() {
     }
   }
 
-  async function handleShare() {
-    if (!code) return;
-    // A referral code isn't tied to one event, so it links to the events listing page —
-    // client/src/utils/referralCapture.js captures ?ref= there (or anywhere else it lands)
-    // and every checkout flow's code field pre-fills from it.
-    const shareData = {
-      title: t("dashboardSections:referralSection.shareTitle"),
-      text: t("dashboardSections:referralSection.shareText", { code }),
-      url: `${window.location.origin}/events?ref=${encodeURIComponent(code)}`,
-    };
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch {
-        handleCopy();
-      }
-    } else {
-      handleCopy();
+  // A referral code isn't tied to one event, so it links to the events listing page —
+  // client/src/utils/referralCapture.js captures ?ref= there (or anywhere else it lands)
+  // and every checkout flow's code field pre-fills from it.
+  const discountLabel = code ? formatDiscountLabel(data.referralCode?.discountType, data.referralCode?.discountValue) : null;
+  const shareUrl = code ? buildReferralUrl(code) : "";
+  const shareText = code
+    ? discountLabel
+      ? t("dashboardSections:referralSection.shareTextWithDiscount", { code, discount: discountLabel })
+      : t("dashboardSections:referralSection.shareText", { code })
+    : "";
+  const shareMessage = `${shareText} ${shareUrl}`;
+
+  async function handleNativeShare() {
+    try {
+      await navigator.share({ title: t("dashboardSections:referralSection.shareTitle"), text: shareText, url: shareUrl });
+      setShareMenuOpen(false);
+    } catch {
+      /* user cancelled the native share sheet — leave the menu open */
     }
   }
 
@@ -93,9 +112,59 @@ export default function DashboardReferralSection() {
                   </>
                 )}
               </button>
-              <button type="button" onClick={handleShare} className="dash-referral-section__btn dash-referral-section__btn--share">
-                <IconShare size={16} /> {t("dashboardSections:referralSection.share")}
-              </button>
+              <div className="dash-referral-section__share-wrap" ref={shareWrapRef}>
+                <button
+                  type="button"
+                  onClick={() => setShareMenuOpen((v) => !v)}
+                  aria-expanded={shareMenuOpen}
+                  aria-haspopup="menu"
+                  className="dash-referral-section__btn dash-referral-section__btn--share"
+                >
+                  <IconShare size={16} /> {t("dashboardSections:referralSection.share")}
+                </button>
+                {shareMenuOpen ? (
+                  <div className="dash-referral-section__share-menu" role="menu">
+                    <a
+                      role="menuitem"
+                      href={buildWhatsAppShareLink(shareMessage)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="dash-referral-section__share-menu-item"
+                      onClick={() => setShareMenuOpen(false)}
+                    >
+                      <IconBrandWhatsapp size={16} /> {t("dashboardSections:referralSection.shareViaWhatsApp")}
+                    </a>
+                    <a
+                      role="menuitem"
+                      href={buildEmailShareLink({ subject: t("dashboardSections:referralSection.shareTitle"), body: shareMessage })}
+                      className="dash-referral-section__share-menu-item"
+                      onClick={() => setShareMenuOpen(false)}
+                    >
+                      <IconMail size={16} /> {t("dashboardSections:referralSection.shareViaEmail")}
+                    </a>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(shareUrl);
+                        } catch {
+                          /* ignore */
+                        }
+                        setShareMenuOpen(false);
+                      }}
+                      className="dash-referral-section__share-menu-item"
+                    >
+                      <IconCopy size={16} /> {t("dashboardSections:referralSection.shareViaCopyLink")}
+                    </button>
+                    {navigator.share ? (
+                      <button type="button" role="menuitem" onClick={handleNativeShare} className="dash-referral-section__share-menu-item">
+                        <IconDots size={16} /> {t("dashboardSections:referralSection.shareMoreOptions")}
+                      </button>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
 

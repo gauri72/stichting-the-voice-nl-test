@@ -125,7 +125,12 @@
       "yourCodeLabel": "Your referral code",
       "copied": "Code Copied",
       "copyCode": "Copy Referral Code",
-      "pendingActivation": "Your referral code will appear here as soon as it is activated."
+      "pendingActivation": "Your referral code will appear here as soon as it is activated.",
+      "shareText": "Use my referral code {{code}} for a discount!",
+      "shareTextWithDiscount": "Use my referral code {{code}} to get {{discount}} off at V.O.I.C.E. NL!",
+      "shareViaWhatsApp": "WhatsApp",
+      "shareViaEmail": "Email",
+      "shareMoreOptions": "More"
     }
   },
   "wallet": {

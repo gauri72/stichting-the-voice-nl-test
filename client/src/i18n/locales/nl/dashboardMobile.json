@@ -125,7 +125,12 @@
       "yourCodeLabel": "Jouw verwijzingscode",
       "copied": "Code gekopieerd",
       "copyCode": "Kopieer verwijzingscode",
-      "pendingActivation": "Je verwijzingscode verschijnt hier zodra deze is geactiveerd."
+      "pendingActivation": "Je verwijzingscode verschijnt hier zodra deze is geactiveerd.",
+      "shareText": "Gebruik mijn verwijzingscode {{code}} voor korting!",
+      "shareTextWithDiscount": "Gebruik mijn verwijzingscode {{code}} voor {{discount}} korting bij V.O.I.C.E. NL!",
+      "shareViaWhatsApp": "WhatsApp",
+      "shareViaEmail": "E-mail",
+      "shareMoreOptions": "Meer"
     }
   },
   "wallet": {

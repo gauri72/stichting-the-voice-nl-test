@@ -86,7 +86,12 @@
     "anonymousBuyer": "Anonymer Käufer",
     "noRewardsYet": "Noch keine Empfehlungsaktivität — teile deinen Code, um loszulegen.",
     "shareTitle": "Werde Mitglied der Stichting The V.O.I.C.E. NL",
-    "shareText": "Nutze meinen Empfehlungscode {{code}} für einen Rabatt!"
+    "shareText": "Nutze meinen Empfehlungscode {{code}} für einen Rabatt!",
+    "shareTextWithDiscount": "Nutze meinen Empfehlungscode {{code}} und erhalte {{discount}} Rabatt bei V.O.I.C.E. NL!",
+    "shareViaWhatsApp": "WhatsApp",
+    "shareViaEmail": "E-Mail",
+    "shareViaCopyLink": "Link kopieren",
+    "shareMoreOptions": "Weitere Optionen…"
   },
   "statCardsSection": {
     "title": "Deine V.O.I.C.E. NL Wirkung",

@@ -86,7 +86,12 @@
     "anonymousBuyer": "Anonieme koper",
     "noRewardsYet": "Nog geen referral-activiteit — deel je code om te beginnen.",
     "shareTitle": "Word lid van Stichting The V.O.I.C.E. NL",
-    "shareText": "Gebruik mijn referral-code {{code}} voor korting!"
+    "shareText": "Gebruik mijn referral-code {{code}} voor korting!",
+    "shareTextWithDiscount": "Gebruik mijn referral-code {{code}} voor {{discount}} korting bij V.O.I.C.E. NL!",
+    "shareViaWhatsApp": "WhatsApp",
+    "shareViaEmail": "E-mail",
+    "shareViaCopyLink": "Link kopiëren",
+    "shareMoreOptions": "Meer opties…"
   },
   "statCardsSection": {
     "title": "Jouw V.O.I.C.E. NL Impact",
