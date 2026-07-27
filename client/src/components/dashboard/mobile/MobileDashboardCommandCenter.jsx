@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   IconArrowRight,
-  IconBellRinging,
+  IconBellFilled,
   IconBuildingStore,
   IconCalendarEvent,
   IconChartDots,
@@ -266,17 +266,22 @@ export default function MobileDashboardCommandCenter({
           <span>{t("dashboardMobile:commandCenter.hero.assist")}</span>
         </button>
         {unreadResultsCount > 0 ? (
-          <button
-            type="button"
-            className="mobile-dash-hero__notif-bell"
-            onClick={() => navigate("/dashboard/ai-assistant/schedule", { state: { openTab: "updates" } })}
-            aria-label={t("dashboardMobile:commandCenter.hero.notifBellAria", { count: unreadResultsCount })}
-          >
-            <IconBellRinging aria-hidden />
-            <span className="mobile-dash-hero__notif-bell-badge" aria-hidden="true">
-              {unreadResultsCount > 99 ? "99+" : unreadResultsCount}
+          <div className="mobile-dash-hero__notif-wrap">
+            <span className="mobile-dash-hero__notif-callout">
+              {t("dashboardMobile:commandCenter.hero.notifCallout")}
             </span>
-          </button>
+            <button
+              type="button"
+              className="mobile-dash-hero__notif-bell"
+              onClick={() => navigate("/dashboard/ai-assistant/schedule", { state: { openTab: "updates" } })}
+              aria-label={t("dashboardMobile:commandCenter.hero.notifBellAria", { count: unreadResultsCount })}
+            >
+              <IconBellFilled aria-hidden />
+              <span className="mobile-dash-hero__notif-bell-badge" aria-hidden="true">
+                {unreadResultsCount > 99 ? "99+" : unreadResultsCount}
+              </span>
+            </button>
+          </div>
         ) : null}
         <div className="mobile-dash-hero__content">
           <p>{t("dashboardMobile:commandCenter.hero.welcomeBack")}</p>

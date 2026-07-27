@@ -5,6 +5,7 @@
       "assist": "V.Assist",
       "assistAria": "Open V.Assist, your AI community concierge",
       "notifBellAria": "{{count}} unread V.Assist updates, view them",
+      "notifCallout": "Your Updates Here",
       "metricsAria": "Member account summary",
       "rewardsAria": "Open Rewards Center, {{count}} points",
       "pointsLabel": "Points",

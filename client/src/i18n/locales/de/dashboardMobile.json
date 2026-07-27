@@ -5,6 +5,7 @@
       "assist": "V.Assist",
       "assistAria": "V.Assist öffnen, deinen KI-Community-Concierge",
       "notifBellAria": "{{count}} ungelesene V.Assist-Updates, ansehen",
+      "notifCallout": "Deine Updates hier",
       "metricsAria": "Übersicht deines Mitgliedskontos",
       "rewardsAria": "Prämiencenter öffnen, {{count}} Punkte",
       "pointsLabel": "Punkte",

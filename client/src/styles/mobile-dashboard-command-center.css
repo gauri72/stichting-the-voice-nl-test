@@ -37,21 +37,24 @@
   .mobile-dash-hero__assist svg{width:27px;height:27px;color:#7be9ff;filter:drop-shadow(0 0 6px currentColor)}
   .mobile-dash-hero__assist:active{transform:scale(.96)}
   .mobile-dash-hero__assist:hover,.mobile-dash-hero__assist:focus-visible{animation-play-state:paused}
-  .mobile-dash-hero__notif-bell{position:absolute;top:132px;right:8px;z-index:3;display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid rgba(255,200,74,.5);border-radius:999px;background:linear-gradient(135deg,rgba(48,31,109,.88),rgba(5,17,35,.85));box-shadow:0 10px 24px rgba(32,12,94,.3),inset 0 1px rgba(255,255,255,.1);backdrop-filter:blur(16px) saturate(140%);cursor:pointer}
-  .mobile-dash-hero__notif-bell svg{width:22px;height:22px;color:#ffd54a;filter:drop-shadow(0 0 6px rgba(255,213,74,.75));animation:mobileDashBellRing 3.2s ease-in-out infinite;transform-origin:50% 15%}
+  .mobile-dash-hero__notif-wrap{position:absolute;top:126px;right:8px;z-index:3;display:flex;align-items:center;gap:8px}
+  .mobile-dash-hero__notif-callout{position:relative;padding:7px 12px;border:1px solid rgba(255,200,74,.5);border-radius:12px;background:linear-gradient(135deg,rgba(48,31,109,.92),rgba(5,17,35,.9));color:#ffe9a8;font-size:.72rem;font-weight:800;white-space:nowrap;box-shadow:0 8px 18px rgba(32,12,94,.28);backdrop-filter:blur(14px) saturate(140%)}
+  .mobile-dash-hero__notif-callout::after{position:absolute;top:50%;right:-6px;width:10px;height:10px;content:"";transform:translateY(-50%) rotate(45deg);background:linear-gradient(135deg,rgba(48,31,109,.92),rgba(5,17,35,.9));border-right:1px solid rgba(255,200,74,.5);border-bottom:1px solid rgba(255,200,74,.5)}
+  .mobile-dash-hero__notif-bell{position:relative;flex:0 0 auto;display:grid;place-items:center;width:66px;height:66px;padding:0;border:1px solid rgba(255,200,74,.5);border-radius:999px;background:linear-gradient(135deg,rgba(48,31,109,.88),rgba(5,17,35,.85));box-shadow:0 10px 24px rgba(32,12,94,.3),inset 0 1px rgba(255,255,255,.1);backdrop-filter:blur(16px) saturate(140%);cursor:pointer}
+  .mobile-dash-hero__notif-bell svg{width:44px;height:44px;color:#ffd54a;filter:drop-shadow(0 0 8px rgba(255,213,74,.8));animation:mobileDashBellRing 3.2s ease-in-out infinite;transform-origin:50% 15%}
   .mobile-dash-hero__notif-bell:active{transform:scale(.94)}
   .mobile-dash-hero__notif-bell:hover svg,.mobile-dash-hero__notif-bell:focus-visible svg{animation-play-state:paused}
-  .mobile-dash-hero__notif-bell-badge{position:absolute;top:-5px;right:-5px;z-index:4;display:grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#7c3aed;color:#fff;font-size:10px;font-weight:800;box-shadow:0 4px 10px rgba(0,0,0,.3)}
+  .mobile-dash-hero__notif-bell-badge{position:absolute;top:-4px;right:-4px;z-index:4;display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#7c3aed;color:#fff;font-size:11px;font-weight:800;box-shadow:0 4px 10px rgba(0,0,0,.3)}
   @keyframes mobileDashBellRing{
     0%{transform:rotate(0deg)}
-    2%{transform:rotate(-15deg)}
-    4%{transform:rotate(13deg)}
-    6%{transform:rotate(-11deg)}
-    8%{transform:rotate(9deg)}
-    10%{transform:rotate(-7deg)}
-    12%{transform:rotate(5deg)}
-    14%{transform:rotate(-3deg)}
-    16%{transform:rotate(1deg)}
+    2%{transform:rotate(-18deg)}
+    4%{transform:rotate(16deg)}
+    6%{transform:rotate(-13deg)}
+    8%{transform:rotate(10deg)}
+    10%{transform:rotate(-8deg)}
+    12%{transform:rotate(6deg)}
+    14%{transform:rotate(-4deg)}
+    16%{transform:rotate(2deg)}
     18%,100%{transform:rotate(0deg)}
   }
   .mobile-dash-commerce{padding:16px;border:1px solid rgba(32,217,232,.28);border-radius:26px;background:linear-gradient(145deg,rgba(7,25,40,.94),rgba(4,12,25,.96));box-shadow:0 18px 42px rgba(0,0,0,.2)}
@@ -234,6 +237,8 @@
   [data-theme="light"] .mobile-dash-hero__assist{color:#14243a;border-color:rgba(104,76,203,.32);background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(229,226,250,.86));box-shadow:0 8px 20px rgba(51,43,116,.15),inset 0 1px rgba(255,255,255,.9)}
   [data-theme="light"] .mobile-dash-hero__assist svg{color:#0b91c0}
   [data-theme="light"] .mobile-dash-hero__notif-bell{border-color:rgba(214,158,46,.45);background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(255,248,225,.9));box-shadow:0 8px 18px rgba(120,90,10,.18),inset 0 1px rgba(255,255,255,.9)}
+  [data-theme="light"] .mobile-dash-hero__notif-callout{color:#5c3d00;border-color:rgba(214,158,46,.45);background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(255,248,225,.92));box-shadow:0 8px 18px rgba(120,90,10,.16)}
+  [data-theme="light"] .mobile-dash-hero__notif-callout::after{background:linear-gradient(145deg,rgba(255,255,255,.94),rgba(255,248,225,.92));border-color:rgba(214,158,46,.45)}
   [data-theme="light"] .mobile-dash-commerce{border-color:rgba(18,114,135,.22);background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(228,240,244,.88));box-shadow:0 18px 42px rgba(21,65,80,.11)}
   [data-theme="light"] .mobile-dash-commerce__offers>a{background:rgba(255,255,255,.68);border-color:rgba(35,100,119,.14)}
   [data-theme="light"] .mobile-dash__body{color:#10202e}
