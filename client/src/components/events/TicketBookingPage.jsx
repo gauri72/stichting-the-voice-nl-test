@@ -337,6 +337,15 @@ export default function TicketBookingPage() {
     setDetectingMember(true);
     try {
       const data = await detectMembership(codeOverride ?? (membershipCode || ""));
+      // Ignore stale responses — this fires on every keystroke via the
+      // step-entry effect below, so several calls for successively longer
+      // email prefixes can be in flight at once, and network timing doesn't
+      // guarantee they resolve in the order they were sent. lastDetectedRef
+      // always holds the most recently *started* call's key, so if it no
+      // longer matches this call's key, a newer one has since superseded it
+      // — applying this result now would overwrite a fresher (or the final,
+      // correct) one with stale data.
+      if (lastDetectedRef.current !== dedupeKey) return;
       setMemberDetection(data);
       setDetectionMessages(data.messages);
 
@@ -490,7 +499,12 @@ export default function TicketBookingPage() {
   useEffect(() => {
     const shouldAutoDetect = step === DETAILS_STEP || step === BENEFITS_STEP;
     if (shouldAutoDetect && attendee.email?.includes("@")) {
-      detectMember(attendee.email);
+      // Debounced so this doesn't fire a full round-trip per keystroke while
+      // the customer is still typing — detectMember's own stale-response
+      // guard (see above) handles anything still in flight when a newer
+      // keystroke supersedes it.
+      const timer = window.setTimeout(() => detectMember(attendee.email), 400);
+      return () => window.clearTimeout(timer);
     }
   }, [step, attendee.email, DETAILS_STEP, BENEFITS_STEP, detectMember]);
 
