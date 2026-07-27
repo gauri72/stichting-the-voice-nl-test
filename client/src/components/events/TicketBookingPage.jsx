@@ -1669,7 +1669,16 @@ export default function TicketBookingPage() {
                           onChange={(e) => setPointsToRedeem(Math.max(0, Number(e.target.value)))}
                         />
                       </div>
-                    ) : null}
+                    ) : (
+                      // Below the redemption threshold, still say so — matching the dashboard's
+                      // always-visible PointsProgressBar — instead of silently showing nothing,
+                      // which previously made it look like points redemption didn't exist at all.
+                      <p className="ticket-booking__wallet-pay-topup">
+                        {walletData.rewardPoints > 0
+                          ? `You have ${walletData.rewardPoints} points — ${walletData.pointsProgram.minRedemptionPoints - walletData.rewardPoints} more to redeem your first discount.`
+                          : `Earn ${walletData.pointsProgram.pointsPerEuroSpent} point per €1 spent via V.Wallet — redeem from ${walletData.pointsProgram.minRedemptionPoints} points.`}
+                      </p>
+                    )}
 
                     {walletPayError ? <p className="ticket-booking__error">{walletPayError}</p> : null}
 
