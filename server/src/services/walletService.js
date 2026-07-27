@@ -78,6 +78,51 @@ function err(message, status = 400) {
 }
 
 /**
+ * MongoDB transactions fail fast on lock contention by design (WiredTiger's
+ * default in-transaction lock-wait timeout is 5ms) — the driver/application
+ * is expected to retry rather than block. Every wallet balance/points
+ * mutation below runs through this, since even a single request chaining two
+ * of them back-to-back (e.g. redeem points then cap a wallet portion) can
+ * trip a WriteConflict/LockTimeout with no other traffic involved at all.
+ * Retries the whole transaction body on TransientTransactionError, and just
+ * the commit on UnknownTransactionCommitResult — the retry shape MongoDB's
+ * own transaction docs recommend.
+ */
+async function withWalletTransaction(fn, { maxAttempts = 5 } = {}) {
+  let attempt = 0;
+  for (;;) {
+    attempt += 1;
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
+      const result = await fn(session);
+      await commitWithRetry(session);
+      return result;
+    } catch (e) {
+      await session.abortTransaction().catch(() => {});
+      if (e?.hasErrorLabel?.("TransientTransactionError") && attempt < maxAttempts) {
+        continue;
+      }
+      throw e;
+    } finally {
+      session.endSession();
+    }
+  }
+}
+
+async function commitWithRetry(session) {
+  for (;;) {
+    try {
+      await session.commitTransaction();
+      return;
+    } catch (e) {
+      if (e?.hasErrorLabel?.("UnknownTransactionCommitResult")) continue;
+      throw e;
+    }
+  }
+}
+
+/**
  * Credits the wallet balance and writes the matching ledger row, atomically.
  * Throws if the credit would push the balance past the admin-configured
  * per-customer cap (unless `allowOverCap` is set, used for admin overrides).
@@ -86,9 +131,7 @@ export async function creditWallet(customerId, amountMinor, opts = {}) {
   if (!Number.isInteger(amountMinor) || amountMinor <= 0) throw err("Credit amount must be a positive integer (minor units).");
 
   const global = await getGlobalSettings();
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  try {
+  return withWalletTransaction(async (session) => {
     const wallet = await Wallet.findOneAndUpdate({ customerId }, { $setOnInsert: { customerId } }, { upsert: true, new: true, session });
     const projectedBalance = wallet.balanceMinor + amountMinor;
     if (!opts.allowOverCap && projectedBalance > global.maxWalletBalanceMinor) {
@@ -118,14 +161,8 @@ export async function creditWallet(customerId, amountMinor, opts = {}) {
       { session }
     );
 
-    await session.commitTransaction();
     return { wallet: updated, transaction };
-  } catch (e) {
-    await session.abortTransaction();
-    throw e;
-  } finally {
-    session.endSession();
-  }
+  });
 }
 
 /**
@@ -137,9 +174,7 @@ export async function creditWallet(customerId, amountMinor, opts = {}) {
 export async function debitWallet(customerId, amountMinor, opts = {}) {
   if (!Number.isInteger(amountMinor) || amountMinor <= 0) throw err("Debit amount must be a positive integer (minor units).");
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  try {
+  return withWalletTransaction(async (session) => {
     const updated = await Wallet.findOneAndUpdate(
       { customerId, balanceMinor: { $gte: amountMinor } },
       { $inc: { balanceMinor: -amountMinor, totalSpentMinor: amountMinor } },
@@ -163,14 +198,8 @@ export async function debitWallet(customerId, amountMinor, opts = {}) {
       { session }
     );
 
-    await session.commitTransaction();
     return { wallet: updated, transaction };
-  } catch (e) {
-    await session.abortTransaction();
-    throw e;
-  } finally {
-    session.endSession();
-  }
+  });
 }
 
 export async function computePointsForSpend(customerId, amountMinor) {
@@ -196,9 +225,7 @@ export async function awardPoints(customerId, points, opts = {}) {
   const global = await getGlobalSettings();
   const expiresAt = new Date(Date.now() + global.pointsExpiryDays * 24 * 60 * 60 * 1000);
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  try {
+  return withWalletTransaction(async (session) => {
     const wallet = await Wallet.findOneAndUpdate(
       { customerId },
       { $inc: { rewardPoints: points } },
@@ -219,14 +246,8 @@ export async function awardPoints(customerId, points, opts = {}) {
       ],
       { session }
     );
-    await session.commitTransaction();
     return { wallet, transaction };
-  } catch (e) {
-    await session.abortTransaction();
-    throw e;
-  } finally {
-    session.endSession();
-  }
+  });
 }
 
 /**
@@ -293,9 +314,7 @@ export async function redeemPoints(customerId, points) {
     throw err(`You need at least ${global.minRedemptionPoints} points to redeem.`);
   }
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  try {
+  return withWalletTransaction(async (session) => {
     const updated = await Wallet.findOneAndUpdate(
       { customerId, rewardPoints: { $gte: points } },
       { $inc: { rewardPoints: -points } },
@@ -319,14 +338,8 @@ export async function redeemPoints(customerId, points) {
       { session }
     );
 
-    await session.commitTransaction();
     return { wallet: updated, transaction, discountMinor };
-  } catch (e) {
-    await session.abortTransaction();
-    throw e;
-  } finally {
-    session.endSession();
-  }
+  });
 }
 
 export async function listTransactions(customerId, { limit = 50, before } = {}) {
