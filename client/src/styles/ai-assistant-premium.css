@@ -546,7 +546,10 @@
 
 @media (max-width: 639px) {
   .ai-overlay-panel {
-    height: 100dvh;
+    /* svh, not dvh — fixed to the smallest viewport so this full-screen
+       panel doesn't reflow (and visibly flicker) as the on-screen
+       keyboard's height fluctuates while typing. */
+    height: 100svh;
     border-radius: 0;
   }
 
@@ -663,7 +666,7 @@
 
   .ai-standalone-premium {
     width: 100%;
-    min-height: 100dvh;
+    min-height: 100svh;
     margin: 0;
     border: 0;
     border-radius: 0;
@@ -674,7 +677,7 @@
   }
 
   .ai-standalone-premium > .ai-chat-shell {
-    height: calc(100dvh - 128px);
+    height: calc(100svh - 128px);
     min-height: 0;
   }
 }
@@ -761,4 +764,16 @@
 
 [data-theme="light"] .ai-premium-orb img {
   mix-blend-mode: normal;
+}
+
+[data-theme="light"] .ai-premium-suggestions button {
+  color: #102438;
+}
+
+[data-theme="light"] .ai-premium-suggestions svg {
+  color: #4a63c9;
+}
+
+[data-theme="light"] .ai-premium-page-header > a {
+  color: #24475e;
 }

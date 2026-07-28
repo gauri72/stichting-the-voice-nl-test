@@ -8,7 +8,13 @@
  */
 
 .ai-chat-shell {
-  height: calc(100vh - 160px);
+  /* svh (small viewport height), not vh/dvh — this shell sits inside a
+     fixed-position panel that shouldn't reflow every time the on-screen
+     keyboard's height changes (including per-keystroke predictive-text-bar
+     fluctuations on Android), which was causing a visible flicker while
+     typing. svh is fixed at the smallest possible viewport and never
+     recalculates as the keyboard opens/closes. */
+  height: calc(100svh - 160px);
   min-height: 480px;
 }
 @media (min-width: 640px) {
@@ -18,7 +24,7 @@
 }
 
 .ai-chat-history-panel {
-  max-height: 70vh;
+  max-height: 70svh;
 }
 @media (min-width: 640px) {
   .ai-chat-history-panel {
@@ -31,7 +37,7 @@
 }
 
 .ai-modal-max-height {
-  max-height: 90vh;
+  max-height: 90svh;
 }
 
 @media (min-width: 640px) {
@@ -78,7 +84,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  height: 92vh;
+  height: 92svh;
   display: flex;
   flex-direction: column;
   border-radius: 20px 20px 0 0;
