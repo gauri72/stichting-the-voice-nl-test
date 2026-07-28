@@ -60,8 +60,8 @@ export default function AdminBroadcastReportPage() {
     setError("");
     try {
       const [reportData, linksData] = await Promise.all([
-        apiFetch(`/admin/broadcasts/${broadcastId}/report`, { headers: adminAuthHeaders() }),
-        apiFetch(`/admin/broadcasts/${broadcastId}/links`, { headers: adminAuthHeaders() }),
+        apiFetch(`/api/admin/broadcasts/${broadcastId}/report`, { headers: adminAuthHeaders() }),
+        apiFetch(`/api/admin/broadcasts/${broadcastId}/links`, { headers: adminAuthHeaders() }),
       ]);
       setReport(reportData);
       setLinks(linksData.links || []);
@@ -76,7 +76,7 @@ export default function AdminBroadcastReportPage() {
     try {
       const params = new URLSearchParams({ page: String(recipientPage), pageSize: "25" });
       if (recipientFilter) params.set("filter", recipientFilter);
-      const data = await apiFetch(`/admin/broadcasts/${broadcastId}/recipients?${params.toString()}`, {
+      const data = await apiFetch(`/api/admin/broadcasts/${broadcastId}/recipients?${params.toString()}`, {
         headers: adminAuthHeaders(),
       });
       setRecipients(data.recipients || []);
@@ -100,7 +100,7 @@ export default function AdminBroadcastReportPage() {
 
   async function handleExportCsv() {
     const url = apiUrl(
-      `/admin/broadcasts/${broadcastId}/recipients/export${recipientFilter ? `?filter=${recipientFilter}` : ""}`
+      `/api/admin/broadcasts/${broadcastId}/recipients/export${recipientFilter ? `?filter=${recipientFilter}` : ""}`
     );
     const response = await fetch(url, { headers: adminAuthHeaders() });
     const blob = await response.blob();

@@ -29,7 +29,7 @@ export default function AdminNotificationBell() {
 
   const fetchUnreadCount = useCallback(async () => {
     try {
-      const data = await apiFetch("/admin/notifications/unread-count", { headers: adminAuthHeaders() });
+      const data = await apiFetch("/api/admin/notifications/unread-count", { headers: adminAuthHeaders() });
       setUnreadCount(data.unreadCount || 0);
     } catch {
       // Silent — a failed poll shouldn't surface an error toast for a background badge.
@@ -39,7 +39,7 @@ export default function AdminNotificationBell() {
   const fetchNotifications = useCallback(async (pageSize) => {
     setLoading(true);
     try {
-      const data = await apiFetch(`/admin/notifications?pageSize=${pageSize}`, { headers: adminAuthHeaders() });
+      const data = await apiFetch(`/api/admin/notifications?pageSize=${pageSize}`, { headers: adminAuthHeaders() });
       setNotifications(data.notifications || []);
       setUnreadCount(data.unreadCount || 0);
     } catch {
@@ -82,7 +82,7 @@ export default function AdminNotificationBell() {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, readAt: n.readAt || new Date().toISOString() } : n)));
     setUnreadCount((prev) => Math.max(0, prev - 1));
     try {
-      await apiFetch(`/admin/notifications/${id}/read`, { method: "POST", headers: adminAuthHeaders() });
+      await apiFetch(`/api/admin/notifications/${id}/read`, { method: "POST", headers: adminAuthHeaders() });
     } catch {
       // The optimistic update stands even if the request fails — worst case a notification
       // reappears as unread on the next poll, which is a harmless inconsistency.
@@ -93,7 +93,7 @@ export default function AdminNotificationBell() {
     setNotifications((prev) => prev.map((n) => ({ ...n, readAt: n.readAt || new Date().toISOString() })));
     setUnreadCount(0);
     try {
-      await apiFetch("/admin/notifications/mark-all-read", { method: "POST", headers: adminAuthHeaders() });
+      await apiFetch("/api/admin/notifications/mark-all-read", { method: "POST", headers: adminAuthHeaders() });
     } catch {
       fetchUnreadCount();
     }

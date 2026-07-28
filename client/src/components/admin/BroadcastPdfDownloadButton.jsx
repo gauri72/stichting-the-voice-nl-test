@@ -26,7 +26,7 @@ export default function BroadcastPdfDownloadButton({ broadcastId, initialStatus 
     clearInterval(pollRef.current);
     pollRef.current = setInterval(async () => {
       try {
-        const data = await apiFetch(`/admin/broadcasts/${broadcastId}/pdf/status`, { headers: adminAuthHeaders() });
+        const data = await apiFetch(`/api/admin/broadcasts/${broadcastId}/pdf/status`, { headers: adminAuthHeaders() });
         setStatus(data.pdfStatus);
         if (data.pdfStatus === "error") setError(data.pdfError || "PDF generation failed.");
         if (data.pdfStatus === "ready" || data.pdfStatus === "error") clearInterval(pollRef.current);
@@ -42,7 +42,7 @@ export default function BroadcastPdfDownloadButton({ broadcastId, initialStatus 
 
     if (status === "ready") {
       try {
-        const data = await apiFetch(`/admin/broadcasts/${broadcastId}/pdf/download`, { headers: adminAuthHeaders() });
+        const data = await apiFetch(`/api/admin/broadcasts/${broadcastId}/pdf/download`, { headers: adminAuthHeaders() });
         window.open(data.url, "_blank", "noopener,noreferrer");
       } catch (err) {
         setError(err.message || "Could not start the download.");
@@ -53,7 +53,7 @@ export default function BroadcastPdfDownloadButton({ broadcastId, initialStatus 
     if (status === "generating" || status === "queued") return; // already in flight
 
     try {
-      const data = await apiFetch(`/admin/broadcasts/${broadcastId}/pdf`, {
+      const data = await apiFetch(`/api/admin/broadcasts/${broadcastId}/pdf`, {
         method: "POST",
         headers: adminAuthHeaders(),
       });

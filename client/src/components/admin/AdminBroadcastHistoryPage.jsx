@@ -42,7 +42,7 @@ export default function AdminBroadcastHistoryPage() {
       const params = new URLSearchParams({ page: String(page), pageSize: String(PAGE_SIZE), sort });
       if (search.trim()) params.set("search", search.trim());
       if (status) params.set("status", status);
-      const data = await apiFetch(`/admin/broadcasts/history?${params.toString()}`, { headers: adminAuthHeaders() });
+      const data = await apiFetch(`/api/admin/broadcasts/history?${params.toString()}`, { headers: adminAuthHeaders() });
       setBroadcasts(data.broadcasts || []);
       setTotal(data.total || 0);
     } catch (err) {
