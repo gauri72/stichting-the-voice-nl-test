@@ -45,9 +45,9 @@ export default function AiPromptLibraryPage() {
   }
 
   return (
-    <div className="rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-black p-5 text-slate-100 ring-1 ring-white/10">
+    <div className="rounded-2xl bg-white p-5 text-slate-900 ring-1 ring-slate-200 dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-950 dark:to-black dark:text-slate-100 dark:ring-white/10">
       <h2 className="mb-1 text-lg font-semibold">{t("dashboardMain:aiAssistant.promptLibrary.heading")}</h2>
-      <p className="mb-4 text-sm text-slate-400">{t("dashboardMain:aiAssistant.promptLibrary.subtitle")}</p>
+      <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">{t("dashboardMain:aiAssistant.promptLibrary.subtitle")}</p>
 
       <form onSubmit={handleAddPrompt} className="mb-5 flex gap-2">
         <input
@@ -55,7 +55,7 @@ export default function AiPromptLibraryPage() {
           onChange={(e) => setNewPromptText(e.target.value)}
           placeholder={t("dashboardMain:aiAssistant.promptLibrary.newPromptPlaceholder")}
           aria-label={t("dashboardMain:aiAssistant.promptLibrary.newPromptAriaLabel")}
-          className="flex-1 rounded-lg border border-white/10 bg-slate-900/60 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/40"
+          className="flex-1 rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/40 dark:border-white/10 dark:bg-slate-900/60 dark:text-white dark:placeholder:text-slate-500"
         />
         <button
           type="submit"
@@ -67,14 +67,14 @@ export default function AiPromptLibraryPage() {
       </form>
 
       {/* Category tabs with animated underline */}
-      <div className="mb-5 flex gap-4 overflow-x-auto border-b border-white/10 pb-px">
+      <div className="mb-5 flex gap-4 overflow-x-auto border-b border-slate-200 pb-px dark:border-white/10">
         {categories.map((cat) => (
           <button
             key={cat}
             type="button"
             onClick={() => setActiveCategory(cat)}
             className={`relative whitespace-nowrap pb-2 text-sm font-medium transition ${
-              activeCategory === cat ? "text-white" : "text-slate-500 hover:text-slate-300"
+              activeCategory === cat ? "text-slate-900 dark:text-white" : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             }`}
           >
             {cat === "all" ? t("dashboardMain:aiAssistant.promptLibrary.allCategory") : cat}

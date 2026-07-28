@@ -35,9 +35,9 @@ export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) 
           />
         )}
       </span>
-      <div className="absolute left-1 top-5 -bottom-5 w-px bg-white/10 last:hidden" aria-hidden="true" />
+      <div className="absolute left-1 top-5 -bottom-5 w-px bg-slate-200 last:hidden dark:bg-white/10" aria-hidden="true" />
 
-      <div className="rounded-xl bg-slate-800/60 p-3.5 ring-1 ring-white/10">
+      <div className="rounded-xl bg-white p-3.5 ring-1 ring-slate-200 dark:bg-slate-800/60 dark:ring-white/10">
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
@@ -45,10 +45,10 @@ export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) 
           aria-expanded={expanded}
         >
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-slate-100">{item.promptText}</p>
-            <p className="text-xs text-slate-400">{describeSchedule(item.schedule, t, dayLabels)}</p>
+            <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{item.promptText}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{describeSchedule(item.schedule, t, dayLabels)}</p>
           </div>
-          <motion.span animate={{ rotate: expanded ? 180 : 0 }} className="shrink-0 text-slate-400">
+          <motion.span animate={{ rotate: expanded ? 180 : 0 }} className="shrink-0 text-slate-500 dark:text-slate-400">
             <IconChevronDown size={16} />
           </motion.span>
         </button>
@@ -56,26 +56,26 @@ export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) 
         <div className="mt-2 flex items-center gap-3 text-xs">
           <span
             className={`rounded-full px-2 py-0.5 font-medium ${
-              isActive ? "bg-emerald-500/15 text-emerald-300" : "bg-slate-600/30 text-slate-400"
+              isActive ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" : "bg-slate-200 text-slate-600 dark:bg-slate-600/30 dark:text-slate-400"
             }`}
           >
             {isActive ? t("dashboardMain:aiAssistant.scheduleTimelineItem.active") : t("dashboardMain:aiAssistant.scheduleTimelineItem.paused")}
           </span>
-          <span className="flex items-center gap-1 text-slate-400" title={t("dashboardMain:aiAssistant.scheduledPrompts.tabs.updates")}>
+          <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400" title={t("dashboardMain:aiAssistant.scheduledPrompts.tabs.updates")}>
             <IconDeviceDesktop size={13} />
           </span>
           {item.notifyEmail && (
-            <span className="flex items-center gap-1 text-slate-400">
+            <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
               <IconMail size={13} /> {t("dashboardMain:aiAssistant.scheduleModal.delivery.email")}
             </span>
           )}
           {item.notifyPush && (
-            <span className="flex items-center gap-1 text-slate-400">
+            <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
               <IconBellRinging size={13} /> {t("dashboardMain:aiAssistant.scheduleModal.delivery.push")}
             </span>
           )}
           {isActive && item.nextRunAt && (
-            <span className="text-slate-400">
+            <span className="text-slate-500 dark:text-slate-400">
               {t("dashboardMain:aiAssistant.scheduleTimelineItem.nextIn")} <CountdownTimer targetDate={item.nextRunAt} />
             </span>
           )}
@@ -90,7 +90,7 @@ export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) 
               transition={{ duration: 0.25 }}
               className="overflow-hidden"
             >
-              <div className="mt-3 space-y-1 border-t border-white/10 pt-3 text-xs text-slate-400">
+              <div className="mt-3 space-y-1 border-t border-slate-200 pt-3 text-xs text-slate-500 dark:border-white/10 dark:text-slate-400">
                 <p>{t("dashboardMain:aiAssistant.scheduleTimelineItem.lastRun", { value: item.lastRunAt ? new Date(item.lastRunAt).toLocaleString() : t("dashboardMain:aiAssistant.scheduleTimelineItem.never") })}</p>
                 <p>{t("dashboardMain:aiAssistant.scheduleTimelineItem.nextRun", { value: item.nextRunAt ? new Date(item.nextRunAt).toLocaleString() : "—" })}</p>
               </div>
@@ -98,7 +98,7 @@ export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) 
                 <button
                   type="button"
                   onClick={onPauseToggle}
-                  className="flex items-center gap-1 rounded-lg bg-white/10 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-white/20 active:scale-95"
+                  className="flex items-center gap-1 rounded-lg bg-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-900 transition hover:bg-slate-300 active:scale-95 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
                 >
                   {isActive ? <IconPlayerPause size={14} /> : <IconPlayerPlay size={14} />}
                   {isActive ? t("dashboardMain:aiAssistant.scheduleTimelineItem.pause") : t("dashboardMain:aiAssistant.scheduleTimelineItem.resume")}
@@ -106,7 +106,7 @@ export default function ScheduleTimelineItem({ item, onPauseToggle, onDelete }) 
                 <button
                   type="button"
                   onClick={onDelete}
-                  className="flex items-center gap-1 rounded-lg bg-red-950/40 px-2.5 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-950/70 active:scale-95"
+                  className="flex items-center gap-1 rounded-lg bg-red-100 px-2.5 py-1.5 text-xs font-medium text-red-700 transition hover:bg-red-200 active:scale-95 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/70"
                 >
                   <IconTrash size={14} /> {t("dashboardMain:aiAssistant.scheduleTimelineItem.delete")}
                 </button>

@@ -167,7 +167,7 @@ export default function AiChatPage() {
           animate={{ x: [0, -6, 6, -4, 4, 0] }}
           transition={{ duration: 0.4 }}
           role="alert"
-          className="mx-4 mb-2 rounded-lg bg-red-950/50 px-3 py-2 text-xs text-red-300 ring-1 ring-red-500/30"
+          className="mx-4 mb-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700 ring-1 ring-red-300 dark:bg-red-950/50 dark:text-red-300 dark:ring-red-500/30"
         >
           {error}
           <button type="button" onClick={() => setError("")} className="ml-2 underline">
@@ -232,11 +232,11 @@ export default function AiChatPage() {
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
               role="dialog"
               aria-label={t("dashboardMain:aiAssistant.chat.history.heading")}
-              className="ai-chat-history-panel ai-nested-modal-panel fixed inset-x-0 bottom-0 overflow-y-auto rounded-t-2xl bg-slate-900 p-4 ring-1 ring-white/10 sm:absolute sm:inset-x-auto sm:right-0 sm:top-14 sm:bottom-auto sm:w-72 sm:rounded-xl"
+              className="ai-chat-history-panel ai-nested-modal-panel fixed inset-x-0 bottom-0 overflow-y-auto rounded-t-2xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/10 sm:absolute sm:inset-x-auto sm:right-0 sm:top-14 sm:bottom-auto sm:w-72 sm:rounded-xl"
             >
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-white">{t("dashboardMain:aiAssistant.chat.history.heading")}</h3>
-                <button type="button" onClick={() => setHistoryOpen(false)} aria-label={t("dashboardMain:aiAssistant.chat.history.closeAriaLabel")} className="text-slate-400 hover:text-white">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{t("dashboardMain:aiAssistant.chat.history.heading")}</h3>
+                <button type="button" onClick={() => setHistoryOpen(false)} aria-label={t("dashboardMain:aiAssistant.chat.history.closeAriaLabel")} className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
                   <IconX size={18} />
                 </button>
               </div>
@@ -252,7 +252,7 @@ export default function AiChatPage() {
                           openChatSession(s.id);
                           setHistoryOpen(false);
                         }}
-                        className="w-full rounded-lg px-3 py-2 text-left text-sm text-slate-200 transition hover:bg-white/10"
+                        className="w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/10"
                       >
                         <span className="block truncate">{s.title}</span>
                         <span className="ai-text-11 text-slate-500">{new Date(s.lastMessageAt).toLocaleDateString()}</span>

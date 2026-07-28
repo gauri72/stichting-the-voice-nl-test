@@ -16,7 +16,7 @@ export function WalletToolIndicator({ tool }) {
     <motion.div
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mt-2 flex items-center gap-2 rounded-lg bg-purple-500/10 px-3 py-2 text-xs font-medium text-purple-300 ring-1 ring-purple-400/20"
+      className="mt-2 flex items-center gap-2 rounded-lg bg-purple-500/10 px-3 py-2 text-xs font-medium text-purple-700 ring-1 ring-purple-400/20 dark:text-purple-300"
     >
       <IconLoader2 size={14} className="animate-spin" />
       {key ? t(`dashboardMain:aiAssistant.walletBadge.toolLabels.${key}`) : t("dashboardMain:aiAssistant.walletBadge.toolLabels.working")}
@@ -38,10 +38,10 @@ export default function WalletBookingBadge({ booking }) {
         <IconWallet size={16} />
       </span>
       <div className="flex-1">
-        <p className="flex items-center gap-1 text-sm font-semibold text-white">
-          <IconCheck size={14} className="text-emerald-400" /> {t("dashboardMain:aiAssistant.walletBadge.bookedTitle")}
+        <p className="flex items-center gap-1 text-sm font-semibold text-slate-900 dark:text-white">
+          <IconCheck size={14} className="text-emerald-600 dark:text-emerald-400" /> {t("dashboardMain:aiAssistant.walletBadge.bookedTitle")}
         </p>
-        <p className="ai-text-11 text-slate-400">
+        <p className="ai-text-11 text-slate-600 dark:text-slate-400">
           {t("dashboardMain:aiAssistant.walletBadge.summary", {
             quantity: booking.quantity,
             eventTitle: booking.eventTitle,

@@ -720,3 +720,45 @@
 [data-theme="light"] .ai-premium-composer {
   background: linear-gradient(#fff, #fff) padding-box, linear-gradient(90deg, #13bcd5, rgba(91,117,255,.3), #9b5cff) border-box;
 }
+
+[data-theme="light"] .ai-premium-panel__close {
+  border-color: rgba(36, 103, 135, .22);
+  background: rgba(16, 36, 56, .05);
+  color: #24475e;
+}
+
+[data-theme="light"] .ai-premium-panel__close:hover {
+  border-color: rgba(19, 188, 213, .55);
+  background: rgba(19, 188, 213, .12);
+}
+
+[data-theme="light"] .ai-premium-panel__tabs button,
+[data-theme="light"] .ai-premium-page-tabs a {
+  background: rgba(16, 36, 56, .045);
+}
+
+[data-theme="light"] .ai-premium-panel__tabs button.is-active,
+[data-theme="light"] .ai-premium-page-tabs a.is-active {
+  background: linear-gradient(135deg, rgba(19, 188, 213, .18), rgba(155, 92, 255, .18));
+  color: #102438;
+}
+
+[data-theme="light"] .ai-premium-chat__tools button {
+  border-color: rgba(36, 103, 135, .2);
+  background: rgba(16, 36, 56, .04);
+  color: #24475e;
+}
+
+[data-theme="light"] .ai-premium-composer button {
+  border-color: rgba(19, 188, 213, .35);
+  background: rgba(16, 36, 56, .05);
+  color: #24475e;
+}
+
+[data-theme="light"] .ai-premium-composer button:last-child {
+  color: #fff;
+}
+
+[data-theme="light"] .ai-premium-orb img {
+  mix-blend-mode: normal;
+}

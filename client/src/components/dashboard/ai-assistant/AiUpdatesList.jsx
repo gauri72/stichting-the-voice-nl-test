@@ -11,10 +11,10 @@ function ChannelPill({ channel, state, t, onResend, resending }) {
   const Icon = CHANNEL_ICONS[channel];
   const status = state.status;
   const tone =
-    status === "delivered" ? "bg-emerald-500/15 text-emerald-300" :
-    status === "pending_retry" ? "bg-amber-500/15 text-amber-300" :
-    status === "failed" ? "bg-red-500/15 text-red-300" :
-    "bg-white/5 text-slate-400";
+    status === "delivered" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300" :
+    status === "pending_retry" ? "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300" :
+    status === "failed" ? "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300" :
+    "bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-slate-400";
 
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${tone}`}>
@@ -25,7 +25,7 @@ function ChannelPill({ channel, state, t, onResend, resending }) {
           type="button"
           onClick={(e) => { e.stopPropagation(); onResend(channel); }}
           disabled={resending}
-          className="ml-1 flex items-center gap-0.5 rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold text-white transition hover:bg-white/20 disabled:opacity-50"
+          className="ml-1 flex items-center gap-0.5 rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-900 transition hover:bg-slate-300 disabled:opacity-50 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
         >
           <IconRefresh size={10} /> {t("dashboardMain:aiAssistant.updatesList.resend")}
         </button>
@@ -61,22 +61,22 @@ function UpdateRow({ item }) {
   }
 
   return (
-    <li className="rounded-xl bg-slate-800/60 p-3.5 ring-1 ring-white/10">
+    <li className="rounded-xl bg-white p-3.5 ring-1 ring-slate-200 dark:bg-slate-800/60 dark:ring-white/10">
       <button type="button" onClick={handleToggle} className="flex w-full items-start justify-between gap-2 text-left" aria-expanded={expanded}>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            {isUnread && <span className="h-2 w-2 shrink-0 rounded-full bg-cyan-400" aria-hidden="true" />}
-            <p className="truncate text-sm font-medium text-slate-100">{item.promptText || t("dashboardMain:aiAssistant.updatesList.untitled")}</p>
+            {isUnread && <span className="h-2 w-2 shrink-0 rounded-full bg-cyan-500 dark:bg-cyan-400" aria-hidden="true" />}
+            <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{item.promptText || t("dashboardMain:aiAssistant.updatesList.untitled")}</p>
           </div>
-          <p className="mt-0.5 text-xs text-slate-400">{new Date(item.deliveredAt).toLocaleString()}</p>
+          <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{new Date(item.deliveredAt).toLocaleString()}</p>
         </div>
-        <motion.span animate={{ rotate: expanded ? 180 : 0 }} className="shrink-0 text-slate-400">
+        <motion.span animate={{ rotate: expanded ? 180 : 0 }} className="shrink-0 text-slate-500 dark:text-slate-400">
           <IconChevronDown size={16} />
         </motion.span>
       </button>
 
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-slate-300">
+        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-white/5 dark:text-slate-300">
           <IconDeviceDesktop size={12} /> {t("dashboardMain:aiAssistant.updatesList.channelStatus.delivered")}
         </span>
         <ChannelPill channel="email" state={item.channels?.email} t={t} onResend={handleResend} resending={resending} />
@@ -92,7 +92,7 @@ function UpdateRow({ item }) {
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <p className="mt-3 whitespace-pre-wrap border-t border-white/10 pt-3 text-sm text-slate-300">{item.resultText}</p>
+            <p className="mt-3 whitespace-pre-wrap border-t border-slate-200 pt-3 text-sm text-slate-600 dark:border-white/10 dark:text-slate-300">{item.resultText}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -106,7 +106,7 @@ export default function AiUpdatesList() {
 
   if (results.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-slate-500">
+      <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 dark:border-white/10">
         {t("dashboardMain:aiAssistant.updatesList.empty")}
       </div>
     );

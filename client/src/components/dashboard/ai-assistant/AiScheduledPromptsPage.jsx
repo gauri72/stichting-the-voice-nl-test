@@ -29,11 +29,11 @@ export default function AiScheduledPromptsPage() {
   });
 
   return (
-    <div className="rounded-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-black p-5 text-slate-100 ring-1 ring-white/10">
+    <div className="rounded-2xl bg-white p-5 text-slate-900 ring-1 ring-slate-200 dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-950 dark:to-black dark:text-slate-100 dark:ring-white/10">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">{t("dashboardMain:aiAssistant.scheduledPrompts.heading")}</h2>
-          <p className="text-sm text-slate-400">{t("dashboardMain:aiAssistant.scheduledPrompts.subtitle")}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{t("dashboardMain:aiAssistant.scheduledPrompts.subtitle")}</p>
         </div>
         {tab === "schedules" && (
           <button
@@ -46,14 +46,14 @@ export default function AiScheduledPromptsPage() {
         )}
       </div>
 
-      <div className="mb-4 flex gap-1 rounded-lg bg-white/5 p-1">
+      <div className="mb-4 flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-white/5">
         {["schedules", "updates"].map((tabKey) => (
           <button
             key={tabKey}
             type="button"
             onClick={() => setTab(tabKey)}
             className={`relative flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition ${
-              tab === tabKey ? "bg-purple-600 text-white" : "text-slate-300 hover:bg-white/10"
+              tab === tabKey ? "bg-purple-600 text-white" : "text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-white/10"
             }`}
           >
             {t(`dashboardMain:aiAssistant.scheduledPrompts.tabs.${tabKey}`)}
@@ -68,7 +68,7 @@ export default function AiScheduledPromptsPage() {
 
       {tab === "schedules" ? (
         sorted.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-slate-500">
+          <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 dark:border-white/10">
             {t("dashboardMain:aiAssistant.scheduledPrompts.empty")}
           </div>
         ) : (

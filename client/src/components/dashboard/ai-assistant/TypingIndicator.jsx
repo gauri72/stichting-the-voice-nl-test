@@ -12,7 +12,7 @@ export default function TypingIndicator() {
       {DOT_DELAYS.map((delay, i) => (
         <motion.span
           key={i}
-          className="h-2 w-2 rounded-full bg-purple-300"
+          className="h-2 w-2 rounded-full bg-purple-500 dark:bg-purple-300"
           animate={reduceMotion ? { opacity: [0.4, 1, 0.4] } : { y: [0, -6, 0] }}
           transition={{ duration: 0.9, repeat: Infinity, delay, ease: "easeInOut" }}
         />

@@ -35,8 +35,10 @@ export default function ChatMessageBubble({ message }) {
           className={
             isUser
               ? "rounded-2xl rounded-br-sm bg-gradient-to-br from-purple-600 to-purple-500 px-4 py-2.5 text-white shadow-lg shadow-purple-900/20"
-              : `rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-lg shadow-black/20 ${
-                  message.isError ? "bg-red-950/60 text-red-200 ring-1 ring-red-500/40" : "bg-slate-800/80 text-slate-100 ring-1 ring-white/5"
+              : `rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-lg shadow-black/10 dark:shadow-black/20 ${
+                  message.isError
+                    ? "bg-red-50 text-red-700 ring-1 ring-red-300 dark:bg-red-950/60 dark:text-red-200 dark:ring-red-500/40"
+                    : "bg-slate-100 text-slate-900 ring-1 ring-slate-200 dark:bg-slate-800/80 dark:text-slate-100 dark:ring-white/5"
                 }`
           }
         >
@@ -66,7 +68,7 @@ export default function ChatMessageBubble({ message }) {
       </div>
 
       {isUser && (
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-700 text-slate-200">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200">
           <IconUser size={16} aria-hidden="true" />
         </div>
       )}

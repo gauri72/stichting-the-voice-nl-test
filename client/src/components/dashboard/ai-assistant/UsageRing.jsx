@@ -40,7 +40,7 @@ export default function UsageRing({ used, limit }) {
       title={unlimited ? t("dashboardMain:aiAssistant.usageRing.unlimitedTitle", { used }) : t("dashboardMain:aiAssistant.usageRing.limitedTitle", { used, limit })}
     >
       <svg width="36" height="36" viewBox="0 0 36 36" className="-rotate-90" aria-hidden="true">
-        <circle cx="18" cy="18" r={RADIUS} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
+        <circle cx="18" cy="18" r={RADIUS} fill="none" stroke="currentColor" strokeWidth="3" className="text-slate-900/10 dark:text-white/10" />
         {!unlimited && (
           <motion.circle
             cx="18"
@@ -57,7 +57,7 @@ export default function UsageRing({ used, limit }) {
           />
         )}
       </svg>
-      <span className="ai-text-9 absolute font-semibold text-slate-200">{unlimited ? "∞" : displayUsed}</span>
+      <span className="ai-text-9 absolute font-semibold text-slate-700 dark:text-slate-200">{unlimited ? "∞" : displayUsed}</span>
     </div>
   );
 }
