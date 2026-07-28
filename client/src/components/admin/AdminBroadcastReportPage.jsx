@@ -112,7 +112,8 @@ export default function AdminBroadcastReportPage() {
   }
 
   async function handleDuplicate() {
-    navigate(`/admin/communication?templateId=${report?.broadcast?.id || ""}&duplicate=true`);
+    const templateId = report?.broadcast?.templateId;
+    navigate(templateId ? `/admin/communication?templateId=${templateId}` : "/admin/communication");
   }
 
   if (loading) {

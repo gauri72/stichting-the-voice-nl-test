@@ -14,6 +14,14 @@ export default function BroadcastPdfDownloadButton({ broadcastId, initialStatus 
 
   useEffect(() => () => clearInterval(pollRef.current), []);
 
+  // If this button mounts already mid-generation (e.g. the admin navigated away and back
+  // while a PDF was still being built), resume polling immediately — otherwise it renders a
+  // permanently disabled "Generating…" state that only a full page reload would ever clear.
+  useEffect(() => {
+    if (initialStatus === "queued" || initialStatus === "generating") pollUntilDone();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function pollUntilDone() {
     clearInterval(pollRef.current);
     pollRef.current = setInterval(async () => {
