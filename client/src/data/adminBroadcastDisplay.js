@@ -25,8 +25,7 @@ export function formatNumber(value) {
 }
 
 export function formatPercent(value) {
-  if (value === null || value === undefined) return "Not enough data";
-  return `${Number(value).toFixed(1)}%`;
+  return `${Number(value || 0).toFixed(1)}%`;
 }
 
 export function segmentLabel(key) {

@@ -160,18 +160,12 @@ export async function getUnsubscribedEmailSet(emails) {
  */
 const HREF_REGEX = /<a\b[^>]*\bhref\s*=\s*(["'])(.*?)\1[^>]*>/gi;
 
-// Only absolute http(s) links are tracked. A relative href (e.g. "/events") can't be turned
-// into a working tracked redirect — emailClickRedirect() would receive the bare relative path
-// as `destination`, `new URL()` would throw on it, and the recipient would be bounced to the
-// API server's own root instead of the page the link actually pointed to. Leaving relative
-// links unwrapped means they're untracked but still work correctly for the recipient.
 function isTrackableHref(url) {
   const trimmed = url.trim();
-  if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("mailto:") || trimmed.startsWith("tel:")) return false;
-  return /^https?:\/\//i.test(trimmed);
+  return Boolean(trimmed) && !trimmed.startsWith("#") && !trimmed.startsWith("mailto:") && !trimmed.startsWith("tel:");
 }
 
-export async function injectTracking(html, { broadcastId, publicApiUrl, trackingIdentifier, linkCache }) {
+export async function injectTracking(html, { broadcastId, publicApiUrl, trackingIdentifier }) {
   // originalUrl -> linkToken. A regex .replace() callback can't be async, so distinct URLs
   // are resolved/created up front, then substituted in a single synchronous pass.
   const seenUrls = new Map();
@@ -188,13 +182,6 @@ export async function injectTracking(html, { broadcastId, publicApiUrl, tracking
   }
 
   for (const url of urls) {
-    // Callers sending to many recipients in a loop (sendBroadcast()) pass a shared cache so
-    // an already-resolved URL is reused in-memory instead of round-tripping to Mongo again —
-    // the DB lookup only happens the first time a given URL is seen for this broadcast.
-    if (linkCache?.has(url)) {
-      seenUrls.set(url, linkCache.get(url));
-      continue;
-    }
     // One EmailBroadcastLink row per distinct URL per broadcast, shared across every
     // recipient — findOneAndUpdate upsert so a repeated send/retry never double-creates it.
     // eslint-disable-next-line no-await-in-loop
@@ -204,7 +191,6 @@ export async function injectTracking(html, { broadcastId, publicApiUrl, tracking
       { upsert: true, new: true }
     );
     seenUrls.set(url, link.linkToken);
-    linkCache?.set(url, link.linkToken);
   }
 
   const rewritten = html.replace(HREF_REGEX, (fullMatch, quote, url) => {
@@ -214,11 +200,7 @@ export async function injectTracking(html, { broadcastId, publicApiUrl, tracking
     return fullMatch.replace(`${quote}${url}${quote}`, `${quote}${trackedUrl}${quote}`);
   });
 
-  // No display:none / visibility:hidden — several major clients (Gmail among them) treat
-  // that as a signal the image is skippable and never fetch it at all, which would silently
-  // break open tracking entirely rather than just making the pixel visible. A bare 1x1 image
-  // is already visually imperceptible without needing to hide it.
-  const pixel = `<img src="${publicApiUrl}/api/email/open/${trackingIdentifier}.gif" width="1" height="1" alt="" border="0" style="width:1px;height:1px;border:0;" />`;
+  const pixel = `<img src="${publicApiUrl}/api/email/open/${trackingIdentifier}.gif" width="1" height="1" alt="" style="display:none;" />`;
   if (/<\/body>/i.test(rewritten)) {
     rewritten = rewritten.replace(/<\/body>/i, `${pixel}</body>`);
   } else {

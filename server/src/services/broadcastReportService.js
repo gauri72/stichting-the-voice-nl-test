@@ -35,7 +35,6 @@ export async function getBroadcastById(broadcastId) {
 function formatBroadcastHeader(broadcast) {
   return {
     id: broadcast._id.toString(),
-    templateId: broadcast.templateId ? broadcast.templateId.toString() : null,
     campaignName: broadcast.campaignName || broadcast.templateName,
     templateName: broadcast.templateName,
     subject: broadcast.subject,

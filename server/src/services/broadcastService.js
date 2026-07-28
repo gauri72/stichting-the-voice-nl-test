@@ -474,10 +474,7 @@ export async function listRecentCampaigns(limit = 6) {
     recipientCount: campaign.recipientCount,
     sentCount: campaign.sentCount,
     failedCount: campaign.failedCount,
-    // null (not 0) when nothing has been sent yet — a real 0% open rate and "no data to
-    // measure yet" are different facts, and the report page already draws this distinction
-    // for the same reason (see broadcastReportService.js's rate() helper).
-    openRate: campaign.sentCount > 0 ? Math.round((campaign.openedCount / campaign.sentCount) * 1000) / 10 : null,
+    openRate: campaign.sentCount > 0 ? Math.round((campaign.openedCount / campaign.sentCount) * 1000) / 10 : 0,
     sentAt: campaign.sentAt || campaign.createdAt,
     createdAt: campaign.createdAt,
   }));
@@ -517,11 +514,6 @@ export async function sendBroadcast({ templateId, audienceSegment, mergeVariable
   let sentCount = 0;
   let failedCount = 0;
   let lastError = "";
-  // Resolved once per distinct URL across the whole broadcast, not once per recipient — most
-  // links are identical for every recipient (a template's href rarely embeds a per-recipient
-  // merge field), so caching here turns what would otherwise be N recipients × M links worth
-  // of EmailBroadcastLink upserts into (at most) M for the entire send.
-  const linkCache = new Map();
 
   for (const recipient of audience) {
     const userVars = buildUserVariables(recipient, mergeVariables);
@@ -529,23 +521,19 @@ export async function sendBroadcast({ templateId, audienceSegment, mergeVariable
     const html = renderTemplateContent(template.htmlBody, userVars);
     const trackingIdentifier = generateTrackingToken();
 
-    // Recipient-row creation is inside the same try/catch as the send itself — a single bad
-    // row (e.g. a validation error) must only fail that one recipient, never abort the whole
-    // loop and leave the broadcast stuck at status "sending" with later recipients unsent.
-    try {
-      const recipientDoc = await EmailBroadcastRecipient.create({
-        broadcastId: broadcast._id,
-        email: recipient.email,
-        userId: recipient._id || null,
-        status: "queued",
-        trackingIdentifier,
-      });
+    const recipientDoc = await EmailBroadcastRecipient.create({
+      broadcastId: broadcast._id,
+      email: recipient.email,
+      userId: recipient._id || null,
+      status: "queued",
+      trackingIdentifier,
+    });
 
+    try {
       const trackedHtml = await injectTracking(html, {
         broadcastId: broadcast._id,
         publicApiUrl: env.publicApiUrl,
         trackingIdentifier,
-        linkCache,
       });
       const result = await provider.send({ to: recipient.email, subject, html: trackedHtml });
       sentCount += 1;
@@ -556,11 +544,10 @@ export async function sendBroadcast({ templateId, audienceSegment, mergeVariable
     } catch (error) {
       failedCount += 1;
       lastError = error.message || "Send failed.";
+      recipientDoc.status = "failed";
+      recipientDoc.failureReason = lastError.slice(0, 500);
+      await recipientDoc.save();
       console.warn(`[broadcast] Failed to send to ${recipient.email}:`, error.message);
-      await EmailBroadcastRecipient.updateOne(
-        { broadcastId: broadcast._id, email: recipient.email },
-        { $set: { status: "failed", failureReason: lastError.slice(0, 500) } }
-      ).catch(() => {});
     }
   }
 

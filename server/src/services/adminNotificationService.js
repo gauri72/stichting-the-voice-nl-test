@@ -1,9 +1,6 @@
 import AdminNotification from "../models/AdminNotification.js";
 
-// 15% — matches typical ESP-industry alerting bands. Named "failure", not "bounce": plain
-// SMTP (see emailProviders/smtpProvider.js) can only tell us a send was rejected outright,
-// never that a message bounced after being accepted, so this is a submission-failure rate.
-const HIGH_FAILURE_RATE_THRESHOLD = 0.15;
+const HIGH_BOUNCE_RATE_THRESHOLD = 0.15; // 15% of sent — matches typical ESP-industry alerting bands
 
 function formatNotification(doc) {
   return {
@@ -28,7 +25,7 @@ export async function createNotification({ type, title, message, severity = "inf
 export async function notifyBroadcastOutcome(broadcast) {
   const { sentCount, failedCount, recipientCount, status, _id, campaignName, templateName } = broadcast;
   const name = campaignName || templateName;
-  const failureRate = sentCount > 0 ? failedCount / (sentCount + failedCount) : 0;
+  const bounceRate = sentCount > 0 ? failedCount / (sentCount + failedCount) : 0;
 
   if (status === "failed") {
     return createNotification({
@@ -58,11 +55,11 @@ export async function notifyBroadcastOutcome(broadcast) {
     });
   }
 
-  if (failureRate >= HIGH_FAILURE_RATE_THRESHOLD) {
+  if (bounceRate >= HIGH_BOUNCE_RATE_THRESHOLD) {
     return createNotification({
       type: "broadcast_bounce_high",
       title: "High failure rate detected",
-      message: `"${name}" had a ${Math.round(failureRate * 100)}% send-failure rate — worth checking the audience list and template.`,
+      message: `"${name}" had a ${Math.round(bounceRate * 100)}% send-failure rate — worth checking the audience list and template.`,
       severity: "warning",
       broadcastId: _id,
     });

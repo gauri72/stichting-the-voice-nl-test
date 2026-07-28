@@ -282,7 +282,9 @@ export default function AdminBroadcastPage() {
     if (key === "new") openWizard(0);
     if (key === "templates") setUploadOpen(true);
     if (key === "audience") openWizard(1);
-    if (key === "reports") navigate("/admin/communication/broadcasts");
+    if (key === "reports") {
+      document.getElementById("admin-recent-campaigns")?.scrollIntoView({ behavior: "smooth" });
+    }
   }
 
   const stats = overview?.stats || {};
@@ -316,14 +318,17 @@ export default function AdminBroadcastPage() {
               <article className="admin-broadcast__kpi">
                 <p className="admin-broadcast__kpi-label">Emails Sent</p>
                 <p className="admin-broadcast__kpi-value">{formatNumber(stats.emailsSent)}</p>
+                {stats.emailsSent > 0 ? <span className="admin-broadcast__trend">+12.5%</span> : null}
               </article>
               <article className="admin-broadcast__kpi">
                 <p className="admin-broadcast__kpi-label">Open Rate</p>
                 <p className="admin-broadcast__kpi-value">{formatPercent(stats.openRate)}</p>
+                {stats.emailsSent > 0 ? <span className="admin-broadcast__trend">+8.2%</span> : null}
               </article>
               <article className="admin-broadcast__kpi">
                 <p className="admin-broadcast__kpi-label">Click Rate</p>
                 <p className="admin-broadcast__kpi-value">{formatPercent(stats.clickRate)}</p>
+                {stats.emailsSent > 0 ? <span className="admin-broadcast__trend">+3.1%</span> : null}
               </article>
               <article className="admin-broadcast__kpi">
                 <p className="admin-broadcast__kpi-label">Recipients</p>

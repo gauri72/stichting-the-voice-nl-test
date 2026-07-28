@@ -21,19 +21,6 @@ function slugifyFilename(value) {
     .slice(0, 80);
 }
 
-// S3 object Metadata values are sent as raw HTTP headers, which only support US-ASCII — the
-// AWS SDK does not percent-encode them. A subject/campaign name with an accented character
-// (routine for a Dutch-language org) would otherwise make the PutObjectCommand throw and
-// fail PDF generation outright. Diacritics are folded to their base letter first so "café"
-// degrades to "cafe" instead of disappearing entirely.
-function asciiSafeMetadata(value, maxLength) {
-  return String(value || "")
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\x20-\x7E]/g, "")
-    .slice(0, maxLength);
-}
-
 export function buildPdfFilename(broadcast) {
   const name = slugifyFilename(broadcast.campaignName || broadcast.templateName);
   const date = broadcast.sentAt ? new Date(broadcast.sentAt).toISOString().slice(0, 10) : "unsent";
@@ -120,27 +107,22 @@ export async function generateBroadcastPdf(broadcastId) {
     error.status = 404;
     throw error;
   }
+  if (!broadcast.htmlSnapshot) {
+    const error = new Error("This broadcast has no stored content to export yet.");
+    error.status = 400;
+    throw error;
+  }
+  if (!isMediaStorageConfigured()) {
+    const error = new Error("File storage is not configured on the server.");
+    error.status = 503;
+    throw error;
+  }
 
   broadcast.pdfStatus = "generating";
   broadcast.pdfError = "";
   await broadcast.save();
 
   try {
-    // These checks must stay inside the try block — if they threw before pdfStatus was set
-    // to "generating" above, the catch below would never run either, leaving the broadcast
-    // stuck at "queued" forever and causing the scheduler to retry it on every tick
-    // indefinitely instead of surfacing the error once.
-    if (!broadcast.htmlSnapshot) {
-      const error = new Error("This broadcast has no stored content to export yet.");
-      error.status = 400;
-      throw error;
-    }
-    if (!isMediaStorageConfigured()) {
-      const error = new Error("File storage is not configured on the server.");
-      error.status = 503;
-      throw error;
-    }
-
     const html = await sanitizeHtmlForPdf(broadcast.htmlSnapshot, broadcast._id);
     const buffer = await renderPdfBuffer(html);
     const key = pdfS3Key(broadcast._id);
@@ -153,9 +135,9 @@ export async function generateBroadcastPdf(broadcastId) {
         Body: buffer,
         ContentType: "application/pdf",
         Metadata: {
-          title: asciiSafeMetadata(broadcast.subject, 200),
+          title: broadcast.subject.slice(0, 200),
           author: "Stichting The V.O.I.C.E. NL",
-          subject: asciiSafeMetadata(broadcast.campaignName || broadcast.templateName, 200),
+          subject: (broadcast.campaignName || broadcast.templateName).slice(0, 200),
         },
       })
     );
