@@ -28,12 +28,6 @@ export function isMediaStorageConfigured() {
   return Boolean(env.aws.accessKeyId && env.aws.secretAccessKey);
 }
 
-// Exported for callers that store non-image binaries (e.g. generated broadcast PDFs) under
-// this same bucket but don't fit the image-resize/thumbnail pipeline uploadAsset() below is
-// built around — reuses the same client/credentials rather than each caller standing up its
-// own S3Client instance.
-export { getS3Client };
-
 async function nextAssetId() {
   const seq = await getNextSequence("media_asset");
   return `MEDIA-${new Date().getFullYear()}-${String(seq).padStart(6, "0")}`;

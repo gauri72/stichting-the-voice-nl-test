@@ -248,11 +248,6 @@
   border-radius: 16px;
   background: var(--ad-surface-2);
   border: 1px solid var(--ad-border);
-  cursor: pointer;
-}
-
-.admin-broadcast__campaign-list li:hover {
-  border-color: var(--ad-purple);
 }
 
 .admin-broadcast__campaign-thumb {
@@ -291,21 +286,9 @@
 }
 
 .admin-broadcast__badge--sending,
-.admin-broadcast__badge--draft,
-.admin-broadcast__badge--scheduled {
+.admin-broadcast__badge--draft {
   background: rgba(148, 163, 184, 0.16);
   color: var(--ad-muted);
-}
-
-.admin-broadcast__badge--partially_sent {
-  background: rgba(245, 158, 11, 0.16);
-  color: #f59e0b;
-}
-
-.admin-broadcast__badge--cancelled {
-  background: rgba(148, 163, 184, 0.16);
-  color: #94a3b8;
-  text-decoration: line-through;
 }
 
 .admin-broadcast__audience-grid {

@@ -54,8 +54,6 @@ import AdminDashboardBuilderPage from "./components/admin/AdminDashboardBuilderP
 import AdminCustomerDashboardBuilderPage from "./components/admin/AdminCustomerDashboardBuilderPage.jsx";
 import AdminCustomerDashboardPreviewPage from "./components/admin/AdminCustomerDashboardPreviewPage.jsx";
 import AdminBroadcastPage from "./components/admin/AdminBroadcastPage";
-import AdminBroadcastHistoryPage from "./components/admin/AdminBroadcastHistoryPage.jsx";
-import AdminBroadcastReportPage from "./components/admin/AdminBroadcastReportPage.jsx";
 import AdminTemplateUploadPage from "./components/admin/AdminTemplateUploadPage";
 import AdminDiscountsPage from "./components/admin/AdminDiscountsPage";
 import AdminMembershipDiscountsPage from "./components/admin/AdminMembershipDiscountsPage.jsx";
@@ -469,22 +467,6 @@ export default function App() {
             element={
               <AdminProtectedRoute>
                 <AdminBroadcastPage />
-              </AdminProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/communication/broadcasts"
-            element={
-              <AdminProtectedRoute>
-                <AdminBroadcastHistoryPage />
-              </AdminProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/communication/broadcasts/:broadcastId"
-            element={
-              <AdminProtectedRoute>
-                <AdminBroadcastReportPage />
               </AdminProtectedRoute>
             }
           />

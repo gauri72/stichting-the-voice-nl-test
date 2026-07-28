@@ -55,12 +55,6 @@ const env = {
     secret: process.env.I18N_INGEST_SECRET || "",
   },
   email: {
-    // Selects which server/src/services/emailProviders/*.js implementation handles
-    // broadcast sending. Only "smtp" exists today (plain SMTP relay, no delivery/bounce
-    // webhooks) — set to a future provider's key once one is added, with no admin-UI or
-    // report-page code changes required beyond that provider correctly reporting its
-    // capabilities.
-    provider: stripEnv(process.env.EMAIL_PROVIDER) || "smtp",
     host: stripEnv(process.env.EMAIL_HOST),
     port: Number(stripEnv(process.env.EMAIL_PORT)) || 587,
     secure: String(stripEnv(process.env.EMAIL_SECURE) || "false").toLowerCase() === "true",

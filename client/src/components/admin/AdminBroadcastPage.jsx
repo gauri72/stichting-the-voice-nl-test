@@ -410,28 +410,19 @@ export default function AdminBroadcastPage() {
             </section>
 
             <section id="admin-recent-campaigns" className="admin-broadcast__campaigns" aria-label="Recent campaigns">
-              <div className="admin-broadcast__section-head">
-                <h2>Recent Campaigns</h2>
-                <button type="button" className="admin-broadcast__ghost-btn" onClick={() => navigate("/admin/communication/broadcasts")}>
-                  View full history
-                </button>
-              </div>
+              <h2>Recent Campaigns</h2>
               {campaigns.length === 0 ? (
                 <p className="admin-broadcast__status">No campaigns sent yet.</p>
               ) : (
                 <ul className="admin-broadcast__campaign-list">
                   {campaigns.map((campaign) => (
-                    <li
-                      key={campaign.id}
-                      className="admin-broadcast__campaign-row"
-                      onClick={() => navigate(`/admin/communication/broadcasts/${campaign.id}`)}
-                    >
+                    <li key={campaign.id}>
                       <div className="admin-broadcast__campaign-thumb" aria-hidden="true">
                         <IconMailGlyph />
                       </div>
                       <div className="admin-broadcast__campaign-copy">
                         <div className="admin-broadcast__campaign-top">
-                          <h3>{campaign.campaignName || campaign.templateName}</h3>
+                          <h3>{campaign.templateName}</h3>
                           <span className={`admin-broadcast__badge admin-broadcast__badge--${campaign.status}`}>
                             {statusLabel(campaign.status)}
                           </span>

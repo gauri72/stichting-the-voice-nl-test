@@ -133,10 +133,6 @@ export function resolveAdminPermission(req) {
     return method === "GET" ? "settings.view" : "settings.edit";
   }
   if (url.includes("/admin/dashboard")) return "dashboard.view";
-  // Every admin can see and manage their own notification bell — gated on the same
-  // broadly-granted permission as the base dashboard rather than a new dedicated key that
-  // would default to inaccessible for every existing role until manually granted.
-  if (url.includes("/admin/notifications")) return "dashboard.view";
   if (url.includes("/admin/broadcasts") || url.includes("/admin/communication")) {
     if (url.includes("/send")) return "communication.send";
     return method === "GET" ? "communication.view" : "communication.edit";

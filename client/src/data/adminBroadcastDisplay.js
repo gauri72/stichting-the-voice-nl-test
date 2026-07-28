@@ -35,9 +35,6 @@ export function segmentLabel(key) {
 export function statusLabel(status) {
   if (status === "sent") return "Sent";
   if (status === "sending") return "Sending";
-  if (status === "partially_sent") return "Partially Sent";
-  if (status === "scheduled") return "Scheduled";
-  if (status === "cancelled") return "Cancelled";
   if (status === "failed") return "Failed";
   return "Draft";
 }

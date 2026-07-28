@@ -25,7 +25,6 @@ import vcommerceRoutes from "./vcommerceRoutes.js";
 import vcommercePortalRoutes from "./vcommercePortalRoutes.js";
 import wholesalerRoutes from "./wholesalerRoutes.js";
 import cmsTextRoutes from "./cmsTextRoutes.js";
-import emailTrackingRoutes from "./emailTrackingRoutes.js";
 
 const router = Router();
 
@@ -54,7 +53,6 @@ router.use("/vcommerce", vcommerceRoutes);
 router.use("/vcommerce-portal", vcommercePortalRoutes);
 router.use("/wholesaler", wholesalerRoutes);
 router.use("/cms-text", cmsTextRoutes);
-router.use("/email", emailTrackingRoutes);
 router.use("/admin", adminRoutes);
 
 export default router;
