@@ -39,6 +39,7 @@ import { syncTicketTailor } from "../controllers/adminMembershipController.js";
 import adminVcommerceRoutes from "./adminVcommerceRoutes.js";
 import adminWholesalerRoutes from "./adminWholesalerRoutes.js";
 import adminI18nReviewRoutes from "./adminI18nReviewRoutes.js";
+import adminNotificationRoutes from "./adminNotificationRoutes.js";
 
 const router = Router();
 
@@ -82,5 +83,6 @@ router.use("/wallet", requireAdmin, adminWalletRoutes);
 router.use("/vcommerce", requireAdmin, adminVcommerceRoutes);
 router.use("/wholesalers", requireAdmin, adminWholesalerRoutes);
 router.use("/i18n-review", adminI18nReviewRoutes);
+router.use("/notifications", adminNotificationRoutes);
 
 export default router;

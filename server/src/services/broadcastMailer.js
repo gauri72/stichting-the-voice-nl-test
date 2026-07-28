@@ -37,7 +37,7 @@ export async function sendBroadcastEmail({ to, subject, html }) {
   const attachments = loadEmailSocialIconAttachments();
   const finalHtml = injectSocialFooter(html);
 
-  await transporter.sendMail({
+  const info = await transporter.sendMail({
     from: env.email.membershipFrom || env.email.from,
     replyTo: getMailReplyTo(),
     to,
@@ -45,4 +45,6 @@ export async function sendBroadcastEmail({ to, subject, html }) {
     html: finalHtml,
     attachments,
   });
+
+  return { messageId: info?.messageId || "" };
 }

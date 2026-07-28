@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
-  IconBell,
   IconChartBar,
   IconLayoutDashboard,
   IconLogout,
@@ -43,6 +42,7 @@ import { useAdminAuth } from "../../contexts/AdminAuthContext.jsx";
 import { canAccessRoute } from "../../utils/rbacAdmin.js";
 import ThemeToggle from "../layout/ThemeToggle.jsx";
 import RouteErrorBoundary from "../layout/RouteErrorBoundary.jsx";
+import AdminNotificationBell from "./AdminNotificationBell.jsx";
 import "../../styles/admin-layout.css";
 import "../../styles/admin-mobile.css";
 
@@ -285,10 +285,7 @@ export default function AdminLayout({ children, pageTitle, pageSubtitle, hideBot
         </div>
 
         <div className="admin-layout__actions">
-          <button type="button" className="admin-layout__icon-btn" aria-label="Notifications">
-            <IconBell size={20} stroke={1.8} />
-            <span className="admin-layout__badge">3</span>
-          </button>
+          <AdminNotificationBell />
           <button
             type="button"
             className="admin-layout__profile-btn"

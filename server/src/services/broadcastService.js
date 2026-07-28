@@ -4,11 +4,15 @@ import { fileURLToPath } from "url";
 import env from "../config/env.js";
 import EmailTemplate from "../models/EmailTemplate.js";
 import EmailBroadcast, { AUDIENCE_SEGMENTS } from "../models/EmailBroadcast.js";
+import EmailBroadcastRecipient from "../models/EmailBroadcastRecipient.js";
 import User from "../models/User.js";
 import Member from "../models/Member.js";
 import Membership from "../models/Membership.js";
 import PastData from "../models/PastData.js";
-import { sendBroadcastEmail } from "./broadcastMailer.js";
+import { generateTrackingToken } from "../utils/trackingToken.js";
+import { injectTracking, getUnsubscribedEmailSet } from "./emailTrackingService.js";
+import { getActiveEmailProvider } from "./emailProviders/providerRegistry.js";
+import { notifyBroadcastOutcome } from "./adminNotificationService.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = path.join(__dirname, "..", "templates", "email");
@@ -200,7 +204,9 @@ export async function getAudienceOverview() {
       getActiveMemberUserIds(),
       getPremiumUserIds(),
       getEventAttendeeEmails(),
-      EmailBroadcast.find({ status: "sent" }).select("recipientCount sentCount").lean(),
+      EmailBroadcast.find({ status: { $in: ["sent", "partially_sent"] } })
+        .select("recipientCount sentCount openedCount clickedCount")
+        .lean(),
     ]);
 
   const segments = [
@@ -219,14 +225,18 @@ export async function getAudienceOverview() {
 
   const emailsSent = broadcasts.reduce((sum, row) => sum + (row.sentCount || 0), 0);
   const totalRecipients = broadcasts.reduce((sum, row) => sum + (row.recipientCount || 0), 0);
+  const totalOpened = broadcasts.reduce((sum, row) => sum + (row.openedCount || 0), 0);
+  const totalClicked = broadcasts.reduce((sum, row) => sum + (row.clickedCount || 0), 0);
 
   return {
     totalAudience,
     segments: enrichedSegments,
     stats: {
       emailsSent,
-      openRate: emailsSent > 0 ? 32.4 : 0,
-      clickRate: emailsSent > 0 ? 8.7 : 0,
+      // Real, self-hosted open/click tracking (see emailTrackingService.js) — no longer
+      // the hardcoded 32.4/8.7 placeholders this used to return.
+      openRate: emailsSent > 0 ? Math.round((totalOpened / emailsSent) * 1000) / 10 : 0,
+      clickRate: emailsSent > 0 ? Math.round((totalClicked / emailsSent) * 1000) / 10 : 0,
       recipients: totalRecipients || totalAudience,
     },
   };
@@ -457,21 +467,25 @@ export async function listRecentCampaigns(limit = 6) {
   return campaigns.map((campaign) => ({
     id: campaign._id.toString(),
     templateName: campaign.templateName,
+    campaignName: campaign.campaignName || campaign.templateName,
     subject: campaign.subject,
     audienceSegment: campaign.audienceSegment,
     status: campaign.status,
     recipientCount: campaign.recipientCount,
     sentCount: campaign.sentCount,
     failedCount: campaign.failedCount,
-    openRate: campaign.status === "sent" && campaign.sentCount > 0 ? 32.4 : 0,
+    openRate: campaign.sentCount > 0 ? Math.round((campaign.openedCount / campaign.sentCount) * 1000) / 10 : 0,
     sentAt: campaign.sentAt || campaign.createdAt,
     createdAt: campaign.createdAt,
   }));
 }
 
-export async function sendBroadcast({ templateId, audienceSegment, mergeVariables = {}, adminId, customEmails }) {
+export async function sendBroadcast({ templateId, audienceSegment, mergeVariables = {}, adminId, customEmails, campaignName }) {
   const template = await getTemplateById(templateId);
-  const audience = await resolveAudience(audienceSegment, customEmails);
+  let audience = await resolveAudience(audienceSegment, customEmails);
+
+  const unsubscribed = await getUnsubscribedEmailSet(audience.map((u) => u.email));
+  audience = audience.filter((u) => !unsubscribed.has(String(u.email).toLowerCase()));
 
   if (audience.length === 0) {
     const error = new Error("No recipients found for the selected audience.");
@@ -482,6 +496,7 @@ export async function sendBroadcast({ templateId, audienceSegment, mergeVariable
   const broadcast = await EmailBroadcast.create({
     templateId: template._id,
     templateName: template.name,
+    campaignName: campaignName?.trim() || template.name,
     subject: template.subject,
     audienceSegment,
     status: "sending",
@@ -489,8 +504,13 @@ export async function sendBroadcast({ templateId, audienceSegment, mergeVariable
     mergeVariables: { ...DEFAULT_MERGE_VARIABLES, ...mergeVariables },
     customEmails: Array.isArray(customEmails) ? customEmails : [],
     createdBy: adminId || null,
+    // Rendered with defaults only — never a real recipient's name/email — so this archival
+    // copy (used later for the PII-free PDF export) never contains personal data by
+    // construction, rather than needing PII stripped out of it after the fact.
+    htmlSnapshot: renderTemplateContent(template.htmlBody, { ...DEFAULT_MERGE_VARIABLES, ...mergeVariables }),
   });
 
+  const provider = getActiveEmailProvider();
   let sentCount = 0;
   let failedCount = 0;
   let lastError = "";
@@ -499,24 +519,41 @@ export async function sendBroadcast({ templateId, audienceSegment, mergeVariable
     const userVars = buildUserVariables(recipient, mergeVariables);
     const subject = renderTemplateContent(template.subject, userVars);
     const html = renderTemplateContent(template.htmlBody, userVars);
+    const trackingIdentifier = generateTrackingToken();
+
+    const recipientDoc = await EmailBroadcastRecipient.create({
+      broadcastId: broadcast._id,
+      email: recipient.email,
+      userId: recipient._id || null,
+      status: "queued",
+      trackingIdentifier,
+    });
 
     try {
-      await sendBroadcastEmail({
-        to: recipient.email,
-        subject,
-        html,
+      const trackedHtml = await injectTracking(html, {
+        broadcastId: broadcast._id,
+        publicApiUrl: env.publicApiUrl,
+        trackingIdentifier,
       });
+      const result = await provider.send({ to: recipient.email, subject, html: trackedHtml });
       sentCount += 1;
+      recipientDoc.status = "sent";
+      recipientDoc.sentAt = new Date();
+      recipientDoc.providerMessageId = result.providerMessageId || "";
+      await recipientDoc.save();
     } catch (error) {
       failedCount += 1;
       lastError = error.message || "Send failed.";
+      recipientDoc.status = "failed";
+      recipientDoc.failureReason = lastError.slice(0, 500);
+      await recipientDoc.save();
       console.warn(`[broadcast] Failed to send to ${recipient.email}:`, error.message);
     }
   }
 
   broadcast.sentCount = sentCount;
   broadcast.failedCount = failedCount;
-  broadcast.status = sentCount > 0 ? "sent" : "failed";
+  broadcast.status = sentCount > 0 ? (failedCount > 0 ? "partially_sent" : "sent") : "failed";
   broadcast.sentAt = new Date();
   broadcast.errorMessage = failedCount > 0 ? lastError : "";
   await broadcast.save();
@@ -528,6 +565,10 @@ export async function sendBroadcast({ templateId, audienceSegment, mergeVariable
     { _id: template._id },
     { $inc: { usageCount: 1 }, $set: { lastUsedAt: new Date() } }
   );
+
+  // Best-effort — a notification failing to write must never fail the broadcast itself,
+  // the send already completed successfully by this point.
+  await notifyBroadcastOutcome(broadcast).catch((err) => console.error("[broadcast] notification failed:", err));
 
   return {
     id: broadcast._id.toString(),

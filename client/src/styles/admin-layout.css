@@ -217,6 +217,117 @@
   text-align: center;
 }
 
+.admin-notification-bell {
+  position: relative;
+}
+
+.admin-notification-bell__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 60;
+  display: flex;
+  width: min(360px, 92vw);
+  flex-direction: column;
+  max-height: 480px;
+  border: 1px solid var(--ad-border);
+  border-radius: 14px;
+  background: var(--ad-surface);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.admin-notification-bell__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--ad-border);
+  color: var(--ad-text);
+}
+
+.admin-notification-bell__mark-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--ad-purple);
+  font-size: var(--font-small);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-notification-bell__list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.admin-notification-bell__empty {
+  padding: 24px 14px;
+  color: var(--ad-muted);
+  font-size: var(--font-small);
+  text-align: center;
+}
+
+.admin-notification-bell__item {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--ad-border);
+  background: transparent;
+  color: var(--ad-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-notification-bell__item:hover {
+  background: var(--ad-surface-2);
+}
+
+.admin-notification-bell__item--unread {
+  background: color-mix(in srgb, var(--ad-purple) 8%, transparent);
+}
+
+.admin-notification-bell__item-title {
+  font-size: var(--font-small);
+  font-weight: 700;
+}
+
+.admin-notification-bell__item--critical .admin-notification-bell__item-title {
+  color: #ef4444;
+}
+
+.admin-notification-bell__item--warning .admin-notification-bell__item-title {
+  color: #f59e0b;
+}
+
+.admin-notification-bell__item-message {
+  color: var(--ad-muted);
+  font-size: var(--font-small);
+  line-height: 1.4;
+}
+
+.admin-notification-bell__item-time {
+  margin-top: 2px;
+  color: var(--ad-muted);
+  font-size: 0.65rem;
+}
+
+.admin-notification-bell__view-all {
+  padding: 10px;
+  border: 0;
+  border-top: 1px solid var(--ad-border);
+  background: transparent;
+  color: var(--ad-purple);
+  font-size: var(--font-small);
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .admin-layout__avatar {
   width: 36px;
   height: 36px;
