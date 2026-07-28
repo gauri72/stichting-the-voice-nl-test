@@ -57,6 +57,10 @@ export default function AdminBroadcastPage() {
   const [uploadForm, setUploadForm] = useState(EMPTY_FORM);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState("");
+  const [editingTemplateId, setEditingTemplateId] = useState("");
+  const [editForm, setEditForm] = useState(EMPTY_FORM);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
 
   const loadOverview = useCallback(async () => {
     setLoading(true);
@@ -142,6 +146,53 @@ export default function AdminBroadcastPage() {
       htmlBody,
       subject: current.subject || `${baseName} — Stichting The V.O.I.C.E. NL`,
     }));
+  }
+
+  async function openEditTemplate(templateId) {
+    setActionMessage("");
+    setEditingTemplateId(templateId);
+    setEditLoading(true);
+    try {
+      const data = await apiFetch(`/api/admin/broadcasts/templates/${templateId}`, {
+        headers: adminAuthHeaders(),
+      });
+      setEditForm({
+        name: data.template.name || "",
+        subject: data.template.subject || "",
+        description: data.template.description || "",
+        htmlBody: data.template.htmlBody || "",
+      });
+    } catch (fetchError) {
+      setActionMessage(fetchError.message || "Could not load template for editing.");
+      setEditingTemplateId("");
+    } finally {
+      setEditLoading(false);
+    }
+  }
+
+  function closeEditTemplate() {
+    setEditingTemplateId("");
+    setEditForm(EMPTY_FORM);
+  }
+
+  async function handleEditTemplate(event) {
+    event.preventDefault();
+    setEditSaving(true);
+    setActionMessage("");
+    try {
+      await apiFetch(`/api/admin/broadcasts/templates/${editingTemplateId}`, {
+        method: "PUT",
+        headers: adminAuthHeaders(),
+        body: JSON.stringify(editForm),
+      });
+      closeEditTemplate();
+      setActionMessage("Template updated successfully.");
+      await loadOverview();
+    } catch (saveError) {
+      setActionMessage(saveError.message || "Could not update template.");
+    } finally {
+      setEditSaving(false);
+    }
   }
 
   async function handleDeleteTemplate(templateId) {
@@ -339,6 +390,14 @@ export default function AdminBroadcastPage() {
                       >
                         Preview
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => openEditTemplate(template.id)}
+                        disabled={editLoading && editingTemplateId === template.id}
+                      >
+                        <IconEdit size={16} aria-hidden />
+                        Edit
+                      </button>
                       {!template.isSystem ? (
                         <button type="button" className="danger" onClick={() => handleDeleteTemplate(template.id)}>
                           <IconTrash size={16} aria-hidden />
@@ -475,6 +534,66 @@ export default function AdminBroadcastPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      ) : null}
+
+      {editingTemplateId ? (
+        <div className="admin-broadcast-modal" role="dialog" aria-modal="true" aria-labelledby="edit-template-title">
+          <div className="admin-broadcast-modal__panel">
+            <div className="admin-broadcast-modal__head">
+              <h2 id="edit-template-title">Edit Email Template</h2>
+              <button type="button" onClick={closeEditTemplate} aria-label="Close">
+                ×
+              </button>
+            </div>
+            {editLoading ? (
+              <p className="admin-broadcast-modal__body">Loading template…</p>
+            ) : (
+              <form className="admin-broadcast-modal__body" onSubmit={handleEditTemplate}>
+                <label>
+                  Template name
+                  <input
+                    value={editForm.name}
+                    onChange={(event) => setEditForm((current) => ({ ...current, name: event.target.value }))}
+                    required
+                  />
+                </label>
+                <label>
+                  Email subject
+                  <input
+                    value={editForm.subject}
+                    onChange={(event) => setEditForm((current) => ({ ...current, subject: event.target.value }))}
+                    required
+                  />
+                </label>
+                <label>
+                  Description
+                  <input
+                    value={editForm.description}
+                    onChange={(event) => setEditForm((current) => ({ ...current, description: event.target.value }))}
+                  />
+                </label>
+                <label>
+                  HTML content
+                  <textarea
+                    rows={14}
+                    value={editForm.htmlBody}
+                    onChange={(event) => setEditForm((current) => ({ ...current, htmlBody: event.target.value }))}
+                    placeholder="Use placeholders like {{first_name}} and {{discount_code}}"
+                    required
+                  />
+                </label>
+                <div className="admin-broadcast-modal__actions">
+                  <button type="button" className="admin-broadcast__ghost-btn" onClick={closeEditTemplate}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="admin-broadcast__primary-btn" disabled={editSaving}>
+                    {editSaving ? "Saving…" : "Save Changes"}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       ) : null}
