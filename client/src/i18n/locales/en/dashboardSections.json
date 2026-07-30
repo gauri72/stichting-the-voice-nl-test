@@ -161,7 +161,9 @@
     "logOutAriaLabel": "Log Out",
     "logOutLabel": "Log Out",
     "pointsChipAriaLabel": "{{points}} points — redeem in V.Wallet",
-    "redeemPoints": "Redeem Points"
+    "redeemPoints": "Redeem Points",
+    "yourGiftLabel": "Your Gift",
+    "copyReferralCodeAriaLabel": "Copy your referral code {{code}}"
   },
   "ticketDetailModal": {
     "closeAriaLabel": "Close",

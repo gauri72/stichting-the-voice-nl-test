@@ -222,6 +222,95 @@
   color: #000000;
 }
 
+/* Referral "gift" code — same shape/interaction as the membership code above
+   (shares that class so it inherits the shimmer/hover/press treatment further
+   down), but sits in-flow in the content column below the V.Assist button
+   instead of pinned to the background image. Dressed up a level past the
+   plain membership-code pill: a gold foil gradient instead of flat glass,
+   and a slow ambient glow "breathing" around the whole badge rather than
+   just the label blinking, so it reads as a lit gift rather than a warning. */
+.dash-welcome__membership-code--gift {
+  position: static;
+  margin-top: 14px;
+  width: fit-content;
+  border: 1px solid rgba(255, 210, 120, 0.65);
+  background:
+    linear-gradient(135deg, rgba(255, 213, 128, 0.28), rgba(31, 20, 2, 0.68) 55%, rgba(255, 213, 128, 0.2)),
+    rgba(0, 0, 0, 0.38);
+  animation: dash-welcome-gift-glow 2.8s ease-in-out infinite;
+}
+
+[data-theme="light"] .dash-welcome__membership-code--gift {
+  border-color: rgba(160, 107, 10, 0.55);
+  background:
+    linear-gradient(135deg, rgba(255, 213, 128, 0.4), rgba(255, 255, 255, 0.86) 55%, rgba(255, 213, 128, 0.28));
+}
+
+.dash-welcome__membership-code--gift .dash-welcome__membership-code-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffe4a3;
+  text-shadow: 0 0 10px rgba(255, 200, 90, 0.5);
+}
+
+[data-theme="light"] .dash-welcome__membership-code--gift .dash-welcome__membership-code-label {
+  color: #7a4e00;
+  text-shadow: none;
+}
+
+.dash-welcome__membership-code--gift .dash-welcome__membership-code-value {
+  background: linear-gradient(90deg, #ffe9b8, #ffc660);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+[data-theme="light"] .dash-welcome__membership-code--gift .dash-welcome__membership-code-value {
+  background: linear-gradient(90deg, #8a5a00, #4d3000);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.dash-welcome__gift-sparkle-icon {
+  color: #ffc660;
+  flex-shrink: 0;
+}
+
+.dash-welcome__membership-code--gift .dash-welcome__membership-code-icon {
+  color: #ffc660;
+}
+
+.dash-welcome__membership-code--gift:hover {
+  box-shadow: 0 10px 30px rgba(255, 190, 80, 0.5);
+}
+
+@keyframes dash-welcome-gift-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(255, 195, 90, 0);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(255, 195, 90, 0.55), inset 0 0 14px rgba(255, 213, 128, 0.12);
+  }
+}
+
+.dash-welcome__membership-code-label--blink {
+  animation: dash-welcome-gift-blink 2.8s ease-in-out infinite;
+}
+
+@keyframes dash-welcome-gift-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.72; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-welcome__membership-code--gift,
+  .dash-welcome__membership-code-label--blink {
+    animation: none;
+  }
+}
+
 /* Membership badge — rounded rectangle */
 .dash-welcome__badge {
   display: inline-flex;

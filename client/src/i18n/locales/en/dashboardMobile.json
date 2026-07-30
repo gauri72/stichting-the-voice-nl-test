@@ -16,7 +16,9 @@
       "membershipAria": "Open {{label}}",
       "membershipLabel": "Membership",
       "planSuffix": "{{variant}} Plan",
-      "memberFallback": "Member"
+      "memberFallback": "Member",
+      "giftLabel": "Your Gift",
+      "giftAria": "Copy your referral code {{code}}"
     },
     "sheet": {
       "closeAria": "Close {{title}}"

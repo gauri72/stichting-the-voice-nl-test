@@ -287,6 +287,30 @@ export default function MobileDashboardCommandCenter({
           <p>{t("dashboardMobile:commandCenter.hero.welcomeBack")}</p>
           <h1 id="mobile-dash-name">{firstName}</h1>
           <span className="mobile-dash-hero__membership"><IconCrown aria-hidden /> {membershipLabel}</span>
+          {referral?.referralCode?.code ? (
+            <button
+              type="button"
+              className="mobile-dash-hero__gift"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(referral.referralCode.code);
+                  setReferralCopied(true);
+                  window.setTimeout(() => setReferralCopied(false), 1800);
+                } catch {
+                  // Clipboard API unavailable — fall back to the referral sheet, where the
+                  // code is still visible to select/copy manually.
+                  openSheet("referral");
+                }
+              }}
+              aria-label={t("dashboardMobile:commandCenter.hero.giftAria", { code: referral.referralCode.code })}
+            >
+              {referralCopied ? <IconCheck aria-hidden /> : <IconGift aria-hidden />}
+              <span className="mobile-dash-hero__gift-label">
+                {referralCopied ? t("dashboardMobile:commandCenter.referralSheet.copied") : t("dashboardMobile:commandCenter.hero.giftLabel")}
+              </span>
+              <strong>{referral.referralCode.code}</strong>
+            </button>
+          ) : null}
           <div className="mobile-dash-hero__metrics" aria-label={t("dashboardMobile:commandCenter.hero.metricsAria")}>
             <button type="button" className="mobile-dash-hero__metric mobile-dash-hero__metric--rewards" onClick={() => openSheet("rewards")} aria-label={t("dashboardMobile:commandCenter.hero.rewardsAria", { count: rewards })}>
               <IconSparkles aria-hidden /><b>{rewards}</b><small>{t("dashboardMobile:commandCenter.hero.pointsLabel")}</small><IconArrowRight className="mobile-dash-hero__metric-arrow" aria-hidden />

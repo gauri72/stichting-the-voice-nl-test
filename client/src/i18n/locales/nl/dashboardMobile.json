@@ -16,7 +16,9 @@
       "membershipAria": "Open {{label}}",
       "membershipLabel": "Lidmaatschap",
       "planSuffix": "{{variant}} abonnement",
-      "memberFallback": "Lid"
+      "memberFallback": "Lid",
+      "giftLabel": "Jouw Cadeau",
+      "giftAria": "Kopieer jouw referralcode {{code}}"
     },
     "sheet": {
       "closeAria": "Sluit {{title}}"

@@ -1,7 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaIdCard } from "react-icons/fa";
-import { IconSparkles, IconCopy, IconCheck, IconWallet, IconTicket, IconCrown, IconRobot } from "@tabler/icons-react";
+import { IconSparkles, IconCopy, IconCheck, IconWallet, IconTicket, IconCrown, IconRobot, IconGift } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import HeroActionCluster from "../../layout/HeroActionCluster.jsx";
 import DashboardMembershipModal from "./DashboardMembershipModal.jsx";
@@ -45,6 +45,8 @@ export default function DashboardWelcomeBannerSection({
   const [aiTooltipVisible, setAiTooltipVisible] = useState(false);
   const [bookings, setBookings] = useState([]);
   const [membershipModalOpen, setMembershipModalOpen] = useState(false);
+  const [referralCode, setReferralCode] = useState("");
+  const [giftCopied, setGiftCopied] = useState(false);
   const aiTooltipId = useId();
   const metricsRef = useRef(null);
   const [metricsStyle, setMetricsStyle] = useState(null);
@@ -56,6 +58,16 @@ export default function DashboardWelcomeBannerSection({
   useEffect(() => {
     apiFetch("/api/dashboard/bookings", { headers: authHeaders() })
       .then((data) => setBookings(data?.bookings || []))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    apiFetch("/api/dashboard/referrals", { headers: authHeaders() })
+      .then((data) => {
+        if (data?.enabled && data?.referral?.referralCode?.code) {
+          setReferralCode(data.referral.referralCode.code);
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -119,6 +131,16 @@ export default function DashboardWelcomeBannerSection({
       await navigator.clipboard.writeText(membershipId);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable (e.g. insecure context) — the code is still visible to select/copy manually.
+    }
+  }
+
+  async function handleCopyReferralCode() {
+    try {
+      await navigator.clipboard.writeText(referralCode);
+      setGiftCopied(true);
+      setTimeout(() => setGiftCopied(false), 2000);
     } catch {
       // Clipboard API unavailable (e.g. insecure context) — the code is still visible to select/copy manually.
     }
@@ -202,6 +224,28 @@ export default function DashboardWelcomeBannerSection({
             </div>
           ) : null}
         </div>
+
+        {referralCode ? (
+          <button
+            type="button"
+            className="dash-welcome__membership-code dash-welcome__membership-code--gift"
+            onClick={handleCopyReferralCode}
+            aria-label={t("dashboardSections:welcomeBannerSection.copyReferralCodeAriaLabel", { code: referralCode })}
+          >
+            <span className="dash-welcome__membership-code-label dash-welcome__membership-code-label--blink">
+              <IconGift size={14} aria-hidden="true" className="dash-welcome__gift-sparkle-icon" />
+              {t("dashboardSections:welcomeBannerSection.yourGiftLabel")}
+            </span>
+            <span className="dash-welcome__membership-code-row">
+              <span className="dash-welcome__membership-code-value">{referralCode}</span>
+              {giftCopied ? (
+                <IconCheck size={20} aria-hidden="true" className="dash-welcome__membership-code-icon dash-welcome__membership-code-icon--copied" />
+              ) : (
+                <IconCopy size={20} aria-hidden="true" className="dash-welcome__membership-code-icon" />
+              )}
+            </span>
+          </button>
+        ) : null}
       </div>
 
       <div

@@ -161,7 +161,9 @@
     "logOutAriaLabel": "Uitloggen",
     "logOutLabel": "Uitloggen",
     "pointsChipAriaLabel": "{{points}} punten — inwisselen in V.Wallet",
-    "redeemPoints": "Punten Inwisselen"
+    "redeemPoints": "Punten Inwisselen",
+    "yourGiftLabel": "Jouw Cadeau",
+    "copyReferralCodeAriaLabel": "Kopieer jouw referralcode {{code}}"
   },
   "ticketDetailModal": {
     "closeAriaLabel": "Sluiten",
