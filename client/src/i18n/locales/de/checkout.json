@@ -34,7 +34,7 @@
     "available": "verfügbar",
     "maxPerOrder": "max. {{count}} pro Bestellung",
     "continue": "Weiter",
-    "codePlaceholder": "Rabatt- oder Gutscheincode",
+    "codePlaceholder": "Empfehlungscode oder Rabattcode",
     "memberDiscount": "Mitgliederrabatt angewendet"
   },
   "selectSeats": {

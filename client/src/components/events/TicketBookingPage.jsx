@@ -1141,7 +1141,7 @@ export default function TicketBookingPage() {
                           placeholder={t("checkout:selectTickets.codePlaceholder")}
                           value={ticketCodes[tt.id] || ""}
                           onChange={(e) => handleTicketCodeChange(tt.id, e.target.value)}
-                          aria-label={`Discount or voucher code for ${tt.name}`}
+                          aria-label={`Referral or discount code for ${tt.name}`}
                         />
                         {codeStatus === "checking" ? <span className="ticket-booking__ticket-code-spinner" aria-hidden="true" /> : null}
                         {codeStatus === "valid" ? <IconCheck className="ticket-booking__ticket-code-icon--valid" size={16} /> : null}
@@ -1474,7 +1474,7 @@ export default function TicketBookingPage() {
                             placeholder={t("checkout:selectTickets.codePlaceholder")}
                             value={ticketCodes[tt.id] || ""}
                             onChange={(e) => handleTicketCodeChange(tt.id, e.target.value)}
-                            aria-label={`Discount or voucher code for ${tt.name}`}
+                            aria-label={`Referral or discount code for ${tt.name}`}
                           />
                           {codeStatus === "checking" ? <span className="ticket-booking__ticket-code-spinner" aria-hidden="true" /> : null}
                           {codeStatus === "valid" ? <IconCheck className="ticket-booking__ticket-code-icon--valid" size={16} /> : null}

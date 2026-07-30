@@ -84,6 +84,9 @@ export async function getOrIssueReferralCode(user, settings) {
           name: `Referral — ${fullName || email}`,
           code,
           type: "referral_code",
+          // Schema default is "tickets" — referral codes need to redeem on membership
+          // checkout too, not just ticket checkout.
+          appliesTo: "both",
           discountType: settings.defaultDiscountType,
           discountValue: settings.defaultDiscountValue,
           referrerUserId: userId,

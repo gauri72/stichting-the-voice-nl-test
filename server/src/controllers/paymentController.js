@@ -7,6 +7,12 @@ import { getTier } from "../config/sponsorshipTiers.js";
 import DiscountCode from "../models/DiscountCode.js";
 import User from "../models/User.js";
 import {
+  calculateDiscountAmount,
+  findDiscountByCode,
+  recordDiscountUsage,
+  validateDiscountCode,
+} from "../services/discountService.js";
+import {
   getActiveWebhookSecret,
   getStripe,
   isStripeConfigured,
@@ -212,6 +218,32 @@ async function handleSucceededPayment(intent) {
       } catch (err) {
         console.error("[payments] recordSucceededPaymentIntent (membership):", err.message);
       }
+      // Referral/discount-rule usage — gated on result.created (the same idempotency signal
+      // provisionMembershipFromPayment already uses) since both the webhook and the client's
+      // own /confirm call can reach this function for the same intent, and a referral reward
+      // must never be credited twice for one purchase.
+      if (result.created && meta.discount_code) {
+        try {
+          const rule = await findDiscountByCode(meta.discount_code);
+          // A legacy DiscountCode-model code resolves to null here — that model never had
+          // usage tracking or reward crediting, and still doesn't; this only covers the
+          // modern, referral-aware DiscountRule/Voucher path.
+          if (rule) {
+            await recordDiscountUsage({
+              discountRule: rule,
+              userId: result.member.userId || null,
+              userEmail: result.member.email,
+              orderId: intent.id,
+              membershipId: result.member.membershipId,
+              subtotalBeforeDiscount: Number(meta.discount_original_amount_minor || 0),
+              discountAmount: Number(meta.discount_amount_minor || 0),
+              totalAfterDiscount: result.member.amountPaidMinor,
+            });
+          }
+        } catch (err) {
+          console.error("[payments] recordDiscountUsage (membership):", err.message);
+        }
+      }
       await emailMembershipOnce({
         paymentIntentId: intent.id,
         emailPayload: result.emailPayload,
@@ -332,53 +364,82 @@ export async function createPaymentIntent(req, res) {
     }
 
     let appliedDiscount = null;
+    let discountAmountAppliedMinor = 0;
+    const originalAmountMinor = amountMinor;
     if (isMembership && discountCode) {
       const cleanCode = String(discountCode).trim();
       if (cleanCode) {
-        const discount = await DiscountCode.findOne({
-          code: cleanCode,
-          deletedAt: null,
-          status: "active",
-        });
+        // Referral codes (and any other personalized/campaign/event code) live in the
+        // DiscountRule collection, not DiscountCode — check there first and, if found, run
+        // the same validation ticket/session checkout already runs (referral self-use,
+        // "program disabled", usage limits, etc.) so referral codes actually work here too.
+        const modernRule = await findDiscountByCode(cleanCode);
+        if (modernRule) {
+          let rule;
+          try {
+            rule = await validateDiscountCode(
+              cleanCode,
+              req.user?.id || null,
+              sponsor.email,
+              null,
+              "memberships",
+              amountMinor
+            );
+          } catch (err) {
+            return res.status(400).json({ error: err.message || "Invalid discount code." });
+          }
 
-        if (!discount) {
-          return res.status(400).json({ error: "Invalid discount code." });
-        }
+          appliedDiscount = { code: rule.code, discountValue: rule.discountValue };
+          discountAmountAppliedMinor = calculateDiscountAmount(amountMinor, rule);
+          amountMinor = Math.max(0, amountMinor - discountAmountAppliedMinor);
+        } else {
+          // Legacy path — the original, separate DiscountCode model, kept for backward
+          // compatibility with any codes created there before referral codes existed.
+          const discount = await DiscountCode.findOne({
+            code: cleanCode,
+            deletedAt: null,
+            status: "active",
+          });
 
-        if (discount.expiresAt && new Date() > new Date(discount.expiresAt)) {
-          return res.status(400).json({ error: "This discount code has expired." });
-        }
+          if (!discount) {
+            return res.status(400).json({ error: "Invalid discount code." });
+          }
 
-        if (discount.visibleToUsers === false) {
-          return res.status(400).json({ error: "This discount code is no longer available." });
-        }
+          if (discount.expiresAt && new Date() > new Date(discount.expiresAt)) {
+            return res.status(400).json({ error: "This discount code has expired." });
+          }
 
-        // Check if it is global or assigned to the user
-        let isAllowed = discount.isGlobal;
-        if (!isAllowed) {
-          if (req.user && discount.assignedUsers.some(uid => uid.toString() === req.user.id)) {
-            isAllowed = true;
-          } else {
-            const formEmail = sponsor.email.trim().toLowerCase();
-            const assignedUsers = await User.find({ _id: { $in: discount.assignedUsers } });
-            const hasMatchingEmail = assignedUsers.some(u => u.email.trim().toLowerCase() === formEmail);
-            if (hasMatchingEmail) {
+          if (discount.visibleToUsers === false) {
+            return res.status(400).json({ error: "This discount code is no longer available." });
+          }
+
+          // Check if it is global or assigned to the user
+          let isAllowed = discount.isGlobal;
+          if (!isAllowed) {
+            if (req.user && discount.assignedUsers.some(uid => uid.toString() === req.user.id)) {
               isAllowed = true;
+            } else {
+              const formEmail = sponsor.email.trim().toLowerCase();
+              const assignedUsers = await User.find({ _id: { $in: discount.assignedUsers } });
+              const hasMatchingEmail = assignedUsers.some(u => u.email.trim().toLowerCase() === formEmail);
+              if (hasMatchingEmail) {
+                isAllowed = true;
+              }
             }
           }
+
+          if (!isAllowed) {
+            return res.status(400).json({ error: "This discount code is not valid for your email / account." });
+          }
+
+          appliedDiscount = {
+            code: discount.code,
+            discountValue: discount.discountValue
+          };
+
+          discountAmountAppliedMinor = Math.round((amountMinor * discount.discountValue) / 100);
+          amountMinor = Math.max(0, amountMinor - discountAmountAppliedMinor);
         }
-
-        if (!isAllowed) {
-          return res.status(400).json({ error: "This discount code is not valid for your email / account." });
-        }
-
-        appliedDiscount = {
-          code: discount.code,
-          discountValue: discount.discountValue
-        };
-
-        const discountAmount = Math.round((amountMinor * discount.discountValue) / 100);
-        amountMinor = Math.max(0, amountMinor - discountAmount);
       }
     }
 
@@ -402,7 +463,9 @@ export async function createPaymentIntent(req, res) {
       ...(req.user?.id ? { user_id: String(req.user.id) } : {}),
       ...(appliedDiscount ? {
         discount_code: appliedDiscount.code,
-        discount_percent: String(appliedDiscount.discountValue)
+        discount_percent: String(appliedDiscount.discountValue),
+        discount_amount_minor: String(discountAmountAppliedMinor),
+        discount_original_amount_minor: String(originalAmountMinor)
       } : {})
     };
 

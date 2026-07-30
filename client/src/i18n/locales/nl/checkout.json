@@ -34,7 +34,7 @@
     "available": "beschikbaar",
     "maxPerOrder": "max {{count}} per bestelling",
     "continue": "Doorgaan",
-    "codePlaceholder": "Kortingscode of voucher",
+    "codePlaceholder": "Referralcode of kortingscode",
     "memberDiscount": "Ledenkorting toegepast"
   },
   "selectSeats": {

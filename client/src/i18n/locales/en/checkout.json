@@ -34,7 +34,7 @@
     "available": "available",
     "maxPerOrder": "max {{count}} per order",
     "continue": "Continue",
-    "codePlaceholder": "Discount or voucher code",
+    "codePlaceholder": "Referral code or discount code",
     "memberDiscount": "Member discount applied"
   },
   "selectSeats": {
