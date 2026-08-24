@@ -16,6 +16,7 @@ export default function AdminTicketTypeQuickDiscount({ eventId, ticketTypeId, ev
     code: "",
     discountType: "percentage",
     discountValue: "",
+    minQuantity: "",
     expiryDate: "",
     applyToAllEvents: false,
     eventScopes: [{ eventId, applyToAllTicketTypes: false, ticketTypeIds: [ticketTypeId] }],
@@ -41,6 +42,7 @@ export default function AdminTicketTypeQuickDiscount({ eventId, ticketTypeId, ev
           discountType: form.discountType,
           discountValue: Number(form.discountValue),
           appliesTo: "tickets",
+          minQuantity: form.minQuantity ? Number(form.minQuantity) : 0,
           applyToAllEvents: form.applyToAllEvents,
           eventScopes: form.eventScopes,
           expiryDate: form.expiryDate || null,
@@ -106,6 +108,15 @@ export default function AdminTicketTypeQuickDiscount({ eventId, ticketTypeId, ev
           value={form.discountValue}
           onChange={(e) => setForm((f) => ({ ...f, discountValue: e.target.value }))}
           required
+        />
+        <input
+          className="admin-events__input"
+          type="number"
+          min="0"
+          step="1"
+          placeholder="Min tickets"
+          value={form.minQuantity}
+          onChange={(e) => setForm((f) => ({ ...f, minQuantity: e.target.value }))}
         />
         <input
           className="admin-events__input"
