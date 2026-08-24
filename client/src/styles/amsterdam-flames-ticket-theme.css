@@ -558,5 +558,6 @@
 
 .ticket-booking--af.ticket-booking--af .ticket-booking__hero {
   overflow: hidden;
+  background-position: top center;
 }
 
