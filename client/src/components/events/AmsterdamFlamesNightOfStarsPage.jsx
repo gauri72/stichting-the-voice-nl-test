@@ -151,7 +151,11 @@ export default function AmsterdamFlamesNightOfStarsPage() {
       </section>
 
       <footer className="af-event__footer">
-        <p>Proudly Designed &amp; Developed By V.O.I.C.E. Venture Studio</p>
+        <p>
+          <a href="https://stichtingthevoice.nl/voice-venture-studio" className="af-event__footer-link">
+            Proudly Designed &amp; Developed By V.O.I.C.E. Venture Studio
+          </a>
+        </p>
         <p>&copy; 2026 Amsterdam Flames. All rights reserved.</p>
       </footer>
     </div>

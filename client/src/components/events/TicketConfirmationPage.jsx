@@ -9,7 +9,7 @@ import "../../styles/amsterdam-flames-ticket-theme.css";
 
 // Matches the AMSTERDAM_FLAMES_EVENT_SLUG event in TicketBookingPage.jsx — the
 // order payload here only carries the event's Mongo id, not its slug.
-const AMSTERDAM_FLAMES_EVENT_ID = "6a8c115ac570bf283c06c892";
+const AMSTERDAM_FLAMES_EVENT_ID = "6a8c7530d507e734837cc9d4";
 
 export default function TicketConfirmationPage() {
   const { t: tr } = useTranslation(["checkout"]);
