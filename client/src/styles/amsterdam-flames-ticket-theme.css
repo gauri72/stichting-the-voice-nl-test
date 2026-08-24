@@ -558,9 +558,14 @@
 
 .ticket-booking--af.ticket-booking--af .ticket-booking__hero {
   overflow: hidden;
-  background-position: top center;
-  background-size: contain;
+  /* Matches the banner image's own aspect ratio so the container shape always
+     equals the image shape — cover then never needs to crop or leave gaps on
+     either axis, at any viewport width, and there's nothing to tile. */
+  aspect-ratio: 1660 / 948;
+  height: auto;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
   background-color: #050505;
-  height: 360px;
 }
 
