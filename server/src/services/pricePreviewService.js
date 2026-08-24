@@ -243,12 +243,16 @@ export async function calculatePricePreview({
     eventId: event.id,
   });
 
-  // Deliberately NOT gated on eventSettings.enableMemberDiscount/applyMemberBenefit — those
-  // are independently re-checked inside resolveMemberBenefitContext below, where they still
-  // correctly prevent any discount from applying. Gating capStatus itself on them too just
-  // hid the cap status (and the client's "cap reached" note) in cases where the real discount
-  // logic didn't need it hidden.
-  const capFeatureEnabled = membershipSettings.enableMembershipTicketDiscountCap !== false;
+  // Deliberately NOT gated on applyMemberBenefit — that's independently re-checked inside
+  // resolveMemberBenefitContext below, where it still correctly prevents any discount from
+  // applying. Gating capStatus itself on it too just hid the cap status (and the client's
+  // "cap reached" note) in cases where the real discount logic didn't need it hidden.
+  // enableMemberDiscount IS checked here though: when an event opts out of member discounts
+  // entirely, no discount could ever apply regardless of the cap, so surfacing a "cap
+  // reached" note for it is just misleading.
+  const capFeatureEnabled =
+    membershipSettings.enableMembershipTicketDiscountCap !== false &&
+    eventSettings.enableMemberDiscount !== false;
   let capStatus = null;
   if (memberDetection.isActive && capFeatureEnabled) {
     capStatus = await getMembershipDiscountCapStatus({ eventId: event.id, email, membershipSettings });

@@ -37,7 +37,6 @@ export default function AmsterdamFlamesNightOfStarsPage() {
       <header className="af-event__topbar">
         <img src={CREST_URL} alt="Amsterdam Flames" className="af-event__crest" />
         <span className="af-event__brand">AMSTERDAM FLAMES</span>
-        <span className="af-event__partner">Hosted with Stichting The V.O.I.C.E. NL</span>
       </header>
 
       <section className="af-squad">
@@ -58,7 +57,10 @@ export default function AmsterdamFlamesNightOfStarsPage() {
             <span className="af-event__title-accent">Night Of The Stars</span>
           </h1>
           <p className="af-event__tagline">
-            Join us for a spectacular evening with the Amsterdam Flames. Good food, good company, and the club's biggest names.
+            Step into an evening where sport, style and celebration come together.
+          </p>
+          <p className="af-event__tagline">
+            Join the Amsterdam Flames for an exclusive night of great food, inspiring company and unforgettable moments alongside some of the club&rsquo;s biggest names. Celebrate the passion, personalities and spirit that make the Flames more than a team — a community.
           </p>
 
           <div className="af-info-bar">
@@ -146,10 +148,6 @@ export default function AmsterdamFlamesNightOfStarsPage() {
           </a>
         </div>
       </section>
-
-      <footer className="af-event__footer">
-        Tickets sold and fulfilled by Stichting The V.O.I.C.E. NL on behalf of Amsterdam Flames. Not yet listed on the events page.
-      </footer>
     </div>
   );
 }

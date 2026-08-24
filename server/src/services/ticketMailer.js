@@ -61,6 +61,17 @@ function getEmailBranding(event) {
     : DEFAULT_EMAIL_BRANDING;
 }
 
+// Swaps only the display name on the configured From header, keeping the same
+// underlying mailbox address (there's no separate Amsterdam Flames mailbox —
+// V.O.I.C.E. NL still sends/fulfills the mail).
+function buildFromHeader(event) {
+  const branding = getEmailBranding(event);
+  const configured = getMailFromAddress();
+  const match = /^(.*)<(.+)>$/.exec(configured || "");
+  const address = match ? match[2].trim() : configured;
+  return address ? `${branding.fromName} <${address}>` : configured;
+}
+
 function hexToRgba(hex, alpha) {
   const clean = String(hex || "").replace("#", "");
   const r = parseInt(clean.slice(0, 2), 16);
@@ -429,7 +440,7 @@ export async function sendTicketConfirmationEmail({
 
   try {
     await transporter.sendMail({
-      from: getMailFromAddress(),
+      from: buildFromHeader(event),
       to: recipients,
       subject: subjectOverride || `Your ticket for ${eventTitle} — ${ticket.ticketNumber}`,
       text,
@@ -593,7 +604,7 @@ export async function sendTicketOrderConfirmationEmail({ order, tickets, event }
   }
 
   await getSmtpTransporter().sendMail({
-    from: getMailFromAddress(),
+    from: buildFromHeader(event),
     to: recipients,
     subject: `${tickets.length} ${tickets.length === 1 ? "ticket" : "tickets"} for ${event?.title || "V.O.I.C.E. NL Event"} — ${order.orderNumber}`,
     text: buildBookingEmailText({ order, tickets, event }),

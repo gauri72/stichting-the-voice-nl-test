@@ -51,6 +51,16 @@ const EMPTY_ATTENDEE = {
   phone: "",
 };
 
+// Admin-entered event descriptions may contain literal "<br>" markers as a
+// paragraph break (the description field is plain text, not HTML) — split on
+// those instead of rendering them as visible text.
+function splitDescriptionParagraphs(description) {
+  return String(description || "")
+    .split(/<br\s*\/?>/gi)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
 function buildSteps(t) {
   return [
     t("checkout:steps.selectTickets"),
@@ -1128,7 +1138,11 @@ export default function TicketBookingPage() {
             <span><IconCalendar size={16} /> {eventDate} · {event.startTime}</span>
             <span><IconMapPin size={16} /> {event.venueName}</span>
           </div>
-          {event.description ? <p className="ticket-booking__desc">{event.description}</p> : null}
+          {event.description
+            ? splitDescriptionParagraphs(event.description).map((para, i) => (
+                <p className="ticket-booking__desc" key={i}>{para}</p>
+              ))
+            : null}
         </header>
 
         <div className="ticket-booking__steps" aria-label="Booking progress" ref={stepTopRef}>
