@@ -559,6 +559,8 @@
 .ticket-booking--af.ticket-booking--af .ticket-booking__hero {
   overflow: hidden;
   background-position: top center;
+  background-size: contain;
+  background-color: #050505;
   height: 360px;
 }
 
