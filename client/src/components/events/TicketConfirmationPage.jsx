@@ -50,7 +50,9 @@ export default function TicketConfirmationPage() {
   }
 
   const { order, tickets } = data;
-  const afClass = order.eventId === AMSTERDAM_FLAMES_EVENT_ID ? " ticket-booking--af" : "";
+  const isAmsterdamFlames = order.eventId === AMSTERDAM_FLAMES_EVENT_ID;
+  const afClass = isAmsterdamFlames ? " ticket-booking--af" : "";
+  const backToEventsPath = isAmsterdamFlames ? "/events/amsterdam-flames-night-of-the-stars" : "/events";
 
   return (
     <div className={`ticket-booking ticket-booking--confirmation${afClass}`}>
@@ -106,7 +108,7 @@ export default function TicketConfirmationPage() {
           })}
         </ul>
 
-        <Link to="/events" className="ticket-booking__cta">{tr("checkout:confirmation.backToEvents")}</Link>
+        <Link to={backToEventsPath} className="ticket-booking__cta">{tr("checkout:confirmation.backToEvents")}</Link>
       </div>
     </div>
   );
