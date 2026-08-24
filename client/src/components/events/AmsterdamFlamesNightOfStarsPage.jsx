@@ -149,6 +149,11 @@ export default function AmsterdamFlamesNightOfStarsPage() {
           </a>
         </div>
       </section>
+
+      <footer className="af-event__footer">
+        <p>Proudly Designed &amp; Developed By V.O.I.C.E. Venture Studio</p>
+        <p>&copy; 2026 Amsterdam Flames. All rights reserved.</p>
+      </footer>
     </div>
   );
 }
