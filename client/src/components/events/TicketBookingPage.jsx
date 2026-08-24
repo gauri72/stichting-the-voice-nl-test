@@ -676,9 +676,9 @@ export default function TicketBookingPage() {
     }
   }
 
-  async function validateTicketCode(ticketTypeId, code) {
+  async function validateTicketCode(ticketTypeId, code, qtyOverride) {
     const tt = (event?.ticketTypes || []).find((t) => t.id === ticketTypeId);
-    const qty = quantities[ticketTypeId] || 1;
+    const qty = qtyOverride ?? (quantities[ticketTypeId] || 1);
     const lineSubtotalMinor = (tt?.priceMinor || 0) * qty;
 
     setTicketCodeStatus((s) => ({ ...s, [ticketTypeId]: "checking" }));
@@ -1274,7 +1274,12 @@ export default function TicketBookingPage() {
                     <select
                       value={quantities[tt.id] || 0}
                       disabled={!selectable}
-                      onChange={(e) => setQuantities((q) => ({ ...q, [tt.id]: Number(e.target.value) }))}
+                      onChange={(e) => {
+                        const newQty = Number(e.target.value);
+                        setQuantities((q) => ({ ...q, [tt.id]: newQty }));
+                        const code = ticketCodes[tt.id];
+                        if (code && code.trim()) validateTicketCode(tt.id, code, newQty);
+                      }}
                       aria-label={`Quantity for ${tt.name}`}
                     >
                       {selectable
