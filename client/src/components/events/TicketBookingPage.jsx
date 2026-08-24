@@ -557,6 +557,24 @@ export default function TicketBookingPage() {
     setPreview(null);
   }, [refreshPreview, selectedItems.length, includeMembership, selectedPlanId, applyMemberBenefit]);
 
+  // The lightweight validate-code check (handleTicketCodeChange) only confirms the code
+  // itself is redeemable — the price preview re-validates it independently per line and,
+  // if that check fails for a reason the lightweight check didn't hit (e.g. a per-user
+  // limit keyed off the now-known account once logged in), silently drops the discount
+  // rather than erroring (see discountService.js's applyDiscountsToOrderLines). Without
+  // this, the customer sees "applied successfully" with no visible explanation for why
+  // the total didn't move. Surface that real reason once we know it.
+  useEffect(() => {
+    const lineItems = preview?.ticketPricing?.lineItems;
+    if (!lineItems) return;
+    lineItems.forEach((line) => {
+      if (line.codeError && ticketCodeStatus[line.ticketTypeId] === "valid") {
+        setTicketCodeStatus((s) => ({ ...s, [line.ticketTypeId]: "invalid" }));
+        setTicketCodeMessage((s) => ({ ...s, [line.ticketTypeId]: line.codeError }));
+      }
+    });
+  }, [preview, ticketCodeStatus]);
+
   useEffect(() => {
     if (!event?.id || !selectedItems.length) {
       setCheckoutFormFields([]);
