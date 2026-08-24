@@ -37,6 +37,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
       <header className="af-event__topbar">
         <img src={CREST_URL} alt="Amsterdam Flames" className="af-event__crest" />
         <span className="af-event__brand">AMSTERDAM FLAMES</span>
+        <span className="af-event__topbar-tag">NIGHT OF THE STARS</span>
       </header>
 
       <section className="af-squad">

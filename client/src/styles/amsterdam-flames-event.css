@@ -35,6 +35,14 @@
   letter-spacing: 0.06em;
 }
 
+.af-event__topbar-tag {
+  margin-left: auto;
+  color: var(--af-primary);
+  font-family: "Archivo Black", Arial, sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+}
+
 .af-event__hero {
   position: relative;
   overflow: hidden;
