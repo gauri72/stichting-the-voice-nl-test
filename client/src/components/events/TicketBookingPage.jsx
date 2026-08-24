@@ -1181,14 +1181,14 @@ export default function TicketBookingPage() {
             <h2><IconTicket size={20} /> {t("checkout:selectTickets.title")}</h2>
 
             {(() => {
-              const selectedTicketTypes = (event.ticketTypes || []).filter((tt) => (quantities[tt.id] || 0) > 0);
-              return selectedTicketTypes.map((tt) => {
+              const allTicketTypes = event.ticketTypes || [];
+              return allTicketTypes.map((tt) => {
                 const codeStatus = ticketCodeStatus[tt.id] || "idle";
                 return (
                   <div key={tt.id} className="ticket-booking__pre-list-code">
                     <label>
                       {t("checkout:selectTickets.codePlaceholder")}
-                      {selectedTicketTypes.length > 1 ? ` — ${tt.name}` : ""}
+                      {allTicketTypes.length > 1 ? ` — ${tt.name}` : ""}
                       <div className={`ticket-booking__ticket-code-input ticket-booking__ticket-code-input--${codeStatus}`}>
                         <input
                           placeholder={t("checkout:selectTickets.codePlaceholder")}
