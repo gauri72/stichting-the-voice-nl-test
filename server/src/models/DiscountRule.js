@@ -61,6 +61,10 @@ const discountRuleSchema = new mongoose.Schema(
     usageLimitPerUser: { type: Number, default: null, min: 1 },
     usedCount: { type: Number, default: 0, min: 0 },
     minimumOrderAmount: { type: Number, default: 0, min: 0 },
+    // Minimum total ticket count (summed across the order, per-ticket-type-line where scoped
+    // to one) required for this code to apply — e.g. a group-booking discount valid from 5
+    // tickets onward. 0 means no quantity floor.
+    minQuantity: { type: Number, default: 0, min: 0 },
     startDate: { type: Date, default: null },
     expiryDate: { type: Date, default: null, index: true },
     expiryReminderSentAt: { type: Date, default: null },

@@ -38,6 +38,7 @@ export async function quoteOrder(eventId, { items, voucherCode, discountCode, us
     throw err;
   }
 
+  const totalQuantity = validatedLineItems.reduce((sum, li) => sum + (li.quantity || 0), 0);
   const code = discountCode || voucherCode;
   const discountResult = await applyDiscountsToOrder({
     userId,
@@ -47,6 +48,7 @@ export async function quoteOrder(eventId, { items, voucherCode, discountCode, us
     subtotalMinor,
     discountCode: code,
     voucherCode: code,
+    quantity: totalQuantity,
   });
 
   const summary = buildOrderSummary({

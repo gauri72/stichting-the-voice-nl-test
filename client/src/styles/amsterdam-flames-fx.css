@@ -1,0 +1,61 @@
+/* Shared "live flames" ambiance for Amsterdam Flames branded pages — a soft
+   pulsing ember glow plus slow-rising embers. Deliberately restrained (low
+   opacity, slow timing, no literal flame icons) so it reads as premium
+   ambiance rather than a novelty animation, and stays legible behind text. */
+
+@keyframes af-glow-pulse {
+  0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.85; transform: translateX(-50%) scale(1.12); }
+}
+
+@keyframes af-ember-rise {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.5);
+    opacity: 0;
+  }
+  12% { opacity: 0.85; }
+  75% { opacity: 0.4; }
+  100% {
+    /* Fixed distance, not a percentage — percentages in `transform` resolve
+       against the ember's OWN (few-px) box, not its container, so they'd
+       barely move at all. */
+    transform: translateY(calc(-1 * var(--af-rise, 130px))) translateX(var(--af-drift, 8px)) scale(1);
+    opacity: 0;
+  }
+}
+
+.af-flames-fx {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Explicit (not auto) so this paints above sibling ::after gradient overlays
+     that have no z-index of their own — e.g. the ticket-booking hero's
+     fade-to-background pseudo-element — regardless of DOM order. */
+  z-index: 1;
+}
+
+.af-flames-fx__glow {
+  position: absolute;
+  left: 50%;
+  bottom: -12%;
+  width: min(640px, 70%);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(240, 94, 60, 0.38), rgba(240, 94, 60, 0.1) 55%, transparent 75%);
+  filter: blur(6px);
+  animation: af-glow-pulse 6.5s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.af-ember {
+  position: absolute;
+  bottom: 6%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffcda0, #f05e3c 60%, transparent 75%);
+  box-shadow: 0 0 6px 1px rgba(240, 94, 60, 0.55);
+  animation: af-ember-rise linear infinite;
+  will-change: transform, opacity;
+}

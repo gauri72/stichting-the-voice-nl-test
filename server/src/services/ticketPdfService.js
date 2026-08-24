@@ -7,8 +7,13 @@ import { collectPdfBuffer as collectDoc } from "../utils/pdfBuffer.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOGO_PATH = path.join(__dirname, "..", "..", "..", "client", "src", "assets", "header-logo.png");
+const AF_LOGO_PATH = path.join(__dirname, "..", "..", "..", "client", "public", "amsterdam-flames", "af-crest-orange.png");
 
-const COLORS = {
+// Amsterdam Flames is a partner-branded event: its tickets render in the
+// club's own dark/flame-orange identity with no V.O.I.C.E. NL branding.
+const AMSTERDAM_FLAMES_EVENT_SLUG = "amsterdam-flames-night-of-the-stars";
+
+const DEFAULT_COLORS = {
   navy: "#06152f",
   headerBand: "#0b2447",
   teal: "#0a8a98",
@@ -18,6 +23,33 @@ const COLORS = {
   pink: "#d1007f",
 };
 
+const AF_COLORS = {
+  navy: "#171717",
+  headerBand: "#0f0f0f",
+  teal: "#f05e3c",
+  cyan: "#f05e3c",
+  muted: "#7a7a7a",
+  white: "#ffffff",
+  pink: "#f05e3c",
+};
+
+function getPdfColors(eventSlug) {
+  return eventSlug === AMSTERDAM_FLAMES_EVENT_SLUG ? AF_COLORS : DEFAULT_COLORS;
+}
+
+function getLogo(eventSlug) {
+  if (eventSlug === AMSTERDAM_FLAMES_EVENT_SLUG) {
+    return { path: AF_LOGO_PATH, fallbackText: "AMSTERDAM FLAMES" };
+  }
+  return { path: LOGO_PATH, fallbackText: "V.O.I.C.E. NL" };
+}
+
+function getFooterCopyright(eventSlug) {
+  return eventSlug === AMSTERDAM_FLAMES_EVENT_SLUG
+    ? "© 2026 Amsterdam Flames. All rights reserved."
+    : "© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.";
+}
+
 const PAGE_MARGIN = 40;
 
 /**
@@ -25,6 +57,8 @@ const PAGE_MARGIN = 40;
  * @returns {Promise<Buffer>}
  */
 export async function renderTicketPdf(values) {
+  const colors = getPdfColors(values.event_slug);
+  const logo = getLogo(values.event_slug);
   const doc = new PDFDocument({ size: "A4", margin: PAGE_MARGIN });
   const promise = collectDoc(doc);
 
@@ -38,22 +72,22 @@ export async function renderTicketPdf(values) {
   }
 
   const bandHeight = 100;
-  doc.rect(0, 0, 595.28, bandHeight).fill(COLORS.headerBand);
+  doc.rect(0, 0, 595.28, bandHeight).fill(colors.headerBand);
 
-  if (fs.existsSync(LOGO_PATH)) {
-    doc.image(LOGO_PATH, PAGE_MARGIN, 24, { height: 52 });
+  if (fs.existsSync(logo.path)) {
+    doc.image(logo.path, PAGE_MARGIN, 24, { height: 52 });
   } else {
     doc
       .font("Helvetica-Bold")
       .fontSize(18)
-      .fillColor(COLORS.white)
-      .text("V.O.I.C.E. NL", PAGE_MARGIN, 40);
+      .fillColor(colors.white)
+      .text(logo.fallbackText, PAGE_MARGIN, 40);
   }
 
   doc
     .font("Helvetica-Bold")
     .fontSize(22)
-    .fillColor(COLORS.white)
+    .fillColor(colors.white)
     .text("Event Ticket", PAGE_MARGIN, bandHeight + 28, { width: 515 });
 
   const y = bandHeight + 70;
@@ -87,11 +121,11 @@ export async function renderTicketPdf(values) {
 
   let rowY = y;
   for (const [label, value] of rows) {
-    doc.font("Helvetica").fontSize(9).fillColor(COLORS.muted).text(label.toUpperCase(), PAGE_MARGIN, rowY);
+    doc.font("Helvetica").fontSize(9).fillColor(colors.muted).text(label.toUpperCase(), PAGE_MARGIN, rowY);
     doc
       .font("Helvetica-Bold")
       .fontSize(12)
-      .fillColor(COLORS.navy)
+      .fillColor(colors.navy)
       .text(value, PAGE_MARGIN, rowY + 12, { width: colW });
     rowY += 38;
   }
@@ -101,14 +135,14 @@ export async function renderTicketPdf(values) {
     doc
       .font("Helvetica")
       .fontSize(8)
-      .fillColor(COLORS.muted)
+      .fillColor(colors.muted)
       .text("Scan at entry", 380, y + 148, { width: 140, align: "center" });
   }
 
   doc
     .font("Helvetica")
     .fontSize(8)
-    .fillColor(COLORS.muted)
+    .fillColor(colors.muted)
     .text(
       "Present this ticket (printed or on your phone) at the venue entrance.",
       PAGE_MARGIN,
@@ -119,8 +153,8 @@ export async function renderTicketPdf(values) {
   doc
     .font("Helvetica")
     .fontSize(7)
-    .fillColor(COLORS.muted)
-    .text("© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.", PAGE_MARGIN, 750, {
+    .fillColor(colors.muted)
+    .text(getFooterCopyright(values.event_slug), PAGE_MARGIN, 750, {
       width: 515,
       align: "center",
     });
@@ -157,6 +191,7 @@ export function buildTicketPdfValuesFromDocs(ticket, order, event) {
 
   return {
     verification_token: ticket?.verificationToken || "",
+    event_slug: event?.slug || "",
     event_name: event?.title || "—",
     attendee_name: ticket?.attendeeName || "—",
     attendee_email: ticket?.attendeeEmail || "—",
@@ -190,6 +225,8 @@ export async function generateTicketPdfFromDocs(ticket, order, event) {
 }
 
 async function drawBookingTicketPage(doc, values, pageNumber, totalPages) {
+  const colors = getPdfColors(values.event_slug);
+  const logo = getLogo(values.event_slug);
   let qrBuffer = null;
   if (values.verification_token) {
     try {
@@ -199,16 +236,16 @@ async function drawBookingTicketPage(doc, values, pageNumber, totalPages) {
     }
   }
 
-  doc.rect(0, 0, 595.28, 100).fill(COLORS.headerBand);
-  if (fs.existsSync(LOGO_PATH)) {
-    doc.image(LOGO_PATH, PAGE_MARGIN, 24, { height: 52 });
+  doc.rect(0, 0, 595.28, 100).fill(colors.headerBand);
+  if (fs.existsSync(logo.path)) {
+    doc.image(logo.path, PAGE_MARGIN, 24, { height: 52 });
   } else {
-    doc.font("Helvetica-Bold").fontSize(18).fillColor(COLORS.white).text("V.O.I.C.E. NL", PAGE_MARGIN, 40);
+    doc.font("Helvetica-Bold").fontSize(18).fillColor(colors.white).text(logo.fallbackText, PAGE_MARGIN, 40);
   }
   doc
     .font("Helvetica-Bold")
     .fontSize(20)
-    .fillColor(COLORS.white)
+    .fillColor(colors.white)
     .text(`Event Ticket ${pageNumber} of ${totalPages}`, PAGE_MARGIN, 128, { width: 515 });
 
   const rows = [
@@ -231,18 +268,18 @@ async function drawBookingTicketPage(doc, values, pageNumber, totalPages) {
 
   let rowY = 178;
   for (const [label, value] of rows) {
-    doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted).text(label.toUpperCase(), PAGE_MARGIN, rowY);
-    doc.font("Helvetica-Bold").fontSize(11).fillColor(COLORS.navy).text(value, PAGE_MARGIN, rowY + 11, { width: 285 });
+    doc.font("Helvetica").fontSize(8).fillColor(colors.muted).text(label.toUpperCase(), PAGE_MARGIN, rowY);
+    doc.font("Helvetica-Bold").fontSize(11).fillColor(colors.navy).text(value, PAGE_MARGIN, rowY + 11, { width: 285 });
     rowY += 36;
   }
 
   if (qrBuffer) {
     doc.image(qrBuffer, 370, 185, { width: 150, height: 150 });
-    doc.font("Helvetica-Bold").fontSize(10).fillColor(COLORS.teal).text(values.ticket_number || "", 370, 344, {
+    doc.font("Helvetica-Bold").fontSize(10).fillColor(colors.teal).text(values.ticket_number || "", 370, 344, {
       width: 150,
       align: "center",
     });
-    doc.font("Helvetica").fontSize(8).fillColor(COLORS.muted).text("Present this unique QR code at entry", 360, 362, {
+    doc.font("Helvetica").fontSize(8).fillColor(colors.muted).text("Present this unique QR code at entry", 360, 362, {
       width: 170,
       align: "center",
     });
@@ -251,7 +288,7 @@ async function drawBookingTicketPage(doc, values, pageNumber, totalPages) {
   doc
     .font("Helvetica")
     .fontSize(8)
-    .fillColor(COLORS.muted)
+    .fillColor(colors.muted)
     .text("Each page is a separate admission ticket. Do not share its QR code.", PAGE_MARGIN, 720, {
       width: 515,
       align: "center",
@@ -259,7 +296,8 @@ async function drawBookingTicketPage(doc, values, pageNumber, totalPages) {
   doc
     .font("Helvetica")
     .fontSize(7)
-    .text(`© 2026 Stichting The V.O.I.C.E. NL · Page ${pageNumber} of ${totalPages}`, PAGE_MARGIN, 750, {
+    .fillColor(colors.muted)
+    .text(`${getFooterCopyright(values.event_slug)} · Page ${pageNumber} of ${totalPages}`, PAGE_MARGIN, 750, {
       width: 515,
       align: "center",
     });

@@ -69,6 +69,7 @@ function formatRule(rule) {
     usageLimitPerUser: r.usageLimitPerUser,
     usedCount: r.usedCount || 0,
     minimumOrderAmount: r.minimumOrderAmount || 0,
+    minQuantity: r.minQuantity || 0,
     startDate: r.startDate,
     expiryDate: r.expiryDate,
     allowStacking: r.allowStacking !== false,
@@ -242,6 +243,7 @@ export async function createDiscountRule(payload, adminId) {
     usageLimit,
     usageLimitPerUser,
     minimumOrderAmount,
+    minQuantity,
     startDate,
     expiryDate,
     allowStacking,
@@ -289,6 +291,7 @@ export async function createDiscountRule(payload, adminId) {
     usageLimit: usageLimit != null ? Number(usageLimit) : null,
     usageLimitPerUser: usageLimitPerUser != null ? Number(usageLimitPerUser) : null,
     minimumOrderAmount: Number(minimumOrderAmount) || 0,
+    minQuantity: Number(minQuantity) || 0,
     startDate: startDate ? new Date(startDate) : null,
     expiryDate: expiryDate ? new Date(expiryDate) : null,
     allowStacking: allowStacking !== false,
@@ -313,7 +316,7 @@ export async function updateDiscountRule(id, payload, adminId) {
     "eligibleEventIds", "applyToAllEvents", "eventScopes", "eligibleMembershipTypes",
     "assignedUserId", "assignedEmail",
     "isPublic", "referrerUserId", "referrerEmail", "referrerName", "rewardType",
-    "rewardValue", "usageLimit", "usageLimitPerUser", "minimumOrderAmount",
+    "rewardValue", "usageLimit", "usageLimitPerUser", "minimumOrderAmount", "minQuantity",
     "startDate", "expiryDate", "allowStacking", "status", "description",
     "visibleToUsers", "showOnDashboard", "source",
   ];
@@ -372,7 +375,7 @@ export async function duplicateDiscountRule(id, adminId) {
   const { name, type, discountType, discountValue, appliesTo, eligibleEventIds, applyToAllEvents,
     eventScopes, eligibleMembershipTypes,
     assignedUserId, assignedEmail, isPublic, referrerUserId, referrerEmail, referrerName,
-    rewardType, rewardValue, usageLimit, usageLimitPerUser, minimumOrderAmount,
+    rewardType, rewardValue, usageLimit, usageLimitPerUser, minimumOrderAmount, minQuantity,
     startDate, expiryDate, allowStacking, status, description } = source;
 
   const copy = await DiscountRule.create({
@@ -398,6 +401,7 @@ export async function duplicateDiscountRule(id, adminId) {
     usageLimit,
     usageLimitPerUser,
     minimumOrderAmount: minimumOrderAmount || 0,
+    minQuantity: minQuantity || 0,
     startDate,
     expiryDate,
     allowStacking: allowStacking !== false,

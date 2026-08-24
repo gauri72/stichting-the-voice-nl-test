@@ -22,6 +22,7 @@ export async function applyDiscount(req, res) {
       discountCode,
       voucherCode,
       email,
+      quantity,
     } = req.body || {};
 
     if (!subtotalMinor || subtotalMinor <= 0) {
@@ -39,6 +40,7 @@ export async function applyDiscount(req, res) {
       subtotalMinor: Number(subtotalMinor),
       discountCode,
       voucherCode,
+      quantity: quantity != null ? Number(quantity) : null,
     });
 
     const summary = buildOrderSummary({
@@ -138,12 +140,12 @@ export async function getMemberDiscount(req, res) {
 
 export async function validateCode(req, res) {
   try {
-    const { code, eventId, ticketTypeId = null, orderType = "tickets", subtotalMinor = 0, email } = req.body || {};
+    const { code, eventId, ticketTypeId = null, orderType = "tickets", subtotalMinor = 0, email, quantity = null } = req.body || {};
     const userId = req.user?.id || null;
     const userEmail = email || req.user?.email || "";
 
     const rule = await validateDiscountCode(
-      code, userId, userEmail, eventId, orderType, Number(subtotalMinor), ticketTypeId
+      code, userId, userEmail, eventId, orderType, Number(subtotalMinor), ticketTypeId, quantity != null ? Number(quantity) : null
     );
     const discountAmountMinor = Number(subtotalMinor) > 0
       ? calculateDiscountAmount(Number(subtotalMinor), rule)

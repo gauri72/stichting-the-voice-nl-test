@@ -1,0 +1,345 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&display=swap");
+
+.af-event {
+  --af-bg: #050505;
+  --af-fg: #f7f7f7;
+  --af-muted: #a1a1a1;
+  --af-card: #0f0f0f;
+  --af-border: rgba(255, 255, 255, 0.12);
+  --af-primary: #f05e3c;
+  --af-radius: 0.5rem;
+
+  min-height: 100vh;
+  background: var(--af-bg);
+  color: var(--af-fg);
+  font-family: "Archivo", Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.af-event__topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--af-border);
+}
+
+.af-event__crest {
+  height: 40px;
+  width: auto;
+}
+
+.af-event__brand {
+  font-family: "Archivo Black", Arial, sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+}
+
+.af-event__partner {
+  color: var(--af-muted);
+  font-size: 0.85rem;
+  margin-left: auto;
+}
+
+.af-event__hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 3.5rem 1.5rem 2.25rem;
+  background:
+    radial-gradient(60% 60% at 50% 0%, rgba(240, 94, 60, 0.28), transparent 70%),
+    var(--af-bg);
+}
+
+.af-event__hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Squad banner — official Amsterdam Flames squad photo composite, supplied
+   directly by the club/organizer and used with permission. */
+.af-squad {
+  background: var(--af-bg);
+  line-height: 0;
+}
+
+.af-squad__banner {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.af-event__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--af-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+}
+
+.af-event__title {
+  font-family: "Archivo Black", Arial, sans-serif;
+  text-transform: uppercase;
+  font-size: clamp(2rem, 6vw, 3.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.85rem;
+  text-shadow: 0 0 40px rgba(240, 94, 60, 0.25);
+}
+
+.af-event__title-accent {
+  color: var(--af-primary);
+}
+
+.af-event__tagline {
+  max-width: 40rem;
+  margin: 0 auto 1.75rem;
+  color: var(--af-muted);
+  font-size: 1.1rem;
+}
+
+.af-info-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0;
+  margin: 0 auto 2rem;
+  max-width: 46rem;
+  border: 1px solid var(--af-border);
+  border-radius: var(--af-radius);
+  background: var(--af-card);
+  overflow: hidden;
+}
+
+.af-info-bar__item {
+  flex: 1 1 12rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  text-align: left;
+  color: var(--af-primary);
+  border-right: 1px solid var(--af-border);
+}
+
+.af-info-bar__item:last-child {
+  border-right: 0;
+}
+
+.af-info-bar__item div {
+  display: flex;
+  flex-direction: column;
+}
+
+.af-info-bar__item span {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  color: var(--af-muted);
+  margin-bottom: 0.15rem;
+}
+
+.af-info-bar__item strong {
+  font-size: 0.92rem;
+  color: var(--af-fg);
+  font-weight: 700;
+}
+
+.af-includes {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background: var(--af-bg);
+}
+
+.af-includes__title {
+  font-family: "Archivo Black", Arial, sans-serif;
+  text-transform: uppercase;
+  color: var(--af-primary);
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  margin: 0 0 2rem;
+}
+
+.af-includes__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1.75rem;
+  max-width: 60rem;
+  margin: 0 auto;
+}
+
+.af-includes__item {
+  color: var(--af-primary);
+}
+
+.af-includes__item h3 {
+  font-family: "Archivo Black", Arial, sans-serif;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  color: var(--af-fg);
+  margin: 0.75rem 0 0.4rem;
+  letter-spacing: 0.02em;
+}
+
+.af-includes__item p {
+  margin: 0;
+  color: var(--af-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.af-event__cta {
+  display: inline-block;
+  background: var(--af-primary);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0.9rem 2rem;
+  border-radius: var(--af-radius);
+  box-shadow: 0 8px 28px rgba(240, 94, 60, 0.35);
+  transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.af-event__cta:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 32px rgba(240, 94, 60, 0.45);
+}
+
+.af-event__cta--block {
+  display: block;
+  text-align: center;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.af-event__details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 1.5rem;
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3.5rem;
+}
+
+.af-event__detail-card,
+.af-event__price-card {
+  border: 1px solid var(--af-border);
+  border-radius: calc(var(--af-radius) * 1.5);
+  background: var(--af-card);
+  padding: 2rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.af-event__detail-card:hover,
+.af-event__price-card:hover {
+  border-color: rgba(240, 94, 60, 0.35);
+  transform: translateY(-2px);
+}
+
+.af-event__detail-card h2 {
+  font-family: "Archivo Black", Arial, sans-serif;
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  margin: 0 0 1.25rem;
+}
+
+.af-event__detail-card ul {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.af-event__detail-card li strong {
+  color: var(--af-muted);
+  font-weight: 500;
+  margin-right: 0.35rem;
+}
+
+.af-event__map-link {
+  color: var(--af-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.af-event__map-link:hover {
+  text-decoration: underline;
+}
+
+.af-event__price-badge {
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--af-primary);
+  border: 1px solid rgba(240, 94, 60, 0.4);
+  background: rgba(240, 94, 60, 0.1);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.af-event__price {
+  font-family: "Archivo Black", Arial, sans-serif;
+  font-size: 2.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.af-event__price span {
+  font-family: "Archivo", Arial, sans-serif;
+  font-size: 1rem;
+  color: var(--af-muted);
+  font-weight: 400;
+  margin-left: 0.35rem;
+}
+
+.af-event__price-includes {
+  color: var(--af-muted);
+  margin: 0 0 1.5rem;
+}
+
+.af-event__promo {
+  border: 1px dashed rgba(240, 94, 60, 0.4);
+  border-radius: var(--af-radius);
+  background: rgba(240, 94, 60, 0.06);
+  padding: 1.1rem 1.25rem;
+}
+
+.af-event__promo-label {
+  margin: 0 0 0.25rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.af-event__promo-copy {
+  margin: 0 0 0.75rem;
+  color: var(--af-muted);
+  font-size: 0.88rem;
+}
+
+.af-event__promo-code {
+  display: inline-block;
+  font-family: "Archivo Black", Arial, sans-serif;
+  letter-spacing: 0.08em;
+  background: var(--af-primary);
+  color: #fff;
+  border-radius: calc(var(--af-radius) * 0.6);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.95rem;
+}
+
+.af-event__footer {
+  border-top: 1px solid var(--af-border);
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--af-muted);
+  font-size: 0.85rem;
+}

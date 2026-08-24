@@ -35,9 +35,14 @@ import useBookingFlow from "../../hooks/useBookingFlow.js";
 import "../../styles/sponsorship-payment-block.css";
 import "../../styles/seat-map.css";
 import "../../styles/ticket-booking-page.css";
+import "../../styles/amsterdam-flames-ticket-theme.css";
 import { devWarn } from "../../utils/devLog.js";
 
 const TICKET_CHECKOUT_SESSION_KEY = "voice_nl_ticket_checkout";
+
+// Amsterdam Flames is a partner-branded event: its booking flow renders in the
+// club's own dark/flame-orange identity instead of the site's default theme.
+const AMSTERDAM_FLAMES_EVENT_SLUG = "amsterdam-flames-night-of-the-stars";
 
 const EMPTY_ATTENDEE = {
   firstName: "",
@@ -169,10 +174,11 @@ export default function TicketBookingPage() {
   );
 
   const checkoutSettings = event?.checkoutSettings || {};
+  const showBenefitsStep = checkoutSettings.enableMemberDiscount !== false;
   const showMembershipStep =
     checkoutSettings.enableMembershipUpsell !== false &&
     checkoutSettings.allowMembershipTicketBundle !== false;
-  const benefitsHaveContent = membershipBannerHasContent(memberDetection, {
+  const benefitsHaveContent = showBenefitsStep && membershipBannerHasContent(memberDetection, {
     memberDiscountApplied: preview?.ticketPricing?.memberDiscountMinor > 0,
     discountWarning: preview?.membershipDiscountWarning || "",
     messages: detectionMessages,
@@ -232,8 +238,9 @@ export default function TicketBookingPage() {
   } = booking;
   const DETAILS_STEP = 2 + seatOffset;
   const BENEFITS_STEP = 3 + seatOffset;
-  const MEMBERSHIP_STEP = 4 + seatOffset;
-  const REVIEW_STEP = (showMembershipStep ? 5 : 4) + seatOffset;
+  const MEMBERSHIP_STEP = (showBenefitsStep ? 4 : 3) + seatOffset;
+  const REVIEW_STEP =
+    (showBenefitsStep ? (showMembershipStep ? 5 : 4) : showMembershipStep ? 4 : 3) + seatOffset;
   const PAYMENT_STEP = REVIEW_STEP + 1;
 
   useEffect(() => {
@@ -518,7 +525,7 @@ export default function TicketBookingPage() {
   }, [checkoutSessionIdFromUrl, event?.id, user, restoreCheckoutFromSession, applyBenefitsAfterLogin]);
 
   useEffect(() => {
-    const shouldAutoDetect = step === DETAILS_STEP || step === BENEFITS_STEP;
+    const shouldAutoDetect = showBenefitsStep && (step === DETAILS_STEP || step === BENEFITS_STEP);
     if (shouldAutoDetect && attendee.email?.includes("@")) {
       // Debounced so this doesn't fire a full round-trip per keystroke while
       // the customer is still typing — detectMember's own stale-response
@@ -527,7 +534,7 @@ export default function TicketBookingPage() {
       const timer = window.setTimeout(() => detectMember(attendee.email), 400);
       return () => window.clearTimeout(timer);
     }
-  }, [step, attendee.email, DETAILS_STEP, BENEFITS_STEP, detectMember]);
+  }, [step, attendee.email, DETAILS_STEP, BENEFITS_STEP, showBenefitsStep, detectMember]);
 
   useEffect(() => {
     // Runs from Select Tickets onward (not just step >= 4 as before) so the per-ticket-type
@@ -680,6 +687,7 @@ export default function TicketBookingPage() {
         ticketTypeId,
         orderType: "tickets",
         subtotalMinor: lineSubtotalMinor,
+        quantity: qty,
       });
       setTicketCodeStatus((s) => ({ ...s, [ticketTypeId]: "valid" }));
       setTicketCodeMessage((s) => ({ ...s, [ticketTypeId]: t("checkout:errors.discountApplied") }));
@@ -855,13 +863,13 @@ export default function TicketBookingPage() {
     // false whenever the membership discount cap feature is on (the default), since a
     // guest can then redeem the same capped benefit a logged-in member gets. Falls back
     // to the old isActiveGuest-based block only when that feature is toggled off.
-    if (detection?.requiresLogin && applyMemberBenefit && !membershipCodeApplied) {
+    if (showBenefitsStep && detection?.requiresLogin && applyMemberBenefit && !membershipCodeApplied) {
       setError(t("checkout:errors.loginToApplyBenefits"));
       setStep(BENEFITS_STEP);
       return;
     }
 
-    if (isExpiredGuest) {
+    if (showBenefitsStep && isExpiredGuest) {
       setError(t("checkout:errors.renewToApplyBenefits"));
       setStep(BENEFITS_STEP);
       return;
@@ -886,8 +894,9 @@ export default function TicketBookingPage() {
   }, [step, clientSecret, checkoutLoading, handlingReturn, checkoutOrder, isFreeCheckout]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (user) loadWallet();
-  }, [user, loadWallet]);
+    const isAF = (event?.slug || eventIdOrSlug) === AMSTERDAM_FLAMES_EVENT_SLUG;
+    if (user && !isAF) loadWallet();
+  }, [user, event?.slug, eventIdOrSlug, loadWallet]);
 
   async function handlePayWithWallet() {
     setWalletSubmitting(true);
@@ -1044,9 +1053,13 @@ export default function TicketBookingPage() {
     setStep(REVIEW_STEP);
   }
 
+  const isAmsterdamFlamesEvent =
+    (event?.slug || eventIdOrSlug) === AMSTERDAM_FLAMES_EVENT_SLUG;
+  const afClass = isAmsterdamFlamesEvent ? " ticket-booking--af" : "";
+
   if (loading) {
     return (
-      <div className="ticket-booking">
+      <div className={`ticket-booking${afClass}`}>
         <p className="ticket-booking__status">{t("checkout:errors.loadingEvent")}</p>
       </div>
     );
@@ -1054,24 +1067,31 @@ export default function TicketBookingPage() {
 
   if (!event) {
     return (
-      <div className="ticket-booking">
+      <div className={`ticket-booking${afClass}`}>
         <p className="ticket-booking__error" role="alert">{error || t("checkout:errors.eventNotFound")}</p>
         <Link to="/events">{t("checkout:common.backToEvents")}</Link>
       </div>
     );
   }
 
-  const eventDate = new Date(event.date).toLocaleDateString("nl-NL", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const eventDate = new Date(event.date).toLocaleDateString(
+    isAmsterdamFlamesEvent ? "en-GB" : "nl-NL",
+    {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
 
   const visibleSteps = (() => {
-    // STEPS index 3 is "Membership" — filter by position, not by translated
-    // text, since the membership step label is no longer a stable literal.
-    const base = showMembershipStep ? STEPS : STEPS.filter((_, i) => i !== 3);
+    // STEPS index 2 is "Member benefits", index 3 is "Membership" — filter by
+    // position, not by translated text, since the labels aren't stable literals.
+    const base = STEPS.filter((_, i) => {
+      if (i === 2 && !showBenefitsStep) return false;
+      if (i === 3 && !showMembershipStep) return false;
+      return true;
+    });
     if (reservedSeatingEnabled) {
       return [STEPS[0], t("checkout:steps.selectSeats"), ...base.slice(1)];
     }
@@ -1079,12 +1099,13 @@ export default function TicketBookingPage() {
   })();
   const displayStep = (() => {
     let s = step;
+    if (!showBenefitsStep && s > BENEFITS_STEP) s -= 1;
     if (!showMembershipStep && s > MEMBERSHIP_STEP) s -= 1;
     return s;
   })();
 
   return (
-    <div className="ticket-booking">
+    <div className={`ticket-booking${afClass}`}>
       <LoginModal
         open={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
@@ -1161,7 +1182,7 @@ export default function TicketBookingPage() {
               });
             })()}
 
-            {selectedItems.length ? (
+            {selectedItems.length && showBenefitsStep ? (
               <div className="ticket-booking__membership-code">
                 <label>
                   {t("checkout:yourDetails.membershipCode")}
@@ -1185,7 +1206,7 @@ export default function TicketBookingPage() {
                 </button>
               </div>
             ) : null}
-            {selectedItems.length && membershipCodeMessage ? (
+            {selectedItems.length && showBenefitsStep && membershipCodeMessage ? (
               <p
                 className={`ticket-booking__membership-code-msg${
                   membershipCodeApplied ? " ticket-booking__membership-code-msg--success" : ""
@@ -1334,7 +1355,7 @@ export default function TicketBookingPage() {
                   type="email"
                   value={attendee.email}
                   onChange={(e) => setAttendee((a) => ({ ...a, email: e.target.value }))}
-                  onBlur={() => attendee.email && detectMember(attendee.email)}
+                  onBlur={() => showBenefitsStep && attendee.email && detectMember(attendee.email)}
                 />
               </label>
               <label>
@@ -1342,29 +1363,31 @@ export default function TicketBookingPage() {
                 <input type="tel" value={attendee.phone} onChange={(e) => setAttendee((a) => ({ ...a, phone: e.target.value }))} />
               </label>
             </div>
-            <div className="ticket-booking__membership-code">
-              <label>
-                {t("checkout:yourDetails.membershipCode")}
-                <input
-                  placeholder={t("checkout:yourDetails.membershipCodePlaceholder")}
-                  value={membershipCode}
-                  onChange={(e) => {
-                    setMembershipCode(e.target.value.toUpperCase());
-                    setMembershipCodeMessage("");
-                    setMembershipCodeApplied(false);
-                  }}
-                />
-              </label>
-              <button
-                type="button"
-                className="ticket-booking__cta ticket-booking__cta--small"
-                disabled={!membershipCode.trim() || detectingMember}
-                onClick={applyMembershipCode}
-              >
-                {t("checkout:yourDetails.applyMembershipCode")}
-              </button>
-            </div>
-            {membershipCodeMessage ? (
+            {showBenefitsStep ? (
+              <div className="ticket-booking__membership-code">
+                <label>
+                  {t("checkout:yourDetails.membershipCode")}
+                  <input
+                    placeholder={t("checkout:yourDetails.membershipCodePlaceholder")}
+                    value={membershipCode}
+                    onChange={(e) => {
+                      setMembershipCode(e.target.value.toUpperCase());
+                      setMembershipCodeMessage("");
+                      setMembershipCodeApplied(false);
+                    }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="ticket-booking__cta ticket-booking__cta--small"
+                  disabled={!membershipCode.trim() || detectingMember}
+                  onClick={applyMembershipCode}
+                >
+                  {t("checkout:yourDetails.applyMembershipCode")}
+                </button>
+              </div>
+            ) : null}
+            {showBenefitsStep && membershipCodeMessage ? (
               <p
                 className={`ticket-booking__membership-code-msg${
                   membershipCodeApplied ? " ticket-booking__membership-code-msg--success" : ""
@@ -1374,7 +1397,7 @@ export default function TicketBookingPage() {
                 {membershipCodeMessage}
               </p>
             ) : null}
-            {detectingMember ? (
+            {showBenefitsStep && detectingMember ? (
               <p className="ticket-booking__status" role="status">
                 {t("checkout:yourDetails.checkingMembershipBenefits")}
               </p>
@@ -1393,7 +1416,7 @@ export default function TicketBookingPage() {
           </section>
         ) : null}
 
-        {step === BENEFITS_STEP ? (
+        {step === BENEFITS_STEP && showBenefitsStep ? (
           <section className="ticket-booking__card">
             <h2>{t("checkout:memberBenefits.title")}</h2>
             <MembershipBenefitBanner
@@ -1494,25 +1517,27 @@ export default function TicketBookingPage() {
               </div>
             ) : null}
 
-            <div className="ticket-booking__membership-code">
-              <input
-                placeholder={t("checkout:yourDetails.membershipCodePlaceholder")}
-                value={membershipCode}
-                onChange={(e) => {
-                  setMembershipCode(e.target.value.toUpperCase());
-                  setMembershipCodeMessage("");
-                  setMembershipCodeApplied(false);
-                }}
-              />
-              <button
-                type="button"
-                onClick={applyMembershipCode}
-                disabled={!membershipCode.trim() || detectingMember}
-              >
-                {t("checkout:yourDetails.applyMembershipCode")}
-              </button>
-            </div>
-            {membershipCodeMessage ? (
+            {showBenefitsStep ? (
+              <div className="ticket-booking__membership-code">
+                <input
+                  placeholder={t("checkout:yourDetails.membershipCodePlaceholder")}
+                  value={membershipCode}
+                  onChange={(e) => {
+                    setMembershipCode(e.target.value.toUpperCase());
+                    setMembershipCodeMessage("");
+                    setMembershipCodeApplied(false);
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={applyMembershipCode}
+                  disabled={!membershipCode.trim() || detectingMember}
+                >
+                  {t("checkout:yourDetails.applyMembershipCode")}
+                </button>
+              </div>
+            ) : null}
+            {showBenefitsStep && membershipCodeMessage ? (
               <p
                 className={`ticket-booking__membership-code-msg${
                   membershipCodeApplied ? " ticket-booking__membership-code-msg--success" : ""
@@ -1643,7 +1668,7 @@ export default function TicketBookingPage() {
                   </div>
                 ) : null}
 
-                {!user && preview?.combined ? (
+                {!isAmsterdamFlamesEvent && !user && preview?.combined ? (
                   <div className="ticket-booking__wallet-pay ticket-booking__wallet-pay--guest">
                     <div className="ticket-booking__wallet-pay-head">
                       <span className="ticket-booking__wallet-pay-title">💳 Pay with V.Wallet</span>
@@ -1662,7 +1687,7 @@ export default function TicketBookingPage() {
                   </div>
                 ) : null}
 
-                {user && !walletData && preview?.combined ? (
+                {!isAmsterdamFlamesEvent && user && !walletData && preview?.combined ? (
                   <div className="ticket-booking__wallet-pay">
                     <div className="ticket-booking__wallet-pay-head">
                       <span className="ticket-booking__wallet-pay-title">💳 Pay with V.Wallet</span>
@@ -1671,7 +1696,7 @@ export default function TicketBookingPage() {
                   </div>
                 ) : null}
 
-                {user && walletData?.enabled && preview?.combined ? (
+                {!isAmsterdamFlamesEvent && user && walletData?.enabled && preview?.combined ? (
                   <div className="ticket-booking__wallet-pay">
                     <div className="ticket-booking__wallet-pay-head">
                       <span className="ticket-booking__wallet-pay-title">💳 Pay with V.Wallet</span>

@@ -79,6 +79,7 @@ const EMPTY_FORM = {
   usageLimit: "",
   usageLimitPerUser: "",
   minimumOrderAmount: "",
+  minQuantity: "",
   startDate: "",
   expiryDate: "",
   allowStacking: true,
@@ -243,6 +244,7 @@ export default function AdminDiscountsPage() {
       usageLimit: d.usageLimit != null ? String(d.usageLimit) : "",
       usageLimitPerUser: d.usageLimitPerUser != null ? String(d.usageLimitPerUser) : "",
       minimumOrderAmount: d.minimumOrderAmount ? String(d.minimumOrderAmount / 100) : "",
+      minQuantity: d.minQuantity ? String(d.minQuantity) : "",
       startDate: d.startDate ? String(d.startDate).slice(0, 10) : "",
       expiryDate: d.expiryDate ? String(d.expiryDate).slice(0, 10) : "",
       allowStacking: d.allowStacking !== false,
@@ -270,6 +272,7 @@ export default function AdminDiscountsPage() {
         usageLimit: form.usageLimit ? Number(form.usageLimit) : null,
         usageLimitPerUser: form.usageLimitPerUser ? Number(form.usageLimitPerUser) : null,
         minimumOrderAmount: form.minimumOrderAmount ? Math.round(Number(form.minimumOrderAmount) * 100) : 0,
+        minQuantity: form.minQuantity ? Number(form.minQuantity) : 0,
         assignedUserId: form.assignedUserId || null,
         referrerUserId: form.referrerUserId || null,
         visibleToUsers: Boolean(form.visibleToUsers),
@@ -780,6 +783,7 @@ export default function AdminDiscountsPage() {
                 <label>Usage Limit<input type="number" min="1" value={form.usageLimit} onChange={(e) => setForm((f) => ({ ...f, usageLimit: e.target.value }))} /></label>
                 <label>Per User Limit<input type="number" min="1" value={form.usageLimitPerUser} onChange={(e) => setForm((f) => ({ ...f, usageLimitPerUser: e.target.value }))} /></label>
                 <label>Min Order (€)<input type="number" min="0" step="0.01" value={form.minimumOrderAmount} onChange={(e) => setForm((f) => ({ ...f, minimumOrderAmount: e.target.value }))} /></label>
+                <label>Min Tickets<input type="number" min="0" step="1" value={form.minQuantity} onChange={(e) => setForm((f) => ({ ...f, minQuantity: e.target.value }))} /></label>
                 <label>Start Date<input type="date" value={form.startDate} onChange={(e) => setForm((f) => ({ ...f, startDate: e.target.value }))} /></label>
                 <label>Expiry Date<input type="date" value={form.expiryDate} onChange={(e) => setForm((f) => ({ ...f, expiryDate: e.target.value }))} /></label>
                 <label className="admin-discounts__checkbox"><input type="checkbox" checked={form.allowStacking} onChange={(e) => setForm((f) => ({ ...f, allowStacking: e.target.checked }))} /> Allow stacking with member discount</label>

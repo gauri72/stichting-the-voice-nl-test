@@ -8,6 +8,67 @@ const WEBSITE_URL = "https://stichtingthevoice.nl";
 const PRIVACY_URL = `${WEBSITE_URL}/privacy-policy`;
 const TERMS_URL = `${WEBSITE_URL}/terms-and-conditions`;
 
+// Amsterdam Flames is a partner-branded event: its ticket emails render in the
+// club's own dark/flame-orange identity with no V.O.I.C.E. NL branding, though
+// support/legal links stay functional (V.O.I.C.E. NL still fulfills the order).
+const AMSTERDAM_FLAMES_EVENT_SLUG = "amsterdam-flames-night-of-the-stars";
+
+const DEFAULT_EMAIL_BRANDING = {
+  bg: "#030712",
+  panelBg: "#06101f",
+  cardBg: "#081628",
+  panelBorder: "rgba(62,198,212,0.22)",
+  accent: "#3ec6d4",
+  mutedText: "#8a9bb5",
+  bodyText: "#d7e0ef",
+  fromName: "Stichting The V.O.I.C.E. NL",
+  brandRowLabel: "Stichting The V.O.I.C.E. NL",
+  footerName: "V.O.I.C.E. NL",
+  footerTagline: "V.O.I.C.E. NL — The Vision Of International Cultural Exchange In The Netherlands",
+  footerCopyright: "© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.",
+  missionTitle: "Thank You For Supporting Our Mission.",
+  missionSubtitle: "Together, we inspire change and empower voices.",
+  fontFamily: "'Segoe UI',Helvetica,Arial,sans-serif",
+  headingFontFamily: "Georgia,'Times New Roman',serif",
+  emailTitle: "Your V.O.I.C.E. NL Ticket Confirmation",
+  textSignature: "Stichting The V.O.I.C.E. NL",
+};
+
+const AMSTERDAM_FLAMES_EMAIL_BRANDING = {
+  bg: "#050505",
+  panelBg: "#0f0f0f",
+  cardBg: "#0f0f0f",
+  panelBorder: "rgba(240,94,60,0.25)",
+  accent: "#f05e3c",
+  mutedText: "#a1a1a1",
+  bodyText: "#e5e5e5",
+  fromName: "Amsterdam Flames",
+  brandRowLabel: "Amsterdam Flames",
+  footerName: "AMSTERDAM FLAMES",
+  footerTagline: "Bring the heat. Everyone's welcome by the fire.",
+  footerCopyright: "© 2026 Amsterdam Flames. All rights reserved.",
+  missionTitle: "See You By The Fire.",
+  missionSubtitle: "One team. One night. A celebration of stars.",
+  fontFamily: "'Archivo',Arial,sans-serif",
+  headingFontFamily: "'Archivo Black',Arial,sans-serif",
+  emailTitle: "Your Amsterdam Flames Ticket Confirmation",
+  textSignature: "Amsterdam Flames",
+};
+
+function getEmailBranding(event) {
+  return event?.slug === AMSTERDAM_FLAMES_EVENT_SLUG
+    ? AMSTERDAM_FLAMES_EMAIL_BRANDING
+    : DEFAULT_EMAIL_BRANDING;
+}
+
+function hexToRgba(hex, alpha) {
+  const clean = String(hex || "").replace("#", "");
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 const EMAIL_STYLES = `
   body { margin:0;padding:0; }
   img { border:0;line-height:100%;outline:none;text-decoration:none; }
@@ -93,6 +154,7 @@ function buildOrderViewUrl(order, event) {
 }
 
 function buildTicketEmailText({ order, ticket, event, updateNotice = "", updateChanges = [] }) {
+  const branding = getEmailBranding(event);
   const eventTitle = event?.title || "Event";
   const viewUrl = buildOrderViewUrl(order, event);
   const seatLines = ticket.row || ticket.seatNumber
@@ -122,11 +184,12 @@ View online: ${viewUrl}
 Need help? ${env.org.contactEmail || "info@stichtingthevoice.nl"}
 ${WEBSITE_URL}
 
-Stichting The V.O.I.C.E. NL`;
+${branding.textSignature}`;
 }
 
-function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateChanges = [] }, branding = {}) {
-  const qrCid = branding.qrCid || null;
+function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateChanges = [] }, extra = {}) {
+  const branding = getEmailBranding(event);
+  const qrCid = extra.qrCid || null;
   const qrSrc = qrCid ? `cid:${qrCid}` : "";
   const qrCell = qrSrc
     ? `<img src="${qrSrc}" alt="Ticket QR code" width="168" height="168" style="display:block;margin:0 auto;width:168px;max-width:100%;height:auto;aspect-ratio:1/1;border:10px solid #ffffff;border-radius:18px;background:#ffffff;" />`
@@ -152,28 +215,33 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
     .map((a) => detailRow(escapeHtml(a.label), escapeHtml(Array.isArray(a.answer) ? a.answer.join(", ") : a.answer ?? "—")))
     .join("\n");
 
+  const a = branding.accent;
+  const border12 = hexToRgba(a, 0.12);
+  const border18 = hexToRgba(a, 0.18);
+  const border22 = hexToRgba(a, 0.22);
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Your V.O.I.C.E. NL Ticket Confirmation</title>
+  <title>${branding.emailTitle}</title>
   <style type="text/css">${EMAIL_STYLES}</style>
 </head>
-<body style="margin:0;padding:0;background:#030712;font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#ffffff;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="email-shell" style="background:#030712;padding:24px 12px 40px;">
+<body style="margin:0;padding:0;background:${branding.bg};font-family:${branding.fontFamily};color:#ffffff;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="email-shell" style="background:${branding.bg};padding:24px 12px 40px;">
     <tr>
       <td align="center">
         <table role="presentation" width="600" cellspacing="0" cellpadding="0" class="email-card" style="max-width:600px;width:100%;">
 
           <tr>
-            <td style="padding:0 4px 18px;border-bottom:1px solid rgba(62,198,212,0.12);">
+            <td style="padding:0 4px 18px;border-bottom:1px solid ${border12};">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="preheader-row">
                 <tr>
-                  <td style="font-size:12px;line-height:1.5;color:#8a9bb5;">Thank you for your purchase!</td>
+                  <td style="font-size:12px;line-height:1.5;color:${branding.mutedText};">Thank you for your purchase!</td>
                   <td align="right" class="preheader-link" style="font-size:12px;line-height:1.5;">
-                    <a href="${escapeHtml(viewInBrowserUrl)}" style="color:#3ec6d4;text-decoration:none;">View in browser</a>
+                    <a href="${escapeHtml(viewInBrowserUrl)}" style="color:${a};text-decoration:none;">View in browser</a>
                   </td>
                 </tr>
               </table>
@@ -184,31 +252,31 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
             <td style="padding:18px 4px 24px;">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="brand-row">
                 <tr>
-                  <td style="font-size:13px;line-height:1.4;color:#ffffff;font-weight:600;">Stichting The V.O.I.C.E. NL</td>
-                  <td align="right" class="brand-event" style="font-size:13px;line-height:1.4;color:#c7d3e6;">${eventTitle}</td>
+                  <td style="font-size:13px;line-height:1.4;color:#ffffff;font-weight:600;font-family:${branding.headingFontFamily};text-transform:uppercase;">${escapeHtml(branding.brandRowLabel)}</td>
+                  <td align="right" class="brand-event" style="font-size:13px;line-height:1.4;color:${branding.bodyText};">${eventTitle}</td>
                 </tr>
               </table>
             </td>
           </tr>
 
           <tr>
-            <td class="hero-pad" style="padding:28px 24px 30px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.18);">
-              <p style="margin:0 0 10px;font-size:11px;letter-spacing:2px;font-weight:800;color:#3ec6d4;text-transform:uppercase;">${updateNotice ? "Ticket Update" : "Ticket Confirmation"}</p>
-              <h1 class="hero-title" style="margin:0 0 12px;font-size:30px;line-height:1.2;color:#ffffff;font-family:Georgia,'Times New Roman',serif;font-weight:700;">${updateNotice ? "Your Ticket Has Been Updated" : "Your Ticket Is Confirmed!"}</h1>
-              <p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:#d7e0ef;">We are excited to welcome you at <strong style="color:#ffffff;">${eventTitle}</strong>.</p>
+            <td class="hero-pad" style="padding:28px 24px 30px;background:${branding.panelBg};border-radius:18px;border:1px solid ${border18};">
+              <p style="margin:0 0 10px;font-size:11px;letter-spacing:2px;font-weight:800;color:${a};text-transform:uppercase;">${updateNotice ? "Ticket Update" : "Ticket Confirmation"}</p>
+              <h1 class="hero-title" style="margin:0 0 12px;font-size:30px;line-height:1.2;color:#ffffff;font-family:${branding.headingFontFamily};font-weight:700;">${updateNotice ? "Your Ticket Has Been Updated" : "Your Ticket Is Confirmed!"}</h1>
+              <p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:${branding.bodyText};">We are excited to welcome you at <strong style="color:#ffffff;">${eventTitle}</strong>.</p>
               ${updateNotice ? `<p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:#ffffff;"><strong>Update:</strong> ${escapeHtml(updateNotice)}</p>` : ""}
-              ${updateChanges.length ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:16px;border-top:1px solid rgba(62,198,212,.2);">
-                ${updateChanges.map((change) => `<tr><td style="padding:10px 0;border-bottom:1px solid rgba(62,198,212,.12);font-size:13px;line-height:1.5;color:#d7e0ef;"><strong style="color:#3ec6d4;">${escapeHtml(change.label)}</strong><br/><span style="color:#8a9bb5;">${escapeHtml(change.from || "—")}</span> &rarr; <span style="color:#ffffff;">${escapeHtml(change.to || "—")}</span></td></tr>`).join("")}
+              ${updateChanges.length ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:16px;border-top:1px solid ${hexToRgba(a, 0.2)};">
+                ${updateChanges.map((change) => `<tr><td style="padding:10px 0;border-bottom:1px solid ${border12};font-size:13px;line-height:1.5;color:${branding.bodyText};"><strong style="color:${a};">${escapeHtml(change.label)}</strong><br/><span style="color:${branding.mutedText};">${escapeHtml(change.from || "—")}</span> &rarr; <span style="color:#ffffff;">${escapeHtml(change.to || "—")}</span></td></tr>`).join("")}
               </table>` : ""}
-              <p style="margin:0;font-size:14px;line-height:1.6;color:#f06db3;font-weight:600;">${tagline}</p>
+              <p style="margin:0;font-size:14px;line-height:1.6;color:${a};font-weight:600;">${tagline}</p>
             </td>
           </tr>
 
           <tr><td style="height:20px;font-size:0;line-height:0;">&nbsp;</td></tr>
 
           <tr>
-            <td class="card-pad" style="padding:24px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.22);">
-              <p style="margin:0 0 4px;font-size:16px;font-weight:700;color:#3ec6d4;">Ticket Details</p>
+            <td class="card-pad" style="padding:24px;background:${branding.panelBg};border-radius:18px;border:1px solid ${border22};">
+              <p style="margin:0 0 4px;font-size:16px;font-weight:700;color:${a};">Ticket Details</p>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:8px;">
                 ${detailRow("Event", eventTitle)}
                 ${detailRow("Date", escapeHtml(formatEventDate(event?.date)))}
@@ -225,10 +293,10 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:22px;">
                 <tr>
                   <td align="center" style="padding:8px 0 0;">
-                    <p style="margin:0 0 14px;font-size:11px;letter-spacing:1.4px;font-weight:800;color:#3ec6d4;text-transform:uppercase;">Your QR Code</p>
+                    <p style="margin:0 0 14px;font-size:11px;letter-spacing:1.4px;font-weight:800;color:${a};text-transform:uppercase;">Your QR Code</p>
                     ${qrCell}
-                    <p style="margin:14px auto 0;max-width:280px;font-size:12px;line-height:1.6;color:#8a9bb5;text-align:center;">Show this QR code at the venue entrance for check-in.</p>
-                    <p style="margin:16px auto 0;max-width:320px;font-size:12px;line-height:1.6;color:#c7d3e6;text-align:center;">Your printable ticket PDF is attached to this email.</p>
+                    <p style="margin:14px auto 0;max-width:280px;font-size:12px;line-height:1.6;color:${branding.mutedText};text-align:center;">Show this QR code at the venue entrance for check-in.</p>
+                    <p style="margin:16px auto 0;max-width:320px;font-size:12px;line-height:1.6;color:${branding.bodyText};text-align:center;">Your printable ticket PDF is attached to this email.</p>
                   </td>
                 </tr>
               </table>
@@ -238,20 +306,20 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
           <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>
 
           <tr>
-            <td class="card-pad" style="padding:22px 24px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.22);">
-              <p style="margin:0 0 14px;font-size:16px;font-weight:700;color:#3ec6d4;">Important Information</p>
+            <td class="card-pad" style="padding:22px 24px;background:${branding.panelBg};border-radius:18px;border:1px solid ${border22};">
+              <p style="margin:0 0 14px;font-size:16px;font-weight:700;color:${a};">Important Information</p>
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
-                <tr><td style="padding:6px 0;font-size:14px;line-height:1.7;color:#d7e0ef;">
-                  <span style="color:#3ec6d4;font-weight:700;margin-right:8px;">•</span>Please arrive at least 30 minutes before the event starts.
+                <tr><td style="padding:6px 0;font-size:14px;line-height:1.7;color:${branding.bodyText};">
+                  <span style="color:${a};font-weight:700;margin-right:8px;">•</span>Please arrive at least 30 minutes before the event starts.
                 </td></tr>
-                <tr><td style="padding:6px 0;font-size:14px;line-height:1.7;color:#d7e0ef;">
-                  <span style="color:#3ec6d4;font-weight:700;margin-right:8px;">•</span>Tickets are non-refundable and non-transferable unless stated otherwise.
+                <tr><td style="padding:6px 0;font-size:14px;line-height:1.7;color:${branding.bodyText};">
+                  <span style="color:${a};font-weight:700;margin-right:8px;">•</span>Tickets are non-refundable and non-transferable unless stated otherwise.
                 </td></tr>
-                <tr><td style="padding:6px 0;font-size:14px;line-height:1.7;color:#d7e0ef;">
-                  <span style="color:#3ec6d4;font-weight:700;margin-right:8px;">•</span>Keep your QR code secure and do not share it with others.
+                <tr><td style="padding:6px 0;font-size:14px;line-height:1.7;color:${branding.bodyText};">
+                  <span style="color:${a};font-weight:700;margin-right:8px;">•</span>Keep your QR code secure and do not share it with others.
                 </td></tr>
-                <tr><td style="padding:6px 0;font-size:14px;line-height:1.7;color:#d7e0ef;">
-                  <span style="color:#3ec6d4;font-weight:700;margin-right:8px;">•</span>For updates, visit our website or follow us on social media.
+                <tr><td style="padding:6px 0;font-size:14px;line-height:1.7;color:${branding.bodyText};">
+                  <span style="color:${a};font-weight:700;margin-right:8px;">•</span>For updates, visit our website or follow us on social media.
                 </td></tr>
               </table>
             </td>
@@ -260,21 +328,21 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
           <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>
 
           <tr>
-            <td class="card-pad" style="padding:20px 24px;background:#06101f;border-radius:18px;border:1px solid rgba(62,198,212,0.22);">
+            <td class="card-pad" style="padding:20px 24px;background:${branding.panelBg};border-radius:18px;border:1px solid ${border22};">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                 <tr>
                   <td valign="top" class="help-col" style="width:50%;padding-right:12px;">
-                    <p style="margin:0 0 6px;font-size:16px;font-weight:700;color:#3ec6d4;">Need Help?</p>
-                    <p style="margin:0;font-size:14px;line-height:1.6;color:#d7e0ef;">Our support team is here for you.</p>
+                    <p style="margin:0 0 6px;font-size:16px;font-weight:700;color:${a};">Need Help?</p>
+                    <p style="margin:0;font-size:14px;line-height:1.6;color:${branding.bodyText};">Our support team is here for you.</p>
                   </td>
                   <td valign="top" align="right" class="help-col help-col-right" style="width:50%;padding-left:12px;">
                     <p style="margin:0 0 8px;font-size:14px;line-height:1.5;color:#ffffff;">
-                      <span style="color:#3ec6d4;margin-right:8px;">✉</span>
+                      <span style="color:${a};margin-right:8px;">✉</span>
                       <a href="mailto:${supportEmail}" style="color:#ffffff;text-decoration:none;">${supportEmail}</a>
                     </p>
                     <p style="margin:0;font-size:14px;line-height:1.5;">
-                      <span style="color:#3ec6d4;margin-right:8px;">🌐</span>
-                      <a href="${WEBSITE_URL}" style="color:#3ec6d4;text-decoration:none;">${websiteLabel}</a>
+                      <span style="color:${a};margin-right:8px;">🌐</span>
+                      <a href="${WEBSITE_URL}" style="color:${a};text-decoration:none;">${websiteLabel}</a>
                     </p>
                   </td>
                 </tr>
@@ -286,16 +354,16 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
 
           <tr>
             <td align="center" style="padding:0 12px 8px;">
-              <p style="margin:0 0 10px;font-size:18px;color:#3ec6d4;line-height:1;">♥</p>
-              <p style="margin:0 0 8px;font-size:18px;line-height:1.4;color:#ffffff;font-weight:700;">Thank You For Supporting Our Mission.</p>
-              <p style="margin:0 0 18px;font-size:14px;line-height:1.6;color:#8a9bb5;">Together, we inspire change and empower voices.</p>
-              <p style="margin:0 0 8px;font-size:15px;color:#ffffff;font-weight:700;">V.O.I.C.E. NL</p>
-              <p style="margin:0 0 6px;font-size:12px;line-height:1.6;color:#6b7d94;">V.O.I.C.E. NL — The Vision Of International Cultural Exchange In The Netherlands</p>
-              <p style="margin:0 0 14px;font-size:12px;line-height:1.6;color:#6b7d94;">© 2026 Stichting The V.O.I.C.E. NL. All rights reserved.</p>
+              <p style="margin:0 0 10px;font-size:18px;color:${a};line-height:1;">♥</p>
+              <p style="margin:0 0 8px;font-size:18px;line-height:1.4;color:#ffffff;font-weight:700;">${escapeHtml(branding.missionTitle)}</p>
+              <p style="margin:0 0 18px;font-size:14px;line-height:1.6;color:${branding.mutedText};">${escapeHtml(branding.missionSubtitle)}</p>
+              <p style="margin:0 0 8px;font-size:15px;color:#ffffff;font-weight:700;font-family:${branding.headingFontFamily};text-transform:uppercase;">${escapeHtml(branding.footerName)}</p>
+              <p style="margin:0 0 6px;font-size:12px;line-height:1.6;color:${branding.mutedText};">${escapeHtml(branding.footerTagline)}</p>
+              <p style="margin:0 0 14px;font-size:12px;line-height:1.6;color:${branding.mutedText};">${escapeHtml(branding.footerCopyright)}</p>
               <p style="margin:0;font-size:12px;line-height:1.6;">
-                <a href="${PRIVACY_URL}" style="color:#3ec6d4;text-decoration:none;">Privacy Policy</a>
-                <span style="color:#6b7d94;">&nbsp;|&nbsp;</span>
-                <a href="${TERMS_URL}" style="color:#3ec6d4;text-decoration:none;">Terms &amp; Conditions</a>
+                <a href="${PRIVACY_URL}" style="color:${a};text-decoration:none;">Privacy Policy</a>
+                <span style="color:${branding.mutedText};">&nbsp;|&nbsp;</span>
+                <a href="${TERMS_URL}" style="color:${a};text-decoration:none;">Terms &amp; Conditions</a>
               </p>
             </td>
           </tr>
@@ -380,6 +448,7 @@ export async function sendTicketConfirmationEmail({
 }
 
 function buildBookingEmailText({ order, tickets, event }) {
+  const branding = getEmailBranding(event);
   const venue = [event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—";
   const summaries = tickets.map((ticket, index) => {
     const seat = ticket.seatLabel
@@ -409,10 +478,12 @@ Each ticket has its own unique QR code. The attached PDF contains one independen
 Need help? ${env.org.contactEmail || "info@stichtingthevoice.nl"}
 ${WEBSITE_URL}
 
-Stichting The V.O.I.C.E. NL`;
+${branding.textSignature}`;
 }
 
 function buildBookingEmailHtml({ order, tickets, event }, qrCids) {
+  const branding = getEmailBranding(event);
+  const a = branding.accent;
   const eventTitle = escapeHtml(event?.title || "V.O.I.C.E. NL Event");
   const venue = escapeHtml([event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—");
   const ticketCards = tickets.map((ticket, index) => {
@@ -424,14 +495,14 @@ function buildBookingEmailHtml({ order, tickets, event }, qrCids) {
       ? `<img src="cid:${qrCids[index]}" alt="Unique QR code for ${escapeHtml(ticket.ticketNumber)}" width="148" height="148" style="display:block;width:148px;height:148px;margin:0 auto;border:9px solid #fff;border-radius:16px;background:#fff;" />`
       : "";
     return `<tr><td style="padding:0 0 16px;">
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#081628;border:1px solid rgba(62,198,212,.24);border-radius:18px;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:${branding.cardBg};border:1px solid ${hexToRgba(a, 0.24)};border-radius:18px;">
         <tr>
           <td valign="top" style="padding:20px;">
-            <p style="margin:0 0 5px;color:#3ec6d4;font-size:11px;letter-spacing:1.3px;font-weight:800;text-transform:uppercase;">Ticket ${index + 1} of ${tickets.length}</p>
+            <p style="margin:0 0 5px;color:${a};font-size:11px;letter-spacing:1.3px;font-weight:800;text-transform:uppercase;">Ticket ${index + 1} of ${tickets.length}</p>
             <p style="margin:0 0 14px;color:#fff;font-size:18px;font-weight:800;">${escapeHtml(ticket.ticketNumber)}</p>
-            <p style="margin:0 0 7px;color:#c7d3e6;font-size:13px;"><strong style="color:#fff;">Holder:</strong> ${escapeHtml(ticket.attendeeName || "—")}</p>
-            <p style="margin:0 0 7px;color:#c7d3e6;font-size:13px;"><strong style="color:#fff;">Type:</strong> ${escapeHtml(ticket.ticketTypeName || "—")}</p>
-            <p style="margin:0;color:#c7d3e6;font-size:13px;"><strong style="color:#fff;">Admission:</strong> ${escapeHtml(seat)}</p>
+            <p style="margin:0 0 7px;color:${branding.bodyText};font-size:13px;"><strong style="color:#fff;">Holder:</strong> ${escapeHtml(ticket.attendeeName || "—")}</p>
+            <p style="margin:0 0 7px;color:${branding.bodyText};font-size:13px;"><strong style="color:#fff;">Type:</strong> ${escapeHtml(ticket.ticketTypeName || "—")}</p>
+            <p style="margin:0;color:${branding.bodyText};font-size:13px;"><strong style="color:#fff;">Admission:</strong> ${escapeHtml(seat)}</p>
           </td>
           <td valign="middle" align="center" style="width:185px;padding:18px 18px 18px 0;">${qr}</td>
         </tr>
@@ -439,30 +510,34 @@ function buildBookingEmailHtml({ order, tickets, event }, qrCids) {
     </td></tr>`;
   }).join("");
 
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><style>
-    body{margin:0;background:#030712;font-family:'Segoe UI',Arial,sans-serif;color:#fff}.shell{padding:28px 12px 40px}
+  const heroGradient = branding === AMSTERDAM_FLAMES_EMAIL_BRANDING
+    ? `linear-gradient(135deg,${branding.panelBg},#1a0800)`
+    : "linear-gradient(135deg,#07192d,#101238)";
+
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${branding.emailTitle}</title><style>
+    body{margin:0;background:${branding.bg};font-family:${branding.fontFamily};color:#fff}.shell{padding:28px 12px 40px}
     @media(max-width:600px){.shell{padding:14px 8px 28px}.ticket-cell{display:block!important;width:auto!important}}
   </style></head>
   <body><table role="presentation" width="100%" class="shell" cellspacing="0" cellpadding="0"><tr><td align="center">
     <table role="presentation" width="600" style="width:100%;max-width:600px" cellspacing="0" cellpadding="0">
-      <tr><td style="padding:26px;background:linear-gradient(135deg,#07192d,#101238);border:1px solid rgba(62,198,212,.25);border-radius:20px;">
-        <p style="margin:0 0 10px;color:#3ec6d4;font-size:11px;letter-spacing:2px;font-weight:800;text-transform:uppercase;">Booking confirmed</p>
-        <h1 style="margin:0 0 12px;color:#fff;font-size:30px;line-height:1.2;">Your ${tickets.length} ${tickets.length === 1 ? "ticket is" : "tickets are"} ready</h1>
-        <p style="margin:0;color:#c7d3e6;font-size:15px;line-height:1.6;">${eventTitle}</p>
+      <tr><td style="padding:26px;background:${heroGradient};border:1px solid ${hexToRgba(a, 0.25)};border-radius:20px;">
+        <p style="margin:0 0 10px;color:${a};font-size:11px;letter-spacing:2px;font-weight:800;text-transform:uppercase;">Booking confirmed</p>
+        <h1 style="margin:0 0 12px;color:#fff;font-size:30px;line-height:1.2;font-family:${branding.headingFontFamily};">Your ${tickets.length} ${tickets.length === 1 ? "ticket is" : "tickets are"} ready</h1>
+        <p style="margin:0;color:${branding.bodyText};font-size:15px;line-height:1.6;">${eventTitle}</p>
       </td></tr>
       <tr><td style="height:18px">&nbsp;</td></tr>
-      <tr><td style="padding:22px;background:#06101f;border:1px solid rgba(62,198,212,.2);border-radius:18px;">
+      <tr><td style="padding:22px;background:${branding.panelBg};border:1px solid ${hexToRgba(a, 0.2)};border-radius:18px;">
         <p style="margin:0 0 8px;color:#fff;font-size:15px;"><strong>Order:</strong> ${escapeHtml(order.orderNumber)}</p>
-        <p style="margin:0 0 8px;color:#c7d3e6;font-size:14px;">${escapeHtml(formatEventDate(event?.date))} · ${escapeHtml(formatEventTime(event?.startTime, event?.endTime))}</p>
-        <p style="margin:0;color:#c7d3e6;font-size:14px;">${venue}</p>
+        <p style="margin:0 0 8px;color:${branding.bodyText};font-size:14px;">${escapeHtml(formatEventDate(event?.date))} · ${escapeHtml(formatEventTime(event?.startTime, event?.endTime))}</p>
+        <p style="margin:0;color:${branding.bodyText};font-size:14px;">${venue}</p>
       </td></tr>
       <tr><td style="height:18px">&nbsp;</td></tr>
       ${ticketCards}
-      <tr><td style="padding:20px 22px;background:#06101f;border:1px solid rgba(62,198,212,.2);border-radius:18px;">
-        <p style="margin:0 0 8px;color:#3ec6d4;font-size:15px;font-weight:800;">One booking. One attachment. Every ticket included.</p>
-        <p style="margin:0;color:#c7d3e6;font-size:13px;line-height:1.7;">Each QR code is unique. Your attached PDF contains one ticket per page, ready to print, save, or share with the correct guest.</p>
+      <tr><td style="padding:20px 22px;background:${branding.panelBg};border:1px solid ${hexToRgba(a, 0.2)};border-radius:18px;">
+        <p style="margin:0 0 8px;color:${a};font-size:15px;font-weight:800;">One booking. One attachment. Every ticket included.</p>
+        <p style="margin:0;color:${branding.bodyText};font-size:13px;line-height:1.7;">Each QR code is unique. Your attached PDF contains one ticket per page, ready to print, save, or share with the correct guest.</p>
       </td></tr>
-      <tr><td align="center" style="padding:28px 12px;color:#71829a;font-size:12px;line-height:1.7;">Stichting The V.O.I.C.E. NL<br>${escapeHtml(env.org.contactEmail || "info@stichtingthevoice.nl")}</td></tr>
+      <tr><td align="center" style="padding:28px 12px;color:${branding.mutedText};font-size:12px;line-height:1.7;">${escapeHtml(branding.textSignature)}<br>${escapeHtml(env.org.contactEmail || "info@stichtingthevoice.nl")}</td></tr>
     </table>
   </td></tr></table></body></html>`;
 }

@@ -321,6 +321,7 @@ export async function calculatePricePreview({
     return {
       ticketTypeId: line.ticketTypeId,
       lineSubtotalMinor: line.originalPriceMinor,
+      quantity: line.quantity,
       discountCode: lineCode,
       voucherCode: lineCode,
       memberRuleOverride: lineMemberContext.benefitApplied ? lineMemberContext.memberRuleOverride : null,

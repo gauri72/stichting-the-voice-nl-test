@@ -5,6 +5,11 @@ import { IconCheck, IconDownload } from "@tabler/icons-react";
 import { apiFetch, authHeaders, apiUrl } from "../../utils/api.js";
 import { resolveTicketQrSrc } from "../dashboard/dashboardUtils.js";
 import "../../styles/ticket-booking-page.css";
+import "../../styles/amsterdam-flames-ticket-theme.css";
+
+// Matches the AMSTERDAM_FLAMES_EVENT_SLUG event in TicketBookingPage.jsx — the
+// order payload here only carries the event's Mongo id, not its slug.
+const AMSTERDAM_FLAMES_EVENT_ID = "6a8c115ac570bf283c06c892";
 
 export default function TicketConfirmationPage() {
   const { t: tr } = useTranslation(["checkout"]);
@@ -45,9 +50,10 @@ export default function TicketConfirmationPage() {
   }
 
   const { order, tickets } = data;
+  const afClass = order.eventId === AMSTERDAM_FLAMES_EVENT_ID ? " ticket-booking--af" : "";
 
   return (
-    <div className="ticket-booking ticket-booking--confirmation">
+    <div className={`ticket-booking ticket-booking--confirmation${afClass}`}>
       <div className="ticket-booking__container">
         <div className="ticket-booking__success-icon"><IconCheck size={48} /></div>
         <h1>{tr("checkout:confirmation.title")}</h1>

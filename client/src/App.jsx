@@ -24,6 +24,7 @@ const AiPromptLibraryPage = lazy(() => import("./components/dashboard/ai-assista
 const AiScheduledPromptsPage = lazy(() => import("./components/dashboard/ai-assistant/AiScheduledPromptsPage.jsx"));
 const WalletPage = lazy(() => import("./components/dashboard/wallet/WalletPage.jsx"));
 const EventExperiencePage = lazy(() => import("./components/event-experience/EventExperiencePage.jsx"));
+const AmsterdamFlamesNightOfStarsPage = lazy(() => import("./components/events/AmsterdamFlamesNightOfStarsPage.jsx"));
 const VCommercePage = lazy(() => import("./components/vcommerce/VCommercePage.jsx"));
 const VCommerceProfilePage = lazy(() => import("./components/vcommerce/VCommerceProfilePage.jsx"));
 const VCommerceApplicationPage = lazy(() => import("./components/vcommerce/VCommerceApplicationPage.jsx"));
@@ -196,7 +197,10 @@ function AuthAliasRedirect() {
 export default function App() {
   const location = useLocation();
   const isStandalonePage =
-    location.pathname.startsWith("/admin") || location.pathname === "/check-in";
+    location.pathname.startsWith("/admin") ||
+    location.pathname === "/check-in" ||
+    location.pathname === "/events/amsterdam-flames-night-of-the-stars" ||
+    location.pathname.startsWith("/events/amsterdam-flames-night-of-the-stars/tickets");
   const isVCommerceSubpage =
     location.pathname.startsWith("/vcommerce/");
   const hideSiteChrome = isStandalonePage;
@@ -231,6 +235,14 @@ export default function App() {
           <Route path="/about-us" element={<AboutUsPage />} />
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/events" element={<EventsPage />} />
+          <Route
+            path="/events/amsterdam-flames-night-of-the-stars"
+            element={
+              <Suspense fallback={<div className="member-dashboard__status">Loading…</div>}>
+                <AmsterdamFlamesNightOfStarsPage />
+              </Suspense>
+            }
+          />
           <Route
             path="/event-experience"
             element={

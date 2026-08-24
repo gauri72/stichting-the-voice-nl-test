@@ -250,7 +250,7 @@ export async function countUserDiscountUsage(discountId, userId, userEmail) {
   return DiscountUsage.countDocuments(query);
 }
 
-async function validateRuleEligibility(rule, { userId, email, eventId, ticketTypeId, orderType, subtotalMinor }) {
+async function validateRuleEligibility(rule, { userId, email, eventId, ticketTypeId, orderType, subtotalMinor, quantity = null }) {
   // Checked first so an unpublished event always produces this specific message, ahead of
   // any other validation failure that might otherwise fire for the same rule.
   if (eventId && !(await isEventPublished(eventId))) {
@@ -264,6 +264,10 @@ async function validateRuleEligibility(rule, { userId, email, eventId, ticketTyp
 
   if (rule.minimumOrderAmount > 0 && subtotalMinor < rule.minimumOrderAmount) {
     throwError(`Minimum order amount is €${(rule.minimumOrderAmount / 100).toFixed(2)}.`);
+  }
+
+  if (rule.minQuantity > 0 && (quantity == null || quantity < rule.minQuantity)) {
+    throwError(`This code requires a minimum of ${rule.minQuantity} tickets.`);
   }
 
   if (rule.type === "personalized_code" && !rule.isPublic) {
@@ -363,12 +367,12 @@ export async function findDiscountByCode(code) {
 }
 
 export async function validateDiscountCode(
-  code, userId, email, eventId, orderType = "tickets", subtotalMinor = 0, ticketTypeId = null
+  code, userId, email, eventId, orderType = "tickets", subtotalMinor = 0, ticketTypeId = null, quantity = null
 ) {
   const rule = await findDiscountByCode(code);
   if (!rule) throwError("Invalid discount code.");
 
-  await validateRuleEligibility(rule, { userId, email, eventId, ticketTypeId, orderType, subtotalMinor });
+  await validateRuleEligibility(rule, { userId, email, eventId, ticketTypeId, orderType, subtotalMinor, quantity });
 
   if (rule.isLegacyVoucher) {
     return { ...rule, label: "Voucher Discount" };
@@ -609,6 +613,7 @@ export async function applyDiscountsToOrder({
   memberRuleOverride = null,
   memberDiscountAmountOverride = null,
   allowStacking = true,
+  quantity = null,
   // Set by callers (pricePreviewService.js) that have already made a complete, authoritative
   // decision about this line's member discount themselves — including "no discount applies,"
   // e.g. because the per-event redemption cap left zero eligible units. Without this, a null
@@ -640,7 +645,7 @@ export async function applyDiscountsToOrder({
 
   let codeRule = null;
   if (code?.trim()) {
-    codeRule = await validateDiscountCode(code, userId, email, eventId, orderType, subtotalMinor, ticketTypeId);
+    codeRule = await validateDiscountCode(code, userId, email, eventId, orderType, subtotalMinor, ticketTypeId, quantity);
   }
 
   if (!allowStacking && memberRule && codeRule) {
@@ -716,6 +721,7 @@ export async function applyDiscountsToOrderLines({
         memberRuleOverride: lineMemberRuleOverride,
         memberDiscountAmountOverride: lineMemberDiscountAmountOverride,
         allowStacking,
+        quantity: line.quantity ?? null,
         skipAutomaticMemberLookup,
       });
     } catch (err) {
