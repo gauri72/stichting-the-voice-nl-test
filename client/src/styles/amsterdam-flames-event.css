@@ -304,6 +304,24 @@
   transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
+/* At narrow widths the visible scroll window is barely wider than one card,
+   so the gap between cards ate up the entire "peek" budget and left nothing
+   of the next card actually visible. Shrink both so a real peek shows.
+   Placed after the base .af-awaits__item/__track rules (equal specificity,
+   so source order decides) rather than in the earlier topbar media query
+   block, which a previous attempt at this fix got silently overridden by. */
+@media (max-width: 30rem) {
+  .af-awaits__track {
+    gap: 0.85rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .af-awaits__item {
+    width: min(66vw, 17rem);
+  }
+}
+
 .af-awaits__item::after {
   content: "";
   position: absolute;
