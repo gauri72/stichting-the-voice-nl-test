@@ -52,6 +52,27 @@ function getFooterCopyright(eventSlug) {
 
 const PAGE_MARGIN = 40;
 
+// Matches the crest + "Amsterdam Flames" wordmark used in the header on both
+// the event pages and the confirmation emails — same crest image, plus the
+// white/orange wordmark text next to it (Helvetica-Bold stands in for the
+// site's Archivo Black, since embedding that font file is unavailable here).
+function drawHeaderLogo(doc, values, colors, logo) {
+  if (!fs.existsSync(logo.path)) {
+    doc.font("Helvetica-Bold").fontSize(18).fillColor(colors.white).text(logo.fallbackText, PAGE_MARGIN, 40);
+    return;
+  }
+  doc.image(logo.path, PAGE_MARGIN, 24, { height: 52 });
+  if (values.event_slug === AMSTERDAM_FLAMES_EVENT_SLUG) {
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(20)
+      .fillColor(colors.white)
+      .text("AMSTERDAM ", PAGE_MARGIN + 50, 40, { continued: true })
+      .fillColor(colors.teal)
+      .text("FLAMES");
+  }
+}
+
 /**
  * @param {Record<string, string>} values
  * @returns {Promise<Buffer>}
@@ -74,15 +95,7 @@ export async function renderTicketPdf(values) {
   const bandHeight = 100;
   doc.rect(0, 0, 595.28, bandHeight).fill(colors.headerBand);
 
-  if (fs.existsSync(logo.path)) {
-    doc.image(logo.path, PAGE_MARGIN, 24, { height: 52 });
-  } else {
-    doc
-      .font("Helvetica-Bold")
-      .fontSize(18)
-      .fillColor(colors.white)
-      .text(logo.fallbackText, PAGE_MARGIN, 40);
-  }
+  drawHeaderLogo(doc, values, colors, logo);
 
   doc
     .font("Helvetica-Bold")
@@ -122,12 +135,13 @@ export async function renderTicketPdf(values) {
   let rowY = y;
   for (const [label, value] of rows) {
     doc.font("Helvetica").fontSize(9).fillColor(colors.muted).text(label.toUpperCase(), PAGE_MARGIN, rowY);
-    doc
-      .font("Helvetica-Bold")
-      .fontSize(12)
-      .fillColor(colors.navy)
-      .text(value, PAGE_MARGIN, rowY + 12, { width: colW });
-    rowY += 38;
+    doc.font("Helvetica-Bold").fontSize(12);
+    // Rows advance by the value's actual rendered height (not a fixed step) so a
+    // value that wraps to two lines — e.g. a long venue address — doesn't run
+    // into the next row's label instead of just the usual one-line gap.
+    const valueHeight = doc.heightOfString(value, { width: colW });
+    doc.fillColor(colors.navy).text(value, PAGE_MARGIN, rowY + 12, { width: colW });
+    rowY += 12 + valueHeight + 12;
   }
 
   if (qrBuffer) {
@@ -237,11 +251,7 @@ async function drawBookingTicketPage(doc, values, pageNumber, totalPages) {
   }
 
   doc.rect(0, 0, 595.28, 100).fill(colors.headerBand);
-  if (fs.existsSync(logo.path)) {
-    doc.image(logo.path, PAGE_MARGIN, 24, { height: 52 });
-  } else {
-    doc.font("Helvetica-Bold").fontSize(18).fillColor(colors.white).text(logo.fallbackText, PAGE_MARGIN, 40);
-  }
+  drawHeaderLogo(doc, values, colors, logo);
   doc
     .font("Helvetica-Bold")
     .fontSize(20)
@@ -269,8 +279,13 @@ async function drawBookingTicketPage(doc, values, pageNumber, totalPages) {
   let rowY = 178;
   for (const [label, value] of rows) {
     doc.font("Helvetica").fontSize(8).fillColor(colors.muted).text(label.toUpperCase(), PAGE_MARGIN, rowY);
-    doc.font("Helvetica-Bold").fontSize(11).fillColor(colors.navy).text(value, PAGE_MARGIN, rowY + 11, { width: 285 });
-    rowY += 36;
+    doc.font("Helvetica-Bold").fontSize(11);
+    // Advance by the value's actual rendered height, not a fixed step — a
+    // two-line value (e.g. a long venue address) would otherwise run into
+    // the next row's label.
+    const valueHeight = doc.heightOfString(value, { width: 285 });
+    doc.fillColor(colors.navy).text(value, PAGE_MARGIN, rowY + 11, { width: 285 });
+    rowY += 11 + valueHeight + 11;
   }
 
   if (qrBuffer) {
