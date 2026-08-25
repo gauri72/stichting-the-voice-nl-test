@@ -1,6 +1,20 @@
-import { IconCalendarEvent, IconClock, IconMapPin2, IconStarFilled, IconToolsKitchen2, IconMicrophone2, IconUsersGroup } from "@tabler/icons-react";
+import {
+  IconCalendarEvent,
+  IconClock,
+  IconMapPin2,
+  IconStarFilled,
+  IconToolsKitchen2,
+  IconMicrophone2,
+  IconUsersGroup,
+  IconWorld,
+  IconGift,
+  IconGavel,
+  IconMusic,
+  IconHeadphones,
+  IconGlass,
+} from "@tabler/icons-react";
 import "../../styles/amsterdam-flames-event.css";
-import AmsterdamFlamesEmbers from "./AmsterdamFlamesEmbers.jsx";
+import AmsterdamFlamesAwaitsCarousel from "./AmsterdamFlamesAwaitsCarousel.jsx";
 
 const CREST_URL = "/amsterdam-flames/af-crest-orange.png";
 const TICKETS_URL = "/events/amsterdam-flames-night-of-the-stars/tickets";
@@ -8,26 +22,66 @@ const VENUE_MAPS_QUERY = encodeURIComponent(
   "The Hague Marriott Hotel, Johan de Wittlaan 30, 2517 JR Den Haag"
 );
 
-const INCLUDES = [
+const AWAITS = [
   {
-    icon: IconStarFilled,
-    title: "Meet The Stars",
-    body: "Spend the evening with top players and special guests.",
+    icon: IconUsersGroup,
+    title: "Who We Are",
+    tagline: "More Than a Team",
+    body: "Discover the story, people and passion behind Amsterdam Flames — and the vision driving us forward.",
   },
   {
-    icon: IconToolsKitchen2,
-    title: "Premium Dining",
-    body: "Enjoy a refined dinner experience and drinks.",
+    icon: IconWorld,
+    title: "Social Impact",
+    tagline: "Playing for Something Bigger",
+    body: "See how sport can create opportunities, inspire young people and make a meaningful difference beyond the field.",
+  },
+  {
+    icon: IconGift,
+    title: "Fundraising",
+    tagline: "Back the Mission",
+    body: "Be part of something bigger. Your support helps turn ambition into action and impact into reality.",
+  },
+  {
+    icon: IconGavel,
+    title: "Live Auction",
+    tagline: "Bid. Win. Make an Impact.",
+    body: "Get ready for an exciting auction featuring special experiences and exclusive items — all while supporting a great cause.",
   },
   {
     icon: IconMicrophone2,
-    title: "Exclusive Program",
-    body: "Interviews, stories, entertainment and more.",
+    title: "Highlight Session",
+    tagline: "Stories Behind the Stars",
+    body: "A special on-stage moment featuring inspiring stories, memorable experiences and conversations that bring you closer to the people behind the game.",
   },
   {
-    icon: IconUsersGroup,
-    title: "Great Company",
-    body: "Connect with fellow supporters and the Flames family.",
+    icon: IconMusic,
+    title: "Cultural Performances",
+    tagline: "Where Cultures Take the Stage",
+    body: "Experience an energetic celebration of culture through music, dance and spectacular live performances.",
+  },
+  {
+    icon: IconHeadphones,
+    title: "DJ",
+    tagline: "Turn Up the Night",
+    body: "When the formalities end, the energy goes up. Great music, great vibes and a dance floor waiting for you.",
+  },
+  {
+    icon: IconStarFilled,
+    title: "Meet the Legends",
+    tagline: "Up Close with the Stars",
+    body: "Meet celebrated players and sporting personalities, hear their stories and capture a few unforgettable moments.",
+  },
+  {
+    icon: IconGlass,
+    title: "Drinks",
+    tagline: "Raise a Glass",
+    body: "Relax, connect and enjoy drinks together in an atmosphere made for conversations and new connections.",
+  },
+  {
+    icon: IconToolsKitchen2,
+    title: "Dinner",
+    tagline: "Dine. Connect. Celebrate.",
+    body: "Enjoy a delicious dinner while sharing the evening with players, guests, partners and friends.",
   },
 ];
 
@@ -35,9 +89,19 @@ export default function AmsterdamFlamesNightOfStarsPage() {
   return (
     <div className="af-event">
       <header className="af-event__topbar">
-        <img src={CREST_URL} alt="Amsterdam Flames" className="af-event__crest" />
-        <span className="af-event__brand">AMSTERDAM FLAMES</span>
-        <span className="af-event__topbar-tag">NIGHT OF THE STARS</span>
+        <div className="af-event__logo">
+          <img src={CREST_URL} alt="Amsterdam Flames crest" className="af-event__crest" />
+          <span className="af-event__wordmark">
+            <span className="af-event__wordmark-white">Amsterdam</span>
+            <span className="af-event__wordmark-accent">Flames</span>
+          </span>
+        </div>
+        <div className="af-event__topbar-info">
+          <span className="af-event__topbar-tag">NIGHT OF THE STARS</span>
+          <span className="af-event__topbar-meta">
+            Sat, 5 Sep 2026 · 19:00 · The Hague Marriott Hotel
+          </span>
+        </div>
       </header>
 
       <section className="af-squad">
@@ -49,7 +113,6 @@ export default function AmsterdamFlamesNightOfStarsPage() {
       </section>
 
       <section className="af-event__hero">
-        <AmsterdamFlamesEmbers />
         <div className="af-event__hero-content">
           <p className="af-event__eyebrow">An Exclusive Evening</p>
           <h1 className="af-event__title">
@@ -57,6 +120,11 @@ export default function AmsterdamFlamesNightOfStarsPage() {
             <br />
             <span className="af-event__title-accent">Night Of The Stars</span>
           </h1>
+          <p className="af-event__featuring">
+            Featuring <span className="af-event__featuring-name">Jamie Dwyer</span>,{" "}
+            <span className="af-event__featuring-name">Ajinkya Rahane</span> &amp;{" "}
+            <span className="af-event__featuring-name">Steve Waugh</span>
+          </p>
           <p className="af-event__tagline">
             Step into an evening where sport, style and celebration come together.
           </p>
@@ -76,7 +144,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
               <IconClock size={22} />
               <div>
                 <span>Time</span>
-                <strong>18:00</strong>
+                <strong>19:00</strong>
               </div>
             </div>
             <div className="af-info-bar__item">
@@ -88,22 +156,11 @@ export default function AmsterdamFlamesNightOfStarsPage() {
             </div>
           </div>
 
-          <a href="#tickets" className="af-event__cta">
-            Get Your Tickets
-          </a>
-        </div>
-      </section>
-
-      <section className="af-includes">
-        <h2 className="af-includes__title">The Night Includes</h2>
-        <div className="af-includes__grid">
-          {INCLUDES.map((item) => (
-            <div className="af-includes__item" key={item.title}>
-              <item.icon size={26} />
-              <h3>{item.title}</h3>
-              <p>{item.body}</p>
-            </div>
-          ))}
+          <section className="af-awaits">
+            <p className="af-awaits__eyebrow">The Evening, In Full</p>
+            <h2 className="af-awaits__title">What Awaits You at Night of the Stars</h2>
+            <AmsterdamFlamesAwaitsCarousel items={AWAITS} />
+          </section>
         </div>
       </section>
 
@@ -115,7 +172,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
               <strong>Date:</strong> Saturday, 5 September 2026
             </li>
             <li>
-              <strong>Time:</strong> 18:00 – 22:00
+              <strong>Time:</strong> 19:00 – 23:00
             </li>
             <li>
               <strong>Venue:</strong> The Hague Marriott, Johan de Wittlaan 30, 2517 JR, Den Haag

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&family=Archivo+Black&display=swap");
 
 .af-event {
   --af-bg: #050505;
@@ -18,36 +18,102 @@
 
 .af-event__topbar {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: 0.5rem;
   align-items: center;
   gap: 0.75rem;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--af-border);
 }
 
+/* Matches amsterdamflames.com's own header logo exactly: real text (not an
+   image) at font-weight 900, 26px, -0.65px letter-spacing, alongside their
+   crest image at 28px tall with a 12px gap — verified against their site's
+   computed styles rather than approximated from a screenshot. */
+.af-event__logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .af-event__crest {
-  height: 40px;
+  height: 28px;
   width: auto;
 }
 
-.af-event__brand {
-  font-family: "Archivo Black", Arial, sans-serif;
-  font-size: 0.95rem;
-  letter-spacing: 0.06em;
+.af-event__wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  line-height: 1;
+}
+
+.af-event__wordmark-white,
+.af-event__wordmark-accent {
+  font-family: "Archivo", Arial, sans-serif;
+  font-weight: 900;
+  font-size: 26px;
+  letter-spacing: -0.65px;
+  text-transform: uppercase;
+}
+
+.af-event__wordmark-white {
+  color: #fff;
+}
+
+.af-event__wordmark-accent {
+  color: var(--af-primary);
+}
+
+.af-event__topbar-info {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  text-align: right;
 }
 
 .af-event__topbar-tag {
-  margin-left: auto;
   color: var(--af-primary);
   font-family: "Archivo Black", Arial, sans-serif;
   font-size: 0.8rem;
   letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.af-event__topbar-meta {
+  color: var(--af-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
+/* Below ~480px there isn't room for the logo and the date/time/venue line
+   on one row without squeezing the latter into a sliver that wraps one
+   word per line — drop it to its own full-width row instead. */
+@media (max-width: 30rem) {
+  .af-event__wordmark-white,
+  .af-event__wordmark-accent {
+    font-size: 20px;
+  }
+
+  .af-event__topbar-info {
+    margin-left: 0;
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .af-event__topbar-tag {
+    white-space: normal;
+  }
 }
 
 .af-event__hero {
   position: relative;
   overflow: hidden;
   text-align: center;
-  padding: 3.5rem 1.5rem 2.25rem;
+  padding: 3.5rem 1.5rem 1.25rem;
   background:
     radial-gradient(60% 60% at 50% 0%, rgba(240, 94, 60, 0.28), transparent 70%),
     var(--af-bg);
@@ -94,6 +160,32 @@
   color: var(--af-primary);
 }
 
+.af-event__featuring {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--af-muted);
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 0 0 1.5rem;
+}
+
+.af-event__featuring-name {
+  display: inline-block;
+  color: #fff;
+  font-size: 1.2rem;
+  animation: af-name-glow 2.2s ease-in-out infinite;
+}
+
+@keyframes af-name-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 8px rgba(240, 94, 60, 0.55), 0 0 18px rgba(240, 94, 60, 0.25);
+  }
+  50% {
+    text-shadow: 0 0 16px rgba(240, 94, 60, 1), 0 0 34px rgba(240, 94, 60, 0.65);
+  }
+}
+
 .af-event__tagline {
   max-width: 40rem;
   margin: 0 auto 1.75rem;
@@ -105,13 +197,9 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0;
+  gap: 1rem;
   margin: 0 auto 2rem;
   max-width: 46rem;
-  border: 1px solid var(--af-border);
-  border-radius: var(--af-radius);
-  background: var(--af-card);
-  overflow: hidden;
 }
 
 .af-info-bar__item {
@@ -122,11 +210,18 @@
   padding: 1rem 1.25rem;
   text-align: left;
   color: var(--af-primary);
-  border-right: 1px solid var(--af-border);
+  border: 1px solid var(--af-border);
+  border-radius: calc(var(--af-radius) * 1.25);
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.01) 45%),
+    var(--af-card);
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.af-info-bar__item:last-child {
-  border-right: 0;
+.af-info-bar__item:hover {
+  border-color: rgba(240, 94, 60, 0.5);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(240, 94, 60, 0.2);
 }
 
 .af-info-bar__item div {
@@ -148,47 +243,137 @@
   font-weight: 700;
 }
 
-.af-includes {
-  padding: 3rem 1.5rem;
+.af-awaits {
+  padding: 3rem 1.5rem 0.5rem;
   text-align: center;
   background: var(--af-bg);
+  border-top: 1px solid var(--af-border);
 }
 
-.af-includes__title {
-  font-family: "Archivo Black", Arial, sans-serif;
+.af-awaits__eyebrow {
   text-transform: uppercase;
-  color: var(--af-primary);
-  font-size: 0.85rem;
   letter-spacing: 0.16em;
-  margin: 0 0 2rem;
+  color: var(--af-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
 }
 
-.af-includes__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: 1.75rem;
-  max-width: 60rem;
+.af-awaits__title {
+  font-family: "Archivo Black", Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+  margin: 0 0 3rem;
+}
+
+.af-awaits__track {
+  display: flex;
+  gap: 1.25rem;
+  max-width: 78rem;
   margin: 0 auto;
+  padding: 0.25rem 1.25rem 0.75rem;
+  text-align: left;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 
-.af-includes__item {
+.af-awaits__track::-webkit-scrollbar {
+  display: none;
+}
+
+.af-awaits__item {
+  position: relative;
+  flex: 0 0 auto;
+  width: min(80vw, 19rem);
+  scroll-snap-align: start;
+  border: 1px solid var(--af-border);
+  border-radius: calc(var(--af-radius) * 1.5);
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.01) 45%),
+    var(--af-card);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 1.75rem 1.5rem 1.5rem;
+  overflow: hidden;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.af-awaits__item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  left: -160%;
+  width: 55%;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.14) 45%,
+    rgba(255, 255, 255, 0.32) 50%,
+    rgba(255, 255, 255, 0.14) 55%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  transition: left 0.75s ease;
+  pointer-events: none;
+}
+
+.af-awaits__item:hover {
+  border-color: rgba(240, 94, 60, 0.7);
+  transform: translateY(-14px) scale(1.08);
+  box-shadow: 0 32px 65px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(240, 94, 60, 0.3);
+  z-index: 1;
+}
+
+.af-awaits__item:hover::after {
+  left: 160%;
+}
+
+.af-awaits__index {
+  position: absolute;
+  top: -0.5rem;
+  right: 0.75rem;
+  font-family: "Archivo Black", Arial, sans-serif;
+  font-size: 3.25rem;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--af-border);
+  pointer-events: none;
+}
+
+.af-awaits__icon {
+  color: var(--af-primary);
+  margin-bottom: 0.9rem;
+}
+
+.af-awaits__item h3 {
+  font-family: "Archivo Black", Arial, sans-serif;
+  text-transform: uppercase;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  color: var(--af-fg);
+  margin: 0 0 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.af-awaits__tagline {
+  font-family: "Archivo", Arial, sans-serif;
+  text-transform: none;
+  font-weight: 500;
+  font-size: 0.82rem;
+  letter-spacing: 0;
   color: var(--af-primary);
 }
 
-.af-includes__item h3 {
-  font-family: "Archivo Black", Arial, sans-serif;
-  text-transform: uppercase;
-  font-size: 0.95rem;
-  color: var(--af-fg);
-  margin: 0.75rem 0 0.4rem;
-  letter-spacing: 0.02em;
-}
-
-.af-includes__item p {
+.af-awaits__item p {
   margin: 0;
   color: var(--af-muted);
-  font-size: 0.88rem;
-  line-height: 1.5;
+  font-size: 0.9rem;
+  line-height: 1.55;
 }
 
 .af-event__cta {

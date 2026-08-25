@@ -4,7 +4,7 @@
    so it wins over both the base dark rules and the [data-theme="light"] overrides
    regardless of stylesheet import order or the visitor's site theme preference. */
 
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;900&family=Archivo+Black&display=swap");
 
 .ticket-booking--af.ticket-booking--af {
   font-family: "Archivo", Arial, sans-serif;
@@ -567,5 +567,94 @@
   background-size: cover;
   background-repeat: no-repeat;
   background-color: #050505;
+}
+
+/* Same header treatment as the landing page (client/src/styles/amsterdam-flames-event.css),
+   duplicated with direct color values rather than that file's --af-* custom properties,
+   which are only defined under its own .af-event root scope. */
+.ticket-booking--af.ticket-booking--af .af-event__topbar {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ticket-booking--af.ticket-booking--af .af-event__logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ticket-booking--af.ticket-booking--af .af-event__crest {
+  height: 28px;
+  width: auto;
+}
+
+.ticket-booking--af.ticket-booking--af .af-event__wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  line-height: 1;
+}
+
+.ticket-booking--af.ticket-booking--af .af-event__wordmark-white,
+.ticket-booking--af.ticket-booking--af .af-event__wordmark-accent {
+  font-family: "Archivo", Arial, sans-serif;
+  font-weight: 900;
+  font-size: 26px;
+  letter-spacing: -0.65px;
+  text-transform: uppercase;
+}
+
+.ticket-booking--af.ticket-booking--af .af-event__wordmark-white {
+  color: #fff;
+}
+
+.ticket-booking--af.ticket-booking--af .af-event__wordmark-accent {
+  color: #f05e3c;
+}
+
+.ticket-booking--af.ticket-booking--af .af-event__topbar-info {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  text-align: right;
+}
+
+.ticket-booking--af.ticket-booking--af .af-event__topbar-tag {
+  color: #f05e3c;
+  font-family: "Archivo Black", Arial, sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.ticket-booking--af.ticket-booking--af .af-event__topbar-meta {
+  color: #a1a1a1;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 30rem) {
+  .ticket-booking--af.ticket-booking--af .af-event__wordmark-white,
+  .ticket-booking--af.ticket-booking--af .af-event__wordmark-accent {
+    font-size: 20px;
+  }
+
+  .ticket-booking--af.ticket-booking--af .af-event__topbar-info {
+    margin-left: 0;
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .ticket-booking--af.ticket-booking--af .af-event__topbar-tag {
+    white-space: normal;
+  }
 }
 

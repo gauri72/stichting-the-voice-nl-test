@@ -43,6 +43,7 @@ const TICKET_CHECKOUT_SESSION_KEY = "voice_nl_ticket_checkout";
 // Amsterdam Flames is a partner-branded event: its booking flow renders in the
 // club's own dark/flame-orange identity instead of the site's default theme.
 const AMSTERDAM_FLAMES_EVENT_SLUG = "amsterdam-flames-night-of-the-stars";
+const AMSTERDAM_FLAMES_CREST_URL = "/amsterdam-flames/af-crest-orange.png";
 
 const EMPTY_ATTENDEE = {
   firstName: "",
@@ -1111,6 +1112,14 @@ export default function TicketBookingPage() {
       day: "numeric",
     }
   );
+  const eventDateShort = isAmsterdamFlamesEvent
+    ? new Date(event.date).toLocaleDateString("en-GB", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "";
 
   const visibleSteps = (() => {
     // STEPS index 2 is "Member benefits", index 3 is "Membership" — filter by
@@ -1142,6 +1151,23 @@ export default function TicketBookingPage() {
         prefillEmail={attendee.email}
         initialMode={loginModalInitialMode}
       />
+      {isAmsterdamFlamesEvent ? (
+        <header className="af-event__topbar">
+          <div className="af-event__logo">
+            <img src={AMSTERDAM_FLAMES_CREST_URL} alt="Amsterdam Flames crest" className="af-event__crest" />
+            <span className="af-event__wordmark">
+              <span className="af-event__wordmark-white">Amsterdam</span>
+              <span className="af-event__wordmark-accent">Flames</span>
+            </span>
+          </div>
+          <div className="af-event__topbar-info">
+            <span className="af-event__topbar-tag">NIGHT OF THE STARS</span>
+            <span className="af-event__topbar-meta">
+              {eventDateShort} · {event.startTime} · {event.venueName}
+            </span>
+          </div>
+        </header>
+      ) : null}
       {event.heroImage ? (
         <div className="ticket-booking__hero" style={{ backgroundImage: `url(${event.heroImage})` }} />
       ) : (
