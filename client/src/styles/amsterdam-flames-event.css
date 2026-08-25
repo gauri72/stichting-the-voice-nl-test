@@ -286,6 +286,7 @@
 
 .af-awaits__item {
   position: relative;
+  box-sizing: border-box;
   flex: 0 0 auto;
   width: min(80vw, 19rem);
   scroll-snap-align: start;
