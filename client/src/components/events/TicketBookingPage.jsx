@@ -1161,7 +1161,7 @@ export default function TicketBookingPage() {
             </span>
           </div>
           <div className="af-event__topbar-info">
-            <span className="af-event__topbar-tag">NIGHT OF THE STARS</span>
+            <span className="af-event__topbar-tag">NIGHT OF STARS</span>
             <span className="af-event__topbar-meta">
               {eventDateShort} · {event.startTime} · {event.venueName}
             </span>

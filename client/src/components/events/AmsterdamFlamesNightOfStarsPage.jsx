@@ -7,11 +7,9 @@ import {
   IconMicrophone2,
   IconUsersGroup,
   IconWorld,
-  IconGift,
   IconGavel,
   IconMusic,
   IconHeadphones,
-  IconGlass,
 } from "@tabler/icons-react";
 import "../../styles/amsterdam-flames-event.css";
 import AmsterdamFlamesAwaitsCarousel from "./AmsterdamFlamesAwaitsCarousel.jsx";
@@ -34,12 +32,6 @@ const AWAITS = [
     title: "Social Impact",
     tagline: "Playing for Something Bigger",
     body: "See how sport can create opportunities, inspire young people and make a meaningful difference beyond the field.",
-  },
-  {
-    icon: IconGift,
-    title: "Fundraising",
-    tagline: "Back the Mission",
-    body: "Be part of something bigger. Your support helps turn ambition into action and impact into reality.",
   },
   {
     icon: IconGavel,
@@ -72,12 +64,6 @@ const AWAITS = [
     body: "Meet celebrated players and sporting personalities, hear their stories and capture a few unforgettable moments.",
   },
   {
-    icon: IconGlass,
-    title: "Drinks",
-    tagline: "Raise a Glass",
-    body: "Relax, connect and enjoy drinks together in an atmosphere made for conversations and new connections.",
-  },
-  {
     icon: IconToolsKitchen2,
     title: "Dinner",
     tagline: "Dine. Connect. Celebrate.",
@@ -97,7 +83,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
           </span>
         </div>
         <div className="af-event__topbar-info">
-          <span className="af-event__topbar-tag">NIGHT OF THE STARS</span>
+          <span className="af-event__topbar-tag">NIGHT OF STARS</span>
           <span className="af-event__topbar-meta">
             Sat, 5 Sep 2026 · 19:00 · The Hague Marriott Hotel
           </span>
@@ -107,7 +93,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
       <section className="af-squad">
         <img
           src="/amsterdam-flames/squad-banner.png"
-          alt="Amsterdam Flames squad — Night Of The Stars"
+          alt="Amsterdam Flames squad — Night Of Stars"
           className="af-squad__banner"
         />
       </section>
@@ -118,12 +104,12 @@ export default function AmsterdamFlamesNightOfStarsPage() {
           <h1 className="af-event__title">
             Amsterdam Flames:
             <br />
-            <span className="af-event__title-accent">Night Of The Stars</span>
+            <span className="af-event__title-accent">Night Of Stars</span>
           </h1>
           <p className="af-event__featuring">
-            Featuring <span className="af-event__featuring-name">Jamie Dwyer</span>,{" "}
+            Featuring <span className="af-event__featuring-name">Steve Waugh</span>,{" "}
             <span className="af-event__featuring-name">Ajinkya Rahane</span> &amp;{" "}
-            <span className="af-event__featuring-name">Steve Waugh</span>
+            <span className="af-event__featuring-name">Jamie Dwyer</span>
           </p>
           <p className="af-event__tagline">
             Step into an evening where sport, style and celebration come together.
@@ -158,7 +144,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
 
           <section className="af-awaits">
             <p className="af-awaits__eyebrow">The Evening, In Full</p>
-            <h2 className="af-awaits__title">What Awaits You at Night of the Stars</h2>
+            <h2 className="af-awaits__title">What Awaits You at Night of Stars</h2>
             <AmsterdamFlamesAwaitsCarousel items={AWAITS} />
           </section>
         </div>
