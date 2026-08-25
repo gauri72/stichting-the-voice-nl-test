@@ -1120,6 +1120,12 @@ export default function TicketBookingPage() {
         year: "numeric",
       })
     : "";
+  // Display-only: the stored event title still reads "Night Of The Stars"
+  // (that's the database record other things like order/email records key
+  // off) — this just fixes the visible heading without touching the data.
+  const displayTitle = isAmsterdamFlamesEvent
+    ? (event.title || "").replace(/Night Of The Stars/i, "Night Of Stars")
+    : event.title;
 
   const visibleSteps = (() => {
     // STEPS index 2 is "Member benefits", index 3 is "Membership" — filter by
@@ -1177,7 +1183,7 @@ export default function TicketBookingPage() {
       <div className="ticket-booking__container">
         <header className="ticket-booking__header">
           <p className="ticket-booking__eyebrow">{t("checkout:common.bookTickets")}</p>
-          <h1>{event.title}</h1>
+          <h1>{displayTitle}</h1>
           <div className="ticket-booking__meta">
             <span><IconCalendar size={16} /> {eventDate} · {event.startTime}</span>
             <span><IconMapPin size={16} /> {event.venueName}</span>
