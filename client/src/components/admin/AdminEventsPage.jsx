@@ -26,13 +26,19 @@ import {
   IconDots,
   IconSearch,
   IconDiscount,
+  IconCrown,
 } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
 import EventCheckoutFormSection from "./EventCheckoutFormSection.jsx";
 import AdminTicketTypeQuickDiscount from "./AdminTicketTypeQuickDiscount.jsx";
 import AdminEventShortPanel from "./AdminEventShortPanel.jsx";
+import SendVipPassModal from "./SendVipPassModal.jsx";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
 import "../../styles/admin-events-page.css";
+
+// Amsterdam Flames is the only event with a hardcoded VIP Pass theme/branding today —
+// the "Send VIP Pass" quick-action is scoped to it rather than shown on every event card.
+const AMSTERDAM_FLAMES_EVENT_SLUG = "amsterdam-flames-night-of-the-stars";
 
 const FEATURED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const FEATURED_IMAGE_MIN_WIDTH = 1280;
@@ -468,8 +474,10 @@ function AdminEventCardActions({
   onEdit,
   onDelete,
   onPatchFeatured,
+  onSendVipPass,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const isAmsterdamFlames = ev.slug === AMSTERDAM_FLAMES_EVENT_SLUG;
 
   useEffect(() => {
     if (!menuOpen) return undefined;
@@ -555,6 +563,20 @@ function AdminEventCardActions({
               <IconPackage size={16} aria-hidden />
               <span>Operations</span>
             </Link>
+            {isAmsterdamFlames ? (
+              <button
+                type="button"
+                className="admin-events__action-menu-item"
+                role="menuitem"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onSendVipPass();
+                }}
+              >
+                <IconCrown size={16} aria-hidden />
+                <span>Send VIP Pass</span>
+              </button>
+            ) : null}
             <button
               type="button"
               className="admin-events__action-menu-item"
@@ -636,6 +658,12 @@ function AdminEventCardActions({
           <IconPackage size={16} aria-hidden />
           <span>Operations</span>
         </Link>
+        {isAmsterdamFlames ? (
+          <button type="button" className="admin-events__action-btn" onClick={onSendVipPass}>
+            <IconCrown size={16} aria-hidden />
+            <span>Send VIP Pass</span>
+          </button>
+        ) : null}
         <button
           type="button"
           className="admin-events__action-btn"
@@ -730,6 +758,8 @@ export default function AdminEventsPage() {
   // Quick-create-discount panel, opened from a ticket-type row (see "Add Discount" below).
   const [quickDiscountTicketId, setQuickDiscountTicketId] = useState(null);
   const [discountEvents, setDiscountEvents] = useState([]);
+  // Send VIP Pass modal — only offered on the Amsterdam Flames event card.
+  const [vipPassEvent, setVipPassEvent] = useState(null);
   const messageTimerRef = useRef(null);
   const showTransientMessage = useCallback((text, ms) => {
     window.clearTimeout(messageTimerRef.current);
@@ -1099,6 +1129,7 @@ export default function AdminEventsPage() {
             onEdit={() => setSearchParams({ id: ev.id })}
             onDelete={() => handleDeleteEvent(ev.id, ev.title)}
             onPatchFeatured={(flags) => patchFeaturedFlag(ev.id, flags)}
+            onSendVipPass={() => setVipPassEvent(ev)}
           />
         </li>
       );
@@ -1278,6 +1309,10 @@ export default function AdminEventsPage() {
             </button>
           ) : null}
         </div>
+
+        {vipPassEvent ? (
+          <SendVipPassModal event={vipPassEvent} onClose={() => setVipPassEvent(null)} />
+        ) : null}
       </AdminLayout>
     );
   }

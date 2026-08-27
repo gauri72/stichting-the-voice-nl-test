@@ -6,6 +6,23 @@ import { escapeHtml } from "../utils/escapeHtml.js";
 
 export { isMailerConfigured };
 
+// Amsterdam Flames is a partner-branded event — its VIP pass copy is hardcoded so the
+// email matches the PDF regardless of whether the generic per-event theme panel has been
+// filled in. Kept as its own local constant, same pattern as ticketPdfService.js/
+// ticketMailer.js each redefining AMSTERDAM_FLAMES_EVENT_SLUG locally.
+const AMSTERDAM_FLAMES_EVENT_SLUG = "amsterdam-flames-night-of-the-stars";
+const AF_VIP_WELCOME_MESSAGE =
+  "Welcome to Amsterdam Flames: Night Of Stars — we are thrilled to have you as our VIP guest tonight.";
+
+function vipWelcomeMessage(event) {
+  return (
+    event?.vipPassTheme?.welcomeMessage ||
+    (event?.slug === AMSTERDAM_FLAMES_EVENT_SLUG
+      ? AF_VIP_WELCOME_MESSAGE
+      : `You are our honored guest at ${event?.title || "this event"}. We're delighted to have you join us.`)
+  );
+}
+
 function formatEventDate(date) {
   if (!date) return "—";
   try {
@@ -39,8 +56,7 @@ function getVipEmailBranding(event) {
 function buildVipPassEmailText({ order, ticket, event }) {
   const branding = getVipEmailBranding(event);
   const venue = [event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—";
-  const welcome = event?.vipPassTheme?.welcomeMessage
-    || `You are our honored guest at ${event?.title || "this event"}. We're delighted to have you join us.`;
+  const welcome = vipWelcomeMessage(event);
 
   return `You're on the list!
 
@@ -63,10 +79,7 @@ function buildVipPassEmailHtml({ order, ticket, event }, { qrCid }) {
   const eventTitle = escapeHtml(event?.title || "Event");
   const venue = escapeHtml([event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—");
   const guestName = escapeHtml(ticket.attendeeName || "Guest");
-  const welcome = escapeHtml(
-    event?.vipPassTheme?.welcomeMessage
-      || `You are our honored guest at ${event?.title || "this event"}. We're delighted to have you join us.`
-  );
+  const welcome = escapeHtml(vipWelcomeMessage(event));
   const qr = qrCid
     ? `<img src="cid:${qrCid}" alt="VIP Pass QR code" width="160" height="160" style="display:block;width:160px;height:160px;margin:0 auto;border:9px solid #fff;border-radius:16px;background:#fff;" />`
     : "";

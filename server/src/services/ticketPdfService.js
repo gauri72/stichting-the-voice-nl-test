@@ -39,6 +39,12 @@ const AF_COLORS = {
   pink: "#f05e3c",
 };
 
+// Hardcoded so the VIP Pass always renders Amsterdam Flames' theme/copy regardless of
+// whether an admin has filled in Event.vipPassTheme — the generic per-event theme panel
+// remains available (and still overrides these), but AF's own pass is guaranteed.
+const AF_VIP_WELCOME_MESSAGE =
+  "Welcome to Amsterdam Flames: Night Of Stars — we are thrilled to have you as our VIP guest tonight.";
+
 // `override` (from Event.vipPassTheme, VIP passes only — see renderVipPassPdf) lets an
 // admin-configured color pair win over the hardcoded per-slug palette below. Regular
 // ticket rendering never passes an override, so its existing AF/default behavior is
@@ -283,7 +289,9 @@ export function buildVipPassPdfValuesFromDocs(ticket, order, event) {
     event_date: formatTicketPdfEventDate(event?.date),
     event_time: [event?.startTime, event?.endTime].filter(Boolean).join(" – ") || "—",
     venue: [event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—",
-    welcome_message: theme.welcomeMessage || "",
+    welcome_message:
+      theme.welcomeMessage ||
+      (event?.slug === AMSTERDAM_FLAMES_EVENT_SLUG ? AF_VIP_WELCOME_MESSAGE : ""),
     primary_color: theme.primaryColor || "",
     background_color: theme.backgroundColor || "",
     logo_data_url: theme.logoUrl || "",
