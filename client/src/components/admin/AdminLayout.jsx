@@ -3,6 +3,7 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   IconBell,
   IconChartBar,
+  IconCrown,
   IconLayoutDashboard,
   IconLogout,
   IconMail,
@@ -64,6 +65,7 @@ const NAV_ITEMS = [
     children: [
       { to: "/admin/tickets", label: "Tickets", icon: IconTicket },
       { to: "/admin/check-in", label: "Check-in", icon: IconTicket },
+      { to: "/admin/vip-passes", label: "VIP Passes", icon: IconCrown },
       { to: "/admin/sessions", label: "Sessions", icon: IconCalendarEvent },
       { to: "/admin/session-calendar", label: "Session Calendar", icon: IconCalendarEvent },
       { to: "/admin/session-bookings", label: "Session Bookings", icon: IconCalendarEvent },

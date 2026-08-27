@@ -66,6 +66,7 @@ import AdminTicketsPage from "./components/admin/AdminTicketsPage.jsx";
 import AdminCheckInPage from "./components/admin/AdminCheckInPage.jsx";
 import CheckInPwaPage from "./components/checkin/CheckInPwaPage.jsx";
 import AdminVouchersPage from "./components/admin/AdminVouchersPage.jsx";
+import AdminVipPassesPage from "./components/admin/AdminVipPassesPage.jsx";
 import AdminMembershipsPage from "./components/admin/AdminMembershipsPage.jsx";
 import AdminMemberProfilePage from "./components/admin/AdminMemberProfilePage.jsx";
 import AdminSponsorshipsPage from "./components/admin/AdminSponsorshipsPage.jsx";
@@ -702,6 +703,14 @@ export default function App() {
             element={
               <AdminProtectedRoute>
                 <AdminVouchersPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/vip-passes"
+            element={
+              <AdminProtectedRoute>
+                <AdminVipPassesPage />
               </AdminProtectedRoute>
             }
           />

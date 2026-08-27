@@ -105,6 +105,9 @@ export function resolveAdminPermission(req) {
     const module = url.includes("/vouchers") ? "vouchers" : "discounts";
     return method === "GET" ? `${module}.view` : `${module}.edit`;
   }
+  if (url.includes("/admin/vip-passes")) {
+    return method === "GET" ? "vip_passes.view" : "vip_passes.edit";
+  }
   if (url.includes("/admin/sponsorships")) {
     if (url.includes("/receipt")) return "sponsorships.receipt";
     if (url.includes("/export")) return "sponsorships.export";

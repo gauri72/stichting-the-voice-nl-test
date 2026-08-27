@@ -55,7 +55,7 @@ const AMSTERDAM_FLAMES_EMAIL_BRANDING = {
   textSignature: "Amsterdam Flames",
 };
 
-function getEmailBranding(event) {
+export function getEmailBranding(event) {
   return event?.slug === AMSTERDAM_FLAMES_EVENT_SLUG
     ? AMSTERDAM_FLAMES_EMAIL_BRANDING
     : DEFAULT_EMAIL_BRANDING;
@@ -64,7 +64,7 @@ function getEmailBranding(event) {
 // Swaps only the display name on the configured From header, keeping the same
 // underlying mailbox address (there's no separate Amsterdam Flames mailbox —
 // V.O.I.C.E. NL still sends/fulfills the mail).
-function buildFromHeader(event) {
+export function buildFromHeader(event) {
   const branding = getEmailBranding(event);
   const configured = getMailFromAddress();
   const match = /^(.*)<(.+)>$/.exec(configured || "");
@@ -72,7 +72,7 @@ function buildFromHeader(event) {
   return address ? `${branding.fromName} <${address}>` : configured;
 }
 
-function hexToRgba(hex, alpha) {
+export function hexToRgba(hex, alpha) {
   const clean = String(hex || "").replace("#", "");
   const r = parseInt(clean.slice(0, 2), 16);
   const g = parseInt(clean.slice(2, 4), 16);

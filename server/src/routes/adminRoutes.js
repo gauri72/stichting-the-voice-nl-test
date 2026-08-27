@@ -39,6 +39,7 @@ import { syncTicketTailor } from "../controllers/adminMembershipController.js";
 import adminVcommerceRoutes from "./adminVcommerceRoutes.js";
 import adminWholesalerRoutes from "./adminWholesalerRoutes.js";
 import adminI18nReviewRoutes from "./adminI18nReviewRoutes.js";
+import vipPassRoutes from "./vipPassRoutes.js";
 
 const router = Router();
 
@@ -48,6 +49,7 @@ router.post("/logout", requireAdmin, adminLogout);
 router.use("/dashboard", requireAdmin, adminDashboardRoutes);
 router.use("/broadcasts", adminBroadcastRoutes);
 router.use("/discounts", requireAdmin, adminDiscountRoutes);
+router.use("/vip-passes", requireAdmin, vipPassRoutes);
 router.use("/users", requireAdmin, adminUserRoutes);
 router.use("/events", adminEventRoutes);
 router.use("/sessions", adminSessionRoutes);

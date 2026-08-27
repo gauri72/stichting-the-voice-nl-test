@@ -153,6 +153,17 @@ const eventSchema = new mongoose.Schema(
     youtubeThumbnail: { type: String, default: "", trim: true, maxlength: 500 },
     youtubeDuration: { type: Number, default: 0, min: 0 },
     featureInCarousel: { type: Boolean, default: false, index: true },
+
+    // Admin-configurable branding for this event's VIP Pass PDFs/emails (see
+    // vipPassService.js) — kept separate from the general event-edit form so
+    // shipping this feature doesn't touch the existing (large) event editor.
+    // Falls back to the default V.O.I.C.E. NL colors/logo when unset.
+    vipPassTheme: {
+      primaryColor: { type: String, default: "", trim: true, maxlength: 20 },
+      backgroundColor: { type: String, default: "", trim: true, maxlength: 20 },
+      logoUrl: { type: String, default: "" },
+      welcomeMessage: { type: String, default: "", trim: true, maxlength: 500 },
+    },
   },
   { timestamps: true, collection: "events" }
 );

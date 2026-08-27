@@ -25,6 +25,7 @@ export const NAV_ROUTE_PERMISSIONS = {
   "/admin/finance/reports": "finance.view",
   "/admin/finance/settings": "settings.financial",
   "/admin/vouchers": "vouchers.view",
+  "/admin/vip-passes": "vip_passes.view",
   "/admin/communication": "communication.view",
   "/admin/pages": "cms.view",
   "/admin/cms": "cms.view",
