@@ -118,6 +118,27 @@ export default function AmsterdamFlamesNightOfStarsPage() {
             Join the Amsterdam Flames for an exclusive night of great food, inspiring company and unforgettable moments alongside some of the club&rsquo;s biggest names. Celebrate the passion, personalities and spirit that make the Flames more than a team — a community.
           </p>
 
+          <section className="af-cause">
+            <div className="af-cause__card">
+              <img
+                src="/amsterdam-flames/move-forward-logo.png"
+                alt="Move Forward Foundation"
+                className="af-cause__logo"
+              />
+              <div className="af-cause__content">
+                <p className="af-cause__eyebrow">Move Forward × Night Of Stars</p>
+                <p className="af-cause__lead">Turning movement into hope.</p>
+                <p className="af-cause__body">
+                  Through sport and dance, Move Forward Foundation helps children and young people affected by trauma rebuild confidence, connection and joy.
+                </p>
+                <p className="af-cause__body">
+                  On 5 September, Night of Stars becomes a night of impact too — with a special fundraising moment supporting their mission.
+                </p>
+                <p className="af-cause__tagline">Move Together. Give Forward. Change Lives.</p>
+              </div>
+            </div>
+          </section>
+
           <div className="af-info-bar">
             <div className="af-info-bar__item">
               <IconCalendarEvent size={22} />

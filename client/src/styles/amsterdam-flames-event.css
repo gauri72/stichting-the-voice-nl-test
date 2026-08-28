@@ -115,7 +115,7 @@
   position: relative;
   overflow: hidden;
   text-align: center;
-  padding: 3.5rem 1.5rem 1.25rem;
+  padding: 1.25rem 1.5rem 1rem;
   background:
     radial-gradient(60% 60% at 50% 0%, rgba(240, 94, 60, 0.28), transparent 70%),
     var(--af-bg);
@@ -145,7 +145,7 @@
   color: var(--af-primary);
   font-weight: 600;
   font-size: 0.85rem;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.4rem;
 }
 
 .af-event__title {
@@ -154,7 +154,7 @@
   font-size: clamp(2rem, 6vw, 3.75rem);
   line-height: 1.05;
   letter-spacing: -0.01em;
-  margin: 0 0 0.85rem;
+  margin: 0 0 0.4rem;
   text-shadow: 0 0 40px rgba(240, 94, 60, 0.25);
 }
 
@@ -168,7 +168,7 @@
   color: var(--af-muted);
   font-weight: 700;
   font-size: 1.05rem;
-  margin: 0 0 1.5rem;
+  margin: 0 0 0.9rem;
 }
 
 .af-event__featuring-name {
@@ -190,9 +190,85 @@
 
 .af-event__tagline {
   max-width: 40rem;
-  margin: 0 auto 1.75rem;
+  margin: 0 auto 1rem;
   color: var(--af-muted);
   font-size: 1.1rem;
+}
+
+.af-cause {
+  max-width: 46rem;
+  margin: 0 auto 1.25rem;
+}
+
+.af-cause__card {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  padding: 1.75rem 2rem;
+  text-align: left;
+  border: 1px solid var(--af-border);
+  border-radius: calc(var(--af-radius) * 1.25);
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01) 45%),
+    var(--af-card);
+}
+
+.af-cause__logo {
+  flex: 0 0 auto;
+  width: 8.5rem;
+  height: auto;
+}
+
+.af-cause__content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.af-cause__eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--af-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.af-cause__lead {
+  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--af-fg);
+}
+
+.af-cause__body {
+  margin: 0 0 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--af-muted);
+}
+
+.af-cause__body:last-of-type {
+  margin-bottom: 0.85rem;
+}
+
+.af-cause__tagline {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--af-primary);
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 640px) {
+  .af-cause__card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+  }
+
+  .af-cause__logo {
+    width: 10rem;
+  }
 }
 
 .af-info-bar {
@@ -200,7 +276,7 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
-  margin: 0 auto 2rem;
+  margin: 0 auto 1.25rem;
   max-width: 46rem;
 }
 
@@ -246,7 +322,7 @@
 }
 
 .af-awaits {
-  padding: 3rem 1.5rem 0.5rem;
+  padding: 1.5rem 1.5rem 0.5rem;
   text-align: center;
   background: var(--af-bg);
   border-top: 1px solid var(--af-border);
