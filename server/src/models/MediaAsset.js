@@ -8,6 +8,7 @@ export const MEDIA_PUBLIC_CATEGORIES = [
   "reviews",
   "highlights",
   "business_profiles",
+  "business_products",
 ];
 export const MEDIA_PRIVATE_CATEGORIES = [
   "tickets",

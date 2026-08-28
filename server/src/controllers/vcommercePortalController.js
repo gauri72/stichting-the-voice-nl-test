@@ -244,6 +244,41 @@ export async function postImportProducts(req, res) {
   }
 }
 
+export async function postProductImage(req, res) {
+  try {
+    if (!isMediaStorageConfigured()) {
+      return res.status(503).json({ error: "Image storage is not configured." });
+    }
+    const { imageData } = req.body || {};
+    if (!imageData) return res.status(400).json({ error: "imageData is required." });
+
+    const parsed = parseDataUrl(imageData);
+    if (!parsed) return res.status(400).json({ error: "Invalid image format. Expected base64 data URL." });
+    if (!ALLOWED_IMAGE_MIME_TYPES.includes(parsed.mimeType)) {
+      return res.status(400).json({ error: `Unsupported image type: ${parsed.mimeType}.` });
+    }
+    const buffer = Buffer.from(parsed.base64, "base64");
+    if (buffer.length > MAX_IMAGE_SIZE_BYTES) {
+      return res.status(400).json({ error: "Image exceeds 6MB size limit." });
+    }
+
+    const business = await getOwnBusiness(req.user.id);
+    const asset = await uploadAsset(buffer, {
+      category: "business_products",
+      visibility: "public",
+      mimeType: parsed.mimeType,
+      alt: `${business.businessName} product image`,
+      uploadedBy: req.user.id,
+    });
+
+    const url = asset.webpUrl || asset.originalUrl;
+    const product = await updateProduct(req.user.id, req.params.productId, { imageUrls: [url] });
+    return ok(res, { url, product });
+  } catch (e) {
+    return handleError(res, e);
+  }
+}
+
 export async function postAiImportPreview(req, res) {
   try {
     const business = await getOwnBusiness(req.user.id);

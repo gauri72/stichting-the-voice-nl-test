@@ -109,6 +109,14 @@ export function patchMyProduct(productId, data) {
   });
 }
 
+export function uploadMyProductImage(productId, imageData) {
+  return apiFetch(`/api/vcommerce-portal/me/products/${productId}/image`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ imageData }),
+  });
+}
+
 export function deleteMyProduct(productId) {
   return apiFetch(`/api/vcommerce-portal/me/products/${productId}`, {
     method: "DELETE",

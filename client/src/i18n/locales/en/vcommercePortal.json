@@ -422,6 +422,12 @@
       "modal": {
         "addTitle": "Add Product",
         "editTitle": "Edit Product",
+        "imageLabel": "Product Image",
+        "imageUpload": "Upload Image",
+        "imageChange": "Change Image",
+        "imageUploading": "Uploading…",
+        "imageRemove": "Remove",
+        "imageUploadError": "Error uploading image.",
         "nameLabel": "Name *",
         "typeLabel": "Type *",
         "typeService": "Service",

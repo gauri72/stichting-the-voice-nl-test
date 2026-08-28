@@ -11,6 +11,7 @@ import {
   postMyProduct,
   patchMyProduct,
   patchMyProductPricing,
+  uploadMyProductImage,
   deleteMyProduct,
   getMyOrders,
   markOrderFulfilled,
@@ -398,7 +399,7 @@ function ProductsTab({ businessId }) {
   }
 
   function openEdit(p) {
-    setForm({ name: p.name, type: p.type, description: p.description || "", priceMinor: (p.priceMinor / 100).toFixed(2), stockCount: p.stockCount ?? "", deliveryInfo: p.deliveryInfo || "", isAvailable: p.isAvailable });
+    setForm({ name: p.name, type: p.type, description: p.description || "", priceMinor: (p.priceMinor / 100).toFixed(2), stockCount: p.stockCount ?? "", deliveryInfo: p.deliveryInfo || "", isAvailable: p.isAvailable, imageUrls: p.imageUrls || [] });
     setEditing(p);
   }
 
@@ -511,6 +512,16 @@ function ProductsTab({ businessId }) {
               <button type="button" style={{ background:"none",border:"none",cursor:"pointer",fontSize:"1.2rem",color:"var(--color-text-muted,#888)" }} onClick={() => setEditing(null)}>✕</button>
             </div>
             <form onSubmit={handleSave} style={{ padding:24,display:"flex",flexDirection:"column",gap:14 }}>
+              {editing !== "new" && (
+                <ProductImageUploadField
+                  productId={editing._id}
+                  currentUrl={form.imageUrls?.[0] || ""}
+                  onUploaded={(url) => {
+                    setForm((f) => ({ ...f, imageUrls: url ? [url] : [] }));
+                    load();
+                  }}
+                />
+              )}
               <div><label style={S.label}>{t("vcommercePortal:portal.products.modal.nameLabel")}</label><input style={S.input} type="text" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required /></div>
               <div>
                 <label style={S.label}>{t("vcommercePortal:portal.products.modal.typeLabel")}</label>
@@ -782,6 +793,75 @@ function AiDocumentImportModal({ onClose, onImported }) {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ProductImageUploadField({ productId, currentUrl, onUploaded }) {
+  const { t } = useTranslation(["vcommercePortal"]);
+  const inputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState(currentUrl || "");
+  const [err, setErr] = useState("");
+
+  async function handleFile(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setErr("");
+    setUploading(true);
+    try {
+      const imageData = await readFileAsDataUrl(file);
+      setPreview(imageData);
+      const { url } = await uploadMyProductImage(productId, imageData);
+      setPreview(url);
+      onUploaded(url);
+    } catch (uploadErr) {
+      setErr(uploadErr?.message || t("vcommercePortal:portal.products.modal.imageUploadError"));
+      setPreview(currentUrl || "");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  async function handleRemove() {
+    setErr("");
+    try {
+      await patchMyProduct(productId, { imageUrls: [] });
+      setPreview("");
+      onUploaded("");
+    } catch (removeErr) {
+      setErr(removeErr?.message || t("vcommercePortal:portal.products.modal.imageUploadError"));
+    }
+  }
+
+  const previewStyle = { width: 96, height: 96, borderRadius: 10, objectFit: "cover", border: "1px solid var(--color-border,rgba(128,128,128,0.2))" };
+
+  return (
+    <div>
+      <label style={S.label}>{t("vcommercePortal:portal.products.modal.imageLabel")}</label>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        {preview
+          ? <img src={preview} alt="" style={previewStyle} />
+          : <div style={{ ...previewStyle, background: "var(--color-bg-muted,rgba(128,128,128,0.08))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", color: "var(--color-text-muted,#aaa)" }}>📦</div>
+        }
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: "none" }} onChange={handleFile} />
+          <button type="button" onClick={() => inputRef.current?.click()} disabled={uploading} style={{ ...S.btn("sm"), opacity: uploading ? 0.6 : 1 }}>
+            {uploading
+              ? t("vcommercePortal:portal.products.modal.imageUploading")
+              : preview
+                ? t("vcommercePortal:portal.products.modal.imageChange")
+                : t("vcommercePortal:portal.products.modal.imageUpload")}
+          </button>
+          {preview && (
+            <button type="button" onClick={handleRemove} style={{ ...S.btn("ghost"), fontSize: "0.75rem", padding: "4px 10px" }}>
+              {t("vcommercePortal:portal.products.modal.imageRemove")}
+            </button>
+          )}
+        </div>
+      </div>
+      {err && <p style={{ margin: "6px 0 0", fontSize: "0.8rem", color: "#DC2626" }}>{err}</p>}
     </div>
   );
 }

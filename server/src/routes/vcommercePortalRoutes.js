@@ -19,6 +19,7 @@ import {
   getMyImportHistory,
   postAiImportPreview,
   postAiImportConfirm,
+  postProductImage,
   getMyReferralLink,
   postConnectOnboarding,
   getConnectStatus,
@@ -97,6 +98,7 @@ router.post("/me/products/reorder", postReorderProducts);
 router.get("/me/products", getMyProducts);
 router.post("/me/products", postMyProduct);
 router.patch("/me/products/:productId", patchMyProduct);
+router.post("/me/products/:productId/image", postProductImage);
 router.patch("/me/products/:productId/pricing", patchMyProductPricing);
 router.delete("/me/products/:productId", deleteMyProduct);
 
