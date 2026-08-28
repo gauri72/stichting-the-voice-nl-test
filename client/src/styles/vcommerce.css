@@ -814,12 +814,17 @@
   margin-top: -48px;
 }
 
+/* Deliberately a fixed white tile rather than var(--color-card-bg) — business
+   logos are designed against a light background, and a badge that follows
+   the site's dark/light theme makes a light-on-transparent logo disappear in
+   light mode (and vice versa). Staying white keeps every business's logo
+   readable in both themes without requiring a separate asset per theme. */
 .vco-profile-header__logo {
   width: 80px;
   height: 80px;
   border-radius: 16px;
-  border: 3px solid var(--color-card-bg, #fff);
-  background: var(--color-card-bg, #fff);
+  border: 3px solid #fff;
+  background: #fff;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0,0,0,0.12);
   display: flex;
