@@ -12,8 +12,13 @@ export function apiUrl(path) {
 }
 
 export async function apiFetch(path, options = {}) {
+  // A FormData body must keep the browser's own multipart Content-Type (which
+  // includes the boundary) — forcing application/json here would send a
+  // JSON-labeled request whose body is actually multipart text, which the
+  // server can't parse. Only default to JSON for non-FormData bodies.
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
   const headers = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(options.headers || {})
   };
 

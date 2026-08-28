@@ -20,6 +20,8 @@ import {
   postImportProducts,
   getProductsTemplate,
   getMyImportHistory,
+  postAiImportPreview,
+  postAiImportConfirm,
   getMyReferralLink,
   getMyConnectOverview,
   startMyConnectOnboarding,
@@ -378,6 +380,7 @@ function ProductsTab({ businessId }) {
   const [editing, setEditing] = useState(null); // null | "new" | product
   const [form, setForm] = useState({});
   const [msg, setMsg] = useState("");
+  const [aiImportOpen, setAiImportOpen] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -438,9 +441,14 @@ function ProductsTab({ businessId }) {
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
         <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700 }}>{t("vcommercePortal:portal.products.title")}</h3>
-        <button type="button" style={S.btn()} onClick={openNew}>{t("vcommercePortal:portal.products.addButton")}</button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button type="button" style={S.btn("ghost")} onClick={() => setAiImportOpen(true)}>
+            ✨ {t("vcommercePortal:portal.products.aiImport.button")}
+          </button>
+          <button type="button" style={S.btn()} onClick={openNew}>{t("vcommercePortal:portal.products.addButton")}</button>
+        </div>
       </div>
 
       {msg && <p style={{ padding: "10px 14px", background: "rgba(16,185,129,0.1)", borderRadius: 8, marginBottom: 16, fontSize: "0.875rem", color: "#059669" }}>{msg}</p>}
@@ -547,6 +555,233 @@ function ProductsTab({ businessId }) {
           </div>
         </div>
       )}
+
+      {aiImportOpen && (
+        <AiDocumentImportModal
+          onClose={() => setAiImportOpen(false)}
+          onImported={() => {
+            setAiImportOpen(false);
+            load();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── AI document import modal ──
+const AI_IMPORT_TYPE_OPTIONS = ["service", "physical", "digital"];
+
+function AiDocumentImportModal({ onClose, onImported }) {
+  const { t } = useTranslation(["vcommercePortal"]);
+  const fileInputRef = useRef(null);
+  const [fileName, setFileName] = useState("");
+  const [sourceFilename, setSourceFilename] = useState("");
+  const [rows, setRows] = useState(null); // null while no file parsed yet
+  const [parsing, setParsing] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [error, setError] = useState("");
+  const [result, setResult] = useState(null);
+
+  async function handleFile(file) {
+    if (!file) return;
+    setError("");
+    setResult(null);
+    setRows(null);
+    setFileName(file.name);
+    setParsing(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const data = await postAiImportPreview(fd);
+      setSourceFilename(data.sourceFilename || file.name);
+      setRows(
+        (data.rows || []).map((r, i) => ({
+          ...r,
+          _key: i,
+          _removed: false,
+        }))
+      );
+    } catch (err) {
+      setError(err?.message || t("vcommercePortal:portal.products.aiImport.parseError"));
+    } finally {
+      setParsing(false);
+    }
+  }
+
+  function onFileChange(e) {
+    handleFile(e.target.files?.[0]);
+    e.target.value = "";
+  }
+
+  function updateRow(key, field, value) {
+    setRows((prev) => prev.map((r) => (r._key === key ? { ...r, [field]: value } : r)));
+  }
+
+  function removeRow(key) {
+    setRows((prev) => prev.map((r) => (r._key === key ? { ...r, _removed: true } : r)));
+  }
+
+  async function handleImport() {
+    const active = (rows || []).filter((r) => !r._removed);
+    if (!active.length) return;
+    setImporting(true);
+    setError("");
+    try {
+      const payload = {
+        filename: sourceFilename,
+        rows: active.map((r) => ({
+          name: r.name,
+          description: r.description,
+          type: r.type,
+          priceEUR: r.priceEUR,
+          stockCount: r.stockCount === "" || r.stockCount === null ? "" : r.stockCount,
+          deliveryInfo: r.deliveryInfo,
+          isAvailable: r.isAvailable,
+          tags: r.tags,
+        })),
+      };
+      const data = await postAiImportConfirm(payload);
+      setResult(data);
+      if ((data.imported || 0) > 0) {
+        setTimeout(() => onImported?.(), 1200);
+      }
+    } catch (err) {
+      setError(err?.message || t("vcommercePortal:portal.products.aiImport.importError"));
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  const activeRows = (rows || []).filter((r) => !r._removed);
+
+  return (
+    <div
+      style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div style={{ background: "var(--color-card-bg,#fff)", borderRadius: 16, maxWidth: 860, width: "100%", overflow: "auto", maxHeight: "92vh" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 24px", borderBottom: "1px solid var(--color-border,rgba(128,128,128,0.15))" }}>
+          <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700 }}>✨ {t("vcommercePortal:portal.products.aiImport.modalTitle")}</h3>
+          <button type="button" style={{ background: "none", border: "none", cursor: "pointer", fontSize: "1.2rem", color: "var(--color-text-muted,#888)" }} onClick={onClose}>✕</button>
+        </div>
+
+        <div style={{ padding: 24 }}>
+          {rows === null ? (
+            <div
+              style={{
+                border: "2px dashed var(--color-border,rgba(128,128,128,0.3))",
+                borderRadius: 12,
+                padding: "40px 24px",
+                textAlign: "center",
+                cursor: parsing ? "default" : "pointer",
+                background: "var(--color-bg,#fff)",
+              }}
+              onClick={() => !parsing && fileInputRef.current?.click()}
+            >
+              <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>{parsing ? "🤖" : "📄"}</div>
+              <p style={{ margin: "0 0 8px", fontWeight: 600 }}>
+                {parsing
+                  ? t("vcommercePortal:portal.products.aiImport.parsing")
+                  : fileName || t("vcommercePortal:portal.products.aiImport.dropzonePlaceholder")}
+              </p>
+              <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--color-text-muted,#888)" }}>
+                {t("vcommercePortal:portal.products.aiImport.dropzoneHint")}
+              </p>
+              <input ref={fileInputRef} type="file" accept=".pdf,.docx" style={{ display: "none" }} onChange={onFileChange} disabled={parsing} />
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+                <strong style={{ fontSize: "0.9rem" }}>
+                  {t("vcommercePortal:portal.products.aiImport.rowsFound", { count: activeRows.length })}
+                </strong>
+                <button
+                  type="button"
+                  style={S.btn("ghost")}
+                  onClick={() => { setRows(null); setFileName(""); setResult(null); setError(""); }}
+                >
+                  {t("vcommercePortal:portal.products.aiImport.chooseAnother")}
+                </button>
+              </div>
+
+              <div style={{ overflowX: "auto", maxHeight: 420, overflowY: "auto" }}>
+                <table style={{ ...S.table, minWidth: 720 }}>
+                  <thead>
+                    <tr>
+                      <th style={S.th}>{t("vcommercePortal:portal.products.aiImport.table.name")}</th>
+                      <th style={S.th}>{t("vcommercePortal:portal.products.aiImport.table.type")}</th>
+                      <th style={S.th}>{t("vcommercePortal:portal.products.aiImport.table.price")}</th>
+                      <th style={S.th}>{t("vcommercePortal:portal.products.aiImport.table.stock")}</th>
+                      <th style={S.th}>{t("vcommercePortal:portal.products.aiImport.table.delivery")}</th>
+                      <th style={S.th}></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.filter((r) => !r._removed).map((r) => (
+                      <tr key={r._key}>
+                        <td style={S.td}>
+                          <input style={S.input} type="text" value={r.name} onChange={(e) => updateRow(r._key, "name", e.target.value)} />
+                          {!r.valid && (
+                            <div style={{ fontSize: "0.75rem", color: "#DC2626", marginTop: 4 }}>
+                              {r.errors?.join("; ")}
+                            </div>
+                          )}
+                        </td>
+                        <td style={S.td}>
+                          <select style={S.input} value={r.type} onChange={(e) => updateRow(r._key, "type", e.target.value)}>
+                            {AI_IMPORT_TYPE_OPTIONS.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                          </select>
+                        </td>
+                        <td style={S.td}>
+                          <input style={S.input} type="number" min="0" step="0.01" value={r.priceEUR} onChange={(e) => updateRow(r._key, "priceEUR", e.target.value)} />
+                        </td>
+                        <td style={S.td}>
+                          <input style={S.input} type="number" min="0" value={r.stockCount ?? ""} onChange={(e) => updateRow(r._key, "stockCount", e.target.value === "" ? "" : Number(e.target.value))} />
+                        </td>
+                        <td style={S.td}>
+                          <input style={S.input} type="text" value={r.deliveryInfo} onChange={(e) => updateRow(r._key, "deliveryInfo", e.target.value)} />
+                        </td>
+                        <td style={S.td}>
+                          <button type="button" style={S.btn("sm")} onClick={() => removeRow(r._key)}>✕</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {error && (
+            <p style={{ padding: "10px 14px", background: "rgba(239,68,68,0.08)", borderRadius: 8, marginTop: 16, fontSize: "0.875rem", color: "#DC2626" }}>
+              {error}
+            </p>
+          )}
+
+          {result && (
+            <div style={{ padding: "10px 14px", background: result.imported ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", borderRadius: 8, marginTop: 16, fontSize: "0.875rem", color: result.imported ? "#059669" : "#DC2626" }}>
+              {t("vcommercePortal:portal.products.aiImport.result", { imported: result.imported, skipped: result.skipped ?? 0 })}
+              {result.errors?.length > 0 && (
+                <ul style={{ margin: "6px 0 0", paddingLeft: 20 }}>
+                  {result.errors.map((e, i) => <li key={i}>{t("vcommercePortal:portal.products.aiImport.rowError", { row: e.row, message: e.message })}</li>)}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {rows !== null && (
+            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+              <button type="button" style={S.btn()} onClick={handleImport} disabled={importing || !activeRows.length}>
+                {importing
+                  ? t("vcommercePortal:portal.products.aiImport.importing")
+                  : t("vcommercePortal:portal.products.aiImport.importButton", { count: activeRows.length })}
+              </button>
+              <button type="button" style={S.btn("ghost")} onClick={onClose}>{t("vcommercePortal:portal.products.modal.cancelButton")}</button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

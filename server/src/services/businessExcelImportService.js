@@ -76,7 +76,7 @@ async function readRowsFromWorkbook(buffer) {
   return rows;
 }
 
-function parseRow(row, rowNumber) {
+export function parseRow(row, rowNumber) {
   const errors = [];
 
   const name = String(row.name || "").trim();

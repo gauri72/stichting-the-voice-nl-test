@@ -17,6 +17,8 @@ import {
   postImportProducts,
   getProductsTemplate,
   getMyImportHistory,
+  postAiImportPreview,
+  postAiImportConfirm,
   getMyReferralLink,
   postConnectOnboarding,
   getConnectStatus,
@@ -48,6 +50,26 @@ const upload = multer({
   },
 });
 
+const AI_IMPORT_MIME_TYPES = new Set([
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+
+const uploadAiDoc = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter(req, file, cb) {
+    const extOk = /\.(pdf|docx)$/i.test(file.originalname || "");
+    const typeOk = AI_IMPORT_MIME_TYPES.has(file.mimetype);
+    if (!extOk || !typeOk) {
+      const err = new Error("Only .pdf or .docx files are allowed.");
+      err.status = 400;
+      return cb(err);
+    }
+    return cb(null, true);
+  },
+});
+
 const router = Router();
 
 // All portal routes require authentication
@@ -69,6 +91,8 @@ router.post("/me/submit-review", postSubmitForReview);
 router.get("/me/products/template", getProductsTemplate);
 router.post("/me/products/import", upload.single("file"), postImportProducts);
 router.get("/me/products/import-history", getMyImportHistory);
+router.post("/me/products/ai-import/preview", uploadAiDoc.single("file"), postAiImportPreview);
+router.post("/me/products/ai-import/confirm", postAiImportConfirm);
 router.post("/me/products/reorder", postReorderProducts);
 router.get("/me/products", getMyProducts);
 router.post("/me/products", postMyProduct);

@@ -21,6 +21,10 @@ import {
   getImportHistory,
 } from "../services/businessExcelImportService.js";
 import {
+  previewProductsFromDocument,
+  confirmProductsFromDocument,
+} from "../services/businessDocumentImportService.js";
+import {
   createSellerOnboardingLink,
   refreshSellerConnectStatus,
   getSellerConnectOverview,
@@ -233,6 +237,40 @@ export async function postImportProducts(req, res) {
       business._id,
       req.file.buffer,
       req.file.originalname
+    );
+    return ok(res, result);
+  } catch (e) {
+    return handleError(res, e);
+  }
+}
+
+export async function postAiImportPreview(req, res) {
+  try {
+    const business = await getOwnBusiness(req.user.id);
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded." });
+    }
+    const result = await previewProductsFromDocument(
+      req.user.id,
+      business._id,
+      req.file.buffer,
+      req.file.mimetype,
+      req.file.originalname
+    );
+    return ok(res, result);
+  } catch (e) {
+    return handleError(res, e);
+  }
+}
+
+export async function postAiImportConfirm(req, res) {
+  try {
+    const business = await getOwnBusiness(req.user.id);
+    const result = await confirmProductsFromDocument(
+      req.user.id,
+      business._id,
+      req.body.rows || [],
+      req.body.filename || ""
     );
     return ok(res, result);
   } catch (e) {

@@ -164,6 +164,24 @@ export function getMyImportHistory() {
   return apiFetch("/api/vcommerce-portal/me/products/import-history", { headers: authHeaders() });
 }
 
+// --- Portal: AI Document Import ---
+
+export function postAiImportPreview(formData) {
+  return apiFetch("/api/vcommerce-portal/me/products/ai-import/preview", {
+    method: "POST",
+    headers: authHeaders(), // no Content-Type — browser sets multipart boundary
+    body: formData,
+  });
+}
+
+export function postAiImportConfirm(payload) {
+  return apiFetch("/api/vcommerce-portal/me/products/ai-import/confirm", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(payload),
+  });
+}
+
 // --- Portal: Referral Link ---
 
 export function getMyReferralLink() {

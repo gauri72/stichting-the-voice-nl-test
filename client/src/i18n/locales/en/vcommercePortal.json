@@ -435,6 +435,30 @@
         "availableCheckbox": "Available for purchase",
         "saveButton": "Save",
         "cancelButton": "Cancel"
+      },
+      "aiImport": {
+        "button": "Import from Document",
+        "modalTitle": "Import Products from Document",
+        "dropzonePlaceholder": "Click to upload a PDF or Word (.docx) file",
+        "dropzoneHint": "We'll use AI to read your document and pull out a product list — you can edit everything before it's created.",
+        "parsing": "Reading document & extracting products with AI…",
+        "parseError": "Could not read products from this document.",
+        "importError": "Error importing products.",
+        "chooseAnother": "Choose Another File",
+        "rowsFound_one": "{{count}} product found",
+        "rowsFound_other": "{{count}} products found",
+        "table": {
+          "name": "Name",
+          "type": "Type",
+          "price": "Price (€)",
+          "stock": "Stock",
+          "delivery": "Delivery Info"
+        },
+        "importing": "Importing…",
+        "importButton_one": "Import {{count}} Product",
+        "importButton_other": "Import {{count}} Products",
+        "result": "Imported {{imported}}, skipped {{skipped}}.",
+        "rowError": "Row {{row}}: {{message}}"
       }
     },
     "orders": {
