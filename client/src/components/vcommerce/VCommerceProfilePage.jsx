@@ -26,7 +26,12 @@ function SocialLinks({ links = {} }) {
   return (
     <div className="vco-social-links">
       {entries.map(([key, value]) => {
-        const url = value.startsWith("http") ? value : `https://${value}`;
+        // WhatsApp is stored as a phone number (e.g. "+31 6 12345678"), not a
+        // URL — build a proper wa.me link instead of prefixing it with https://.
+        const url =
+          key === "whatsapp"
+            ? `https://wa.me/${value.replace(/[^\d]/g, "")}`
+            : value.startsWith("http") ? value : `https://${value}`;
         const labels = {
           instagram: t("vcommerceShop:profilePage.social.instagram"),
           facebook: t("vcommerceShop:profilePage.social.facebook"),
