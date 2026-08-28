@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -7,12 +8,40 @@ import {
   IconStarFilled,
   IconWallet,
 } from "@tabler/icons-react";
-import { KNVERS_FEATURED_BUSINESS } from "../vcommerce/shared/knversFeatured.js";
+import { getVCommerceFeatured } from "../vcommerce/shared/vcommerceApi.js";
+import { BUSINESS_CATEGORY_LABELS } from "../vcommerce/shared/BUSINESS_CATEGORIES.js";
 import "../../styles/vcommerce-spotlight-section.css";
+
+function mapFeaturedBusiness(business) {
+  if (!business) return null;
+  return {
+    name: business.businessName,
+    categoryLabel: BUSINESS_CATEGORY_LABELS[business.category] || business.category,
+    location: [business.location?.city, business.location?.country].filter(Boolean).join(", "),
+    rating: business.avgRating,
+    reviewCount: business.reviewCount || 0,
+    imageUrl: business.bannerUrl || business.logoUrl || "",
+    tags: [BUSINESS_CATEGORY_LABELS[business.category] || business.category].filter(Boolean),
+    cashbackPercent: business.cashbackPercent || 0,
+    description: business.tagline || business.description || "",
+    shopUrl: `/vcommerce/${business.slug}`,
+  };
+}
 
 export default function VCommerceSpotlightSection() {
   const { t } = useTranslation(["home"]);
-  const business = KNVERS_FEATURED_BUSINESS;
+  const [business, setBusiness] = useState(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    getVCommerceFeatured()
+      .then((data) => setBusiness(mapFeaturedBusiness(data.business)))
+      .catch(() => setBusiness(null))
+      .finally(() => setLoaded(true));
+  }, []);
+
+  if (!loaded || !business) return null;
+
   const tags = business.tags.slice(0, 3);
 
   return (
@@ -31,10 +60,12 @@ export default function VCommerceSpotlightSection() {
 
         <article className="vcommerce-spotlight__card">
           <div className="vcommerce-spotlight__media">
-            <picture>
-              <source media="(max-width: 760px)" srcSet={business.mobileSpotlightImageUrl} />
-              <img src={business.mobileSpotlightImageUrl} alt={t("home:vcommerceSpotlight.imageAlt", { name: business.name })} />
-            </picture>
+            {business.imageUrl ? (
+              <picture>
+                <source media="(max-width: 760px)" srcSet={business.imageUrl} />
+                <img src={business.imageUrl} alt={t("home:vcommerceSpotlight.imageAlt", { name: business.name })} />
+              </picture>
+            ) : null}
             <span className="vcommerce-spotlight__image-label">{t("home:vcommerceSpotlight.imageLabel")}</span>
           </div>
 
@@ -46,7 +77,9 @@ export default function VCommerceSpotlightSection() {
 
             <h3>{business.name}</h3>
             <p className="vcommerce-spotlight__category">{business.categoryLabel}</p>
-            <p className="vcommerce-spotlight__location"><IconMapPin aria-hidden="true" /> {business.location}</p>
+            {business.location ? (
+              <p className="vcommerce-spotlight__location"><IconMapPin aria-hidden="true" /> {business.location}</p>
+            ) : null}
             {business.reviewCount > 0 && (
               <p className="vcommerce-spotlight__rating">
                 <IconStarFilled aria-hidden="true" /> <strong>{Number(business.rating).toFixed(1)}</strong>{" "}
@@ -63,7 +96,7 @@ export default function VCommerceSpotlightSection() {
                 <IconWallet aria-hidden="true" /> {t("home:vcommerceSpotlight.cashback", { percent: business.cashbackPercent })}
               </p>
             )}
-            <p className="vcommerce-spotlight__description">{business.description}</p>
+            {business.description ? <p className="vcommerce-spotlight__description">{business.description}</p> : null}
 
             <div className="vcommerce-spotlight__actions">
               <Link className="vcommerce-spotlight__primary cta-pulse" to={business.shopUrl}>{t("home:vcommerceSpotlight.visitShop")} <IconArrowRight aria-hidden="true" /></Link>
