@@ -46,7 +46,7 @@ function ProductCard({ product, variant = "desktop" }) {
         <p className={isDesktop ? "vcohp-desk__pick-price" : "vcohp-mob__pick-price"}>
           €{product.price.toFixed(2)}
         </p>
-        {product.cashbackPercent > 0 && (
+        {product.businessSlug !== "travelarc" && product.cashbackPercent > 0 && (
           <p className={isDesktop ? "vcohp-desk__pick-cashback" : "vcohp-mob__pick-cashback"} style={{ color: "var(--mkt-green)" }}>
             <IconShieldCheck size={isDesktop ? 12 : 11} aria-hidden="true" /> {product.cashbackPercent}% {isDesktop ? t("vcommerceShop:popularPicks.cashbackDesktop") : t("vcommerceShop:popularPicks.cashbackMobile")}
           </p>

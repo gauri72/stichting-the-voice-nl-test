@@ -22,7 +22,9 @@ function mapFeaturedBusiness(business) {
     reviewCount: business.reviewCount || 0,
     imageUrl: business.bannerUrl || business.logoUrl || "",
     tags: [BUSINESS_CATEGORY_LABELS[business.category] || business.category].filter(Boolean),
-    cashbackPercent: business.cashbackPercent || 0,
+    // TravelArc has no cashback offer — this mirrors the same slug-scoped
+    // suppression used on its own V.Commerce profile page.
+    cashbackPercent: business.slug === "travelarc" ? 0 : (business.cashbackPercent || 0),
     description: business.tagline || business.description || "",
     shopUrl: `/vcommerce/${business.slug}`,
   };

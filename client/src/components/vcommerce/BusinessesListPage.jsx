@@ -50,7 +50,7 @@ function BusinessCard({ business }) {
           <StarRating rating={business.rating} />
           {business.rating > 0 && <span style={{ fontSize: "0.75rem", color: "var(--mkt-text-muted)" }}>({business.reviewCount})</span>}
         </div>
-        {business.cashbackPercent > 0 && (
+        {business.slug !== "travelarc" && business.cashbackPercent > 0 && (
           <p style={{ fontSize: "0.72rem", color: "var(--mkt-green)", display: "flex", alignItems: "center", gap: 4 }}>
             <IconShieldCheck size={12} aria-hidden="true" /> {business.cashbackPercent}% {t("vcommerceShop:businessesList.cashbackSuffix")}
           </p>

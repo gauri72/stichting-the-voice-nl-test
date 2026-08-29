@@ -95,7 +95,7 @@ function ProductCard({ product, business, cashbackPercent, onSelect, onAddToCart
             🏷️ {isApprovedWholesaler ? t("vcommerceShop:profilePage.productCard.bulkPricingAvailable") : t("vcommerceShop:profilePage.productCard.wholesalePricingLocked")}
           </span>
         )}
-        {cashbackPercent > 0 && (
+        {!isApplicationBusiness && cashbackPercent > 0 && (
           <span className="vco-cashback-pill">
             🎁 {t("vcommerceShop:profilePage.productCard.cashback", { amount: formatPrice(Math.round(product.priceMinor * cashbackPercent / 100), product.currency) })}
           </span>
@@ -229,7 +229,7 @@ function ProductModal({ product, business, onClose, onAddToCart, onApply, isAppl
                 </span>
               )}
             </div>
-            {business.cashbackPercent > 0 && (
+            {!isApplicationBusiness && business.cashbackPercent > 0 && (
               <span className="vco-cashback-pill" style={{ fontSize:"0.82rem" }}>
                 🎁 {t("vcommerceShop:profilePage.productModal.cashback", { percent: business.cashbackPercent })}
               </span>
@@ -504,7 +504,7 @@ export default function VCommerceProfilePage() {
               📍 {profile.location.city}{profile.location.country ? `, ${profile.location.country}` : ""}
             </span>
           )}
-          {profile.cashbackPercent > 0 && (
+          {!isApplicationBusiness && profile.cashbackPercent > 0 && (
             <span className="vco-cashback-pill">
               🎁 {t("vcommerceShop:profilePage.cashbackBadge", { percent: profile.cashbackPercent })}
             </span>
