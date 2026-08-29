@@ -11,6 +11,7 @@ import {
 } from "../services/businessApplicationService.js";
 import { getOrderStatus, createOrderIntent, listCustomerOrders } from "../services/businessOrderService.js";
 import { postReview, getReviews } from "../services/businessReviewService.js";
+import { submitBusinessInquiry } from "../services/businessInquiryService.js";
 import { checkRateLimit } from "../utils/rateLimit.js";
 import {
   createApplicationPackageCheckout,
@@ -112,6 +113,28 @@ export async function confirmApplicationPayment(req, res) {
     });
   } catch (e) {
     handleError(res, e);
+  }
+}
+
+export async function postBusinessInquiry(req, res) {
+  try {
+    const actorKey = req.user?.id || req.ip || "guest";
+    const rl = checkRateLimit(`vco_inquiry:${actorKey}`, { maxAttempts: 5, windowMs: 60 * 60_000 });
+    if (!rl.allowed) {
+      return res.status(429).json({ error: "Too many applications submitted. Please try again later." });
+    }
+    const { productId, productName, name, email, phone, message } = req.body;
+    const result = await submitBusinessInquiry(req.params.businessId, {
+      productId,
+      productName,
+      name: name || (req.user ? `${req.user.firstName || ""} ${req.user.lastName || ""}`.trim() : ""),
+      email: email || req.user?.email || "",
+      phone,
+      message,
+    });
+    return ok(res, result);
+  } catch (e) {
+    return handleError(res, e);
   }
 }
 

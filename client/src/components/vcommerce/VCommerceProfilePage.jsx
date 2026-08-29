@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { getVCommerceProfile } from "./shared/vcommerceApi.js";
+import { getVCommerceProfile, postBusinessInquiry } from "./shared/vcommerceApi.js";
 import { BUSINESS_CATEGORY_LABELS, CATEGORY_ICONS } from "./shared/BUSINESS_CATEGORIES.js";
 import { useCart } from "./cart/useCart.js";
 import CartDrawer from "./cart/CartDrawer.jsx";
@@ -57,13 +57,17 @@ function resolveUnitPrice(product, qty) {
   return product.priceMinor;
 }
 
-function ProductCard({ product, business, cashbackPercent, onSelect, onAddToCart, isApprovedWholesaler }) {
+function ProductCard({ product, business, cashbackPercent, onSelect, onAddToCart, onApply, isApplicationBusiness, isApprovedWholesaler }) {
   const { t } = useTranslation(["vcommerceShop"]);
   const hasWholesale = product.bulkPricingTiers?.length > 0;
   const hasVariants = product.variants?.length > 0;
 
   function handleAddToCart(e) {
     e.stopPropagation();
+    if (isApplicationBusiness) {
+      onApply(product);
+      return;
+    }
     if (hasVariants) {
       // Can't add to cart without picking a variant first — open the same
       // modal the card click would, so the choice can be made there.
@@ -97,14 +101,16 @@ function ProductCard({ product, business, cashbackPercent, onSelect, onAddToCart
           </span>
         )}
         <button type="button" className="vco-product-card__add-btn" onClick={handleAddToCart}>
-          {hasVariants ? t("vcommerceShop:profilePage.productCard.selectOptions") : t("vcommerceShop:profilePage.productCard.addToCart")}
+          {isApplicationBusiness
+            ? t("vcommerceShop:profilePage.productCard.submitApplication")
+            : hasVariants ? t("vcommerceShop:profilePage.productCard.selectOptions") : t("vcommerceShop:profilePage.productCard.addToCart")}
         </button>
       </div>
     </div>
   );
 }
 
-function ProductModal({ product, business, onClose, onAddToCart, isApprovedWholesaler, isAuthenticated }) {
+function ProductModal({ product, business, onClose, onAddToCart, onApply, isApplicationBusiness, isApprovedWholesaler, isAuthenticated }) {
   const { t } = useTranslation(["vcommerceShop"]);
   const [qty, setQty] = useState(product?.minOrderQty || 1);
   const [selectedVariant, setSelectedVariant] = useState("");
@@ -117,6 +123,11 @@ function ProductModal({ product, business, onClose, onAddToCart, isApprovedWhole
 
   function handleAdd() {
     onAddToCart(business, product, qty, selectedVariant);
+    onClose();
+  }
+
+  function handleApply() {
+    onApply(product);
     onClose();
   }
 
@@ -225,25 +236,123 @@ function ProductModal({ product, business, onClose, onAddToCart, isApprovedWhole
             )}
           </div>
 
-          <div style={{ display:"flex",alignItems:"center",gap:12,marginBottom:20 }}>
-            <div style={{ display:"flex",alignItems:"center",gap:8 }}>
-              <button type="button" onClick={() => setQty((q) => Math.max(minQty, q - 1))}
-                style={{ width:32,height:32,borderRadius:8,border:"1px solid var(--color-border,rgba(128,128,128,0.3))",background:"none",cursor:"pointer",fontSize:"1rem" }}>−</button>
-              <span style={{ fontWeight:600,minWidth:24,textAlign:"center" }}>{qty}</span>
-              <button type="button" onClick={() => setQty((q) => product.maxOrderQty ? Math.min(product.maxOrderQty, q + 1) : q + 1)}
-                style={{ width:32,height:32,borderRadius:8,border:"1px solid var(--color-border,rgba(128,128,128,0.3))",background:"none",cursor:"pointer",fontSize:"1rem" }}>+</button>
+          {isApplicationBusiness ? (
+            <div style={{ marginBottom:20 }}>
+              <button type="button" className="vco-btn vco-btn--primary" style={{ width:"100%" }} onClick={handleApply}>
+                {t("vcommerceShop:profilePage.productCard.submitApplication")}
+              </button>
             </div>
-            {minQty > 1 && (
-              <span style={{ fontSize:"0.78rem",color:"var(--color-text-muted,#aaa)" }}>{t("vcommerceShop:profilePage.productModal.minQty", { count: minQty })}</span>
-            )}
-            <button type="button" className="vco-btn vco-btn--primary" style={{ flex:1 }} onClick={handleAdd}>
-              {t("vcommerceShop:profilePage.productModal.addToCart")}
-            </button>
-          </div>
+          ) : (
+            <div style={{ display:"flex",alignItems:"center",gap:12,marginBottom:20 }}>
+              <div style={{ display:"flex",alignItems:"center",gap:8 }}>
+                <button type="button" onClick={() => setQty((q) => Math.max(minQty, q - 1))}
+                  style={{ width:32,height:32,borderRadius:8,border:"1px solid var(--color-border,rgba(128,128,128,0.3))",background:"none",cursor:"pointer",fontSize:"1rem" }}>−</button>
+                <span style={{ fontWeight:600,minWidth:24,textAlign:"center" }}>{qty}</span>
+                <button type="button" onClick={() => setQty((q) => product.maxOrderQty ? Math.min(product.maxOrderQty, q + 1) : q + 1)}
+                  style={{ width:32,height:32,borderRadius:8,border:"1px solid var(--color-border,rgba(128,128,128,0.3))",background:"none",cursor:"pointer",fontSize:"1rem" }}>+</button>
+              </div>
+              {minQty > 1 && (
+                <span style={{ fontSize:"0.78rem",color:"var(--color-text-muted,#aaa)" }}>{t("vcommerceShop:profilePage.productModal.minQty", { count: minQty })}</span>
+              )}
+              <button type="button" className="vco-btn vco-btn--primary" style={{ flex:1 }} onClick={handleAdd}>
+                {t("vcommerceShop:profilePage.productModal.addToCart")}
+              </button>
+            </div>
+          )}
           <button type="button" className="vco-btn vco-btn--ghost" style={{ width:"100%" }} onClick={onClose}>
             {t("vcommerceShop:profilePage.productModal.close")}
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ApplicationInquiryModal({ product, business, onClose }) {
+  const { t } = useTranslation(["vcommerceShop"]);
+  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [sent, setSent] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setSubmitting(true);
+    try {
+      await postBusinessInquiry(business._id, {
+        productId: product._id,
+        productName: product.name,
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        message: form.message,
+      });
+      setSent(true);
+    } catch (err) {
+      setError(err?.message || t("vcommerceShop:profilePage.applicationModal.submitError"));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div
+      style={{ position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:24 }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div style={{ background:"var(--color-card-bg,#fff)",borderRadius:20,maxWidth:480,width:"100%",overflow:"hidden",maxHeight:"90vh",overflowY:"auto",padding:28 }}>
+        {sent ? (
+          <>
+            <h2 style={{ fontSize:"1.25rem",fontWeight:700,margin:"0 0 10px" }}>{t("vcommerceShop:profilePage.applicationModal.successTitle")}</h2>
+            <p style={{ color:"var(--color-text-secondary,#666)",fontSize:"0.9rem",lineHeight:1.6,margin:"0 0 20px" }}>
+              {t("vcommerceShop:profilePage.applicationModal.successBody", { businessName: business.businessName })}
+            </p>
+            <button type="button" className="vco-btn vco-btn--primary" style={{ width:"100%" }} onClick={onClose}>
+              {t("vcommerceShop:profilePage.productModal.close")}
+            </button>
+          </>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <h2 style={{ fontSize:"1.25rem",fontWeight:700,margin:"0 0 4px" }}>{t("vcommerceShop:profilePage.applicationModal.title")}</h2>
+            <p style={{ color:"var(--color-text-secondary,#666)",fontSize:"0.85rem",margin:"0 0 20px" }}>{product.name}</p>
+
+            <div style={{ display:"flex",flexDirection:"column",gap:14 }}>
+              <div>
+                <label style={{ fontSize:"0.8rem",fontWeight:600,display:"block",marginBottom:4 }}>{t("vcommerceShop:profilePage.applicationModal.nameLabel")}</label>
+                <input type="text" required value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  style={{ width:"100%",boxSizing:"border-box",padding:"9px 12px",border:"1px solid var(--color-border,rgba(128,128,128,0.3))",borderRadius:8,background:"var(--color-bg,#fff)",color:"inherit",fontSize:"0.9rem" }} />
+              </div>
+              <div>
+                <label style={{ fontSize:"0.8rem",fontWeight:600,display:"block",marginBottom:4 }}>{t("vcommerceShop:profilePage.applicationModal.emailLabel")}</label>
+                <input type="email" required value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                  style={{ width:"100%",boxSizing:"border-box",padding:"9px 12px",border:"1px solid var(--color-border,rgba(128,128,128,0.3))",borderRadius:8,background:"var(--color-bg,#fff)",color:"inherit",fontSize:"0.9rem" }} />
+              </div>
+              <div>
+                <label style={{ fontSize:"0.8rem",fontWeight:600,display:"block",marginBottom:4 }}>{t("vcommerceShop:profilePage.applicationModal.phoneLabel")}</label>
+                <input type="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  style={{ width:"100%",boxSizing:"border-box",padding:"9px 12px",border:"1px solid var(--color-border,rgba(128,128,128,0.3))",borderRadius:8,background:"var(--color-bg,#fff)",color:"inherit",fontSize:"0.9rem" }} />
+              </div>
+              <div>
+                <label style={{ fontSize:"0.8rem",fontWeight:600,display:"block",marginBottom:4 }}>{t("vcommerceShop:profilePage.applicationModal.messageLabel")}</label>
+                <textarea required rows={4} value={form.message} onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
+                  placeholder={t("vcommerceShop:profilePage.applicationModal.messagePlaceholder")}
+                  style={{ width:"100%",boxSizing:"border-box",padding:"9px 12px",border:"1px solid var(--color-border,rgba(128,128,128,0.3))",borderRadius:8,background:"var(--color-bg,#fff)",color:"inherit",fontSize:"0.9rem",fontFamily:"inherit",resize:"vertical" }} />
+              </div>
+            </div>
+
+            {error && <p style={{ color:"#DC2626",fontSize:"0.85rem",margin:"14px 0 0" }}>{error}</p>}
+
+            <div style={{ display:"flex",gap:10,marginTop:20 }}>
+              <button type="submit" className="vco-btn vco-btn--primary" style={{ flex:1 }} disabled={submitting}>
+                {submitting ? t("vcommerceShop:profilePage.applicationModal.submitting") : t("vcommerceShop:profilePage.applicationModal.submitButton")}
+              </button>
+              <button type="button" className="vco-btn vco-btn--ghost" onClick={onClose}>
+                {t("vcommerceShop:profilePage.productModal.close")}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
@@ -259,6 +368,7 @@ export default function VCommerceProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [applyingProduct, setApplyingProduct] = useState(null);
 
   const {
     cart, drawerOpen, openDrawer, closeDrawer,
@@ -336,6 +446,9 @@ export default function VCommerceProfilePage() {
   }
 
   const products = Array.isArray(data?.products) ? data.products : [];
+  // TravelArc's tours are booked via a reviewed application, not a cart — this is
+  // deliberately scoped to just this one business, not a general checkout mode.
+  const isApplicationBusiness = String(profile?.slug).toLowerCase() === "travelarc";
   if (!profile) {
     return (
       <div className="vco-error-page">
@@ -426,6 +539,8 @@ export default function VCommerceProfilePage() {
                     cashbackPercent={profile.cashbackPercent}
                     onSelect={setSelectedProduct}
                     onAddToCart={addToCart}
+                    onApply={setApplyingProduct}
+                    isApplicationBusiness={isApplicationBusiness}
                     isApprovedWholesaler={isApprovedWholesaler}
                   />
                 ))}
@@ -478,8 +593,18 @@ export default function VCommerceProfilePage() {
           business={profile}
           onClose={() => setSelectedProduct(null)}
           onAddToCart={addToCart}
+          onApply={setApplyingProduct}
+          isApplicationBusiness={isApplicationBusiness}
           isApprovedWholesaler={isApprovedWholesaler}
           isAuthenticated={isAuthenticated}
+        />
+      )}
+
+      {applyingProduct && (
+        <ApplicationInquiryModal
+          product={applyingProduct}
+          business={profile}
+          onClose={() => setApplyingProduct(null)}
         />
       )}
 

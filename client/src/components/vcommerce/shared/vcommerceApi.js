@@ -55,6 +55,14 @@ export function postCreateOrder(businessId, data) {
   });
 }
 
+export function postBusinessInquiry(businessId, data) {
+  return apiFetch(`/api/vcommerce/${businessId}/inquiry`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(data),
+  });
+}
+
 export function getOrderStatus(orderId, accessToken = "") {
   const qs = accessToken ? `?accessToken=${encodeURIComponent(accessToken)}` : "";
   return apiFetch(`/api/vcommerce/order/${orderId}/status${qs}`, { headers: authHeaders() });

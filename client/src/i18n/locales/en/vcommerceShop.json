@@ -92,7 +92,21 @@
       "wholesalePricingLocked": "Wholesale pricing — register to unlock",
       "cashback": "+{{amount}} cashback",
       "selectOptions": "Select options",
-      "addToCart": "Add to Cart"
+      "addToCart": "Add to Cart",
+      "submitApplication": "Submit Your Application"
+    },
+    "applicationModal": {
+      "title": "Submit Your Application",
+      "nameLabel": "Full Name",
+      "emailLabel": "Email Address",
+      "phoneLabel": "Phone Number (optional)",
+      "messageLabel": "Your Message / Query",
+      "messagePlaceholder": "Tell us about your interest, any questions you have, or details relevant to your application...",
+      "submitButton": "Submit Application",
+      "submitting": "Submitting…",
+      "submitError": "Could not submit your application. Please try again.",
+      "successTitle": "Application Submitted",
+      "successBody": "Thank you for your application! The {{businessName}} team will review it and contact you as soon as possible."
     },
     "productModal": {
       "noDescription": "No description provided.",

@@ -14,6 +14,7 @@ import {
   getStats,
   getPopularProductsHandler,
   confirmApplicationPayment,
+  postBusinessInquiry,
 } from "../controllers/vcommerceController.js";
 
 const router = Router();
@@ -44,5 +45,6 @@ router.get("/:slug", getProfile);
 // Per-business actions (auth required)
 router.post("/:businessId/order", optionalAuth, postCreateOrder);
 router.post("/:businessId/review", requireAuth, postReviewHandler);
+router.post("/:businessId/inquiry", optionalAuth, postBusinessInquiry);
 
 export default router;
