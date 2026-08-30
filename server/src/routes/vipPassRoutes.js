@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   listVipGuests,
   createVipGuest,
+  createVipGuestGroup,
   bulkCreateVipGuests,
   resendVipGuestPass,
   voidVipGuestPass,
@@ -13,6 +14,7 @@ const router = Router();
 
 router.get("/", listVipGuests);
 router.post("/", createVipGuest);
+router.post("/group", createVipGuestGroup);
 router.post("/bulk", bulkCreateVipGuests);
 router.post("/:ticketId/resend", resendVipGuestPass);
 router.post("/:ticketId/void", voidVipGuestPass);

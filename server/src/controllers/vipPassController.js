@@ -24,6 +24,16 @@ export async function createVipGuest(req, res) {
   }
 }
 
+export async function createVipGuestGroup(req, res) {
+  try {
+    const { issueVipPassGroup } = await import("../services/vipPassService.js");
+    const result = await issueVipPassGroup(req.body || {}, adminId(req));
+    return res.status(201).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function bulkCreateVipGuests(req, res) {
   try {
     const { bulkIssueVipPasses } = await import("../services/vipPassService.js");

@@ -7,7 +7,7 @@ import { generateVerificationToken } from "./eventService.js";
 import { buildTicketQrPath } from "./ticketQrService.js";
 import { buildTicketPdfUrl } from "../utils/ticketPdfAccess.js";
 import { formatOrder, formatTicket } from "./ticketOrderService.js";
-import { sendVipPassEmail } from "./vipPassMailer.js";
+import { sendVipPassEmail, sendVipPassGroupEmail } from "./vipPassMailer.js";
 import { voidAdminTicket } from "./ticketAdminService.js";
 
 // Deliberately NOT named "VIP Pass" — ComplimentaryBookingService.checkoutFestivalPass()
@@ -17,6 +17,7 @@ import { voidAdminTicket } from "./ticketAdminService.js";
 // avoids the collision entirely. All guest/admin-facing text says "VIP Pass".
 const VIP_TICKET_TYPE_NAME = "VIP Guest Pass";
 const MAX_BULK_GUESTS = 300;
+const MAX_GROUP_GUESTS = 20;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function splitGuestName(fullName = "") {
@@ -136,6 +137,115 @@ export async function issueVipPass({ eventId, guestName, guestEmail }, adminId =
   });
 
   return { order: formatOrder(order), ticket: formatTicket(ticket), event, emailResult };
+}
+
+/** Issues a whole party's VIP passes under ONE order, sent as ONE collated PDF to the
+ *  primary contact's email — each named guest still gets their own real Ticket with its
+ *  own verification token, so each is independently scannable at the door. */
+export async function issueVipPassGroup({ eventId, primaryContactName, primaryContactEmail, guestNames }, adminId = null) {
+  const contactName = String(primaryContactName || "").trim().slice(0, 160);
+  const contactEmail = String(primaryContactEmail || "").trim().toLowerCase();
+  const names = (Array.isArray(guestNames) ? guestNames : [])
+    .map((n) => String(n || "").trim().slice(0, 160))
+    .filter(Boolean);
+
+  if (!eventId) {
+    const err = new Error("eventId is required.");
+    err.status = 400;
+    throw err;
+  }
+  if (!contactName) {
+    const err = new Error("Primary contact name is required.");
+    err.status = 400;
+    throw err;
+  }
+  if (!contactEmail || !EMAIL_RE.test(contactEmail)) {
+    const err = new Error("A valid primary contact email is required.");
+    err.status = 400;
+    throw err;
+  }
+  if (!names.length) {
+    const err = new Error("At least one guest name is required.");
+    err.status = 400;
+    throw err;
+  }
+  if (names.length > MAX_GROUP_GUESTS) {
+    const err = new Error(`No more than ${MAX_GROUP_GUESTS} guests per group.`);
+    err.status = 400;
+    throw err;
+  }
+
+  const event = await Event.findById(eventId).lean();
+  if (!event) {
+    const err = new Error("Event not found.");
+    err.status = 404;
+    throw err;
+  }
+
+  const ticketType = await ensureVipPassTicketType(event._id);
+  const { firstName, lastName } = splitGuestName(contactName);
+
+  const order = await TicketOrder.create({
+    orderNumber: await buildOrderNumber(),
+    orderType: "TICKET_ONLY",
+    userId: null,
+    eventId: event._id,
+    attendeeFirstName: firstName,
+    attendeeLastName: lastName,
+    attendeeEmail: contactEmail,
+    lineItems: [
+      {
+        ticketTypeId: ticketType._id,
+        ticketTypeName: ticketType.name,
+        quantity: names.length,
+        unitPriceMinor: 0,
+        originalPriceMinor: 0,
+        finalPriceMinor: 0,
+      },
+    ],
+    subtotalMinor: 0,
+    totalAmountMinor: 0,
+    paymentStatus: "complimentary",
+    paymentMethod: "complimentary",
+    orderStatus: "COMPLETED",
+    adminIssued: true,
+    adminIssuedBy: adminId || null,
+    bookingMode: "vip_guest",
+  });
+
+  const tickets = [];
+  for (const guestName of names) {
+    const verificationToken = generateVerificationToken();
+    const ticketNumber = await buildTicketNumber();
+    const ticket = await Ticket.create({
+      ticketNumber,
+      orderId: order._id,
+      eventId: event._id,
+      ticketTypeId: ticketType._id,
+      ticketTypeName: ticketType.name,
+      attendeeName: guestName,
+      attendeeEmail: contactEmail,
+      verificationToken,
+      qrCodeUrl: buildTicketQrPath(verificationToken),
+      pdfUrl: buildTicketPdfUrl(ticketNumber, verificationToken),
+      status: "valid",
+    });
+    tickets.push(ticket);
+  }
+
+  await TicketType.updateOne({ _id: ticketType._id }, { $inc: { soldCount: names.length } });
+
+  const emailResult = await sendVipPassGroupEmail({ order, tickets, event }).catch((error) => {
+    console.warn("[vip-pass] Could not send VIP pass group email:", error.message);
+    return { sent: false, error: error.message };
+  });
+
+  return {
+    order: formatOrder(order),
+    tickets: tickets.map((t) => formatTicket(t)),
+    event,
+    emailResult,
+  };
 }
 
 /** guests: [{ name, email }] — issued sequentially (not Promise.all) so order-number

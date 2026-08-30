@@ -3,28 +3,39 @@ import { IconCrown } from "@tabler/icons-react";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
 
 export default function SendVipPassModal({ event, onClose }) {
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
+  const [primaryContactName, setPrimaryContactName] = useState("");
+  const [primaryContactEmail, setPrimaryContactEmail] = useState("");
+  const [numPasses, setNumPasses] = useState(1);
+  const [guestNamesText, setGuestNamesText] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
-  const [sent, setSent] = useState("");
+  const [sent, setSent] = useState(null);
 
   async function handleSend(e) {
     e.preventDefault();
     setError("");
-    setSent("");
+    setSent(null);
+
+    const guestNames = guestNamesText.split("\n").map((n) => n.trim()).filter(Boolean);
+    if (guestNames.length !== Number(numPasses)) {
+      setError(`Guest names (${guestNames.length}) must match the number of VIP passes (${numPasses}).`);
+      return;
+    }
+
     setSending(true);
     try {
-      await apiFetch("/api/admin/vip-passes", {
+      const result = await apiFetch("/api/admin/vip-passes/group", {
         method: "POST",
         headers: adminAuthHeaders(),
-        body: JSON.stringify({ eventId: event.id, guestName, guestEmail }),
+        body: JSON.stringify({ eventId: event.id, primaryContactName, primaryContactEmail, guestNames }),
       });
-      setSent(guestEmail);
-      setGuestName("");
-      setGuestEmail("");
+      setSent({ email: primaryContactEmail, count: result.tickets?.length || guestNames.length });
+      setPrimaryContactName("");
+      setPrimaryContactEmail("");
+      setNumPasses(1);
+      setGuestNamesText("");
     } catch (err) {
-      setError(err.message || "Could not send VIP pass.");
+      setError(err.message || "Could not send VIP passes.");
     } finally {
       setSending(false);
     }
@@ -42,20 +53,38 @@ export default function SendVipPassModal({ event, onClose }) {
         </header>
         <form onSubmit={handleSend} className="admin-modal__body send-vip-pass-form">
           <p className="admin-events__hint">
-            Sends a themed VIP Pass for <strong>{event.title}</strong> straight to the guest&rsquo;s inbox — no checkout, no payment.
+            Sends one or more themed VIP Passes for <strong>{event.title}</strong>, collated into a single PDF (one page per guest) and emailed to the primary contact — no checkout, no payment.
           </p>
 
           <label>
-            Guest name
-            <input value={guestName} onChange={(e) => setGuestName(e.target.value)} required />
+            Primary contact name
+            <input placeholder="e.g. Ambassador Sharma" value={primaryContactName} onChange={(e) => setPrimaryContactName(e.target.value)} required />
           </label>
           <label>
-            Guest email
-            <input type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} required />
+            Email (PDF will be sent here)
+            <input type="email" placeholder="you@email.com" value={primaryContactEmail} onChange={(e) => setPrimaryContactEmail(e.target.value)} required />
+          </label>
+          <label>
+            Number of VIP passes
+            <input type="number" min="1" max="20" value={numPasses} onChange={(e) => setNumPasses(e.target.value)} required />
+          </label>
+          <label>
+            Guest names — one per line, must match the quantity above
+            <textarea
+              rows={Math.max(3, Number(numPasses) || 1)}
+              placeholder={"1. Full Name\n2. Full Name"}
+              value={guestNamesText}
+              onChange={(e) => setGuestNamesText(e.target.value)}
+              required
+            />
           </label>
 
           {error ? <p className="admin-events__error" role="alert">{error}</p> : null}
-          {sent ? <p className="admin-events__save-message" role="status">VIP Pass sent to {sent}.</p> : null}
+          {sent ? (
+            <p className="admin-events__save-message" role="status">
+              {sent.count} VIP {sent.count === 1 ? "Pass" : "Passes"} sent to {sent.email}.
+            </p>
+          ) : null}
 
           <div className="admin-modal__footer">
             <button type="button" className="admin-events__secondary-btn" onClick={onClose}>Close</button>

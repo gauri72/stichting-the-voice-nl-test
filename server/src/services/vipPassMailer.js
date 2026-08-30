@@ -1,6 +1,6 @@
 import { getSmtpTransporter, isMailerConfigured } from "./smtpTransport.js";
 import { generateTicketQrPngBuffer } from "./ticketQrService.js";
-import { renderVipPassPdf, buildVipPassPdfValuesFromDocs } from "./ticketPdfService.js";
+import { renderVipPassPdf, buildVipPassPdfValuesFromDocs, generateVipPassGroupPdfFromDocs } from "./ticketPdfService.js";
 import { getEmailBranding, buildFromHeader, hexToRgba } from "./ticketMailer.js";
 import { escapeHtml } from "../utils/escapeHtml.js";
 
@@ -169,4 +169,113 @@ export async function sendVipPassEmail({ order, ticket, event }) {
   });
 
   return { sent: true, recipients: [ticket.attendeeEmail] };
+}
+
+function buildVipPassGroupEmailText({ order, tickets, event }) {
+  const branding = getVipEmailBranding(event);
+  const venue = [event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—";
+  const welcome = vipWelcomeMessage(event);
+  const primaryName = `${order.attendeeFirstName || ""} ${order.attendeeLastName || ""}`.trim() || "Guest";
+  const guestList = tickets.map((t) => `- ${t.attendeeName}`).join("\n");
+
+  return `You're on the list!
+
+Welcome, ${primaryName}.
+
+${welcome}
+
+${event?.title || "Event"}
+${formatEventDate(event?.date)}${event?.startTime ? ` · ${event.startTime}` : ""}
+${venue}
+
+${tickets.length} VIP Passes are attached as one PDF — one page per guest, each individually scannable at the entrance:
+${guestList}
+
+${branding.textSignature}`;
+}
+
+function buildVipPassGroupEmailHtml({ order, tickets, event }) {
+  const branding = getVipEmailBranding(event);
+  const a = branding.accent;
+  const eventTitle = escapeHtml(event?.title || "Event");
+  const venue = escapeHtml([event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—");
+  const primaryName = escapeHtml(`${order.attendeeFirstName || ""} ${order.attendeeLastName || ""}`.trim() || "Guest");
+  const welcome = escapeHtml(vipWelcomeMessage(event));
+  const guestListHtml = tickets
+    .map((t) => `<li style="margin:0 0 4px;">${escapeHtml(t.attendeeName)}</li>`)
+    .join("");
+
+  const heroGradient = `linear-gradient(135deg,${branding.panelBg},${hexToRgba(a, 0.15)})`;
+
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Your VIP Passes — ${eventTitle}</title><style>
+    body{margin:0;background:${branding.bg};font-family:${branding.fontFamily};color:#fff}.shell{padding:28px 12px 40px}
+    @media(max-width:600px){.shell{padding:14px 8px 28px}}
+  </style></head>
+  <body><table role="presentation" width="100%" class="shell" cellspacing="0" cellpadding="0"><tr><td align="center">
+    <table role="presentation" width="600" style="width:100%;max-width:600px" cellspacing="0" cellpadding="0">
+      <tr><td style="padding:26px;background:${heroGradient};border:1px solid ${hexToRgba(a, 0.25)};border-radius:20px;">
+        <p style="margin:0 0 10px;color:${a};font-size:11px;letter-spacing:2px;font-weight:800;text-transform:uppercase;">You're on the list</p>
+        <h1 style="margin:0 0 12px;color:#fff;font-size:28px;line-height:1.2;font-family:${branding.headingFontFamily};">Welcome, ${primaryName}</h1>
+        <p style="margin:0;color:${branding.bodyText};font-size:15px;line-height:1.6;">${welcome}</p>
+      </td></tr>
+      <tr><td style="height:18px">&nbsp;</td></tr>
+      <tr><td style="padding:22px;background:${branding.panelBg};border:1px solid ${hexToRgba(a, 0.2)};border-radius:18px;">
+        <p style="margin:0 0 8px;color:#fff;font-size:17px;font-weight:800;">${eventTitle}</p>
+        <p style="margin:0 0 8px;color:${branding.bodyText};font-size:14px;">${escapeHtml(formatEventDate(event?.date))}${event?.startTime ? ` · ${escapeHtml(event.startTime)}` : ""}</p>
+        <p style="margin:0;color:${branding.bodyText};font-size:14px;">${venue}</p>
+      </td></tr>
+      <tr><td style="height:18px">&nbsp;</td></tr>
+      <tr><td style="padding:22px;background:${branding.panelBg};border:1px solid ${hexToRgba(a, 0.2)};border-radius:18px;">
+        <p style="margin:0 0 10px;color:#fff;font-size:15px;font-weight:800;">${tickets.length} VIP Passes attached (one PDF, one page per guest)</p>
+        <ul style="margin:0;padding-left:18px;color:${branding.bodyText};font-size:14px;">${guestListHtml}</ul>
+      </td></tr>
+      <tr><td style="height:18px">&nbsp;</td></tr>
+      <tr><td style="padding:18px 22px;background:${branding.panelBg};border:1px solid ${hexToRgba(a, 0.2)};border-radius:18px;">
+        <p style="margin:0;color:${branding.bodyText};font-size:13px;line-height:1.7;">Each guest's pass is on its own page — print or show the relevant page (printed or on a phone) at the venue entrance for scanning.</p>
+      </td></tr>
+      <tr><td style="height:22px">&nbsp;</td></tr>
+      <tr><td align="center" style="padding:6px 10px;">
+        <p style="margin:0;color:${branding.mutedText};font-size:11px;">${escapeHtml(branding.footerCopyright)}</p>
+      </td></tr>
+    </table>
+  </td></tr></table></body></html>`;
+}
+
+/** One email, one attached PDF (one page per guest) — the primary contact's whole
+ *  party, sent only to the primary contact's address. */
+export async function sendVipPassGroupEmail({ order, tickets, event }) {
+  if (!isMailerConfigured()) {
+    console.log("[vip-pass] SMTP not configured — skipping VIP pass group email for order", order.orderNumber);
+    return { skipped: true };
+  }
+
+  const transporter = getSmtpTransporter();
+  const attachments = [];
+
+  try {
+    const pdfBuffer = await generateVipPassGroupPdfFromDocs(tickets, order, event);
+    attachments.push({
+      filename: `vip-passes-${order.orderNumber}.pdf`,
+      content: pdfBuffer,
+      contentType: "application/pdf",
+      contentDisposition: "attachment",
+    });
+  } catch (error) {
+    console.warn("[vip-pass] Could not generate group PDF for email:", error.message);
+  }
+
+  const html = buildVipPassGroupEmailHtml({ order, tickets, event });
+  const text = buildVipPassGroupEmailText({ order, tickets, event });
+  const eventTitle = event?.title || "the event";
+
+  await transporter.sendMail({
+    from: buildFromHeader(event),
+    to: [order.attendeeEmail],
+    subject: `Your ${tickets.length} VIP Passes for ${eventTitle}`,
+    text,
+    html,
+    attachments,
+  });
+
+  return { sent: true, recipients: [order.attendeeEmail] };
 }

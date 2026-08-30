@@ -303,23 +303,28 @@ export function buildVipPassPdfValuesFromDocs(ticket, order, event) {
  * @param {Record<string, string>} values
  * @returns {Promise<Buffer>}
  */
+const VIP_PAGE_W = 720;
+const VIP_PAGE_H = 340;
+
 // Landscape "pass card" — deliberately not the document-style layout renderTicketPdf
 // uses. A bordered card, full-bleed: a white logo banner across the top, a rounded
 // "VIP PASS" badge, the guest's name large, a short description, and a dedicated white
 // QR panel on the right — modeled on a real premium VIP-pass reference design, with the
 // event's own theme colors standing in for that reference's gold/navy.
-export async function renderVipPassPdf(values) {
+//
+// Draws onto whatever page is currently active on `doc` — callers own page creation
+// (renderVipPassPdf makes a single-page doc sized to fit; generateVipPassGroupPdfFromDocs
+// calls doc.addPage() once per guest) so one guest's pass can't leak onto another's page.
+async function drawVipPassPage(doc, values) {
   const colors = getPdfColors(values.event_slug, {
     primaryColor: values.primary_color,
     backgroundColor: values.background_color,
   });
   const logo = getLogo(values.event_slug, values.logo_data_url);
 
-  const PAGE_W = 720;
-  const PAGE_H = 340;
+  const PAGE_W = VIP_PAGE_W;
+  const PAGE_H = VIP_PAGE_H;
   const BORDER = 14;
-  const doc = new PDFDocument({ size: [PAGE_W, PAGE_H], margin: 0 });
-  const promise = collectDoc(doc);
 
   let qrBuffer = null;
   if (values.verification_token) {
@@ -426,6 +431,35 @@ export async function renderVipPassPdf(values) {
       .text("VIP GUEST", qrPanelX, qrPanelY + qrPanelH - 26, { width: qrPanelW, align: "center" });
   }
 
+}
+
+/**
+ * @param {Record<string, string>} values
+ * @returns {Promise<Buffer>}
+ */
+export async function renderVipPassPdf(values) {
+  const doc = new PDFDocument({ size: [VIP_PAGE_W, VIP_PAGE_H], margin: 0 });
+  const promise = collectDoc(doc);
+  await drawVipPassPage(doc, values);
+  doc.end();
+  return promise;
+}
+
+/** Generate one PDF containing one independently scannable VIP pass per page — for a
+ *  primary contact's whole party, issued under a single order/email. */
+export async function generateVipPassGroupPdfFromDocs(tickets, order, event) {
+  const values = (tickets || []).map((ticket) => buildVipPassPdfValuesFromDocs(ticket, order, event));
+  if (!values.length) {
+    const err = new Error("At least one guest is required to generate a VIP pass PDF.");
+    err.status = 400;
+    throw err;
+  }
+  const doc = new PDFDocument({ autoFirstPage: false });
+  const promise = collectDoc(doc);
+  for (const guestValues of values) {
+    doc.addPage({ size: [VIP_PAGE_W, VIP_PAGE_H], margin: 0 });
+    await drawVipPassPage(doc, guestValues);
+  }
   doc.end();
   return promise;
 }

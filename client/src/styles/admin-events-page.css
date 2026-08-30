@@ -2131,7 +2131,8 @@
   color: var(--ad-muted, #94a3b8);
 }
 
-.send-vip-pass-form label input {
+.send-vip-pass-form label input,
+.send-vip-pass-form label textarea {
   display: block;
   width: 100%;
   margin-top: 0.35rem;
@@ -2142,6 +2143,8 @@
   background: var(--ad-bg, #0d1117);
   color: inherit;
   font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
 }
 
 .admin-events__warning {
