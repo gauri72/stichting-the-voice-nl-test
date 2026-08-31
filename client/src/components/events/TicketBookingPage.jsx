@@ -792,6 +792,22 @@ export default function TicketBookingPage() {
     }, 500);
   }
 
+  // Re-validate whenever the reference ticket type changes OR its quantity changes — a
+  // code entered while one ticket type had enough quantity for e.g. a minQuantity rule
+  // must not keep showing "valid" once that quantity drops (or once a different,
+  // never-validated ticket type becomes the reference because quantities shifted).
+  // handleGlobalCodeChange's own debounce already covers the "user is typing" case; this
+  // covers "the code didn't change but what it's being checked against did".
+  useEffect(() => {
+    const code = ticketCodes[referenceTicketTypeId];
+    if (!referenceTicketTypeId || !code || !code.trim()) return;
+    const timer = window.setTimeout(() => {
+      validateTicketCode(referenceTicketTypeId, code);
+    }, 400);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [referenceTicketTypeId, quantities]);
+
   async function initCheckout() {
     const totalMinor = preview?.combined?.grandTotalMinor ?? 1;
     if (!STRIPE_PUBLISHABLE_KEY && totalMinor > 0) {
