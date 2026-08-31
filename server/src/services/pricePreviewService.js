@@ -319,13 +319,21 @@ export async function calculatePricePreview({
     (membershipSource === MEMBERSHIP_SOURCE.TICKETTAILOR &&
       membershipSettings.allowTicketTailorMembershipDiscountStacking !== false);
 
+  // minQuantity ("5+ tickets") is a whole-order headcount, not a per-ticket-type
+  // threshold — a code offering "10% off for groups of 5+" must count 2 Corporate + 3
+  // Individual as 5, not reject each line for only having 2 or 3 of its own type. Every
+  // line's eligibility check uses this combined total; each line's discount *amount* still
+  // comes from its own lineSubtotalMinor below, so a percentage discount still applies
+  // only to that line's own price, not the whole cart's.
+  const totalCartQuantity = lineItems.reduce((sum, l) => sum + (l.quantity || 0), 0);
+
   const discountLineItems = lineItems.map((line, i) => {
     const lineMemberContext = perLineMemberContext[i];
     const lineCode = discountCodes[line.ticketTypeId] ?? discountCode ?? null;
     return {
       ticketTypeId: line.ticketTypeId,
       lineSubtotalMinor: line.originalPriceMinor,
-      quantity: line.quantity,
+      quantity: totalCartQuantity,
       discountCode: lineCode,
       voucherCode: lineCode,
       memberRuleOverride: lineMemberContext.benefitApplied ? lineMemberContext.memberRuleOverride : null,

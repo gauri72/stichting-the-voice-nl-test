@@ -725,10 +725,16 @@ export default function TicketBookingPage() {
     }
   }
 
-  async function validateTicketCode(ticketTypeId, code, qtyOverride) {
-    const tt = (event?.ticketTypes || []).find((t) => t.id === ticketTypeId);
-    const qty = qtyOverride ?? (quantities[ticketTypeId] || 1);
-    const lineSubtotalMinor = (tt?.priceMinor || 0) * qty;
+  async function validateTicketCode(ticketTypeId, code) {
+    // minQuantity ("5+ tickets") is a whole-order headcount across every ticket type, not
+    // a per-type threshold — mirrors the same cart-wide total pricePreviewService.js now
+    // uses server-side, so this live check agrees with what checkout will actually apply.
+    const allTypes = event?.ticketTypes || [];
+    const tt = allTypes.find((t) => t.id === ticketTypeId);
+    const cartQty = allTypes.reduce((sum, t) => sum + (quantities[t.id] || 0), 0);
+    const cartSubtotalMinor = allTypes.reduce((sum, t) => sum + (t.priceMinor || 0) * (quantities[t.id] || 0), 0);
+    const qty = cartQty || 1;
+    const lineSubtotalMinor = cartSubtotalMinor || (tt?.priceMinor || 0);
 
     setTicketCodeStatus((s) => ({ ...s, [ticketTypeId]: "checking" }));
     try {
@@ -1408,8 +1414,10 @@ export default function TicketBookingPage() {
                       onChange={(e) => {
                         const newQty = Number(e.target.value);
                         setQuantities((q) => ({ ...q, [tt.id]: newQty }));
-                        const code = ticketCodes[tt.id];
-                        if (code && code.trim()) validateTicketCode(tt.id, code, newQty);
+                        // Re-validation on quantity change is handled by the debounced
+                        // effect keyed on referenceTicketTypeId/quantities — it reads the
+                        // settled state instead of a value that may already be stale by
+                        // the time this handler's closure runs.
                       }}
                       aria-label={`Quantity for ${tt.name}`}
                     >
