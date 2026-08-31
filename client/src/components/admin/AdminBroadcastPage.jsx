@@ -53,6 +53,8 @@ export default function AdminBroadcastPage() {
   const [preview, setPreview] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [sendLoading, setSendLoading] = useState(false);
+  const [attachmentFile, setAttachmentFile] = useState(null); // { filename, contentBase64, contentType } | null
+  const [attachmentLoading, setAttachmentLoading] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadForm, setUploadForm] = useState(EMPTY_FORM);
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -241,6 +243,27 @@ export default function AdminBroadcastPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wizardOpen, wizardStep, selectedTemplateId, audienceSegment, sampleUserId]);
 
+  async function handleAttachmentChange(event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setAttachmentLoading(true);
+    try {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const contentBase64 = String(dataUrl).split(",")[1] || "";
+      setAttachmentFile({ filename: file.name, contentBase64, contentType: file.type || "application/octet-stream" });
+    } catch {
+      setActionMessage("Could not read the attachment file.");
+    } finally {
+      setAttachmentLoading(false);
+    }
+  }
+
   async function handleSendBroadcast() {
     if (!selectedTemplateId) return;
     const confirmed = window.confirm(
@@ -258,6 +281,7 @@ export default function AdminBroadcastPage() {
           templateId: selectedTemplateId,
           audienceSegment,
           customEmails: audienceSegment === "test_users" ? parsedTestEmails : undefined,
+          attachments: attachmentFile ? [attachmentFile] : undefined,
         }),
       });
       setActionMessage(
@@ -265,6 +289,7 @@ export default function AdminBroadcastPage() {
       );
       setWizardOpen(false);
       setWizardStep(0);
+      setAttachmentFile(null);
       await loadOverview();
     } catch (sendError) {
       setActionMessage(sendError.message || "Broadcast could not be sent.");
@@ -708,6 +733,22 @@ export default function AdminBroadcastPage() {
                     <button type="button" className="admin-broadcast__ghost-btn" onClick={loadPreview} disabled={previewLoading}>
                       Refresh preview
                     </button>
+                  </div>
+
+                  <div className="admin-broadcast__preview-controls">
+                    <label>
+                      Attach a file (optional)
+                      <input type="file" onChange={handleAttachmentChange} disabled={attachmentLoading} />
+                    </label>
+                    {attachmentLoading ? <span className="admin-broadcast__status">Reading file…</span> : null}
+                    {attachmentFile ? (
+                      <span className="admin-broadcast__status">
+                        {attachmentFile.filename}{" "}
+                        <button type="button" className="admin-broadcast__ghost-btn" onClick={() => setAttachmentFile(null)}>
+                          Remove
+                        </button>
+                      </span>
+                    ) : null}
                   </div>
 
                   {previewLoading ? <p className="admin-broadcast__status">Generating preview…</p> : null}
