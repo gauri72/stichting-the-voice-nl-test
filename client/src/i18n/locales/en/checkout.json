@@ -35,6 +35,7 @@
     "maxPerOrder": "max {{count}} per order",
     "continue": "Continue",
     "codePlaceholder": "Referral code or discount code",
+    "codeNotApplicableFor": "This code doesn't apply to: {{types}}",
     "memberDiscount": "Member discount applied"
   },
   "selectSeats": {

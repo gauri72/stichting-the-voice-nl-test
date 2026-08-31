@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   IconCalendarEvent,
   IconClock,
@@ -11,11 +12,13 @@ import {
   IconMusic,
   IconHeadphones,
 } from "@tabler/icons-react";
+import { apiFetch } from "../../utils/api.js";
 import "../../styles/amsterdam-flames-event.css";
 import AmsterdamFlamesAwaitsCarousel from "./AmsterdamFlamesAwaitsCarousel.jsx";
 
 const CREST_URL = "/amsterdam-flames/af-crest-orange.png";
-const TICKETS_URL = "/events/amsterdam-flames-night-of-the-stars/tickets";
+const EVENT_SLUG = "amsterdam-flames-night-of-the-stars";
+const TICKETS_URL = `/events/${EVENT_SLUG}/tickets`;
 const VENUE_MAPS_QUERY = encodeURIComponent(
   "The Hague Marriott Hotel, Johan de Wittlaan 30, 2517 JR Den Haag"
 );
@@ -72,6 +75,14 @@ const AWAITS = [
 ];
 
 export default function AmsterdamFlamesNightOfStarsPage() {
+  const [ticketTypes, setTicketTypes] = useState(null); // null = loading
+
+  useEffect(() => {
+    apiFetch(`/api/events/${EVENT_SLUG}`)
+      .then((data) => setTicketTypes(data.event?.ticketTypes || []))
+      .catch(() => setTicketTypes([]));
+  }, []);
+
   return (
     <div className="af-event">
       <header className="af-event__topbar">
@@ -197,10 +208,22 @@ export default function AmsterdamFlamesNightOfStarsPage() {
 
         <div id="tickets" className="af-event__price-card">
           <span className="af-event__price-badge">VIP Experience</span>
-          <div className="af-event__price">
-            €210<span>per person</span>
-          </div>
-          <p className="af-event__price-includes">Includes unlimited drinks, snacks and dinner.</p>
+
+          {ticketTypes === null ? (
+            <p className="af-event__price-loading">Loading ticket options…</p>
+          ) : ticketTypes.length ? (
+            <div className="af-event__price-list">
+              {ticketTypes.map((tt) => (
+                <div key={tt.id} className="af-event__price-row">
+                  <div className="af-event__price-row-info">
+                    <p className="af-event__price-row-name">{tt.name}</p>
+                    {tt.description ? <p className="af-event__price-row-desc">{tt.description}</p> : null}
+                  </div>
+                  <p className="af-event__price-row-amount">€{tt.price}</p>
+                </div>
+              ))}
+            </div>
+          ) : null}
 
           <div className="af-event__promo">
             <p className="af-event__promo-label">Group Booking Discount</p>

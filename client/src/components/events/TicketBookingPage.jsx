@@ -184,6 +184,26 @@ export default function TicketBookingPage() {
     [event?.ticketTypes, quantities]
   );
 
+  // The single order-wide code field validates against whichever ticket type the buyer
+  // has the most of (falling back to the first type before any quantity is picked) — the
+  // per-line eligibility (event/ticket-type scope, minQuantity, etc.) is still enforced
+  // independently for every line by the server at preview/checkout time regardless of
+  // this choice; this only decides which line's live checkmark the single field reflects.
+  const referenceTicketTypeId = useMemo(() => {
+    const types = event?.ticketTypes || [];
+    if (!types.length) return null;
+    let best = null;
+    let bestQty = 0;
+    for (const tt of types) {
+      const qty = quantities[tt.id] || 0;
+      if (qty > bestQty) {
+        best = tt.id;
+        bestQty = qty;
+      }
+    }
+    return best || types[0].id;
+  }, [event?.ticketTypes, quantities]);
+
   const checkoutSettings = event?.checkoutSettings || {};
   const showBenefitsStep = checkoutSettings.enableMemberDiscount !== false;
   const showMembershipStep =
@@ -729,24 +749,46 @@ export default function TicketBookingPage() {
     }
   }
 
-  function handleTicketCodeChange(ticketTypeId, rawValue) {
+  // One order-wide code field, applied identically across every ticket type under the
+  // hood — ticketCodes/ticketCodeStatus/etc. stay keyed by ticketTypeId internally (so
+  // preview/checkout/save-session/restore-session, which all already read per-line codes
+  // from these same objects, need no changes at all), only the UI collapses to one input.
+  function handleGlobalCodeChange(rawValue) {
     const value = rawValue.toUpperCase();
-    setTicketCodes((c) => ({ ...c, [ticketTypeId]: value }));
+    const allIds = (event?.ticketTypes || []).map((tt) => tt.id);
 
-    if (ticketCodeTimersRef.current[ticketTypeId]) {
-      window.clearTimeout(ticketCodeTimersRef.current[ticketTypeId]);
+    setTicketCodes((c) => {
+      const next = { ...c };
+      allIds.forEach((id) => { next[id] = value; });
+      return next;
+    });
+
+    if (ticketCodeTimersRef.current.__global) {
+      window.clearTimeout(ticketCodeTimersRef.current.__global);
     }
 
     if (!value.trim()) {
-      setTicketCodeStatus((s) => ({ ...s, [ticketTypeId]: "idle" }));
-      setTicketCodeMessage((s) => ({ ...s, [ticketTypeId]: "" }));
-      setTicketCodeResult((s) => ({ ...s, [ticketTypeId]: null }));
+      setTicketCodeStatus((s) => {
+        const next = { ...s };
+        allIds.forEach((id) => { next[id] = "idle"; });
+        return next;
+      });
+      setTicketCodeMessage((s) => {
+        const next = { ...s };
+        allIds.forEach((id) => { next[id] = ""; });
+        return next;
+      });
+      setTicketCodeResult((s) => {
+        const next = { ...s };
+        allIds.forEach((id) => { next[id] = null; });
+        return next;
+      });
       refreshPreview();
       return;
     }
 
-    ticketCodeTimersRef.current[ticketTypeId] = window.setTimeout(() => {
-      validateTicketCode(ticketTypeId, value);
+    ticketCodeTimersRef.current.__global = window.setTimeout(() => {
+      if (referenceTicketTypeId) validateTicketCode(referenceTicketTypeId, value);
     }, 500);
   }
 
@@ -1213,37 +1255,46 @@ export default function TicketBookingPage() {
             <h2><IconTicket size={20} /> {t("checkout:selectTickets.title")}</h2>
 
             {(() => {
-              const allTicketTypes = event.ticketTypes || [];
-              return allTicketTypes.map((tt) => {
-                const codeStatus = ticketCodeStatus[tt.id] || "idle";
-                return (
-                  <div key={tt.id} className="ticket-booking__pre-list-code">
-                    <label>
-                      {t("checkout:selectTickets.codePlaceholder")}
-                      {allTicketTypes.length > 1 ? ` — ${tt.name}` : ""}
-                      <div className={`ticket-booking__ticket-code-input ticket-booking__ticket-code-input--${codeStatus}`}>
-                        <input
-                          placeholder={t("checkout:selectTickets.codePlaceholder")}
-                          value={ticketCodes[tt.id] || ""}
-                          onChange={(e) => handleTicketCodeChange(tt.id, e.target.value)}
-                          aria-label={`Referral or discount code for ${tt.name}`}
-                        />
-                        {codeStatus === "checking" ? <span className="ticket-booking__ticket-code-spinner" aria-hidden="true" /> : null}
-                        {codeStatus === "valid" ? <IconCheck className="ticket-booking__ticket-code-icon--valid" size={16} /> : null}
-                        {codeStatus === "invalid" ? <IconX className="ticket-booking__ticket-code-icon--invalid" size={16} /> : null}
-                      </div>
-                    </label>
-                    {ticketCodeMessage[tt.id] ? (
-                      <p
-                        className={`ticket-booking__ticket-code-msg ticket-booking__ticket-code-msg--${codeStatus}`}
-                        role="status"
-                      >
-                        {ticketCodeMessage[tt.id]}
-                      </p>
-                    ) : null}
-                  </div>
-                );
-              });
+              const codeStatus = ticketCodeStatus[referenceTicketTypeId] || "idle";
+              // If the code turned out valid for the reference line but a *different*
+              // selected ticket type's line came back with its own codeError (e.g. a code
+              // scoped to only one ticket type), surface that too instead of silently
+              // showing a plain "applied" for the whole cart.
+              const otherLineErrors = (preview?.ticketPricing?.lineItems || [])
+                .filter((line) => line.ticketTypeId !== referenceTicketTypeId && line.codeError && (quantities[line.ticketTypeId] || 0) > 0)
+                .map((line) => (event.ticketTypes || []).find((tt) => tt.id === line.ticketTypeId)?.name || "")
+                .filter(Boolean);
+              return (
+                <div className="ticket-booking__pre-list-code">
+                  <label>
+                    {t("checkout:selectTickets.codePlaceholder")}
+                    <div className={`ticket-booking__ticket-code-input ticket-booking__ticket-code-input--${codeStatus}`}>
+                      <input
+                        placeholder={t("checkout:selectTickets.codePlaceholder")}
+                        value={ticketCodes[referenceTicketTypeId] || ""}
+                        onChange={(e) => handleGlobalCodeChange(e.target.value)}
+                        aria-label="Referral or discount code"
+                      />
+                      {codeStatus === "checking" ? <span className="ticket-booking__ticket-code-spinner" aria-hidden="true" /> : null}
+                      {codeStatus === "valid" ? <IconCheck className="ticket-booking__ticket-code-icon--valid" size={16} /> : null}
+                      {codeStatus === "invalid" ? <IconX className="ticket-booking__ticket-code-icon--invalid" size={16} /> : null}
+                    </div>
+                  </label>
+                  {ticketCodeMessage[referenceTicketTypeId] ? (
+                    <p
+                      className={`ticket-booking__ticket-code-msg ticket-booking__ticket-code-msg--${codeStatus}`}
+                      role="status"
+                    >
+                      {ticketCodeMessage[referenceTicketTypeId]}
+                    </p>
+                  ) : null}
+                  {otherLineErrors.length ? (
+                    <p className="ticket-booking__ticket-code-msg ticket-booking__ticket-code-msg--invalid" role="status">
+                      {t("checkout:selectTickets.codeNotApplicableFor", { types: otherLineErrors.join(", ") })}
+                    </p>
+                  ) : null}
+                </div>
+              );
             })()}
 
             {selectedItems.length && showBenefitsStep ? (
@@ -1316,7 +1367,7 @@ export default function TicketBookingPage() {
                       <p className="ticket-booking__ticket-status-note">{tt.displayLabel}</p>
                     ) : selectable ? (
                       <p className="ticket-booking__ticket-avail">
-                        {tt.available} {t("checkout:selectTickets.available")} · {t("checkout:selectTickets.maxPerOrder", { count: tt.maxPerOrder })}
+                        {t("checkout:selectTickets.maxPerOrder", { count: tt.maxPerOrder })}
                       </p>
                     ) : null}
                     {tt.computedStatus === "SOLD_OUT" && tt.soldOutDisplayMode === "waitlist" ? (

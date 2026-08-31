@@ -590,6 +590,52 @@
   margin: 0 0 1.5rem;
 }
 
+.af-event__price-loading {
+  color: var(--af-muted);
+  margin: 0 0 1.5rem;
+}
+
+.af-event__price-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 0 0 1.5rem;
+}
+
+.af-event__price-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--af-border);
+}
+
+.af-event__price-row:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.af-event__price-row-name {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.af-event__price-row-desc {
+  margin: 0.25rem 0 0;
+  color: var(--af-muted);
+  font-size: 0.85rem;
+}
+
+.af-event__price-row-amount {
+  margin: 0;
+  flex-shrink: 0;
+  font-family: "Archivo Black", Arial, sans-serif;
+  font-size: 1.4rem;
+  color: var(--af-primary);
+}
+
 .af-event__promo {
   border: 1px dashed rgba(240, 94, 60, 0.4);
   border-radius: var(--af-radius);
