@@ -20,7 +20,18 @@ function injectSocialFooter(html) {
   return `${html}${footerBlock}`;
 }
 
-export async function sendBroadcastEmail({ to, subject, html, attachments: extraAttachments = [] }) {
+// Keeps the actual sending mailbox (SPF/DKIM-authorized) but swaps the display name —
+// same pattern as ticketMailer.js's buildFromHeader, for a partner-branded broadcast
+// (e.g. "Amsterdam Flames") without needing a second real mailbox.
+function buildBroadcastFromHeader(fromName) {
+  const configured = env.email.membershipFrom || env.email.from;
+  if (!fromName) return configured;
+  const match = /^(.*)<(.+)>$/.exec(configured || "");
+  const address = match ? match[2].trim() : configured;
+  return address ? `${fromName} <${address}>` : configured;
+}
+
+export async function sendBroadcastEmail({ to, subject, html, attachments: extraAttachments = [], fromName }) {
   if (!isMailerConfigured()) {
     const error = new Error("Email is not configured on the server.");
     error.status = 503;
@@ -38,7 +49,7 @@ export async function sendBroadcastEmail({ to, subject, html, attachments: extra
   const finalHtml = injectSocialFooter(html);
 
   await transporter.sendMail({
-    from: env.email.membershipFrom || env.email.from,
+    from: buildBroadcastFromHeader(fromName),
     replyTo: getMailReplyTo(),
     to,
     subject,

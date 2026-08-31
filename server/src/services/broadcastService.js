@@ -472,7 +472,7 @@ export async function listRecentCampaigns(limit = 6) {
 /** attachments: [{ filename, contentBase64, contentType }] — optional, e.g. a flyer PDF
  *  the admin wants sent alongside a specific broadcast. Not stored on the template itself
  *  (templates are pure HTML+merge-vars); passed per-send only. */
-export async function sendBroadcast({ templateId, audienceSegment, mergeVariables = {}, adminId, customEmails, attachments = [] }) {
+export async function sendBroadcast({ templateId, audienceSegment, mergeVariables = {}, adminId, customEmails, attachments = [], fromName }) {
   const template = await getTemplateById(templateId);
   const audience = await resolveAudience(audienceSegment, customEmails);
 
@@ -515,6 +515,7 @@ export async function sendBroadcast({ templateId, audienceSegment, mergeVariable
         subject,
         html,
         attachments: mailAttachments,
+        fromName,
       });
       sentCount += 1;
     } catch (error) {
