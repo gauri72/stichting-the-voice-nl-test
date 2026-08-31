@@ -55,6 +55,7 @@ export default function AdminBroadcastPage() {
   const [sendLoading, setSendLoading] = useState(false);
   const [attachmentFile, setAttachmentFile] = useState(null); // { filename, contentBase64, contentType } | null
   const [attachmentLoading, setAttachmentLoading] = useState(false);
+  const [fromName, setFromName] = useState("");
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadForm, setUploadForm] = useState(EMPTY_FORM);
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -282,6 +283,7 @@ export default function AdminBroadcastPage() {
           audienceSegment,
           customEmails: audienceSegment === "test_users" ? parsedTestEmails : undefined,
           attachments: attachmentFile ? [attachmentFile] : undefined,
+          fromName: fromName.trim() || undefined,
         }),
       });
       setActionMessage(
@@ -290,6 +292,7 @@ export default function AdminBroadcastPage() {
       setWizardOpen(false);
       setWizardStep(0);
       setAttachmentFile(null);
+      setFromName("");
       await loadOverview();
     } catch (sendError) {
       setActionMessage(sendError.message || "Broadcast could not be sent.");
@@ -733,6 +736,18 @@ export default function AdminBroadcastPage() {
                     <button type="button" className="admin-broadcast__ghost-btn" onClick={loadPreview} disabled={previewLoading}>
                       Refresh preview
                     </button>
+                  </div>
+
+                  <div className="admin-broadcast__preview-controls">
+                    <label>
+                      Sender name (optional)
+                      <input
+                        type="text"
+                        placeholder="e.g. Amsterdam Flames"
+                        value={fromName}
+                        onChange={(event) => setFromName(event.target.value)}
+                      />
+                    </label>
                   </div>
 
                   <div className="admin-broadcast__preview-controls">
