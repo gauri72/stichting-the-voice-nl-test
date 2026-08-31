@@ -56,6 +56,7 @@ export default function AdminBroadcastPage() {
   const [attachmentFile, setAttachmentFile] = useState(null); // { filename, contentBase64, contentType } | null
   const [attachmentLoading, setAttachmentLoading] = useState(false);
   const [fromName, setFromName] = useState("");
+  const [testRecipientFirstName, setTestRecipientFirstName] = useState("");
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadForm, setUploadForm] = useState(EMPTY_FORM);
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -227,6 +228,10 @@ export default function AdminBroadcastPage() {
           audienceSegment,
           sampleUserId: sampleUserId || undefined,
           customEmails: audienceSegment === "test_users" ? parsedTestEmails : undefined,
+          mergeVariables:
+            audienceSegment === "test_users" && testRecipientFirstName.trim()
+              ? { first_name: testRecipientFirstName.trim() }
+              : undefined,
         }),
       });
       setPreview(data.preview);
@@ -282,6 +287,10 @@ export default function AdminBroadcastPage() {
           templateId: selectedTemplateId,
           audienceSegment,
           customEmails: audienceSegment === "test_users" ? parsedTestEmails : undefined,
+          mergeVariables:
+            audienceSegment === "test_users" && testRecipientFirstName.trim()
+              ? { first_name: testRecipientFirstName.trim() }
+              : undefined,
           attachments: attachmentFile ? [attachmentFile] : undefined,
           fromName: fromName.trim() || undefined,
         }),
@@ -293,6 +302,7 @@ export default function AdminBroadcastPage() {
       setWizardStep(0);
       setAttachmentFile(null);
       setFromName("");
+      setTestRecipientFirstName("");
       await loadOverview();
     } catch (sendError) {
       setActionMessage(sendError.message || "Broadcast could not be sent.");
@@ -706,6 +716,23 @@ export default function AdminBroadcastPage() {
                           placeholder="test1@example.com, test2@example.com, test3@example.com"
                           style={{
                             width: "100%",
+                            border: "1px solid var(--ad-border)",
+                            borderRadius: "12px",
+                            background: "var(--ad-bg)",
+                            color: "var(--ad-text)",
+                            padding: "10px 12px",
+                            font: "inherit",
+                          }}
+                        />
+                      </label>
+                      <label style={{ display: "grid", gap: "6px", fontSize: "0.86rem", fontWeight: 600 }}>
+                        <span>Test recipient's first name (optional)</span>
+                        <input
+                          type="text"
+                          value={testRecipientFirstName}
+                          onChange={(event) => setTestRecipientFirstName(event.target.value)}
+                          placeholder="e.g. Shivam — otherwise the greeting falls back to the email username"
+                          style={{
                             border: "1px solid var(--ad-border)",
                             borderRadius: "12px",
                             background: "var(--ad-bg)",
