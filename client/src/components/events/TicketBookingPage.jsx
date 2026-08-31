@@ -1457,9 +1457,11 @@ export default function TicketBookingPage() {
         {step === DETAILS_STEP ? (
           <section className="ticket-booking__card">
             <h2>{t("checkout:yourDetails.title")}</h2>
-            <p className="ticket-booking__hint">
-              {t("checkout:yourDetails.hint")}
-            </p>
+            {showBenefitsStep || showMembershipStep ? (
+              <p className="ticket-booking__hint">
+                {t("checkout:yourDetails.hint")}
+              </p>
+            ) : null}
             <div className="ticket-booking__form-grid">
               <label>
                 {t("checkout:yourDetails.firstName")} *
