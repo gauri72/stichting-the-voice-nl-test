@@ -469,9 +469,18 @@ export async function listRecentCampaigns(limit = 6) {
   }));
 }
 
-export async function sendBroadcast({ templateId, audienceSegment, mergeVariables = {}, adminId, customEmails }) {
+/** attachments: [{ filename, contentBase64, contentType }] — optional, e.g. a flyer PDF
+ *  the admin wants sent alongside a specific broadcast. Not stored on the template itself
+ *  (templates are pure HTML+merge-vars); passed per-send only. */
+export async function sendBroadcast({ templateId, audienceSegment, mergeVariables = {}, adminId, customEmails, attachments = [] }) {
   const template = await getTemplateById(templateId);
   const audience = await resolveAudience(audienceSegment, customEmails);
+
+  const mailAttachments = (Array.isArray(attachments) ? attachments : []).map((a) => ({
+    filename: a.filename,
+    content: Buffer.from(a.contentBase64 || "", "base64"),
+    contentType: a.contentType || "application/octet-stream",
+  }));
 
   if (audience.length === 0) {
     const error = new Error("No recipients found for the selected audience.");
@@ -505,6 +514,7 @@ export async function sendBroadcast({ templateId, audienceSegment, mergeVariable
         to: recipient.email,
         subject,
         html,
+        attachments: mailAttachments,
       });
       sentCount += 1;
     } catch (error) {

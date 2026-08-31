@@ -20,7 +20,7 @@ function injectSocialFooter(html) {
   return `${html}${footerBlock}`;
 }
 
-export async function sendBroadcastEmail({ to, subject, html }) {
+export async function sendBroadcastEmail({ to, subject, html, attachments: extraAttachments = [] }) {
   if (!isMailerConfigured()) {
     const error = new Error("Email is not configured on the server.");
     error.status = 503;
@@ -34,7 +34,7 @@ export async function sendBroadcastEmail({ to, subject, html }) {
     throw error;
   }
 
-  const attachments = loadEmailSocialIconAttachments();
+  const attachments = [...loadEmailSocialIconAttachments(), ...extraAttachments];
   const finalHtml = injectSocialFooter(html);
 
   await transporter.sendMail({

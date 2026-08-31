@@ -173,7 +173,7 @@ export async function broadcastPreview(req, res) {
 
 export async function broadcastSend(req, res) {
   try {
-    const { templateId, audienceSegment, mergeVariables, customEmails } = req.body || {};
+    const { templateId, audienceSegment, mergeVariables, customEmails, attachments } = req.body || {};
     if (!templateId || !audienceSegment) {
       return res.status(400).json({ error: "templateId and audienceSegment are required." });
     }
@@ -184,6 +184,7 @@ export async function broadcastSend(req, res) {
       mergeVariables,
       adminId: req.admin?.id,
       customEmails,
+      attachments,
     });
     return res.status(200).json({ broadcast: result });
   } catch (error) {
