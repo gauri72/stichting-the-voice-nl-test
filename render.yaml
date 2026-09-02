@@ -131,6 +131,9 @@ services:
     # integration is added.
     headers:
       - path: /*
+        name: Strict-Transport-Security
+        value: max-age=63072000; includeSubDomains; preload
+      - path: /*
         name: X-Content-Type-Options
         value: nosniff
       - path: /*
