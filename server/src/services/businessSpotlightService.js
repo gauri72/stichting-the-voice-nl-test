@@ -2,16 +2,29 @@ import BusinessProfile from "../models/BusinessProfile.js";
 import BusinessProduct from "../models/BusinessProduct.js";
 import BusinessOrder from "../models/BusinessOrder.js";
 
+// Every unauthenticated, public-facing BusinessProfile read (list, profile, featured)
+// MUST project through this allow-list. BusinessProfile carries payout bank details,
+// Stripe Connect internals, and payoutRegistration (which includes DOB, home address,
+// and a raw Stripe bank token) — a bare .find()/.findOne().lean() with no projection
+// returns all of it. Only add a field here after confirming it's meant to be public.
+const PUBLIC_BUSINESS_FIELDS =
+  "businessName slug tagline description category logoUrl bannerUrl galleryUrls " +
+  "contactEmail contactPhone website socialLinks location isFeaturedThisWeek " +
+  "cashbackPercent reviewCount avgRating createdAt";
+
 export async function getFeaturedBusiness() {
   const business = await BusinessProfile.findOne({
     status: "active",
     isFeaturedThisWeek: true,
-  }).lean();
+  })
+    .select(PUBLIC_BUSINESS_FIELDS)
+    .lean();
 
   // Fetch alternates (up to 5 other active businesses) for the BOTW carousel
   const alternatesFilter = { status: "active" };
   if (business) alternatesFilter._id = { $ne: business._id };
   const alternates = await BusinessProfile.find(alternatesFilter)
+    .select(PUBLIC_BUSINESS_FIELDS)
     .sort({ totalOrders: -1, createdAt: -1 })
     .limit(5)
     .lean();
@@ -96,6 +109,7 @@ export async function listBusinesses({ category, search, page = 1, pageSize = 12
   const skip = (page - 1) * pageSize;
   const [items, total] = await Promise.all([
     BusinessProfile.find(filter)
+      .select(PUBLIC_BUSINESS_FIELDS)
       .sort({ isFeaturedThisWeek: -1, totalOrders: -1, createdAt: -1 })
       .skip(skip)
       .limit(pageSize)
@@ -107,7 +121,9 @@ export async function listBusinesses({ category, search, page = 1, pageSize = 12
 }
 
 export async function getBusinessBySlug(slug) {
-  const business = await BusinessProfile.findOne({ slug, status: "active" }).lean();
+  const business = await BusinessProfile.findOne({ slug, status: "active" })
+    .select(PUBLIC_BUSINESS_FIELDS)
+    .lean();
   if (!business) {
     const err = new Error("Business not found.");
     err.status = 404;
