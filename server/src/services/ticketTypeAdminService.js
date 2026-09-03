@@ -121,6 +121,10 @@ export async function patchTicketType(eventId, ticketTypeId, payload = {}) {
   const sold = ticketType.soldCount || 0;
   if (ticketType.capacity > 0 && sold >= ticketType.capacity) {
     ticketType.status = "sold_out";
+  } else if (ticketType.status === "sold_out") {
+    // Capacity was raised above soldCount — clear the stale sold_out latch
+    // so this ticket type becomes purchasable again.
+    ticketType.status = "active";
   }
 
   await ticketType.save();

@@ -516,7 +516,13 @@ export async function upsertTicketTypes(eventId, ticketTypes) {
     if (!data.name) continue;
 
     const sold = existing.find((e) => e._id.toString() === tt.id)?.soldCount || 0;
-    if (data.capacity > 0 && sold >= data.capacity) data.status = "sold_out";
+    if (data.capacity > 0 && sold >= data.capacity) {
+      data.status = "sold_out";
+    } else if (data.status === "sold_out") {
+      // Capacity was raised above soldCount — clear the stale sold_out latch
+      // so this ticket type becomes purchasable again.
+      data.status = "active";
+    }
 
     if (tt.id && existingIds.has(tt.id)) {
       incomingIds.add(tt.id);
