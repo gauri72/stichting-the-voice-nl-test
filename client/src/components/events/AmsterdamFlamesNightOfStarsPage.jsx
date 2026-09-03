@@ -20,7 +20,7 @@ const CREST_URL = "/amsterdam-flames/af-crest-orange.png";
 const EVENT_SLUG = "amsterdam-flames-night-of-the-stars";
 const TICKETS_URL = `/events/${EVENT_SLUG}/tickets`;
 const VENUE_MAPS_QUERY = encodeURIComponent(
-  "The Hague Marriott Hotel, Johan de Wittlaan 30, 2517 JR Den Haag"
+  "Leonardo Hotel Den Haag Babylon, Bezuidenhoutseweg 53, 2595 AA Den Haag"
 );
 
 const AWAITS = [
@@ -96,7 +96,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
         <div className="af-event__topbar-info">
           <span className="af-event__topbar-tag">NIGHT OF STARS</span>
           <span className="af-event__topbar-meta">
-            Sat, 5 Sep 2026 · 19:00 · The Hague Marriott Hotel
+            Sat, 5 Sep 2026 · 19:00 · Leonardo Hotel Den Haag Babylon
           </span>
         </div>
       </header>
@@ -169,7 +169,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
               <IconMapPin2 size={22} />
               <div>
                 <span>Venue</span>
-                <strong>The Hague Marriott Hotel</strong>
+                <strong>Leonardo Hotel Den Haag Babylon</strong>
               </div>
             </div>
           </div>
@@ -193,7 +193,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
               <strong>Time:</strong> 19:00 – 23:00
             </li>
             <li>
-              <strong>Venue:</strong> The Hague Marriott, Johan de Wittlaan 30, 2517 JR, Den Haag
+              <strong>Venue:</strong> Leonardo Hotel Den Haag Babylon, Bezuidenhoutseweg 53, 2595 AA Den Haag
             </li>
           </ul>
           <a
