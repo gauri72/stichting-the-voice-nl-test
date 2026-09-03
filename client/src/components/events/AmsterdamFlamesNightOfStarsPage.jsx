@@ -9,7 +9,6 @@ import {
   IconUsersGroup,
   IconWorld,
   IconGavel,
-  IconMusic,
   IconHeadphones,
 } from "@tabler/icons-react";
 import { apiFetch } from "../../utils/api.js";
@@ -47,12 +46,6 @@ const AWAITS = [
     title: "Highlight Session",
     tagline: "Stories Behind the Stars",
     body: "A special on-stage moment featuring inspiring stories, memorable experiences and conversations that bring you closer to the people behind the game.",
-  },
-  {
-    icon: IconMusic,
-    title: "Cultural Performances",
-    tagline: "Where Cultures Take the Stage",
-    body: "Experience an energetic celebration of culture through music, dance and spectacular live performances.",
   },
   {
     icon: IconHeadphones,
@@ -190,7 +183,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
               <strong>Date:</strong> Saturday, 5 September 2026
             </li>
             <li>
-              <strong>Time:</strong> 19:30 – 23:00
+              <strong>Time:</strong> 19:30 – 22:00
             </li>
             <li>
               <strong>Venue:</strong> Leonardo Hotel Den Haag Babylon, Bezuidenhoutseweg 53, 2595 AA Den Haag
