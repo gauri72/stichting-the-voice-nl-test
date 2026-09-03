@@ -96,7 +96,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
         <div className="af-event__topbar-info">
           <span className="af-event__topbar-tag">NIGHT OF STARS</span>
           <span className="af-event__topbar-meta">
-            Sat, 5 Sep 2026 · 19:00 · Leonardo Hotel Den Haag Babylon
+            Sat, 5 Sep 2026 · 19:30 · Leonardo Hotel Den Haag Babylon
           </span>
         </div>
       </header>
@@ -162,7 +162,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
               <IconClock size={22} />
               <div>
                 <span>Time</span>
-                <strong>19:00</strong>
+                <strong>19:30</strong>
               </div>
             </div>
             <div className="af-info-bar__item">
@@ -190,7 +190,7 @@ export default function AmsterdamFlamesNightOfStarsPage() {
               <strong>Date:</strong> Saturday, 5 September 2026
             </li>
             <li>
-              <strong>Time:</strong> 19:00 – 23:00
+              <strong>Time:</strong> 19:30 – 23:00
             </li>
             <li>
               <strong>Venue:</strong> Leonardo Hotel Den Haag Babylon, Bezuidenhoutseweg 53, 2595 AA Den Haag
