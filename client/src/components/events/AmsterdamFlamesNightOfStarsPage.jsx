@@ -9,7 +9,6 @@ import {
   IconUsersGroup,
   IconWorld,
   IconGavel,
-  IconHeadphones,
 } from "@tabler/icons-react";
 import { apiFetch } from "../../utils/api.js";
 import "../../styles/amsterdam-flames-event.css";
@@ -46,12 +45,6 @@ const AWAITS = [
     title: "Highlight Session",
     tagline: "Stories Behind the Stars",
     body: "A special on-stage moment featuring inspiring stories, memorable experiences and conversations that bring you closer to the people behind the game.",
-  },
-  {
-    icon: IconHeadphones,
-    title: "DJ",
-    tagline: "Turn Up the Night",
-    body: "When the formalities end, the energy goes up. Great music, great vibes and a dance floor waiting for you.",
   },
   {
     icon: IconStarFilled,
