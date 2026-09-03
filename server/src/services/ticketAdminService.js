@@ -6,7 +6,7 @@ import { formatOrder, formatTicket } from "./ticketOrderService.js";
 import { isOrderPaymentSettled } from "../utils/orderPaymentUtils.js";
 import { verifyTicketPdfAccess } from "../utils/ticketPdfAccess.js";
 import { formatMoney } from "./ticketPricingService.js";
-import { sendTicketConfirmationEmail, sendTicketUpdateEmail } from "./ticketMailer.js";
+import { sendTicketConfirmationEmail, sendTicketUpdateEmail, sendTicketOrderConfirmationEmail } from "./ticketMailer.js";
 import { escapeRegex } from "../utils/regexUtils.js";
 import crypto from "crypto";
 import User from "../models/User.js";
@@ -704,8 +704,16 @@ export async function resendTicketEmail(ticketId) {
     err.status = 400;
     throw err;
   }
-  await sendTicketConfirmationEmail({ order, ticket, event });
-  return { sent: true };
+
+  // An order with multiple tickets was originally confirmed as ONE combined
+  // PDF/email to the purchaser — resend must reproduce that, not a lone ticket.
+  const orderTickets = await Ticket.find({ orderId: order._id }).sort({ createdAt: 1 });
+  if (orderTickets.length > 1) {
+    await sendTicketOrderConfirmationEmail({ order, tickets: orderTickets, event });
+  } else {
+    await sendTicketConfirmationEmail({ order, ticket, event });
+  }
+  return { sent: true, ticketCount: orderTickets.length };
 }
 
 export async function getTicketPdfBuffer(ticketNumber) {

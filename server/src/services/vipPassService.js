@@ -318,8 +318,15 @@ async function loadVipTicketOrThrow(ticketId) {
 export async function resendVipPass(ticketId) {
   const { ticket, order } = await loadVipTicketOrThrow(ticketId);
   const event = await Event.findById(ticket.eventId).lean();
-  const emailResult = await sendVipPassEmail({ order, ticket, event });
-  return { sent: true, emailResult };
+
+  // A group pass was originally issued as ONE collated PDF/email to the primary
+  // contact — resend must reproduce that, not a lone guest's pass.
+  const orderTickets = await Ticket.find({ orderId: order._id }).sort({ createdAt: 1 });
+  const emailResult =
+    orderTickets.length > 1
+      ? await sendVipPassGroupEmail({ order, tickets: orderTickets, event })
+      : await sendVipPassEmail({ order, ticket, event });
+  return { sent: true, emailResult, guestCount: orderTickets.length };
 }
 
 export async function voidVipPass(ticketId, adminId = null, reason = "") {
