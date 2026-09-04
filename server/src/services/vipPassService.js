@@ -22,7 +22,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function splitGuestName(fullName = "") {
   const parts = String(fullName).trim().split(/\s+/).filter(Boolean);
-  return { firstName: parts[0] || "Guest", lastName: parts.slice(1).join(" ") };
+  // TicketOrder.attendeeLastName is a required field — a single-word name
+  // (e.g. "Cher") must not produce an empty string here.
+  return { firstName: parts[0] || "Guest", lastName: parts.slice(1).join(" ") || "-" };
 }
 
 async function buildOrderNumber() {
