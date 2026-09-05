@@ -244,7 +244,9 @@
 }
 
 .checkin-app__reader video {
-  border-radius: 14px;
+  /* No border-radius here — the parent .checkin-app__reader already clips
+     via overflow:hidden. Rounding the <video> element itself pushes many
+     Android GPUs onto a compositing path that renders the feed solid black. */
   object-fit: cover;
 }
 
