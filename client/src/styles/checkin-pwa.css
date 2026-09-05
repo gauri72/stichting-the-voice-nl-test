@@ -248,6 +248,14 @@
      via overflow:hidden. Rounding the <video> element itself pushes many
      Android GPUs onto a compositing path that renders the feed solid black. */
   object-fit: cover;
+  /* html5-qrcode sets its own inline `style="width: 0px"` on this element
+     via JS and never corrects it in some environments — the video plays
+     (readyState 4, real frames) but renders as a 0-width box, i.e. just the
+     black container background showing through. !important is required to
+     win over that library-set inline style. */
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
 }
 
 .checkin-app__hint {
