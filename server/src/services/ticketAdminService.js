@@ -11,6 +11,7 @@ import { escapeRegex } from "../utils/regexUtils.js";
 import crypto from "crypto";
 import User from "../models/User.js";
 import { logAdminAction, getAuditLogsForTarget } from "./adminAuditService.js";
+import { canAccessEvent } from "../config/rbacConfig.js";
 
 function ticketSnapshot(ticket) {
   const source = ticket.toObject ? ticket.toObject() : ticket;
@@ -630,11 +631,21 @@ export async function bulkManageAdminTickets(payload, adminId) {
   };
 }
 
-export async function checkInTicket(verificationToken, adminId) {
+/** requestingAdmin, when passed, gates this ticket's event against the
+ *  caller's assignedEvents (door/volunteer staff) — omitted by internal
+ *  callers (e.g. bulk admin actions) that are already permission-gated
+ *  at the route level. */
+export async function checkInTicket(verificationToken, adminId, requestingAdmin = null) {
   const ticket = await Ticket.findOne({ verificationToken });
   if (!ticket) {
     const err = new Error("Invalid ticket. QR code not recognized.");
     err.status = 404;
+    throw err;
+  }
+
+  if (requestingAdmin && !canAccessEvent(requestingAdmin, ticket.eventId)) {
+    const err = new Error("You do not have access to this event.");
+    err.status = 403;
     throw err;
   }
 
@@ -686,6 +697,40 @@ export async function checkInTicket(verificationToken, adminId) {
     },
     checkInAnswers,
   };
+}
+
+/** Browsable door-side roster for manual check-in when the camera can't
+ *  read a QR code — scoped to the requesting admin's assignedEvents so
+ *  door/volunteer staff only ever see their own event's guest list. */
+export async function listCheckInRoster(eventId, requestingAdmin) {
+  if (!eventId) {
+    const err = new Error("eventId is required.");
+    err.status = 400;
+    throw err;
+  }
+  if (!canAccessEvent(requestingAdmin, eventId)) {
+    const err = new Error("You do not have access to this event.");
+    err.status = 403;
+    throw err;
+  }
+
+  const tickets = await Ticket.find({
+    eventId,
+    status: { $nin: ["refunded", "cancelled", "voided"] },
+  })
+    .select("ticketNumber attendeeName ticketTypeName verificationToken checkedIn checkedInAt")
+    .sort({ attendeeName: 1 })
+    .lean();
+
+  return tickets.map((t) => ({
+    ticketId: t._id.toString(),
+    ticketNumber: t.ticketNumber,
+    attendeeName: t.attendeeName,
+    ticketTypeName: t.ticketTypeName,
+    verificationToken: t.verificationToken,
+    checkedIn: Boolean(t.checkedIn),
+    checkedInAt: t.checkedInAt || null,
+  }));
 }
 
 export async function resendTicketEmail(ticketId) {

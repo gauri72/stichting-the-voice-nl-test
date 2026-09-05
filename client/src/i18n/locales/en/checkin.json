@@ -23,7 +23,16 @@
     "scanNextTicket": "Scan next ticket",
     "ticketLabel": "Ticket: {{number}}",
     "recentCheckInsAria": "Recent check-ins this session",
-    "recentCheckIns": "Recent check-ins"
+    "recentCheckIns": "Recent check-ins",
+    "tabScan": "Scan",
+    "tabList": "Guest List",
+    "selectEvent": "Event",
+    "selectEventPlaceholder": "Choose an event…",
+    "searchGuests": "Search guests by name or ticket number…",
+    "loadingGuests": "Loading guest list…",
+    "rosterLoadError": "Could not load the guest list.",
+    "noGuestsFound": "No guests found.",
+    "checkedIn": "Checked in"
   },
   "pwaShell": {
     "title": "Check-in",

@@ -40,9 +40,22 @@ import CaptchaField from "../common/CaptchaField.jsx";
 
 import ThemeToggle from "../layout/ThemeToggle.jsx";
 
+import { hasPermission } from "../../utils/rbacAdmin.js";
+
 import "../../styles/admin-login-page.css";
 
-
+// Check-in-only roles (e.g. volunteer/door staff) have no dashboard.view
+// permission and would otherwise be bounced by AdminProtectedRoute if sent
+// to /admin/dashboard — send them straight to the check-in PWA instead.
+function resolveHomeRoute(permissions = []) {
+  if (hasPermission(permissions, "dashboard.view") || permissions.includes("*")) {
+    return "/admin/dashboard";
+  }
+  if (hasPermission(permissions, "checkin.view") || hasPermission(permissions, "checkin.scan")) {
+    return "/check-in";
+  }
+  return "/admin/dashboard";
+}
 
 export default function AdminLoginPage() {
 
@@ -100,7 +113,7 @@ export default function AdminLoginPage() {
 
   if (!loading && admin) {
 
-    return <Navigate to="/admin/dashboard" replace />;
+    return <Navigate to={resolveHomeRoute(admin.permissions)} replace />;
 
   }
 
@@ -138,7 +151,7 @@ export default function AdminLoginPage() {
 
       await loginWithAdminToken(data.token, data.admin, rememberMe);
 
-      navigate("/admin/dashboard", { replace: true });
+      navigate(resolveHomeRoute(data.admin?.permissions), { replace: true });
 
     } catch (submitError) {
 

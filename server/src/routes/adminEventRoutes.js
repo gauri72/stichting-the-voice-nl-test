@@ -26,6 +26,7 @@ import {
   sendTicketUpdate,
   bulkManageTickets,
   checkIn,
+  checkInRoster,
   resendEmail,
   downloadTicketPdf,
   exportCsv,
@@ -91,6 +92,7 @@ router.post("/tickets/:id/resend-email", resendEmail);
 router.get("/tickets/:id/pdf", downloadTicketPdf);
 router.get("/tickets/:id/revisions/:documentId/pdf", downloadTicketPdf);
 router.post("/check-in", checkIn);
+router.get("/:eventId/check-in-list", checkInRoster);
 
 router.get("/vouchers", listVouchers);
 router.post("/vouchers", createVoucher);

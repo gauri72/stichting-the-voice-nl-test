@@ -353,6 +353,133 @@
   text-align: right;
 }
 
+.checkin-app__tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.checkin-app__tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: var(--ad-muted, #94a3b8);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.checkin-app__tab--active {
+  background: rgba(62, 207, 154, 0.12);
+  border-color: rgba(62, 207, 154, 0.4);
+  color: #3ecf9a;
+}
+
+.checkin-app__roster {
+  background: var(--ad-card, #0d111c);
+  border: 1px solid rgba(62, 207, 154, 0.15);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.checkin-app__roster-picker label {
+  display: block;
+  font-size: 0.84rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.checkin-app__roster-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ad-muted, #94a3b8);
+  margin-bottom: 12px;
+}
+
+.checkin-app__roster-search .checkin-app__input {
+  margin-bottom: 0;
+}
+
+.checkin-app__roster-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.checkin-app__roster-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.checkin-app__roster-row--done {
+  opacity: 0.6;
+}
+
+.checkin-app__roster-info {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.checkin-app__roster-info strong {
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.checkin-app__roster-info span {
+  font-size: 0.78rem;
+  color: var(--ad-muted, #94a3b8);
+}
+
+.checkin-app__roster-btn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 0;
+  background: linear-gradient(135deg, #d1007f, #7b2ff7);
+  color: #fff;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.checkin-app__roster-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.checkin-app__roster-badge {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #22c55e;
+}
+
 .checkin-app__recent {
   margin-top: 8px;
 }

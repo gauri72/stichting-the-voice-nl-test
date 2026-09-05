@@ -347,7 +347,7 @@ export async function checkIn(req, res) {
     const cleanToken = token.trim();
     try {
       const { checkInTicket } = await import("../services/ticketAdminService.js");
-      const result = await checkInTicket(cleanToken, req.admin?.id);
+      const result = await checkInTicket(cleanToken, req.admin?.id, req.admin);
       return res.status(200).json(result);
     } catch (primaryError) {
       if ((primaryError.status || 500) !== 404) throw primaryError;
@@ -355,6 +355,16 @@ export async function checkIn(req, res) {
       const fallback = await resolveSessionOrRsvpCheckIn(cleanToken, req.admin?.id);
       return res.status(200).json(fallback);
     }
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function checkInRoster(req, res) {
+  try {
+    const { listCheckInRoster } = await import("../services/ticketAdminService.js");
+    const guests = await listCheckInRoster(req.params.eventId, req.admin);
+    return res.status(200).json({ guests });
   } catch (error) {
     return handleError(res, error);
   }

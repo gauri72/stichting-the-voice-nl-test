@@ -12,6 +12,7 @@ export const NAV_ROUTE_PERMISSIONS = {
   "/admin/reviews": "reviews.view",
   "/admin/tickets": "tickets.view",
   "/admin/check-in": "checkin.view",
+  "/check-in": "checkin.view",
   "/admin/memberships": "memberships.view",
   "/admin/users": "users.view",
   "/admin/templates": "templates.view",
