@@ -107,7 +107,7 @@ function finalDayNoticeBulletRow(bodyText, label, text) {
     </td></tr>`;
 }
 
-export function buildFinalDayNoticeHtml({ accent, bodyText, panelBg, border }) {
+function buildFinalDayNoticeHtml({ accent, bodyText, panelBg, border }) {
   const n = AMSTERDAM_FLAMES_FINAL_DAY_NOTICE;
   return `<tr><td class="card-pad" style="padding:22px 24px;background:${panelBg};border-radius:18px;border:1px solid ${border};">
       <p style="margin:0 0 14px;font-size:16px;font-weight:700;color:${accent};">${escapeHtml(n.title)}</p>
@@ -117,14 +117,79 @@ export function buildFinalDayNoticeHtml({ accent, bodyText, panelBg, border }) {
         ${finalDayNoticeBulletRow(bodyText, "Parking", n.parking)}
         ${finalDayNoticeBulletRow(bodyText, "On Arrival", n.reception)}
       </table>
-      <p style="margin:16px 0 0;font-size:14px;font-weight:700;line-height:1.7;color:#fff;">Your ticket details are below.</p>
     </td></tr>
     <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>`;
 }
 
-export function buildFinalDayNoticeText() {
+function buildFinalDayNoticeText() {
   const n = AMSTERDAM_FLAMES_FINAL_DAY_NOTICE;
-  return `\n${n.title}\n${n.venueChangeLabel}: ${n.venueChange}\n\n- Dress Code: ${n.dressCode}\n- Parking: ${n.parking}\n- On Arrival: ${n.reception}\n\nYour ticket details are below.\n`;
+  return `\n${n.title}\n${n.venueChangeLabel}: ${n.venueChange}\n\n- Dress Code: ${n.dressCode}\n- Parking: ${n.parking}\n- On Arrival: ${n.reception}\n`;
+}
+
+// Full evening run-of-show, shown between the final-day notice and the
+// ticket-specific section.
+const AMSTERDAM_FLAMES_EVENING_PROGRAMME = {
+  title: "✨ Night of Stars – Evening Programme",
+  items: [
+    { time: "19:30", icon: "🥂", title: "Guest Arrival & Check-In", subtitle: "Welcome, arrival drinks and networking" },
+    { time: "20:00", icon: "🎤", title: "Official Welcome & Opening", subtitle: "" },
+    { time: "20:05", icon: "🔥", title: "Amsterdam Flames CEO Address", subtitle: "With Tim Thomas" },
+    { time: "20:10", icon: "🏏", title: "In Conversation with Steve Waugh & Noor", subtitle: "An engaging conversation around cricket, leadership, experiences and personal stories" },
+    { time: "20:25", icon: "❤️", title: "Move Forward Foundation", subtitle: "A special moment highlighting the evening's social impact" },
+    { time: "20:30", icon: "🔥", title: "Meet the Amsterdam Flames", subtitle: "Introduction to the Amsterdam Flames players by Nikhil Kulkarni" },
+    { time: "20:45", icon: "⭐", title: "Legends Panel", subtitle: "Featuring Steve Waugh, Jamie Dwyer & Ajinkya Rahane, hosted by Snehal Phadke" },
+    { time: "21:10", icon: "🎙️", title: "Audience Q&A", subtitle: "An opportunity for guests to interact with the legends" },
+    { time: "21:15", icon: "📸", title: "Photo Moments with the Players", subtitle: "A special opportunity to capture memories with the players" },
+    { time: "21:30", icon: "🍽️", title: "Dinner, Networking & Auction", subtitle: "Enjoy dinner and networking alongside a special auction" },
+    { time: "22:30", icon: "🙏", title: "Thank You & Closing Remarks", subtitle: "" },
+    { time: "22:45", icon: "🌟", title: "Official Event Close", subtitle: "" },
+  ],
+};
+
+function eveningProgrammeRow(bodyText, item) {
+  return `<tr><td style="padding:0 0 14px;">
+      <p style="margin:0 0 2px;font-size:14px;font-weight:700;color:#fff;">${escapeHtml(item.time)} — ${item.icon} ${escapeHtml(item.title)}</p>
+      ${item.subtitle ? `<p style="margin:0;font-size:13px;line-height:1.5;color:${bodyText};">${escapeHtml(item.subtitle)}</p>` : ""}
+    </td></tr>`;
+}
+
+function buildEveningProgrammeHtml({ accent, bodyText, panelBg, border }) {
+  const p = AMSTERDAM_FLAMES_EVENING_PROGRAMME;
+  return `<tr><td class="card-pad" style="padding:22px 24px;background:${panelBg};border-radius:18px;border:1px solid ${border};">
+      <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:${accent};">${p.title}</p>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+        ${p.items.map((item) => eveningProgrammeRow(bodyText, item)).join("")}
+      </table>
+    </td></tr>
+    <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>`;
+}
+
+function buildEveningProgrammeText() {
+  const p = AMSTERDAM_FLAMES_EVENING_PROGRAMME;
+  const lines = p.items
+    .map((item) => `${item.time} — ${item.icon} ${item.title}${item.subtitle ? `\n  ${item.subtitle}` : ""}`)
+    .join("\n");
+  return `\n${p.title}\n${lines}\n`;
+}
+
+function buildTicketDetailsTransitionHtml() {
+  return `<tr><td style="padding:0 0 4px;"><p style="margin:0;font-size:14px;font-weight:700;line-height:1.7;color:#fff;">Your ticket details are below.</p></td></tr>
+    <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>`;
+}
+
+function buildTicketDetailsTransitionText() {
+  return "\nYour ticket details are below.\n";
+}
+
+/** Combined "everything about tonight" block: venue/dress-code/parking
+ *  notice, then the full evening programme, then a transition line into the
+ *  ticket-specific section that follows. Single call-site per template. */
+export function buildTonightInfoHtml(args) {
+  return buildFinalDayNoticeHtml(args) + buildEveningProgrammeHtml(args) + buildTicketDetailsTransitionHtml();
+}
+
+export function buildTonightInfoText() {
+  return buildFinalDayNoticeText() + buildEveningProgrammeText() + buildTicketDetailsTransitionText();
 }
 
 // Swaps only the display name on the configured From header, keeping the same
@@ -245,7 +310,7 @@ function buildTicketEmailText({ order, ticket, event, updateNotice = "", updateC
     ? `\nWhat changed:\n${updateChanges.map((change) => `- ${change.label}: ${change.from || "—"} → ${change.to || "—"}`).join("\n")}\n`
     : "";
   return `${updateNotice ? `Your ticket has been updated: ${updateNotice}${changeText}` : `Your ticket for ${eventTitle} is confirmed.`}
-${hasFinalDayNotice(event) ? buildFinalDayNoticeText() : ""}
+${hasFinalDayNotice(event) ? buildTonightInfoText() : ""}
 Order: ${order.orderNumber}
 Ticket: ${ticket.ticketNumber}
 Ticket type: ${ticket.ticketTypeName}
@@ -353,7 +418,7 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
 
           <tr><td style="height:20px;font-size:0;line-height:0;">&nbsp;</td></tr>
 
-          ${hasFinalDayNotice(event) ? buildFinalDayNoticeHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: border22 }) : ""}
+          ${hasFinalDayNotice(event) ? buildTonightInfoHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: border22 }) : ""}
 
           <tr>
             <td class="card-pad" style="padding:24px;background:${branding.panelBg};border-radius:18px;border:1px solid ${border22};">
@@ -545,7 +610,7 @@ function buildBookingEmailText({ order, tickets, event }) {
   }).join("\n\n");
 
   return `Your booking for ${event?.title || "V.O.I.C.E. NL Event"} is confirmed.
-${hasFinalDayNotice(event) ? buildFinalDayNoticeText() : ""}
+${hasFinalDayNotice(event) ? buildTonightInfoText() : ""}
 Order: ${order.orderNumber}
 Tickets: ${tickets.length}
 Date: ${formatEventDate(event?.date)}
@@ -610,7 +675,7 @@ function buildBookingEmailHtml({ order, tickets, event }, qrCids) {
         <p style="margin:0;color:${branding.bodyText};font-size:15px;line-height:1.6;">${eventTitle}</p>
       </td></tr>
       <tr><td style="height:18px">&nbsp;</td></tr>
-      ${hasFinalDayNotice(event) ? buildFinalDayNoticeHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: hexToRgba(a, 0.2) }) : ""}
+      ${hasFinalDayNotice(event) ? buildTonightInfoHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: hexToRgba(a, 0.2) }) : ""}
       <tr><td style="padding:22px;background:${branding.panelBg};border:1px solid ${hexToRgba(a, 0.2)};border-radius:18px;">
         <p style="margin:0 0 8px;color:#fff;font-size:15px;"><strong>Order:</strong> ${escapeHtml(order.orderNumber)}</p>
         <p style="margin:0 0 8px;color:${branding.bodyText};font-size:14px;">${escapeHtml(formatEventDate(event?.date))} · ${escapeHtml(formatEventTime(event?.startTime, event?.endTime))}</p>
