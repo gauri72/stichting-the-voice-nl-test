@@ -67,9 +67,10 @@ export function getEmailBranding(event) {
 // every mailer call site, same pattern as AF_VIP_WELCOME_MESSAGE below.
 const AMSTERDAM_FLAMES_FINAL_DAY_NOTICE = {
   title: "Tonight's Final Details",
+  venueChangeLabel: "Important Venue Update",
+  venueChange: "Please note that Night of Stars will now take place at Leonardo Hotel Den Haag Babylon, Bezuidenhoutseweg 53, 2595 AA Den Haag. We look forward to welcoming you there!",
   dressCode: "Formal attire — suits or blazers recommended.",
-  parking:
-    "For Leonardo Hotel Den Haag Babylon, parking is quite straightforward because the hotel is directly beside Den Haag Centraal. The most convenient option for Night of Stars guests is Q-Park Central Station New Babylon at Prinses Irenestraat 1, 2595 BD Den Haag — adjacent to the hotel, open 24/7, with 1,248 spaces.",
+  parking: "Q-Park Central Station New Babylon at Prinses Irenestraat 1, 2595 BD Den Haag — adjacent to the hotel, open 24/7, with 1,248 spaces.",
   reception: "On arrival, please ask at the hotel reception for directions to the event venue hall.",
 };
 
@@ -97,20 +98,32 @@ export function buildAmsterdamFlamesHeaderHtml() {
     </td></tr>`;
 }
 
+function finalDayNoticeBulletRow(bodyText, label, text) {
+  return `<tr><td style="padding:0 0 12px;">
+      <table role="presentation" cellspacing="0" cellpadding="0"><tr>
+        <td valign="top" style="width:20px;padding:2px 8px 0 0;"><img src="${AF_CREST_URL}" alt="" width="14" height="14" style="display:block;width:14px;height:14px;" /></td>
+        <td style="font-size:14px;line-height:1.7;color:${bodyText};">${label ? `<strong style="color:#fff;">${escapeHtml(label)}:</strong> ` : ""}${escapeHtml(text)}</td>
+      </tr></table>
+    </td></tr>`;
+}
+
 export function buildFinalDayNoticeHtml({ accent, bodyText, panelBg, border }) {
   const n = AMSTERDAM_FLAMES_FINAL_DAY_NOTICE;
   return `<tr><td class="card-pad" style="padding:22px 24px;background:${panelBg};border-radius:18px;border:1px solid ${border};">
       <p style="margin:0 0 14px;font-size:16px;font-weight:700;color:${accent};">${escapeHtml(n.title)}</p>
-      <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:${bodyText};"><strong style="color:#fff;">Dress Code:</strong> ${escapeHtml(n.dressCode)}</p>
-      <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:${bodyText};"><strong style="color:#fff;">Parking:</strong> ${escapeHtml(n.parking)}</p>
-      <p style="margin:0;font-size:14px;line-height:1.7;color:${bodyText};">${escapeHtml(n.reception)}</p>
+      <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:${bodyText};"><strong style="color:${accent};">${escapeHtml(n.venueChangeLabel)}:</strong> ${escapeHtml(n.venueChange)}</p>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+        ${finalDayNoticeBulletRow(bodyText, "Dress Code", n.dressCode)}
+        ${finalDayNoticeBulletRow(bodyText, "Parking", n.parking)}
+        ${finalDayNoticeBulletRow(bodyText, "On Arrival", n.reception)}
+      </table>
     </td></tr>
     <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>`;
 }
 
 export function buildFinalDayNoticeText() {
   const n = AMSTERDAM_FLAMES_FINAL_DAY_NOTICE;
-  return `\n${n.title}\nDress Code: ${n.dressCode}\nParking: ${n.parking}\n${n.reception}\n`;
+  return `\n${n.title}\n${n.venueChangeLabel}: ${n.venueChange}\n\n- Dress Code: ${n.dressCode}\n- Parking: ${n.parking}\n- On Arrival: ${n.reception}\n`;
 }
 
 // Swaps only the display name on the configured From header, keeping the same
@@ -370,6 +383,7 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
 
           <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>
 
+          ${!isAmsterdamFlamesEvent(event) ? `
           <tr>
             <td class="card-pad" style="padding:22px 24px;background:${branding.panelBg};border-radius:18px;border:1px solid ${border22};">
               <p style="margin:0 0 14px;font-size:16px;font-weight:700;color:${a};">Important Information</p>
@@ -391,6 +405,7 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
           </tr>
 
           <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>
+          ` : ""}
 
           ${hasFinalDayNotice(event) ? buildFinalDayNoticeHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: border22 }) : ""}
 
