@@ -8,21 +8,24 @@ export default function AccessTeamMembersPage() {
   const canEdit = can("access_management.edit");
   const [members, setMembers] = useState([]);
   const [roles, setRoles] = useState([]);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", roleId: "", sendInvite: true });
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", roleId: "", assignedEvents: [], sendInvite: true });
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [team, roleData] = await Promise.all([
+      const [team, roleData, eventData] = await Promise.all([
         apiFetch("/api/admin/access/team-members", { headers: adminAuthHeaders() }),
         apiFetch("/api/admin/access/roles", { headers: adminAuthHeaders() }),
+        apiFetch("/api/admin/events", { headers: adminAuthHeaders() }),
       ]);
       setMembers(team.members || []);
       setRoles(roleData.roles || []);
+      setEvents(eventData.events || []);
     } catch (err) {
       setError(err.message || "Could not load team members.");
     } finally {
@@ -44,6 +47,7 @@ export default function AccessTeamMembersPage() {
       });
       setMessage("Team member invited.");
       setFormOpen(false);
+      setForm({ firstName: "", lastName: "", email: "", phone: "", roleId: "", assignedEvents: [], sendInvite: true });
       await load();
     } catch (err) {
       setError(err.message || "Invite failed.");
@@ -85,6 +89,21 @@ export default function AccessTeamMembersPage() {
               {roles.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
             </select>
           </label>
+          <label>
+            Assigned event(s)
+            <select
+              multiple
+              value={form.assignedEvents}
+              onChange={(e) => setForm((f) => ({
+                ...f,
+                assignedEvents: Array.from(e.target.selectedOptions, (o) => o.value),
+              }))}
+              size={Math.min(6, Math.max(3, events.length))}
+            >
+              {events.map((ev) => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
+            </select>
+            <span className="admin-events__hint">Leave empty for full access to all events. For a Volunteer / Staff account, select exactly one event to limit their check-in scope to it. Ctrl/Cmd-click to select multiple.</span>
+          </label>
           <label className="admin-events__checkbox">
             <input type="checkbox" checked={form.sendInvite} onChange={(e) => setForm((f) => ({ ...f, sendInvite: e.target.checked }))} />
             Send invitation email
@@ -102,6 +121,11 @@ export default function AccessTeamMembersPage() {
               <h3>{m.firstName} {m.lastName}</h3>
               <p>{m.email}</p>
               <p>{m.roleName || m.roleSlug || m.role} · {STATUS_LABELS[m.status] || m.status}</p>
+              <p>
+                {m.assignedEvents?.length
+                  ? `Assigned to: ${m.assignedEvents.map((id) => events.find((ev) => ev.id === id)?.title || id).join(", ")}`
+                  : "Assigned to: all events"}
+              </p>
               <p>Last login: {m.lastLoginAt ? new Date(m.lastLoginAt).toLocaleString() : "—"}</p>
               {canEdit ? (
                 <div className="admin-events__form-actions">
