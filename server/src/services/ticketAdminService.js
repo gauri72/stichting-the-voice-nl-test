@@ -761,6 +761,59 @@ export async function resendTicketEmail(ticketId) {
   return { sent: true, ticketCount: orderTickets.length };
 }
 
+/** Resends the ticket/VIP-pass confirmation email to every valid order for
+ *  one event — one email per order (or VIP group), reusing the same
+ *  combining-aware resend logic as a single-ticket resend, so a change made
+ *  to the shared templates (e.g. a day-of notice) reaches everyone who
+ *  already has a ticket. Not event-access-gated: only ever reachable via an
+ *  explicit admin action already scoped to one event in the UI. */
+export async function sendFinalDayUpdateForEvent(eventId) {
+  if (!eventId) {
+    const err = new Error("eventId is required.");
+    err.status = 400;
+    throw err;
+  }
+
+  const tickets = await Ticket.find({
+    eventId,
+    status: { $nin: ["refunded", "cancelled", "voided"] },
+  })
+    .select("orderId")
+    .lean();
+  if (!tickets.length) {
+    return { totalOrders: 0, succeeded: 0, failed: 0, results: [] };
+  }
+
+  const orderIds = [...new Set(tickets.map((t) => t.orderId.toString()))];
+  const oneTicketByOrder = new Map();
+  for (const t of tickets) {
+    const key = t.orderId.toString();
+    if (!oneTicketByOrder.has(key)) oneTicketByOrder.set(key, t._id.toString());
+  }
+
+  const orders = await TicketOrder.find({ _id: { $in: orderIds } }).select("bookingMode").lean();
+  const { resendVipPass } = await import("./vipPassService.js");
+
+  const results = [];
+  for (const order of orders) {
+    const orderId = order._id.toString();
+    const ticketId = oneTicketByOrder.get(orderId);
+    try {
+      if (order.bookingMode === "vip_guest") {
+        await resendVipPass(ticketId);
+      } else {
+        await resendTicketEmail(ticketId);
+      }
+      results.push({ orderId, success: true });
+    } catch (error) {
+      results.push({ orderId, success: false, error: error.message || "Resend failed." });
+    }
+  }
+
+  const succeeded = results.filter((r) => r.success).length;
+  return { totalOrders: orders.length, succeeded, failed: orders.length - succeeded, results };
+}
+
 export async function getTicketPdfBuffer(ticketNumber) {
   const ticket = await Ticket.findOne({ ticketNumber }).lean();
   if (!ticket) {

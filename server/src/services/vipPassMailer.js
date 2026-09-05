@@ -1,7 +1,16 @@
 import { getSmtpTransporter, isMailerConfigured } from "./smtpTransport.js";
 import { generateTicketQrPngBuffer } from "./ticketQrService.js";
 import { renderVipPassPdf, buildVipPassPdfValuesFromDocs, generateVipPassGroupPdfFromDocs } from "./ticketPdfService.js";
-import { getEmailBranding, buildFromHeader, hexToRgba } from "./ticketMailer.js";
+import {
+  getEmailBranding,
+  buildFromHeader,
+  hexToRgba,
+  hasFinalDayNotice,
+  buildFinalDayNoticeHtml,
+  buildFinalDayNoticeText,
+  isAmsterdamFlamesEvent,
+  buildAmsterdamFlamesHeaderHtml,
+} from "./ticketMailer.js";
 import { escapeHtml } from "../utils/escapeHtml.js";
 
 export { isMailerConfigured };
@@ -69,7 +78,7 @@ ${formatEventDate(event?.date)}${event?.startTime ? ` · ${event.startTime}` : "
 ${venue}
 
 Your VIP Pass PDF is attached — present it (printed or on your phone) at the venue entrance.
-
+${hasFinalDayNotice(event) ? buildFinalDayNoticeText() : ""}
 ${branding.textSignature}`;
 }
 
@@ -92,6 +101,7 @@ function buildVipPassEmailHtml({ order, ticket, event }, { qrCid }) {
   </style></head>
   <body><table role="presentation" width="100%" class="shell" cellspacing="0" cellpadding="0"><tr><td align="center">
     <table role="presentation" width="600" style="width:100%;max-width:600px" cellspacing="0" cellpadding="0">
+      ${isAmsterdamFlamesEvent(event) ? buildAmsterdamFlamesHeaderHtml() : ""}
       <tr><td style="padding:26px;background:${heroGradient};border:1px solid ${hexToRgba(a, 0.25)};border-radius:20px;">
         <p style="margin:0 0 10px;color:${a};font-size:11px;letter-spacing:2px;font-weight:800;text-transform:uppercase;">You're on the list</p>
         <h1 style="margin:0 0 12px;color:#fff;font-size:28px;line-height:1.2;font-family:${branding.headingFontFamily};">Welcome, ${guestName}</h1>
@@ -112,6 +122,8 @@ function buildVipPassEmailHtml({ order, ticket, event }, { qrCid }) {
       <tr><td style="padding:18px 22px;background:${branding.panelBg};border:1px solid ${hexToRgba(a, 0.2)};border-radius:18px;">
         <p style="margin:0;color:${branding.bodyText};font-size:13px;line-height:1.7;">Your VIP Pass PDF is attached — present it (printed or on your phone) at the venue entrance.</p>
       </td></tr>
+      <tr><td style="height:18px">&nbsp;</td></tr>
+      ${hasFinalDayNotice(event) ? buildFinalDayNoticeHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: hexToRgba(a, 0.2) }) : ""}
       <tr><td style="height:22px">&nbsp;</td></tr>
       <tr><td align="center" style="padding:6px 10px;">
         <p style="margin:0;color:${branding.mutedText};font-size:11px;">${escapeHtml(branding.footerCopyright)}</p>
@@ -190,7 +202,7 @@ ${venue}
 
 ${tickets.length} VIP Passes are attached as one PDF — one page per guest, each individually scannable at the entrance:
 ${guestList}
-
+${hasFinalDayNotice(event) ? buildFinalDayNoticeText() : ""}
 ${branding.textSignature}`;
 }
 
@@ -213,6 +225,7 @@ function buildVipPassGroupEmailHtml({ order, tickets, event }) {
   </style></head>
   <body><table role="presentation" width="100%" class="shell" cellspacing="0" cellpadding="0"><tr><td align="center">
     <table role="presentation" width="600" style="width:100%;max-width:600px" cellspacing="0" cellpadding="0">
+      ${isAmsterdamFlamesEvent(event) ? buildAmsterdamFlamesHeaderHtml() : ""}
       <tr><td style="padding:26px;background:${heroGradient};border:1px solid ${hexToRgba(a, 0.25)};border-radius:20px;">
         <p style="margin:0 0 10px;color:${a};font-size:11px;letter-spacing:2px;font-weight:800;text-transform:uppercase;">You're on the list</p>
         <h1 style="margin:0 0 12px;color:#fff;font-size:28px;line-height:1.2;font-family:${branding.headingFontFamily};">Welcome, ${primaryName}</h1>
@@ -233,6 +246,8 @@ function buildVipPassGroupEmailHtml({ order, tickets, event }) {
       <tr><td style="padding:18px 22px;background:${branding.panelBg};border:1px solid ${hexToRgba(a, 0.2)};border-radius:18px;">
         <p style="margin:0;color:${branding.bodyText};font-size:13px;line-height:1.7;">Each guest's pass is on its own page — print or show the relevant page (printed or on a phone) at the venue entrance for scanning.</p>
       </td></tr>
+      <tr><td style="height:18px">&nbsp;</td></tr>
+      ${hasFinalDayNotice(event) ? buildFinalDayNoticeHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: hexToRgba(a, 0.2) }) : ""}
       <tr><td style="height:22px">&nbsp;</td></tr>
       <tr><td align="center" style="padding:6px 10px;">
         <p style="margin:0;color:${branding.mutedText};font-size:11px;">${escapeHtml(branding.footerCopyright)}</p>

@@ -61,6 +61,58 @@ export function getEmailBranding(event) {
     : DEFAULT_EMAIL_BRANDING;
 }
 
+// One-time "day of" notice for Amsterdam Flames Night Of Stars, appended to
+// every ticket/VIP-pass email for this event (original sends and resends
+// alike) once this went out. Gated by event slug rather than threaded through
+// every mailer call site, same pattern as AF_VIP_WELCOME_MESSAGE below.
+const AMSTERDAM_FLAMES_FINAL_DAY_NOTICE = {
+  title: "Tonight's Final Details",
+  dressCode: "Formal attire — suits or blazers recommended.",
+  parking:
+    "For Leonardo Hotel Den Haag Babylon, parking is quite straightforward because the hotel is directly beside Den Haag Centraal. The most convenient option for Night of Stars guests is Q-Park Central Station New Babylon at Prinses Irenestraat 1, 2595 BD Den Haag — adjacent to the hotel, open 24/7, with 1,248 spaces.",
+  reception: "On arrival, please ask at the hotel reception for directions to the event venue hall.",
+};
+
+export function hasFinalDayNotice(event) {
+  return event?.slug === AMSTERDAM_FLAMES_EVENT_SLUG;
+}
+
+export function isAmsterdamFlamesEvent(event) {
+  return event?.slug === AMSTERDAM_FLAMES_EVENT_SLUG;
+}
+
+// Same crest asset used by the PDF generator (ticketPdfService.js's
+// AF_LOGO_PATH) and the public event page, referenced here by its hosted
+// URL since email clients can't load a local file path.
+const AF_CREST_URL = `${WEBSITE_URL}/amsterdam-flames/af-crest-orange.png`;
+
+export function buildAmsterdamFlamesHeaderHtml() {
+  return `<tr><td style="padding:0 4px 18px;">
+      <table role="presentation" cellspacing="0" cellpadding="0"><tr>
+        <td style="padding-right:10px;"><img src="${AF_CREST_URL}" alt="Amsterdam Flames" width="40" height="40" style="display:block;width:40px;height:40px;" /></td>
+        <td style="font-size:20px;font-weight:900;font-family:'Archivo Black',Arial,sans-serif;letter-spacing:0.5px;">
+          <span style="color:#ffffff;">Amsterdam</span><span style="color:#f05e3c;">Flames</span>
+        </td>
+      </tr></table>
+    </td></tr>`;
+}
+
+export function buildFinalDayNoticeHtml({ accent, bodyText, panelBg, border }) {
+  const n = AMSTERDAM_FLAMES_FINAL_DAY_NOTICE;
+  return `<tr><td class="card-pad" style="padding:22px 24px;background:${panelBg};border-radius:18px;border:1px solid ${border};">
+      <p style="margin:0 0 14px;font-size:16px;font-weight:700;color:${accent};">${escapeHtml(n.title)}</p>
+      <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:${bodyText};"><strong style="color:#fff;">Dress Code:</strong> ${escapeHtml(n.dressCode)}</p>
+      <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:${bodyText};"><strong style="color:#fff;">Parking:</strong> ${escapeHtml(n.parking)}</p>
+      <p style="margin:0;font-size:14px;line-height:1.7;color:${bodyText};">${escapeHtml(n.reception)}</p>
+    </td></tr>
+    <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>`;
+}
+
+export function buildFinalDayNoticeText() {
+  const n = AMSTERDAM_FLAMES_FINAL_DAY_NOTICE;
+  return `\n${n.title}\nDress Code: ${n.dressCode}\nParking: ${n.parking}\n${n.reception}\n`;
+}
+
 // Swaps only the display name on the configured From header, keeping the same
 // underlying mailbox address (there's no separate Amsterdam Flames mailbox —
 // V.O.I.C.E. NL still sends/fulfills the mail).
@@ -189,7 +241,7 @@ Time: ${formatEventTime(event?.startTime, event?.endTime)}
 Venue: ${[event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—"}${seatLines}
 ${extra ? `\nCheckout details:\n${extra}\n` : ""}
 Your ticket PDF is attached to this email. Show the QR code at the venue entrance for check-in.
-
+${hasFinalDayNotice(event) ? buildFinalDayNoticeText() : ""}
 View online: ${viewUrl}
 
 Need help? ${env.org.contactEmail || "info@stichtingthevoice.nl"}
@@ -245,6 +297,8 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
     <tr>
       <td align="center">
         <table role="presentation" width="600" cellspacing="0" cellpadding="0" class="email-card" style="max-width:600px;width:100%;">
+
+          ${isAmsterdamFlamesEvent(event) ? buildAmsterdamFlamesHeaderHtml() : ""}
 
           <tr>
             <td style="padding:0 4px 18px;border-bottom:1px solid ${border12};">
@@ -337,6 +391,8 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
           </tr>
 
           <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>
+
+          ${hasFinalDayNotice(event) ? buildFinalDayNoticeHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: border22 }) : ""}
 
           <tr>
             <td class="card-pad" style="padding:20px 24px;background:${branding.panelBg};border-radius:18px;border:1px solid ${border22};">
@@ -485,7 +541,7 @@ YOUR TICKETS
 ${summaries}
 
 Each ticket has its own unique QR code. The attached PDF contains one independently scannable ticket per page. Keep every QR code secure and present the correct page for each guest at entry.
-
+${hasFinalDayNotice(event) ? buildFinalDayNoticeText() : ""}
 Need help? ${env.org.contactEmail || "info@stichtingthevoice.nl"}
 ${WEBSITE_URL}
 
@@ -531,6 +587,7 @@ function buildBookingEmailHtml({ order, tickets, event }, qrCids) {
   </style></head>
   <body><table role="presentation" width="100%" class="shell" cellspacing="0" cellpadding="0"><tr><td align="center">
     <table role="presentation" width="600" style="width:100%;max-width:600px" cellspacing="0" cellpadding="0">
+      ${isAmsterdamFlamesEvent(event) ? buildAmsterdamFlamesHeaderHtml() : ""}
       <tr><td style="padding:26px;background:${heroGradient};border:1px solid ${hexToRgba(a, 0.25)};border-radius:20px;">
         <p style="margin:0 0 10px;color:${a};font-size:11px;letter-spacing:2px;font-weight:800;text-transform:uppercase;">Booking confirmed</p>
         <h1 style="margin:0 0 12px;color:#fff;font-size:30px;line-height:1.2;font-family:${branding.headingFontFamily};">Your ${tickets.length} ${tickets.length === 1 ? "ticket is" : "tickets are"} ready</h1>
@@ -548,6 +605,8 @@ function buildBookingEmailHtml({ order, tickets, event }, qrCids) {
         <p style="margin:0 0 8px;color:${a};font-size:15px;font-weight:800;">One booking. One attachment. Every ticket included.</p>
         <p style="margin:0;color:${branding.bodyText};font-size:13px;line-height:1.7;">Each QR code is unique. Your attached PDF contains one ticket per page, ready to print, save, or share with the correct guest.</p>
       </td></tr>
+      <tr><td style="height:18px">&nbsp;</td></tr>
+      ${hasFinalDayNotice(event) ? buildFinalDayNoticeHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: hexToRgba(a, 0.2) }) : ""}
       <tr><td align="center" style="padding:28px 12px;color:${branding.mutedText};font-size:12px;line-height:1.7;">${escapeHtml(branding.textSignature)}<br>${escapeHtml(env.org.contactEmail || "info@stichtingthevoice.nl")}</td></tr>
     </table>
   </td></tr></table></body></html>`;

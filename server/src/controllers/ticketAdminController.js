@@ -370,6 +370,16 @@ export async function checkInRoster(req, res) {
   }
 }
 
+export async function sendFinalDayUpdate(req, res) {
+  try {
+    const { sendFinalDayUpdateForEvent } = await import("../services/ticketAdminService.js");
+    const result = await sendFinalDayUpdateForEvent(req.params.eventId);
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function resendEmail(req, res) {
   try {
     const { resendTicketEmail } = await import("../services/ticketAdminService.js");

@@ -20,6 +20,7 @@ function eventsPermission(url, method) {
     if (url.includes("/export") || url.includes("/pdf")) return "tickets.export";
     return "tickets.edit";
   }
+  if (url.includes("/send-final-update")) return "tickets.resend";
   if (url.includes("/check-in")) {
     return method === "GET" ? "checkin.view" : "checkin.scan";
   }

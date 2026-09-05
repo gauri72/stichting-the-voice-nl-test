@@ -27,6 +27,7 @@ import {
   IconSearch,
   IconDiscount,
   IconCrown,
+  IconMailForward,
 } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
 import EventCheckoutFormSection from "./EventCheckoutFormSection.jsx";
@@ -475,6 +476,8 @@ function AdminEventCardActions({
   onDelete,
   onPatchFeatured,
   onSendVipPass,
+  onSendFinalUpdate,
+  sendingFinalUpdate,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const isAmsterdamFlames = ev.slug === AMSTERDAM_FLAMES_EVENT_SLUG;
@@ -577,6 +580,20 @@ function AdminEventCardActions({
                 <span>Send VIP Pass</span>
               </button>
             ) : null}
+            {isAmsterdamFlames ? (
+              <button
+                type="button"
+                className="admin-events__action-menu-item"
+                role="menuitem"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onSendFinalUpdate();
+                }}
+              >
+                <IconMailForward size={16} aria-hidden />
+                <span>Send Final Update</span>
+              </button>
+            ) : null}
             <button
               type="button"
               className="admin-events__action-menu-item"
@@ -662,6 +679,12 @@ function AdminEventCardActions({
           <button type="button" className="admin-events__action-btn" onClick={onSendVipPass}>
             <IconCrown size={16} aria-hidden />
             <span>Send VIP Pass</span>
+          </button>
+        ) : null}
+        {isAmsterdamFlames ? (
+          <button type="button" className="admin-events__action-btn" onClick={onSendFinalUpdate} disabled={sendingFinalUpdate}>
+            <IconMailForward size={16} aria-hidden />
+            <span>{sendingFinalUpdate ? "Sending…" : "Send Final Update"}</span>
           </button>
         ) : null}
         <button
@@ -760,6 +783,7 @@ export default function AdminEventsPage() {
   const [discountEvents, setDiscountEvents] = useState([]);
   // Send VIP Pass modal — only offered on the Amsterdam Flames event card.
   const [vipPassEvent, setVipPassEvent] = useState(null);
+  const [sendingFinalUpdateFor, setSendingFinalUpdateFor] = useState(null);
   const messageTimerRef = useRef(null);
   const showTransientMessage = useCallback((text, ms) => {
     window.clearTimeout(messageTimerRef.current);
@@ -767,6 +791,30 @@ export default function AdminEventsPage() {
     messageTimerRef.current = window.setTimeout(() => setMessage(""), ms);
   }, []);
   useEffect(() => () => window.clearTimeout(messageTimerRef.current), []);
+  const handleSendFinalUpdate = useCallback(async (ev) => {
+    if (
+      !window.confirm(
+        `Resend the ticket/VIP-pass email (with tonight's dress code, parking and reception info) to EVERY attendee of "${ev.title}"? This sends real emails immediately and cannot be undone.`
+      )
+    ) {
+      return;
+    }
+    setSendingFinalUpdateFor(ev.id);
+    try {
+      const result = await apiFetch(`/api/admin/events/${ev.id}/send-final-update`, {
+        method: "POST",
+        headers: adminAuthHeaders(),
+      });
+      showTransientMessage(
+        `Final update sent to ${result.succeeded} of ${result.totalOrders} orders${result.failed ? ` (${result.failed} failed)` : ""}.`,
+        8000
+      );
+    } catch (err) {
+      setError(err.message || "Could not send the final update.");
+    } finally {
+      setSendingFinalUpdateFor(null);
+    }
+  }, [showTransientMessage]);
   const [aiLoading, setAiLoading] = useState("");
   const [aiMessage, setAiMessage] = useState("");
   const [listSearch, setListSearch] = useState("");
@@ -1130,6 +1178,8 @@ export default function AdminEventsPage() {
             onDelete={() => handleDeleteEvent(ev.id, ev.title)}
             onPatchFeatured={(flags) => patchFeaturedFlag(ev.id, flags)}
             onSendVipPass={() => setVipPassEvent(ev)}
+            onSendFinalUpdate={() => handleSendFinalUpdate(ev)}
+            sendingFinalUpdate={sendingFinalUpdateFor === ev.id}
           />
         </li>
       );
