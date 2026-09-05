@@ -309,7 +309,7 @@ function buildTicketEmailText({ order, ticket, event, updateNotice = "", updateC
   const changeText = updateChanges.length
     ? `\nWhat changed:\n${updateChanges.map((change) => `- ${change.label}: ${change.from || "—"} → ${change.to || "—"}`).join("\n")}\n`
     : "";
-  return `${updateNotice ? `Your ticket has been updated: ${updateNotice}${changeText}` : `Your ticket for ${eventTitle} is confirmed.`}
+  return `${updateNotice ? `Your ticket has been updated: ${updateNotice}${changeText}` : hasFinalDayNotice(event) ? `We can't wait to see you tonight at ${eventTitle}!` : `Your ticket for ${eventTitle} is confirmed.`}
 ${hasFinalDayNotice(event) ? buildTonightInfoText() : ""}
 Order: ${order.orderNumber}
 Ticket: ${ticket.ticketNumber}
@@ -405,8 +405,8 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
 
           <tr>
             <td class="hero-pad" style="padding:28px 24px 30px;background:${branding.panelBg};border-radius:18px;border:1px solid ${border18};">
-              <p style="margin:0 0 10px;font-size:11px;letter-spacing:2px;font-weight:800;color:${a};text-transform:uppercase;">${updateNotice ? "Ticket Update" : "Ticket Confirmation"}</p>
-              <h1 class="hero-title" style="margin:0 0 12px;font-size:30px;line-height:1.2;color:#ffffff;font-family:${branding.headingFontFamily};font-weight:700;">${updateNotice ? "Your Ticket Has Been Updated" : "Your Ticket Is Confirmed!"}</h1>
+              <p style="margin:0 0 10px;font-size:11px;letter-spacing:2px;font-weight:800;color:${a};text-transform:uppercase;">${updateNotice ? "Ticket Update" : hasFinalDayNotice(event) ? "Tonight" : "Ticket Confirmation"}</p>
+              <h1 class="hero-title" style="margin:0 0 12px;font-size:30px;line-height:1.2;color:#ffffff;font-family:${branding.headingFontFamily};font-weight:700;">${updateNotice ? "Your Ticket Has Been Updated" : hasFinalDayNotice(event) ? "We Can't Wait To See You Tonight!" : "Your Ticket Is Confirmed!"}</h1>
               <p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:${branding.bodyText};">We are excited to welcome you at <strong style="color:#ffffff;">${eventTitle}</strong>.</p>
               ${updateNotice ? `<p style="margin:0 0 10px;font-size:14px;line-height:1.6;color:#ffffff;"><strong>Update:</strong> ${escapeHtml(updateNotice)}</p>` : ""}
               ${updateChanges.length ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:16px;border-top:1px solid ${hexToRgba(a, 0.2)};">
@@ -609,7 +609,7 @@ function buildBookingEmailText({ order, tickets, event }) {
    Seat: ${seat}`;
   }).join("\n\n");
 
-  return `Your booking for ${event?.title || "V.O.I.C.E. NL Event"} is confirmed.
+  return `${hasFinalDayNotice(event) ? `We can't wait to see you tonight at ${event?.title || "the event"}!` : `Your booking for ${event?.title || "V.O.I.C.E. NL Event"} is confirmed.`}
 ${hasFinalDayNotice(event) ? buildTonightInfoText() : ""}
 Order: ${order.orderNumber}
 Tickets: ${tickets.length}
@@ -670,8 +670,8 @@ function buildBookingEmailHtml({ order, tickets, event }, qrCids) {
     <table role="presentation" width="600" style="width:100%;max-width:600px" cellspacing="0" cellpadding="0">
       ${isAmsterdamFlamesEvent(event) ? buildAmsterdamFlamesHeaderHtml() : ""}
       <tr><td style="padding:26px;background:${heroGradient};border:1px solid ${hexToRgba(a, 0.25)};border-radius:20px;">
-        <p style="margin:0 0 10px;color:${a};font-size:11px;letter-spacing:2px;font-weight:800;text-transform:uppercase;">Booking confirmed</p>
-        <h1 style="margin:0 0 12px;color:#fff;font-size:30px;line-height:1.2;font-family:${branding.headingFontFamily};">Your ${tickets.length} ${tickets.length === 1 ? "ticket is" : "tickets are"} ready</h1>
+        <p style="margin:0 0 10px;color:${a};font-size:11px;letter-spacing:2px;font-weight:800;text-transform:uppercase;">${hasFinalDayNotice(event) ? "Tonight" : "Booking confirmed"}</p>
+        <h1 style="margin:0 0 12px;color:#fff;font-size:30px;line-height:1.2;font-family:${branding.headingFontFamily};">${hasFinalDayNotice(event) ? "We Can't Wait To See You Tonight!" : `Your ${tickets.length} ${tickets.length === 1 ? "ticket is" : "tickets are"} ready`}</h1>
         <p style="margin:0;color:${branding.bodyText};font-size:15px;line-height:1.6;">${eventTitle}</p>
       </td></tr>
       <tr><td style="height:18px">&nbsp;</td></tr>
