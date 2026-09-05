@@ -61,6 +61,10 @@ export default function CheckInApp({ variant = "admin" }) {
   }, [stopScanner]);
 
   useEffect(() => {
+    if (mode !== "scan") stopScanner();
+  }, [mode, stopScanner]);
+
+  useEffect(() => {
     function handleOnline() {
       setOnline(true);
     }
@@ -184,8 +188,23 @@ export default function CheckInApp({ variant = "admin" }) {
         () => {}
       );
       setScanning(true);
-    } catch {
-      setError(t("checkin:app.cameraDeniedError"));
+    } catch (err) {
+      // html5-qrcode/getUserMedia reject with different shapes depending on
+      // browser — inspect both err.name (DOMException) and the stringified
+      // message (the library sometimes throws a plain string) so the staff
+      // member sees the real cause instead of always "camera denied".
+      const raw = String(err?.name || err?.message || err || "");
+      if (/NotFoundError|no camera|device not found/i.test(raw)) {
+        setError(t("checkin:app.cameraNotFoundError"));
+      } else if (/NotReadableError|already in use|TrackStartError/i.test(raw)) {
+        setError(t("checkin:app.cameraInUseError"));
+      } else if (/SecurityError|insecure/i.test(raw)) {
+        setError(t("checkin:app.cameraInsecureError"));
+      } else if (/NotAllowedError|Permission denied|permission/i.test(raw)) {
+        setError(t("checkin:app.cameraDeniedError"));
+      } else {
+        setError(t("checkin:app.cameraGenericError", { detail: raw || "unknown error" }));
+      }
     }
   }, [readerId, stopScanner, handleCheckIn, loading, t]);
 
@@ -232,15 +251,20 @@ export default function CheckInApp({ variant = "admin" }) {
 
       {mode === "scan" ? (
         <section className="checkin-app__scanner">
-          {scanning ? (
-            <div className="checkin-app__reader-wrap">
-              <div id={readerId} className="checkin-app__reader" />
-              <p className="checkin-app__hint">{t("checkin:app.alignHint")}</p>
-              <button type="button" className="checkin-app__secondary-btn" onClick={stopScanner}>
-                {t("checkin:app.stopCamera")}
-              </button>
-            </div>
-          ) : (
+          {/* The reader container must stay mounted in the DOM even while
+              hidden — Html5Qrcode looks up this element by id when start()
+              is called, which happens BEFORE `scanning` flips true. Removing
+              it from the tree (via a ternary) makes every scan attempt fail
+              with an "element not found" error that got misreported as a
+              camera-permission denial. */}
+          <div className="checkin-app__reader-wrap" hidden={!scanning}>
+            <div id={readerId} className="checkin-app__reader" />
+            <p className="checkin-app__hint">{t("checkin:app.alignHint")}</p>
+            <button type="button" className="checkin-app__secondary-btn" onClick={stopScanner}>
+              {t("checkin:app.stopCamera")}
+            </button>
+          </div>
+          {!scanning ? (
             <button
               type="button"
               className="checkin-app__scan-btn"
@@ -250,7 +274,7 @@ export default function CheckInApp({ variant = "admin" }) {
               <IconScan size={isPwa ? 36 : 28} aria-hidden />
               <span>{loading ? t("checkin:app.validating") : t("checkin:app.scanQrCode")}</span>
             </button>
-          )}
+          ) : null}
 
           <form className="checkin-app__form" onSubmit={onSubmit}>
             <label htmlFor={`${readerId}-token`}>
