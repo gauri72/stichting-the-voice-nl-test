@@ -117,13 +117,14 @@ export function buildFinalDayNoticeHtml({ accent, bodyText, panelBg, border }) {
         ${finalDayNoticeBulletRow(bodyText, "Parking", n.parking)}
         ${finalDayNoticeBulletRow(bodyText, "On Arrival", n.reception)}
       </table>
+      <p style="margin:16px 0 0;font-size:14px;font-weight:700;line-height:1.7;color:#fff;">Your ticket details are below.</p>
     </td></tr>
     <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>`;
 }
 
 export function buildFinalDayNoticeText() {
   const n = AMSTERDAM_FLAMES_FINAL_DAY_NOTICE;
-  return `\n${n.title}\n${n.venueChangeLabel}: ${n.venueChange}\n\n- Dress Code: ${n.dressCode}\n- Parking: ${n.parking}\n- On Arrival: ${n.reception}\n`;
+  return `\n${n.title}\n${n.venueChangeLabel}: ${n.venueChange}\n\n- Dress Code: ${n.dressCode}\n- Parking: ${n.parking}\n- On Arrival: ${n.reception}\n\nYour ticket details are below.\n`;
 }
 
 // Swaps only the display name on the configured From header, keeping the same
@@ -244,7 +245,7 @@ function buildTicketEmailText({ order, ticket, event, updateNotice = "", updateC
     ? `\nWhat changed:\n${updateChanges.map((change) => `- ${change.label}: ${change.from || "—"} → ${change.to || "—"}`).join("\n")}\n`
     : "";
   return `${updateNotice ? `Your ticket has been updated: ${updateNotice}${changeText}` : `Your ticket for ${eventTitle} is confirmed.`}
-
+${hasFinalDayNotice(event) ? buildFinalDayNoticeText() : ""}
 Order: ${order.orderNumber}
 Ticket: ${ticket.ticketNumber}
 Ticket type: ${ticket.ticketTypeName}
@@ -254,7 +255,7 @@ Time: ${formatEventTime(event?.startTime, event?.endTime)}
 Venue: ${[event?.venueName, event?.venueAddress].filter(Boolean).join(", ") || "—"}${seatLines}
 ${extra ? `\nCheckout details:\n${extra}\n` : ""}
 Your ticket PDF is attached to this email. Show the QR code at the venue entrance for check-in.
-${hasFinalDayNotice(event) ? buildFinalDayNoticeText() : ""}
+
 View online: ${viewUrl}
 
 Need help? ${env.org.contactEmail || "info@stichtingthevoice.nl"}
@@ -352,6 +353,8 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
 
           <tr><td style="height:20px;font-size:0;line-height:0;">&nbsp;</td></tr>
 
+          ${hasFinalDayNotice(event) ? buildFinalDayNoticeHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: border22 }) : ""}
+
           <tr>
             <td class="card-pad" style="padding:24px;background:${branding.panelBg};border-radius:18px;border:1px solid ${border22};">
               <p style="margin:0 0 4px;font-size:16px;font-weight:700;color:${a};">Ticket Details</p>
@@ -406,8 +409,6 @@ function buildTicketEmailHtml({ order, ticket, event, updateNotice = "", updateC
 
           <tr><td style="height:18px;font-size:0;line-height:0;">&nbsp;</td></tr>
           ` : ""}
-
-          ${hasFinalDayNotice(event) ? buildFinalDayNoticeHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: border22 }) : ""}
 
           <tr>
             <td class="card-pad" style="padding:20px 24px;background:${branding.panelBg};border-radius:18px;border:1px solid ${border22};">
@@ -544,7 +545,7 @@ function buildBookingEmailText({ order, tickets, event }) {
   }).join("\n\n");
 
   return `Your booking for ${event?.title || "V.O.I.C.E. NL Event"} is confirmed.
-
+${hasFinalDayNotice(event) ? buildFinalDayNoticeText() : ""}
 Order: ${order.orderNumber}
 Tickets: ${tickets.length}
 Date: ${formatEventDate(event?.date)}
@@ -556,7 +557,7 @@ YOUR TICKETS
 ${summaries}
 
 Each ticket has its own unique QR code. The attached PDF contains one independently scannable ticket per page. Keep every QR code secure and present the correct page for each guest at entry.
-${hasFinalDayNotice(event) ? buildFinalDayNoticeText() : ""}
+
 Need help? ${env.org.contactEmail || "info@stichtingthevoice.nl"}
 ${WEBSITE_URL}
 
@@ -609,6 +610,7 @@ function buildBookingEmailHtml({ order, tickets, event }, qrCids) {
         <p style="margin:0;color:${branding.bodyText};font-size:15px;line-height:1.6;">${eventTitle}</p>
       </td></tr>
       <tr><td style="height:18px">&nbsp;</td></tr>
+      ${hasFinalDayNotice(event) ? buildFinalDayNoticeHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: hexToRgba(a, 0.2) }) : ""}
       <tr><td style="padding:22px;background:${branding.panelBg};border:1px solid ${hexToRgba(a, 0.2)};border-radius:18px;">
         <p style="margin:0 0 8px;color:#fff;font-size:15px;"><strong>Order:</strong> ${escapeHtml(order.orderNumber)}</p>
         <p style="margin:0 0 8px;color:${branding.bodyText};font-size:14px;">${escapeHtml(formatEventDate(event?.date))} · ${escapeHtml(formatEventTime(event?.startTime, event?.endTime))}</p>
@@ -621,7 +623,6 @@ function buildBookingEmailHtml({ order, tickets, event }, qrCids) {
         <p style="margin:0;color:${branding.bodyText};font-size:13px;line-height:1.7;">Each QR code is unique. Your attached PDF contains one ticket per page, ready to print, save, or share with the correct guest.</p>
       </td></tr>
       <tr><td style="height:18px">&nbsp;</td></tr>
-      ${hasFinalDayNotice(event) ? buildFinalDayNoticeHtml({ accent: a, bodyText: branding.bodyText, panelBg: branding.panelBg, border: hexToRgba(a, 0.2) }) : ""}
       <tr><td align="center" style="padding:28px 12px;color:${branding.mutedText};font-size:12px;line-height:1.7;">${escapeHtml(branding.textSignature)}<br>${escapeHtml(env.org.contactEmail || "info@stichtingthevoice.nl")}</td></tr>
     </table>
   </td></tr></table></body></html>`;
