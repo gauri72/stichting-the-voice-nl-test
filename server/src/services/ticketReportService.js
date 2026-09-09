@@ -1,7 +1,6 @@
 import ExcelJS from "exceljs";
 import sharp from "sharp";
 import { listAdminTickets } from "./ticketAdminService.js";
-import TicketType from "../models/TicketType.js";
 
 const PIE_COLORS = ["#3ecf9a", "#f05e3c", "#3ec6d4", "#a78bfa", "#facc15", "#f472b6", "#60a5fa", "#fb923c"];
 
@@ -64,29 +63,21 @@ function buildPieChartSvg(slices, size = 320) {
 
 /** Actual price paid for one ticket = the matching order line item's
  *  finalPriceMinor (per-unit, post-discount) for that ticket's type —
- *  Ticket itself carries no price field (see TicketOrder.lineItems).
- *
- *  Falls back to the ticket type's current list price when no line item
- *  matches — this happens when an admin changes a ticket's type after
- *  purchase (updateAdminTicket sets Ticket.ticketTypeId/ticketTypeName but
- *  never touches the order's lineItems), which would otherwise silently
- *  price that ticket at 0 in its new category. */
-function ticketPriceMinor(ticket, typePriceFallback) {
+ *  Ticket itself carries no price field (see TicketOrder.lineItems). Kept
+ *  deliberately simple: this only feeds the category rows on the Summary
+ *  sheet, not the Bookings sheet or its Grand Total (which is a live
+ *  formula off the Bookings sheet — see below). */
+function ticketPriceMinor(ticket) {
   const lineItem = (ticket.order?.lineItems || []).find(
     (item) => String(item.ticketTypeId) === String(ticket.ticketTypeId)
   );
-  if (lineItem) return Number(lineItem.finalPriceMinor || 0);
-  return Number(typePriceFallback.get(String(ticket.ticketTypeId)) || 0);
+  return lineItem ? Number(lineItem.finalPriceMinor || 0) : 0;
 }
 
 export async function generateTicketsReportExcel(filters = {}) {
   const { tickets } = await listAdminTickets({ ...filters, page: 1, limit: 10000 });
 
-  const ticketTypeIds = [...new Set(tickets.map((t) => String(t.ticketTypeId)).filter(Boolean))];
-  const ticketTypes = await TicketType.find({ _id: { $in: ticketTypeIds } }).select("priceMinor").lean();
-  const typePriceFallback = new Map(ticketTypes.map((tt) => [String(tt._id), tt.priceMinor]));
-
-  const rows = tickets.map((ticket) => ({ ...ticket, priceMinor: ticketPriceMinor(ticket, typePriceFallback) }));
+  const rows = tickets.map((ticket) => ({ ...ticket, priceMinor: ticketPriceMinor(ticket) }));
 
   // One row per booking (order), not per ticket — a group booking under one
   // primary contact should read as one line with its ticket count and total,
@@ -129,9 +120,6 @@ export async function generateTicketsReportExcel(filters = {}) {
     totalMinor: agg.totalMinor,
     color: PIE_COLORS[i % PIE_COLORS.length],
   }));
-  const grandTotalCount = rows.length;
-  const grandTotalMinor = rows.reduce((sum, row) => sum + row.priceMinor, 0);
-
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "Stichting The V.O.I.C.E. NL";
   workbook.created = new Date();
@@ -161,6 +149,9 @@ export async function generateTicketsReportExcel(filters = {}) {
     });
   }
   bookingsSheet.getColumn("total").numFmt = '"€"#,##0.00';
+  // Data occupies rows 2..bookingsLastRow; Grand Total below reads this
+  // range live, so editing a Bookings row in Excel recalculates it.
+  const bookingsLastRow = Math.max(2, bookings.length + 1);
 
   const summarySheet = workbook.addWorksheet("Summary");
   summarySheet.columns = [
@@ -173,11 +164,22 @@ export async function generateTicketsReportExcel(filters = {}) {
     summarySheet.addRow({ label: s.label, count: s.count, total: Number(s.totalMinor) / 100 });
   }
   summarySheet.addRow({});
-  const totalRow = summarySheet.addRow({
-    label: "Grand Total",
-    count: grandTotalCount,
-    total: Number(grandTotalMinor) / 100,
-  });
+  // Grand Total is a live formula off the Bookings sheet, not a value
+  // recomputed here — it can never drift from what Bookings actually shows,
+  // and updates automatically if a Bookings row is edited in Excel. `result`
+  // is a cached value for viewers that don't evaluate formulas on open —
+  // real Excel/Numbers/LibreOffice still recalculate the formula live.
+  const bookingsTotalCount = bookings.reduce((sum, b) => sum + b.ticketCount, 0);
+  const bookingsTotalMinor = bookings.reduce((sum, b) => sum + b.totalMinor, 0);
+  const totalRow = summarySheet.addRow({ label: "Grand Total" });
+  totalRow.getCell("count").value = {
+    formula: `SUM(Bookings!E2:E${bookingsLastRow})`,
+    result: bookingsTotalCount,
+  };
+  totalRow.getCell("total").value = {
+    formula: `SUM(Bookings!F2:F${bookingsLastRow})`,
+    result: Number(bookingsTotalMinor) / 100,
+  };
   totalRow.font = { bold: true };
   summarySheet.getColumn("total").numFmt = '"€"#,##0.00';
 
