@@ -76,6 +76,28 @@ export async function generateTicketsReportExcel(filters = {}) {
 
   const rows = tickets.map((ticket) => ({ ...ticket, priceMinor: ticketPriceMinor(ticket) }));
 
+  // One row per booking (order), not per ticket — a group booking under one
+  // primary contact should read as one line with its ticket count and total,
+  // not N duplicate-looking rows.
+  const byOrder = new Map();
+  for (const row of rows) {
+    const orderId = row.order?.id || row.orderId;
+    const agg = byOrder.get(orderId) || {
+      orderNumber: row.order?.orderNumber || "",
+      primaryPerson: row.order?.attendeeName || row.attendeeName || "",
+      email: row.order?.attendeeEmail || row.attendeeEmail || "",
+      eventTitle: row.eventTitle,
+      paymentStatus: row.order?.paymentStatus || "",
+      createdAt: row.order?.createdAt || row.createdAt,
+      ticketCount: 0,
+      totalMinor: 0,
+    };
+    agg.ticketCount += 1;
+    agg.totalMinor += row.priceMinor;
+    byOrder.set(orderId, agg);
+  }
+  const bookings = [...byOrder.values()].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
   const byType = new Map();
   for (const row of rows) {
     const key = row.ticketTypeName || "Unknown";
@@ -97,33 +119,31 @@ export async function generateTicketsReportExcel(filters = {}) {
   workbook.creator = "Stichting The V.O.I.C.E. NL";
   workbook.created = new Date();
 
-  const ticketsSheet = workbook.addWorksheet("Tickets");
-  ticketsSheet.columns = [
-    { header: "Ticket Number", key: "ticketNumber", width: 20 },
+  const bookingsSheet = workbook.addWorksheet("Bookings");
+  bookingsSheet.columns = [
+    { header: "Order Number", key: "orderNumber", width: 20 },
+    { header: "Primary Person", key: "primaryPerson", width: 24 },
+    { header: "Email", key: "email", width: 28 },
     { header: "Event", key: "eventTitle", width: 32 },
-    { header: "Category", key: "ticketTypeName", width: 20 },
-    { header: "Attendee", key: "attendeeName", width: 24 },
-    { header: "Email", key: "attendeeEmail", width: 28 },
-    { header: "Price (EUR)", key: "price", width: 14 },
+    { header: "Number of Tickets", key: "ticketCount", width: 16 },
+    { header: "Total Price (EUR)", key: "total", width: 16 },
     { header: "Payment Status", key: "paymentStatus", width: 16 },
-    { header: "Checked In", key: "checkedIn", width: 12 },
     { header: "Created", key: "createdAt", width: 20 },
   ];
-  ticketsSheet.getRow(1).font = { bold: true };
-  for (const row of rows) {
-    ticketsSheet.addRow({
-      ticketNumber: row.ticketNumber,
-      eventTitle: row.eventTitle,
-      ticketTypeName: row.ticketTypeName,
-      attendeeName: row.attendeeName,
-      attendeeEmail: row.attendeeEmail,
-      price: Number(row.priceMinor || 0) / 100,
-      paymentStatus: row.order?.paymentStatus || "",
-      checkedIn: row.checkedIn ? "Yes" : "No",
-      createdAt: row.createdAt ? new Date(row.createdAt).toLocaleString("nl-NL") : "",
+  bookingsSheet.getRow(1).font = { bold: true };
+  for (const booking of bookings) {
+    bookingsSheet.addRow({
+      orderNumber: booking.orderNumber,
+      primaryPerson: booking.primaryPerson,
+      email: booking.email,
+      eventTitle: booking.eventTitle,
+      ticketCount: booking.ticketCount,
+      total: Number(booking.totalMinor || 0) / 100,
+      paymentStatus: booking.paymentStatus,
+      createdAt: booking.createdAt ? new Date(booking.createdAt).toLocaleString("nl-NL") : "",
     });
   }
-  ticketsSheet.getColumn("price").numFmt = '"€"#,##0.00';
+  bookingsSheet.getColumn("total").numFmt = '"€"#,##0.00';
 
   const summarySheet = workbook.addWorksheet("Summary");
   summarySheet.columns = [
