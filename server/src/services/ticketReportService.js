@@ -1,6 +1,7 @@
 import ExcelJS from "exceljs";
 import sharp from "sharp";
 import { listAdminTickets } from "./ticketAdminService.js";
+import TicketType from "../models/TicketType.js";
 
 const PIE_COLORS = ["#3ecf9a", "#f05e3c", "#3ec6d4", "#a78bfa", "#facc15", "#f472b6", "#60a5fa", "#fb923c"];
 
@@ -63,18 +64,29 @@ function buildPieChartSvg(slices, size = 320) {
 
 /** Actual price paid for one ticket = the matching order line item's
  *  finalPriceMinor (per-unit, post-discount) for that ticket's type —
- *  Ticket itself carries no price field (see TicketOrder.lineItems). */
-function ticketPriceMinor(ticket) {
+ *  Ticket itself carries no price field (see TicketOrder.lineItems).
+ *
+ *  Falls back to the ticket type's current list price when no line item
+ *  matches — this happens when an admin changes a ticket's type after
+ *  purchase (updateAdminTicket sets Ticket.ticketTypeId/ticketTypeName but
+ *  never touches the order's lineItems), which would otherwise silently
+ *  price that ticket at 0 in its new category. */
+function ticketPriceMinor(ticket, typePriceFallback) {
   const lineItem = (ticket.order?.lineItems || []).find(
     (item) => String(item.ticketTypeId) === String(ticket.ticketTypeId)
   );
-  return lineItem ? Number(lineItem.finalPriceMinor || 0) : 0;
+  if (lineItem) return Number(lineItem.finalPriceMinor || 0);
+  return Number(typePriceFallback.get(String(ticket.ticketTypeId)) || 0);
 }
 
 export async function generateTicketsReportExcel(filters = {}) {
   const { tickets } = await listAdminTickets({ ...filters, page: 1, limit: 10000 });
 
-  const rows = tickets.map((ticket) => ({ ...ticket, priceMinor: ticketPriceMinor(ticket) }));
+  const ticketTypeIds = [...new Set(tickets.map((t) => String(t.ticketTypeId)).filter(Boolean))];
+  const ticketTypes = await TicketType.find({ _id: { $in: ticketTypeIds } }).select("priceMinor").lean();
+  const typePriceFallback = new Map(ticketTypes.map((tt) => [String(tt._id), tt.priceMinor]));
+
+  const rows = tickets.map((ticket) => ({ ...ticket, priceMinor: ticketPriceMinor(ticket, typePriceFallback) }));
 
   // One row per booking (order), not per ticket — a group booking under one
   // primary contact should read as one line with its ticket count and total,
