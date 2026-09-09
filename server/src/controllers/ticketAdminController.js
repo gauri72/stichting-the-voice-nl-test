@@ -421,6 +421,18 @@ export async function exportCsv(req, res) {
   }
 }
 
+export async function exportTicketsReport(req, res) {
+  try {
+    const { generateTicketsReportExcel } = await import("../services/ticketReportService.js");
+    const buffer = await generateTicketsReportExcel(req.query);
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", 'attachment; filename="tickets-report.xlsx"');
+    return res.send(buffer);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
 export async function markCheckedIn(req, res) {
   try {
     const Ticket = (await import("../models/Ticket.js")).default;

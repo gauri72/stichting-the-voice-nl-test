@@ -31,6 +31,7 @@ import {
   resendEmail,
   downloadTicketPdf,
   exportCsv,
+  exportTicketsReport,
   markCheckedIn,
   markRefunded,
   patchTicketType,
@@ -79,6 +80,7 @@ router.get("/highlights/analytics", getHighlightAnalyticsAdmin);
 router.get("/stats", ticketStats);
 router.get("/tickets", listTickets);
 router.get("/tickets/export", exportCsv);
+router.get("/tickets/export-report", exportTicketsReport);
 router.post("/tickets/bulk", bulkManageTickets);
 router.get("/tickets/:id", getTicketDetail);
 router.post("/tickets/:ticketId/change-seat", changeTicketSeat);

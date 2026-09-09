@@ -16,6 +16,7 @@ import {
   IconHistory,
   IconChevronDown,
   IconChevronRight,
+  IconFileSpreadsheet,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import AdminLayout from "./AdminLayout.jsx";
@@ -232,6 +233,26 @@ export default function AdminTicketsPage() {
       URL.revokeObjectURL(url);
     } catch (err) {
       window.alert(err.message || "Could not export CSV.");
+    }
+  }
+
+  async function exportReport() {
+    const params = new URLSearchParams(filters);
+    if (search) params.set("search", search);
+    try {
+      const response = await fetch(apiUrl(`/api/admin/events/tickets/export-report?${params}`), {
+        headers: adminAuthHeaders(),
+      });
+      if (!response.ok) throw new Error("Export failed.");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tickets-report.xlsx";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      window.alert(err.message || "Could not export report.");
     }
   }
 
@@ -652,6 +673,9 @@ export default function AdminTicketsPage() {
           </button>
           <button type="button" className="admin-tickets__btn admin-tickets__btn--primary" onClick={exportCsv}>
             <IconDownload size={16} /> Export CSV
+          </button>
+          <button type="button" className="admin-tickets__btn admin-tickets__btn--primary" onClick={exportReport}>
+            <IconFileSpreadsheet size={16} /> Export Report (Excel)
           </button>
           <Link to="/admin/check-in" className="admin-tickets__btn admin-tickets__btn--accent">
             <IconQrcode size={16} /> QR Check-in
