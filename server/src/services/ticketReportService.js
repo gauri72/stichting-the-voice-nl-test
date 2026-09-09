@@ -79,6 +79,12 @@ export async function generateTicketsReportExcel(filters = {}) {
   // One row per booking (order), not per ticket — a group booking under one
   // primary contact should read as one line with its ticket count and total,
   // not N duplicate-looking rows.
+  //
+  // Total price comes from order.totalAmountMinor (the same field the admin
+  // Tickets page's "Amount paid" column reads via formatOrder().total) --
+  // NOT from summing each ticket's line-item price, which silently drops
+  // booking fees, VAT, and order-level discounts that don't divide evenly
+  // per ticket, so it drifted from what's actually shown on screen.
   const byOrder = new Map();
   for (const row of rows) {
     const orderId = row.order?.id || row.orderId;
@@ -90,10 +96,9 @@ export async function generateTicketsReportExcel(filters = {}) {
       paymentStatus: row.order?.paymentStatus || "",
       createdAt: row.order?.createdAt || row.createdAt,
       ticketCount: 0,
-      totalMinor: 0,
+      totalMinor: Number(row.order?.totalAmountMinor || 0),
     };
     agg.ticketCount += 1;
-    agg.totalMinor += row.priceMinor;
     byOrder.set(orderId, agg);
   }
   const bookings = [...byOrder.values()].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
