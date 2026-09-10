@@ -18,7 +18,16 @@ const userSchema = new mongoose.Schema(
     /** Stripe Customer used to store this user's reusable payment methods. */
     stripeCustomerId: { type: String, default: "", trim: true },
     /** Bumped on logout/password change to invalidate all previously issued JWTs. */
-    tokenVersion: { type: Number, default: 0 }
+    tokenVersion: { type: Number, default: 0 },
+    /** Silently created from a ticket/donation/sponsorship/volunteer/Venture
+     *  Studio/V.Commerce submission using a not-yet-seen email — see
+     *  userProvisioningService.js. passwordHash is a random unusable value
+     *  until the person clicks the emailed claim link (reuses the existing
+     *  passwordResetTokenHash/passwordResetExpires + /reset-password flow —
+     *  see authService.js's issueAccountClaimToken/resetPassword) and sets
+     *  a real one. */
+    isAutoProvisioned: { type: Boolean, default: false },
+    claimedAt: { type: Date, default: null }
   },
   { timestamps: true, collection: "users" }
 );
@@ -33,6 +42,7 @@ userSchema.methods.toSafeJSON = function toSafeJSON() {
     email: this.email,
     phone: this.phone || "",
     isVerified: this.isVerified,
+    isAutoProvisioned: Boolean(this.isAutoProvisioned),
     createdAt: this.createdAt,
     tokenVersion: this.tokenVersion || 0
   };

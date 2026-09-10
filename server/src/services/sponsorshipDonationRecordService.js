@@ -4,6 +4,7 @@ import PaymentTransaction from "../models/PaymentTransaction.js";
 import { getNextSequence } from "../utils/sequence.js";
 import { buildReceiptNumber } from "../utils/receiptNumber.js";
 import { syncFinanceTransaction } from "./financeTransactionSyncService.js";
+import { ensureUserForEmail, splitFullName } from "./userProvisioningService.js";
 
 function logRecord(tag, payload = {}) {
   const parts = Object.entries(payload)
@@ -130,6 +131,11 @@ export async function upsertSponsorshipFromPaymentIntent(intent, paymentMethod =
     email,
     amountMinor,
   });
+
+  const { firstName: sponsorFirst, lastName: sponsorLast } = splitFullName(sponsorName);
+  ensureUserForEmail(email, { firstName: sponsorFirst, lastName: sponsorLast, phone: doc.phone }, "sponsorship").catch(
+    (err) => console.warn("[sponsorship-donation] user provisioning failed:", err.message)
+  );
   logRecord("PAYMENT_LINKED_TO_SPONSORSHIP", {
     paymentReference,
     sponsorshipId: doc.sponsorshipId,
@@ -236,6 +242,11 @@ export async function upsertDonationFromPaymentIntent(intent, paymentMethod = "C
     email,
     amountMinor,
   });
+
+  const { firstName: donorFirst, lastName: donorLast } = splitFullName(donorName);
+  ensureUserForEmail(email, { firstName: donorFirst, lastName: donorLast, phone: doc.phone }, "donation").catch(
+    (err) => console.warn("[sponsorship-donation] user provisioning failed:", err.message)
+  );
   logRecord("PAYMENT_LINKED_TO_DONATION", {
     paymentReference,
     donationId: doc.donationId,

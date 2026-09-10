@@ -12,6 +12,7 @@ import VCommerceLedgerEntry from "../models/VCommerceLedgerEntry.js";
 import { resolveOrderChargeRules } from "./vcommerceAdminOperationsService.js";
 import crypto from "crypto";
 import { sendBusinessOrderEmails } from "./businessOrderReceiptService.js";
+import { ensureUserForEmail, splitFullName } from "./userProvisioningService.js";
 
 export function addBusinessDays(date, count) {
   const result = new Date(date);
@@ -366,6 +367,17 @@ async function fulfillWalletOnlyOrder(orderId) {
  * fulfillWalletOnlyOrder) and the order has already transitioned to "paid".
  */
 async function settleOrderFulfillment(order) {
+  // Auto-provision a User account for a not-yet-seen guest-checkout email —
+  // shared by both fulfillOrder() and fulfillWalletOnlyOrder(), so this one
+  // call site covers every V.Commerce payment path. Account orders already
+  // have a customerId and are skipped.
+  if (!order.customerId && order.customerEmail) {
+    const { firstName, lastName } = splitFullName(order.customerName);
+    ensureUserForEmail(order.customerEmail, { firstName, lastName }, "vcommerce_purchase").catch((err) =>
+      console.warn("[vcommerce] user provisioning failed:", err.message)
+    );
+  }
+
   for (const item of order.items) {
     if (item.productType !== "service") {
       await BusinessProduct.updateOne(

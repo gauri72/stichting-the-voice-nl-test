@@ -55,6 +55,7 @@ export async function listUsers(req, res) {
         phone: u.phone || "",
         authProvider: mapProviderToUi(u.authProvider),
         isVerified: Boolean(u.isVerified),
+        isAutoProvisioned: Boolean(u.isAutoProvisioned),
         createdAt: u.createdAt,
       })),
     });

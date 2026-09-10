@@ -9,6 +9,7 @@ import {
   IconBrandGoogle,
   IconCircleCheck,
   IconHourglassLow,
+  IconUserPlus,
 } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
@@ -199,7 +200,12 @@ export default function AdminUsersPage() {
                       )}
                     </td>
                     <td>
-                      {user.isVerified ? (
+                      {user.isAutoProvisioned ? (
+                        <span className="admin-users__status-pending">
+                          <IconUserPlus size={14} style={{ marginRight: "4px" }} />
+                          Auto-created
+                        </span>
+                      ) : user.isVerified ? (
                         <span className="admin-users__status-verified">
                           <IconCircleCheck size={14} style={{ marginRight: "4px" }} />
                           Verified

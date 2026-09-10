@@ -15,6 +15,7 @@ import { assertPasswordPolicy } from "../utils/passwordPolicy.js";
 
 const OTP_TTL_MS = 10 * 60 * 1000;
 const RESET_TTL_MS = 60 * 60 * 1000;
+const CLAIM_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 const BCRYPT_ROUNDS = 12;
 
 function hasPasswordHash(user) {
@@ -594,6 +595,26 @@ export async function requestPasswordReset(email) {
   };
 }
 
+/** Issues a long-lived password-reset-style token for a freshly auto-provisioned
+ *  user (see userProvisioningService.js) to "claim" their account — reuses the
+ *  same passwordResetTokenHash/Expires fields and the existing /reset-password
+ *  page/endpoint, just with a much longer TTL than a real password reset (people
+ *  don't check email immediately after buying a ticket). Returns the raw token
+ *  for the caller to build the emailed link with; does not send any email itself. */
+export async function issueAccountClaimToken(userId) {
+  const token = crypto.randomBytes(32).toString("hex");
+  await User.updateOne(
+    { _id: userId },
+    {
+      $set: {
+        passwordResetTokenHash: hashResetToken(token),
+        passwordResetExpires: new Date(Date.now() + CLAIM_TTL_MS)
+      }
+    }
+  );
+  return token;
+}
+
 export async function resetPassword({ token, password }) {
   if (!isDbReady()) {
     const err = new Error("Database is not available. Please try again later.");
@@ -631,6 +652,10 @@ export async function resetPassword({ token, password }) {
   user.tokenVersion = (user.tokenVersion || 0) + 1;
   if (!user.isVerified) {
     user.isVerified = true;
+  }
+  if (user.isAutoProvisioned) {
+    user.isAutoProvisioned = false;
+    user.claimedAt = new Date();
   }
   await user.save();
 

@@ -23,6 +23,7 @@ import { markWaitlistConverted } from "./booking/WaitlistService.js";
 import { buildMembershipQrImageUrl } from "./membershipQrService.js";
 import { recordDiscountUsage } from "./discountService.js";
 import { confirmTicketPayment } from "./ticketPaymentService.js";
+import { ensureUserForEmail } from "./userProvisioningService.js";
 import { formatOrder, formatTicket } from "./ticketOrderService.js";
 import { getSeatMapByEventId } from "./seatService.js";
 import { logCheckoutAction, CHECKOUT_AUDIT_ACTIONS } from "./checkoutAuditService.js";
@@ -567,6 +568,17 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
   order.paymentStatus = resolveSettledStatus(order.paymentMethod);
   order.orderStatus = "COMPLETED";
   await order.save();
+
+  // Auto-provision a User account for a not-yet-seen buyer email — never for
+  // admin-issued/comp tickets (ComplimentaryBookingService.js's call site
+  // passes isComplimentary: true and is deliberately not hooked separately).
+  if (!isComplimentary) {
+    ensureUserForEmail(
+      order.attendeeEmail,
+      { firstName: order.attendeeFirstName, lastName: order.attendeeLastName, phone: order.attendeePhone },
+      "ticket_purchase"
+    ).catch((err) => console.warn("[fulfillment] user provisioning failed:", err.message));
+  }
 
   // Loyalty points for attending an event — flat bonus, once per distinct
   // event regardless of how many tickets/orders, registered customers only

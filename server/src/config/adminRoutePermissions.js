@@ -179,6 +179,9 @@ export function resolveAdminPermission(req) {
     return method === "GET" ? "cms.view" : "cms.edit";
   }
   if (url.includes("/admin/booking")) return "tickets.edit";
+  // Read-only lists of volunteer applications / Venture Studio inquiries —
+  // no write endpoints exist yet, so GET is all this needs.
+  if (url.includes("/admin/contact-submissions")) return "dashboard.view";
   if (url.includes("/admin/i18n-review")) {
     return method === "GET" ? "cms.view" : "cms.edit";
   }

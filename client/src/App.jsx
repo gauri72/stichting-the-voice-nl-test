@@ -59,6 +59,7 @@ import AdminTemplateUploadPage from "./components/admin/AdminTemplateUploadPage"
 import AdminDiscountsPage from "./components/admin/AdminDiscountsPage";
 import AdminMembershipDiscountsPage from "./components/admin/AdminMembershipDiscountsPage.jsx";
 import AdminUsersPage from "./components/admin/AdminUsersPage";
+import AdminContactSubmissionsPage from "./components/admin/AdminContactSubmissionsPage.jsx";
 import AdminEventsPage from "./components/admin/AdminEventsPage.jsx";
 import AdminSeatMapEditor from "./components/admin/AdminSeatMapEditor.jsx";
 import AdminEventHighlightsPage from "./components/admin/AdminEventHighlightsPage.jsx";
@@ -472,6 +473,14 @@ export default function App() {
             element={
               <AdminProtectedRoute>
                 <AdminUsersPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/contact-submissions"
+            element={
+              <AdminProtectedRoute>
+                <AdminContactSubmissionsPage />
               </AdminProtectedRoute>
             }
           />

@@ -8,6 +8,9 @@ import {
   sendVolunteerApplicationEmail
 } from "../services/volunteerContactMailer.js";
 import { isValidEmail, trimField } from "../utils/validation.js";
+import VentureStudioMessage from "../models/VentureStudioMessage.js";
+import VolunteerApplication from "../models/VolunteerApplication.js";
+import { ensureUserForEmail, splitFullName } from "../services/userProvisioningService.js";
 
 export async function submitVentureStudioMessage(req, res) {
   const name = trimField(req.body?.name, 120);
@@ -35,6 +38,12 @@ export async function submitVentureStudioMessage(req, res) {
   }
 
   try {
+    await VentureStudioMessage.create({ name, email, subject, message });
+    const { firstName, lastName } = splitFullName(name);
+    ensureUserForEmail(email, { firstName, lastName }, "venture_studio_inquiry").catch((err) =>
+      console.warn("[contact] user provisioning failed:", err.message)
+    );
+
     const result = await sendVentureStudioMessageEmail({ name, email, subject, message });
     if (!result.sent) {
       return res.status(503).json({ error: "Could not send your message. Please try again later." });
@@ -71,6 +80,12 @@ export async function submitVolunteerApplication(req, res) {
   }
 
   try {
+    await VolunteerApplication.create({ name, email, phone, message });
+    const { firstName, lastName } = splitFullName(name);
+    ensureUserForEmail(email, { firstName, lastName, phone }, "volunteer_application").catch((err) =>
+      console.warn("[contact] user provisioning failed:", err.message)
+    );
+
     const result = await sendVolunteerApplicationEmail({ name, email, phone, message });
     if (!result.sent) {
       return res.status(503).json({ error: "Could not send your application. Please try again later." });
