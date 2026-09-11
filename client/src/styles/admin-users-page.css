@@ -77,6 +77,21 @@
   letter-spacing: 0.05em;
 }
 
+.admin-users__table th.admin-users__th-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.admin-users__table th.admin-users__th-sortable:hover {
+  color: var(--ad-text);
+}
+
+.admin-users__th-sortable span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .admin-users__table td {
   padding: 14px 20px;
   border-bottom: 1px solid var(--ad-border);

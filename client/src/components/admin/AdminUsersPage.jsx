@@ -10,6 +10,8 @@ import {
   IconCircleCheck,
   IconHourglassLow,
   IconUserPlus,
+  IconChevronUp,
+  IconChevronDown,
 } from "@tabler/icons-react";
 import AdminLayout from "./AdminLayout.jsx";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
@@ -33,6 +35,12 @@ export default function AdminUsersPage() {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [sortDir, setSortDir] = useState("desc");
+
+  const sortedUsers = [...users].sort((a, b) => {
+    const diff = new Date(a.createdAt) - new Date(b.createdAt);
+    return sortDir === "desc" ? -diff : diff;
+  });
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -153,12 +161,20 @@ export default function AdminUsersPage() {
                   <th>Phone Number</th>
                   <th>Auth Provider</th>
                   <th>Status</th>
-                  <th>Joined Date</th>
+                  <th
+                    className="admin-users__th-sortable"
+                    onClick={() => setSortDir((d) => (d === "desc" ? "asc" : "desc"))}
+                  >
+                    <span>
+                      Joined Date
+                      {sortDir === "desc" ? <IconChevronDown size={14} /> : <IconChevronUp size={14} />}
+                    </span>
+                  </th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {sortedUsers.map((user) => (
                   <tr key={user.id}>
                     <td>
                       <div className="admin-users__user-profile">
