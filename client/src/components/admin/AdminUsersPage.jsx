@@ -35,10 +35,25 @@ export default function AdminUsersPage() {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [sortField, setSortField] = useState("createdAt");
   const [sortDir, setSortDir] = useState("desc");
 
+  const handleSort = (field) => {
+    if (field === sortField) {
+      setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+    } else {
+      setSortField(field);
+      setSortDir("desc");
+    }
+  };
+
+  const getSortValue = (user, field) => {
+    if (field === "loginCount") return user.loginCount || 0;
+    return user[field] ? new Date(user[field]).getTime() : 0;
+  };
+
   const sortedUsers = [...users].sort((a, b) => {
-    const diff = new Date(a.createdAt) - new Date(b.createdAt);
+    const diff = getSortValue(a, sortField) - getSortValue(b, sortField);
     return sortDir === "desc" ? -diff : diff;
   });
 
@@ -161,13 +176,28 @@ export default function AdminUsersPage() {
                   <th>Phone Number</th>
                   <th>Auth Provider</th>
                   <th>Status</th>
-                  <th
-                    className="admin-users__th-sortable"
-                    onClick={() => setSortDir((d) => (d === "desc" ? "asc" : "desc"))}
-                  >
+                  <th className="admin-users__th-sortable" onClick={() => handleSort("createdAt")}>
                     <span>
                       Joined Date
-                      {sortDir === "desc" ? <IconChevronDown size={14} /> : <IconChevronUp size={14} />}
+                      {sortField === "createdAt" ? (
+                        sortDir === "desc" ? <IconChevronDown size={14} /> : <IconChevronUp size={14} />
+                      ) : null}
+                    </span>
+                  </th>
+                  <th className="admin-users__th-sortable" onClick={() => handleSort("lastLoginAt")}>
+                    <span>
+                      Last Login
+                      {sortField === "lastLoginAt" ? (
+                        sortDir === "desc" ? <IconChevronDown size={14} /> : <IconChevronUp size={14} />
+                      ) : null}
+                    </span>
+                  </th>
+                  <th className="admin-users__th-sortable" onClick={() => handleSort("loginCount")}>
+                    <span>
+                      Login Count
+                      {sortField === "loginCount" ? (
+                        sortDir === "desc" ? <IconChevronDown size={14} /> : <IconChevronUp size={14} />
+                      ) : null}
                     </span>
                   </th>
                   <th>Actions</th>
@@ -241,6 +271,22 @@ export default function AdminUsersPage() {
                           day: "numeric",
                         })}
                       </span>
+                    </td>
+                    <td>
+                      {user.lastLoginAt ? (
+                        <span className="admin-users__date">
+                          {new Date(user.lastLoginAt).toLocaleDateString(undefined, {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </span>
+                      ) : (
+                        <span className="admin-users__muted-text">Never</span>
+                      )}
+                    </td>
+                    <td>
+                      <span className="admin-users__date">{user.loginCount || 0}</span>
                     </td>
                     <td>
                       <button

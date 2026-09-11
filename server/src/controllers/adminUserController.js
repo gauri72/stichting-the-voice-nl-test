@@ -57,6 +57,8 @@ export async function listUsers(req, res) {
         isVerified: Boolean(u.isVerified),
         isAutoProvisioned: Boolean(u.isAutoProvisioned),
         createdAt: u.createdAt,
+        lastLoginAt: u.lastLoginAt || null,
+        loginCount: u.loginCount || 0,
       })),
     });
   } catch (error) {

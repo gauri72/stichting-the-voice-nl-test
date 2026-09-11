@@ -6,6 +6,7 @@ import { OAuth2Client } from "google-auth-library";
 import env from "../config/env.js";
 import User from "../models/User.js";
 import ActivityLog from "../models/ActivityLog.js";
+import { recordLoginEvent } from "./loginActivityService.js";
 import {
   sendVerificationOtpEmail,
   sendPasswordResetEmail,
@@ -283,6 +284,8 @@ export async function loginUser({ email, password, rememberMe }) {
 
   const authToken = signToken(user, Boolean(rememberMe));
 
+  recordLoginEvent(user, "password").catch((err) => console.warn("[auth] login event tracking failed:", err.message));
+
   return {
     token: authToken,
     user: user.toSafeJSON()
@@ -543,6 +546,8 @@ export async function loginWithGoogle({ credential, rememberMe }) {
   }
 
   const authToken = signToken(user, Boolean(rememberMe));
+
+  recordLoginEvent(user, "google").catch((err) => console.warn("[auth] login event tracking failed:", err.message));
 
   return {
     token: authToken,

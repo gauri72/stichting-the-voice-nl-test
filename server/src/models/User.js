@@ -27,7 +27,11 @@ const userSchema = new mongoose.Schema(
      *  see authService.js's issueAccountClaimToken/resetPassword) and sets
      *  a real one. */
     isAutoProvisioned: { type: Boolean, default: false },
-    claimedAt: { type: Date, default: null }
+    claimedAt: { type: Date, default: null },
+    /** Denormalized from UserLoginEvent for fast list/sort on the admin Users
+     *  page — see loginActivityService.js's recordLoginEvent(). */
+    lastLoginAt: { type: Date, default: null },
+    loginCount: { type: Number, default: 0 }
   },
   { timestamps: true, collection: "users" }
 );

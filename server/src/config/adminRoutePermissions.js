@@ -182,6 +182,9 @@ export function resolveAdminPermission(req) {
   // Read-only lists of volunteer applications / Venture Studio inquiries —
   // no write endpoints exist yet, so GET is all this needs.
   if (url.includes("/admin/contact-submissions")) return "dashboard.view";
+  // Read-only login event history — grouped under the Reports permission
+  // since it's surfaced as a report for planning outreach/offers.
+  if (url.includes("/admin/login-activity")) return "reports.view";
   if (url.includes("/admin/i18n-review")) {
     return method === "GET" ? "cms.view" : "cms.edit";
   }
