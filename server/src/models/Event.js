@@ -74,7 +74,9 @@ const eventSchema = new mongoose.Schema(
     archived: { type: Boolean, default: false, index: true },
     status: {
       type: String,
-      enum: ["draft", "published", "cancelled"],
+      /** "completed" is set automatically once a published event's date has
+       *  passed — see eventCompletionScheduler.js. Never set at creation. */
+      enum: ["draft", "published", "cancelled", "completed"],
       default: "draft",
       index: true,
     },

@@ -332,6 +332,18 @@
   border: 1px solid rgba(234, 179, 8, 0.3);
 }
 
+.admin-events__status-badge--completed {
+  background: rgba(99, 102, 241, 0.16);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.admin-events__status-badge--cancelled {
+  background: rgba(239, 68, 68, 0.16);
+  color: var(--ae-danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
 .admin-events__event-card-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

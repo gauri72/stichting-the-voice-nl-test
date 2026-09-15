@@ -234,7 +234,7 @@ export async function getDashboardEventsForUser(userId) {
 
   const now = new Date();
   const events = await Event.find({
-    status: "published",
+    status: { $in: ["published", "completed"] },
     archived: { $ne: true },
     showOnDashboard: { $ne: false },
   })

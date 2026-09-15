@@ -220,7 +220,7 @@ export async function getCalendarMonth({ year, month } = {}) {
   const startOfNextMonth = new Date(y, m, 1);
 
   const events = await Event.find({
-    status: "published",
+    status: { $in: ["published", "completed"] },
     date: { $gte: startOfMonth, $lt: startOfNextMonth },
   })
     .sort({ date: 1 })

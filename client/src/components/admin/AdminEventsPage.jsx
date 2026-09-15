@@ -819,6 +819,7 @@ export default function AdminEventsPage() {
   const [aiMessage, setAiMessage] = useState("");
   const [listSearch, setListSearch] = useState("");
   const [listFilter, setListFilter] = useState("all");
+  const [eventTab, setEventTab] = useState("current");
 
   const loadEvents = useCallback(async () => {
     setLoading(true);
@@ -1195,22 +1196,34 @@ export default function AdminEventsPage() {
       );
     };
 
+    const matchesEventTab = (ev) =>
+      eventTab === "current"
+        ? ev.status === "draft" || ev.status === "published"
+        : ev.status === "completed" || ev.status === "cancelled";
+
     const filteredPlatformEvents = events.filter((ev) => {
       if (!matchesSearch(ev)) return false;
+      if (!matchesEventTab(ev)) return false;
       if (listFilter === "all") return true;
       if (listFilter === "published") return ev.status === "published";
       if (listFilter === "draft") return ev.status === "draft";
+      if (listFilter === "completed") return ev.status === "completed";
+      if (listFilter === "cancelled") return ev.status === "cancelled";
       if (listFilter === "featured") return ev.featured;
       return true;
     });
 
+    // TicketTailor events have no platform "status" of their own (draft/published/
+    // completed/cancelled) — they only ever show under Current Events, and only
+    // when a status-specific chip isn't narrowing the platform list.
+    const statusChips = ["published", "draft", "completed", "cancelled", "featured"];
     const filteredTicketTailorEvents =
-      listFilter === "published" || listFilter === "draft" || listFilter === "featured"
+      eventTab !== "current" || statusChips.includes(listFilter)
         ? []
         : ticketTailorEvents.filter(matchesSearch);
 
     const showPlatformSection = listFilter !== "tickettailor";
-    const showTicketTailorSection = listFilter === "all" || listFilter === "tickettailor";
+    const showTicketTailorSection = eventTab === "current" && (listFilter === "all" || listFilter === "tickettailor");
 
     return (
       <AdminLayout hideBottomNav>
@@ -1255,6 +1268,27 @@ export default function AdminEventsPage() {
             </div>
           ) : null}
 
+          <div className="admin-events__list-tabs" role="tablist" aria-label="Current or past events">
+            {[
+              ["current", "Current Events"],
+              ["past", "Past Events"],
+            ].map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                className={`admin-events__list-tab${eventTab === id ? " admin-events__list-tab--active" : ""}`}
+                aria-selected={eventTab === id}
+                onClick={() => {
+                  setEventTab(id);
+                  setListFilter("all");
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           <div className="admin-events__list-toolbar">
             <label className="admin-events__list-search">
               <IconSearch size={18} aria-hidden />
@@ -1267,13 +1301,20 @@ export default function AdminEventsPage() {
               />
             </label>
             <div className="admin-events__list-tabs" role="tablist" aria-label="Filter events">
-              {[
-                ["all", "All"],
-                ["published", "Published"],
-                ["featured", "Featured"],
-                ["draft", "Drafts"],
-                ["tickettailor", "TicketTailor"],
-              ].map(([id, label]) => (
+              {(eventTab === "current"
+                ? [
+                    ["all", "All"],
+                    ["published", "Published"],
+                    ["featured", "Featured"],
+                    ["draft", "Drafts"],
+                    ["tickettailor", "TicketTailor"],
+                  ]
+                : [
+                    ["all", "All"],
+                    ["completed", "Completed"],
+                    ["cancelled", "Cancelled"],
+                  ]
+              ).map(([id, label]) => (
                 <button
                   key={id}
                   type="button"
@@ -1321,7 +1362,6 @@ export default function AdminEventsPage() {
 
           {!loading &&
           showPlatformSection &&
-          showTicketTailorSection &&
           filteredPlatformEvents.length === 0 &&
           filteredTicketTailorEvents.length === 0 &&
           (events.length > 0 || ticketTailorEvents.length > 0) ? (

@@ -287,7 +287,7 @@ export async function getEventPerformance(params = {}) {
 
   const [total, published, featured, upcoming, past, byEventTickets, capacityData] = await Promise.all([
     Event.countDocuments({ archived: { $ne: true } }),
-    Event.countDocuments({ status: "published", archived: { $ne: true } }),
+    Event.countDocuments({ status: { $in: ["published", "completed"] }, archived: { $ne: true } }),
     Event.countDocuments({ featured: true, archived: { $ne: true } }),
     Event.countDocuments({ date: { $gte: now }, archived: { $ne: true } }),
     Event.countDocuments({ date: { $lt: now }, archived: { $ne: true } }),

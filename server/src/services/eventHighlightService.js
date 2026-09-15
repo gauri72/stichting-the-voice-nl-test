@@ -60,7 +60,7 @@ export function resolveHighlightStatus(event) {
 }
 
 export function syncHighlightFieldsForEvent(event) {
-  if (!isEventCompleted(event) || event.status !== "published" || event.archived) {
+  if (!isEventCompleted(event) || !["published", "completed"].includes(event.status) || event.archived) {
     return event;
   }
 
@@ -198,7 +198,7 @@ export async function listPublicEventHighlights(query = {}) {
   const category = query.category ? String(query.category).trim() : "";
 
   const dbEvents = await Event.find({
-    status: "published",
+    status: { $in: ["published", "completed"] },
     archived: { $ne: true },
     date: { $lt: startOfToday() },
     showInMemorableMoments: { $ne: false },
@@ -232,7 +232,7 @@ export async function listPublicEventHighlights(query = {}) {
 
 export async function listAdminEventHighlights({ search = "", status = "", year = "", category = "" } = {}) {
   const events = await Event.find({
-    status: "published",
+    status: { $in: ["published", "completed"] },
     archived: { $ne: true },
     date: { $lt: startOfToday() },
   })

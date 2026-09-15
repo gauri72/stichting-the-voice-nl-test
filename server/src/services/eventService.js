@@ -141,7 +141,7 @@ export function formatTicketType(tt, now = new Date()) {
 export async function listEvents({ status, admin = false } = {}) {
   const filter = {};
   if (status) filter.status = status;
-  else if (!admin) filter.status = "published";
+  else if (!admin) filter.status = { $in: ["published", "completed"] };
 
   const events = await Event.find(filter).sort({ date: 1, createdAt: -1 }).lean();
   return events.map((e) => formatEvent(e));
@@ -170,10 +170,10 @@ export async function getPublishedEventBySlugOrId(idOrSlug) {
   // (no .match method) rather than a string — normalize before the regex check.
   idOrSlug = String(idOrSlug);
   if (idOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
-    event = await Event.findOne({ _id: idOrSlug, status: "published" }).lean();
+    event = await Event.findOne({ _id: idOrSlug, status: { $in: ["published", "completed"] } }).lean();
   }
   if (!event) {
-    event = await Event.findOne({ slug: idOrSlug, status: "published" }).lean();
+    event = await Event.findOne({ slug: idOrSlug, status: { $in: ["published", "completed"] } }).lean();
   }
   if (!event) {
     const err = new Error("Event not found.");
