@@ -308,6 +308,41 @@
   opacity: 0.75;
 }
 
+.admin-events__ticket-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.admin-events__ticket-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--ad-muted);
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid var(--ad-border);
+}
+
+.admin-events__ticket-stat strong {
+  color: var(--ad-text);
+  font-weight: 700;
+}
+
+a.admin-events__ticket-stat--booked {
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+a.admin-events__ticket-stat--booked:hover {
+  background: rgba(99, 56, 194, 0.14);
+  border-color: var(--ae-purple, #6338c2);
+}
+
 .admin-events__status-badge {
   flex-shrink: 0;
   display: inline-block;

@@ -18,13 +18,14 @@ import {
   IconChevronRight,
   IconFileSpreadsheet,
 } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import AdminLayout from "./AdminLayout.jsx";
 import { adminAuthHeaders, apiFetch, apiUrl } from "../../utils/api.js";
 import AdminComplimentaryTicketPanel from "./AdminComplimentaryTicketPanel.jsx";
 import "../../styles/admin-tickets-page.css";
 
 export default function AdminTicketsPage() {
+  const [searchParams] = useSearchParams();
   const [tickets, setTickets] = useState([]);
   const [ticketTailorTickets, setTicketTailorTickets] = useState([]);
   const [ticketTailorMeta, setTicketTailorMeta] = useState(null);
@@ -46,7 +47,7 @@ export default function AdminTicketsPage() {
   const [bulkRunning, setBulkRunning] = useState(false);
   const [expandedOrders, setExpandedOrders] = useState([]);
   const [filters, setFilters] = useState({
-    eventId: "",
+    eventId: searchParams.get("eventId") || "",
     paymentStatus: "",
     paymentMethod: "",
     checkedIn: "",

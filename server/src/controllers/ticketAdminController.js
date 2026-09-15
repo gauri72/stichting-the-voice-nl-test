@@ -8,6 +8,8 @@ export async function listEvents(req, res) {
   try {
     const { listEvents } = await import("../services/eventService.js");
     const { listTicketTailorEventsForAdmin } = await import("../services/ticketTailorEventService.js");
+    const { default: TicketType } = await import("../models/TicketType.js");
+    const { default: mongoose } = await import("mongoose");
     const [events, ticketTailor] = await Promise.all([
       listEvents({ admin: true }),
       listTicketTailorEventsForAdmin(),
@@ -16,8 +18,29 @@ export async function listEvents(req, res) {
     const platformPublished = events.filter((e) => e.status === "published").length;
     const platformDraft = events.filter((e) => e.status === "draft").length;
 
+    // Booked/remaining per event, for the stats shown on each event card —
+    // one aggregate across all events rather than a query per card.
+    const ticketStatsByEvent = new Map();
+    if (events.length > 0) {
+      const rows = await TicketType.aggregate([
+        { $match: { eventId: { $in: events.map((e) => new mongoose.Types.ObjectId(e.id)) } } },
+        { $group: { _id: "$eventId", capacity: { $sum: "$capacity" }, sold: { $sum: "$soldCount" } } },
+      ]);
+      for (const row of rows) {
+        ticketStatsByEvent.set(row._id.toString(), {
+          ticketsBooked: row.sold,
+          ticketsRemaining: Math.max(0, row.capacity - row.sold),
+        });
+      }
+    }
+
     return res.status(200).json({
-      events: events.map((e) => ({ ...e, source: "platform", readOnly: false })),
+      events: events.map((e) => ({
+        ...e,
+        source: "platform",
+        readOnly: false,
+        ...(ticketStatsByEvent.get(e.id) || { ticketsBooked: 0, ticketsRemaining: 0 }),
+      })),
       ticketTailorEvents: ticketTailor.events,
       ticketTailorMeta: {
         source: ticketTailor.source,

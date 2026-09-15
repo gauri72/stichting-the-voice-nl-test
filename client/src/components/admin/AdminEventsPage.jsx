@@ -1169,6 +1169,23 @@ export default function AdminEventsPage() {
                   </p>
                 ) : null}
               </div>
+              {!readOnly ? (
+                <div className="admin-events__ticket-stats">
+                  <Link
+                    to={`/admin/tickets?eventId=${ev.id}`}
+                    className="admin-events__ticket-stat admin-events__ticket-stat--booked"
+                    title="View everyone who booked"
+                  >
+                    <IconTicket size={14} aria-hidden />
+                    <span>
+                      <strong>{ev.ticketsBooked ?? 0}</strong> booked
+                    </span>
+                  </Link>
+                  <span className="admin-events__ticket-stat admin-events__ticket-stat--remaining">
+                    <strong>{ev.ticketsRemaining ?? 0}</strong> remaining
+                  </span>
+                </div>
+              ) : null}
             </div>
           </div>
           <AdminEventCardActions
