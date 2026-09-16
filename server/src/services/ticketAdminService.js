@@ -85,6 +85,7 @@ export async function listAdminTickets(filters = {}) {
     section,
     row,
     seatCategory,
+    status,
     page = 1,
     limit = 50,
   } = filters;
@@ -111,6 +112,10 @@ export async function listAdminTickets(filters = {}) {
   if (section) ticketFilter.section = new RegExp(escapeRegex(section.trim()), "i");
   if (row) ticketFilter.row = new RegExp(`^${escapeRegex(row.trim())}$`, "i");
   if (seatCategory) ticketFilter.seatCategory = seatCategory;
+  // Voided tickets are hidden from the default list — they only show up
+  // under the explicit "Voided Tickets" tab (status=voided).
+  if (status) ticketFilter.status = status;
+  else ticketFilter.status = { $ne: "voided" };
 
   if (search?.trim()) {
     const q = escapeRegex(search.trim());

@@ -34,6 +34,41 @@
   color: var(--ad-muted);
 }
 
+.admin-tickets__list-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.admin-tickets__list-tab {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--ad-border);
+  background: var(--ad-surface);
+  color: var(--ad-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-tickets__list-tab:hover {
+  color: var(--ad-text);
+}
+
+.admin-tickets__list-tab--active {
+  background: var(--ad-teal);
+  border-color: var(--ad-teal);
+  color: #04140f;
+}
+
+.admin-tickets__list-tab--voided.admin-tickets__list-tab--active {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+}
+
 .admin-tickets__toolbar {
   display: flex;
   flex-wrap: wrap;

@@ -46,6 +46,7 @@ export default function AdminTicketsPage() {
   const [bulkAction, setBulkAction] = useState("");
   const [bulkRunning, setBulkRunning] = useState(false);
   const [expandedOrders, setExpandedOrders] = useState([]);
+  const [ticketTab, setTicketTab] = useState("active");
   const [filters, setFilters] = useState({
     eventId: searchParams.get("eventId") || "",
     paymentStatus: "",
@@ -69,6 +70,7 @@ export default function AdminTicketsPage() {
       if (filters.section) params.set("section", filters.section);
       if (filters.row) params.set("row", filters.row);
       if (filters.seatCategory) params.set("seatCategory", filters.seatCategory);
+      if (ticketTab === "voided") params.set("status", "voided");
 
       const [ticketsData, eventsData, statsData] = await Promise.all([
         apiFetch(`/api/admin/events/tickets?${params}`, { headers: adminAuthHeaders() }),
@@ -86,7 +88,7 @@ export default function AdminTicketsPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, filters]);
+  }, [search, filters, ticketTab]);
 
   useEffect(() => {
     loadData();
@@ -607,6 +609,26 @@ export default function AdminTicketsPage() {
 
         <AdminComplimentaryTicketPanel events={events} />
 
+        <div className="admin-tickets__list-tabs" role="tablist" aria-label="Active or voided tickets">
+          {[
+            ["active", "Tickets"],
+            ["voided", "Voided Tickets"],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              className={`admin-tickets__list-tab${id === "voided" ? " admin-tickets__list-tab--voided" : ""}${
+                ticketTab === id ? " admin-tickets__list-tab--active" : ""
+              }`}
+              aria-selected={ticketTab === id}
+              onClick={() => setTicketTab(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className="admin-tickets__toolbar">
           <div className="admin-tickets__search">
             <IconSearch size={18} />
@@ -693,7 +715,9 @@ export default function AdminTicketsPage() {
         {tickets.length > 0 ? (
           <>
             <div className="admin-tickets__section-heading">
-              <h2 className="admin-tickets__section-title">Platform Tickets</h2>
+              <h2 className="admin-tickets__section-title">
+                {ticketTab === "voided" ? "Voided Platform Tickets" : "Platform Tickets"}
+              </h2>
               {selectedIds.length ? (
                 <div className="admin-tickets__bulk" role="toolbar" aria-label="Bulk ticket actions">
                   <strong>{selectedIds.length} selected</strong>
@@ -702,7 +726,7 @@ export default function AdminTicketsPage() {
                     <option value="update">Add alternate email</option>
                     <option value="send_update">Send pending updates</option>
                     <option value="check_in">Check in tickets</option>
-                    <option value="void">Void tickets</option>
+                    {ticketTab !== "voided" ? <option value="void">Void tickets</option> : null}
                   </select>
                   <button type="button" onClick={runBulkAction} disabled={!bulkAction || bulkRunning}>
                     {bulkRunning ? "Applying…" : "Apply"}
