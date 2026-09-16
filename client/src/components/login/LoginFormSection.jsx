@@ -61,7 +61,7 @@ function ensureCaptchaToken(captcha, setError) {
 }
 
 export default function LoginFormSection({
-  mode = "login",
+  mode = "identify",
   onModeChange,
   returnTo = "/dashboard",
   prefillEmail = "",
@@ -82,6 +82,7 @@ export default function LoginFormSection({
   }
   const isSignUp = mode === "signup";
   const isForgotPassword = mode === "forgot-password";
+  const isIdentify = mode === "identify";
   const journeyMessage = {
     "business-onboarding": "Sign in to continue setting up your V.Commerce business.",
     "vcommerce-checkout": "Sign in to return to your cart and complete checkout.",
@@ -89,6 +90,16 @@ export default function LoginFormSection({
     "protected-route": "Sign in to continue where you left off.",
   }[journey];
   const skipNextSignUpSubmitRef = useRef(false);
+
+  const [identifyEmail, setIdentifyEmail] = useState("");
+  const [identifyError, setIdentifyError] = useState("");
+  const [isIdentifying, setIsIdentifying] = useState(false);
+  // Set once /api/auth/identify routes into "login" mode, so that render knows whether to
+  // show the password field (local) or a Google-only prompt (google) instead.
+  const [identifiedProvider, setIdentifiedProvider] = useState("");
+  // Set once /api/auth/identify routes into "forgot-password" mode because the account is
+  // auto-provisioned and never had a real password — swaps that screen's copy.
+  const [identifyContext, setIdentifyContext] = useState("");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -118,6 +129,7 @@ export default function LoginFormSection({
   const [forgotSuccess, setForgotSuccess] = useState(null);
   const [isSubmittingForgot, setIsSubmittingForgot] = useState(false);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
+  const identifyCaptcha = useCaptcha();
   const loginCaptcha = useCaptcha();
   const signUpCaptcha = useCaptcha();
   const otpCaptcha = useCaptcha();
@@ -137,14 +149,21 @@ export default function LoginFormSection({
   }, [isForgotPassword]);
 
   useEffect(() => {
+    if (!isIdentify) return;
+    setIdentifyError("");
+  }, [isIdentify]);
+
+  useEffect(() => {
     const savedEmail = getRememberedEmail();
     if (savedEmail) {
       setEmail(savedEmail);
+      setIdentifyEmail(savedEmail);
       setRememberMe(true);
     } else if (prefillEmail && isSignUp) {
       setSignUpEmail(prefillEmail);
-    } else if (prefillEmail && !isSignUp) {
+    } else if (prefillEmail) {
       setEmail(prefillEmail);
+      setIdentifyEmail(prefillEmail);
     }
   }, [prefillEmail, isSignUp]);
 
@@ -159,6 +178,53 @@ export default function LoginFormSection({
   function clearForgotFeedback() {
     setForgotError("");
     setForgotSuccess(null);
+  }
+
+  async function handleIdentifySubmit(event) {
+    event.preventDefault();
+    setIdentifyError("");
+
+    const trimmedEmail = identifyEmail.trim();
+    if (!trimmedEmail) {
+      setIdentifyError(t("auth:form.errors.emailRequired"));
+      return;
+    }
+
+    if (!ensureCaptchaToken(identifyCaptcha, setIdentifyError)) {
+      return;
+    }
+
+    setIsIdentifying(true);
+
+    try {
+      const data = await apiFetch("/api/auth/identify", {
+        method: "POST",
+        body: JSON.stringify({ email: trimmedEmail, captchaToken: identifyCaptcha.token })
+      });
+
+      if (data.status === "new") {
+        setSignUpEmail(trimmedEmail);
+        setIdentifiedProvider("");
+        setIdentifyContext("");
+        onModeChange?.("signup");
+      } else if (data.status === "unclaimed") {
+        setForgotEmail(trimmedEmail);
+        setIdentifiedProvider("");
+        setIdentifyContext("unclaimed");
+        onModeChange?.("forgot-password");
+      } else {
+        // returning_local or returning_google
+        setEmail(trimmedEmail);
+        setIdentifiedProvider(data.status === "returning_google" ? "google" : "");
+        setIdentifyContext("");
+        onModeChange?.("login");
+      }
+    } catch (error) {
+      setIdentifyError(error.message || t("auth:form.errors.identifyFailed"));
+    } finally {
+      identifyCaptcha.reset();
+      setIsIdentifying(false);
+    }
   }
 
   async function handleVerifyOtpSubmit(event) {
@@ -235,15 +301,36 @@ export default function LoginFormSection({
     if (otpError) setOtpError("");
   }
 
+  // Google sign-in is available from more than just the login/signup forms now (the
+  // identify step also offers it, so someone who knows they use Google can skip typing
+  // their email at all) — route captcha + error state by mode instead of the old
+  // isSignUp-or-login binary.
+  function googleCaptchaForMode() {
+    if (isSignUp) return signUpCaptcha;
+    if (isIdentify) return identifyCaptcha;
+    return loginCaptcha;
+  }
+  function setGoogleErrorForMode(message) {
+    if (isSignUp) {
+      setSignUpError(message);
+      setHasSignUpAttempt(true);
+    } else if (isIdentify) {
+      setIdentifyError(message);
+    } else {
+      setLoginError(message);
+    }
+  }
+
   async function handleGoogleSignIn(credential) {
     setLoginError("");
     setSignUpError("");
+    setIdentifyError("");
     setIsGoogleSigningIn(true);
 
     const useRememberMe = isSignUp ? true : rememberMe;
-    const activeCaptcha = isSignUp ? signUpCaptcha : loginCaptcha;
+    const activeCaptcha = googleCaptchaForMode();
 
-    if (!ensureCaptchaToken(activeCaptcha, isSignUp ? setSignUpError : setLoginError)) {
+    if (!ensureCaptchaToken(activeCaptcha, setGoogleErrorForMode)) {
       setIsGoogleSigningIn(false);
       return;
     }
@@ -263,13 +350,7 @@ export default function LoginFormSection({
       await loginWithToken(data.token, data.user, useRememberMe);
       finishAuth(data.user);
     } catch (error) {
-      const message = error.message || t("auth:google.errorFailed");
-      if (isSignUp) {
-        setSignUpError(message);
-        setHasSignUpAttempt(true);
-      } else {
-        setLoginError(message);
-      }
+      setGoogleErrorForMode(error.message || t("auth:google.errorFailed"));
     } finally {
       activeCaptcha.reset();
       setIsGoogleSigningIn(false);
@@ -301,14 +382,7 @@ export default function LoginFormSection({
         <GoogleSignInButton
           disabled={isGoogleSigningIn}
           onSuccess={handleGoogleSignIn}
-          onError={(message) => {
-            if (isSignUp) {
-              setSignUpError(message);
-              setHasSignUpAttempt(true);
-            } else {
-              setLoginError(message);
-            }
-          }}
+          onError={setGoogleErrorForMode}
         />
       </div>
     );
@@ -451,12 +525,17 @@ export default function LoginFormSection({
     onModeChange?.("signup");
   }
 
-  function switchToLogin(event) {
+  // Every "back to logging in" affordance in this form now returns to the identify step
+  // rather than assuming a local-password login — that's the only place that knows
+  // whether this email is password/Google/new/unclaimed.
+  function switchToIdentify(event) {
     event.preventDefault();
     event.stopPropagation();
     clearSignUpFeedback();
     clearForgotFeedback();
-    onModeChange?.("login");
+    setIdentifiedProvider("");
+    setIdentifyContext("");
+    onModeChange?.("identify");
   }
 
   function switchToForgotPassword(event) {
@@ -482,16 +561,24 @@ export default function LoginFormSection({
       <div className="login-form-section__card">
         <header className="login-form-section__header">
           <h2 id="login-form-title" className="login-form-section__title">
-            {isForgotPassword ? t("auth:form.titles.forgotPassword") : isSignUp ? t("auth:form.titles.signup") : t("auth:form.titles.login")}
+            {isForgotPassword
+              ? (identifyContext === "unclaimed" ? t("auth:form.identify.unclaimedTitle") : t("auth:form.titles.forgotPassword"))
+              : isIdentify
+                ? t("auth:form.titles.identify")
+                : isSignUp
+                  ? t("auth:form.titles.signup")
+                  : t("auth:form.titles.login")}
           </h2>
           <p className="login-form-section__intro">
             {!isForgotPassword && journeyMessage
               ? journeyMessage
               : isForgotPassword
-              ? t("auth:form.intros.forgotPassword")
-              : isSignUp
-                ? t("auth:form.intros.signup")
-                : t("auth:form.intros.login")}
+              ? (identifyContext === "unclaimed" ? t("auth:form.identify.unclaimedIntro") : t("auth:form.intros.forgotPassword"))
+              : isIdentify
+                ? t("auth:form.intros.identify")
+                : isSignUp
+                  ? t("auth:form.intros.signup")
+                  : t("auth:form.intros.login")}
           </p>
         </header>
 
@@ -543,7 +630,7 @@ export default function LoginFormSection({
             >
               {isResendingOtp ? t("auth:form.buttons.sendingNewCode") : t("auth:form.buttons.resendCode")}
             </button>
-            <button type="button" className="login-form-section__switch-mode" onClick={switchToLogin}>
+            <button type="button" className="login-form-section__switch-mode" onClick={switchToIdentify}>
               <FaLock aria-hidden />
               {t("auth:form.buttons.backToLogIn")}
             </button>
@@ -558,11 +645,50 @@ export default function LoginFormSection({
                 <a href={forgotSuccess.devResetUrl}>{forgotSuccess.devResetUrl}</a>
               </p>
             ) : null}
-            <button type="button" className="login-form-section__switch-mode" onClick={switchToLogin}>
+            <button type="button" className="login-form-section__switch-mode" onClick={switchToIdentify}>
               <FaLock aria-hidden />
               {t("auth:form.buttons.backToLogIn")}
             </button>
           </div>
+        ) : isIdentify ? (
+          <form
+            key="identify-form"
+            className="login-form-section__form"
+            onSubmit={handleIdentifySubmit}
+            noValidate
+          >
+            <div className="login-form-section__field">
+              <label htmlFor="identify-email">{t("auth:form.fields.emailAddress")}</label>
+              <div className="login-form-section__input-wrap">
+                <FaEnvelope className="login-form-section__input-icon" aria-hidden />
+                <input
+                  id="identify-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder={t("auth:form.fields.emailPlaceholder")}
+                  value={identifyEmail}
+                  onChange={(event) => setIdentifyEmail(event.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            {identifyError ? (
+              <p className="login-form-section__error" role="alert">
+                {identifyError}
+              </p>
+            ) : null}
+
+            <CaptchaField captcha={identifyCaptcha} className="login-form-section__captcha" />
+
+            <button type="submit" className="login-form-section__submit" disabled={isIdentifying}>
+              <FaEnvelope aria-hidden />
+              {isIdentifying ? t("auth:form.buttons.sending") : t("auth:form.buttons.continue")}
+            </button>
+
+            {renderSocialAuth()}
+          </form>
         ) : isForgotPassword ? (
           <form
             key="forgot-form"
@@ -600,7 +726,7 @@ export default function LoginFormSection({
               {isSubmittingForgot ? t("auth:form.buttons.sending") : t("auth:form.buttons.sendResetLink")}
             </button>
 
-            <button type="button" className="login-form-section__switch-mode" onClick={switchToLogin}>
+            <button type="button" className="login-form-section__switch-mode" onClick={switchToIdentify}>
               <FaLock aria-hidden />
               {t("auth:form.buttons.backToLogIn")}
             </button>
@@ -708,12 +834,25 @@ export default function LoginFormSection({
             <button
               type="button"
               className="login-form-section__switch-mode"
-              onClick={switchToLogin}
+              onClick={switchToIdentify}
             >
               <FaLock aria-hidden />
               {t("auth:form.buttons.logIn")}
             </button>
           </form>
+        ) : identifiedProvider === "google" ? (
+          <div className="login-form-section__form">
+            <p className="login-form-section__identify-hint">{t("auth:form.identify.welcomeBackGoogle")}</p>
+            {loginError ? (
+              <p className="login-form-section__error" role="alert">
+                {loginError}
+              </p>
+            ) : null}
+            {renderSocialAuth()}
+            <button type="button" className="login-form-section__switch-mode" onClick={switchToIdentify}>
+              {t("auth:form.identify.notYou")}
+            </button>
+          </div>
         ) : (
           <form
             key="login-form"
@@ -721,6 +860,15 @@ export default function LoginFormSection({
             onSubmit={handleLoginSubmit}
             noValidate
           >
+            {email.trim() ? (
+              <p className="login-form-section__identify-hint">
+                {t("auth:form.identify.welcomeBackLocal")}{" "}
+                <button type="button" className="login-form-section__inline-link" onClick={switchToIdentify}>
+                  {t("auth:form.identify.notYou")}
+                </button>
+              </p>
+            ) : null}
+
             <div className="login-form-section__field">
               <label htmlFor="login-email">{t("auth:form.fields.emailAddress")}</label>
               <div className="login-form-section__input-wrap">

@@ -5,7 +5,7 @@ import { IconX } from "@tabler/icons-react";
 import LoginFormSection from "../login/LoginFormSection.jsx";
 import "../../styles/login-modal.css";
 
-export default function LoginModal({ open, onClose, onAuthenticated, returnTo, prefillEmail, initialMode = "login" }) {
+export default function LoginModal({ open, onClose, onAuthenticated, returnTo, prefillEmail, initialMode = "identify" }) {
   const { t } = useTranslation(["auth"]);
   const [mode, setMode] = useState(initialMode);
 

@@ -5,6 +5,7 @@ import BreadcrumbPageHeader from "../layout/BreadcrumbPageHeader.jsx";
 import "../../styles/login-breadcrumb-section.css";
 
 const MODE_KEYS = {
+  identify: "identify",
   login: "login",
   signup: "signup",
   "forgot-password": "forgotPassword",

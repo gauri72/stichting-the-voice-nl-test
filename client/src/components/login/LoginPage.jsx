@@ -17,7 +17,7 @@ export default function LoginPage() {
   const journey = searchParams.get("journey") || readAuthIntent()?.journey || "account";
   const [authMode, setAuthMode] = useState(() => {
     if (searchParams.get("mode") === "signup") return "signup";
-    return location.state?.authMode === "forgot-password" ? "forgot-password" : "login";
+    return location.state?.authMode === "forgot-password" ? "forgot-password" : "identify";
   });
 
   useEffect(() => {

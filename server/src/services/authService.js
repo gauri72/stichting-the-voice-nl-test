@@ -237,6 +237,31 @@ export async function verifyEmailOtp({ email, otp }) {
   };
 }
 
+/**
+ * Classifies an email for the login form's "email first" step — tells the client which
+ * screen to show next without revealing anything beyond that routing signal. See
+ * isAutoProvisioned's doc comment on the User model for what "unclaimed" means.
+ */
+export async function identifyAccount(email) {
+  if (!isDbReady()) {
+    const err = new Error("Database is not available. Please try again later.");
+    err.status = 503;
+    throw err;
+  }
+
+  const normalizedEmail = normalizeEmail(email);
+  const user = await User.findOne({ email: normalizedEmail }).select(
+    "authProvider isAutoProvisioned isVerified"
+  );
+
+  if (!user) return { status: "new" };
+  if (user.isAutoProvisioned) return { status: "unclaimed" };
+  // Abandoned mid-signup (registered, never verified) — re-registering already adopts
+  // this record (registerUser, above), so route them through signup again.
+  if (!user.isVerified) return { status: "new" };
+  return { status: user.authProvider === "google" ? "returning_google" : "returning_local" };
+}
+
 export async function loginUser({ email, password, rememberMe }) {
   if (!isDbReady()) {
     const err = new Error("Database is not available. Please try again later.");
@@ -530,6 +555,13 @@ export async function loginWithGoogle({ credential, rememberMe }) {
     user.isVerified = true;
     user.verificationOtpHash = null;
     user.verificationOtpExpires = null;
+    // Signing in with Google is as much a "claim" as setting a password via the
+    // emailed link (resetPassword() below does the same two fields) — without this,
+    // identifyAccount() would keep reporting this address as "unclaimed" forever.
+    if (user.isAutoProvisioned) {
+      user.isAutoProvisioned = false;
+      user.claimedAt = new Date();
+    }
     await ensurePasswordHashOnUser(user);
     await user.save();
   } else {

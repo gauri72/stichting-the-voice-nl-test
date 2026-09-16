@@ -5,6 +5,7 @@ import {
   loginUser,
   loginWithGoogle,
   getUserById,
+  identifyAccount as identifyAccountService,
   requestPasswordReset,
   resetPassword,
   updateUserProfile,
@@ -120,6 +121,21 @@ export async function changePasswordHandler(req, res) {
     }
 
     const result = await changePassword(req.user.id, { currentPassword, newPassword });
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function identifyAccount(req, res) {
+  try {
+    const { email } = req.body || {};
+
+    if (!email?.trim()) {
+      return res.status(400).json({ error: "Email is required." });
+    }
+
+    const result = await identifyAccountService(email);
     return res.status(200).json(result);
   } catch (error) {
     return handleError(res, error);

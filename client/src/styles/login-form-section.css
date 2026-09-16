@@ -83,6 +83,33 @@
   color: #b42318;
 }
 
+.login-form-section__identify-hint {
+  margin: -6px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(46, 196, 199, 0.1);
+  border: 1px solid rgba(46, 196, 199, 0.28);
+  color: var(--login-text, var(--color-heading));
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+[data-theme="light"] .login-form-section__identify-hint {
+  background: #eef8f3;
+  border-color: #b8e0c8;
+}
+
+.login-form-section__inline-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--login-accent, var(--color-link));
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .login-form-section__success {
   display: flex;
   flex-direction: column;

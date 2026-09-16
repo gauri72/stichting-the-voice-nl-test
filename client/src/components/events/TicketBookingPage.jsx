@@ -134,7 +134,7 @@ export default function TicketBookingPage() {
   const [checkoutFormFields, setCheckoutFormFields] = useState([]);
   const [checkoutFormValues, setCheckoutFormValues] = useState({});
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [loginModalInitialMode, setLoginModalInitialMode] = useState("login");
+  const [loginModalInitialMode, setLoginModalInitialMode] = useState("identify");
   const [ownCodeCardDismissed, setOwnCodeCardDismissed] = useState(false);
   const [autoAppliedOwnCode, setAutoAppliedOwnCode] = useState("");
   const sessionRestoreRef = useRef(false);
@@ -487,7 +487,7 @@ export default function TicketBookingPage() {
     saveBeforeLoginApi,
   ]);
 
-  const handleRequestLogin = useCallback(async (mode = "login") => {
+  const handleRequestLogin = useCallback(async (mode = "identify") => {
     // The modal never navigates away, so apply-benefits-after-login needs a CheckoutSession
     // record to write the post-login detection back onto — without this, that call 404s
     // ("Checkout session expired or not found") and the failure gets swallowed, leaving the
@@ -1321,7 +1321,7 @@ export default function TicketBookingPage() {
                   </p>
                 </div>
                 <div className="ticket-booking__referral-prompt-actions">
-                  <button type="button" onClick={() => handleRequestLogin("login")}>
+                  <button type="button" onClick={() => handleRequestLogin("identify")}>
                     {t("checkout:selectTickets.referralPromptSignIn")}
                   </button>
                   <button type="button" className="ticket-booking__referral-prompt-guest" onClick={() => setOwnCodeCardDismissed(true)}>
@@ -1890,7 +1890,7 @@ export default function TicketBookingPage() {
                     <button
                       type="button"
                       className="ticket-booking__wallet-pay-cta"
-                      onClick={() => handleRequestLogin("login")}
+                      onClick={() => handleRequestLogin("identify")}
                     >
                       Log in to use V.Wallet
                     </button>
