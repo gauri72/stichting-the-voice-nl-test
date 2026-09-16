@@ -58,7 +58,11 @@
     "membershipCode": "Mitgliedschaftscode",
     "membershipCodePlaceholder": "Mitgliedschaftscode Eingeben",
     "applyMembershipCode": "Mitgliedschaftscode Anwenden",
-    "checkingMembershipBenefits": "Mitgliedervorteile werden geprüft…"
+    "checkingMembershipBenefits": "Mitgliedervorteile werden geprüft…",
+    "additionalAttendeesLabel": "Namen der anderen {{count}} Teilnehmer",
+    "additionalAttendeesPlaceholder": "Ein Name pro Zeile",
+    "additionalAttendeesHint": "Sie haben {{total}} Tickets ausgewählt. Geben Sie den Namen jeder anwesenden Person außer sich selbst ein, einen pro Zeile.",
+    "additionalAttendeesError": "Bitte geben Sie den Namen jedes der anderen {{count}} Teilnehmer ein, einen pro Zeile."
   },
   "memberBenefits": {
     "title": "Prüfung der Mitgliedervorteile",

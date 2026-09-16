@@ -96,6 +96,9 @@ export default function TicketBookingPage() {
   const [event, setEvent] = useState(null);
   const [quantities, setQuantities] = useState({});
   const [attendee, setAttendee] = useState(EMPTY_ATTENDEE);
+  // One name per line, for everyone in the order besides the primary buyer above —
+  // required once ticketQty > 1, parsed/validated in nextFromDetails().
+  const [additionalAttendeeNamesText, setAdditionalAttendeeNamesText] = useState("");
   // Per-ticket-type discount/voucher code entry — replaces the old single cart-wide
   // voucherCode/voucherMessage (now entered once per ticket-type row in Select Tickets
   // instead of once for the whole order in Review).
@@ -219,6 +222,10 @@ export default function TicketBookingPage() {
 
   const seatOffset = reservedSeatingEnabled ? 1 : 0;
   const ticketQty = selectedItems.reduce((sum, li) => sum + li.quantity, 0);
+  const additionalAttendeeNames = additionalAttendeeNamesText
+    .split("\n")
+    .map((n) => n.trim())
+    .filter(Boolean);
   const checkoutFormAnswers = useMemo(() => {
     const serialized = serializeCheckoutAnswers(checkoutFormFields, checkoutFormValues);
     // The standard checkout form's own "terms" question duplicates this page's
@@ -876,6 +883,7 @@ export default function TicketBookingPage() {
           selectedSeatIds,
           checkoutFormAnswers,
           participantCount: ticketQty,
+          additionalAttendeeNames,
         });
 
       setCheckoutOrder(checkout.order);
@@ -931,6 +939,7 @@ export default function TicketBookingPage() {
           selectedSeatIds,
           checkoutFormAnswers,
           participantCount: ticketQty,
+          additionalAttendeeNames,
         });
       clearCheckoutSession(TICKET_CHECKOUT_SESSION_KEY);
       goToConfirmation(result.order.orderNumber, attendee.email, result.guestAccessToken);
@@ -1047,6 +1056,7 @@ export default function TicketBookingPage() {
           selectedSeatIds,
           checkoutFormAnswers,
           participantCount: ticketQty,
+          additionalAttendeeNames,
         },
         pointsToRedeem: pointsToRedeem || 0,
       });
@@ -1082,6 +1092,7 @@ export default function TicketBookingPage() {
           selectedSeatIds,
           checkoutFormAnswers,
           participantCount: ticketQty,
+          additionalAttendeeNames,
         },
         pointsToRedeem: pointsToRedeem || 0,
         split: { walletPortionMinor: walletPortionMinorApplied },
@@ -1151,6 +1162,11 @@ export default function TicketBookingPage() {
 
   function nextFromDetails() {
     if (!attendee.firstName || !attendee.lastName || !attendee.email) return;
+    if (ticketQty > 1 && additionalAttendeeNames.length !== ticketQty - 1) {
+      setError(t("checkout:yourDetails.additionalAttendeesError", { count: ticketQty - 1 }));
+      return;
+    }
+    setError("");
     if (benefitsHaveContent) {
       setStep(BENEFITS_STEP);
     } else {
@@ -1574,6 +1590,22 @@ export default function TicketBookingPage() {
                 <input type="tel" value={attendee.phone} onChange={(e) => setAttendee((a) => ({ ...a, phone: e.target.value }))} />
               </label>
             </div>
+            {ticketQty > 1 ? (
+              <div className="ticket-booking__additional-attendees">
+                <label>
+                  {t("checkout:yourDetails.additionalAttendeesLabel", { count: ticketQty - 1 })} *
+                  <textarea
+                    rows={Math.max(3, ticketQty - 1)}
+                    placeholder={t("checkout:yourDetails.additionalAttendeesPlaceholder")}
+                    value={additionalAttendeeNamesText}
+                    onChange={(e) => setAdditionalAttendeeNamesText(e.target.value)}
+                  />
+                </label>
+                <p className="ticket-booking__hint">
+                  {t("checkout:yourDetails.additionalAttendeesHint", { total: ticketQty })}
+                </p>
+              </div>
+            ) : null}
             {showBenefitsStep ? (
               <div className="ticket-booking__membership-code">
                 <label>
@@ -1618,7 +1650,13 @@ export default function TicketBookingPage() {
               <button
                 type="button"
                 className="ticket-booking__cta"
-                disabled={!attendee.firstName || !attendee.lastName || !attendee.email || detectingMember}
+                disabled={
+                  !attendee.firstName ||
+                  !attendee.lastName ||
+                  !attendee.email ||
+                  detectingMember ||
+                  (ticketQty > 1 && additionalAttendeeNames.length !== ticketQty - 1)
+                }
                 onClick={nextFromDetails}
               >
                 {detectingMember ? t("checkout:yourDetails.checkingMembershipBenefits") : t("checkout:nav.continue")}

@@ -58,7 +58,11 @@
     "membershipCode": "Lidmaatschapscode",
     "membershipCodePlaceholder": "Vul Lidmaatschapscode In",
     "applyMembershipCode": "Lidmaatschapscode Toepassen",
-    "checkingMembershipBenefits": "Lidvoordelen worden gecontroleerd…"
+    "checkingMembershipBenefits": "Lidvoordelen worden gecontroleerd…",
+    "additionalAttendeesLabel": "Namen van de andere {{count}} deelnemer(s)",
+    "additionalAttendeesPlaceholder": "Eén naam per regel",
+    "additionalAttendeesHint": "Je hebt {{total}} tickets geselecteerd. Voer de naam in van iedereen die aanwezig is, behalve jezelf, één naam per regel.",
+    "additionalAttendeesError": "Voer de naam in van elk van de andere {{count}} deelnemer(s), één naam per regel."
   },
   "memberBenefits": {
     "title": "Controle lidvoordelen",

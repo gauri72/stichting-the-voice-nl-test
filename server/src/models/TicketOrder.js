@@ -14,6 +14,11 @@ const ticketOrderSchema = new mongoose.Schema(
     attendeeLastName: { type: String, required: true, trim: true, maxlength: 80 },
     attendeeEmail: { type: String, required: true, lowercase: true, trim: true, index: true },
     attendeePhone: { type: String, default: "", trim: true, maxlength: 40 },
+    /** Names of the other attendees for a multi-ticket order (not the primary buyer,
+     *  who's already covered by attendeeFirstName/attendeeLastName) — one per extra
+     *  ticket unit, in order. Assigned to individual Ticket.attendeeName values in
+     *  generateTicketsForOrder() (postPaymentFulfillmentService.js). */
+    additionalAttendeeNames: { type: [String], default: [] },
     orderType: {
       type: String,
       enum: ["TICKET_ONLY", "MEMBERSHIP_ONLY", "TICKET_AND_MEMBERSHIP"],

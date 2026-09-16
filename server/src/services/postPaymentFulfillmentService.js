@@ -225,6 +225,10 @@ export async function generateTicketsForOrder(order) {
   let seatIndex = 0;
   const seatMapDoc = selectedSeats.length ? await getSeatMapByEventId(order.eventId) : null;
   const seatMapId = seatMapDoc?.seatMapId || "";
+  // Counts units across every line item (not reset per ticket type) so a mixed-type
+  // order still assigns additionalAttendeeNames in the same flat order the shopper
+  // entered them in at checkout. Unit 0 is always the primary buyer.
+  let unitIndex = 0;
 
   for (const line of order.lineItems) {
     const reserved = await TicketType.findOneAndUpdate(
@@ -264,7 +268,9 @@ export async function generateTicketsForOrder(order) {
     for (let i = 0; i < line.quantity; i += 1) {
       const verificationToken = generateVerificationToken();
       const ticketNumber = await buildTicketNumber();
-      const attendeeName = `${order.attendeeFirstName} ${order.attendeeLastName}`.trim();
+      const extraName = unitIndex > 0 ? order.additionalAttendeeNames?.[unitIndex - 1]?.trim() : "";
+      const attendeeName = extraName || `${order.attendeeFirstName} ${order.attendeeLastName}`.trim();
+      unitIndex += 1;
       const seatInfo = selectedSeats[seatIndex] || null;
       seatIndex += 1;
 

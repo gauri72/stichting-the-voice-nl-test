@@ -516,11 +516,14 @@ export async function createBundleCheckout(eventId, payload, userId) {
     checkoutFormAnswers = [],
     participantCount = null,
     membershipCode = null,
+    additionalAttendeeNames = [],
   } = payload;
 
   const code = discountCode || voucherCode;
   const email = attendeeEmail?.trim().toLowerCase();
   const isLoggedIn = Boolean(userId);
+  const totalTicketQty = (items || []).reduce((sum, li) => sum + (li.quantity || 0), 0);
+  const cleanedAdditionalAttendeeNames = additionalAttendeeNames.map((n) => String(n || "").trim()).filter(Boolean);
 
   if (!attendeeFirstName?.trim() || !attendeeLastName?.trim() || !email) {
     const err = new Error("Attendee first name, last name, and email are required.");
@@ -529,6 +532,11 @@ export async function createBundleCheckout(eventId, payload, userId) {
   }
   if (!termsAccepted) {
     const err = new Error("You must accept the terms and conditions.");
+    err.status = 400;
+    throw err;
+  }
+  if (totalTicketQty > 1 && cleanedAdditionalAttendeeNames.length !== totalTicketQty - 1) {
+    const err = new Error(`Please enter the names of the other ${totalTicketQty - 1} attendee(s).`);
     err.status = 400;
     throw err;
   }
@@ -547,7 +555,6 @@ export async function createBundleCheckout(eventId, payload, userId) {
     membershipCode,
   });
 
-  const totalTicketQty = (items || []).reduce((sum, li) => sum + (li.quantity || 0), 0);
   const { validateCheckoutFormAnswers, saveCheckoutFormResponse } = await import("./checkoutFormService.js");
   const validatedCheckoutForm = await validateCheckoutFormAnswers({
     eventId,
@@ -642,6 +649,7 @@ export async function createBundleCheckout(eventId, payload, userId) {
     attendeeLastName: attendeeLastName.trim(),
     attendeeEmail: email,
     attendeePhone: String(attendeePhone || "").trim(),
+    additionalAttendeeNames: cleanedAdditionalAttendeeNames,
     lineItems: enrichedLineItems,
     membershipItems,
     appliedDiscounts: preview.appliedDiscounts,
@@ -829,11 +837,14 @@ export async function completeFreeOrder(eventId, payload, userId) {
     checkoutFormAnswers = [],
     participantCount = null,
     membershipCode = null,
+    additionalAttendeeNames = [],
   } = payload;
 
   const code = discountCode || voucherCode;
   const email = attendeeEmail?.trim().toLowerCase();
   const isLoggedIn = Boolean(userId);
+  const totalTicketQty = (items || []).reduce((sum, li) => sum + (li.quantity || 0), 0);
+  const cleanedAdditionalAttendeeNames = additionalAttendeeNames.map((n) => String(n || "").trim()).filter(Boolean);
 
   if (!attendeeFirstName?.trim() || !attendeeLastName?.trim() || !email) {
     const err = new Error("Attendee first name, last name, and email are required.");
@@ -842,6 +853,11 @@ export async function completeFreeOrder(eventId, payload, userId) {
   }
   if (!termsAccepted) {
     const err = new Error("You must accept the terms and conditions.");
+    err.status = 400;
+    throw err;
+  }
+  if (totalTicketQty > 1 && cleanedAdditionalAttendeeNames.length !== totalTicketQty - 1) {
+    const err = new Error(`Please enter the names of the other ${totalTicketQty - 1} attendee(s).`);
     err.status = 400;
     throw err;
   }
@@ -912,7 +928,6 @@ export async function completeFreeOrder(eventId, payload, userId) {
     details: { grandTotalMinor: 0, appliedDiscounts: preview.appliedDiscounts },
   });
 
-  const totalTicketQty = (items || []).reduce((sum, li) => sum + (li.quantity || 0), 0);
   const { validateCheckoutFormAnswers, saveCheckoutFormResponse } = await import("./checkoutFormService.js");
   const validatedCheckoutForm = await validateCheckoutFormAnswers({
     eventId,
@@ -974,6 +989,7 @@ export async function completeFreeOrder(eventId, payload, userId) {
     attendeeLastName: attendeeLastName.trim(),
     attendeeEmail: email,
     attendeePhone: String(attendeePhone || "").trim(),
+    additionalAttendeeNames: cleanedAdditionalAttendeeNames,
     lineItems: enrichedLineItems,
     membershipItems,
     appliedDiscounts: preview.appliedDiscounts,

@@ -59,7 +59,11 @@
     "membershipCode": "Membership Code",
     "membershipCodePlaceholder": "Enter Membership Code",
     "applyMembershipCode": "Apply Membership Code",
-    "checkingMembershipBenefits": "Checking membership benefits…"
+    "checkingMembershipBenefits": "Checking membership benefits…",
+    "additionalAttendeesLabel": "Names of the other {{count}} attendee(s)",
+    "additionalAttendeesPlaceholder": "One name per line",
+    "additionalAttendeesHint": "You selected {{total}} tickets. Enter the name of each person attending besides yourself, one per line.",
+    "additionalAttendeesError": "Please enter the name of each of the other {{count}} attendee(s), one per line."
   },
   "memberBenefits": {
     "title": "Membership benefit check",

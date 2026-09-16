@@ -619,6 +619,29 @@
   font: inherit;
 }
 
+.ticket-booking__additional-attendees {
+  margin: 4px 0 16px;
+}
+
+.ticket-booking__additional-attendees label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #8a9bb5;
+}
+
+.ticket-booking__additional-attendees textarea {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #06152f;
+  color: inherit;
+  font: inherit;
+  resize: vertical;
+}
+
 .ticket-booking__membership-code {
   display: flex;
   gap: 8px;
