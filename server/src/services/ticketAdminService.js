@@ -449,6 +449,37 @@ export async function voidAdminTicket(ticketId, payload, adminId) {
     adminId,
   });
   await ticket.save();
+
+  // A void frees up one unit of capacity, same as a refund — release it back
+  // into soldCount and notify the next person on the waitlist, if any.
+  // (Guarded on previousStatus so voiding an already-voided ticket, blocked
+  // above anyway, could never double-release.)
+  if (previousStatus === "valid" && ticket.seatId) {
+    const { releaseSeatsFromOrder } = await import("./seatService.js");
+    await releaseSeatsFromOrder({
+      selectedSeats: [{ seatId: ticket.seatId }],
+      eventId: ticket.eventId,
+    }).catch((err) => console.error("[tickets] seat release failed:", err.message));
+  }
+  if (previousStatus === "valid" && ticket.ticketTypeId) {
+    const ticketType = await TicketType.findOneAndUpdate(
+      { _id: ticket.ticketTypeId, soldCount: { $gt: 0 } },
+      { $inc: { soldCount: -1 } },
+      { new: true }
+    );
+    if (ticketType && ticketType.status === "sold_out" && ticketType.soldCount < ticketType.capacity) {
+      ticketType.status = "active";
+      await ticketType.save();
+    }
+    if (ticketType) {
+      const { notifyWaitlistAvailability } = await import("./booking/WaitlistService.js");
+      await notifyWaitlistAvailability({
+        resourceType: "ticket_type",
+        resourceId: ticket.ticketTypeId.toString(),
+      }).catch((err) => console.error("[tickets] waitlist notification failed:", err.message));
+    }
+  }
+
   await logAdminAction({
     adminId,
     action: "Ticket Voided",
