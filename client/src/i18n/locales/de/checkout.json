@@ -35,7 +35,13 @@
     "maxPerOrder": "max. {{count}} pro Bestellung",
     "continue": "Weiter",
     "codePlaceholder": "Empfehlungscode oder Rabattcode",
-    "memberDiscount": "Mitgliederrabatt angewendet"
+    "memberDiscount": "Mitgliederrabatt angewendet",
+    "referralPromptTitle": "Melden Sie sich an und erhalten Sie automatisch 10% Rabatt",
+    "referralPromptBody": "Melden Sie sich an oder erstellen Sie ein kostenloses Konto, damit Ihr eigener Empfehlungsrabatt automatisch angewendet wird — kein Code erforderlich.",
+    "referralPromptSignIn": "Anmelden — 10% Rabatt",
+    "referralPromptGuest": "Als Gast fortfahren",
+    "referralApplied": "Empfehlungsrabatt automatisch angewendet — Sie sind angemeldet.",
+    "referralAppliedRemove": "Entfernen"
   },
   "selectSeats": {
     "title": "Wählen Sie Ihre Sitzplätze",

@@ -36,7 +36,13 @@
     "continue": "Continue",
     "codePlaceholder": "Referral code or discount code",
     "codeNotApplicableFor": "This code doesn't apply to: {{types}}",
-    "memberDiscount": "Member discount applied"
+    "memberDiscount": "Member discount applied",
+    "referralPromptTitle": "Sign in and get 10% off automatically",
+    "referralPromptBody": "Log in or create a free account to have your own referral discount applied automatically — no code to type.",
+    "referralPromptSignIn": "Sign in — get 10% off",
+    "referralPromptGuest": "Continue as guest",
+    "referralApplied": "Referral discount applied automatically — you're signed in.",
+    "referralAppliedRemove": "Remove"
   },
   "selectSeats": {
     "title": "Select your seats",

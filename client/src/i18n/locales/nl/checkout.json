@@ -35,7 +35,13 @@
     "maxPerOrder": "max {{count}} per bestelling",
     "continue": "Doorgaan",
     "codePlaceholder": "Referralcode of kortingscode",
-    "memberDiscount": "Ledenkorting toegepast"
+    "memberDiscount": "Ledenkorting toegepast",
+    "referralPromptTitle": "Log in en krijg automatisch 10% korting",
+    "referralPromptBody": "Log in of maak gratis een account aan om je eigen referralkorting automatisch te laten toepassen — geen code nodig.",
+    "referralPromptSignIn": "Inloggen — 10% korting",
+    "referralPromptGuest": "Doorgaan als gast",
+    "referralApplied": "Referralkorting automatisch toegepast — je bent ingelogd.",
+    "referralAppliedRemove": "Verwijderen"
   },
   "selectSeats": {
     "title": "Selecteer je stoelen",

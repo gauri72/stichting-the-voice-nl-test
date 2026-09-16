@@ -135,6 +135,8 @@ export default function TicketBookingPage() {
   const [checkoutFormValues, setCheckoutFormValues] = useState({});
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginModalInitialMode, setLoginModalInitialMode] = useState("login");
+  const [ownCodeCardDismissed, setOwnCodeCardDismissed] = useState(false);
+  const [autoAppliedOwnCode, setAutoAppliedOwnCode] = useState("");
   const sessionRestoreRef = useRef(false);
 
   const checkoutSessionIdFromUrl = searchParams.get("checkoutSessionId") || "";
@@ -347,6 +349,33 @@ export default function TicketBookingPage() {
       return next;
     });
   }, [event?.ticketTypes, checkoutSessionIdFromUrl]);
+
+  // Auto-applies the logged-in shopper's own referral code (10% off by default) as a
+  // sign-in incentive — fires once the user is known and ticket types are loaded, whether
+  // they were already logged in on page load or just signed in via the login modal.
+  // Skipped whenever a code is already present so it can never override a friend's
+  // captured ?ref= link, a restored session, or something the shopper already typed.
+  useEffect(() => {
+    if (checkoutSessionIdFromUrl || !user || !event?.ticketTypes?.length) return;
+    if (getPendingReferralCode()) return;
+    const hasExistingCode = Object.values(ticketCodes).some((c) => c && c.trim());
+    if (hasExistingCode) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await apiFetch("/api/dashboard/referrals", { headers: authHeaders() });
+        const code = data?.enabled ? data?.referral?.referralCode?.code : null;
+        if (code && !cancelled) {
+          setAutoAppliedOwnCode(code);
+          handleGlobalCodeChange(code);
+        }
+      } catch {
+        // Silent — this is a bonus incentive, not a required checkout step.
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user, event?.ticketTypes, checkoutSessionIdFromUrl]);
 
   const refreshPreview = useCallback(async (overrides = {}) => {
     if (!selectedItems.length || !event?.id) {
@@ -796,6 +825,11 @@ export default function TicketBookingPage() {
     ticketCodeTimersRef.current.__global = window.setTimeout(() => {
       if (referenceTicketTypeId) validateTicketCode(referenceTicketTypeId, value);
     }, 500);
+  }
+
+  function handleRemoveAutoAppliedCode() {
+    setAutoAppliedOwnCode("");
+    handleGlobalCodeChange("");
   }
 
   // Re-validate whenever the reference ticket type changes OR its quantity changes — a
@@ -1275,6 +1309,37 @@ export default function TicketBookingPage() {
         {step === 1 ? (
           <section className="ticket-booking__card">
             <h2><IconTicket size={20} /> {t("checkout:selectTickets.title")}</h2>
+
+            {!user && !ownCodeCardDismissed ? (
+              <div className="ticket-booking__referral-prompt">
+                <div>
+                  <p className="ticket-booking__referral-prompt-title">
+                    {t("checkout:selectTickets.referralPromptTitle")}
+                  </p>
+                  <p className="ticket-booking__referral-prompt-body">
+                    {t("checkout:selectTickets.referralPromptBody")}
+                  </p>
+                </div>
+                <div className="ticket-booking__referral-prompt-actions">
+                  <button type="button" onClick={() => handleRequestLogin("login")}>
+                    {t("checkout:selectTickets.referralPromptSignIn")}
+                  </button>
+                  <button type="button" className="ticket-booking__referral-prompt-guest" onClick={() => setOwnCodeCardDismissed(true)}>
+                    {t("checkout:selectTickets.referralPromptGuest")}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            {user && autoAppliedOwnCode && ticketCodes[referenceTicketTypeId] === autoAppliedOwnCode ? (
+              <p className="ticket-booking__referral-applied" role="status">
+                <IconCheck size={16} />
+                {t("checkout:selectTickets.referralApplied")}
+                <button type="button" onClick={handleRemoveAutoAppliedCode}>
+                  {t("checkout:selectTickets.referralAppliedRemove")}
+                </button>
+              </p>
+            ) : null}
 
             {(() => {
               const codeStatus = ticketCodeStatus[referenceTicketTypeId] || "idle";

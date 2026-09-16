@@ -37,13 +37,6 @@ function normalizeCode(code) {
   return String(code || "").trim().toUpperCase();
 }
 
-// Strips a +tag from the local part of an email (jane+anything@x.com -> jane@x.com) so
-// self-referral detection can't be trivially evaded by aliasing — harmless for providers
-// that don't support plus-addressing, since it only ever makes the match more permissive.
-function stripEmailAlias(email) {
-  return String(email || "").replace(/\+[^@]*@/, "@");
-}
-
 function isRuleActive(rule) {
   if (!rule || rule.status !== "active") return false;
   const now = new Date();
@@ -303,20 +296,10 @@ async function validateRuleEligibility(rule, { userId, email, eventId, ticketTyp
     if (referralSettings.enabled === false) {
       throwError("Referral codes are not currently accepted.");
     }
-
-    if (STACKING_CONFIG.preventReferralSelfUse) {
-      const referrerId = rule.referrerUserId?.toString();
-      const referrerEmail = String(rule.referrerEmail || "").toLowerCase();
-      if (referrerId && userId && referrerId === userId.toString()) {
-        throwError("You cannot use your own referral code.");
-      }
-      // Compares the plus-addressing-stripped local part too (jane+1@gmail.com and
-      // jane+2@gmail.com both deliver to jane@gmail.com) — otherwise a referrer could
-      // trivially redeem their own code by aliasing their inbox.
-      if (referrerEmail && email && stripEmailAlias(referrerEmail) === stripEmailAlias(email.toLowerCase())) {
-        throwError("You cannot use your own referral code.");
-      }
-    }
+    // Self-use (a logged-in shopper applying their own code to their own order) is
+    // intentionally allowed — it's how the ticket checkout's "sign in for 10% off" flow
+    // works. This is safe because recordDiscountUsage() never mints a ReferralReward for
+    // a usage where the buyer is also the referrer, so there's no reward to farm.
   }
 
   if (rule.usageLimitPerUser != null) {
@@ -563,7 +546,16 @@ export async function recordDiscountUsage({
     await DiscountRule.findByIdAndUpdate(discountRule._id || discountRule.id, { $inc: { usedCount: 1 } });
   }
 
-  if (discountRule.type === "referral_code") {
+  // A shopper applying their own referral code to their own order (the ticket checkout's
+  // "sign in for 10% off" flow) gets the discount but earns no reward for "referring
+  // themselves" — otherwise self-use would mint free reward money on every purchase.
+  const isSelfReferral =
+    discountRule.type === "referral_code" &&
+    discountRule.referrerUserId &&
+    userId &&
+    String(discountRule.referrerUserId) === String(userId);
+
+  if (discountRule.type === "referral_code" && !isSelfReferral) {
     const rewardValue = calculateReferralReward(totalAfterDiscount, discountRule);
     const rewardId = await buildRewardId();
     const referralSettings = await getReferralProgramSettings();

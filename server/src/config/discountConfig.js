@@ -50,5 +50,4 @@ export const STACKING_CONFIG = {
   allowMultipleCodes: false,
   /** highest | first | stack */
   stackingMode: "stack",
-  preventReferralSelfUse: true,
 };
