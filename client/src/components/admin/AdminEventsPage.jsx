@@ -1231,16 +1231,16 @@ export default function AdminEventsPage() {
     });
 
     // TicketTailor events have no platform "status" of their own (draft/published/
-    // completed/cancelled) — they only ever show under Current Events, and only
+    // completed/cancelled) — they only ever show under Past Events, and only
     // when a status-specific chip isn't narrowing the platform list.
     const statusChips = ["published", "draft", "completed", "cancelled", "featured"];
     const filteredTicketTailorEvents =
-      eventTab !== "current" || statusChips.includes(listFilter)
+      eventTab !== "past" || statusChips.includes(listFilter)
         ? []
         : ticketTailorEvents.filter(matchesSearch);
 
     const showPlatformSection = listFilter !== "tickettailor";
-    const showTicketTailorSection = eventTab === "current" && (listFilter === "all" || listFilter === "tickettailor");
+    const showTicketTailorSection = eventTab === "past" && (listFilter === "all" || listFilter === "tickettailor");
 
     return (
       <AdminLayout hideBottomNav>
@@ -1324,12 +1324,12 @@ export default function AdminEventsPage() {
                     ["published", "Published"],
                     ["featured", "Featured"],
                     ["draft", "Drafts"],
-                    ["tickettailor", "TicketTailor"],
                   ]
                 : [
                     ["all", "All"],
                     ["completed", "Completed"],
                     ["cancelled", "Cancelled"],
+                    ["tickettailor", "TicketTailor"],
                   ]
               ).map(([id, label]) => (
                 <button
