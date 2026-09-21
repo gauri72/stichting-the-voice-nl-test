@@ -71,7 +71,13 @@ export async function confirmTicketPayment(paymentIntentId) {
 
   try {
     const stripe = getStripe();
-    const intent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    // Expanding latest_charge.balance_transaction here (not a separate call) means
+    // Stripe's real processing fee rides along on the exact same intent object both
+    // the webhook and the client's post-redirect confirm-poll path already retrieve
+    // via fulfillOrder() — see TicketOrder.stripeFeeMinor.
+    const intent = await stripe.paymentIntents.retrieve(paymentIntentId, {
+      expand: ["latest_charge.balance_transaction"],
+    });
     if (intent.status === "succeeded") {
       return { success: true, mode: "stripe", intent };
     }

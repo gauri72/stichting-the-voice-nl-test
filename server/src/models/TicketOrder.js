@@ -106,6 +106,11 @@ const ticketOrderSchema = new mongoose.Schema(
       index: true,
     },
     paymentIntentId: { type: String, default: "", trim: true, index: true },
+    /** Stripe's real processing fee for this order's charge (from the charge's
+     *  balance_transaction, captured in fulfillOrder() via confirmTicketPayment()'s
+     *  expanded intent retrieve). null means "not applicable or not yet captured"
+     *  (e.g. a wallet-only order with no card charge) — never confuse with a real 0. */
+    stripeFeeMinor: { type: Number, default: null },
     // Raw points count redeemed for this order's discount (walletCheckoutService.js's
     // payTicketSplit) — kept alongside the euro-equivalent appliedDiscounts entry so a
     // cancelled/never-completed split payment can refund the exact points spent without

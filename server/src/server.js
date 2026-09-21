@@ -13,6 +13,7 @@ import { startWalletPointsExpiryScheduler } from "./services/walletPointsExpiryS
 import { startApplicationDataPurgeScheduler } from "./services/applicationDataPurgeScheduler.js";
 import { startReferralRewardAutoApprovalScheduler } from "./services/referralRewardAutoApprovalScheduler.js";
 import { startEventCompletionScheduler } from "./services/eventCompletionScheduler.js";
+import { startStripeFeeCaptureScheduler } from "./services/stripeFeeCaptureScheduler.js";
 import { logMailConfiguration, verifySmtpConnection, loadEmailSecretsFromSettings } from "./services/smtpTransport.js";
 import { cleanupExpiredSeatHolds } from "./services/seatService.js";
 import { ensureDefaultTeamMembers } from "./services/teamMemberService.js";
@@ -74,6 +75,7 @@ if (shouldConnectDb) {
       startApplicationDataPurgeScheduler();
       startReferralRewardAutoApprovalScheduler();
       startEventCompletionScheduler();
+      startStripeFeeCaptureScheduler();
       setInterval(() => {
         cleanupExpiredSeatHolds().catch((err) =>
           console.warn("[seats] hold cleanup failed:", err.message)

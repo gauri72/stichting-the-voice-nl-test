@@ -9,6 +9,7 @@ export async function listEvents(req, res) {
     const { listEvents } = await import("../services/eventService.js");
     const { listTicketTailorEventsForAdmin } = await import("../services/ticketTailorEventService.js");
     const { default: TicketType } = await import("../models/TicketType.js");
+    const { default: TicketOrder } = await import("../models/TicketOrder.js");
     const { default: mongoose } = await import("mongoose");
     const [events, ticketTailor] = await Promise.all([
       listEvents({ admin: true }),
@@ -21,15 +22,39 @@ export async function listEvents(req, res) {
     // Booked/remaining per event, for the stats shown on each event card —
     // one aggregate across all events rather than a query per card.
     const ticketStatsByEvent = new Map();
+    // Gross/fees/net revenue per event — stripeFeeMinor is null until captured
+    // (see TicketOrder.js), so $ifNull treats "not yet known" as 0 for the sum
+    // rather than poisoning the whole event's total.
+    const revenueStatsByEvent = new Map();
     if (events.length > 0) {
-      const rows = await TicketType.aggregate([
-        { $match: { eventId: { $in: events.map((e) => new mongoose.Types.ObjectId(e.id)) } } },
-        { $group: { _id: "$eventId", capacity: { $sum: "$capacity" }, sold: { $sum: "$soldCount" } } },
+      const eventObjectIds = events.map((e) => new mongoose.Types.ObjectId(e.id));
+      const [ticketStatRows, revenueRows] = await Promise.all([
+        TicketType.aggregate([
+          { $match: { eventId: { $in: eventObjectIds } } },
+          { $group: { _id: "$eventId", capacity: { $sum: "$capacity" }, sold: { $sum: "$soldCount" } } },
+        ]),
+        TicketOrder.aggregate([
+          { $match: { eventId: { $in: eventObjectIds }, orderStatus: "COMPLETED" } },
+          {
+            $group: {
+              _id: "$eventId",
+              grossMinor: { $sum: "$totalAmountMinor" },
+              feeMinor: { $sum: { $ifNull: ["$stripeFeeMinor", 0] } },
+            },
+          },
+        ]),
       ]);
-      for (const row of rows) {
+      for (const row of ticketStatRows) {
         ticketStatsByEvent.set(row._id.toString(), {
           ticketsBooked: row.sold,
           ticketsRemaining: Math.max(0, row.capacity - row.sold),
+        });
+      }
+      for (const row of revenueRows) {
+        revenueStatsByEvent.set(row._id.toString(), {
+          grossRevenueMinor: row.grossMinor,
+          stripeFeesMinor: row.feeMinor,
+          netRevenueMinor: row.grossMinor - row.feeMinor,
         });
       }
     }
@@ -40,6 +65,7 @@ export async function listEvents(req, res) {
         source: "platform",
         readOnly: false,
         ...(ticketStatsByEvent.get(e.id) || { ticketsBooked: 0, ticketsRemaining: 0 }),
+        ...(revenueStatsByEvent.get(e.id) || { grossRevenueMinor: 0, stripeFeesMinor: 0, netRevenueMinor: 0 }),
       })),
       ticketTailorEvents: ticketTailor.events,
       ticketTailorMeta: {

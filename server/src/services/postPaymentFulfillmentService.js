@@ -551,6 +551,14 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
         err.status = 400;
         throw err;
       }
+
+      // Stripe's real processing fee, from the balance_transaction expanded in
+      // confirmTicketPayment() — saved further down with the rest of this order's
+      // settlement fields. See TicketOrder.stripeFeeMinor.
+      const balanceTransaction = intent.latest_charge?.balance_transaction;
+      if (balanceTransaction && typeof balanceTransaction === "object") {
+        order.stripeFeeMinor = Number(balanceTransaction.fee || 0);
+      }
     }
   }
 

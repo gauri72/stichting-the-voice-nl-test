@@ -255,8 +255,6 @@ export async function getRevenueSummary(params = {}) {
     summary: {
       totalRevenue: formatEur(totalMinor),
       totalRevenueMinor: totalMinor,
-      netRevenue: formatEur(totalMinor),
-      netRevenueMinor: totalMinor,
       pendingRevenue: formatEur(pendingRevenue[0]?.total || 0),
       refunds,
       change: pctChange(totalMinor, prevTotalMinor),

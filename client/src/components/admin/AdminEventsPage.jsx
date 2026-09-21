@@ -35,6 +35,7 @@ import AdminTicketTypeQuickDiscount from "./AdminTicketTypeQuickDiscount.jsx";
 import AdminEventShortPanel from "./AdminEventShortPanel.jsx";
 import SendVipPassModal from "./SendVipPassModal.jsx";
 import { adminAuthHeaders, apiFetch } from "../../utils/api.js";
+import { formatMoney } from "../../utils/financeAdmin.js";
 import "../../styles/admin-events-page.css";
 
 // Amsterdam Flames is the only event with a hardcoded VIP Pass theme/branding today —
@@ -1184,6 +1185,14 @@ export default function AdminEventsPage() {
                   <span className="admin-events__ticket-stat admin-events__ticket-stat--remaining">
                     <strong>{ev.ticketsRemaining ?? 0}</strong> remaining
                   </span>
+                  {ev.grossRevenueMinor > 0 ? (
+                    <span
+                      className="admin-events__ticket-stat admin-events__ticket-stat--revenue"
+                      title={`${formatMoney(ev.grossRevenueMinor)} gross − ${formatMoney(ev.stripeFeesMinor)} Stripe fees`}
+                    >
+                      <strong>{formatMoney(ev.netRevenueMinor)}</strong> net
+                    </span>
+                  ) : null}
                 </div>
               ) : null}
             </div>
