@@ -24,7 +24,7 @@ export async function quoteOrder(eventId, { items, voucherCode, discountCode, us
   const lineItems = [];
   let subtotalMinor = 0;
 
-  const validated = await validateTicketLineItems(event, items);
+  const validated = await validateTicketLineItems(event, items, { userId, email });
   const validatedLineItems = validated.lineItems;
   subtotalMinor = validated.subtotalMinor;
 

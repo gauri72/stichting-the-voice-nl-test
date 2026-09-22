@@ -29,8 +29,8 @@ function addDays(date, days) {
   return next;
 }
 
-async function buildTicketLineItems(event, items) {
-  return validateTicketLineItems(event, items);
+async function buildTicketLineItems(event, items, { userId, email } = {}) {
+  return validateTicketLineItems(event, items, { userId, email });
 }
 
 async function resolveMemberBenefitContext({
@@ -233,7 +233,7 @@ export async function calculatePricePreview({
   const eventSettings = getEventCheckoutSettings(event);
   const membershipSettings = await getMembershipCheckoutSettings();
 
-  const { lineItems, subtotalMinor } = await buildTicketLineItems(event, items);
+  const { lineItems, subtotalMinor } = await buildTicketLineItems(event, items, { userId, email });
 
   const memberDetection = await detectMemberStatus({
     userId,

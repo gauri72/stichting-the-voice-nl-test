@@ -2,6 +2,7 @@ import TicketType from "../models/TicketType.js";
 import Event from "../models/Event.js";
 import { formatTicketType } from "./eventService.js";
 import { assertTicketTypePurchasable } from "../utils/ticketTypeStatus.js";
+import { assertUnderAccountEventTicketCap } from "./ticketAccountCapService.js";
 
 export async function getTicketTypeForEvent(eventId, ticketTypeId) {
   const ticketType = await TicketType.findOne({ _id: ticketTypeId, eventId }).lean();
@@ -13,7 +14,7 @@ export async function getTicketTypeForEvent(eventId, ticketTypeId) {
   return formatTicketType(ticketType);
 }
 
-export async function validateTicketLineItems(event, items = []) {
+export async function validateTicketLineItems(event, items = [], { userId = null, email = "" } = {}) {
   if (!items.length) {
     const err = new Error("Select at least one ticket.");
     err.status = 400;
@@ -49,6 +50,9 @@ export async function validateTicketLineItems(event, items = []) {
       originalPriceMinor: lineTotal,
     });
   }
+
+  const totalRequestedQty = lineItems.reduce((sum, li) => sum + li.quantity, 0);
+  await assertUnderAccountEventTicketCap({ eventId: event.id, userId, email, requestedQty: totalRequestedQty });
 
   return { lineItems, subtotalMinor };
 }
