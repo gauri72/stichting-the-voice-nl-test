@@ -96,6 +96,31 @@ export async function notifyEventBookingSubscriber({ to, order, event, ticketsBo
   });
 }
 
+/**
+ * On-demand digest for a subscriber, covering every event they're subscribed
+ * to — current booked/remaining totals only, no order-specific data (not
+ * tied to any single booking, so there's nothing buyer-identifying to leak).
+ */
+export async function notifyEventBookingSummary({ to, eventSummaries = [] }) {
+  const details = {};
+  for (const { title, ticketsBooked, ticketsRemaining } of eventSummaries) {
+    details[title || "Event"] = `${ticketsBooked} booked / ${ticketsRemaining} remaining`;
+  }
+
+  const subject =
+    eventSummaries.length === 1
+      ? `Booking Summary — ${eventSummaries[0].title || "Event"}`
+      : `Booking Summary — ${eventSummaries.length} events`;
+
+  return notifyAdminBooking({
+    kind: "event_booking_summary",
+    subject,
+    summary: `Current booking totals as of ${new Date().toLocaleString("nl-NL")}.`,
+    details,
+    to,
+  });
+}
+
 export async function notifyAdminSessionBooking({ session, booking }) {
   return notifyAdminBooking({
     kind: "session_booking",

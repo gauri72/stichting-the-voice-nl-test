@@ -3,6 +3,7 @@ import {
   upsertSubscriber,
   deleteSubscriber,
   listEventsForPicker,
+  sendCurrentSummaryToAllSubscribers,
 } from "../services/eventNotificationSubscriberService.js";
 import { handleError as handleErrorBase } from "../utils/handleError.js";
 
@@ -42,6 +43,15 @@ export async function listEvents(req, res) {
   try {
     const events = await listEventsForPicker();
     return res.status(200).json({ events });
+  } catch (error) {
+    return handleError(res, error);
+  }
+}
+
+export async function sendSummary(req, res) {
+  try {
+    const result = await sendCurrentSummaryToAllSubscribers();
+    return res.status(200).json(result);
   } catch (error) {
     return handleError(res, error);
   }

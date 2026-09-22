@@ -12,6 +12,8 @@ export default function AdminEventNotificationsPage() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [sendingSummary, setSendingSummary] = useState(false);
+  const [summaryResult, setSummaryResult] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -74,21 +76,54 @@ export default function AdminEventNotificationsPage() {
     }
   }
 
+  async function handleSendSummary() {
+    if (!window.confirm("Send the current booking summary to every subscriber now?")) return;
+    setSendingSummary(true);
+    setSummaryResult("");
+    setError("");
+    try {
+      const result = await apiFetch("/api/admin/event-notifications/send-summary", {
+        method: "POST",
+        headers: adminAuthHeaders(),
+      });
+      setSummaryResult(
+        result.totalSubscribers === 0
+          ? "No subscribers to notify."
+          : `Sent to ${result.sent} of ${result.totalSubscribers} subscriber(s)${result.failed ? ` (${result.failed} failed — see server logs)` : ""}.`
+      );
+    } catch (err) {
+      setError(err.message || "Could not send summary.");
+    } finally {
+      setSendingSummary(false);
+    }
+  }
+
   const eventOptions = events.map((ev) => ({ value: ev.id, label: ev.title }));
 
   return (
     <AdminLayout>
       <section className="admin-events__card">
-        <div className="admin-events__form-actions">
+        <div className="admin-events__form-actions" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <h3>Event Notifications</h3>
+          <button
+            type="button"
+            className="admin-events__primary-btn"
+            onClick={handleSendSummary}
+            disabled={sendingSummary || subscribers.length === 0}
+          >
+            {sendingSummary ? "Sending…" : "Send Current Summary to All Subscribers"}
+          </button>
         </div>
         <p className="admin-events__hint" style={{ marginBottom: 16 }}>
           Add a teammate's email and choose which events they get booked-ticket alerts for. Each
           alert is a de-identified summary — event, ticket type, quantity, amount, and running
-          booked/remaining totals — with no buyer name, email, or phone included.
+          booked/remaining totals — with no buyer name, email, or phone included. Use the button
+          above to send everyone their current booked/remaining totals on demand, outside of any
+          new booking.
         </p>
 
         {error ? <p className="admin-events__error">{error}</p> : null}
+        {summaryResult ? <p className="admin-events__hint">{summaryResult}</p> : null}
 
         <form onSubmit={handleSave} className="admin-events__form-actions" style={{ marginBottom: 24, flexWrap: "wrap", alignItems: "flex-start" }}>
           <input
