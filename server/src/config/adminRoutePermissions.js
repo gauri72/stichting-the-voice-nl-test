@@ -188,6 +188,9 @@ export function resolveAdminPermission(req) {
   if (url.includes("/admin/i18n-review")) {
     return method === "GET" ? "cms.view" : "cms.edit";
   }
+  if (url.includes("/admin/event-notifications")) {
+    return method === "GET" ? "event_notifications.view" : "event_notifications.edit";
+  }
 
   // Fail closed: any admin route not explicitly mapped above requires a
   // permission no real role is ever granted, so only superadmins (who hold

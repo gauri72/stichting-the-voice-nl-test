@@ -31,6 +31,7 @@ export const PERMISSION_MODULES = {
   personal_ai: ["view", "edit"],
   wallet: ["view", "edit"],
   icon_library: ["view"],
+  event_notifications: ["view", "edit"],
 };
 
 export function buildPermissionList() {
@@ -275,6 +276,7 @@ export const NAV_ROUTE_PERMISSIONS = {
   "/admin/personal-ai": "personal_ai.view",
   "/admin/wallet": "wallet.view",
   "/admin/icon-library": "icon_library.view",
+  "/admin/event-notifications": "event_notifications.view",
 };
 
 export const DEFAULT_INVITE_EXPIRY_DAYS = 7;

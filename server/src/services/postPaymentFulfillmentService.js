@@ -648,6 +648,10 @@ export async function fulfillOrder(orderId, paymentIntentId, options = {}) {
       tickets,
       paymentStatus: order.paymentStatus,
     });
+    const { notifySubscribersOfBooking } = await import("./eventNotificationSubscriberService.js");
+    await notifySubscribersOfBooking(order, event, tickets).catch((err) =>
+      console.warn("[fulfillment] Event notification subscribers failed:", err.message)
+    );
     if (order.userId) {
       await logUserBookingActivity({
         userId: order.userId,

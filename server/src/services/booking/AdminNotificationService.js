@@ -60,6 +60,42 @@ export async function notifyAdminTicketBooking({ order, event, tickets = [], pay
   });
 }
 
+/**
+ * GDPR-safe booking alert for a teammate subscribed to this specific event
+ * (see eventNotificationSubscriberService.js) — deliberately excludes the
+ * buyer's name, email, and phone. Only aggregate order/event figures.
+ */
+const PAYMENT_METHOD_LABELS = {
+  card: "Card via Stripe",
+  wallet: "V.Wallet",
+  wallet_split: "V.Wallet + Card",
+  free: "Free (100% discount)",
+  complimentary: "Complimentary",
+};
+
+export async function notifyEventBookingSubscriber({ to, order, event, ticketsBooked, ticketsRemaining }) {
+  const ticketTypesSummary = (order?.lineItems || [])
+    .map((li) => `${li.ticketTypeName} ×${li.quantity}`)
+    .join(", ");
+
+  return notifyAdminBooking({
+    kind: "event_booking_subscriber",
+    subject: `New Booking — ${event?.title || "Event"}`,
+    summary: `A new ticket booking was made for ${event?.title || "this event"}.`,
+    details: {
+      Event: event?.title,
+      "Ticket type": ticketTypesSummary || "—",
+      "Amount paid": order?.totalAmountMinor != null ? `€${(order.totalAmountMinor / 100).toFixed(2)}` : "—",
+      Payment: PAYMENT_METHOD_LABELS[order?.paymentMethod] || "Card via Stripe",
+      "Order #": order?.orderNumber,
+      "Booked at": new Date().toLocaleString("nl-NL"),
+      Booked: ticketsBooked,
+      Remaining: ticketsRemaining,
+    },
+    to,
+  });
+}
+
 export async function notifyAdminSessionBooking({ session, booking }) {
   return notifyAdminBooking({
     kind: "session_booking",
