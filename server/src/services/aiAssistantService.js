@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import env from "../config/env.js";
 import User from "../models/User.js";
-import Membership from "../models/Membership.js";
+import { getMembershipStatus } from "./membershipDetectionService.js";
 import Event from "../models/Event.js";
 import TicketOrder from "../models/TicketOrder.js";
 import ChatSession from "../models/ChatSession.js";
@@ -108,11 +108,22 @@ async function getGlobalSettings() {
 }
 
 export async function getEffectiveAccess(customerId) {
-  const [settings, override, membership] = await Promise.all([
+  const [settings, override, user] = await Promise.all([
     getGlobalSettings(),
     AiAssistantCustomerOverride.findOne({ customerId }).lean(),
-    Membership.findOne({ userId: customerId, active: true }).sort({ startedAt: -1 }).lean(),
+    User.findById(customerId).select("email").lean(),
   ]);
+
+  // Same membership detection the dashboard/checkout use — covers both the
+  // native Membership collection and Ticket Tailor-issued memberships, so a
+  // member whose only record is on Ticket Tailor is still recognized here
+  // instead of silently falling back to "none".
+  const membershipStatus = await getMembershipStatus({
+    userId: customerId,
+    email: user?.email || "",
+    isLoggedIn: true,
+  });
+  const membership = membershipStatus.isActive ? membershipStatus.membership : null;
 
   const enabled = override?.enabledOverride ?? settings.enabled;
   const planId = membership?.planId || "none";

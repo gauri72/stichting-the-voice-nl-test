@@ -74,6 +74,12 @@ export async function prepareWalletBooking(customerId, { eventId, ticketTypeId, 
       userId: customerId,
       email: user.email,
       isLoggedIn: true,
+      // Per-ticket membership discounts (the "FREE entry" / "20% off" plan
+      // benefits) are applied automatically based on the customer's detected
+      // membership regardless of this flag — includeMembership only controls
+      // whether to ALSO price in bundling a brand-new membership *purchase*
+      // into this same order, which never applies here (no plan is being
+      // bought — just tickets).
       includeMembership: false,
     });
   } catch (e) {
@@ -128,6 +134,8 @@ export async function prepareWalletBooking(customerId, { eventId, ticketTypeId, 
     ticketTypeName: preview.ticketPricing.lineItems[0]?.ticketTypeName,
     quantity,
     totalAmountMinor,
+    membershipBenefitApplied: preview.membershipBenefitApplied,
+    membershipDiscountMinor: preview.ticketPricing.lineItems[0]?.memberDiscountMinor || 0,
     walletBalanceAfterMinor: wallet.balanceMinor - totalAmountMinor,
     confirmationRequired: settings.confirmationStepEnabled,
   };
@@ -230,6 +238,7 @@ export async function executeWalletBooking(customerId, { bookingIntentId }) {
       paymentMethod: "wallet",
       termsAccepted: true,
       bookingMode: "ai_assistant",
+      membershipBenefitApplied: preview.membershipBenefitApplied,
     });
 
     await fulfillOrder(order._id, null, { isFreeOrder: true });

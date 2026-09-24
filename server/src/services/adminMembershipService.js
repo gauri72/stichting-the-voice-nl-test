@@ -233,14 +233,13 @@ function formatTicketTailorMemberSummary(email, issued, engagement = {}) {
   };
 }
 
-async function loadTicketTailorMembershipRows({ platformEmails = new Set(), filters = {} } = {}) {
+async function loadTicketTailorMembershipRows({ filters = {} } = {}) {
   const docs = await PastData.find({ issuedMembershipCount: { $gt: 0 } }).lean();
   const rows = [];
 
   for (const doc of docs) {
     const email = normalizeEmail(doc.email);
     if (!email) continue;
-    if (platformEmails.has(email)) continue;
 
     for (const issued of doc.issuedMemberships || []) {
       if (!issued?.id) continue;
@@ -420,10 +419,7 @@ export async function getMembershipStats() {
     if ((engagement.get(email)?.upcomingEvents || 0) > 0) attendingUpcoming += 1;
   }
 
-  const platformEmailSet = new Set(
-    (await Member.find({}).select("email").lean()).map((m) => normalizeEmail(m.email))
-  );
-  const ttMembershipRows = await loadTicketTailorMembershipRows({ platformEmails: platformEmailSet });
+  const ttMembershipRows = await loadTicketTailorMembershipRows({});
   const ttActive = ttMembershipRows.filter((r) => r.membershipStatus === "active").length;
   const ttExpiring = ttMembershipRows.filter((r) => r.membershipStatus === "expiring_soon").length;
   const ttExpired = ttMembershipRows.filter((r) =>
@@ -473,8 +469,7 @@ export async function listMemberships(filters = {}) {
     formatMemberSummary(m, engagement.get(normalizeEmail(m.email)) || {}, { source: "platform" })
   );
 
-  const platformEmails = new Set(members.map((m) => normalizeEmail(m.email)));
-  let ttRows = await loadTicketTailorMembershipRows({ platformEmails, filters });
+  let ttRows = await loadTicketTailorMembershipRows({ filters });
 
   if (filters.eventAttendance === "attended") {
     const ttEngagement = await aggregateEngagementForEmails(ttRows.map((r) => r.email));
