@@ -265,24 +265,6 @@ export default function MobileDashboardCommandCenter({
           <IconRobot aria-hidden />
           <span>{t("dashboardMobile:commandCenter.hero.assist")}</span>
         </button>
-        {unreadResultsCount > 0 ? (
-          <div className="mobile-dash-hero__notif-wrap">
-            <span className="mobile-dash-hero__notif-callout">
-              {t("dashboardMobile:commandCenter.hero.notifCallout")}
-            </span>
-            <button
-              type="button"
-              className="mobile-dash-hero__notif-bell"
-              onClick={() => navigate("/dashboard/ai-assistant/schedule", { state: { openTab: "updates" } })}
-              aria-label={t("dashboardMobile:commandCenter.hero.notifBellAria", { count: unreadResultsCount })}
-            >
-              <IconBellFilled aria-hidden />
-              <span className="mobile-dash-hero__notif-bell-badge" aria-hidden="true">
-                {unreadResultsCount > 99 ? "99+" : unreadResultsCount}
-              </span>
-            </button>
-          </div>
-        ) : null}
         <div className="mobile-dash-hero__content">
           <p>{t("dashboardMobile:commandCenter.hero.welcomeBack")}</p>
           <h1 id="mobile-dash-name">{firstName}</h1>
@@ -310,6 +292,24 @@ export default function MobileDashboardCommandCenter({
               </span>
               <strong>{referral.referralCode.code}</strong>
             </button>
+          ) : null}
+          {unreadResultsCount > 0 ? (
+            <div className="mobile-dash-hero__notif-wrap">
+              <span className="mobile-dash-hero__notif-callout">
+                {t("dashboardMobile:commandCenter.hero.notifCallout")}
+              </span>
+              <button
+                type="button"
+                className="mobile-dash-hero__notif-bell"
+                onClick={() => navigate("/dashboard/ai-assistant/schedule", { state: { openTab: "updates" } })}
+                aria-label={t("dashboardMobile:commandCenter.hero.notifBellAria", { count: unreadResultsCount })}
+              >
+                <IconBellFilled aria-hidden />
+                <span className="mobile-dash-hero__notif-bell-badge" aria-hidden="true">
+                  {unreadResultsCount > 99 ? "99+" : unreadResultsCount}
+                </span>
+              </button>
+            </div>
           ) : null}
           <div className="mobile-dash-hero__metrics" aria-label={t("dashboardMobile:commandCenter.hero.metricsAria")}>
             <button type="button" className="mobile-dash-hero__metric mobile-dash-hero__metric--rewards" onClick={() => openSheet("rewards")} aria-label={t("dashboardMobile:commandCenter.hero.rewardsAria", { count: rewards })}>

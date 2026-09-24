@@ -15,22 +15,19 @@
   .mobile-dash-hero h1{margin:0;font-size:clamp(2.5rem,12vw,4rem);line-height:1;letter-spacing:-.055em;color:#fff}
   .mobile-dash-hero__membership{display:inline-flex;align-items:center;gap:7px;width:max-content;margin-top:13px;padding:7px 11px;border:1px solid rgba(53,223,120,.42);border-radius:999px;background:rgba(3,18,18,.58);color:#7cf0a5;font-size:.76rem;font-weight:700;backdrop-filter:blur(14px)}
   .mobile-dash-hero__membership svg{width:15px}
-  .mobile-dash-hero__gift{display:inline-flex;align-items:center;gap:7px;width:max-content;margin-top:9px;padding:7px 12px;border:1px solid rgba(255,210,120,.65);border-radius:999px;background:linear-gradient(135deg,rgba(255,213,128,.28),rgba(31,20,2,.72) 55%,rgba(255,213,128,.2)),rgba(0,0,0,.4);color:#ffe4a3;font:inherit;font-size:.76rem;font-weight:700;backdrop-filter:blur(14px);cursor:pointer;animation:mobileDashGiftGlow 2.8s ease-in-out infinite}
+  .mobile-dash-hero__gift{display:inline-flex;align-items:center;gap:7px;width:max-content;margin-top:9px;padding:7px 12px;border:1px solid rgba(255,210,120,.65);border-radius:999px;background:linear-gradient(135deg,rgba(255,213,128,.28),rgba(31,20,2,.72) 55%,rgba(255,213,128,.2)),rgba(0,0,0,.4);color:#ffe4a3;font:inherit;font-size:.76rem;font-weight:700;backdrop-filter:blur(14px);cursor:pointer;box-shadow:0 0 12px rgba(255,195,90,.28),inset 0 0 8px rgba(255,213,128,.1)}
   .mobile-dash-hero__gift svg{width:15px;color:#ffc660;flex-shrink:0}
   .mobile-dash-hero__gift strong{font-family:"SF Mono","Roboto Mono",Consolas,monospace;letter-spacing:.03em;background:linear-gradient(90deg,#ffe9b8,#ffc660);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .mobile-dash-hero__gift-label{text-shadow:0 0 10px rgba(255,200,90,.5);animation:mobileDashGiftBlink 2.8s ease-in-out infinite}
-  @keyframes mobileDashGiftBlink{0%,100%{opacity:1}50%{opacity:.72}}
-  @keyframes mobileDashGiftGlow{0%,100%{box-shadow:0 0 0 rgba(255,195,90,0)}50%{box-shadow:0 0 20px rgba(255,195,90,.5),inset 0 0 12px rgba(255,213,128,.14)}}
+  .mobile-dash-hero__gift-label{text-shadow:0 0 10px rgba(255,200,90,.5)}
   .mobile-dash-hero__metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:auto}
   .mobile-dash-hero__metrics>a,.mobile-dash-hero__metrics>button{position:relative;display:grid;justify-items:start;min-width:0;overflow:hidden;padding:11px 9px;text-align:left;text-decoration:none;color:#fff;border:1px solid rgba(220,239,245,.2);border-radius:16px;background:rgba(3,12,25,.64);box-shadow:inset 0 1px rgba(255,255,255,.1),0 10px 24px rgba(0,0,0,.18);backdrop-filter:blur(18px) saturate(135%);font:inherit;cursor:pointer;transition:transform .24s cubic-bezier(.2,.8,.2,1),border-color .24s ease,box-shadow .24s ease,filter .24s ease}
   .mobile-dash-hero__metrics>a::before,.mobile-dash-hero__metrics>button::before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.13),transparent 46%);pointer-events:none}
-  .mobile-dash-hero__metric--rewards{background:linear-gradient(145deg,rgba(126,38,125,.86),rgba(39,18,72,.78))!important;border-color:rgba(245,104,226,.45)!important;animation-delay:0s}
-  .mobile-dash-hero__metric--wallet{background:linear-gradient(145deg,rgba(0,125,174,.88),rgba(5,41,86,.8))!important;border-color:rgba(54,213,245,.5)!important;animation-delay:.15s}
-  .mobile-dash-hero__metric--tickets{background:linear-gradient(145deg,rgba(40,71,183,.86),rgba(22,27,91,.8))!important;border-color:rgba(98,127,255,.48)!important;animation-delay:.3s}
-  .mobile-dash-hero__metric--membership{background:linear-gradient(145deg,rgba(0,111,77,.9),rgba(4,48,45,.82))!important;border-color:rgba(61,224,163,.5)!important;animation-delay:.45s}
-  .mobile-dash-hero__metrics>a,.mobile-dash-hero__metrics>button{animation:mobileDashMetricFloat 2.6s ease-in-out infinite}
+  .mobile-dash-hero__metric--rewards{background:linear-gradient(145deg,rgba(126,38,125,.86),rgba(39,18,72,.78))!important;border-color:rgba(245,104,226,.45)!important}
+  .mobile-dash-hero__metric--wallet{background:linear-gradient(145deg,rgba(0,125,174,.88),rgba(5,41,86,.8))!important;border-color:rgba(54,213,245,.5)!important}
+  .mobile-dash-hero__metric--tickets{background:linear-gradient(145deg,rgba(40,71,183,.86),rgba(22,27,91,.8))!important;border-color:rgba(98,127,255,.48)!important}
+  .mobile-dash-hero__metric--membership{background:linear-gradient(145deg,rgba(0,111,77,.9),rgba(4,48,45,.82))!important;border-color:rgba(61,224,163,.5)!important}
   .mobile-dash-hero__metrics>a:active,.mobile-dash-hero__metrics>button:active{transform:scale(.96)}
-  .mobile-dash-hero__metrics>a:hover,.mobile-dash-hero__metrics>button:hover,.mobile-dash-hero__metrics>a:focus-visible,.mobile-dash-hero__metrics>button:focus-visible{transform:translateY(-2px);filter:brightness(1.06);box-shadow:inset 0 1px rgba(255,255,255,.14),0 14px 30px rgba(0,0,0,.24);animation-play-state:paused}
+  .mobile-dash-hero__metrics>a:hover,.mobile-dash-hero__metrics>button:hover,.mobile-dash-hero__metrics>a:focus-visible,.mobile-dash-hero__metrics>button:focus-visible{transform:translateY(-2px);filter:brightness(1.06);box-shadow:inset 0 1px rgba(255,255,255,.14),0 14px 30px rgba(0,0,0,.24)}
   .mobile-dash-hero__metrics svg{position:relative;width:17px;color:#dffaff;filter:drop-shadow(0 0 8px currentColor)}
   .mobile-dash-hero__metrics b{position:relative;max-width:100%;margin-top:8px;overflow:hidden;color:#fff;font-size:.9rem;line-height:1.05;letter-spacing:-.03em;text-overflow:ellipsis}
   .mobile-dash-hero__metrics small{position:relative;margin-top:3px;color:rgba(238,248,252,.84);font-size:.67rem;font-weight:600;line-height:1.05}
@@ -39,30 +36,17 @@
   .mobile-dash-hero__metric--membership em{position:relative;margin-top:3px;color:rgba(232,255,245,.7);font-size:.49rem;font-style:normal;line-height:1}
   .mobile-dash-hero__metrics .mobile-dash-hero__metric-arrow{position:absolute;right:6px;top:7px;width:10px;opacity:.52}
   .mobile-dash__body{display:grid;gap:20px;padding:20px 14px}
-  .mobile-dash-hero__assist{position:absolute;top:62px;right:8px;z-index:3;display:inline-flex;align-items:center;gap:11px;padding:15px 25px;border:1px solid rgba(154,108,255,.52);border-radius:999px;color:#fff;font:inherit;font-size:1.15rem;font-weight:800;background:linear-gradient(135deg,rgba(48,31,109,.88),rgba(5,17,35,.85));box-shadow:0 11px 28px rgba(32,12,94,.33),inset 0 1px rgba(255,255,255,.12);backdrop-filter:blur(16px) saturate(140%);cursor:pointer;animation:mobileDashAssistFloat 2.6s ease-in-out infinite}
+  .mobile-dash-hero__assist{position:absolute;top:62px;right:8px;z-index:3;display:inline-flex;align-items:center;gap:11px;padding:15px 25px;border:1px solid rgba(154,108,255,.52);border-radius:999px;color:#fff;font:inherit;font-size:1.15rem;font-weight:800;background:linear-gradient(135deg,rgba(48,31,109,.88),rgba(5,17,35,.85));box-shadow:0 11px 28px rgba(32,12,94,.33),inset 0 1px rgba(255,255,255,.12);backdrop-filter:blur(16px) saturate(140%);cursor:pointer}
   .mobile-dash-hero__assist svg{width:27px;height:27px;color:#7be9ff;filter:drop-shadow(0 0 6px currentColor)}
   .mobile-dash-hero__assist:active{transform:scale(.96)}
-  .mobile-dash-hero__assist:hover,.mobile-dash-hero__assist:focus-visible{animation-play-state:paused}
-  .mobile-dash-hero__notif-wrap{position:absolute;top:126px;right:8px;z-index:3;display:flex;align-items:center;gap:8px}
+  .mobile-dash-hero__assist:hover,.mobile-dash-hero__assist:focus-visible{transform:translateY(-2px)}
+  .mobile-dash-hero__notif-wrap{display:flex;align-items:center;gap:8px;width:max-content;margin-top:9px}
   .mobile-dash-hero__notif-callout{position:relative;padding:7px 12px;border:1px solid rgba(255,200,74,.5);border-radius:12px;background:linear-gradient(135deg,rgba(48,31,109,.92),rgba(5,17,35,.9));color:#ffe9a8;font-size:.72rem;font-weight:800;white-space:nowrap;box-shadow:0 8px 18px rgba(32,12,94,.28);backdrop-filter:blur(14px) saturate(140%)}
   .mobile-dash-hero__notif-callout::after{position:absolute;top:50%;right:-6px;width:10px;height:10px;content:"";transform:translateY(-50%) rotate(45deg);background:linear-gradient(135deg,rgba(48,31,109,.92),rgba(5,17,35,.9));border-right:1px solid rgba(255,200,74,.5);border-bottom:1px solid rgba(255,200,74,.5)}
   .mobile-dash-hero__notif-bell{position:relative;flex:0 0 auto;display:grid;place-items:center;width:66px;height:66px;padding:0;border:1px solid rgba(255,200,74,.5);border-radius:999px;background:linear-gradient(135deg,rgba(48,31,109,.88),rgba(5,17,35,.85));box-shadow:0 10px 24px rgba(32,12,94,.3),inset 0 1px rgba(255,255,255,.1);backdrop-filter:blur(16px) saturate(140%);cursor:pointer}
-  .mobile-dash-hero__notif-bell svg{width:44px;height:44px;color:#ffd54a;filter:drop-shadow(0 0 8px rgba(255,213,74,.8));animation:mobileDashBellRing 3.2s ease-in-out infinite;transform-origin:50% 15%}
+  .mobile-dash-hero__notif-bell svg{width:44px;height:44px;color:#ffd54a;filter:drop-shadow(0 0 8px rgba(255,213,74,.8));transform-origin:50% 15%}
   .mobile-dash-hero__notif-bell:active{transform:scale(.94)}
-  .mobile-dash-hero__notif-bell:hover svg,.mobile-dash-hero__notif-bell:focus-visible svg{animation-play-state:paused}
   .mobile-dash-hero__notif-bell-badge{position:absolute;top:-4px;right:-4px;z-index:4;display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#7c3aed;color:#fff;font-size:11px;font-weight:800;box-shadow:0 4px 10px rgba(0,0,0,.3)}
-  @keyframes mobileDashBellRing{
-    0%{transform:rotate(0deg)}
-    2%{transform:rotate(-18deg)}
-    4%{transform:rotate(16deg)}
-    6%{transform:rotate(-13deg)}
-    8%{transform:rotate(10deg)}
-    10%{transform:rotate(-8deg)}
-    12%{transform:rotate(6deg)}
-    14%{transform:rotate(-4deg)}
-    16%{transform:rotate(2deg)}
-    18%,100%{transform:rotate(0deg)}
-  }
   .mobile-dash-commerce{padding:16px;border:1px solid rgba(32,217,232,.28);border-radius:26px;background:linear-gradient(145deg,rgba(7,25,40,.94),rgba(4,12,25,.96));box-shadow:0 18px 42px rgba(0,0,0,.2)}
   .mobile-dash-commerce>header{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:1px 2px 14px}
   .mobile-dash-commerce>header span{color:var(--md-cyan);font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em}
@@ -315,7 +299,5 @@
   .mobile-sheet-ticket>a{font-size:.65rem}
   @keyframes mobileDashFade{from{opacity:0}}
   @keyframes mobileDashSheet{from{transform:translateY(100%)}}
-  @keyframes mobileDashAssistFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-  @keyframes mobileDashMetricFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
   @media(prefers-reduced-motion:reduce){.mobile-dash *,.mobile-dash-sheet,.mobile-dash-sheet-backdrop{animation:none!important;transition:none!important}}
 }
