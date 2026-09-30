@@ -1,4 +1,5 @@
 import { getSmtpTransporter, getMailFromAddress } from "../smtpTransport.js";
+import { withSecondaryTransactionNotifyRecipient } from "../../utils/orgNotifyRecipients.js";
 
 const DEFAULT_ADMIN_EMAIL = "info@stichtingthevoice.nl";
 
@@ -14,7 +15,7 @@ export async function notifyAdminBooking({
   to = null,
 }) {
   const transport = getSmtpTransporter();
-  const adminTo = to || getAdminNotificationEmail();
+  const adminTo = to || withSecondaryTransactionNotifyRecipient(getAdminNotificationEmail());
   if (!transport) {
     console.warn("[admin-notification] SMTP not configured:", kind, summary);
     return { sent: false, reason: "smtp_not_configured" };

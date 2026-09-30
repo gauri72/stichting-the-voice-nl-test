@@ -10,6 +10,7 @@ import {
 import { generateMembershipQrPngBuffer } from "./membershipQrService.js";
 import { renderMembershipReceiptPdf } from "./membershipReceiptPdf.js";
 import { getMailReplyTo, getSmtpTransporter, isMailerConfigured } from "./smtpTransport.js";
+import { withSecondaryTransactionNotifyRecipient } from "../utils/orgNotifyRecipients.js";
 
 export { isMailerConfigured };
 
@@ -277,7 +278,7 @@ export async function sendMembershipEmails(payload) {
     tasks.push(
       tx.sendMail({
         ...baseMailOptions(),
-        to: env.email.orgNotify,
+        to: withSecondaryTransactionNotifyRecipient(env.email.orgNotify),
         subject: `New membership: ${values.membership_type} — ${values.member_name}`,
         text: `A new membership was purchased.
 

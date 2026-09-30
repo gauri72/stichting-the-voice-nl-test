@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import env from "../config/env.js";
 import { resolveDonationPublicContactEmail } from "../config/donationPublicContact.js";
+import { withSecondaryTransactionNotifyRecipient } from "../utils/orgNotifyRecipients.js";
 import { getDonationImpactForTier } from "../config/donationImpact.js";
 import { getCoverageForTier } from "../config/sponsorshipCoverage.js";
 import {
@@ -972,7 +973,7 @@ export async function sendDonationEmails(payload) {
     tasks.push(
       tx.sendMail({
         ...baseMailOptions(),
-        to: env.email.orgNotify,
+        to: withSecondaryTransactionNotifyRecipient(env.email.orgNotify),
         subject: `New donation: ${values.donation_amount} — ${values.donor_name}`,
         text: buildOrgDonationNotifyText(values)
       })
@@ -1055,7 +1056,7 @@ export async function sendSponsorshipEmails(payload) {
     tasks.push(
       tx.sendMail({
         ...baseMailOptions(),
-        to: env.email.orgNotify,
+        to: withSecondaryTransactionNotifyRecipient(env.email.orgNotify),
         subject: `New sponsorship: ${values.sponsorship_tier} — ${values.sponsor_name}`,
         text: buildOrgSponsorshipNotifyText(values)
       })
