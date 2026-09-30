@@ -14,6 +14,7 @@ import { useContentOverrides } from "../../hooks/useCmsPage.js";
 import { useCaptcha } from "../../hooks/useCaptcha.js";
 import { CAPTCHA_REQUIRED_MESSAGE } from "../../utils/captcha.js";
 import CaptchaField from "../common/CaptchaField.jsx";
+import HoneypotField from "../common/HoneypotField.jsx";
 
 const DEFAULT_CONTACT_EMAIL = "info@stichtingthevoice.nl";
 
@@ -234,6 +235,7 @@ export default function VentureStudioContactSection() {
                 disabled={messageSubmitting}
               />
             </label>
+            <HoneypotField />
             <CaptchaField captcha={messageCaptcha} className="vvs-contact__captcha" />
             <button type="submit" className="vvs-contact__btn" disabled={messageSubmitting}>
               <FaPaperPlane aria-hidden />
@@ -294,6 +296,7 @@ export default function VentureStudioContactSection() {
                 disabled={quoteSubmitting}
               />
             </label>
+            <HoneypotField />
             <CaptchaField captcha={quoteCaptcha} className="vvs-contact__captcha" />
             <button type="submit" className="vvs-contact__btn" disabled={quoteSubmitting}>
               {quoteSubmitting ? t("innovation:contact.sending") : t("innovation:contact.requestQuote")}

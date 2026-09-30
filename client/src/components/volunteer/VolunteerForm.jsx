@@ -5,6 +5,7 @@ import { apiFetch } from "../../utils/api.js";
 import { useCaptcha } from "../../hooks/useCaptcha.js";
 import { CAPTCHA_REQUIRED_MESSAGE } from "../../utils/captcha.js";
 import CaptchaField from "../common/CaptchaField.jsx";
+import HoneypotField from "../common/HoneypotField.jsx";
 
 function FormNotice({ message, variant = "success" }) {
   if (!message) return null;
@@ -116,6 +117,7 @@ export default function VolunteerForm() {
         />
       </label>
 
+      <HoneypotField />
       <CaptchaField captcha={captcha} className="volunteer-form__captcha" />
 
       <button type="submit" className="volunteer-form__submit" disabled={submitting}>

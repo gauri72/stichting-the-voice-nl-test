@@ -11,8 +11,13 @@ import { isValidEmail, trimField } from "../utils/validation.js";
 import VentureStudioMessage from "../models/VentureStudioMessage.js";
 import VolunteerApplication from "../models/VolunteerApplication.js";
 import { ensureUserForEmail, splitFullName } from "../services/userProvisioningService.js";
+import { isLikelyBotSubmission } from "../utils/antiSpam.js";
 
 export async function submitVentureStudioMessage(req, res) {
+  if (isLikelyBotSubmission(req.body)) {
+    return res.status(200).json({ message: "Thank you! We will get back to you shortly." });
+  }
+
   const name = trimField(req.body?.name, 120);
   const email = trimField(req.body?.email, 160);
   const subject = trimField(req.body?.subject, 200);
@@ -58,6 +63,12 @@ export async function submitVentureStudioMessage(req, res) {
 }
 
 export async function submitVolunteerApplication(req, res) {
+  if (isLikelyBotSubmission(req.body)) {
+    return res.status(200).json({
+      message: "Thank you! We have received your volunteer application and will be in touch soon."
+    });
+  }
+
   const name = trimField(req.body?.name, 120);
   const email = trimField(req.body?.email, 160);
   const phone = trimField(req.body?.phone, 40);
@@ -100,6 +111,10 @@ export async function submitVolunteerApplication(req, res) {
 }
 
 export async function submitVentureStudioQuote(req, res) {
+  if (isLikelyBotSubmission(req.body)) {
+    return res.status(200).json({ message: "Thank you! Your quote request has been received." });
+  }
+
   const service = trimField(req.body?.service, 120);
   const projectType = trimField(req.body?.projectType, 120);
   const timeline = trimField(req.body?.timeline, 120);
